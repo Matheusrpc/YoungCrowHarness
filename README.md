@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/vitral.svg" alt="YoungCrowHarness: a chapel stained-glass window with a crow wearing a Saint Benedict medal" width="100%">
+  <img src="assets/vitral.png" alt="YoungCrowHarness: a chapel stained-glass window with a crow wearing a Saint Benedict medal" width="100%">
 </p>
 
 <p align="center">

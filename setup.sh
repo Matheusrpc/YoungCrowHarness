@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# YouthHarness · setup.sh
+# YoungCrowHarness · setup.sh
 # Copia o harness (CLAUDE.md, AGENTS.md, hooks, .mcp.json, .env.example, .gitignore) para um projeto
 # e instala os plugins e skills listados em skills-lock.json. Nunca imprime nem grava segredo.
 #
@@ -33,7 +33,7 @@ copiar() {  # copiar <relativo>: nunca sobrescreve sem --force
   mkdir -p "$(dirname "$dst")"; cp "$src" "$dst"; echo "  copiado  $rel"
 }
 
-echo "== YouthHarness → $TARGET  (projeto: $NOME)"
+echo "== YoungCrowHarness → $TARGET  (projeto: $NOME)"
 for f in CLAUDE.md AGENTS.md .mcp.json .env.example .gitignore .codex/hooks.json .claude/settings.json skills-lock.json docs/CLAUDE.en.md; do
   copiar "$f"
 done

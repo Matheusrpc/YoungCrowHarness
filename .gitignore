@@ -1,0 +1,30 @@
+# segredos e estado local / secrets and local state
+.env
+*.local
+pgdata/
+.runtime/
+.operacao-local/
+
+# caches
+__pycache__/
+*.pyc
+node_modules/
+.playwright-cli/
+
+# evidência pesada nunca entra: HTML com base64 fora, JPG/PNG de captura dentro
+# heavy evidence stays out: base64 HTML out, JPG/PNG screenshots in
+**/prancha/*.html
+**/*.base64.html
+
+# skills de terceiros instaladas localmente (o setup.sh instala do upstream)
+.agents/skills/*/
+
+# impeccable-ignore-start
+.impeccable/config.local.json
+.impeccable/hook.cache.json
+.impeccable/hook.pending.json
+.impeccable/*.png
+.impeccable/review/
+.impeccable/questions/
+.impeccable/live/
+# impeccable-ignore-end

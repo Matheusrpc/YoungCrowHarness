@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/vitral.svg" alt="YouthHarness: a chapel stained-glass window with a crow wearing a Saint Benedict medal" width="100%">
+  <img src="assets/vitral.svg" alt="YoungCrowHarness: a chapel stained-glass window with a crow wearing a Saint Benedict medal" width="100%">
 </p>
 
 <p align="center">
@@ -8,7 +8,7 @@
 
 <a id="português"></a>
 
-# YouthHarness
+# YoungCrowHarness
 
 Um ponto de partida para projetos feitos com Claude Code e Codex. Você clona, roda um comando, e o
 projeto novo já nasce com as regras da casa, os hooks, os atalhos de MCP e as skills que valem a pena.
@@ -21,8 +21,8 @@ desta página.
 ## Começar em um comando
 
 ```bash
-git clone https://github.com/Matheusrpc/YouthHarness.git
-bash YouthHarness/setup.sh meu-projeto --nome "Meu Projeto"
+git clone https://github.com/Matheusrpc/YoungCrowHarness.git
+bash YoungCrowHarness/setup.sh meu-projeto --nome "Meu Projeto"
 ```
 
 O `setup.sh` faz quatro coisas. Copia o harness para a pasta do projeto sem sobrescrever o que já
@@ -80,7 +80,7 @@ repositório é MIT.
 
 <a id="english"></a>
 
-# YouthHarness
+# YoungCrowHarness
 
 A starting point for projects built with Claude Code and Codex. Clone it, run one command, and the new
 project starts with the house rules, the hooks, the MCP shortcuts and the skills that earn their place.
@@ -93,8 +93,8 @@ signature at the end of this page.
 ## Start with one command
 
 ```bash
-git clone https://github.com/Matheusrpc/YouthHarness.git
-bash YouthHarness/setup.sh my-project --name "My Project"
+git clone https://github.com/Matheusrpc/YoungCrowHarness.git
+bash YoungCrowHarness/setup.sh my-project --name "My Project"
 ```
 
 `setup.sh` does four things. It copies the harness into the project folder without overwriting what is

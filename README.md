@@ -1,24 +1,38 @@
 <p align="center">
-  <img src="assets/vitral.png" alt="YoungCrowHarness: a chapel stained-glass window with a crow wearing a Saint Benedict medal" width="100%">
+  <img src="assets/vitral.png" alt="Vitral de capela com um corvo que usa a medalha de São Bento" width="100%">
 </p>
 
 <p align="center">
-  <a href="#português">Português</a> · <a href="#english">English</a>
+  <img src="assets/titulo.svg" alt="YoungCrowHarness: ponto de partida para projetos com Claude Code e Codex" width="100%">
 </p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/licen%C3%A7a-MIT-E8A317?style=for-the-badge&labelColor=17130f" alt="Licença MIT">
+  <img src="https://img.shields.io/badge/Claude_Code-harness-1F4FA3?style=for-the-badge&labelColor=17130f" alt="Claude Code">
+  <img src="https://img.shields.io/badge/Codex-harness-1F7A4D?style=for-the-badge&labelColor=17130f" alt="Codex">
+  <img src="https://img.shields.io/badge/sem_segredos-no_secrets-B3202F?style=for-the-badge&labelColor=17130f" alt="Sem segredos">
+</p>
+
+<p align="center">
+  <a href="#português"><img src="https://img.shields.io/badge/Ler_em-Portugu%C3%AAs-5B2E8A?style=for-the-badge&labelColor=17130f" alt="Português"></a>
+  <a href="#english"><img src="https://img.shields.io/badge/Read_in-English-1B7F8C?style=for-the-badge&labelColor=17130f" alt="English"></a>
+</p>
+
+<img src="assets/vidro.svg" alt="" width="100%">
 
 <a id="português"></a>
 
-# YoungCrowHarness
+## <img src="assets/gema-cobalto.svg" height="24" alt=""> O que é
 
 Um ponto de partida para projetos feitos com Claude Code e Codex. Você clona, roda um comando, e o
 projeto novo já nasce com as regras da casa, os hooks, os atalhos de MCP e as skills que valem a pena.
 Não tem segredo nenhum aqui dentro: tudo o que é senha, token ou chave fica no `.env` local, que o
 `.gitignore` já protege.
 
-O corvo do vitral é o mascote. Ele carrega uma medalha de São Bento e o lema está na assinatura, no fim
-desta página.
+O corvo do vitral é o mascote. Ele carrega uma medalha de São Bento, e o lema está na assinatura, no
+fim desta página.
 
-## Começar em um comando
+## <img src="assets/gema-rubi.svg" height="24" alt=""> Começar em um comando
 
 ```bash
 git clone https://github.com/Matheusrpc/YoungCrowHarness.git
@@ -36,12 +50,12 @@ Depois disso, abra o `CLAUDE.md` e troque cada `<preencher>` pelo que é seu: co
 publicação, fronteiras. Abra o `.mcp.json` e coloque as URLs dos seus servidores. Aí é só rodar
 `claude` dentro da pasta.
 
-## O que vem dentro
+## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
 | Arquivo | Para que serve |
 |---|---|
 | `CLAUDE.md` | O guia que o Claude Code lê no início de cada sessão: dez leis de trabalho, alvos de publicação, comandos e fronteiras. Em português. |
-| `docs/CLAUDE.en.md` | O mesmo guia em inglês, para quem trabalha na outra língua. Fique com um dos dois. |
+| `docs/CLAUDE.en.md` | O mesmo guia em inglês. Fique com um dos dois. |
 | `AGENTS.md` | A entrada do Codex: lê o `CLAUDE.md` primeiro, um executor escreve por vez, revisores só leem, e o navegador fecha ao terminar. |
 | `.claude/settings.json` | Hooks do Claude Code. Chamam o detector de design do plugin `impeccable` depois de cada edição, só se ele estiver instalado. |
 | `.codex/hooks.json` | Os mesmos hooks, no formato do Codex. |
@@ -49,38 +63,36 @@ publicação, fronteiras. Abra o `.mcp.json` e coloque as URLs dos seus servidor
 | `.env.example` | Os nomes das variáveis que o projeto espera, com valores falsos. O `.env` real nasce daqui e nunca entra no git. |
 | `.gitignore` | Segredos, caches, evidência pesada e estado local fora do repositório. |
 | `skills-lock.json` | O retrato dos plugins e skills que o harness usa, com marketplace, versão e commit, para outra máquina reproduzir. |
-| `skills/humanizer-ptbr/` | Juiz de texto em português: 25 padrões de escrita de máquina e como reescrever. Companheiro do `humanizer` em inglês. |
+| `skills/humanizer-ptbr/` | Juiz de texto em português: 25 padrões de escrita de máquina e como reescrever. |
 | `setup.sh` | O comando que monta tudo. |
 
-## As dez leis, em uma frase cada
+## <img src="assets/gema-esmeralda.svg" height="24" alt=""> As dez leis
 
-Medir antes de afirmar. Nenhum segredo em arquivo versionado. Escrever só dentro do repositório e nos
-alvos declarados. Divergiu do combinado, parar e reportar. Idempotência antes de qualquer fornecedor
-pago. Estado persistido, nunca execução suspensa. Mudança de regra nasce ligada, com corrida de prova.
-Publicação imediata, com placar de atraso no fim de todo relatório. Uma frente por vez no checkout,
-paralelismo só com worktree. Navegador fecha ao terminar, com `pgrep` em zero.
+<p align="center">
+  <img src="assets/leis-pt.svg" alt="I. Medir antes de afirmar; II. Nenhum segredo no git; III. Escrever só onde é seu; IV. Divergiu? Pare e reporte; V. Idempotência antes de pagar; VI. Estado salvo, nunca pendurado; VII. A regra nasce ligada; VIII. Publicar na hora; IX. Uma frente por checkout; X. O navegador fecha no fim" width="100%">
+</p>
 
 O texto completo, com o porquê de cada uma, está no `CLAUDE.md`.
 
-## O que não está aqui
+## <img src="assets/gema-violeta.svg" height="24" alt=""> O que não está aqui
 
 Nenhuma senha, token, chave de API, IP, nome de máquina ou dado de cliente. O harness é a forma de
 trabalhar, não o trabalho. As skills de terceiros não estão copiadas: o `setup.sh` instala do upstream,
 com a licença e o commit de cada uma. Os plugins do `skills-lock.json` que vêm de diretório local (o
 `impeccable`) você instala à mão, seguindo a página do próprio plugin.
 
-## Créditos
+## <img src="assets/gema-turquesa.svg" height="24" alt=""> Créditos
 
 A skill `humanizer` é de [blader/humanizer](https://github.com/blader/humanizer), MIT, e os padrões
 vêm de [«Signs of AI writing»](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) da
 Wikipédia. Os plugins listados no `skills-lock.json` pertencem aos seus autores. O resto deste
 repositório é MIT.
 
----
+<img src="assets/vidro.svg" alt="" width="100%">
 
 <a id="english"></a>
 
-# YoungCrowHarness
+## <img src="assets/gema-cobalto.svg" height="24" alt=""> What it is
 
 A starting point for projects built with Claude Code and Codex. Clone it, run one command, and the new
 project starts with the house rules, the hooks, the MCP shortcuts and the skills that earn their place.
@@ -90,7 +102,7 @@ already protects.
 The crow in the stained glass is the mascot. It wears a Saint Benedict medal, and the motto is in the
 signature at the end of this page.
 
-## Start with one command
+## <img src="assets/gema-rubi.svg" height="24" alt=""> Start with one command
 
 ```bash
 git clone https://github.com/Matheusrpc/YoungCrowHarness.git
@@ -108,7 +120,7 @@ After that, open `CLAUDE.md` and replace each `<preencher>` (fill in) with what 
 publication targets, boundaries. If you work in English, move `docs/CLAUDE.en.md` over `CLAUDE.md`.
 Open `.mcp.json` and put in the URLs of your servers. Then run `claude` inside the folder.
 
-## What is inside
+## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 
 | File | What it is for |
 |---|---|
@@ -121,33 +133,30 @@ Open `.mcp.json` and put in the URLs of your servers. Then run `claude` inside t
 | `.env.example` | The names of the variables the project expects, with fake values. The real `.env` is born from it and never enters git. |
 | `.gitignore` | Secrets, caches, heavy evidence and local state stay out of the repository. |
 | `skills-lock.json` | A snapshot of the plugins and skills the harness uses, with marketplace, version and commit, so another machine can reproduce it. |
-| `skills/humanizer-ptbr/` | A text judge for Brazilian Portuguese: 25 patterns of machine writing and how to rewrite them. Companion to the English `humanizer`. |
+| `skills/humanizer-ptbr/` | A text judge for Brazilian Portuguese: 25 patterns of machine writing and how to rewrite them. |
 | `setup.sh` | The command that puts it all together. |
 
-## The ten laws, one sentence each
+## <img src="assets/gema-esmeralda.svg" height="24" alt=""> The ten laws
 
-Measure before you claim. No secret in a versioned file. Write only inside the repository and the
-declared targets. If something differs from the plan, stop and report. Idempotency before any paid
-provider. Persisted state, never a suspended run. A rule change is born switched on, with a proof run.
-Publish immediately, with a delay scoreboard at the end of every report. One piece of work at a time in
-the checkout, parallel work only through worktrees. The browser closes when the task ends, with `pgrep`
-at zero.
+<p align="center">
+  <img src="assets/leis-en.svg" alt="I. Measure before you claim; II. No secret in git; III. Write only where it's yours; IV. Off plan? Stop and report; V. Idempotent before paid; VI. Persist state, never hang; VII. Rules ship switched on; VIII. Publish right away; IX. One task per checkout; X. The browser closes at the end" width="100%">
+</p>
 
-The full text, with the reason behind each law, is in `CLAUDE.md` and `docs/CLAUDE.en.md`.
+The full text, with the reason behind each law, is in `docs/CLAUDE.en.md`.
 
-## What is not here
+## <img src="assets/gema-violeta.svg" height="24" alt=""> What is not here
 
 No password, token, API key, IP address, hostname or customer data. The harness is the way of working,
 not the work. Third party skills are not copied: `setup.sh` installs them from upstream, with each one's
 license and commit. Plugins in `skills-lock.json` that come from a local directory (`impeccable`) you
 install by hand, following the plugin's own page.
 
-## Credits
+## <img src="assets/gema-turquesa.svg" height="24" alt=""> Credits
 
 The `humanizer` skill is [blader/humanizer](https://github.com/blader/humanizer), MIT, and its patterns
 come from Wikipedia's [«Signs of AI writing»](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
 The plugins listed in `skills-lock.json` belong to their authors. The rest of this repository is MIT.
 
----
-
-<p align="center"><b>☧ Ora et labora ☧ et coda &lt;/&gt;</b></p>
+<p align="center">
+  <img src="assets/assinatura.svg" alt="☧ Ora et labora ☧ et coda &lt;/&gt;" width="100%">
+</p>

@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "nota": "Retrato do harness para outra máquina reproduzir. Plugin vem de marketplace: a versão diz o que roda e a revisão diz de que commit do marketplace veio (um `marketplace update` move a revisão e desfaz o pino). Skill de usuário mora em ~/.claude/skills/; as que têm upstream são instaladas do upstream pelo setup.sh; as sem upstream você instala à mão.",
+  "note_en": "Snapshot of the harness so another machine can reproduce it. Plugins come from marketplaces (version = what runs, revision = marketplace commit). User skills live in ~/.claude/skills/; setup.sh installs the ones with an upstream; the others you install by hand.",
+  "plugins": {
+    "agent-skills":  { "marketplace": "addy-agent-skills",       "origem": "addyosmani/agent-skills",          "revisao_do_marketplace": "2686b620fc1fed2e8f60c704839c766b8594c6b6", "escopo": "user", "versao_ativa": "0.6.11" },
+    "n8n-skills":    { "marketplace": "n8n-io",                  "origem": "n8n-io/skills",                    "revisao_do_marketplace": "180b8415e3b73f78828cfa01e908e67f89f2a139", "escopo": "user", "versao_ativa": "1.2.0" },
+    "ponytail":      { "marketplace": "ponytail",                "origem": "DietrichGebert/ponytail",          "revisao_do_marketplace": "356918eba965ee1eac64bd3a7f0dd02108350de5", "escopo": "user", "versao_ativa": "4.9.0" },
+    "superpowers":   { "marketplace": "superpowers-marketplace", "origem": "obra/superpowers-marketplace",     "revisao_do_marketplace": "ff9fa8a51f422d81414fa355587620d4ad2df81c", "escopo": "user", "versao_ativa": "6.3.0" },
+    "taste-skill":   { "marketplace": "taste-skill",             "origem": "leonxlnx/taste-skill",             "revisao_do_marketplace": "72e299530e2eb31ed8da06181bc19f6c18a00821", "escopo": "user", "versao_ativa": "1.0.0" },
+    "impeccable":    { "marketplace": "impeccable",              "origem": "diretório local (instale do upstream do plugin)", "revisao_do_marketplace": null, "escopo": "user", "versao_ativa": "4.2.1" }
+  },
+  "skills_de_usuario": {
+    "humanizer":       { "caminho": "~/.claude/skills/humanizer", "upstream": { "repo": "https://github.com/blader/humanizer", "commit": "9862685f575c65a8247f90369951df1b3416e3d6", "versao": "3.0.0", "licenca": "MIT" } },
+    "humanizer-ptbr":  { "caminho": "~/.claude/skills/humanizer-ptbr", "upstream": null, "versionado_aqui": "skills/humanizer-ptbr" },
+    "playwright-cli":  { "caminho": "~/.claude/skills/playwright-cli", "upstream": null, "nota": "instale à mão" },
+    "ui-ux-pro-max":   { "caminho": "~/.claude/skills/ui-ux-pro-max", "upstream": null, "nota": "instale à mão" },
+    "karpathy-guidelines": { "caminho": "~/.claude/skills/karpathy-guidelines", "upstream": null, "nota": "instale à mão" }
+  }
+}

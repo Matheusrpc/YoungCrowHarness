@@ -76,11 +76,34 @@ try:
                 raise ValueError('identificador inválido / invalid plugin identifier')
         if not isinstance(plugin.get('origem'), str):
             raise ValueError('origem inválida / invalid plugin source')
+    existing = target
+    while not existing.exists():
+        existing = existing.parent
+    if not existing.is_dir():
+        raise ValueError('diretório pai inválido / invalid parent directory')
 except (OSError, ValueError, KeyError, TypeError, AttributeError) as error:
     # Never echo arbitrary manifest values or file contents.
     print('preflight falhou / failed: ' + (str(error) if type(error) is ValueError else type(error).__name__), file=sys.stderr)
     sys.exit(1)
 PY
+TARGET="$(python3 -c 'import pathlib,sys; print(pathlib.Path(sys.argv[1]).resolve().as_posix())' "$TARGET")"
+EXISTING="$TARGET"
+while [ ! -d "$EXISTING" ]; do EXISTING="$(dirname "$EXISTING")"; done
+IN_GIT=0
+if GIT_PROBE="$(LC_ALL=C git -C "$EXISTING" rev-parse --is-inside-work-tree 2>&1)"; then
+  [ "$GIT_PROBE" = true ] || falhar 'destino sem worktree Git / destination has no Git worktree'
+  IN_GIT=1
+  if git --literal-pathspecs -C "$EXISTING" ls-files --error-unmatch -- "$TARGET/.env" >/dev/null 2>&1; then
+    falhar '.env rastreado pelo Git; resolva antes de instalar / tracked .env; resolve before installing'
+  else
+    [ "$?" -eq 1 ] || falhar 'falha ao verificar env rastreado / cannot check tracked env'
+  fi
+else
+  case "$GIT_PROBE" in
+    *'not a git repository'*) ;;
+    *) falhar 'falha ao verificar repositório / cannot inspect repository' ;;
+  esac
+fi
 mkdir -p "$TARGET"; TARGET="$(cd "$TARGET" && pwd -P)"
 [ -n "$NOME" ] || NOME="$(basename "$TARGET")"
 
@@ -88,26 +111,42 @@ copiar() {  # copiar <relativo>: nunca sobrescreve sem --force
   local rel="$1" src="$HARNESS_DIR/$1" dst="$TARGET/$1"
   if [ -e "$dst" ] && [ "$FORCE" != 1 ]; then echo "  mantido  $rel (já existe; use --force para trocar)"; return; fi
   mkdir -p "$(dirname "$dst")"; cp "$src" "$dst"; echo "  copiado  $rel"
-}
-
-echo "== YoungCrowHarness → $TARGET  (projeto: $NOME)"
-for f in CLAUDE.md AGENTS.md .mcp.json .env.example .gitignore .codex/hooks.json .claude/settings.json skills-lock.json docs/CLAUDE.en.md; do
-  copiar "$f"
-done
-# nome do projeto nos guias (substituição em lugar, sem arquivo temporário)
-for f in CLAUDE.md AGENTS.md docs/CLAUDE.en.md; do
-  if [ -f "$TARGET/$f" ]; then
-    python3 - "$TARGET/$f" "$NOME" <<'PY'
+  case "$rel" in
+    CLAUDE.md|AGENTS.md|docs/CLAUDE.en.md)
+      python3 - "$dst" "$NOME" <<'PY'
 import sys, pathlib
 p = pathlib.Path(sys.argv[1]); t = p.read_text(encoding="utf-8")
 p.write_text(t.replace("{{PROJETO}}", sys.argv[2]).replace("{{PROJECT}}", sys.argv[2]), encoding="utf-8")
 PY
-  fi
+      ;;
+  esac
+}
+
+echo "== YoungCrowHarness → $TARGET  (projeto: $NOME)"
+for f in CLAUDE.md AGENTS.md .mcp.json .env.example .codex/hooks.json .claude/settings.json skills-lock.json docs/CLAUDE.en.md; do
+  copiar "$f"
 done
+# Ignore rules are merged even with --force. Never replace a consumer's rules.
+[ -f "$TARGET/.gitignore" ] || cp "$HARNESS_DIR/.gitignore" "$TARGET/.gitignore"
+python3 - "$TARGET/.gitignore" <<'PY'
+import pathlib, sys
+p = pathlib.Path(sys.argv[1]); data = p.read_bytes()
+# A final root rule overrides earlier negations and stays idempotent.
+if not data.splitlines() or data.splitlines()[-1] != b'/.env':
+    with p.open('ab') as output:
+        output.write((b'' if not data or data.endswith(b'\n') else b'\n') + b'/.env\n')
+    print('  mesclado / merged: .gitignore (/.env)')
+PY
+if [ "$IN_GIT" = 1 ]; then
+  git -C "$TARGET" check-ignore --no-index -q -- .env || falhar '.env não protegido / not ignored'
+  echo '  .env: proteção Git verificada / Git ignore verified'
+else
+  echo '  .env: ignore preparado; verifique após git init / ignore prepared; verify after git init'
+fi
 # .env local, nunca versionado
 if [ ! -f "$TARGET/.env" ]; then
-  cp "$TARGET/.env.example" "$TARGET/.env"; chmod 600 "$TARGET/.env"
-  echo "  criado   .env (600) a partir do .env.example: preencha à mão; ele está no .gitignore"
+  (umask 077; cp "$TARGET/.env.example" "$TARGET/.env"; chmod 600 "$TARGET/.env")
+  echo '  criado / created: .env (600 onde suportado / where supported)'
 else
   echo "  mantido  .env"
 fi

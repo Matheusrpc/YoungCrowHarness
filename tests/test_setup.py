@@ -2,7 +2,6 @@
 import json
 import os
 from pathlib import Path
-import shlex
 import shutil
 import subprocess
 import sys
@@ -65,6 +64,7 @@ class SetupTests(unittest.TestCase):
             TEST_PYTHON=sys.executable.replace('\\', '/'), TEST_RUNNER=str(Path(__file__).resolve()).replace('\\', '/'),
             TEST_REAL_GIT=self.real_git, TEST_UPSTREAM=str(self.upstream), TEST_CALLS=str(self.calls),
             GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0',
+            GIT_CEILING_DIRECTORIES=str(self.base),
             PATH=os.pathsep.join((str(Path(self.real_git).parent), str(Path(sys.executable).parent))),
         )
         self.git('init', '-q', str(self.upstream))
@@ -150,6 +150,87 @@ class SetupTests(unittest.TestCase):
                                  'export PATH="$TEST_BIN:/usr/bin:/bin"; command -v git; command -v claude'],
                                 env=self.child_env, capture_output=True, text=True, check=True)
         self.assertEqual(result.stdout.splitlines(), [shell_path(self.bin / 'git'), shell_path(self.bin / 'claude')])
+
+    def test_existing_guide_is_preserved(self):
+        guide = self.target / 'CLAUDE.md'
+        original = b'# Keep {{PROJETO}} literally\r\n'
+        guide.write_bytes(original)
+        result = self.run_setup('--sem-plugins', '--nome', 'Novo projeto')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(guide.read_bytes(), original)
+
+    def test_tracked_env_blocks_all_writes(self):
+        self.git('init', '-q', str(self.target))
+        dotenv = self.target / '.env'
+        dotenv.write_bytes(b'LOCAL_SENTINEL=not-a-secret\n')
+        self.git('-C', str(self.target), 'add', '--', '.env')
+        index = (self.target / '.git/index').read_bytes()
+        result = self.run_setup('--sem-plugins')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((self.target / 'CLAUDE.md').exists())
+        self.assertEqual(dotenv.read_bytes(), b'LOCAL_SENTINEL=not-a-secret\n')
+        self.assertEqual((self.target / '.git/index').read_bytes(), index)
+        self.assertNotIn('LOCAL_SENTINEL', result.stdout + result.stderr)
+
+    def check_ignore_case(self, content, initialize=True):
+        if initialize:
+            self.git('init', '-q', str(self.target))
+        ignore = self.target / '.gitignore'
+        ignore.write_bytes(content)
+        result = self.run_setup('--sem-plugins')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.git('-C', str(self.target), 'check-ignore', '--no-index', '.env', check=False).returncode, 0)
+        first = ignore.read_bytes()
+        self.assertTrue(first.startswith(content))
+        self.assertEqual(self.run_setup('--sem-plugins').returncode, 0)
+        self.assertEqual(ignore.read_bytes(), first)
+        self.assertLessEqual(first.splitlines().count(b'/.env'), 1)
+
+    def test_existing_ignore(self):
+        self.check_ignore_case(b'node_modules/\n')
+
+    def test_ignore_missing_newline(self):
+        self.check_ignore_case(b'node_modules/')
+
+    def test_ignore_negated_env(self):
+        self.check_ignore_case(b'.env\n!.env\n')
+
+    def test_nested_project_ignore_and_tracked_env(self):
+        self.git('init', '-q', str(self.target))
+        self.target = self.target / 'nested'
+        self.target.mkdir()
+        self.check_ignore_case(b'node_modules/\n', initialize=False)
+
+    def test_env_tracked_in_parent_repo(self):
+        self.git('init', '-q', str(self.target))
+        self.target = self.target / 'nested'
+        self.target.mkdir()
+        write(self.target / '.env', 'LOCAL_SENTINEL=not-a-secret\n')
+        self.git('-C', str(self.target), 'add', '--', '.env')
+        result = self.run_setup('--sem-plugins')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((self.target / 'CLAUDE.md').exists())
+
+    def test_force_preserves_env_and_ignore(self):
+        write(self.target / '.env', 'LOCAL_SENTINEL=not-a-secret\n')
+        write(self.target / '.gitignore', 'custom-cache/\n')
+        write(self.target / 'CLAUDE.md', 'old guide')
+        result = self.run_setup('--sem-plugins', '--force', '--name', 'Project with spaces')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('Project with spaces', (self.target / 'CLAUDE.md').read_text(encoding='utf-8'))
+        self.assertEqual((self.target / '.env').read_bytes(), b'LOCAL_SENTINEL=not-a-secret\n')
+        self.assertTrue((self.target / '.gitignore').read_bytes().startswith(b'custom-cache/\n'))
+        self.assertNotIn('LOCAL_SENTINEL', result.stdout + result.stderr)
+
+    def test_new_project_then_git_ignores_env(self):
+        result = self.run_setup('--sem-plugins', '--name', 'New project')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse((self.target / '.git').exists())
+        for rel in FILES[1:10]:
+            self.assertTrue((self.target / rel).is_file(), rel)
+        self.assertIn('New project', (self.target / 'AGENTS.md').read_text(encoding='utf-8'))
+        self.git('init', '-q', str(self.target))
+        self.assertEqual(self.git('-C', str(self.target), 'check-ignore', '.env', check=False).returncode, 0)
 
 
 if __name__ == '__main__':

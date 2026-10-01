@@ -8,7 +8,7 @@
 
 **Tech Stack:** Bash, Python 3 com unittest e pathlib, Git e GitHub Actions. Sem dependências Python adicionais.
 
-**Spec:** [Fundação do YoungCrowHarness](../specs/2026-10-01-youngcrow-foundation-design.md), seção “Primeiro incremento com escopo fechado”. Aprovada pelo mantenedor em 2026-10-01. Este plano ainda aguarda revisão e escolha do método de execução.
+**Spec:** [Fundação do YoungCrowHarness](../specs/2026-10-01-youngcrow-foundation-design.md), seção “Primeiro incremento com escopo fechado”. Aprovada pelo mantenedor em 2026-10-01. Execução nativa nesta conversa autorizada pelo mantenedor, incluindo os guias de setup novo, migração e operação com o design system existente.
 
 ## Global Constraints
 

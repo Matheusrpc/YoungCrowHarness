@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/badge/licen%C3%A7a-MIT-E8A317?style=for-the-badge&labelColor=17130f" alt="Licença MIT">
   <img src="https://img.shields.io/badge/Claude_Code-harness-1F4FA3?style=for-the-badge&labelColor=17130f" alt="Claude Code">
   <img src="https://img.shields.io/badge/Codex-harness-1F7A4D?style=for-the-badge&labelColor=17130f" alt="Codex">
-  <img src="https://img.shields.io/badge/sem_segredos-no_secrets-B3202F?style=for-the-badge&labelColor=17130f" alt="Sem segredos">
+  <img src="https://img.shields.io/badge/segredos-local_only-B3202F?style=for-the-badge&labelColor=17130f" alt="Mantenha segredos locais">
 </p>
 
 <p align="center">
@@ -26,15 +26,15 @@
 
 Um ponto de partida para projetos feitos com Claude Code e Codex. Você clona, roda um comando, e o
 projeto novo já nasce com as regras da casa, os hooks, os atalhos de MCP e as skills que valem a pena.
-Não tem segredo nenhum aqui dentro: tudo o que é senha, token ou chave fica no `.env` local, que o
-`.gitignore` já protege.
+Senhas, tokens e chaves devem ficar no ambiente local. O instalador protege o `.env` com uma regra
+de ignore e recusa um `.env` já rastreado; revise também os demais arquivos antes de versionar.
 
 O corvo do vitral é o mascote. Ele carrega uma medalha de São Bento, e o lema está na assinatura, no
 fim desta página.
 
 O desenho da próxima evolução está na [especificação da fundação](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md),
-aprovada para planejamento. Ela define adoção de projetos existentes, memória em vault com índices e governança de
-capacidades. A primeira entrega proposta corrige o instalador; essas funcionalidades ainda não estão implementadas.
+aprovada para implementação por etapas. Esta entrega corrige o instalador e documenta a adoção manual.
+O vault com índices, personalizer, auditoria automática e integrações de memória ainda estão planejados.
 
 ## <img src="assets/gema-rubi.svg" height="24" alt=""> Começar em um comando
 
@@ -43,12 +43,18 @@ git clone https://github.com/Matheusrpc/YoungCrowHarness.git
 bash YoungCrowHarness/setup.sh meu-projeto --nome "Meu Projeto"
 ```
 
-O `setup.sh` faz quatro coisas. Copia o harness para a pasta do projeto sem sobrescrever o que já
-existe. Cria um `.env` local a partir do `.env.example`, com permissão 600, para você preencher à mão.
+**Passo a passo:** [repo do zero](docs/USAGE.md#zero-pt) · [migrar repo existente](docs/USAGE.md#migrar-pt) · [como operar](docs/USAGE.md#operar-pt).
+
+Requer Bash, Git e `python3` funcionando no mesmo terminal. No Windows, use Git Bash.
+O `setup.sh` copia o harness preservando os arquivos existentes e acrescenta proteção ao `.gitignore`.
+Cria um `.env` local a partir do `.env.example`, com permissão 600 onde suportada, para você preencher à mão.
 Instala a skill `humanizer` do upstream (commit pinado) e a `humanizer-ptbr` em `~/.claude/skills/`. E,
 se o Claude Code estiver instalado, adiciona os marketplaces e instala os plugins listados em
 `skills-lock.json`. Rode com `--sem-plugins` para pular essa última parte, ou com `--force` para trocar
-arquivos que já existem.
+os templates que já existem. `.env` e as regras existentes de `.gitignore` são preservados mesmo com force.
+As instalações em `~/.claude/skills/` afetam o usuário e continuam com `--sem-plugins`.
+Humanizer divergente ou modificado é preservado e interrompe o setup; falhas de instalação retornam código não zero.
+O guia explica como retomar e quais componentes exigem instalação manual.
 
 Depois disso, abra o `CLAUDE.md` e troque cada `<preencher>` pelo que é seu: comandos de teste, alvos de
 publicação, fronteiras. Abra o `.mcp.json` e coloque as URLs dos seus servidores. Aí é só rodar
@@ -66,7 +72,7 @@ publicação, fronteiras. Abra o `.mcp.json` e coloque as URLs dos seus servidor
 | `.mcp.json` | Atalhos de MCP com URLs de exemplo. Nunca ponha token aqui; o token vai por variável de ambiente. |
 | `.env.example` | Os nomes das variáveis que o projeto espera, com valores falsos. O `.env` real nasce daqui e nunca entra no git. |
 | `.gitignore` | Segredos, caches, evidência pesada e estado local fora do repositório. |
-| `skills-lock.json` | O retrato dos plugins e skills que o harness usa, com marketplace, versão e commit, para outra máquina reproduzir. |
+| `skills-lock.json` | Inventário dos plugins e origem das skills. O instalador verifica o commit de humanizer; versões dos plugins de marketplace ainda não são fixadas por este manifesto. |
 | `skills/humanizer-ptbr/` | Juiz de texto em português: 25 padrões de escrita de máquina e como reescrever. |
 | `setup.sh` | O comando que monta tudo. |
 
@@ -80,8 +86,8 @@ O texto completo, com o porquê de cada uma, está no `CLAUDE.md`.
 
 ## <img src="assets/gema-violeta.svg" height="24" alt=""> O que não está aqui
 
-Nenhuma senha, token, chave de API, IP, nome de máquina ou dado de cliente. O harness é a forma de
-trabalhar, não o trabalho. As skills de terceiros não estão copiadas: o `setup.sh` instala do upstream,
+Use exemplos públicos; mantenha credenciais e dados de clientes fora dos arquivos versionados.
+As skills de terceiros não estão copiadas: o `setup.sh` instala do upstream,
 com a licença e o commit de cada uma. Os plugins do `skills-lock.json` que vêm de diretório local (o
 `impeccable`) você instala à mão, seguindo a página do próprio plugin.
 
@@ -100,15 +106,15 @@ repositório é MIT.
 
 A starting point for projects built with Claude Code and Codex. Clone it, run one command, and the new
 project starts with the house rules, the hooks, the MCP shortcuts and the skills that earn their place.
-There is no secret inside: every password, token or key lives in a local `.env`, which the `.gitignore`
-already protects.
+Passwords, tokens and keys belong in the local environment. Setup protects `.env` with an ignore rule
+and rejects a tracked `.env`; review other files before committing them as well.
 
 The crow in the stained glass is the mascot. It wears a Saint Benedict medal, and the motto is in the
 signature at the end of this page.
 
 The next version is described in the [foundation specification](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md)
-(Portuguese, approved for planning). It covers adoption of existing projects, an indexed knowledge vault, and
-capability governance. The first proposed delivery fixes the installer; these features are not implemented yet.
+(Portuguese, approved for staged implementation). This delivery fixes setup and documents manual adoption.
+The indexed vault, personalizer, automated audit and memory integrations remain planned.
 
 ## <img src="assets/gema-rubi.svg" height="24" alt=""> Start with one command
 
@@ -117,12 +123,18 @@ git clone https://github.com/Matheusrpc/YoungCrowHarness.git
 bash YoungCrowHarness/setup.sh my-project --name "My Project"
 ```
 
-`setup.sh` does four things. It copies the harness into the project folder without overwriting what is
-already there. It creates a local `.env` from `.env.example`, with permission 600, for you to fill in
+**Step by step:** [new repository](docs/USAGE.md#new-en) · [adopt an existing repo](docs/USAGE.md#migrate-en) · [daily operation](docs/USAGE.md#operate-en).
+
+Requires Bash, Git and a working `python3` in the same terminal. On Windows, use Git Bash.
+`setup.sh` preserves existing project files and appends protection to `.gitignore`.
+It creates a local `.env` from `.env.example`, with permission 600 where supported, for you to fill in
 by hand. It installs the `humanizer` skill from upstream (pinned commit) and `humanizer-ptbr` into
 `~/.claude/skills/`. And, if Claude Code is installed, it adds the marketplaces and installs the plugins
 listed in `skills-lock.json`. Run it with `--no-plugins` to skip that last part, or with `--force` to
-replace files that already exist.
+replace existing templates. `.env` and existing ignore rules are preserved even with force.
+Installations under `~/.claude/skills/` affect the user and still run with `--no-plugins`.
+A dirty or mismatched humanizer is preserved and blocks setup; installation failures return nonzero.
+The guide explains recovery and manual components.
 
 After that, open `CLAUDE.md` and replace each `<preencher>` (fill in) with what is yours: test commands,
 publication targets, boundaries. If you work in English, move `docs/CLAUDE.en.md` over `CLAUDE.md`.
@@ -140,7 +152,7 @@ Open `.mcp.json` and put in the URLs of your servers. Then run `claude` inside t
 | `.mcp.json` | MCP shortcuts with example URLs. Never put a token here; tokens travel through environment variables. |
 | `.env.example` | The names of the variables the project expects, with fake values. The real `.env` is born from it and never enters git. |
 | `.gitignore` | Secrets, caches, heavy evidence and local state stay out of the repository. |
-| `skills-lock.json` | A snapshot of the plugins and skills the harness uses, with marketplace, version and commit, so another machine can reproduce it. |
+| `skills-lock.json` | Plugin inventory and skill sources. The installer verifies the humanizer commit; this manifest does not yet pin marketplace plugin versions. |
 | `skills/humanizer-ptbr/` | A text judge for Brazilian Portuguese: 25 patterns of machine writing and how to rewrite them. |
 | `setup.sh` | The command that puts it all together. |
 
@@ -154,8 +166,8 @@ The full text, with the reason behind each law, is in `docs/CLAUDE.en.md`.
 
 ## <img src="assets/gema-violeta.svg" height="24" alt=""> What is not here
 
-No password, token, API key, IP address, hostname or customer data. The harness is the way of working,
-not the work. Third party skills are not copied: `setup.sh` installs them from upstream, with each one's
+Use public examples; keep credentials and customer data out of tracked files.
+Third party skills are not copied: `setup.sh` installs them from upstream, with each one's
 license and commit. Plugins in `skills-lock.json` that come from a local directory (`impeccable`) you
 install by hand, following the plugin's own page.
 
@@ -164,6 +176,29 @@ install by hand, following the plugin's own page.
 The `humanizer` skill is [blader/humanizer](https://github.com/blader/humanizer), MIT, and its patterns
 come from Wikipedia's [«Signs of AI writing»](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
 The plugins listed in `skills-lock.json` belong to their authors. The rest of this repository is MIT.
+
+<a id="verificacao"></a>
+<a id="verification"></a>
+
+## <img src="assets/gema-cobalto.svg" height="24" alt=""> Verificação / Verification
+
+```bash
+python3 -m unittest discover -s tests -v
+bash -n setup.sh
+```
+
+| Ambiente / Environment | Evidência / Evidence |
+|---|---|
+| Windows + Git Bash + Python 3.14 | Suíte local verificada; dois casos de symlink pulados por falta de privilégio / local suite verified; two symlink cases skipped for missing privilege. |
+| Linux | Workflow criado; aguarda primeira execução / workflow added; first run pending. |
+| macOS / PowerShell nativo | Não verificados / not verified. Use Bash. |
+
+Os casos pulados no Windows são `test_dangling_env_link_is_rejected` e `test_directory_link_cannot_write_outside_project`.
+Devem executar no Linux. A suíte usa Git local, um usuário temporário e chamadas de plugins simuladas.
+Ela não comprova hooks carregados no Claude/Codex nem acesso a MCPs reais. Execute um setup por destino de cada vez.
+
+The two named symlink cases must run on Linux. Tests use local Git, a temporary home and simulated plugin calls.
+They do not validate loaded Claude/Codex hooks or real MCP access. Run one setup per target at a time.
 
 <p align="center">
   <img src="assets/assinatura.svg" alt="☧ Ora et labora ☧ et coda &lt;/&gt;" width="100%">

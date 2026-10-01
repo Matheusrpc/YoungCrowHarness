@@ -1,0 +1,13 @@
+# YoungCrowHarness: MCPs do projeto / project MCPs.
+# Revise URLs/autenticação e ative os necessários. Exige projeto confiável.
+# Review URLs/authentication, then enable needed servers. Requires project trust.
+# No tokens here. Codex does not automatically source .env.
+
+[mcp_servers.n8n]
+url = "https://n8n.SEU-DOMINIO.example/mcp-server/http"
+enabled = false
+# bearer_token_env_var = "N8N_API_TOKEN"
+
+[mcp_servers.cloudflare-api]
+url = "https://mcp.cloudflare.com/mcp"
+enabled = false

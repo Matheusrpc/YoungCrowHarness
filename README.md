@@ -40,7 +40,7 @@ O vault com índices, personalizer, auditoria automática e integrações de mem
 
 ```bash
 git clone https://github.com/Matheusrpc/YoungCrowHarness.git
-bash YoungCrowHarness/setup.sh meu-projeto --nome "Meu Projeto"
+bash YoungCrowHarness/setup.sh meu-projeto --client both --nome "Meu Projeto"
 ```
 
 **Passo a passo:** [repo do zero](docs/USAGE.md#zero-pt) · [migrar repo existente](docs/USAGE.md#migrar-pt) · [como operar](docs/USAGE.md#operar-pt).
@@ -48,17 +48,19 @@ bash YoungCrowHarness/setup.sh meu-projeto --nome "Meu Projeto"
 Requer Bash, Git e `python3` funcionando no mesmo terminal. No Windows, use Git Bash.
 O `setup.sh` copia o harness preservando os arquivos existentes e acrescenta proteção ao `.gitignore`.
 Cria um `.env` local a partir do `.env.example`, com permissão 600 onde suportada, para você preencher à mão.
-Instala a skill `humanizer` do upstream (commit pinado) e a `humanizer-ptbr` em `~/.claude/skills/`. E,
+Instala a skill `humanizer` do upstream (commit pinado) e a `humanizer-ptbr`: em `~/.claude/skills/` para Claude
+e `.agents/skills/` no projeto para Codex. Use `--client claude`, `--client codex` ou `--client both` (padrão). E,
 se o Claude Code estiver instalado, adiciona os marketplaces e instala os plugins listados em
 `skills-lock.json`. Rode com `--sem-plugins` para pular essa última parte, ou com `--force` para trocar
 os templates que já existem. `.env` e as regras existentes de `.gitignore` são preservados mesmo com force.
-As instalações em `~/.claude/skills/` afetam o usuário e continuam com `--sem-plugins`.
+As skills dos clientes selecionados continuam com `--sem-plugins`; as do Claude afetam o usuário.
+O modo Codex não chama o Claude. Plugins do Codex são instalados pelo catálogo do próprio cliente.
 Humanizer divergente ou modificado é preservado e interrompe o setup; falhas de instalação retornam código não zero.
 O guia explica como retomar e quais componentes exigem instalação manual.
 
 Depois disso, abra o `CLAUDE.md` e troque cada `<preencher>` pelo que é seu: comandos de teste, alvos de
-publicação, fronteiras. Abra o `.mcp.json` e coloque as URLs dos seus servidores. Aí é só rodar
-`claude` dentro da pasta.
+publicação, fronteiras. Configure MCPs em `.mcp.json` para Claude e `.codex/config.toml` para Codex.
+Abra o cliente na pasta e [confira skills, MCPs e hooks](docs/USAGE.md#clientes-pt).
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
@@ -69,6 +71,7 @@ publicação, fronteiras. Abra o `.mcp.json` e coloque as URLs dos seus servidor
 | `AGENTS.md` | A entrada do Codex: lê o `CLAUDE.md` primeiro, um executor escreve por vez, revisores só leem, e o navegador fecha ao terminar. |
 | `.claude/settings.json` | Hooks do Claude Code. Chamam o detector de design do plugin `impeccable` depois de cada edição, só se ele estiver instalado. |
 | `.codex/hooks.json` | Os mesmos hooks, no formato do Codex. |
+| `.codex/config.toml` | MCPs do Codex no escopo do projeto. Exemplos desativados até revisão; exige confiança do projeto. |
 | `.mcp.json` | Atalhos de MCP com URLs de exemplo. Nunca ponha token aqui; o token vai por variável de ambiente. |
 | `.env.example` | Os nomes das variáveis que o projeto espera, com valores falsos. O `.env` real nasce daqui e nunca entra no git. |
 | `.gitignore` | Segredos, caches, evidência pesada e estado local fora do repositório. |
@@ -120,7 +123,7 @@ The indexed vault, personalizer, automated audit and memory integrations remain 
 
 ```bash
 git clone https://github.com/Matheusrpc/YoungCrowHarness.git
-bash YoungCrowHarness/setup.sh my-project --name "My Project"
+bash YoungCrowHarness/setup.sh my-project --client both --name "My Project"
 ```
 
 **Step by step:** [new repository](docs/USAGE.md#new-en) · [adopt an existing repo](docs/USAGE.md#migrate-en) · [daily operation](docs/USAGE.md#operate-en).
@@ -129,16 +132,19 @@ Requires Bash, Git and a working `python3` in the same terminal. On Windows, use
 `setup.sh` preserves existing project files and appends protection to `.gitignore`.
 It creates a local `.env` from `.env.example`, with permission 600 where supported, for you to fill in
 by hand. It installs the `humanizer` skill from upstream (pinned commit) and `humanizer-ptbr` into
-`~/.claude/skills/`. And, if Claude Code is installed, it adds the marketplaces and installs the plugins
+`~/.claude/skills/` for Claude and project-local `.agents/skills/` for Codex. Choose `--client claude`,
+`--client codex` or `--client both` (default). For Claude, it adds the marketplaces and installs the plugins
 listed in `skills-lock.json`. Run it with `--no-plugins` to skip that last part, or with `--force` to
 replace existing templates. `.env` and existing ignore rules are preserved even with force.
-Installations under `~/.claude/skills/` affect the user and still run with `--no-plugins`.
+Selected clients' skills still install with `--no-plugins`; Claude installations affect the user.
+Codex-only mode does not call Claude. Install Codex plugins through its own catalog.
 A dirty or mismatched humanizer is preserved and blocks setup; installation failures return nonzero.
 The guide explains recovery and manual components.
 
 After that, open `CLAUDE.md` and replace each `<preencher>` (fill in) with what is yours: test commands,
 publication targets, boundaries. If you work in English, move `docs/CLAUDE.en.md` over `CLAUDE.md`.
-Open `.mcp.json` and put in the URLs of your servers. Then run `claude` inside the folder.
+Configure `.mcp.json` for Claude and `.codex/config.toml` for Codex. Open your client inside the folder
+and check loaded skills, MCPs and hooks using the [usage guide](docs/USAGE.md#english).
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 
@@ -149,6 +155,7 @@ Open `.mcp.json` and put in the URLs of your servers. Then run `claude` inside t
 | `AGENTS.md` | The Codex entry point: read `CLAUDE.md` first, one writer at a time, reviewers only read, and the browser closes when the task ends. |
 | `.claude/settings.json` | Claude Code hooks. They call the `impeccable` plugin's design detector after each edit, only if it is installed. |
 | `.codex/hooks.json` | The same hooks, in Codex format. |
+| `.codex/config.toml` | Project-scoped Codex MCP servers. Examples start disabled for review; project trust is required. |
 | `.mcp.json` | MCP shortcuts with example URLs. Never put a token here; tokens travel through environment variables. |
 | `.env.example` | The names of the variables the project expects, with fake values. The real `.env` is born from it and never enters git. |
 | `.gitignore` | Secrets, caches, heavy evidence and local state stay out of the repository. |
@@ -183,22 +190,25 @@ The plugins listed in `skills-lock.json` belong to their authors. The rest of th
 ## <img src="assets/gema-cobalto.svg" height="24" alt=""> Verificação / Verification
 
 ```bash
-python3 -m unittest discover -s tests -v
+python3 -m unittest discover -s tests -v  # Python 3.11+
 bash -n setup.sh
 ```
 
 | Ambiente / Environment | Evidência / Evidence |
 |---|---|
 | Windows + Git Bash + Python 3.14 | Suíte local verificada; dois casos de symlink pulados por falta de privilégio / local suite verified; two symlink cases skipped for missing privilege. |
-| Linux | 26/26 testes aprovados, incluindo symlinks / 26/26 tests passed, including symlinks — [CI](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/36941731261). |
+| Linux | Suíte automática a cada push/PR, incluindo symlinks / automated suite on every push/PR, including symlinks — [execuções / runs](https://github.com/Matheusrpc/YoungCrowHarness/actions). |
 | macOS / PowerShell nativo | Não verificados / not verified. Use Bash. |
 
 Os casos pulados no Windows são `test_dangling_env_link_is_rejected` e `test_directory_link_cannot_write_outside_project`.
 Devem executar no Linux. A suíte usa Git local, um usuário temporário e chamadas de plugins simuladas.
-Ela não comprova hooks carregados no Claude/Codex nem acesso a MCPs reais. Execute um setup por destino de cada vez.
+Ela não comprova execução real de plugins ou acesso a MCPs. Execute um setup por destino de cada vez.
+O teste opcional [smoke_clients.py](tests/smoke_clients.py) verifica a descoberta no Codex e a configuração MCP no Claude,
+sem chamadas de modelo. Confira o [guia dos clientes](docs/USAGE.md#clientes-pt) para confiança e ativação.
 
 The two named symlink cases must run on Linux. Tests use local Git, a temporary home and simulated plugin calls.
-They do not validate loaded Claude/Codex hooks or real MCP access. Run one setup per target at a time.
+They do not execute real plugins or access MCP servers. The optional client smoke check verifies Codex discovery
+and Claude MCP configuration without model calls. Run one setup per target at a time.
 
 <p align="center">
   <img src="assets/assinatura.svg" alt="☧ Ora et labora ☧ et coda &lt;/&gt;" width="100%">

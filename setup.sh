@@ -7,11 +7,11 @@
 # Keep credentials in the local environment.
 #
 # Uso / usage:
-#   bash setup.sh <pasta-do-projeto> [--nome "Nome do Projeto"] [--force] [--sem-plugins]
+#   bash setup.sh <pasta-do-projeto> [--client claude|codex|both] [--nome "Nome"] [--force] [--sem-plugins]
 set -euo pipefail
 
 HARNESS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET="${1:-}"; NOME=""; FORCE=0; PLUGINS=1
+TARGET="${1:-}"; NOME=""; FORCE=0; PLUGINS=1; CLIENT=both
 shift || true
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -21,20 +21,35 @@ while [ $# -gt 0 ]; do
       fi
       NOME="$2"; shift 2 ;;
     --force) FORCE=1; shift ;;
+    --client)
+      if [ $# -lt 2 ] || [[ "$2" != claude && "$2" != codex && "$2" != both ]]; then
+        echo 'uso / usage: --client claude|codex|both' >&2; exit 2
+      fi
+      CLIENT="$2"; shift 2 ;;
     --sem-plugins|--no-plugins) PLUGINS=0; shift ;;
     *) echo "argumento desconhecido / unknown argument: $1"; exit 2 ;;
   esac
 done
 if [ -z "$TARGET" ]; then
-  echo "uso: bash setup.sh <pasta-do-projeto> [--nome \"Nome\"] [--force] [--sem-plugins]"; exit 2
+  echo 'uso: bash setup.sh <pasta> [--client claude|codex|both] [--nome "Nome"] [--force] [--sem-plugins]'; exit 2
 fi
 falhar() { printf '%s\n' "$1" >&2; exit 1; }
+FILES=(CLAUDE.md AGENTS.md .env.example skills-lock.json docs/CLAUDE.en.md)
+SKILL_ROOTS=()
+if [ "$CLIENT" != codex ]; then
+  FILES+=(.mcp.json .claude/settings.json)
+  SKILL_ROOTS+=("$HOME/.claude/skills")
+fi
+if [ "$CLIENT" != claude ]; then
+  FILES+=(.codex/hooks.json .codex/config.toml)
+  SKILL_ROOTS+=("$TARGET/.agents/skills")
+fi
 for ferramenta in python3 git mkdir cp chmod mv mktemp; do
   command -v "$ferramenta" >/dev/null 2>&1 || falhar "dependência ausente / missing dependency: $ferramenta"
 done
 python3 -c 'import json, pathlib, sys' || falhar 'python3 indisponível / unavailable'
 # Preflight is read-only. Resolve the requested root, then reject links inside it.
-python3 - "$TARGET" "$HARNESS_DIR" "$HOME" <<'PY'
+python3 - "$TARGET" "$HARNESS_DIR" "$HOME" "$CLIENT" "${FILES[@]}" <<'PY'
 import json, pathlib, re, sys
 
 def check_path(root, relative):
@@ -48,20 +63,22 @@ def check_path(root, relative):
             raise ValueError('tipo de caminho incorreto / wrong path type: ' + relative)
 
 try:
-    target, source, user = [pathlib.Path(p).resolve() for p in sys.argv[1:]]
+    target, source, user = [pathlib.Path(p).resolve() for p in sys.argv[1:4]]
+    client = sys.argv[4]
     if target == source or target == target.parent:
         raise ValueError('destino inválido / invalid destination')
     if target.exists() and not target.is_dir():
         raise ValueError('destino não é diretório / destination is not a directory')
-    files = ('CLAUDE.md', 'AGENTS.md', '.mcp.json', '.env.example', '.gitignore',
-             '.codex/hooks.json', '.claude/settings.json', 'skills-lock.json', 'docs/CLAUDE.en.md')
+    files = [*sys.argv[5:], '.gitignore']
     for name in files:
         if not (source / name).is_file():
             raise ValueError('fonte ausente / missing source: ' + name)
         check_path(target, name)
     check_path(target, '.env')
-    for name in ('humanizer', 'humanizer-ptbr'):
-        check_path(user, '.claude/skills/' + name + '/SKILL.md')
+    roots = ([(user, '.claude/skills')] if client != 'codex' else []) + ([(target, '.agents/skills')] if client != 'claude' else [])
+    for root, relative in roots:
+        for name in ('humanizer', 'humanizer-ptbr'):
+            check_path(root, relative + '/' + name + '/SKILL.md')
     if not (source / 'skills/humanizer-ptbr/SKILL.md').is_file():
         raise ValueError('fonte ausente / missing source: humanizer-ptbr')
     manifest = json.loads((source / 'skills-lock.json').read_text(encoding='utf-8'))
@@ -104,7 +121,6 @@ else
     *) falhar 'falha ao verificar repositório / cannot inspect repository' ;;
   esac
 fi
-SK="$HOME/.claude/skills"
 read -r SKILL_REPO SKILL_COMMIT < <(python3 - "$HARNESS_DIR/skills-lock.json" <<'PY'
 import json, sys
 sys.stdout.reconfigure(newline='\n')
@@ -121,9 +137,11 @@ verificar_skill() {
   status="$(git -C "$1" status --porcelain --untracked-files=all 2>/dev/null)" || return 1
   [ -z "$status" ]
 }
-if [ -d "$SK/humanizer" ]; then
-  verificar_skill "$SK/humanizer" || falhar 'humanizer divergente ou modificado; preservado. Revise manualmente / mismatched or dirty humanizer preserved; review manually'
-fi
+for SK in "${SKILL_ROOTS[@]}"; do
+  if [ -d "$SK/humanizer" ]; then
+    verificar_skill "$SK/humanizer" || falhar "humanizer divergente ou modificado / mismatched or dirty: $SK/humanizer; preservado / preserved"
+  fi
+done
 mkdir -p "$TARGET"; TARGET="$(cd "$TARGET" && pwd -P)"
 [ -n "$NOME" ] || NOME="$(basename "$TARGET")"
 
@@ -142,20 +160,23 @@ PY
   esac
 }
 
-echo "== YoungCrowHarness → $TARGET  (projeto: $NOME)"
-for f in CLAUDE.md AGENTS.md .mcp.json .env.example .codex/hooks.json .claude/settings.json skills-lock.json docs/CLAUDE.en.md; do
+echo "== YoungCrowHarness → $TARGET  (projeto: $NOME; client: $CLIENT)"
+for f in "${FILES[@]}"; do
   copiar "$f"
 done
 # Ignore rules are merged even with --force. Never replace a consumer's rules.
 [ -f "$TARGET/.gitignore" ] || cp "$HARNESS_DIR/.gitignore" "$TARGET/.gitignore"
-python3 - "$TARGET/.gitignore" <<'PY'
+python3 - "$TARGET/.gitignore" "$CLIENT" <<'PY'
 import pathlib, sys
 p = pathlib.Path(sys.argv[1]); data = p.read_bytes()
-# A final root rule overrides earlier negations and stays idempotent.
-if not data.splitlines() or data.splitlines()[-1] != b'/.env':
+# Final rules override earlier negations; downloaded Git repos must not become gitlinks.
+rules = [b'/.env']
+if sys.argv[2] != 'claude':
+    rules += [b'/.agents/skills/humanizer/', b'/.agents/skills/humanizer-ptbr/']
+if data.splitlines()[-len(rules):] != rules:
     with p.open('ab') as output:
-        output.write((b'' if not data or data.endswith(b'\n') else b'\n') + b'/.env\n')
-    print('  mesclado / merged: .gitignore (/.env)')
+        output.write((b'' if not data or data.endswith(b'\n') else b'\n') + b'\n'.join(rules) + b'\n')
+    print('  mesclado / merged: .gitignore (env + skills locais / local skills)')
 PY
 if [ "$IN_GIT" = 1 ]; then
   git -C "$TARGET" check-ignore --no-index -q -- .env || falhar '.env não protegido / not ignored'
@@ -188,6 +209,7 @@ if stage.exists():
 PY
 }
 trap limpar_stage EXIT
+for SK in "${SKILL_ROOTS[@]}"; do
 mkdir -p "$SK"
 if [ ! -d "$SK/humanizer" ]; then
   STAGE="$(mktemp -d "$SK/.humanizer.XXXXXX")"
@@ -202,10 +224,13 @@ else echo "  verificado e mantido / verified and kept: $SK/humanizer"; fi
 if [ ! -d "$SK/humanizer-ptbr" ]; then
   cp -r "$HARNESS_DIR/skills/humanizer-ptbr" "$SK/humanizer-ptbr"; echo "  skill    humanizer-ptbr → $SK/humanizer-ptbr"
 else echo "  mantido  $SK/humanizer-ptbr"; fi
+done
 
 # Marketplace versions are inventory, not enforced pins.
 FALHAS=0
-if [ "$PLUGINS" = 0 ]; then
+if [ "$CLIENT" = codex ]; then
+  echo '== plugins Claude: pulados / skipped (--client codex); plugins Codex: instalar no cliente / install in client'
+elif [ "$PLUGINS" = 0 ]; then
   echo '== plugins: pulados / skipped (--sem-plugins / --no-plugins)'
 elif ! command -v claude >/dev/null 2>&1; then
   echo '== plugins: pulados / skipped (claude ausente / missing from PATH)'
@@ -237,8 +262,9 @@ cat <<FIM
 Pronto. Próximos passos / next steps:
   1. cd "$TARGET" && \$EDITOR .env          # valores reais, só aqui
   2. \$EDITOR CLAUDE.md                     # troque cada <preencher> pelo seu projeto
-  3. \$EDITOR .mcp.json                     # URLs dos seus MCPs (sem token no arquivo)
-  4. claude                                 # abre o Claude Code já com o harness
+  3. MCPs: .mcp.json (Claude); .codex/config.toml (Codex), conforme --client
+  4. Abra o cliente escolhido na pasta / open the selected client in the project:
+     claude / codex — confira skills, MCPs e confiança / check skills, MCPs and trust
 
 ☧ Ora et labora ☧ et coda </>
 FIM

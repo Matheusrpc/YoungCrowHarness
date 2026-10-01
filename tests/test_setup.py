@@ -3,15 +3,17 @@ import json
 import os
 from pathlib import Path
 import shutil
+import shlex
 import subprocess
 import sys
 import tempfile
+import tomllib
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 FILES = ('setup.sh', 'CLAUDE.md', 'AGENTS.md', '.mcp.json', '.env.example',
          '.gitignore', '.codex/hooks.json', '.claude/settings.json',
-         'skills-lock.json', 'docs/CLAUDE.en.md', 'skills/humanizer-ptbr/SKILL.md')
+         'skills-lock.json', 'docs/CLAUDE.en.md', 'skills/humanizer-ptbr/SKILL.md', '.codex/config.toml')
 
 
 def shell_path(path):
@@ -68,7 +70,7 @@ class SetupTests(unittest.TestCase):
             PATH=os.pathsep.join((str(Path(self.real_git).parent), str(Path(sys.executable).parent))),
         )
         self.git('init', '-q', str(self.upstream))
-        write(self.upstream / 'SKILL.md', '# Local test skill\n')
+        write(self.upstream / 'SKILL.md', '---\nname: humanizer\ndescription: Local test skill fixture.\n---\n# Local test skill\n')
         self.git('-C', str(self.upstream), 'add', '--', 'SKILL.md')
         self.git('-C', str(self.upstream), '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid',
                  'commit', '-qm', 'test fixture')
@@ -302,6 +304,85 @@ class SetupTests(unittest.TestCase):
         subprocess.run([self.bash, '-n', shell_path(self.source / 'setup.sh')], check=True)
         for rel in ('skills-lock.json', '.mcp.json', '.claude/settings.json', '.codex/hooks.json'):
             json.loads((self.source / rel).read_text(encoding='utf-8'))
+        codex = tomllib.loads((self.source / '.codex/config.toml').read_text(encoding='utf-8'))
+        claude = json.loads((self.source / '.mcp.json').read_text(encoding='utf-8'))
+        self.assertEqual({k: v['url'] for k, v in codex['mcp_servers'].items()},
+                         {k: v['url'] for k, v in claude['mcpServers'].items()})
+        self.assertTrue(all(v['enabled'] is False for v in codex['mcp_servers'].values()))
+
+    def test_default_supports_both_clients(self):
+        result = self.run_setup('--no-plugins')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue((self.target / '.codex/config.toml').is_file())
+        for root in (self.home / '.claude/skills', self.target / '.agents/skills'):
+            skill = root / 'humanizer'
+            self.assertTrue((skill / 'SKILL.md').is_file(), root)
+            self.assertEqual(self.git('-C', str(skill), 'rev-parse', 'HEAD').stdout.strip(), self.expected_commit)
+            self.assertTrue((root / 'humanizer-ptbr/SKILL.md').is_file())
+
+    def test_codex_only_does_not_touch_claude(self):
+        write(self.home / '.claude', 'not used by Codex')
+        result = self.run_setup('--client', 'codex')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue((self.target / 'AGENTS.md').is_file())
+        self.assertTrue((self.target / 'CLAUDE.md').is_file())
+        self.assertTrue((self.target / '.codex/config.toml').is_file())
+        self.assertFalse((self.target / '.claude').exists())
+        self.assertFalse((self.target / '.mcp.json').exists())
+        self.assertTrue((self.target / '.agents/skills/humanizer/SKILL.md').is_file())
+        calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
+        self.assertFalse(any(call[0] == 'claude' for call in calls))
+
+    def test_claude_only_does_not_touch_codex(self):
+        write(self.target / '.agents', 'not used by Claude')
+        result = self.run_setup('--client', 'claude', '--no-plugins')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse((self.target / '.codex').exists())
+        self.assertTrue((self.target / '.mcp.json').is_file())
+        self.assertTrue((self.home / '.claude/skills/humanizer/SKILL.md').is_file())
+
+    def test_codex_skill_conflict_blocks_all_writes(self):
+        skill = self.target / '.agents/skills/humanizer'
+        self.git('clone', '-q', str(self.upstream), str(skill))
+        write(skill / 'notes.txt', 'preserve')
+        self.assert_no_project_writes(self.run_setup('--no-plugins'))
+        self.assertFalse((self.home / '.claude/skills/humanizer').exists())
+
+    def test_codex_downloads_are_ignored_in_existing_repo(self):
+        self.git('init', '-q', str(self.target))
+        write(self.target / '.gitignore', 'custom-cache/\n')
+        result = self.run_setup('--client', 'codex')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for name in ('humanizer', 'humanizer-ptbr'):
+            self.assertEqual(self.git('-C', str(self.target), 'check-ignore', '--no-index',
+                                      '.agents/skills/' + name + '/SKILL.md', check=False).returncode, 0)
+
+    def test_existing_codex_config_is_preserved(self):
+        path = self.target / '.codex/config.toml'
+        write(path, '# Keep my Codex settings\n')
+        result = self.run_setup('--no-plugins')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(path.read_text(), '# Keep my Codex settings\n')
+
+    def test_invalid_or_missing_client(self):
+        for args in (('--client',), ('--client', 'invalid')):
+            result = self.run_setup(*args)
+            self.assertEqual(result.returncode, 2)
+            self.assert_no_project_writes(result)
+
+    def test_codex_windows_hook_is_safe_and_propagates_failures(self):
+        config = json.loads((self.source / '.codex/hooks.json').read_text())
+        hook = config['hooks']['PostToolUse'][0]['hooks'][0]
+        self.assertIn('commandWindows', hook)
+        args = shlex.split(hook['commandWindows'])
+        self.assertEqual(args[0], 'python')
+        args[0] = sys.executable
+        env = self.child_env.copy()
+        env.update(HOME=str(self.home), USERPROFILE=str(self.home))
+        env['PATH'] = str(Path(self.bash).parent) + os.pathsep + env['PATH']
+        self.assertEqual(subprocess.run(args, env=env, timeout=10).returncode, 0)
+        write(self.home / '.agents/skills/impeccable/scripts/impeccable', '#!/bin/bash\nexit 23\n')
+        self.assertEqual(subprocess.run(args, env=env, timeout=10).returncode, 23)
 
 
 if __name__ == '__main__':

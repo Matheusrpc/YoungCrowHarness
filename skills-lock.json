@@ -1,7 +1,12 @@
 {
   "version": 2,
-  "nota": "Inventário dos plugins e origem das skills. O instalador verifica o commit da skill humanizer; as versões e revisões dos plugins de marketplace ainda não são fixadas por este manifesto. Skills de usuário ficam em ~/.claude/skills/. Humanizer-ptbr é copiada deste repo; as demais sem upstream são manuais.",
-  "note_en": "Plugin inventory and skill sources. The installer verifies the humanizer skill commit; this manifest does not yet pin marketplace plugin versions or revisions. User skills live in ~/.claude/skills/. Humanizer-ptbr is copied from this repo; other skills without an upstream are manual.",
+  "clientes": {
+    "padrao": "both",
+    "claude": { "skills": "~/.claude/skills", "mcp": ".mcp.json", "hooks": ".claude/settings.json", "plugins": "marketplace Claude Code" },
+    "codex": { "skills": ".agents/skills (projeto/project)", "mcp": ".codex/config.toml", "hooks": ".codex/hooks.json", "plugins": "instalação manual pelo catálogo Codex / manual Codex catalog installation" }
+  },
+  "nota": "Inventário de plugins Claude e origem das skills. O instalador verifica o commit de humanizer; versões e revisões dos plugins de marketplace não são fixadas. O campo caminho registra o destino Claude; clientes.codex informa o destino Codex no projeto. Humanizer-ptbr é copiada deste repo; demais skills sem upstream e plugins Codex são manuais.",
+  "note_en": "Claude plugin inventory and skill sources. Setup verifies the humanizer commit; marketplace plugin versions and revisions are not pinned. The caminho field records the Claude destination; clientes.codex describes the project-local Codex destination. Humanizer-ptbr is copied from this repo; other skills without an upstream and Codex plugins are manual.",
   "plugins": {
     "agent-skills":  { "marketplace": "addy-agent-skills",       "origem": "addyosmani/agent-skills",          "revisao_do_marketplace": "2686b620fc1fed2e8f60c704839c766b8594c6b6", "escopo": "user", "versao_ativa": "0.6.11" },
     "n8n-skills":    { "marketplace": "n8n-io",                  "origem": "n8n-io/skills",                    "revisao_do_marketplace": "180b8415e3b73f78828cfa01e908e67f89f2a139", "escopo": "user", "versao_ativa": "1.2.0" },

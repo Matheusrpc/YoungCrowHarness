@@ -23,3 +23,13 @@ paga em curso.
 `.codex/hooks.json` chama o detector de design do plugin `impeccable` depois de cada edição e ao fim
 da sessão, só se o plugin estiver instalado em `$HOME/.agents/skills/impeccable`. Sem o plugin, os
 hooks não fazem nada.
+
+## Configuração do Codex
+
+- MCPs deste projeto ficam em `.codex/config.toml`. Revise os exemplos, autenticação e permissões;
+  habilite apenas os servidores necessários. O Codex carrega configurações do projeto após confiança.
+- Skills do Codex instaladas pelo setup ficam em `.agents/skills/` neste projeto. Confira a descoberta no cliente.
+- Plugins de marketplace do Claude não são instalados no Codex pelo setup. Use o catálogo do Codex
+  para plugins compatíveis. Não presuma que um plugin instalado no outro cliente está disponível aqui.
+- Hooks exigem confiança no cliente. No Windows, o adaptador usa `python` e, quando impeccable está
+  instalado, `bash` no PATH do processo Codex. Reinicie o cliente depois de ajustar o PATH.

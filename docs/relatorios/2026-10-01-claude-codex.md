@@ -14,6 +14,8 @@ O hook do Codex ganhou comando Windows com Python e encaminhamento ao Bash somen
 
 ## Verificação com clientes reais
 
+Regressão do instalador: **34/34 aprovados no [Linux CI](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/36943196235)**, commit `038b8d9`. No Windows/Git Bash, **32 aprovados e dois casos de symlink pulados** por falta de privilégio. Sintaxe Bash/JSON/TOML e `git diff --check` aprovados. Casos novos cobrem seleção de clientes, conflitos, preservação do TOML, ignore dos downloads e o comando Windows do hook.
+
 Em Windows, `tests/smoke_clients.py` foi executado com Codex CLI **0.146.0** e Claude Code **2.1.220**, usando usuário/configuração temporários, Git local e nenhuma chamada de modelo:
 
 - Codex `config/read`: carregou os dois MCPs do TOML do projeto, ambos desativados.

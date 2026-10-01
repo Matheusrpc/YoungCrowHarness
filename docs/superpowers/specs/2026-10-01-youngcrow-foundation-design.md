@@ -2,7 +2,7 @@
 
 Data: 2026-10-01
 
-Estado: especificação aprovada pelo mantenedor em 2026-10-01. As funcionalidades descritas ainda precisam ser implementadas e verificadas. O próximo passo é revisar o [plano do instalador](../plans/2026-10-01-installer-reliability.md) e escolher a forma de execução.
+Estado: direção aprovada pelo mantenedor em 2026-10-01. Instalador e adaptações Claude Code/Codex implementados no PR #1; demais frentes continuam planejadas. O requisito R12 acrescenta a área de integrações solicitada pelo mantenedor. A especificação distingue a direção do produto das entregas já verificadas.
 
 ## Objetivo e público
 
@@ -25,6 +25,7 @@ O primeiro incremento melhora a confiabilidade do instalador atual. As demais fr
 | R09 | Documentar features e dividi-las em pequenas entregas, com responsabilidades de PM, Tech Lead, implementação e revisão. |
 | R10 | Avaliar Graphify e claude-mem para descoberta e continuidade de trabalho. |
 | R11 | Manter o núcleo reutilizável, com configuração específica para cada projeto. |
+| R12 | Reservar uma área do vault para integrações por fornecedor, com agente e skill especializados em implementar conforme documentação oficial, registrar evidências e permitir recuperação via índices e adaptadores de memória. |
 
 ## Escolhas propostas para esta direção
 
@@ -54,7 +55,7 @@ Histórico ausente continua identificado como desconhecido. Estado de produção
 
 ## Memória e navegação
 
-O índice geral aponta para produto, frentes, arquitetura, capacidades e operação. Cada área contém microíndices conforme o volume de informação justificar. O microíndice de uma frente reúne contexto atual, entregas, decisões, resultados, referências e próximos passos.
+O índice geral aponta para produto, frentes, arquitetura, integrações, capacidades e operação. Cada área contém microíndices conforme o volume de informação justificar. O microíndice de uma frente reúne contexto atual, entregas, decisões, resultados, referências e próximos passos.
 
 Toda nota durável precisa de identidade estável, tipo, título, origem, data de atualização e vínculo com um microíndice. Notas relacionadas usam referências cruzadas. Uma decisão compartilhada possui um registro principal, referenciado por todas as frentes que dela dependem. Uma decisão substituída aponta para sua sucessora e continua disponível no histórico.
 
@@ -63,6 +64,14 @@ Uma frente pode ter uma versão em produção e outra em desenvolvimento. Esses 
 O agente consulta o índice geral, o microíndice e os registros relevantes. A busca direta também é permitida, desde que a nota encontrada permita recuperar seu contexto e suas fontes. Informações recuperadas de documentos, ferramentas ou sessões não podem conceder novas permissões ou substituir instruções do operador.
 
 Listagens mecânicas devem ser geradas quando possível. Resumos explicativos são revisados junto das entregas. O futuro validador verificará identidades duplicadas, referências quebradas, notas sem microíndice e encerramentos sem evidências. Ele não certificará a veracidade de texto livre.
+
+## Documentação e execução de integrações
+
+A área `vault/integrations/` reunirá microíndices por fornecedor e integração. Cada registro liga documentação oficial e sua versão às decisões do projeto, código, testes, execuções, capacidades utilizadas e estados separados de desenvolvimento e produção.
+
+O papel `integration-specialist`, com a skill `integrate-from-docs`, recebe o objetivo e a documentação do fornecedor, recupera o histórico, verifica as instruções aplicáveis à versão escolhida, implementa no escopo autorizado e registra os resultados. Fontes inacessíveis, instruções conflitantes ou versões incompatíveis ficam explícitas; exemplos do fornecedor não concedem permissões sobre ambientes ou credenciais.
+
+O [contrato da área de integrações](2026-10-01-integration-knowledge-design.md) define organização, fluxo, memória, entregas e critérios de aceite. Vault Markdown será a fonte durável; Graphify e claude-mem, quando habilitados e verificados, deverão indexar relações e observações com identidade, revisão e caminho de retorno ao vault. Essa indexação é um requisito para futuros adaptadores, não uma integração já disponível.
 
 ## Capacidades e registros de execução
 
@@ -78,6 +87,7 @@ A instalação de uma skill e a descoberta de um MCP são eventos diferentes da 
 |---|---|
 | PM | Problema, prioridade, resultado esperado e critérios de aceitação. |
 | Tech Lead | Decisões técnicas, dependências e divisão em entregas pequenas. |
+| Especialista em integrações | Fontes oficiais verificadas, integração implementada conforme a versão aplicável, testes e documentação ligada à frente. |
 | Implementação | Mudança de código, testes pertinentes e documentação atualizada. |
 | Revisão | Parecer sobre o diff, requisitos, evidências e riscos. |
 | Publicação | Promoção autorizada, versão implantada, observação e recuperação. |
@@ -136,13 +146,13 @@ Uma automação de CI executará essa suíte em Linux. A verificação local com
 | Ordem | Frente | Evidência necessária para encerrá-la |
 |---|---|---|
 | 1 | Instalador confiável | Critérios A01 a A12 demonstrados no escopo suportado. |
-| 2 | Vault, índices e retomada | Uma sessão nova recupera uma frente e distingue desenvolvimento de produção. |
-| 3 | Catálogo e governança de capacidades | Descoberta, resolução de versões e permissões verificadas por host. |
+| 2 | Vault, índices e retomada | Uma sessão nova recupera uma frente e distingue desenvolvimento de produção; inclui área de integrações com fontes e microíndices. |
+| 3 | Catálogo e governança de capacidades | Descoberta, resolução de versões e permissões verificadas por host; inclui integration-specialist e integrate-from-docs. |
 | 4 | Personalizer e adoção | Entrevista retomável e migração de um projeto existente com alterações rastreáveis. |
-| 5 | Integrações de memória | Comparação de recuperação, atualização, isolamento, custo e fallback. |
+| 5 | Integrações de memória | Comparação de recuperação, atualização, isolamento, custo e fallback; recuperação de integrações por fornecedor, tema e execução sem perder a referência ao vault. |
 | 6 | Esteira e exemplo público | Uma feature percorre definição, entrega, revisão e publicação autorizada com evidências. |
 
-Essa sequência organiza o produto. O plano de implementação seguinte detalhará apenas o primeiro incremento, depois da revisão desta especificação. Os demais terão contratos próprios, evitando acoplar correções do instalador à criação simultânea de toda a plataforma.
+Essa sequência organiza o produto. O [plano do instalador](../plans/2026-10-01-installer-reliability.md) registra o primeiro incremento. As demais frentes terão contratos próprios; o contrato de integrações acrescenta R12 sem acoplar sua implementação às correções já entregues do instalador.
 
 ## Referências de desenho
 

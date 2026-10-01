@@ -11,6 +11,7 @@
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Antes de começar
 
 Este guia cobre o instalador atual e a adoção manual das regras do harness. O vault com índice geral e microíndices, o personalizer, a auditoria automática de migração e as integrações Graphify/claude-mem estão [planejados](superpowers/specs/2026-10-01-youngcrow-foundation-design.md). O setup ainda não os cria.
+Essa direção inclui a [documentação de integrações e o especialista em fornecedores](superpowers/specs/2026-10-01-integration-knowledge-design.md), com referências do vault nas futuras projeções Graphify/claude-mem.
 
 Use Bash no Linux ou Git Bash no Windows, com Git e Python 3 disponíveis no mesmo terminal:
 
@@ -173,6 +174,7 @@ Os testes usam Git local e simulam chamadas de rede/plugins, com um diretório d
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Before you start
 
 This guide covers the current installer and manual adoption. The indexed vault, personalizer, automated migration audit and Graphify/claude-mem integrations are [planned](superpowers/specs/2026-10-01-youngcrow-foundation-design.md), not created by setup.
+The plan includes [vendor integration documentation and a specialized agent/skill](superpowers/specs/2026-10-01-integration-knowledge-design.md), with vault references in future Graphify/claude-mem projections.
 
 Use Linux Bash or Windows Git Bash with working `bash --version`, `git --version` and `python3 --version` in that terminal. If Windows opens the Microsoft Store for `python3`, configure the installed Python on Git Bash's PATH first. These commands are not native PowerShell commands.
 

@@ -35,6 +35,8 @@ fim desta página.
 O desenho da próxima evolução está na [especificação da fundação](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md),
 aprovada para implementação por etapas. Esta entrega corrige o instalador e documenta a adoção manual.
 O vault com índices, personalizer, auditoria automática e integrações de memória ainda estão planejados.
+O desenho inclui uma [área de integrações por fornecedor](docs/superpowers/specs/2026-10-01-integration-knowledge-design.md),
+com agente e skill para consultar documentação oficial, implementar e registrar resultados no vault.
 
 ## <img src="assets/gema-rubi.svg" height="24" alt=""> Começar em um comando
 
@@ -118,6 +120,8 @@ signature at the end of this page.
 The next version is described in the [foundation specification](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md)
 (Portuguese, approved for staged implementation). This delivery fixes setup and documents manual adoption.
 The indexed vault, personalizer, automated audit and memory integrations remain planned.
+The design also includes a [vendor integration knowledge area](docs/superpowers/specs/2026-10-01-integration-knowledge-design.md)
+(Portuguese), with an agent and skill to consult official documentation, implement integrations and record results in the vault.
 
 ## <img src="assets/gema-rubi.svg" height="24" alt=""> Start with one command
 

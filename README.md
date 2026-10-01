@@ -190,7 +190,7 @@ bash -n setup.sh
 | Ambiente / Environment | Evidência / Evidence |
 |---|---|
 | Windows + Git Bash + Python 3.14 | Suíte local verificada; dois casos de symlink pulados por falta de privilégio / local suite verified; two symlink cases skipped for missing privilege. |
-| Linux | Workflow criado; aguarda primeira execução / workflow added; first run pending. |
+| Linux | 26/26 testes aprovados, incluindo symlinks / 26/26 tests passed, including symlinks — [CI](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/36941731261). |
 | macOS / PowerShell nativo | Não verificados / not verified. Use Bash. |
 
 Os casos pulados no Windows são `test_dangling_env_link_is_rejected` e `test_directory_link_cannot_write_outside_project`.

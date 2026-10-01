@@ -2,7 +2,7 @@
 
 Data: 2026-10-01
 
-Estado: especificação proposta para revisão. As funcionalidades descritas ainda precisam ser implementadas e verificadas.
+Estado: especificação aprovada pelo mantenedor em 2026-10-01. As funcionalidades descritas ainda precisam ser implementadas e verificadas. O próximo passo é revisar o [plano do instalador](../plans/2026-10-01-installer-reliability.md) e escolher a forma de execução.
 
 ## Objetivo e público
 
@@ -30,7 +30,7 @@ O primeiro incremento melhora a confiabilidade do instalador atual. As demais fr
 
 O vault principal ficará no repositório consumidor. Markdown, propriedades simples e links relativos permitirão consulta por agentes, GitHub e Obsidian. O conteúdo oficial continuará acessível sem um serviço de memória em execução. Índices derivados poderão ser reconstruídos a partir das fontes.
 
-Essa localização é uma proposta, não uma preferência explicitamente confirmada pelo mantenedor. O suporte a um vault central para vários projetos e a coordenação simultânea entre máquinas ficam para um desenho posterior. A primeira prova de continuidade será entre sessões usando o mesmo projeto e seu histórico versionado.
+Essa localização integra a direção aprovada para o primeiro desenho do vault. O suporte a um vault central para vários projetos e a coordenação simultânea entre máquinas ficam para um desenho posterior. A primeira prova de continuidade será entre sessões usando o mesmo projeto e seu histórico versionado.
 
 As configurações específicas de Claude Code e Codex serão pequenas adaptações de um contrato comum. A matriz de suporte deverá distinguir documentação, validação sintática e execução realmente testada. Não se presume equivalência entre hooks, permissões ou descoberta de MCPs dos dois hosts.
 

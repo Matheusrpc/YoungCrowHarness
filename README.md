@@ -32,6 +32,10 @@ Não tem segredo nenhum aqui dentro: tudo o que é senha, token ou chave fica no
 O corvo do vitral é o mascote. Ele carrega uma medalha de São Bento, e o lema está na assinatura, no
 fim desta página.
 
+O desenho da próxima evolução está na [especificação da fundação](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md),
+em revisão. Ela define adoção de projetos existentes, memória em vault com índices e governança de
+capacidades. A primeira entrega proposta corrige o instalador; essas funcionalidades ainda não estão implementadas.
+
 ## <img src="assets/gema-rubi.svg" height="24" alt=""> Começar em um comando
 
 ```bash
@@ -101,6 +105,10 @@ already protects.
 
 The crow in the stained glass is the mascot. It wears a Saint Benedict medal, and the motto is in the
 signature at the end of this page.
+
+The next version is described in the [foundation specification](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md)
+(Portuguese, under review). It covers adoption of existing projects, an indexed knowledge vault, and
+capability governance. The first proposed delivery fixes the installer; these features are not implemented yet.
 
 ## <img src="assets/gema-rubi.svg" height="24" alt=""> Start with one command
 

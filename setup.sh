@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # YoungCrowHarness · setup.sh
 # Copia o harness (CLAUDE.md, AGENTS.md, hooks, .mcp.json, .env.example, .gitignore) para um projeto
-# e instala os plugins e skills listados em skills-lock.json. Nunca imprime nem grava segredo.
+# e instala componentes de skills-lock.json. Segredos ficam no ambiente local.
 #
 # Copies the harness into a project and installs the plugins and skills from skills-lock.json.
-# Never prints or writes a secret.
+# Keep credentials in the local environment.
 #
 # Uso / usage:
 #   bash setup.sh <pasta-do-projeto> [--nome "Nome do Projeto"] [--force] [--sem-plugins]
@@ -86,7 +86,7 @@ except (OSError, ValueError, KeyError, TypeError, AttributeError) as error:
     print('preflight falhou / failed: ' + (str(error) if type(error) is ValueError else type(error).__name__), file=sys.stderr)
     sys.exit(1)
 PY
-TARGET="$(python3 -c 'import pathlib,sys; print(pathlib.Path(sys.argv[1]).resolve().as_posix())' "$TARGET")"
+TARGET="$(python3 -c 'import pathlib,sys; sys.stdout.reconfigure(newline="\n"); print(pathlib.Path(sys.argv[1]).resolve().as_posix())' "$TARGET")"
 EXISTING="$TARGET"
 while [ ! -d "$EXISTING" ]; do EXISTING="$(dirname "$EXISTING")"; done
 IN_GIT=0
@@ -103,6 +103,26 @@ else
     *'not a git repository'*) ;;
     *) falhar 'falha ao verificar repositório / cannot inspect repository' ;;
   esac
+fi
+SK="$HOME/.claude/skills"
+read -r SKILL_REPO SKILL_COMMIT < <(python3 - "$HARNESS_DIR/skills-lock.json" <<'PY'
+import json, sys
+sys.stdout.reconfigure(newline='\n')
+s = json.load(open(sys.argv[1], encoding='utf-8'))['skills_de_usuario']['humanizer']['upstream']
+print(s['repo'], s['commit'])
+PY
+)
+verificar_skill() {
+  local prefix head status
+  prefix="$(git -C "$1" rev-parse --show-prefix 2>/dev/null)" || return 1
+  [ -z "$prefix" ] || return 1
+  head="$(git -C "$1" rev-parse HEAD 2>/dev/null)" || return 1
+  [ "$head" = "$SKILL_COMMIT" ] && [ -f "$1/SKILL.md" ] || return 1
+  status="$(git -C "$1" status --porcelain --untracked-files=all 2>/dev/null)" || return 1
+  [ -z "$status" ]
+}
+if [ -d "$SK/humanizer" ]; then
+  verificar_skill "$SK/humanizer" || falhar 'humanizer divergente ou modificado; preservado. Revise manualmente / mismatched or dirty humanizer preserved; review manually'
 fi
 mkdir -p "$TARGET"; TARGET="$(cd "$TARGET" && pwd -P)"
 [ -n "$NOME" ] || NOME="$(basename "$TARGET")"
@@ -151,38 +171,66 @@ else
   echo "  mantido  .env"
 fi
 
-# skills de usuário
-SK="$HOME/.claude/skills"; mkdir -p "$SK"
+# Skills are activated only after validation. Cleanup owns only this run's staging.
+STAGE=""
+limpar_stage() {
+  [ -n "$STAGE" ] || return 0
+  python3 - "$SK" "$STAGE" <<'PY'
+import os, pathlib, shutil, stat, sys
+root, stage = map(pathlib.Path, sys.argv[1:])
+if stage.is_symlink() or stage.resolve().parent != root.resolve() or not stage.name.startswith('.humanizer.'):
+    sys.exit('staging fora da raiz / staging outside root')
+def writable_remove(func, path, error):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+if stage.exists():
+    shutil.rmtree(stage, onerror=writable_remove)
+PY
+}
+trap limpar_stage EXIT
+mkdir -p "$SK"
 if [ ! -d "$SK/humanizer" ]; then
-  if command -v git >/dev/null; then
-    git clone -q https://github.com/blader/humanizer "$SK/humanizer" \
-      && git -C "$SK/humanizer" checkout -q 9862685f575c65a8247f90369951df1b3416e3d6 \
-      && echo "  skill    humanizer 3.0.0 (blader/humanizer @ 9862685f) → $SK/humanizer" \
-      || echo "  AVISO    não consegui clonar blader/humanizer; instale à mão"
-  fi
-else echo "  mantido  $SK/humanizer"; fi
+  STAGE="$(mktemp -d "$SK/.humanizer.XXXXXX")"
+  git clone -q -- "$SKILL_REPO" "$STAGE" >/dev/null 2>&1 || falhar 'falhou / failed: humanizer download'
+  git -C "$STAGE" checkout -q --detach "$SKILL_COMMIT" >/dev/null 2>&1 || falhar 'falhou / failed: humanizer checkout'
+  verificar_skill "$STAGE" || falhar 'falhou / failed: humanizer verification'
+  [ ! -e "$SK/humanizer" ] && [ ! -L "$SK/humanizer" ] || falhar 'destino ocupado / destination occupied: humanizer'
+  mv -- "$STAGE" "$SK/humanizer"
+  STAGE=""
+  echo "  instalado / installed: humanizer @ $SKILL_COMMIT → $SK/humanizer"
+else echo "  verificado e mantido / verified and kept: $SK/humanizer"; fi
 if [ ! -d "$SK/humanizer-ptbr" ]; then
   cp -r "$HARNESS_DIR/skills/humanizer-ptbr" "$SK/humanizer-ptbr"; echo "  skill    humanizer-ptbr → $SK/humanizer-ptbr"
 else echo "  mantido  $SK/humanizer-ptbr"; fi
 
-# plugins de marketplace (só se o Claude Code estiver instalado)
-if [ "$PLUGINS" = 1 ] && command -v claude >/dev/null 2>&1 && command -v python3 >/dev/null 2>&1; then
+# Marketplace versions are inventory, not enforced pins.
+FALHAS=0
+if [ "$PLUGINS" = 0 ]; then
+  echo '== plugins: pulados / skipped (--sem-plugins / --no-plugins)'
+elif ! command -v claude >/dev/null 2>&1; then
+  echo '== plugins: pulados / skipped (claude ausente / missing from PATH)'
+else
   echo "== plugins (claude plugin marketplace add + install)"
-  python3 - "$HARNESS_DIR/skills-lock.json" <<'PY' | while read -r nome mkt origem; do
+  while read -r nome mkt origem; do
+    if ! claude plugin marketplace add "$origem" >/dev/null 2>&1; then
+      echo "  falhou / failed marketplace: $mkt" >&2; FALHAS=$((FALHAS + 1))
+    elif ! claude plugin install "$nome@$mkt" >/dev/null 2>&1; then
+      echo "  falhou / failed plugin: $nome" >&2; FALHAS=$((FALHAS + 1))
+    else echo "  instalado / installed plugin: $nome"; fi
+  done < <(python3 - "$HARNESS_DIR/skills-lock.json" <<'PY'
 import json, sys
-d = json.load(open(sys.argv[1]))
+sys.stdout.reconfigure(newline='\n')
+d = json.load(open(sys.argv[1], encoding='utf-8'))
 for nome, p in d["plugins"].items():
     o = p.get("origem") or ""
     if "/" in o and " " not in o:
         print(nome, p["marketplace"], o)
 PY
-    claude plugin marketplace add "$origem" >/dev/null 2>&1 || true
-    if claude plugin install "$nome@$mkt" >/dev/null 2>&1; then echo "  plugin   $nome ($origem)"; else echo "  AVISO    $nome: instale à mão: claude plugin install $nome@$mkt"; fi
-  done
+  )
   echo "  nota     impeccable vem de diretório local no manifesto: instale do upstream do plugin à mão"
-else
-  echo "== plugins: pulados (sem 'claude' no PATH ou --sem-plugins). Veja skills-lock.json"
 fi
+echo '  manual: skills sem upstream / skills without upstream — veja / see skills-lock.json'
+[ "$FALHAS" -eq 0 ] || falhar "instalação incompleta / incomplete installation: $FALHAS falha(s) / failure(s)"
 
 cat <<FIM
 

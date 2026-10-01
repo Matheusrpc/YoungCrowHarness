@@ -232,6 +232,77 @@ class SetupTests(unittest.TestCase):
         self.git('init', '-q', str(self.target))
         self.assertEqual(self.git('-C', str(self.target), 'check-ignore', '.env', check=False).returncode, 0)
 
+    def test_checkout_failure_can_retry(self):
+        skill = self.home / '.claude/skills/humanizer'
+        result = self.run_setup('--sem-plugins', env={'TEST_FAIL_CHECKOUT': '1'})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(skill.exists())
+        self.assertEqual(list(skill.parent.glob('.humanizer.*')), [])
+        result = self.run_setup('--sem-plugins')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.git('-C', str(skill), 'rev-parse', 'HEAD').stdout.strip(), self.expected_commit)
+
+    def test_existing_skill_wrong_revision_is_preserved(self):
+        skill = self.home / '.claude/skills/humanizer'
+        self.git('clone', '-q', str(self.upstream), str(skill))
+        write(skill / 'SKILL.md', '# Changed revision\n')
+        self.git('-C', str(skill), 'add', 'SKILL.md')
+        self.git('-C', str(skill), '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid',
+                 'commit', '-qm', 'second revision')
+        head = self.git('-C', str(skill), 'rev-parse', 'HEAD').stdout
+        self.assert_no_project_writes(self.run_setup('--sem-plugins'))
+        self.assertEqual(self.git('-C', str(skill), 'rev-parse', 'HEAD').stdout, head)
+
+    def test_existing_skill_dirty_is_preserved(self):
+        skill = self.home / '.claude/skills/humanizer'
+        self.git('clone', '-q', str(self.upstream), str(skill))
+        write(skill / 'notes.txt', 'keep notes')
+        self.assert_no_project_writes(self.run_setup('--sem-plugins'))
+        self.assertEqual((skill / 'notes.txt').read_text(), 'keep notes')
+
+    def test_existing_skill_cannot_inherit_parent_git(self):
+        parent = self.home / '.claude/skills'
+        self.git('clone', '-q', str(self.upstream), str(parent))
+        write(parent / 'humanizer/SKILL.md', '# nested directory\n')
+        self.assert_no_project_writes(self.run_setup('--sem-plugins'))
+
+    def test_plugin_failures_are_nonzero(self):
+        for stage in ('marketplace', 'install'):
+            with self.subTest(stage=stage):
+                result = self.run_setup(env={'TEST_CLAUDE_FAIL_STAGE': stage})
+                self.assertNotEqual(result.returncode, 0)
+                self.assertNotIn('Pronto.', result.stdout)
+
+    def test_plugins_skipped_explicitly(self):
+        result = self.run_setup('--sem-plugins')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('--sem-plugins', result.stdout)
+        calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
+        self.assertFalse(any(call[0] == 'claude' for call in calls))
+
+    def test_plugins_skipped_without_claude(self):
+        (self.bin / 'claude').unlink()
+        result = self.run_setup()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('missing from PATH', result.stdout)
+        self.assertFalse(any(json.loads(line)[0] == 'claude' for line in self.calls.read_text().splitlines()))
+
+    def test_full_install_and_repeat(self):
+        result = self.run_setup('--name', 'Complete project')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
+        installs = [call[-1] for call in calls if call[:3] == ['claude', 'plugin', 'install']]
+        self.assertEqual(len(installs), 5)
+        self.assertTrue(all(not any(c.isspace() for c in value) for value in installs))
+        before = {rel: (self.target / rel).read_bytes() for rel in FILES[1:10]}
+        self.assertEqual(self.run_setup('--name', 'Different name').returncode, 0)
+        self.assertEqual(before, {rel: (self.target / rel).read_bytes() for rel in before})
+
+    def test_source_syntax(self):
+        subprocess.run([self.bash, '-n', shell_path(self.source / 'setup.sh')], check=True)
+        for rel in ('skills-lock.json', '.mcp.json', '.claude/settings.json', '.codex/hooks.json'):
+            json.loads((self.source / rel).read_text(encoding='utf-8'))
+
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == '--fake-git':

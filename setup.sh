@@ -15,7 +15,11 @@ TARGET="${1:-}"; NOME=""; FORCE=0; PLUGINS=1
 shift || true
 while [ $# -gt 0 ]; do
   case "$1" in
-    --nome|--name) NOME="${2:-}"; shift 2 ;;
+    --nome|--name)
+      if [ $# -lt 2 ] || [ -z "$2" ] || [[ "$2" == --* ]]; then
+        echo "uso / usage: --nome/--name exige um valor / requires a value" >&2; exit 2
+      fi
+      NOME="$2"; shift 2 ;;
     --force) FORCE=1; shift ;;
     --sem-plugins|--no-plugins) PLUGINS=0; shift ;;
     *) echo "argumento desconhecido / unknown argument: $1"; exit 2 ;;
@@ -24,7 +28,60 @@ done
 if [ -z "$TARGET" ]; then
   echo "uso: bash setup.sh <pasta-do-projeto> [--nome \"Nome\"] [--force] [--sem-plugins]"; exit 2
 fi
-mkdir -p "$TARGET"; TARGET="$(cd "$TARGET" && pwd)"
+falhar() { printf '%s\n' "$1" >&2; exit 1; }
+for ferramenta in python3 git mkdir cp chmod mv mktemp; do
+  command -v "$ferramenta" >/dev/null 2>&1 || falhar "dependência ausente / missing dependency: $ferramenta"
+done
+python3 -c 'import json, pathlib, sys' || falhar 'python3 indisponível / unavailable'
+# Preflight is read-only. Resolve the requested root, then reject links inside it.
+python3 - "$TARGET" "$HARNESS_DIR" "$HOME" <<'PY'
+import json, pathlib, re, sys
+
+def check_path(root, relative):
+    current = root
+    parts = pathlib.Path(relative).parts
+    for i, part in enumerate(parts):
+        current = current / part
+        if current.is_symlink() or getattr(current, 'is_junction', lambda: False)():
+            raise ValueError('link em caminho gerenciado / linked managed path: ' + relative)
+        if current.exists() and current.is_dir() != (i < len(parts) - 1):
+            raise ValueError('tipo de caminho incorreto / wrong path type: ' + relative)
+
+try:
+    target, source, user = [pathlib.Path(p).resolve() for p in sys.argv[1:]]
+    if target == source or target == target.parent:
+        raise ValueError('destino inválido / invalid destination')
+    if target.exists() and not target.is_dir():
+        raise ValueError('destino não é diretório / destination is not a directory')
+    files = ('CLAUDE.md', 'AGENTS.md', '.mcp.json', '.env.example', '.gitignore',
+             '.codex/hooks.json', '.claude/settings.json', 'skills-lock.json', 'docs/CLAUDE.en.md')
+    for name in files:
+        if not (source / name).is_file():
+            raise ValueError('fonte ausente / missing source: ' + name)
+        check_path(target, name)
+    check_path(target, '.env')
+    for name in ('humanizer', 'humanizer-ptbr'):
+        check_path(user, '.claude/skills/' + name + '/SKILL.md')
+    if not (source / 'skills/humanizer-ptbr/SKILL.md').is_file():
+        raise ValueError('fonte ausente / missing source: humanizer-ptbr')
+    manifest = json.loads((source / 'skills-lock.json').read_text(encoding='utf-8'))
+    skill = manifest['skills_de_usuario']['humanizer']['upstream']
+    if not re.fullmatch(r'[0-9a-f]{40}', skill['commit']):
+        raise ValueError('commit inválido / invalid skill commit')
+    if not isinstance(skill['repo'], str) or not skill['repo'].startswith('https://') or any(c.isspace() for c in skill['repo']):
+        raise ValueError('origem inválida / invalid skill source')
+    for name, plugin in manifest['plugins'].items():
+        for value in (name, plugin['marketplace']):
+            if not isinstance(value, str) or not re.fullmatch(r'[A-Za-z0-9_.-]+', value):
+                raise ValueError('identificador inválido / invalid plugin identifier')
+        if not isinstance(plugin.get('origem'), str):
+            raise ValueError('origem inválida / invalid plugin source')
+except (OSError, ValueError, KeyError, TypeError, AttributeError) as error:
+    # Never echo arbitrary manifest values or file contents.
+    print('preflight falhou / failed: ' + (str(error) if type(error) is ValueError else type(error).__name__), file=sys.stderr)
+    sys.exit(1)
+PY
+mkdir -p "$TARGET"; TARGET="$(cd "$TARGET" && pwd -P)"
 [ -n "$NOME" ] || NOME="$(basename "$TARGET")"
 
 copiar() {  # copiar <relativo>: nunca sobrescreve sem --force

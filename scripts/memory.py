@@ -9,7 +9,7 @@ import sys
 import uuid
 
 sys.dont_write_bytecode = True
-from document_store import safe_path, prepare_storage, project_lock, write_json, file_digest
+from document_store import safe_path, prepare_storage, verify_private_storage, project_lock, write_json, file_digest
 from integrations import project_identity
 from vault import metadata, links, local_path, prose
 from documents import runtime_python, worker_environment, run_process
@@ -32,7 +32,7 @@ def run_graphify(root: Path, action: str, request: dict) -> dict:
         safe_path(root, executable.relative_to(root))
         if not executable.is_file():
             return failure('runtime_missing', 'pending')
-        prepare_storage(root)
+        verify_private_storage(root)
         env = worker_environment(base)
         env.update(GRAPHIFY_QUERY_LOG_DISABLE='1', PYTHONHASHSEED='0')
         relative = BASE + '/runtime/request-' + str(uuid.uuid4()) + '.json'
@@ -311,6 +311,8 @@ def load_state(root):
     active, state = None, 'missing'
     try:
         active = read(root, BASE + '/active.json')
+        if not isinstance(active, dict) or not isinstance(active.get('generation'), str):
+            raise ValueError('invalid_generation')
         generation = str(uuid.UUID(active['generation']))
         stored = safe_path(root, BASE + '/builds/' + generation + '/snapshot.json')
         if file_digest(stored) != active['snapshot_hash']:
@@ -354,7 +356,7 @@ def disable(root: Path) -> dict:
 
 def clear_index(root: Path) -> dict:
     root = Path(root).resolve(strict=True)
-    prepare_storage(root)
+    verify_private_storage(root)
     with project_lock(root):
         builds = safe_path(root, BASE + '/builds/.probe').parent
         active = safe_path(root, BASE + '/active.json')

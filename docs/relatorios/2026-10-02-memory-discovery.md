@@ -9,7 +9,7 @@ acrescenta seleção explícita, consulta com identidade/revisão, Graphify opci
 | Aceite | Evidência | Estado |
 |---|---|---|
 | M01 — seleção e consulta | Corpus sintético; UUID por projeto/nota, revisão SHA-256, limites, links e isolamento | Verificado localmente |
-| M02 — Graphify | Pacote 0.9.73 real, Python 3.12.10 no Windows, construção/consulta e títulos iguais sem fusão | Verificado no Windows; Linux aguardando CI |
+| M02 — Graphify | Pacote 0.9.73 real, Python 3.12.10 no Windows e 3.12.3 no Ubuntu 24.04, construção/consulta e títulos iguais sem fusão | Verificado no Windows e Linux |
 | M03 — atualização | Reuso sem nova construção, mudança durante build/query, remoção, rename, cache adulterado e retorno ao Markdown | Verificado localmente |
 | M04 — clientes | Descoberta real nos dois clientes; sessões independentes do Codex; Claude sem autenticação | Parcial |
 
@@ -84,6 +84,19 @@ arquivos conhecidos; preserva seleção, runtime e vault. A prova real renomeou 
 o executável do runtime, constatou o fallback e o restaurou em `finally`. Mudanças e remoções
 controladas também foram restauradas depois da conferência de revisões atuais.
 
+A revisão independente encontrou dois problemas relevantes. Consultas Graphify, diagnóstico e
+limpeza podiam reparar arquivos do vault ou do `.gitignore`; agora verificam a proteção existente
+sem modificar esses arquivos. O cache também aceitava um identificador de geração com tipo JSON
+incorreto e interrompia a recuperação. Agora esse caso retorna ao Markdown atual e permite
+reconstrução ou desativação. Os testes reproduziram ambos os defeitos antes das correções e
+passaram depois delas. Não houve achado crítico ou menor adiado.
+
+O revisor examinou o código e os registros, sem repetir os ensaios de runtime/clientes ou a
+renderização. Para esses dois pontos, a decisão foi usar as provas executadas pelo implementador.
+Isso mantém dois limites: compatibilidade de cliente pode exigir ajuste no aceite M04 ainda
+pendente; a aparência em outros tamanhos de tela pode exigir ajuste visual. As provas de modelo
+não foram repetidas além do limite aprovado.
+
 O setup de um projeto de prova foi inicialmente executado com o HOME real: `--no-plugins` ainda
 instala humanizer. Duas pastas recém-criadas do Claude foram identificadas e retiradas da
 configuração global, preservadas numa cópia local de recuperação. A exclusão havia sido recusada
@@ -104,7 +117,9 @@ Use uma pasta descartável vazia para a prova; ela contém somente dados sintét
 unitários não instalam fornecedores nem chamam modelos. O job separado `graphify-smoke` usa
 Ubuntu 24.04/Python 3.12 para instalar e exercitar o runtime real.
 
-QA local: 170 testes em 892,610 s, sete skips de plataforma no Windows; vault com 39 notas e zero problemas; diff sem erros de whitespace. Diagramas PT/EN sem texto excedendo as caixas, imagem móvel de 358 px dentro de viewport de 390 px. Chrome foi fechado em `finally`, e a contagem dos processos próprios terminou em zero. Revisão independente, CI Linux e publicação protegida: em andamento. O README e os guias PT/EN incluem
-o fluxo de memória e preservam os diagramas de criação, migração, operação e ingestão.
+QA final no Windows: 174 testes em 873.911 s, sete skips de plataforma; vault com 39 notas e zero problemas; diff sem erros de whitespace. As quatro regressões da revisão passaram, e o smoke com Graphify instalado foi repetido após as correções. Diagramas PT/EN sem texto excedendo as caixas, imagem móvel de 358 px dentro de viewport de 390 px. Chrome foi fechado em `finally`, com zero processos próprios restantes.
+
+O [ensaio Linux do runtime](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/36998156275) passou em Ubuntu 24.04/Python 3.12.3. Os checks da revisão final e o estado de publicação ficam no [PR #7](https://github.com/Matheusrpc/YoungCrowHarness/pull/7); a main exige `installer` aprovado, sem bypass. O README e os guias PT/EN incluem o fluxo de memória e preservam os diagramas de criação, migração, operação e ingestão. M04 permanece parcial.
+
 Rollback operacional: `disable`, seguido de consulta Markdown. Reverter o PR remove a nova
 capacidade sem apagar os registros locais; não apagar o vault durante rollback.

@@ -1,7 +1,9 @@
 # Memória consultável: vault e Graphify
 
 Estado: desenho aprovado pelo mantenedor em 2026-10-02. O [plano de implementação](../plans/2026-10-02-memory-discovery.md)
-está implementado nesta branch e passa por verificação final. Graphify foi instalado apenas no projeto sintético de prova; a instalação em cada projeto consumidor é opcional. Esta frente sucede
+foi executado, com evidências e limites no [relatório](../../relatorios/2026-10-02-memory-discovery.md)
+e publicação pelo [PR #7](https://github.com/Matheusrpc/YoungCrowHarness/pull/7). M04 permanece parcial.
+Graphify foi instalado apenas no projeto sintético de prova; a instalação em cada projeto consumidor é opcional. Esta frente sucede
 a ingestão com Docling publicada no [PR #6](https://github.com/Matheusrpc/YoungCrowHarness/pull/6).
 A prova de conversa real do Docling no Claude continua pendente de autenticação; não é requisito
 para comparar fornecedores, mas será necessária para declarar o fluxo completo nos dois clientes.

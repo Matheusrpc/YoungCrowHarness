@@ -217,6 +217,8 @@ cliente separada: Codex recuperou o handoff e reconheceu uma revisão alterada; 
 no sandbox somente leitura recorreu ao Markdown. Claude Code tem descoberta verificada e conversa
 real pendente de login. M04 permanece parcial.
 O [relatório](docs/relatorios/2026-10-02-memory-discovery.md) registra o estado atual de M01–M04.
+Consultas e diagnóstico preservam as notas e o `.gitignore`. Se o índice estiver corrompido,
+a consulta usa o Markdown atual; a reconstrução fica explícita no [guia de uso](docs/USAGE.md#memória-consultar-notas-selecionadas).
 claude-mem, sincronização entre máquinas e orquestração autônoma de papéis continuam na
 [evolução do produto](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 
@@ -474,6 +476,8 @@ Codex recovered the handoff and recognized a changed revision; Graphify queries 
 sandbox fell back to Markdown. Claude Code discovery is verified; model conversation awaits login.
 M04 remains partial. The
 [report](docs/relatorios/2026-10-02-memory-discovery.md) records current M01–M04 evidence.
+Queries and diagnostics preserve notes and `.gitignore`. If the index is corrupt, retrieval
+uses current Markdown; rebuilding is explicit in the [usage guide](docs/USAGE.md#memory-query-selected-notes).
 claude-mem, cross-machine synchronization and autonomous role orchestration remain in the
 [product roadmap](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 

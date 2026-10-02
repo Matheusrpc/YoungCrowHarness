@@ -41,6 +41,27 @@ def git(root, *args):
     return subprocess.run(['git', '-C', str(root), *args], capture_output=True, timeout=15)
 
 
+def verify_private_storage(root):
+    """Check existing private boundaries without creating or repairing files."""
+    for relative in PRIVATE:
+        safe_path(root, relative + '/.probe')
+    ignore = safe_path(root, '.gitignore')
+    detected = git(root, 'rev-parse', '--show-toplevel')
+    if detected.returncode:
+        if b'not a git repository' not in detected.stderr.lower():
+            raise ValueError('Cannot verify Git storage boundaries.')
+        rules = ignore.read_bytes().splitlines() if ignore.exists() else []
+        if any(('/' + relative + '/').encode() not in rules for relative in PRIVATE):
+            raise ValueError('Private storage has not been initialized.')
+        return
+    tracked = git(root, 'ls-files', '-z', '--', *PRIVATE)
+    if tracked.returncode or tracked.stdout:
+        raise ValueError('Private storage is already tracked or cannot be checked.')
+    for relative in PRIVATE:
+        if git(root, 'check-ignore', '--quiet', '--', relative + '/.youngcrow-ignore-check').returncode:
+            raise ValueError('Private storage is not ignored.')
+
+
 def prepare_storage(root):
     """Verify private destinations before creating notes; preserve existing bytes."""
     root = Path(root).resolve(strict=True)

@@ -705,9 +705,24 @@
   ],
   "owned_browser_processes_after": 0,
   "qa_windows": {
-    "tests": 170,
+    "tests": 174,
     "skipped": 7,
-    "seconds": 892.61,
+    "seconds": 873.911,
     "success": true
+  },
+  "final_review": {
+    "critical": 0,
+    "important": 2,
+    "fixed": 2,
+    "minor_deferred": 0,
+    "regression": "RED->GREEN"
+  },
+  "graphify_linux_proof": {
+    "python": "3.12.3",
+    "package": "graphifyy",
+    "version": "0.9.73",
+    "os": "Ubuntu 24.04",
+    "run": 36998156275,
+    "commit": "171c6853d60521c1e2cbbe8c93611b33fd090e04"
   }
 }

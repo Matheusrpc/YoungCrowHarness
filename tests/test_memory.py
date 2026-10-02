@@ -215,6 +215,31 @@ class MemoryTests(ProjectCase):
             m.clear_index(self.root)
         self.assertTrue((generation / 'snapshot.json').exists())
 
+    def test_wrong_json_types_fall_back_and_allow_recovery(self):
+        m = self.memory
+        for value in (42, True, [], {}):
+            with self.subTest(generation=value):
+                m.index(self.root, self.data['paths'])
+                (self.root / m.BASE / 'active.json').write_text(json.dumps(dict(generation=value)))
+                self.assertEqual(m.status(self.root)['state'], 'failed')
+                result = m.query(self.root, 'Pagamentos')
+                self.assertEqual(result['provider'], 'markdown')
+                self.assertTrue(result['results'])
+                self.assertEqual(m.rebuild(self.root)['state'], 'ready')
+                (self.root / m.BASE / 'active.json').write_text(json.dumps(dict(generation=value)))
+                self.assertEqual(m.disable(self.root)['state'], 'ready')
+
+    def test_clear_does_not_initialize_or_repair_canonical_files(self):
+        m = self.memory
+        m.index(self.root, self.data['paths'])
+        local = self.root / 'vault/local/index.md'
+        local.write_text(local.read_text(encoding='utf-8').replace('[Sources](sources/index.md)', ''), encoding='utf-8')
+        before = {p: p.read_bytes() for p in (self.root / 'vault').rglob('*') if p.is_file()}
+        ignore = (self.root / '.gitignore').read_bytes()
+        self.assertEqual(m.clear_index(self.root)['state'], 'missing')
+        self.assertEqual(before, {p: p.read_bytes() for p in before})
+        self.assertEqual((self.root / '.gitignore').read_bytes(), ignore)
+
 
 if __name__ == '__main__':
     unittest.main()

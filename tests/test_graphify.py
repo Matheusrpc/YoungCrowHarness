@@ -117,6 +117,43 @@ class GraphifyTests(ProjectCase):
         self.assertNotIn('SECRET_SENTINEL', json.dumps(result))
         self.assertEqual(before, {p: (self.root / p).read_bytes() for p in before})
 
+    def test_query_and_doctor_do_not_repair_vault_or_ignore_rules(self):
+        self.runtime()
+        packages = {'graphifyy': memory.VERSION}
+        self.store.write_json(self.root, memory.BASE + '/runtime/environment.json', dict(packages=packages))
+        def process(args, **kwargs):
+            req = json.loads(Path(args[-1]).read_text(encoding='utf-8'))
+            value = dict(state='ready', version=memory.VERSION, python='3.12.10', packages=packages)
+            if req['action'] == 'build':
+                value['graph'] = graph_for(req['snapshot'])
+            else:
+                value['source_files'] = []
+            return subprocess.CompletedProcess(args, 0, json.dumps(value).encode(), b'')
+        with patch.object(memory, 'run_process', side_effect=process):
+            self.assertEqual(memory.index(self.root, self.data['paths'], 'graphify')['state'], 'ready')
+            local = self.root / 'vault/local/index.md'
+            local.write_text(local.read_text(encoding='utf-8').replace('[Sources](sources/index.md)', ''), encoding='utf-8')
+            before = {p: p.read_bytes() for p in (self.root / 'vault').rglob('*') if p.is_file()}
+            self.assertEqual(memory.query(self.root, 'Pagamentos')['provider'], 'graphify')
+            self.assertEqual(memory.doctor(self.root)['state'], 'ready')
+            self.assertEqual(before, {p: p.read_bytes() for p in before})
+            ignore = self.root / '.gitignore'
+            ignore.write_text(ignore.read_text() + '\n!/.operacao-local/memory/\n')
+            original = ignore.read_bytes()
+            self.assertEqual(memory.query(self.root, 'Pagamentos')['provider'], 'markdown')
+            self.assertNotEqual(memory.doctor(self.root)['state'], 'ready')
+            self.assertEqual(ignore.read_bytes(), original)
+
+    def test_unignored_runtime_is_rejected_without_repair(self):
+        self.runtime()
+        ignore = self.root / '.gitignore'
+        ignore.write_text(ignore.read_text() + '\n!/.operacao-local/memory/\n')
+        original = ignore.read_bytes()
+        with patch.object(memory, 'run_process') as process:
+            self.assertEqual(memory.run_graphify(self.root, 'doctor', {})['state'], 'failed')
+        process.assert_not_called()
+        self.assertEqual(ignore.read_bytes(), original)
+
     def test_cli_text_parser_rejects_forged_or_unknown_node_lines(self):
         self.assertIsNotNone(importlib.util.find_spec('graphify_worker'))
         import graphify_worker as worker

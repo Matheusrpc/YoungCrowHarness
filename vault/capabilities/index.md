@@ -19,7 +19,7 @@ index: ../index.md
 | ingest-source | Documentos, anexos, URLs, áudio e vídeo; fontes locais, evidência e retomada / Local sources, evidence and recovery | [Skill](../../skills/ingest-source/SKILL.md) | 1 |
 | Docling | Conversão local opcional, documentos e mídia em ambientes separados / Optional local conversion in separate runtimes | [Procedimento / Procedure](../../skills/ingest-source/SKILL.md) | 2.132.0 |
 | retrieve-memory | Retomar notas selecionadas e verificar decisões/entregas / Resume selected notes and verify evidence | [Skill](../../skills/retrieve-memory/SKILL.md) | 1 |
-| Graphify | Grafo local opcional de links explícitos / Optional local graph of explicit links | [Uso / Usage](../../docs/USAGE.md#memory-en) | 0.9.73 |
+| Graphify | Grafo local opcional de links explícitos / Optional local graph of explicit links | [Procedimento / Procedure](../../skills/retrieve-memory/SKILL.md) | 0.9.73 |
 
 Entradas nativas, quando instaladas: `.claude/agents/integration-specialist.md` e `.codex/agents/integration-specialist.toml`.
 Native entries depend on the selected client. Availability is not evidence of use: each run records the capabilities actually used.

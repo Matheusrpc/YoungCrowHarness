@@ -42,8 +42,18 @@ def main():
     built, build_measurement = cli(*index_args)
     assert built['state'] == 'ready', built
     measured = []
+    navigation = []
     for run in ('cold', 'repeated'):
         for expected in data['expected']:
+            started = time.perf_counter()
+            # Deterministic baseline: open the three fixture indices and all five
+            # linked topic notes. This is not a model or a token-cost benchmark.
+            nav_paths = ['vault/index.md', 'vault/local/index.md', 'vault/local/demo/index.md', *data['paths']]
+            raw = b'\n'.join((root / path).read_bytes() for path in nav_paths)
+            navigation.append(dict(run=run, question=expected['question'], correct=int(expected['quote'] in raw.decode('utf-8')),
+                expected=1, stale_references=0, notes_opened=len(data['paths']), indices_opened=3,
+                milliseconds=round((time.perf_counter()-started)*1000, 3), bytes_returned=len(raw),
+                characters_returned=len(raw.decode('utf-8'))))
             result, measurement = cli('query', expected['question'])
             assert result['provider'] == args.provider, result
             stale = [hit['path'] for hit in result['results'] if hit['revision'] != hashlib.sha256((root / hit['path']).read_bytes()).hexdigest()]
@@ -51,6 +61,7 @@ def main():
             correct = any(hit['path'] == expected['path'] and expected['quote'] in hit['excerpt'] for hit in result['results'])
             measured.append(dict(run=run, question=expected['question'], correct=int(correct), expected=1,
                                  stale_references=len(stale), paths=[hit['path'] for hit in result['results']],
+                                 notes_read=len(data['paths']), excerpts_returned=len(result['results']),
                                  revisions=[hit['revision'] for hit in result['results']], **measurement))
     actual, _ = cli('status')
     assert actual['state'] == 'ready', actual
@@ -94,7 +105,8 @@ def main():
                 (root / path).write_bytes(raw)
             cli(*index_args)
     report = dict(provider=args.provider, fingerprint=built['fingerprint'], build=build_measurement,
-                  notes=len(data['paths']), duplicate_titles_preserved=duplicate_titles, measurements=measured)
+                  notes=len(data['paths']), duplicate_titles_preserved=duplicate_titles,
+                  navigation=navigation, measurements=measured)
     (root / ('smoke-' + args.provider + '.json')).write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')
     print(json.dumps(report, ensure_ascii=True, indent=2))
 

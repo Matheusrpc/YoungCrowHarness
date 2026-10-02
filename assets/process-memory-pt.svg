@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1420" width="760" height="1420" role="img" aria-labelledby="title desc" font-family="Georgia, serif">
+<title id="title">05 · Retomar pela memória do projeto</title><desc id="desc">Vault local · Graphify opcional · IA da sessão. A IA interpreta; produção exige evidência própria.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#F3E7C6"/></marker></defs>
+<rect width="760" height="1420" fill="#17130f"/><rect x="12" y="12" width="736" height="1396" rx="10" fill="none" stroke="#725a35" stroke-width="2"/>
+<text x="35" y="53" text-anchor="start" font-size="28" fill="#F3E7C6" data-max-width="695">
+<tspan x="35" dy="0">05 · Retomar pela memória do projeto</tspan>
+</text>
+<text x="35" y="92" text-anchor="start" font-size="20" fill="#d6c8a8" data-max-width="695">
+<tspan x="35" dy="0">Vault local · Graphify opcional · IA da sessão</tspan>
+</text>
+<circle cx="295" cy="115" r="13" fill="#1F7A4D" stroke="#F3E7C6" stroke-width="2"/>
+<path d="M295 128V140" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 224V270" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 354V400" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 484V530" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 614V670" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 810V885" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 969V1015" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 1099V1145" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 1229V1300" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M365 740H550V770H560" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M642 849V927H510" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M510 572H560" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M642 635V735" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="80" y="140" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="295.0" y="174" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Salvar no vault</tspan>
+<tspan x="295.0" dy="30">Origem, UUID e revisão</tspan>
+</text>
+<rect x="80" y="270" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="295.0" y="304" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Selecionar notas</tspan>
+<tspan x="295.0" dy="30">Usar índices e microíndices</tspan>
+</text>
+<rect x="80" y="400" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#E8A317" stroke-width="4"/>
+<text x="295.0" y="434" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Validar seleção</tspan>
+<tspan x="295.0" dy="30">Projeto, caminhos e limites</tspan>
+</text>
+<rect x="80" y="530" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#5B2E8A" stroke-width="4"/>
+<text x="295.0" y="564" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Construir retrato</tspan>
+<tspan x="295.0" dy="30">Markdown ou Graphify local</tspan>
+</text>
+<rect x="80" y="885" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#5B2E8A" stroke-width="4"/>
+<text x="295.0" y="919" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Consultar tema</tspan>
+<tspan x="295.0" dy="30">Até cinco referências</tspan>
+</text>
+<rect x="80" y="1015" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="295.0" y="1049" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Abrir evidências</tspan>
+<tspan x="295.0" dy="30">Decisões, DEV e produção</tspan>
+</text>
+<rect x="80" y="1145" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#1F7A4D" stroke-width="4"/>
+<text x="295.0" y="1179" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Registrar próxima ação</tspan>
+<tspan x="295.0" dy="30">Ligar a retomada ao índice</tspan>
+</text>
+<path d="M295 670L365 740L295 810L225 740Z" fill="#E8A317" stroke="#F3E7C6" stroke-width="2"/>
+<text x="295" y="735" text-anchor="middle" font-size="22" fill="#17130f" data-max-width="108">
+<tspan x="295" dy="0">Revisão</tspan>
+<tspan x="295" dy="30">atual?</tspan>
+</text>
+<rect x="560" y="735" width="165" height="114" rx="9" fill="#F3E7C6" stroke="#E8A317" stroke-width="4"/>
+<text x="642.5" y="769" text-anchor="middle" font-size="18" fill="#17130f" data-max-width="143">
+<tspan x="642.5" dy="0">Ler Markdown</tspan>
+<tspan x="642.5" dy="30">atual da seleção</tspan>
+</text>
+<rect x="560" y="535" width="165" height="100" rx="9" fill="#F3E7C6" stroke="#B3202F" stroke-width="4"/>
+<text x="642.5" y="569" text-anchor="middle" font-size="18" fill="#17130f" data-max-width="143">
+<tspan x="642.5" dy="0">Falha: preservar</tspan>
+<tspan x="642.5" dy="30">o vault</tspan>
+</text>
+<text x="328" y="849" text-anchor="middle" font-size="20" fill="#F3E7C6" data-max-width="70">
+<tspan x="328" dy="0">Sim</tspan>
+</text>
+<text x="470" y="712" text-anchor="middle" font-size="18" fill="#F3E7C6" data-max-width="185">
+<tspan x="470" dy="0">Ausente / antigo</tspan>
+</text>
+<circle cx="295" cy="1314" r="14" fill="#1F7A4D" stroke="#F3E7C6" stroke-width="5"/>
+<text x="35" y="1362" text-anchor="start" font-size="19" fill="#d6c8a8" data-max-width="695">
+<tspan x="35" dy="0">A IA interpreta; produção exige evidência própria.</tspan>
+</text>
+<text x="35" y="1389" text-anchor="start" font-size="19" fill="#d6c8a8" data-max-width="695">
+<tspan x="35" dy="0">Nenhuma nota nova amplia a seleção sozinha.</tspan>
+</text>
+</svg>

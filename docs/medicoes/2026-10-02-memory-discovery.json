@@ -1,0 +1,713 @@
+{
+  "date": "2026-10-02",
+  "fixture_sha256": "cb14d6134866fa54268afe41f0272f80b74923c5dff4addf639ca6e6da2a8e1f",
+  "graphify_version": "0.9.73",
+  "runtime": {
+    "state": "ready",
+    "version": "0.9.73",
+    "python": "3.12.10",
+    "packages": {
+      "graphifyy": "0.9.73",
+      "networkx": "3.7",
+      "numpy": "2.5.3",
+      "pip": "25.0.1",
+      "RapidFuzz": "3.14.6",
+      "tree-sitter": "0.25.2",
+      "tree-sitter-bash": "0.25.1",
+      "tree-sitter-c": "0.24.2",
+      "tree-sitter-cpp": "0.23.4",
+      "tree-sitter-c-sharp": "0.23.5",
+      "tree-sitter-elixir": "0.3.5",
+      "tree-sitter-fortran": "0.6.0",
+      "tree-sitter-go": "0.25.0",
+      "tree-sitter-groovy": "0.1.2",
+      "tree-sitter-java": "0.23.5",
+      "tree-sitter-javascript": "0.25.0",
+      "tree-sitter-json": "0.24.8",
+      "tree-sitter-julia": "0.23.1",
+      "tree-sitter-kotlin": "1.1.0",
+      "tree-sitter-lua": "0.5.0",
+      "tree-sitter-objc": "3.0.2",
+      "tree-sitter-php": "0.24.1",
+      "tree-sitter-powershell": "0.26.4",
+      "tree-sitter-python": "0.25.0",
+      "tree-sitter-ruby": "0.23.1",
+      "tree-sitter-rust": "0.24.2",
+      "tree-sitter-scala": "0.26.2",
+      "tree-sitter-swift": "0.7.3",
+      "tree-sitter-typescript": "0.23.2",
+      "tree-sitter-verilog": "1.0.3",
+      "tree-sitter-zig": "1.1.2"
+    }
+  },
+  "markdown": {
+    "provider": "markdown",
+    "fingerprint": "1e134ad9ebe8f5c3c11c34f53f8a0461ada30028fdcec4ac49fdf67e01826fae",
+    "build": {
+      "milliseconds": 1377.341,
+      "bytes_returned": 127,
+      "characters_returned": 127
+    },
+    "notes": 5,
+    "duplicate_titles_preserved": null,
+    "navigation": [
+      {
+        "run": "cold",
+        "question": "Pagamentos API",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 3.923,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "cold",
+        "question": "Pagamentos Portal",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 0.887,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "cold",
+        "question": "decisão vigente",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 1.638,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "cold",
+        "question": "assinatura webhook",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 1.979,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "repeated",
+        "question": "Pagamentos API",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 1.681,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "repeated",
+        "question": "Pagamentos Portal",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 2.654,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "repeated",
+        "question": "decisão vigente",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 2.351,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "repeated",
+        "question": "assinatura webhook",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 1.883,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      }
+    ],
+    "measurements": [
+      {
+        "run": "cold",
+        "question": "Pagamentos API",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/api.md",
+          "vault/local/demo/release.md",
+          "vault/local/demo/webhook.md",
+          "vault/local/demo/fila.md",
+          "vault/local/demo/portal.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 5,
+        "revisions": [
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67",
+          "0742090d8b97e0b24c9d99abc4e89ddc2d4e1bed9771884052f8025768236723",
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387",
+          "a2f2d32044fbb3843fe169d7f7d285d3177018c7961ee4e46005409e9b4d4f58"
+        ],
+        "milliseconds": 404.7,
+        "bytes_returned": 9440,
+        "characters_returned": 9440
+      },
+      {
+        "run": "cold",
+        "question": "Pagamentos Portal",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/portal.md",
+          "vault/local/demo/release.md",
+          "vault/local/demo/api.md",
+          "vault/local/demo/fila.md",
+          "vault/local/demo/webhook.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 5,
+        "revisions": [
+          "a2f2d32044fbb3843fe169d7f7d285d3177018c7961ee4e46005409e9b4d4f58",
+          "0742090d8b97e0b24c9d99abc4e89ddc2d4e1bed9771884052f8025768236723",
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387",
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b"
+        ],
+        "milliseconds": 354.374,
+        "bytes_returned": 9440,
+        "characters_returned": 9440
+      },
+      {
+        "run": "cold",
+        "question": "decisão vigente",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/webhook.md",
+          "vault/local/demo/fila.md",
+          "vault/local/demo/api.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 3,
+        "revisions": [
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387",
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67"
+        ],
+        "milliseconds": 361.967,
+        "bytes_returned": 7281,
+        "characters_returned": 7281
+      },
+      {
+        "run": "cold",
+        "question": "assinatura webhook",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/api.md",
+          "vault/local/demo/fila.md",
+          "vault/local/demo/webhook.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 3,
+        "revisions": [
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387",
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b"
+        ],
+        "milliseconds": 330.779,
+        "bytes_returned": 7281,
+        "characters_returned": 7281
+      },
+      {
+        "run": "repeated",
+        "question": "Pagamentos API",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/api.md",
+          "vault/local/demo/release.md",
+          "vault/local/demo/webhook.md",
+          "vault/local/demo/fila.md",
+          "vault/local/demo/portal.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 5,
+        "revisions": [
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67",
+          "0742090d8b97e0b24c9d99abc4e89ddc2d4e1bed9771884052f8025768236723",
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387",
+          "a2f2d32044fbb3843fe169d7f7d285d3177018c7961ee4e46005409e9b4d4f58"
+        ],
+        "milliseconds": 347.725,
+        "bytes_returned": 9440,
+        "characters_returned": 9440
+      },
+      {
+        "run": "repeated",
+        "question": "Pagamentos Portal",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/portal.md",
+          "vault/local/demo/release.md",
+          "vault/local/demo/api.md",
+          "vault/local/demo/fila.md",
+          "vault/local/demo/webhook.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 5,
+        "revisions": [
+          "a2f2d32044fbb3843fe169d7f7d285d3177018c7961ee4e46005409e9b4d4f58",
+          "0742090d8b97e0b24c9d99abc4e89ddc2d4e1bed9771884052f8025768236723",
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387",
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b"
+        ],
+        "milliseconds": 309.762,
+        "bytes_returned": 9440,
+        "characters_returned": 9440
+      },
+      {
+        "run": "repeated",
+        "question": "decisão vigente",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/webhook.md",
+          "vault/local/demo/fila.md",
+          "vault/local/demo/api.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 3,
+        "revisions": [
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387",
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67"
+        ],
+        "milliseconds": 292.543,
+        "bytes_returned": 7281,
+        "characters_returned": 7281
+      },
+      {
+        "run": "repeated",
+        "question": "assinatura webhook",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/api.md",
+          "vault/local/demo/fila.md",
+          "vault/local/demo/webhook.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 3,
+        "revisions": [
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387",
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b"
+        ],
+        "milliseconds": 254.743,
+        "bytes_returned": 7281,
+        "characters_returned": 7281
+      }
+    ]
+  },
+  "graphify": {
+    "provider": "graphify",
+    "fingerprint": "b2069d91c1830a78b172a37955d7bc2e64d515eb25c712a2e7b8addabad7b88d",
+    "build": {
+      "milliseconds": 5876.032,
+      "bytes_returned": 127,
+      "characters_returned": 127
+    },
+    "notes": 5,
+    "duplicate_titles_preserved": true,
+    "navigation": [
+      {
+        "run": "cold",
+        "question": "Pagamentos API",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 2.818,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "cold",
+        "question": "Pagamentos Portal",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 1.618,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "cold",
+        "question": "decisão vigente",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 2.497,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "cold",
+        "question": "assinatura webhook",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 0.997,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "repeated",
+        "question": "Pagamentos API",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 2.301,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "repeated",
+        "question": "Pagamentos Portal",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 2.278,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "repeated",
+        "question": "decisão vigente",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 4.322,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      },
+      {
+        "run": "repeated",
+        "question": "assinatura webhook",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "notes_opened": 5,
+        "indices_opened": 3,
+        "milliseconds": 4.394,
+        "bytes_returned": 2524,
+        "characters_returned": 2487
+      }
+    ],
+    "measurements": [
+      {
+        "run": "cold",
+        "question": "Pagamentos API",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/api.md",
+          "vault/local/demo/webhook.md",
+          "vault/local/demo/fila.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 3,
+        "revisions": [
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67",
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387"
+        ],
+        "milliseconds": 7563.946,
+        "bytes_returned": 7281,
+        "characters_returned": 7281
+      },
+      {
+        "run": "cold",
+        "question": "Pagamentos Portal",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/portal.md",
+          "vault/local/demo/webhook.md",
+          "vault/local/demo/fila.md",
+          "vault/local/demo/api.md",
+          "vault/local/demo/release.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 5,
+        "revisions": [
+          "a2f2d32044fbb3843fe169d7f7d285d3177018c7961ee4e46005409e9b4d4f58",
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387",
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67",
+          "0742090d8b97e0b24c9d99abc4e89ddc2d4e1bed9771884052f8025768236723"
+        ],
+        "milliseconds": 5705.204,
+        "bytes_returned": 9440,
+        "characters_returned": 9440
+      },
+      {
+        "run": "cold",
+        "question": "decisão vigente",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/webhook.md",
+          "vault/local/demo/fila.md",
+          "vault/local/demo/api.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 3,
+        "revisions": [
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387",
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67"
+        ],
+        "milliseconds": 7061.511,
+        "bytes_returned": 7281,
+        "characters_returned": 7281
+      },
+      {
+        "run": "cold",
+        "question": "assinatura webhook",
+        "correct": 0,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [],
+        "notes_read": 5,
+        "excerpts_returned": 0,
+        "revisions": [],
+        "milliseconds": 3433.797,
+        "bytes_returned": 250,
+        "characters_returned": 250
+      },
+      {
+        "run": "repeated",
+        "question": "Pagamentos API",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/api.md",
+          "vault/local/demo/webhook.md",
+          "vault/local/demo/fila.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 3,
+        "revisions": [
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67",
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387"
+        ],
+        "milliseconds": 3180.014,
+        "bytes_returned": 7281,
+        "characters_returned": 7281
+      },
+      {
+        "run": "repeated",
+        "question": "Pagamentos Portal",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/portal.md",
+          "vault/local/demo/webhook.md",
+          "vault/local/demo/fila.md",
+          "vault/local/demo/api.md",
+          "vault/local/demo/release.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 5,
+        "revisions": [
+          "a2f2d32044fbb3843fe169d7f7d285d3177018c7961ee4e46005409e9b4d4f58",
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387",
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67",
+          "0742090d8b97e0b24c9d99abc4e89ddc2d4e1bed9771884052f8025768236723"
+        ],
+        "milliseconds": 4539.438,
+        "bytes_returned": 9440,
+        "characters_returned": 9440
+      },
+      {
+        "run": "repeated",
+        "question": "decisão vigente",
+        "correct": 1,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [
+          "vault/local/demo/webhook.md",
+          "vault/local/demo/fila.md",
+          "vault/local/demo/api.md"
+        ],
+        "notes_read": 5,
+        "excerpts_returned": 3,
+        "revisions": [
+          "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b",
+          "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387",
+          "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67"
+        ],
+        "milliseconds": 3398.844,
+        "bytes_returned": 7281,
+        "characters_returned": 7281
+      },
+      {
+        "run": "repeated",
+        "question": "assinatura webhook",
+        "correct": 0,
+        "expected": 1,
+        "stale_references": 0,
+        "paths": [],
+        "notes_read": 5,
+        "excerpts_returned": 0,
+        "revisions": [],
+        "milliseconds": 2747.851,
+        "bytes_returned": 250,
+        "characters_returned": 250
+      }
+    ]
+  },
+  "clients": [
+    {
+      "mode": "write",
+      "client": "codex-cli 0.158.0-alpha.2.1",
+      "model": "gpt-6-astra",
+      "turns": 1,
+      "tool_calls": 8,
+      "facts_correct": true,
+      "project_and_revisions_verified": true,
+      "provider": "markdown",
+      "index_state": "ready",
+      "graphify_verified": null
+    },
+    {
+      "mode": "markdown",
+      "client": "codex-cli 0.158.0-alpha.2.1",
+      "model": "gpt-6-astra",
+      "turns": 1,
+      "tool_calls": 6,
+      "facts_correct": true,
+      "project_and_revisions_verified": true,
+      "provider": "markdown",
+      "index_state": "ready",
+      "graphify_verified": null
+    },
+    {
+      "mode": "graphify",
+      "client": "codex-cli 0.158.0-alpha.2.1",
+      "model": "gpt-6-astra",
+      "turns": 1,
+      "tool_calls": 6,
+      "facts_correct": true,
+      "project_and_revisions_verified": true,
+      "provider": "markdown",
+      "index_state": "failed",
+      "graphify_verified": false
+    },
+    {
+      "mode": "stale",
+      "client": "codex-cli 0.158.0-alpha.2.1",
+      "model": "gpt-6-astra",
+      "turns": 1,
+      "tool_calls": 4,
+      "facts_correct": true,
+      "project_and_revisions_verified": true,
+      "provider": "markdown",
+      "index_state": "stale",
+      "graphify_verified": null
+    }
+  ],
+  "claude": {
+    "client": "2.1.220",
+    "discovery": "verified",
+    "model_proof": "pending",
+    "reason": "not_authenticated"
+  },
+  "visual": [
+    {
+      "name": "architecture-pt",
+      "overflow": []
+    },
+    {
+      "name": "architecture-en",
+      "overflow": []
+    },
+    {
+      "name": "process-memory-pt",
+      "overflow": []
+    },
+    {
+      "name": "process-memory-en",
+      "overflow": []
+    },
+    {
+      "mobile": {
+        "width": 358,
+        "right": 374,
+        "viewport": 390
+      }
+    }
+  ],
+  "owned_browser_processes_after": 0,
+  "qa_windows": {
+    "tests": 170,
+    "skipped": 7,
+    "seconds": 892.61,
+    "success": true
+  }
+}

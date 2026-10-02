@@ -1,6 +1,12 @@
 {
   "version": 2,
   "skills_de_projeto": {
+    "retrieve-memory": {
+      "versao": "1",
+      "versionado_aqui": "skills/retrieve-memory",
+      "claude": ".claude/skills/retrieve-memory",
+      "codex": ".agents/skills/retrieve-memory"
+    },
     "ingest-source": {
       "versao": "1",
       "versionado_aqui": "skills/ingest-source",

@@ -45,7 +45,7 @@ O agente consulta o vault, executa o trabalho autorizado e registra o resultado.
 organizam e verificam as notas; credenciais, confiança e permissões continuam sob controle do cliente
 e do ambiente em que ele opera.
 
-![Arquitetura: Claude Code e Codex usam instruções e skills compartilhadas, registram entregas no vault e acessam MCPs configurados. Docling guarda documentos, áudio, vídeo e revisões; Graphify e claude-mem são adaptadores planejados.](assets/architecture-pt.svg)
+![Arquitetura: Claude Code e Codex usam instruções e skills compartilhadas, registram entregas no vault e acessam MCPs configurados. Docling guarda documentos, áudio, vídeo e revisões; Graphify consulta notas selecionadas em um grafo local opcional; claude-mem continua planejado.](assets/architecture-pt.svg)
 
 [Abrir diagrama](assets/architecture-pt.svg) · [Decisões de arquitetura](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md)
 
@@ -57,7 +57,7 @@ e do ambiente em que ele opera.
 | Integrações | Consultar fontes oficiais e documentar implementação, testes e operação | `integration-specialist` e `integrate-from-docs` disponíveis nos dois clientes |
 | Vault | Guardar contexto, índices, referências e estados de desenvolvimento/produção | Markdown, criação de notas e validador disponíveis; conteúdo mantido pelo agente |
 | Ingestão com Docling | Receber referências, converter fontes acessíveis e ligar evidências ao trabalho | CLI e skill compartilhada disponíveis; hook curto nos dois clientes; [cobertura real](docs/relatorios/2026-10-02-docling-ingestion.md) |
-| Graphify e claude-mem | Facilitar descoberta e recuperação a partir dos registros do vault | Adaptadores planejados; sem sincronização automática |
+| retrieve-memory + Graphify | Consultar notas selecionadas com origem, revisão e relações | Markdown disponível; Graphify 0.9.73 opcional. claude-mem planejado |
 
 O [catálogo de capacidades](vault/capabilities/index.md) reúne as entradas das skills e do especialista.
 O `skills-lock.json` registra origens; o setup verifica o commit de `humanizer`, mas ainda não fixa
@@ -156,6 +156,24 @@ execução informa agentes, skills e MCPs realmente usados, o resultado e a pró
 e produção têm estados separados: código presente ou teste local não comprovam uma publicação.
 O validador confere a estrutura dessas referências; ele não certifica a veracidade das notas.
 
+Peça ao Claude Code ou Codex: **“Use retrieve-memory para retomar esta feature.”** A skill confere
+as notas selecionadas, abre suas evidências e registra um handoff com projeto, UUIDs e revisões.
+Sem índice atual, a consulta usa o Markdown da seleção. Sem seleção, comece pelos microíndices.
+
+![Memória: salvar no vault, selecionar notas, validar, construir retrato, conferir revisão, consultar, abrir evidências e registrar próxima ação. Grafo ausente ou antigo retorna ao Markdown; falhas preservam o vault.](assets/process-memory-pt.svg)
+
+[Setup e operação da memória](docs/USAGE.md#memoria-pt) · [Abrir diagrama](assets/process-memory-pt.svg)
+
+O retrato fica em `.operacao-local/memory/`, fora do Git. Graphify 0.9.73 é opcional, usa Python 3.12
+e representa links explícitos entre notas. Sua busca usa títulos e relações; o Markdown também
+busca no corpo das notas. A IA do cliente interpreta os resultados na conta e nas condições de
+uso já existentes. O adaptador não contrata outra API nem instala um MCP de memória.
+
+No corpus sintético, a referência esperada apareceu em 3 de 4 consultas Graphify e em 4 de 4
+consultas Markdown. O grafo não demonstrou vantagem geral nesse teste pequeno. Veja a
+[medição e os limites](docs/relatorios/2026-10-02-memory-discovery.md).
+
+
 A ingestão com Docling guarda documentos convertidos, imagens e índices em `vault/local/`, ignorada
 pelo Git. Originais e recibos ficam em
 `.operacao-local/docling/`. Uma cópia revisada pode entrar na área compartilhada
@@ -179,7 +197,7 @@ Ele não baixa nem converte documentos. A skill recupera fontes anteriores, exec
 relações, capacidades usadas e próxima ação. Anexos sem caminho exposto ficam pendentes; invoque a skill
 explicitamente quando o cliente não entregar a referência ao hook. O [contrato de ingestão](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
 define esse comportamento. Material local não acompanha clones e precisará de backup privado para
-uso entre máquinas. Graphify e claude-mem, quando integrados, deverão apontar de volta às notas e revisões.
+uso entre máquinas. Graphify aponta de volta às notas e revisões; claude-mem continua planejado.
 
 <a id="evolucao-pt"></a>
 
@@ -193,7 +211,15 @@ registra quatro entregas e sua cobertura:
 3. Verificado: URLs diretas, áudio e vídeo, com intervalos de transcrição, quadros, limites e falhas registrados.
 4. Codex: ingestão e retomada verificadas em duas sessões reais. Claude Code: descoberta verificada; conversa real pendente de login. Veja a [matriz e os limites](docs/relatorios/2026-10-02-docling-ingestion.md).
 
-Os adaptadores de memória e a orquestração autônoma de papéis seguem na
+A consulta Markdown, o Graphify opcional e a skill compartilhada estão implementados. O
+[plano de memória](docs/superpowers/plans/2026-10-02-memory-discovery.md) mantém a prova de cada
+cliente separada: Codex recuperou o handoff e reconheceu uma revisão alterada; a consulta Graphify
+no sandbox somente leitura recorreu ao Markdown. Claude Code tem descoberta verificada e conversa
+real pendente de login. M04 permanece parcial.
+O [relatório](docs/relatorios/2026-10-02-memory-discovery.md) registra o estado atual de M01–M04.
+Consultas e diagnóstico preservam as notas e o `.gitignore`. Se o índice estiver corrompido,
+a consulta usa o Markdown atual; a reconstrução fica explícita no [guia de uso](docs/USAGE.md#memória-consultar-notas-selecionadas).
+claude-mem, sincronização entre máquinas e orquestração autônoma de papéis continuam na
 [evolução do produto](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
@@ -211,6 +237,8 @@ Os adaptadores de memória e a orquestração autônoma de papéis seguem na
 | `.gitignore` | Segredos, caches, evidência pesada e estado local fora do repositório. |
 | `skills-lock.json` | Inventário dos plugins e origem das skills. O instalador verifica o commit de humanizer; versões dos plugins de marketplace ainda não são fixadas por este manifesto. |
 | `skills/humanizer-ptbr/` | Juiz de texto em português: 25 padrões de escrita de máquina e como reescrever. |
+| `skills/retrieve-memory/` | Retomada com notas selecionadas, evidências e revisões. |
+| `scripts/memory.py` | Seleção, consulta, Graphify opcional e recuperação do índice. |
 | `skills/personalizer/` | Entrevista retomável, auditoria guiada e adaptação do projeto. |
 | `skills/integrate-from-docs/` | Documentação oficial, implementação e histórico de integrações. |
 | `skills/ingest-source/` | Recuperação de fontes, ingestão, vínculos com evidência e publicação revisada. |
@@ -275,7 +303,7 @@ Both clients use shared instructions and skills through their own native entries
 the vault, performs authorized work and records the result. Local commands organize and check notes;
 credentials, trust and permissions remain controlled by the client and its execution environment.
 
-![Architecture: Claude Code and Codex use shared instructions and skills, record deliveries in the vault and access configured MCPs. Docling stores documents, audio, video and revisions; Graphify and claude-mem are planned adapters.](assets/architecture-en.svg)
+![Architecture: Claude Code and Codex use shared instructions and skills, record deliveries in the vault and access configured MCPs. Docling stores documents, audio, video and revisions; Graphify queries selected notes in an optional local graph; claude-mem remains planned.](assets/architecture-en.svg)
 
 [Open diagram](assets/architecture-en.svg) · [Architecture decisions](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md)
 
@@ -287,7 +315,7 @@ credentials, trust and permissions remain controlled by the client and its execu
 | Integrations | Consult official sources and document implementation, tests and operation | `integration-specialist` and `integrate-from-docs` available in both clients |
 | Vault | Keep context, indices, references and development/production states | Markdown, note creation and validation available; the agent maintains content |
 | Docling ingestion | Receive references, convert accessible sources and link evidence to work | CLI and shared skill available; short hook in both clients; [observed coverage](docs/relatorios/2026-10-02-docling-ingestion.md) |
-| Graphify and claude-mem | Support discovery and retrieval from vault records | Planned adapters; no automatic synchronization |
+| retrieve-memory + Graphify | Query selected notes with origin, revision and relations | Markdown available; Graphify 0.9.73 optional. claude-mem planned |
 
 The [capability catalog](vault/capabilities/index.md) links to the skills and integration specialist.
 `skills-lock.json` records sources; setup verifies the `humanizer` commit but does not yet pin
@@ -387,6 +415,24 @@ record names the agents, skills and MCPs actually used, the result and the next 
 and production have separate states: code or a local test does not prove a release. The validator
 checks reference structure; it does not certify the truth of a note.
 
+Ask Claude Code or Codex: **“Use retrieve-memory to resume this feature.”** The skill checks
+selected notes, opens their evidence and records a handoff with project identity, UUIDs and revisions.
+Without a current index, queries use the selected Markdown. Without a selection, start with topic indices.
+
+![Memory: save in the vault, select notes, validate, build a snapshot, check revisions, query, open evidence and record the next action. Missing or stale graphs fall back to Markdown; failures preserve the vault.](assets/process-memory-en.svg)
+
+[Memory setup and operation](docs/USAGE.md#memory-en) · [Open diagram](assets/process-memory-en.svg)
+
+Snapshots stay in Git-ignored `.operacao-local/memory/`. Optional Graphify 0.9.73 uses Python 3.12
+and represents explicit links between notes. Its search uses titles and relations; Markdown also
+searches note bodies. The client AI interprets results under the existing account and data settings.
+The adapter does not purchase another API or install a memory MCP.
+
+In the synthetic corpus, the expected reference appeared in 3 of 4 Graphify queries and 4 of 4
+Markdown queries. The graph showed no general advantage in this small test. See the
+[measurement and limits](docs/relatorios/2026-10-02-memory-discovery.md).
+
+
 Docling ingestion stores converted documents, images and indices in the Git-ignored `vault/local/`
 area. Originals and receipts live in `.operacao-local/docling/`.
 A reviewed copy can enter the shared `vault/sources/` area. The validator recognizes the local
@@ -410,7 +456,7 @@ It does not download or convert documents. The skill recovers prior sources, per
 records relations, actual capabilities and the next action. Attachments without an exposed path stay
 pending; invoke the skill explicitly when the client does not pass a reference to the hook. The [ingestion contract](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
 defines that behavior. Local material does not travel with clones and needs a private backup for use
-across machines. Future Graphify and claude-mem adapters must point back to the source notes and revisions.
+across machines. Graphify points back to source notes and revisions; claude-mem remains planned.
 
 <a id="roadmap-en"></a>
 
@@ -424,7 +470,15 @@ records four deliveries and their coverage:
 3. Verified: direct URLs, audio and video, with transcript intervals, frames, limits and failures recorded.
 4. Codex: ingestion and recovery verified in two real sessions. Claude Code: discovery verified; live conversation pending login. See the [matrix and limits](docs/relatorios/2026-10-02-docling-ingestion.md).
 
-Memory adapters and autonomous role orchestration remain in the
+Markdown retrieval, optional Graphify and the shared skill are implemented. The
+[memory plan](docs/superpowers/plans/2026-10-02-memory-discovery.md) tracks each client separately:
+Codex recovered the handoff and recognized a changed revision; Graphify queries in its read-only
+sandbox fell back to Markdown. Claude Code discovery is verified; model conversation awaits login.
+M04 remains partial. The
+[report](docs/relatorios/2026-10-02-memory-discovery.md) records current M01–M04 evidence.
+Queries and diagnostics preserve notes and `.gitignore`. If the index is corrupt, retrieval
+uses current Markdown; rebuilding is explicit in the [usage guide](docs/USAGE.md#memory-query-selected-notes).
+claude-mem, cross-machine synchronization and autonomous role orchestration remain in the
 [product roadmap](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
@@ -442,6 +496,8 @@ Memory adapters and autonomous role orchestration remain in the
 | `.gitignore` | Secrets, caches, heavy evidence and local state stay out of the repository. |
 | `skills-lock.json` | Plugin inventory and skill sources. The installer verifies the humanizer commit; this manifest does not yet pin marketplace plugin versions. |
 | `skills/humanizer-ptbr/` | A text judge for Brazilian Portuguese: 25 patterns of machine writing and how to rewrite them. |
+| `skills/retrieve-memory/` | Resume selected notes with evidence and revisions. |
+| `scripts/memory.py` | Selection, retrieval, optional Graphify and index recovery. |
 | `skills/personalizer/` | Resumable interview, agent-led audit and project adoption. |
 | `skills/integrate-from-docs/` | Official sources, implementation and integration history. |
 | `skills/ingest-source/` | Source recovery, ingestion, evidence links and reviewed publication. |

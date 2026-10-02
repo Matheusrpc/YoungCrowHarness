@@ -98,7 +98,7 @@ class SourcePromptTests(unittest.TestCase):
     def test_native_hook_commands_work_from_subdirectory_with_spaces_without_git(self):
         scripts = self.root / 'scripts'
         scripts.mkdir()
-        for name in ('source_prompt.py', 'documents.py', 'document_store.py', 'source_fetch.py', 'integrations.py'):
+        for name in ('source_prompt.py', 'documents.py', 'document_store.py', 'source_fetch.py', 'integrations.py', 'vault.py'):
             shutil.copyfile(ROOT / 'scripts' / name, scripts / name)
         child = self.root / 'sub dir'
         child.mkdir()

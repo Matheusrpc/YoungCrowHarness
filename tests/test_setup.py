@@ -26,6 +26,8 @@ FILES += INTEGRATION_FILES + PERSONALIZER_FILES + ('scripts/vault.py', 'scripts/
 FILES += ('scripts/documents.py', 'scripts/docling_worker.py', 'requirements/docling.txt')
 FILES += ('scripts/source_fetch.py',)
 FILES += ('requirements/docling-media.txt',)
+FILES += ('scripts/memory.py', 'scripts/graphify_worker.py', 'requirements/graphify.txt',
+          'skills/retrieve-memory/SKILL.md', '.claude/skills/retrieve-memory/SKILL.md', '.agents/skills/retrieve-memory/SKILL.md')
 FILES += ('scripts/source_prompt.py', 'skills/ingest-source/SKILL.md',
           '.claude/skills/ingest-source/SKILL.md', '.agents/skills/ingest-source/SKILL.md')
 
@@ -53,6 +55,25 @@ def fake_git(args):
 
 
 class SetupTests(unittest.TestCase):
+    def test_memory_skill_preserves_existing_client_settings(self):
+        for client in ('claude', 'codex', 'both'):
+            with self.subTest(client=client):
+                self.target = self.base / ('memory-' + client)
+                self.target.mkdir()
+                preserved = ('.mcp.json', '.codex/config.toml', '.claude/settings.json', '.codex/hooks.json')
+                for name in preserved:
+                    write(self.target / name, 'CUSTOM_SENTINEL\n')
+                result = self.run_setup('--client', client, '--no-plugins', '--force')
+                self.assertEqual(result.returncode, 0, result.stderr)
+                for name in preserved:
+                    self.assertEqual((self.target / name).read_text(), 'CUSTOM_SENTINEL\n')
+                for directory, selected in (('.claude', client != 'codex'), ('.agents', client != 'claude')):
+                    wrapper = self.target / directory / 'skills/retrieve-memory/SKILL.md'
+                    self.assertEqual(wrapper.is_file(), selected)
+                    if selected:
+                        self.assertIn('skills/retrieve-memory/SKILL.md', wrapper.read_text())
+                self.assertFalse((self.target / '.operacao-local/memory/runtime/venv').exists())
+
     def test_force_preserves_client_settings_and_credentials(self):
         originals = {name: 'CUSTOM_SENTINEL\n' for name in
                      ('.mcp.json', '.codex/config.toml', '.claude/settings.json', '.codex/hooks.json')}

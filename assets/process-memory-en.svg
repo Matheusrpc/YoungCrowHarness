@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1420" width="760" height="1420" role="img" aria-labelledby="title desc" font-family="Georgia, serif">
+<title id="title">05 · Resume from project memory</title><desc id="desc">Local vault · Optional Graphify · Session AI. AI interprets; production needs its own evidence.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#F3E7C6"/></marker></defs>
+<rect width="760" height="1420" fill="#17130f"/><rect x="12" y="12" width="736" height="1396" rx="10" fill="none" stroke="#725a35" stroke-width="2"/>
+<text x="35" y="53" text-anchor="start" font-size="28" fill="#F3E7C6" data-max-width="695">
+<tspan x="35" dy="0">05 · Resume from project memory</tspan>
+</text>
+<text x="35" y="92" text-anchor="start" font-size="20" fill="#d6c8a8" data-max-width="695">
+<tspan x="35" dy="0">Local vault · Optional Graphify · Session AI</tspan>
+</text>
+<circle cx="295" cy="115" r="13" fill="#1F7A4D" stroke="#F3E7C6" stroke-width="2"/>
+<path d="M295 128V140" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 224V270" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 354V400" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 484V530" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 614V670" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 810V885" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 969V1015" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 1099V1145" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M295 1229V1300" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M365 740H550V770H560" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M642 849V927H510" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M510 572H560" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M642 635V735" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="80" y="140" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="295.0" y="174" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Save in the vault</tspan>
+<tspan x="295.0" dy="30">Origin, UUID and revision</tspan>
+</text>
+<rect x="80" y="270" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="295.0" y="304" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Select notes</tspan>
+<tspan x="295.0" dy="30">Use general and topic indices</tspan>
+</text>
+<rect x="80" y="400" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#E8A317" stroke-width="4"/>
+<text x="295.0" y="434" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Validate selection</tspan>
+<tspan x="295.0" dy="30">Project, paths and limits</tspan>
+</text>
+<rect x="80" y="530" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#5B2E8A" stroke-width="4"/>
+<text x="295.0" y="564" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Build snapshot</tspan>
+<tspan x="295.0" dy="30">Markdown or local Graphify</tspan>
+</text>
+<rect x="80" y="885" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#5B2E8A" stroke-width="4"/>
+<text x="295.0" y="919" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Query the topic</tspan>
+<tspan x="295.0" dy="30">Up to five references</tspan>
+</text>
+<rect x="80" y="1015" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="295.0" y="1049" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Open evidence</tspan>
+<tspan x="295.0" dy="30">Decisions, DEV and production</tspan>
+</text>
+<rect x="80" y="1145" width="430" height="84" rx="9" fill="#F3E7C6" stroke="#1F7A4D" stroke-width="4"/>
+<text x="295.0" y="1179" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="408">
+<tspan x="295.0" dy="0">Record next action</tspan>
+<tspan x="295.0" dy="30">Link handoff from the index</tspan>
+</text>
+<path d="M295 670L365 740L295 810L225 740Z" fill="#E8A317" stroke="#F3E7C6" stroke-width="2"/>
+<text x="295" y="735" text-anchor="middle" font-size="22" fill="#17130f" data-max-width="108">
+<tspan x="295" dy="0">Revision</tspan>
+<tspan x="295" dy="30">current?</tspan>
+</text>
+<rect x="560" y="735" width="165" height="114" rx="9" fill="#F3E7C6" stroke="#E8A317" stroke-width="4"/>
+<text x="642.5" y="769" text-anchor="middle" font-size="18" fill="#17130f" data-max-width="143">
+<tspan x="642.5" dy="0">Read current</tspan>
+<tspan x="642.5" dy="30">selected</tspan>
+<tspan x="642.5" dy="30">Markdown</tspan>
+</text>
+<rect x="560" y="535" width="165" height="100" rx="9" fill="#F3E7C6" stroke="#B3202F" stroke-width="4"/>
+<text x="642.5" y="569" text-anchor="middle" font-size="18" fill="#17130f" data-max-width="143">
+<tspan x="642.5" dy="0">Failure: preserve</tspan>
+<tspan x="642.5" dy="30">the vault</tspan>
+</text>
+<text x="328" y="849" text-anchor="middle" font-size="20" fill="#F3E7C6" data-max-width="70">
+<tspan x="328" dy="0">Yes</tspan>
+</text>
+<text x="470" y="712" text-anchor="middle" font-size="18" fill="#F3E7C6" data-max-width="185">
+<tspan x="470" dy="0">Missing / stale</tspan>
+</text>
+<circle cx="295" cy="1314" r="14" fill="#1F7A4D" stroke="#F3E7C6" stroke-width="5"/>
+<text x="35" y="1362" text-anchor="start" font-size="19" fill="#d6c8a8" data-max-width="695">
+<tspan x="35" dy="0">AI interprets; production needs its own evidence.</tspan>
+</text>
+<text x="35" y="1389" text-anchor="start" font-size="19" fill="#d6c8a8" data-max-width="695">
+<tspan x="35" dy="0">New notes do not expand the selection on their own.</tspan>
+</text>
+</svg>

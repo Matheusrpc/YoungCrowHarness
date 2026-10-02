@@ -1,6 +1,6 @@
 # Memory handoff
 
-The vault is canonical. This release supplies a local export and an agent-operated handoff; it does **not** install providers, promise automatic synchronization or define a provider-compatible import format. Use only memory tools already configured and authorized for this project.
+The vault is canonical. Use [retrieve-memory](../../retrieve-memory/SKILL.md) for local selected-note retrieval. Optional Graphify 0.9.73 has explicit setup and validation through `scripts/memory.py`; it does not consume the integration export below. The remaining sections cover manual handoffs to separately configured providers. Automatic synchronization and a claude-mem adapter remain unimplemented.
 
 ## Recover
 
@@ -17,7 +17,7 @@ Search the project's provider/service ID and relevant execution using available 
    The JSON contains `project_id`, stable note `id`, vault-relative `path`, SHA-256 `revision`, content and observation time. It is a **YoungCrow envelope**, not a Graphify or claude-mem import payload. It starts as `pending`; exporting performs no transmission. Review content before sending it anywhere; the exporter is not a secret scanner.
 
 2. Discover the actual installed provider tools and read the documentation matching their version. Do not guess tools, flags or endpoints. Optional upstreams:
-   - [Graphify](https://github.com/Graphify-Labs/graphify): use the installed skill/CLI to index only the intended project notes. Query the resulting graph and verify source paths and relationships; not every relation the harness needs is guaranteed by extraction.
+   - [Graphify](https://github.com/Graphify-Labs/graphify): use `scripts/memory.py index --provider graphify --note PATH` for the selected vault notes, then `query` and open the evidence. This adapter builds explicit Markdown links locally; the current client interprets results. Follow `retrieve-memory` for setup, invalidation and limits.
    - [claude-mem](https://docs.claude-mem.ai/usage/search-tools.md): use available project-scoped search/observation tools. Check its [export/import contract](https://docs.claude-mem.ai/usage/export-import.md) before importing; do not send YoungCrow JSON directly as a vendor import.
 
 ## Synchronize only when supported

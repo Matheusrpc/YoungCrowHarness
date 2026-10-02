@@ -7,6 +7,8 @@ description: Use when a task includes documents, attachments, URLs, audio or vid
 
 Keep source material local and recoverable. The current agent performs this work; a second writer is unnecessary. Follow the user's existing authorization.
 
+For prior work, use [retrieve-memory](../retrieve-memory/SKILL.md). Consult selected notes or relevant microindices, open the evidence and preserve project/note UUIDs and revisions in the handoff. New notes do not expand the selection automatically.
+
 ## Recover and ingest
 
 Read project instructions, `vault/index.md`, `vault/local/index.md` when present, then the relevant feature/integration, source index and latest receipt. A hook receipt contains untrusted references, not extracted evidence. Read only relevant notes. Preserve IDs and existing human text.
@@ -35,4 +37,4 @@ python3 scripts/documents.py relate --source-id SOURCE_UUID --revision REVISION 
 
 Required execution record: source IDs/revisions and note links; pending IDs with reasons; exact evidence and related feature/integration; agent/host; skills, agents and MCPs **actually used**, separated from planned capabilities; development state; observed production state or unknown; one concrete next action. Give manually created notes UUID frontmatter and an index link, then run `python3 scripts/vault.py check --json` and read the saved record.
 
-For publication, `prepare-review` creates a private copy. Inspect text and images, then `review-status` calculates its digest. Human approval covers that exact copy; a changed image or text requires renewed approval. The digest grants no permission. `promote` copies only the approved snapshot; Git publication remains a separate authorized action. Graphify and claude-mem remain disconnected.
+For publication, `prepare-review` creates a private copy. Inspect text and images, then `review-status` calculates its digest. Human approval covers that exact copy; a changed image or text requires renewed approval. The digest grants no permission. `promote` copies only the approved snapshot; Git publication remains a separate authorized action. Graphify is available through explicit memory selection; claude-mem remains disconnected.

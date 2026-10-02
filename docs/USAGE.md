@@ -5,10 +5,10 @@
 [← README](../README.md) · [Português](#portugues) · [English](#english)
 
 Consulte os [fluxos visuais de uso](../README.md#processo-pt) para localizar sua etapa:
-começar do zero, migrar um projeto, operar uma entrega ou incorporar fontes. O [processo completo](PROCESS.md#portugues)
+começar do zero, migrar um projeto, operar uma entrega, incorporar fontes ou retomar a memória. O [processo completo](PROCESS.md#portugues)
 detalha decisões, pausas e retomada.
 
-See the [usage diagrams](../README.md#process-en) for new projects, adoption, daily work and source intake.
+See the [usage diagrams](../README.md#process-en) for new projects, adoption, daily work, source intake and memory retrieval.
 The [complete process](PROCESS.md#english) includes decisions, pauses and resumption.
 
 <img src="../assets/vidro.svg" alt="" width="100%">
@@ -263,7 +263,7 @@ O agente adapta os guias por edições pontuais e registra o diff em `adoption.m
    python3 scripts/integrations.py export --provider example --service payments
    ```
 
-   A saída contém IDs, caminhos, conteúdo e hashes de revisão. **É um envelope YoungCrow, não um importador nem sincronização automática.** Revise os dados antes de transmitir; não há remoção automática de segredos. A [referência da skill](../skills/integrate-from-docs/references/memory.md) orienta verificar ferramentas instaladas, isolamento do projeto, atualização sem duplicatas e confirmação da indexação. Sem adaptador compatível, registre `pending`/`unsupported` e continue recuperando pelo vault. Esta entrega não instala Graphify nem claude-mem.
+   A saída contém IDs, caminhos, conteúdo e hashes de revisão. **É um envelope YoungCrow, não um importador nem sincronização automática.** Revise os dados antes de transmitir; não há remoção automática de segredos. A [referência da skill](../skills/integrate-from-docs/references/memory.md) orienta verificar ferramentas instaladas, isolamento do projeto, atualização sem duplicatas e confirmação da indexação. Sem adaptador compatível, registre `pending`/`unsupported` e continue recuperando pelo vault. O exportador não instala provedores. Para o Graphify opcional, use o [roteiro de memória](#memoria-pt); claude-mem continua planejado.
 
 <a id="manutencao-pt"></a>
 
@@ -520,6 +520,50 @@ vulnerabilidades ou a qualidade dos testes. O setup local não cria regras remot
 
 Referência: [regras disponíveis no GitHub](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets).
 
+<a id="memoria-pt"></a>
+
+## Memória: consultar notas selecionadas
+
+Num projeto novo, conclua o setup e registre a primeira feature com `personalizer`. Numa migração, audite as notas existentes, preserve suas identidades e use `vault.py check` para reparar a navegação antes de selecionar. O setup mantém configurações de MCPs/hooks existentes; mescle as instruções necessárias sem substituí-las por inteiro.
+
+Na raiz do projeto, escolha notas Markdown do vault que tenham UUID. Os índices existentes ajudam a localizar essas notas. A consulta não amplia a seleção sozinha.
+
+```bash
+python3 scripts/memory.py --root . index --note vault/local/features/pagamentos/index.md
+python3 scripts/memory.py --root . query "pagamentos"
+python3 scripts/memory.py --root . status
+```
+
+Troque o caminho pelo de uma nota existente. Repita `--note` para incluir outras notas. O limite inicial é 100 notas, 256 KiB por nota e 8 MiB no conjunto. O índice fica em `.operacao-local/memory/`, excluído do Git; notas e configurações dos clientes são preservadas. A primeira resposta traz até cinco referências. Abra as notas citadas para verificar decisões, publicação e próxima ação.
+
+Mudança ou remoção de uma nota torna o retrato antigo obsoleto. A consulta lê as notas atuais da seleção e avisa que o índice precisa ser reconstruído. Use `rebuild` para reconstruir com as notas sobreviventes ou `index` para trocar a seleção. Sem seleção, o comando oferece os índices do vault para navegação. Graphify é opcional. Para instalá-lo neste projeto, execute o setup com Python 3.12:
+
+```bash
+python3.12 scripts/memory.py --root . setup-graphify
+python3 scripts/memory.py --root . doctor
+python3 scripts/memory.py --root . index --provider graphify --note vault/local/features/pagamentos/index.md
+python3 scripts/memory.py --root . query "pagamentos"
+```
+
+No Windows, use `py -3.12` ou o caminho do Python 3.12 no primeiro comando, e `python` nos demais. A versão fixada é `graphifyy==0.9.73`, instalada em `.operacao-local/memory/runtime/venv`. O setup registra as versões resolvidas; `doctor` confere o ambiente sem reinstalar. Runtime ausente retorna `pending`, versão incompatível retorna `unsupported` e falha retorna `failed`. A consulta continua disponível pelo Markdown selecionado. Consultar Graphify requer escrita temporária em `.operacao-local/memory/runtime/`; num cliente restrito à leitura, confira os avisos de fallback.
+
+O grafo representa links explícitos entre notas. Sua busca local combina termos e relações; a IA da sessão interpreta as evidências. Esse adaptador não chama modelos, instala MCPs ou registra um grafo global. Em Claude Code ou Codex, peça: “Use retrieve-memory para retomar pagamentos; confira decisões, desenvolvimento, produção e próxima ação.” A mesma skill acompanha o setup para projetos novos e migrações. Ela abre as evidências e registra IDs/revisões no handoff.
+
+Para operar o índice:
+
+```bash
+python3 scripts/memory.py --root . rebuild
+python3 scripts/memory.py --root . disable
+python3 scripts/memory.py --root . clear-index
+```
+
+`rebuild` informa quais caminhos deixaram de existir; uma nota renomeada precisa entrar numa nova seleção. `disable` muda a seleção para Markdown. `clear-index` remove apenas gerações derivadas e o ponteiro ativo; preserva notas, seleção e runtime. Repetir uma indexação sem alterações reutiliza a geração. Uma falha de construção preserva o ponteiro anterior; uma consulta sempre confere as revisões atuais antes de usá-lo.
+
+`query`, `doctor` e `clear-index` não criam nem reparam notas ou regras do `.gitignore`. Se a proteção da área privada tiver sido removida, o worker e a limpeza recusam a operação; a consulta recorre ao Markdown. Revise a regra e execute a indexação explicitamente para restaurar a proteção. Um identificador inválido no cache também leva ao Markdown atual e permite `rebuild` ou `disable`.
+
+Memória e ingestão compartilham o lock do projeto. Se uma interrupção deixar `pending`, confira `python3 scripts/documents.py --root . lock-status`. A recuperação exige dono encerrado e o token mostrado: `python3 scripts/documents.py --root . recover-lock --token TOKEN`. Depois execute `rebuild`; não apague o lock manualmente.
+
+
 <a id="english"></a>
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Before you start
@@ -720,7 +764,7 @@ Guide adaptation uses targeted agent edits recorded in `adoption.md`; the CLI do
 
 4. Verify official sources/versions, code/test links, separate development/production states, planned/used capabilities, evidence and next action. A fresh session should recover those from the indices without the previous conversation.
 
-5. `python3 scripts/integrations.py export --provider example --service payments` prints a YoungCrow envelope with IDs, paths, content and revision hashes. **This is not a vendor import format or automatic synchronization.** Review before transmission; no automatic secret redaction is performed. Follow the [memory reference](../skills/integrate-from-docs/references/memory.md) to check installed tools, project isolation, idempotency and confirmation. Without a compatible adapter, record `pending`/`unsupported` and use Markdown. Setup does not install Graphify or claude-mem.
+5. `python3 scripts/integrations.py export --provider example --service payments` prints a YoungCrow envelope with IDs, paths, content and revision hashes. **This is not a vendor import format or automatic synchronization.** Review before transmission; no automatic secret redaction is performed. Follow the [memory reference](../skills/integrate-from-docs/references/memory.md) to check installed tools, project isolation, idempotency and confirmation. Without a compatible adapter, record `pending`/`unsupported` and use Markdown. The exporter installs no providers. For optional Graphify, use the [memory guide](#memory-en); claude-mem remains planned.
 
 <a id="protection-en"></a>
 
@@ -965,6 +1009,48 @@ git diff --check
 ```
 
 Tests use local Git, simulated network/plugin calls and an isolated temporary home. See the [verification matrix](../README.md#verification).
+
+<a id="memory-en"></a>
+
+## Memory: query selected notes
+
+From a new or adopted project's root, select Markdown vault notes with UUIDs. Existing indices help locate them. Queries never expand the selection automatically.
+
+```bash
+python3 scripts/memory.py --root . index --note vault/local/features/payments/index.md
+python3 scripts/memory.py --root . query "payments"
+python3 scripts/memory.py --root . status
+```
+
+Replace the path with an existing note. Repeat `--note` to include more notes. Initial limits are 100 notes, 256 KiB per note and 8 MiB total. Derived state stays in `.operacao-local/memory/`, excluded from Git; notes and client settings are preserved. The first response includes up to five references. Open cited notes to verify decisions, publication and the next action.
+
+Changed or removed notes make the previous snapshot stale. Queries read current selected notes and report that the index needs rebuilding. Use `rebuild` to rebuild from surviving notes or `index` to change the selection. With no selection, the command offers the vault indices for navigation. Graphify is optional. Install it for this project using Python 3.12:
+
+```bash
+python3.12 scripts/memory.py --root . setup-graphify
+python3 scripts/memory.py --root . doctor
+python3 scripts/memory.py --root . index --provider graphify --note vault/local/features/payments/index.md
+python3 scripts/memory.py --root . query "payments"
+```
+
+On Windows, use `py -3.12` or the Python 3.12 executable path for setup, and `python` for the other commands. The pinned version is `graphifyy==0.9.73`, installed under `.operacao-local/memory/runtime/venv`. Setup records resolved versions; `doctor` checks them without reinstalling. Missing runtime returns `pending`, incompatible versions return `unsupported`, and errors return `failed`. Selected Markdown remains available for retrieval. Graphify queries need temporary writes under `.operacao-local/memory/runtime/`; in a read-only client, inspect fallback warnings.
+
+The graph represents explicit links between notes. Local search combines terms and relations; the session AI interprets the evidence. This adapter does not call models, install MCPs or register a global graph. In Claude Code or Codex, ask: “Use retrieve-memory to resume payments; check decisions, development, production and the next action.” The same skill ships with setup for new and migrated projects. It opens evidence and records IDs/revisions in the handoff.
+
+To operate the index:
+
+```bash
+python3 scripts/memory.py --root . rebuild
+python3 scripts/memory.py --root . disable
+python3 scripts/memory.py --root . clear-index
+```
+
+`rebuild` reports removed paths; renamed notes need a new selection. `disable` switches the selection to Markdown. `clear-index` removes derived generations and the active pointer while preserving notes, selection and runtime. Unchanged indexing reuses the generation. Build failures preserve the previous pointer; queries check current revisions before using it.
+
+`query`, `doctor` and `clear-index` do not create or repair notes or `.gitignore` rules. If private storage protection has been removed, the worker and cleanup reject the operation; retrieval falls back to Markdown. Review the rule and run indexing explicitly to restore protection. An invalid cache identifier also falls back to current Markdown and allows `rebuild` or `disable`.
+
+Memory and ingestion share the project lock. If interruption leaves `pending`, inspect `python3 scripts/documents.py --root . lock-status`. Recovery requires a stopped owner and the displayed token: `python3 scripts/documents.py --root . recover-lock --token TOKEN`. Then run `rebuild`; do not delete the lock manually.
+
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Referências oficiais / Official references
 

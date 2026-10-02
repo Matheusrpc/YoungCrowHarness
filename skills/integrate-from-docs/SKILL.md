@@ -7,6 +7,8 @@ description: Use when creating, changing, migrating or diagnosing a vendor API, 
 
 Act as `integration-specialist` for the requested integration. Work inside the project's authorization and writing boundaries. The role may run in the current session or a native subagent; only one executor writes per checkout.
 
+For prior work, use [retrieve-memory](../retrieve-memory/SKILL.md). Consult selected notes or relevant microindices, open the evidence and preserve project/note UUIDs and revisions in the handoff. New notes do not expand the selection automatically.
+
 ## Recover and scope
 
 Read the project's instructions, `vault/index.md`, `vault/integrations/index.md`, the provider/service microindex and relevant run. Retrieve only linked notes needed for this task. Check the current code/dependencies against those records. Ask only for missing decisions that affect execution; reuse existing answers.

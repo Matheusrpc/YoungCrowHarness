@@ -13,3 +13,14 @@ jobs:
         run: bash -n setup.sh
       - name: Run isolated regression tests
         run: python3 -m unittest discover -s tests -v
+  graphify-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Seed disposable memory project
+        run: python3.12 tests/smoke_memory.py --root .runtime/memory-proof --provider markdown
+      - name: Install pinned optional runtime
+        run: python3.12 scripts/memory.py --root .runtime/memory-proof setup-graphify
+      - name: Exercise actual local Graphify and failure recovery
+        run: python3.12 tests/smoke_memory.py --root .runtime/memory-proof --provider graphify

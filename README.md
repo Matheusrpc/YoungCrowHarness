@@ -207,6 +207,11 @@ uso entre máquinas. Graphify aponta de volta às notas e revisões; claude-mem 
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> Próximas entregas
 
+A [adoção reversível](docs/superpowers/specs/2026-10-02-reversible-adoption-design.md) está em proposta:
+salvar o repositório antes do setup e permitir o retorno, preservando uma cópia do trabalho do teste.
+A restauração automática ainda não está disponível. Configurações globais e serviços externos
+exigem tratamento separado; instalações antigas sem ponto inicial não terão recuperação retroativa garantida.
+
 O desenho do Docling foi aprovado. O [plano de execução](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
 registra quatro entregas e sua cobertura:
 
@@ -479,6 +484,11 @@ across machines. Graphify points back to source notes and revisions; claude-mem 
 <a id="roadmap-en"></a>
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> Next deliveries
+
+[Reversible adoption](docs/superpowers/specs/2026-10-02-reversible-adoption-design.md) is a proposal:
+save the repository before setup and allow restoration while retaining a copy of trial work.
+Automatic restoration is not available yet. Global configuration and external services require
+separate handling; existing installations without a baseline cannot have guaranteed retroactive recovery.
 
 The Docling design is approved. The [implementation plan](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
 records four deliveries and their coverage:

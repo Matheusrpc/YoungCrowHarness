@@ -1,6 +1,7 @@
 # Memória consultável: vault e Graphify
 
-Estado: proposta para revisão. Nenhum adaptador foi instalado ou ativado. Esta frente sucede
+Estado: desenho aprovado pelo mantenedor em 2026-10-02. O [plano de implementação](../plans/2026-10-02-memory-discovery.md)
+está em revisão. Nenhum adaptador foi instalado ou ativado. Esta frente sucede
 a ingestão com Docling publicada no [PR #6](https://github.com/Matheusrpc/YoungCrowHarness/pull/6).
 A prova de conversa real do Docling no Claude continua pendente de autenticação; não é requisito
 para comparar fornecedores, mas será necessária para declarar o fluxo completo nos dois clientes.
@@ -16,7 +17,7 @@ O vault Markdown é o registro principal. Índices locais podem ser apagados e r
 perder fontes, decisões ou resultados. A memória cresce em arquivos; cada consulta traz apenas
 o trecho necessário. Não há promessa de capacidade ou recuperação ilimitada.
 
-Hipótese proposta para o primeiro incremento: usar a IA do cliente já escolhido para interpretar
+Escolha aprovada para o primeiro incremento: usar a IA do cliente já escolhido para interpretar
 os trechos selecionados, sem exigir uma segunda API. Armazenamento local não significa inferência
 offline: o cliente pode enviar esse contexto ao seu provedor. Um modo com modelos inteiramente
 locais ou uma API separada exige configuração e prova próprias, fora deste incremento.
@@ -29,7 +30,7 @@ locais ou uma API separada exige configuração e prova próprias, fora deste in
 | claude-mem primeiro | Captura e recuperação de observações de sessões | Acrescenta um serviço, processamento de observações e outro armazenamento para conciliar com o vault |
 | Ambos no primeiro incremento | Combina navegação e captura | Amplia as fronteiras de dados e os modos de falha antes de demonstrar a recuperação básica |
 
-Recomendação: entregar e medir a consulta ao vault com Graphify; avaliar claude-mem em uma frente
+Decisão: entregar e medir a consulta ao vault com Graphify; avaliar claude-mem em uma frente
 seguinte, preservando o contrato de notas e revisões. O personalizer poderá oferecer essas opções
 após suas versões e limites terem sido demonstrados.
 
@@ -56,7 +57,7 @@ receberá diretamente o JSON do exportador atual.
 Essas são evidências documentais. Nenhuma consulta real a um grafo ou worker desses fornecedores
 foi executada nesta avaliação.
 
-## Fluxo proposto
+## Fluxo aprovado
 
 ```mermaid
 flowchart TD

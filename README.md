@@ -195,8 +195,9 @@ registra quatro entregas e sua cobertura:
 
 Os adaptadores de memória e a orquestração autônoma de papéis seguem na
 [evolução do produto](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
-O [próximo desenho em revisão](docs/superpowers/specs/2026-10-02-memory-discovery-design.md) propõe
-consulta ao vault com Graphify opcional; claude-mem será avaliado em outra entrega. Nenhum adaptador está ativo.
+O [desenho de memória aprovado](docs/superpowers/specs/2026-10-02-memory-discovery-design.md) define
+consulta ao vault com Graphify opcional. O [plano em revisão](docs/superpowers/plans/2026-10-02-memory-discovery.md)
+detalha cinco etapas, com referências atuais e retomada nos dois clientes. claude-mem será avaliado em outra entrega; nenhum adaptador está ativo.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
@@ -428,8 +429,9 @@ records four deliveries and their coverage:
 
 Memory adapters and autonomous role orchestration remain in the
 [product roadmap](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
-The [next design under review](docs/superpowers/specs/2026-10-02-memory-discovery-design.md) proposes
-vault retrieval with optional Graphify; claude-mem will be evaluated separately. Neither adapter is active.
+The [approved memory design](docs/superpowers/specs/2026-10-02-memory-discovery-design.md) defines
+vault retrieval with optional Graphify. The [plan under review](docs/superpowers/plans/2026-10-02-memory-discovery.md)
+sets out five stages, with current references and recovery in both clients. claude-mem will be evaluated separately; neither adapter is active.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 

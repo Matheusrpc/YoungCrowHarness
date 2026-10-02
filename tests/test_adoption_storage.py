@@ -210,6 +210,15 @@ class StorageTests(StorageFixture):
         with self.assertRaisesRegex(ValueError, 'unsupported_permissions'):
             self.fs.inspect_permissions(self.project, role='project')
 
+    @unittest.skipUnless(os.name == 'nt', 'Windows streams before native ACL writes')
+    def test_private_acl_write_refuses_streams_without_changing_permissions(self):
+        self.write('file', b'original')
+        original = self.fs.acl('parent-check', self.project / 'file')
+        Path(str(self.project / 'file') + ':extra').write_bytes(b'SYNTHETIC_ONLY')
+        with self.assertRaisesRegex(ValueError, 'unsupported_permissions'):
+            self.fs.protect_for_storage(self.project)
+        self.assertEqual(self.fs.acl('parent-check', self.project / 'file'), original)
+
     def test_profile_rejects_custom_permissions_without_changing_them(self):
         self.write('file', b'data')
         if os.name == 'nt':

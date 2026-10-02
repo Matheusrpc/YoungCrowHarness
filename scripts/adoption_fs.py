@@ -70,6 +70,18 @@ def outside_git(path):
 
 
 def acl(mode, root):
+    # Validate streams before any native ACL write, including private storage checks.
+    root = checked_path(root)
+    stack = [root] if root.exists() and mode != 'parent-check' else []
+    count = 0
+    while stack:
+        path = checked_path(stack.pop())
+        check_streams(path)
+        count += 1
+        if count > MAX_ENTRIES + 1:
+            raise ValueError('inventory_limit')
+        if path.is_dir():
+            stack.extend(path.iterdir())
     shell = Path(os.environ.get('SystemRoot', 'C:/Windows')) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
     # Even -NoProfile writes CLR startup caches. NUL cannot host a directory;
     # PowerShell tolerates the unavailable optimization cache. Keep user data untouched.
@@ -257,16 +269,6 @@ def inspect_permissions(root, *, role):
     if role not in ('project', 'snapshot', 'transition'):
         raise ValueError('invalid_role')
     if os.name == 'nt':
-        stack = [root] if root.exists() else []
-        count = 0
-        while stack:
-            path = checked_path(stack.pop())
-            check_streams(path)
-            count += 1
-            if count > MAX_ENTRIES + 1:
-                raise ValueError('inventory_limit')
-            if path.is_dir():
-                stack.extend(path.iterdir())
         return acl({'project': 'profile-check', 'snapshot': 'private-check',
                     'transition': 'transition-check'}[role], root)
     if not hasattr(os, 'listxattr'):

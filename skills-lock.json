@@ -303,8 +303,8 @@
       "expected": {
         "contract_sha256": "706792f5bdf2c47a61e53f6c0f45bb141015b75e2128d713031d78ce7fd3cbd7",
         "files_sha256": {
-          "claude": "18e6fb4370d1b4ed87ff86de28c01db2a5f6aa51c80cb96cce0da68a7f9858e8",
-          "codex": "e02c001b3928a3cfa69592e0115f87720e8cf8aab9a483d2f84087fab131c26d"
+          "claude": "743138ebce3d2cdcc6301ed096774cea51027d2eef3e48bd6f8e2c926e889e7b",
+          "codex": "c7c543410ba9f57852cabf26611fc3a19544b03476ade8f07616f6bc5b206978"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"

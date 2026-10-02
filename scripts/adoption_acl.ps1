@@ -29,20 +29,21 @@ function ParentPolicy {
     return @{platform='windows';parent_sddl=$parentAcl.GetSecurityDescriptorSddlForm('Access,Owner,Group')}
 }
 function ApplyAcl($item, $acl) {
-    if ($item.PSIsContainer) { [System.IO.Directory]::SetAccessControl($item.FullName, $acl) }
+    if ($item -is [System.IO.DirectoryInfo]) { [System.IO.Directory]::SetAccessControl($item.FullName, $acl) }
     else { [System.IO.File]::SetAccessControl($item.FullName, $acl) }
 }
 try {
     if ($AwaitParent -and [Console]::ReadLine() -ne 'ready') { throw 'parent_not_ready' }
     if ($Mode -eq 'private-create') {
-        if (Test-Path -LiteralPath $LiteralPath) { throw 'exists' }
+        if ([System.IO.Directory]::Exists($LiteralPath) -or [System.IO.File]::Exists($LiteralPath)) { throw 'exists' }
         [void][System.IO.Directory]::CreateDirectory($LiteralPath, (PrivateAcl $true))
     }
     if ($Mode -eq 'parent-check') { ParentPolicy | ConvertTo-Json -Compress; exit 0 }
     $items = New-Object 'System.Collections.Generic.List[System.IO.FileSystemInfo]'
-    if (Test-Path -LiteralPath $LiteralPath) {
+    if ([System.IO.Directory]::Exists($LiteralPath) -or [System.IO.File]::Exists($LiteralPath)) {
         $queue = New-Object 'System.Collections.Generic.Queue[System.IO.FileSystemInfo]'
-        $queue.Enqueue((Get-Item -LiteralPath $LiteralPath -Force))
+        if ([System.IO.Directory]::Exists($LiteralPath)) { $queue.Enqueue([System.IO.DirectoryInfo]::new($LiteralPath)) }
+        else { $queue.Enqueue([System.IO.FileInfo]::new($LiteralPath)) }
         while ($queue.Count) {
             $item = $queue.Dequeue()
             if (($item.Attributes -band 0x400) -ne 0) { throw 'reparse' }
@@ -50,14 +51,14 @@ try {
             if (([int]$item.Attributes -band (-bnot 0x20b7)) -ne 0) { throw 'attributes' }
             $items.Add($item)
             if ($items.Count -gt 100001) { throw 'limit' }
-            if ($item.PSIsContainer) {
-                Get-ChildItem -LiteralPath $item.FullName -Force | ForEach-Object { $queue.Enqueue($_) }
+            if ($item -is [System.IO.DirectoryInfo]) {
+                foreach ($entry in $item.EnumerateFileSystemInfos()) { $queue.Enqueue($entry) }
             }
         }
     }
     foreach ($item in $items) {
         if ($Mode -eq 'private-apply') {
-            ApplyAcl $item (PrivateAcl $item.PSIsContainer)
+            ApplyAcl $item (PrivateAcl ($item -is [System.IO.DirectoryInfo]))
         } elseif ($Mode -eq 'restore-inheritance') {
             $acl = ReadAcl $item.FullName
             foreach ($rule in @($acl.GetAccessRules($true, $false, $sidType))) {
@@ -83,10 +84,7 @@ try {
             } elseif ($Mode -ne 'transition-check' -and $rule.IsInherited -eq $false) { throw 'custom_acl' }
         }
         if ($Mode -in @('profile-check','restore-inheritance') -and $acl.AreAccessRulesProtected) { throw 'custom_acl' }
-        if (-not $item.PSIsContainer) {
-            $streams = @(Get-Item -LiteralPath $item.FullName -Stream '*' -ErrorAction Stop)
-            if (@($streams | Where-Object { $_.Stream -ne ':$DATA' }).Count) { throw 'ads' }
-        }
+        # The Python caller checks file and directory streams before starting this helper.
     }
     if ($Mode -in @('profile-check','restore-inheritance','transition-check')) { ParentPolicy | ConvertTo-Json -Compress }
     else { @{private=$true} | ConvertTo-Json -Compress }

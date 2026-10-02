@@ -155,7 +155,9 @@ Uma automação de CI executará essa suíte em Linux. A verificação local com
 
 Essa sequência organiza o produto. O [plano do instalador](../plans/2026-10-01-installer-reliability.md) registra o primeiro incremento. As demais frentes terão contratos próprios; o contrato de integrações acrescenta R12 sem acoplar sua implementação às correções já entregues do instalador.
 
-O mantenedor acrescentou R13 e escolheu armazenamento local com publicação revisada. O [desenho aprovado de ingestão com Docling](2026-10-02-docling-ingestion-design.md) detalha o fluxo, a privacidade e as relações entre fontes. A implementação entrou na main pelo PR #6: documentos e mídia foram demonstrados com Docling real; ingestão e retomada passaram no Codex. A conversa real no Claude permanece pendente de autenticação, conforme o [relatório](../../relatorios/2026-10-02-docling-ingestion.md). O [desenho de memória consultável](2026-10-02-memory-discovery-design.md) foi aprovado; seu [plano](../plans/2026-10-02-memory-discovery.md) está em revisão. Nenhum adaptador de memória está ativo.
+O mantenedor acrescentou R13 e escolheu armazenamento local com publicação revisada. O [desenho aprovado de ingestão com Docling](2026-10-02-docling-ingestion-design.md) detalha o fluxo, a privacidade e as relações entre fontes. A implementação entrou na main pelo PR #6: documentos e mídia foram demonstrados com Docling real; ingestão e retomada passaram no Codex. A conversa real no Claude permanece pendente de autenticação, conforme o [relatório](../../relatorios/2026-10-02-docling-ingestion.md).
+
+A [memória consultável](2026-10-02-memory-discovery-design.md) entrou na main pelo PR #7: consulta Markdown, Graphify opcional e skill comum. O [relatório de memória](../../relatorios/2026-10-02-memory-discovery.md) mantém M04 parcial por cliente; a instalação de Graphify no consumidor continua opcional. A próxima proposta é [governança de capacidades](2026-10-02-capability-governance-design.md), com catálogo verificável, auditoria e revisão de configuração. Esse novo controle ainda não foi implementado.
 
 O [contrato do personalizer](2026-10-02-personalizer-design.md) cobre a frente 4 e acrescenta índices de produto, features, decisões e operação à frente 2. A skill conduz a entrevista e a auditoria; o comando cria e preserva os registros. O [relatório do piloto](../../relatorios/2026-10-02-personalizer.md) registra a retomada de uma entrevista e uma entrega local. Esse ensaio não valida publicação em produção nem encerra as frentes 3, 5 e 6.
 
@@ -166,4 +168,4 @@ O [contrato do personalizer](2026-10-02-personalizer-design.md) cobre a frente 4
 - [grill-me](https://www.aihero.dev/skills-grill-me): referência de investigação por perguntas; o personalizer acrescenta persistência e personalização do projeto.
 - [Armazenamento do Obsidian](https://help.obsidian.md/Files+and+folders/How+Obsidian+stores+data) e [links internos](https://help.obsidian.md/Linking+notes+and+files/Internal+links): base de interoperabilidade do vault.
 
-As ferramentas candidatas foram consultadas durante o diagnóstico; sua integração com o YoungCrowHarness ainda não foi testada.
+Graphify foi testado no incremento de memória; claude-mem continua candidato, sem integração ativa. As referências de desenho não substituem as provas registradas por entrega.

@@ -17,10 +17,10 @@ from document_store import atomic_write, process_alive, safe_path
 
 RUNNER_FILES = ('adoption.py', 'adoption_fs.py', 'adoption_acl.ps1', 'document_store.py', 'integrations.py')
 PHASES = ('capturing', 'ready', 'installing', 'installed', 'install_failed', 'restoring', 'restored')
-# Minimum revision of each phase, allowing optional Windows and existing-root steps.
+# Minimum revision, allowing recovery to observe a rename before its completion record.
 TRANSACTION_PHASES = dict(copying=1, prepared=2, privatizing_current=3, current_private=4,
-                          moving_current=3, current_moved=4, activating_baseline=5,
-                          baseline_activated=5, complete=6, invalidated=2)
+                          moving_current=3, current_moved=4, activating_baseline=4,
+                          baseline_activated=4, complete=5, invalidated=2)
 MAX_RECORD = 32 * 1024**2
 
 

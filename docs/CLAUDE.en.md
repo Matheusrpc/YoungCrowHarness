@@ -54,6 +54,8 @@ is the scoreboard: `DELAY: <target1> <n> | <target2> <n> | ...`
 
 ## Session and evidence
 
+- Preserve the human author's Git identity. Do not add AI assistant coauthorship or signatures to
+  commits and PRs; retain third-party credits and licenses.
 - One live executor session per checkout. Every report opens by naming the piece of work.
 - Versioned evidence is light: JPG/PNG screenshots yes; HTML with embedded images (base64) no.
 - Small commits, named by deliverable: `<area>: <deliverable>`.

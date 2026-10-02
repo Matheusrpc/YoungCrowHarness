@@ -179,6 +179,11 @@ com a licença e o commit de cada uma. Os plugins do `skills-lock.json` que vêm
 
 ## <img src="assets/gema-turquesa.svg" height="24" alt=""> Créditos
 
+Mantido por [Matheus Couto](https://github.com/Matheusrpc). Claude Code e Codex são ferramentas
+de desenvolvimento; os guias orientam preservar a autoria humana. A configuração do Claude desativa
+a atribuição automática em novos commits e PRs. A remoção das atribuições antigas da `main` está
+registrada no [relatório de autoria](docs/relatorios/2026-10-02-ai-attribution.md).
+
 A skill `humanizer` é de [blader/humanizer](https://github.com/blader/humanizer), MIT, e os padrões
 vêm de [«Signs of AI writing»](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) da
 Wikipédia. Os plugins listados no `skills-lock.json` pertencem aos seus autores. O resto deste
@@ -343,6 +348,11 @@ license and commit. Plugins in `skills-lock.json` that come from a local directo
 install by hand, following the plugin's own page.
 
 ## <img src="assets/gema-turquesa.svg" height="24" alt=""> Credits
+
+Maintained by [Matheus Couto](https://github.com/Matheusrpc). Claude Code and Codex are development
+tools; the guides preserve human authorship. Claude settings disable automatic attribution in new
+commits and PRs. Removal of the older `main` attributions is recorded in the
+[authorship report](docs/relatorios/2026-10-02-ai-attribution.md) (Portuguese).
 
 The `humanizer` skill is [blader/humanizer](https://github.com/blader/humanizer), MIT, and its patterns
 come from Wikipedia's [«Signs of AI writing»](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).

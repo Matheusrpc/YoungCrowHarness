@@ -204,6 +204,15 @@ O agente adapta os guias por edições pontuais e registra o diff em `adoption.m
 
 <a id="manutencao-pt"></a>
 
+### Autoria de commits e PRs
+
+O projeto configura `.claude/settings.json` com `attribution.commit` e `attribution.pr` vazios,
+conforme a [documentação do Claude](https://code.claude.com/docs/en/settings-reference#attribution).
+Os guias de Claude e Codex também orientam não acrescentar assistentes como coautores. Preserve a
+identidade Git de quem realizou o trabalho e os créditos de terceiros. O setup preserva configurações
+existentes: em um projeto já adotado, ajuste apenas essas duas propriedades no JSON e mantenha os
+demais campos. Remover atribuições de commits antigos exige uma alteração separada do histórico.
+
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Falhas, repetição e manutenção
 
 | Situação | Comportamento e próximo passo |
@@ -436,6 +445,15 @@ or test quality. Local setup does not create remote rules.
 Reference: [available GitHub rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets).
 
 <a id="maintenance-en"></a>
+
+### Commit and PR authorship
+
+The project sets `attribution.commit` and `attribution.pr` to empty strings in `.claude/settings.json`,
+following [Claude's documentation](https://code.claude.com/docs/en/settings-reference#attribution).
+Claude and Codex guides also instruct agents not to add assistants as coauthors. Preserve the Git
+identity of the person doing the work and third-party credits. Setup preserves existing settings:
+in an adopted project, edit only those two JSON properties and keep the remaining fields. Removing
+attribution from older commits requires a separate history change.
 
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Failures and maintenance
 

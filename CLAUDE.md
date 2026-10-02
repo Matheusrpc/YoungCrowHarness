@@ -43,6 +43,8 @@ publica é o placar: `ATRASO: <alvo1> <n> | <alvo2> <n> | ...`
 
 ## Sessão e evidência
 
+- Preserve a identidade Git do autor humano. Não acrescente coautoria ou assinatura de assistentes
+  de IA em commits e PRs; mantenha créditos e licenças de terceiros.
 - Toda implementação atualiza o `README.md` e a documentação de uso afetada. Use `humanizer` na
   redação e preserve o design existente; mantenha o diagrama do processo coerente com o que funciona.
 - Para personalizar o projeto, use `personalizer` (`skills/personalizer/SKILL.md`).

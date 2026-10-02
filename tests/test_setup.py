@@ -14,6 +14,11 @@ ROOT = Path(__file__).resolve().parents[1]
 FILES = ('setup.sh', 'CLAUDE.md', 'AGENTS.md', '.mcp.json', '.env.example',
          '.gitignore', '.codex/hooks.json', '.claude/settings.json',
          'skills-lock.json', 'docs/CLAUDE.en.md', 'skills/humanizer-ptbr/SKILL.md', '.codex/config.toml')
+FILES += ('scripts/integrations.py', 'skills/integrate-from-docs/SKILL.md',
+          'skills/integrate-from-docs/references/memory.md', 'vault/index.md',
+          'vault/integrations/index.md', 'vault/capabilities/index.md',
+          '.agents/skills/integrate-from-docs/SKILL.md', '.claude/skills/integrate-from-docs/SKILL.md',
+          '.claude/agents/integration-specialist.md', '.codex/agents/integration-specialist.toml')
 
 
 def shell_path(path):
@@ -319,6 +324,40 @@ class SetupTests(unittest.TestCase):
             self.assertTrue((skill / 'SKILL.md').is_file(), root)
             self.assertEqual(self.git('-C', str(skill), 'rev-parse', 'HEAD').stdout.strip(), self.expected_commit)
             self.assertTrue((root / 'humanizer-ptbr/SKILL.md').is_file())
+
+    def test_integration_vault_and_native_entries(self):
+        result = self.run_setup('--no-plugins')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for rel in FILES[-10:]:
+            self.assertTrue((self.target / rel).is_file(), rel)
+        self.git('init', '-q', str(self.target))
+        self.assertEqual(self.git('-C', str(self.target), 'check-ignore', '--no-index',
+                                 '.agents/skills/integrate-from-docs/SKILL.md', check=False).returncode, 1)
+        identity = tomllib.loads((self.target / '.codex/agents/integration-specialist.toml').read_text())
+        self.assertEqual(identity['name'], 'integration-specialist')
+
+    def test_force_preserves_vault_knowledge(self):
+        original = b'# Conhecimento do produto\r\n'
+        write(self.target / 'vault/index.md', '')
+        (self.target / 'vault/index.md').write_bytes(original)
+        result = self.run_setup('--no-plugins', '--force')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual((self.target / 'vault/index.md').read_bytes(), original)
+
+    def test_vault_conflict_blocks_all_setup_writes(self):
+        write(self.target / 'vault/integrations', 'existing file')
+        self.assert_no_project_writes(self.run_setup('--no-plugins'))
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows junction behavior')
+    def test_junction_without_python312_helper_blocks_setup(self):
+        outside = self.base / 'junction-destination'
+        outside.mkdir()
+        subprocess.run(['cmd', '/c', 'mklink', '/J', str(self.target / 'vault'), str(outside)],
+                       check=True, capture_output=True)
+        write(self.base / 'sitecustomize.py', 'from pathlib import Path\nPath.is_junction = lambda self: False\n')
+        result = self.run_setup('--no-plugins', env={'PYTHONPATH': str(self.base)})
+        self.assert_no_project_writes(result)
+        self.assertEqual(list(outside.iterdir()), [])
 
     def test_codex_only_does_not_touch_claude(self):
         write(self.home / '.claude', 'not used by Codex')

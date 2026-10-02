@@ -1,5 +1,14 @@
 {
   "version": 2,
+  "skills_de_projeto": {
+    "integrate-from-docs": {
+      "versao": "1",
+      "versionado_aqui": "skills/integrate-from-docs",
+      "claude": ".claude/skills/integrate-from-docs",
+      "codex": ".agents/skills/integrate-from-docs",
+      "agente": "integration-specialist"
+    }
+  },
   "clientes": {
     "padrao": "both",
     "claude": { "skills": "~/.claude/skills", "mcp": ".mcp.json", "hooks": ".claude/settings.json", "plugins": "marketplace Claude Code" },

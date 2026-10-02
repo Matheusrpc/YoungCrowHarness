@@ -35,13 +35,18 @@ if [ -z "$TARGET" ]; then
 fi
 falhar() { printf '%s\n' "$1" >&2; exit 1; }
 FILES=(CLAUDE.md AGENTS.md .env.example skills-lock.json docs/CLAUDE.en.md)
+FILES+=(scripts/integrations.py skills/integrate-from-docs/SKILL.md
+  skills/integrate-from-docs/references/memory.md
+  vault/index.md vault/integrations/index.md vault/capabilities/index.md)
 SKILL_ROOTS=()
 if [ "$CLIENT" != codex ]; then
-  FILES+=(.mcp.json .claude/settings.json)
+  FILES+=(.mcp.json .claude/settings.json .claude/agents/integration-specialist.md
+    .claude/skills/integrate-from-docs/SKILL.md)
   SKILL_ROOTS+=("$HOME/.claude/skills")
 fi
 if [ "$CLIENT" != claude ]; then
-  FILES+=(.codex/hooks.json .codex/config.toml)
+  FILES+=(.codex/hooks.json .codex/config.toml .codex/agents/integration-specialist.toml
+    .agents/skills/integrate-from-docs/SKILL.md)
   SKILL_ROOTS+=("$TARGET/.agents/skills")
 fi
 for ferramenta in python3 git mkdir cp chmod mv mktemp; do
@@ -50,16 +55,21 @@ done
 python3 -c 'import json, pathlib, sys' || falhar 'python3 indisponível / unavailable'
 # Preflight is read-only. Resolve the requested root, then reject links inside it.
 python3 - "$TARGET" "$HARNESS_DIR" "$HOME" "$CLIENT" "${FILES[@]}" <<'PY'
-import json, pathlib, re, sys
+import json, pathlib, re, stat, sys
 
 def check_path(root, relative):
     current = root
     parts = pathlib.Path(relative).parts
     for i, part in enumerate(parts):
         current = current / part
-        if current.is_symlink() or getattr(current, 'is_junction', lambda: False)():
+        try:
+            metadata = current.lstat()
+        except FileNotFoundError:
+            continue
+        # FILE_ATTRIBUTE_REPARSE_POINT works on Python 3.11 too (is_junction is 3.12+).
+        if stat.S_ISLNK(metadata.st_mode) or getattr(metadata, 'st_file_attributes', 0) & 0x400:
             raise ValueError('link em caminho gerenciado / linked managed path: ' + relative)
-        if current.exists() and current.is_dir() != (i < len(parts) - 1):
+        if stat.S_ISDIR(metadata.st_mode) != (i < len(parts) - 1):
             raise ValueError('tipo de caminho incorreto / wrong path type: ' + relative)
 
 try:
@@ -147,6 +157,8 @@ mkdir -p "$TARGET"; TARGET="$(cd "$TARGET" && pwd -P)"
 
 copiar() {  # copiar <relativo>: nunca sobrescreve sem --force
   local rel="$1" src="$HARNESS_DIR/$1" dst="$TARGET/$1"
+  # Knowledge is product data, never a replaceable configuration template.
+  if [[ "$rel" == vault/* ]] && [ -e "$dst" ]; then echo "  mantido / preserved: $rel (vault)"; return; fi
   if [ -e "$dst" ] && [ "$FORCE" != 1 ]; then echo "  mantido  $rel (já existe; use --force para trocar)"; return; fi
   mkdir -p "$(dirname "$dst")"; cp "$src" "$dst"; echo "  copiado  $rel"
   case "$rel" in

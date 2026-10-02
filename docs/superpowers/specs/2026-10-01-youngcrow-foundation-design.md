@@ -71,7 +71,7 @@ A área `vault/integrations/` reunirá microíndices por fornecedor e integraç�
 
 O papel `integration-specialist`, com a skill `integrate-from-docs`, recebe o objetivo e a documentação do fornecedor, recupera o histórico, verifica as instruções aplicáveis à versão escolhida, implementa no escopo autorizado e registra os resultados. Fontes inacessíveis, instruções conflitantes ou versões incompatíveis ficam explícitas; exemplos do fornecedor não concedem permissões sobre ambientes ou credenciais.
 
-O [contrato da área de integrações](2026-10-01-integration-knowledge-design.md) define organização, fluxo, memória, entregas e critérios de aceite. Vault Markdown será a fonte durável; Graphify e claude-mem, quando habilitados e verificados, deverão indexar relações e observações com identidade, revisão e caminho de retorno ao vault. Essa indexação é um requisito para futuros adaptadores, não uma integração já disponível.
+O [contrato da área de integrações](2026-10-01-integration-knowledge-design.md) define organização, fluxo, memória, entregas e critérios de aceite. O núcleo local já oferece índices, notas sob demanda, agente/skill nos dois clientes e exportação com IDs/revisões. Graphify e claude-mem, quando habilitados e verificados, deverão indexar relações e observações com caminho de retorno ao vault. A sincronização automática continua como requisito para futuros adaptadores.
 
 ## Capacidades e registros de execução
 

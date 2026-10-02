@@ -26,6 +26,9 @@ hooks não fazem nada.
 
 ## Configuração do Codex
 
+- Integrações: skill `.agents/skills/integrate-from-docs/`, agente `.codex/agents/integration-specialist.toml`.
+  Leia `skills/integrate-from-docs/SKILL.md` e retome pelo `vault/index.md`; preserve um escritor por checkout.
+
 - MCPs deste projeto ficam em `.codex/config.toml`. Revise os exemplos, autenticação e permissões;
   habilite apenas os servidores necessários. O Codex carrega configurações do projeto após confiança.
 - Skills do Codex instaladas pelo setup ficam em `.agents/skills/` neste projeto. Confira a descoberta no cliente.

@@ -5,6 +5,10 @@ forks that work in English. Keep only one of the two as the real `CLAUDE.md`.
 
 ## Laws
 
+For vendor integrations, use `integrate-from-docs` and the `integration-specialist` role.
+Start at `vault/index.md`; shared instructions live in `skills/integrate-from-docs/SKILL.md`.
+Record sources, decisions, tests and separate development/production states before handing off.
+
 1. **Measure before you claim.** Every deliverable has a test. A report shows command output
    (`ls`, `sha256sum`, logs, screenshots), not adjectives. "It works" without proof does not count.
 2. **No secret in a versioned file.** `.env` is local and never enters git; `.env.example` holds fake

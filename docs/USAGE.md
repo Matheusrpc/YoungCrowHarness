@@ -10,8 +10,8 @@
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Antes de começar
 
-Este guia cobre o instalador atual e a adoção manual das regras do harness. O vault com índice geral e microíndices, o personalizer, a auditoria automática de migração e as integrações Graphify/claude-mem estão [planejados](superpowers/specs/2026-10-01-youngcrow-foundation-design.md). O setup ainda não os cria.
-Essa direção inclui a [documentação de integrações e o especialista em fornecedores](superpowers/specs/2026-10-01-integration-knowledge-design.md), com referências do vault nas futuras projeções Graphify/claude-mem.
+Este guia cobre o instalador, o vault de integrações e o especialista em fornecedores. O setup cria o índice geral, os índices de integrações/capacidades, a skill e a entrada nativa do agente para os clientes selecionados. Fornecedores, serviços e execuções são criados sob demanda.
+Personalizer, auditoria automática de migração, outras áreas do vault e sincronização automática Graphify/claude-mem continuam [planejados](superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 
 Use Bash no Linux ou Git Bash no Windows, com Git e Python 3 disponíveis no mesmo terminal:
 
@@ -29,11 +29,13 @@ O setup atende os dois clientes por padrão (`--client both`). Use `--client cla
 |---|---|---|
 | Instruções | `CLAUDE.md` | `AGENTS.md`, que orienta ler `CLAUDE.md` |
 | Skills humanizer e humanizer-ptbr | `~/.claude/skills/`, no usuário | `.agents/skills/`, dentro do projeto |
+| Skill integrate-from-docs | `.claude/skills/integrate-from-docs/` | `.agents/skills/integrate-from-docs/` |
+| Agente integration-specialist | `.claude/agents/integration-specialist.md` | `.codex/agents/integration-specialist.toml` |
 | MCP | `.mcp.json` | `.codex/config.toml` |
 | Hooks | `.claude/settings.json` | `.codex/hooks.json` |
 | Plugins | Marketplace Claude, se instalado | Catálogo do Codex, instalação manual |
 
-`--sem-plugins` pula os plugins do Claude; as skills dos clientes selecionados continuam sendo instaladas e humanizer precisa acessar o GitHub. Em modo Codex, nenhuma instalação de Claude é executada. O Git do projeto não desfaz alterações no usuário. As cópias locais das skills do Codex ficam ignoradas pelo Git: cada clone ou worktree novo precisa executar o setup. Skills próprias do produto podem ser versionadas separadamente, conforme a política de ignore do projeto.
+`--sem-plugins` pula os plugins do Claude; as skills dos clientes selecionados continuam sendo instaladas e humanizer precisa acessar o GitHub. Em modo Codex, nenhuma instalação de Claude é executada. O Git do projeto não desfaz alterações no usuário. As cópias locais de humanizer e humanizer-ptbr no Codex ficam ignoradas pelo Git: cada clone ou worktree novo precisa executar o setup. Skills próprias do produto podem ser versionadas separadamente, conforme a política de ignore do projeto.
 
 No Codex para Windows, deixe `python` no PATH do cliente e, se usar o hook opcional de impeccable, também `bash`. A instalação continua sendo executada no Git Bash.
 
@@ -138,7 +140,37 @@ Este é o rito manual recomendado para a versão atual. Os papéis podem ser exe
 
 Para cada entrega, mantenha um relato em `docs/relatorios/` e evidências leves em `docs/medicoes/`, conforme `CLAUDE.md`. Crie as pastas quando usadas. O relato deve conter: tema e identificador, objetivo, status em desenvolvimento, status em produção com evidência, decisões, arquivos/commits, testes, agentes/skills/MCPs necessários e os efetivamente usados, pendências e links para relatos relacionados. Não registre prompts com segredos nem saídas brutas sensíveis.
 
-Para retomar, peça ao agente que leia as instruções e o último relato da frente antes de modificar arquivos. Atualize links e estado ao concluir. Esse registro permite continuidade hoje; a organização automática em vault e seus índices será uma entrega posterior. Uma ferramenta disponível não concede permissão para usá-la em qualquer ambiente.
+Para retomar, peça ao agente que leia as instruções e o último relato da frente antes de modificar arquivos. Para integrações, comece em `vault/index.md` e siga fornecedor → serviço → execução. Atualize links e estado ao concluir. Uma ferramenta disponível não concede permissão para usá-la em qualquer ambiente.
+
+<a id="integracoes-pt"></a>
+
+## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Documentar e executar integrações
+
+1. Execute o setup normalmente para um repo novo ou siga a migração acima. Ele instala `scripts/integrations.py`, o vault e a skill compartilhada em `skills/integrate-from-docs/`. A skill especializada é versionável no projeto; humanizer e humanizer-ptbr continuam downloads locais. Os índices existentes do vault são preservados **mesmo com `--force`**. Se já existirem, acrescente os links para integrações e capacidades ao seu índice geral; mescle entradas úteis de capacidades. O primeiro `init` também acrescenta a navegação de integrações sem apagar o conteúdo.
+
+2. Abra o cliente na raiz do produto e peça:
+
+   > Use integration-specialist com integrate-from-docs para integrar [serviço] de [fornecedor] na frente [feature], em desenvolvimento. Consulte [URL oficial], confira o SDK instalado, implemente e teste. Registre fontes, decisões, capacidades usadas e pendências no vault.
+
+   A skill pode ser invocada diretamente como `/integrate-from-docs` no Claude ou `$integrate-from-docs` no Codex. Reinicie a sessão após instalar novas entradas. Se o cliente não suportar agentes personalizados, use a skill na sessão principal, preservando um único escritor. Não habilite permissões extras apenas para obter a descoberta.
+
+3. Para preparar notas manualmente, na raiz do produto:
+
+   ```bash
+   python3 scripts/integrations.py init --provider example --service payments --run first-contract
+   ```
+
+   Troque os slugs pelo fornecedor, serviço e execução reais. Use um novo ID a cada execução; repetir o ID retoma os mesmos arquivos. A navegação fica `vault/index.md` → integrações → fornecedor → serviço → fontes/implementação/operação/execuções. Versione `vault/project.json` com as notas: clones do mesmo produto compartilham identidade; produtos independentes precisam de um vault novo.
+
+4. Ao concluir, confira fontes oficiais e versões, links de código/testes, estados distintos de desenvolvimento e produção, capacidades previstas/usadas, evidências e próxima ação. Abra `vault/` no Obsidian para navegar pelas mesmas notas. A próxima sessão deve recuperar o trabalho pelos índices, sem depender deste chat.
+
+5. Para preparar o envio a uma memória opcional:
+
+   ```bash
+   python3 scripts/integrations.py export --provider example --service payments
+   ```
+
+   A saída contém IDs, caminhos, conteúdo e hashes de revisão. **É um envelope YoungCrow, não um importador nem sincronização automática.** Revise os dados antes de transmitir; não há remoção automática de segredos. A [referência da skill](../skills/integrate-from-docs/references/memory.md) orienta verificar ferramentas instaladas, isolamento do projeto, atualização sem duplicatas e confirmação da indexação. Sem adaptador compatível, registre `pending`/`unsupported` e continue recuperando pelo vault. Esta entrega não instala Graphify nem claude-mem.
 
 <a id="manutencao-pt"></a>
 
@@ -147,7 +179,7 @@ Para retomar, peça ao agente que leia as instruções e o último relato da fre
 | Situação | Comportamento e próximo passo |
 |---|---|
 | Reexecutar | Preserva arquivos existentes; renderiza o nome só nos guias recém-copiados. As regras finais de ignore não crescem em repetições do mesmo modo sem mudanças. |
-| `--force` | Substitui os templates gerenciados, inclusive configurações. Revise o diff antes de usar. Nunca substitui `.env` nem as regras existentes de `.gitignore`. |
+| `--force` | Substitui os templates gerenciados, inclusive configurações. Revise o diff antes de usar. Preserva notas do vault, `.env` e regras existentes de `.gitignore`. |
 | Argumento inválido | Sai com código 2, antes de copiar arquivos. |
 | Falha de preflight | Sai com código não zero; resolva dependências, caminhos, manifesto ou `.env` rastreado e tente novamente. |
 | Humanizer divergente ou modificado | Preserva a instalação do usuário e interrompe. Compare com o commit do manifesto e decida manualmente como guardar suas mudanças; o setup não executa reset. |
@@ -173,12 +205,12 @@ Os testes usam Git local e simulam chamadas de rede/plugins, com um diretório d
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Before you start
 
-This guide covers the current installer and manual adoption. The indexed vault, personalizer, automated migration audit and Graphify/claude-mem integrations are [planned](superpowers/specs/2026-10-01-youngcrow-foundation-design.md), not created by setup.
-The plan includes [vendor integration documentation and a specialized agent/skill](superpowers/specs/2026-10-01-integration-knowledge-design.md), with vault references in future Graphify/claude-mem projections.
+This guide covers setup, the integration vault and vendor specialist. Setup installs the general, integration and capability indices, shared skill and native agent entries for the selected clients. Provider/service/run notes are created on demand.
+The personalizer, automated migration audit, remaining vault areas and automatic Graphify/claude-mem synchronization are still [planned](superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 
 Use Linux Bash or Windows Git Bash with working `bash --version`, `git --version` and `python3 --version` in that terminal. If Windows opens the Microsoft Store for `python3`, configure the installed Python on Git Bash's PATH first. These commands are not native PowerShell commands.
 
-Setup defaults to `--client both`; select `--client claude` or `--client codex` for one host. Common rules stay in `CLAUDE.md` and `AGENTS.md`. Claude skills go under `~/.claude/skills/`; Codex skills go in the project's `.agents/skills/`. Downloaded copies are ignored by Git, so run setup in every new clone/worktree. Claude uses `.mcp.json` and `.claude/settings.json`; Codex uses `.codex/config.toml` and `.codex/hooks.json`.
+Setup defaults to `--client both`; select `--client claude` or `--client codex` for one host. Common rules stay in `CLAUDE.md` and `AGENTS.md`. Claude's humanizer skills go under `~/.claude/skills/`; Codex's go in the project's `.agents/skills/`. Those downloaded copies are ignored by Git, so run setup in every new clone/worktree. The integration skill is project-local and versionable in both clients. Claude uses `.mcp.json` and `.claude/settings.json`; Codex uses `.codex/config.toml` and `.codex/hooks.json`.
 
 Claude marketplace plugins are installed when `claude` is available, unless `--no-plugins` is passed. Codex-only mode never calls Claude; install Codex plugins separately through its catalog. Skills still install with `--no-plugins`, and humanizer requires GitHub access. Project Git cannot undo user-level installations. Run one installation per target at a time. On Windows, Codex's optional impeccable hook needs `python` and, if impeccable is installed, `bash` on the client's PATH.
 
@@ -266,13 +298,37 @@ The current workflow is manual. One person can fill several roles with agents; s
 
 Create delivery reports in `docs/relatorios/` and lightweight evidence in `docs/medicoes/` as needed, following `CLAUDE.md`. Include a topic identifier, objective, development status, production status with evidence, decisions, files/commits, tests, required versus actually used agents/skills/MCPs, unresolved work and links to related reports. Keep sensitive logs and secrets out.
 
-At the next session, read the project instructions and latest workstream report before editing. Update links and state when finished. Automatic vault organization and indexes will follow in a later delivery. Tool availability does not grant authorization for every environment.
+At the next session, read the project instructions and latest workstream report before editing. For integrations, follow `vault/index.md` → provider → service → run. Update links and state when finished. Tool availability does not grant authorization for every environment.
+
+<a id="integrations-en"></a>
+
+## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Document and implement integrations
+
+1. Run the new-project setup or migration steps above. Setup installs `scripts/integrations.py`, the vault and shared `skills/integrate-from-docs/`. Client discovery entries are project-local: `.claude/skills/integrate-from-docs/` and `.agents/skills/integrate-from-docs/`; native agents live in `.claude/agents/integration-specialist.md` and `.codex/agents/integration-specialist.toml`. Existing vault indices are preserved **even with `--force`**. For an existing vault, add integration/capability links to its general index and merge useful capability entries; `init` appends missing integration navigation without replacing prose.
+
+2. Open the selected client in your product root and ask:
+
+   > Use integration-specialist with integrate-from-docs to integrate [vendor/service] for [feature] in development. Read [official URL], check the installed SDK, implement and test. Record sources, decisions, capabilities used and remaining work in the vault.
+
+   Invoke `/integrate-from-docs` in Claude or `$integrate-from-docs` in Codex. Restart after installing entries. If custom agents are unavailable, run the skill in the main session with one writer; do not grant extra permissions just for discovery.
+
+3. To prepare notes manually:
+
+   ```bash
+   python3 scripts/integrations.py init --provider example --service payments --run first-contract
+   ```
+
+   Use real lowercase slugs and a new execution ID for each run; repeating the ID resumes existing files. Open `vault/` in Obsidian or follow relative links in GitHub. Commit `vault/project.json` with the notes; clones of one product keep its identity, independent products need a fresh vault.
+
+4. Verify official sources/versions, code/test links, separate development/production states, planned/used capabilities, evidence and next action. A fresh session should recover those from the indices without the previous conversation.
+
+5. `python3 scripts/integrations.py export --provider example --service payments` prints a YoungCrow envelope with IDs, paths, content and revision hashes. **This is not a vendor import format or automatic synchronization.** Review before transmission; no automatic secret redaction is performed. Follow the [memory reference](../skills/integrate-from-docs/references/memory.md) to check installed tools, project isolation, idempotency and confirmation. Without a compatible adapter, record `pending`/`unsupported` and use Markdown. Setup does not install Graphify or claude-mem.
 
 <a id="maintenance-en"></a>
 
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Failures and maintenance
 
-Repeated runs preserve existing files and render the project name only in newly copied guides. `--force` replaces managed templates/configurations, but preserves `.env` and existing ignore rules. Review changes before using it.
+Repeated runs preserve existing files and render the project name only in newly copied guides. `--force` replaces managed templates/configurations, but preserves vault notes, `.env` and existing ignore rules. Review changes before using it.
 
 Invalid arguments exit with code 2. Dependency, path, manifest, tracked-env and divergent-skill checks fail before project copies. Existing humanizer must be a clean repository at the manifest commit; changes are preserved and require your decision. Failed downloads/checkouts never activate the incomplete skill. Plugin failures identify their stage and return nonzero. Earlier successful steps remain in place; resolve the cause and retry.
 

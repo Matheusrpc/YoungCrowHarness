@@ -43,6 +43,10 @@ publica é o placar: `ATRASO: <alvo1> <n> | <alvo2> <n> | ...`
 
 ## Sessão e evidência
 
+- Para integrações de fornecedores, use `integrate-from-docs` e o papel `integration-specialist`.
+  Comece em `vault/index.md`; a instrução compartilhada está em `skills/integrate-from-docs/SKILL.md`.
+  Registre fontes, decisões, testes e estados de desenvolvimento/produção antes de encerrar a execução.
+
 - Uma sessão viva do executor por checkout. Todo relatório abre declarando a frente.
 - Evidência versionada é leve: JPG/PNG de captura sim; HTML com imagens embutidas (base64) não.
 - Commits pequenos, nomeados pelo entregável: `<área>: <entregável>`.

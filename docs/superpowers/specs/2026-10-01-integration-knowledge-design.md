@@ -2,7 +2,7 @@
 
 Data: 2026-10-01. Frente: R12 da [fundação do YoungCrowHarness](2026-10-01-youngcrow-foundation-design.md).
 
-**Estado: requisito documentado; implementação pendente.** Este documento acrescenta o pedido do mantenedor ao desenho do vault. O setup atual não cria essa estrutura, não instala o agente/skill abaixo e não conecta Graphify ou claude-mem. Os nomes definem contratos planejados, válidos para Claude Code e Codex.
+**Estado: núcleo local implementado; adaptadores automáticos de memória pendentes.** O setup instala índices iniciais, agente/skill para os clientes selecionados e o comando `scripts/integrations.py` para criar registros e preparar exportações com identidade e revisão. Não instala nem sincroniza automaticamente Graphify ou claude-mem. Veja o [plano de execução](../plans/2026-10-01-integration-vault.md) e o [guia de uso](../../USAGE.md#integracoes-pt).
 
 ## Resultado esperado
 
@@ -10,7 +10,7 @@ Ao receber uma solicitação de integração, o agente deve encontrar o históri
 
 ## Local no vault e navegação
 
-A estrutura planejada fica no repositório consumidor. Pastas de fornecedor e serviço são criadas quando houver uma integração a documentar:
+A estrutura fica no repositório consumidor. Pastas de fornecedor e serviço são criadas quando houver uma integração a documentar:
 
 ```text
 vault/
@@ -49,9 +49,9 @@ Não copiar toda a documentação do fornecedor para dentro do contexto ou do re
 
 **Skill: `integrate-from-docs`.** Acionada ao criar, alterar, migrar ou diagnosticar uma integração com fornecedor. O catálogo deve expor finalidade, gatilhos, entradas, saídas, capacidades necessárias, limites e versão da skill. O corpo completo só é carregado quando a execução precisa dele.
 
-O mesmo contrato deve funcionar nos dois hosts. A implementação futura fornecerá os arquivos de descoberta próprios de Claude Code e Codex, sem presumir que formatos de agentes, hooks ou permissões sejam intercambiáveis. O papel pode ser exercido pelo agente da sessão; não exige um serviço permanentemente ativo nem autoriza vários escritores no mesmo checkout.
+O mesmo contrato funciona nos dois hosts por entradas próprias em `.claude/agents/`, `.claude/skills/`, `.codex/agents/` e `.agents/skills/`, que apontam para instruções compartilhadas. O papel pode ser exercido pelo agente da sessão; não exige um serviço permanentemente ativo nem autoriza vários escritores no mesmo checkout.
 
-Exemplo de solicitação planejada em linguagem natural — não é um comando já instalado:
+Exemplo de solicitação em linguagem natural após instalar o harness:
 
 > Use integration-specialist com integrate-from-docs para integrar o serviço X do fornecedor Y nesta feature. Leia a documentação oficial indicada, confira a versão do SDK existente e implemente em desenvolvimento. Registre fontes, decisões, testes e pendências no vault e atualize os índices de memória disponíveis.
 

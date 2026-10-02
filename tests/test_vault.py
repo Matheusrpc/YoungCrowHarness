@@ -42,7 +42,7 @@ class VaultTests(unittest.TestCase):
         return {issue['code'] for issue in result['issues']}
 
     def test_template_vault_is_valid_without_project_identity(self):
-        shutil.copytree(ROOT / 'vault', self.root / 'vault')
+        shutil.copytree(ROOT / 'vault', self.root / 'vault', ignore=shutil.ignore_patterns('local', 'project.json'))
         shutil.copytree(ROOT / 'skills', self.root / 'skills')
         result = self.check(0)
         self.assertEqual(result['notes_checked'], 3)
@@ -66,6 +66,10 @@ class VaultTests(unittest.TestCase):
         self.note('note.md', index='local/index.md')
         self.note('local/index.md', '[Public](../note.md)')
         self.assertIn('private_reference', self.codes(self.check()))
+
+    def test_file_uri_is_rejected_instead_of_treated_as_remote(self):
+        self.note('index.md', '[Local file](file:///private.txt)')
+        self.assertTrue(self.check()['issues'])
 
     def test_generated_product_feature_and_integration_are_valid_and_unchanged(self):
         for script, args in (

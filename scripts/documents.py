@@ -329,6 +329,24 @@ def main():
     recover = sub.add_parser('recover-lock')
     recover.add_argument('--token', required=True)
     recover.add_argument('--json', action='store_true')
+    relation = sub.add_parser('relate')
+    relation.add_argument('--source-id', required=True)
+    relation.add_argument('--revision', required=True)
+    relation.add_argument('--target-id', required=True)
+    relation.add_argument('--relation', required=True, choices=['supports', 'complements', 'contradicts', 'supersedes', 'used-in'])
+    relation.add_argument('--evidence', required=True)
+    relation.add_argument('--json', action='store_true')
+    review = sub.add_parser('prepare-review')
+    review.add_argument('--source-id', required=True)
+    review.add_argument('--revision', required=True)
+    review.add_argument('--json', action='store_true')
+    inspect = sub.add_parser('review-status')
+    inspect.add_argument('--review-id', required=True)
+    inspect.add_argument('--json', action='store_true')
+    publish = sub.add_parser('promote')
+    publish.add_argument('--review-id', required=True)
+    publish.add_argument('--approved-digest', required=True)
+    publish.add_argument('--json', action='store_true')
     args = parser.parse_args()
     try:
         if args.command == 'setup':
@@ -342,12 +360,20 @@ def main():
             result = store.lock_status(args.root.resolve(strict=True))
         elif args.command == 'recover-lock':
             result = store.recover_lock(args.root.resolve(strict=True), args.token)
+        elif args.command == 'relate':
+            result = store.relate(args.root, args.source_id, args.revision, args.target_id, args.relation, args.evidence)
+        elif args.command == 'prepare-review':
+            result = store.prepare_review(args.root, args.source_id, args.revision)
+        elif args.command == 'review-status':
+            result = store.review_status(args.root, args.review_id)
+        elif args.command == 'promote':
+            result = store.promote(args.root, args.review_id, args.approved_digest)
         else:
             result = status(args.root, args.source_id)
     except (OSError, ValueError, subprocess.SubprocessError):
         result = failed('storage_or_runtime_check_failed')
     print(json.dumps(result, ensure_ascii=False))
-    return 0 if isinstance(result, list) or result['state'] in ('ready', 'locked', 'unlocked') else 1
+    return 0 if isinstance(result, list) or result.get('state') in (None, 'ready', 'locked', 'unlocked') else 1
 
 
 if __name__ == '__main__':

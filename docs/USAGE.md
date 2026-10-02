@@ -328,7 +328,38 @@ Há um escritor por projeto. Se um processo for encerrado à força, consulte
 ingestão. A recuperação recusa um processo ativo ou token diferente. Fechar uma sessão não apaga
 os documentos locais; mantenha seu backup privado.
 
-Relações com features e publicação de cópias revisadas serão acrescentadas nas próximas etapas.
+Para ligar uma revisão a uma feature, decisão ou outra nota, use o ID do frontmatter de destino e
+um trecho presente na extração:
+
+```bash
+python scripts/documents.py relate --source-id UUID_FONTE --revision REVISAO --target-id ID_NOTA --relation supports --evidence "trecho presente na extração" --json
+```
+
+As relações disponíveis são `supports`, `complements`, `contradicts`, `supersedes` e `used-in`.
+O vínculo fica na área local e mantém a nota compartilhada intacta. A verificação confirma o trecho;
+o sentido da relação precisa de revisão. `contradicts` começa como hipótese.
+
+Para compartilhar uma fonte:
+
+```bash
+python scripts/documents.py prepare-review --source-id UUID_FONTE --revision REVISAO --json
+python scripts/documents.py review-status --review-id UUID_REVISAO --json
+python scripts/documents.py promote --review-id UUID_REVISAO --approved-digest DIGEST_APROVADO --json
+```
+
+O primeiro comando prepara uma cópia editável na área privada, com um ID público novo. Revise o
+texto e cada imagem nessa pasta, removendo o que não pode sair do ambiente local. Depois de editar,
+`review-status` fornece o digest atual e a lista de arquivos. Autorize essa cópia exata antes de
+executar `promote`: conhecer o digest não equivale a ter autorização humana.
+
+A promoção verifica todos os nomes e bytes, mantém avisos de extração parcial e recusa links para
+arquivos privados ou caminhos absolutos. Aceita uma nota Markdown e imagens raster, até 2.000 arquivos
+e 500 MiB por cópia. O resultado entra em `vault/sources/`; não há `git add`, commit ou push automático.
+Só depois disso uma feature compartilhada deve receber um link para a fonte publicada. O mapeamento
+com a revisão original fica local. Mudanças posteriores no original não alteram a cópia preparada.
+
+Esse processo não anonimiza o conteúdo: um nome dentro de um parágrafo ou de uma imagem depende da
+revisão humana. Confira o diff e execute `vault.py check` antes de versionar.
 
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Falhas, repetição e manutenção
 
@@ -678,7 +709,38 @@ Each project has one writer. After a forced process termination, inspect
 ingestion. Recovery rejects a live owner or a different token. Closing a session does not erase local
 documents; maintain a private backup.
 
-Feature relations and publication of reviewed copies are coming in the next steps.
+Link a revision to a feature, decision or another note using its frontmatter ID and a quote from
+the extraction:
+
+```bash
+python scripts/documents.py relate --source-id SOURCE_UUID --revision REVISION --target-id NOTE_ID --relation supports --evidence "quote present in the extraction" --json
+```
+
+Available relations are `supports`, `complements`, `contradicts`, `supersedes` and `used-in`.
+The relation stays local and leaves the shared note unchanged. Validation confirms the quote;
+the relationship's meaning needs review. `contradicts` starts as a hypothesis.
+
+To share a source:
+
+```bash
+python scripts/documents.py prepare-review --source-id SOURCE_UUID --revision REVISION --json
+python scripts/documents.py review-status --review-id REVIEW_UUID --json
+python scripts/documents.py promote --review-id REVIEW_UUID --approved-digest APPROVED_DIGEST --json
+```
+
+The first command prepares an editable private copy with a new public ID. Inspect its text and every
+image, removing anything that must remain local. After editing, `review-status` reports the current
+digest and file list. Authorize that exact copy before running `promote`: knowing a digest does not
+establish human permission.
+
+Promotion checks all filenames and bytes, preserves partial-extraction warnings and rejects private
+file links or absolute paths. A copy may contain one Markdown note and raster images, up to 2,000 files
+and 500 MiB. The result enters `vault/sources/`; the command never stages, commits or pushes it. A shared
+feature can then link to the published source. The original-to-copy mapping remains local. Later changes
+to the original do not alter the prepared copy.
+
+This process does not anonymize content: a name within a paragraph or image still requires human
+review. Inspect the diff and run `vault.py check` before tracking the files.
 
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Failures and maintenance
 

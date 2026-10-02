@@ -55,7 +55,7 @@ e do ambiente em que ele opera.
 | Skills, agentes e MCPs | Encontrar capacidades, configurar acesso e registrar o que cada execução usou | Catálogo inicial e configurações disponíveis; governança completa ainda planejada |
 | Integrações | Consultar fontes oficiais e documentar implementação, testes e operação | `integration-specialist` e `integrate-from-docs` disponíveis nos dois clientes |
 | Vault | Guardar contexto, índices, referências e estados de desenvolvimento/produção | Markdown, criação de notas e validador disponíveis; conteúdo mantido pelo agente |
-| Ingestão com Docling | Converter fontes acessíveis em Markdown local e ligá-las ao trabalho | Documentos locais, revisões e retomada verificados |
+| Ingestão com Docling | Converter fontes acessíveis em Markdown local e ligá-las ao trabalho | Documentos, revisões, vínculos e cópias revisadas verificados |
 | Graphify e claude-mem | Facilitar descoberta e recuperação a partir dos registros do vault | Adaptadores planejados; sem sincronização automática |
 
 O [catálogo de capacidades](vault/capabilities/index.md) reúne as entradas das skills e do especialista.
@@ -150,14 +150,14 @@ O validador confere a estrutura dessas referências; ele não certifica a veraci
 
 A ingestão com Docling guarda documentos convertidos, imagens e índices em `vault/local/`, ignorada
 pelo Git. Originais e recibos ficam em
-`.operacao-local/docling/`. Somente uma cópia revisada poderá entrar na área compartilhada
+`.operacao-local/docling/`. Uma cópia revisada pode entrar na área compartilhada
 `vault/sources/`. O validador já reconhece o índice local e recusa referências públicas a arquivos
 privados. O helper de armazenamento prepara e verifica o ignore antes de escrever. O ambiente
 Docling tem [setup opt-in e diagnóstico local](docs/USAGE.md#docling-pt). A conversão foi verificada com
 PDF, DOCX, HTML e uma imagem de página; a revisão do texto extraído continua necessária.
 
-Os vínculos deverão preservar origem e revisão, inclusive quando um documento fundamentar uma feature
-ou contradizer outra fonte. A captura de anexos depende do que cada cliente expõe; entradas inacessíveis
+Os vínculos locais registram a revisão usada e um trecho de evidência para relacionar a fonte a features
+ou decisões. Contradições começam como hipóteses; o sentido da relação precisa ser revisado. A captura de anexos depende do que cada cliente expõe; entradas inacessíveis
 são registradas como pendências quando a referência é recebida pelo comando. O [contrato de ingestão](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
 define esse comportamento. Material local não acompanha clones e precisará de backup privado para
 uso entre máquinas. Graphify e claude-mem, quando integrados, deverão apontar de volta às notas e revisões.
@@ -170,7 +170,7 @@ O desenho do Docling foi aprovado. O [plano de execução](docs/superpowers/plan
 divide a implementação em quatro entregas:
 
 1. Verificado: documentos locais, Markdown, origem, revisões e retomada após interrupção, com proteção contra versionamento acidental.
-2. Relacionar fontes a features e decisões, preservar histórico e preparar publicação revisada.
+2. Verificado: vínculos com evidência, cópias para revisão e publicação local sem expor a proveniência privada.
 3. Processar áudio, vídeo e URLs acessíveis, registrando cobertura, limites e falhas.
 4. Validar ingestão e retomada em sessões reais de Claude Code e Codex.
 
@@ -263,7 +263,7 @@ credentials, trust and permissions remain controlled by the client and its execu
 | Skills, agents and MCPs | Discover capabilities, configure access and record actual use | Initial catalog and configuration available; full governance remains planned |
 | Integrations | Consult official sources and document implementation, tests and operation | `integration-specialist` and `integrate-from-docs` available in both clients |
 | Vault | Keep context, indices, references and development/production states | Markdown, note creation and validation available; the agent maintains content |
-| Docling ingestion | Convert accessible sources into local Markdown linked to the work | Local documents, revisions and resumption verified |
+| Docling ingestion | Convert accessible sources into local Markdown linked to the work | Documents, revisions, relations and reviewed copies verified |
 | Graphify and claude-mem | Support discovery and retrieval from vault records | Planned adapters; no automatic synchronization |
 
 The [capability catalog](vault/capabilities/index.md) links to the skills and integration specialist.
@@ -359,13 +359,13 @@ checks reference structure; it does not certify the truth of a note.
 
 Docling ingestion stores converted documents, images and indices in the Git-ignored `vault/local/`
 area. Originals and receipts live in `.operacao-local/docling/`.
-Only a reviewed copy may enter the shared `vault/sources/` area. The validator recognizes the local
+A reviewed copy can enter the shared `vault/sources/` area. The validator recognizes the local
 index and rejects public references to private files. The storage helper prepares and verifies
 ignore rules before writing. Docling has [opt-in setup and local diagnostics](docs/USAGE.md#docling-en);
 conversion was verified with PDF, DOCX, HTML and a page image. Extracted text still needs review.
 
-Links will preserve source and revision, including when a document supports a feature or contradicts
-another source. Attachment capture depends on what each client exposes; inaccessible inputs will
+Local relations record the source revision and a supporting quote to link it to features or decisions.
+Contradictions start as hypotheses; the meaning of a relationship still needs review. Attachment capture depends on what each client exposes; inaccessible inputs will
 remain pending when their reference reaches the command. The [ingestion contract](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
 defines that behavior. Local material does not travel with clones and needs a private backup for use
 across machines. Future Graphify and claude-mem adapters must point back to the source notes and revisions.
@@ -378,7 +378,7 @@ The Docling design is approved. The [implementation plan](docs/superpowers/plans
 splits the work into four deliveries:
 
 1. Verified: local documents, Markdown, origin, revisions and resumption after interruption, protected against accidental tracking.
-2. Link sources to features and decisions, preserve history and prepare reviewed publication.
+2. Verified: evidence-backed relations, review copies and local publication without private provenance.
 3. Process audio, video and accessible URLs, recording coverage, limits and failures.
 4. Verify ingestion and resumption in real Claude Code and Codex sessions.
 

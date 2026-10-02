@@ -113,7 +113,7 @@ class StorageTests(ProjectCase):
         self.assertEqual(list(outside.iterdir()), [])
 
 
-class IngestTests(ProjectCase):
+class IngestCase(ProjectCase):
     def setUp(self):
         super().setUp()
         self.documents = importlib.import_module('documents')
@@ -132,6 +132,8 @@ class IngestTests(ProjectCase):
     def ingest(self, **kwargs):
         return self.documents.ingest(self.root, self.source, convert=self.convert, **kwargs)
 
+
+class IngestTests(IngestCase):
     def test_ingest_and_repeat_keep_note_and_original_and_clean_vault(self):
         original = self.source.read_bytes()
         first = self.ingest()
@@ -276,6 +278,121 @@ class IngestTests(ProjectCase):
         self.assertTrue(lock_path.exists())
         self.store.recover_lock(self.root, token)
         self.assertFalse(lock_path.exists())
+
+
+class ReviewTests(IngestCase):
+    def convert(self, source, output, runtime, profile):
+        result = super().convert(source, output, runtime, profile)
+        (output / 'content.md').write_text('Public evidence paragraph.\n\n![Figure](assets/figure.png)\n')
+        (output / 'assets').mkdir()
+        (output / 'assets/figure.png').write_bytes(b'controlled image')
+        return result
+
+    def review(self):
+        receipt = self.ingest()
+        return receipt, self.store.prepare_review(self.root, receipt['source_id'], receipt['revision'])
+
+    def test_relation_uses_evidence_and_keeps_shared_feature_unchanged(self):
+        for args in (['init', '--mode', 'existing', '--run', 'intake'],
+                     ['feature', '--slug', 'source-proof', '--run', 'first']):
+            subprocess.run([sys.executable, str(ROOT / 'scripts/personalize.py'), *args], cwd=self.root,
+                           check=True, capture_output=True)
+        feature = self.root / 'vault/features/source-proof/index.md'
+        original = feature.read_bytes()
+        identity = vault.metadata(feature.read_text(encoding='utf-8'))[0]['id']
+        receipt = self.ingest()
+        result = self.store.relate(self.root, receipt['source_id'], receipt['revision'], identity,
+                                   'supports', 'Public evidence paragraph.')
+        self.assertEqual(feature.read_bytes(), original)
+        self.assertTrue(result['note_path'].startswith('vault/local/'))
+        self.assertEqual(self.store.relate(self.root, receipt['source_id'], receipt['revision'], identity,
+                                          'supports', 'Public evidence paragraph.'), result)
+        self.assertEqual(vault.check(self.root)['issues'], [])
+        with self.assertRaises(ValueError):
+            self.store.relate(self.root, receipt['source_id'], receipt['revision'], identity, 'supports', 'Invented quote')
+        with self.assertRaises(ValueError):
+            self.store.relate(self.root, receipt['source_id'], receipt['revision'], str(uuid.uuid4()), 'supports', 'Public evidence')
+
+    def test_promotion_uses_new_identity_and_survives_without_private_storage(self):
+        receipt, review = self.review()
+        result = self.store.promote(self.root, review['review_id'], review['digest'])
+        self.assertTrue(result['note_path'].startswith('vault/sources/'))
+        note = self.root / result['note_path']
+        fields, body = vault.metadata(note.read_text(encoding='utf-8'))
+        self.assertNotEqual(fields['id'], receipt['source_id'])
+        self.assertNotIn(receipt['source_id'], body)
+        self.assertNotIn(receipt['revision'], body)
+        self.assertNotIn('private original', body)
+        self.assertEqual(vault.check(self.root)['issues'], [])
+        self.assertEqual(self.git('diff', '--cached', '--name-only').stdout, b'')
+        self.assertEqual(self.store.promote(self.root, review['review_id'], review['digest']), result)
+        # Copy just shared notes, as a clone would; private originals are absent.
+        import shutil
+        clone = Path(self.temp.name) / 'clone'
+        shutil.copytree(self.root / 'vault', clone / 'vault', ignore=shutil.ignore_patterns('local'))
+        self.assertEqual(vault.check(clone)['issues'], [])
+
+    def test_changed_review_text_or_asset_invalidates_approval(self):
+        for relative in ('index.md', 'assets/1.png'):
+            with self.subTest(relative=relative):
+                receipt, review = self.review()
+                path = Path(review['directory']) / relative
+                path.write_bytes(path.read_bytes() + b'changed')
+                with self.assertRaises(ValueError):
+                    self.store.promote(self.root, review['review_id'], review['digest'])
+                self.assertFalse((self.root / 'vault/sources').exists())
+
+    def test_review_rejects_private_and_absolute_links_even_with_current_digest(self):
+        for target in ('../../local/index.md', 'file:///private.txt', 'C:/private.txt',
+                       '../../../.operacao-local/docling/lock.json'):
+            with self.subTest(target=target):
+                receipt, review = self.review()
+                directory = Path(review['directory'])
+                with (directory / 'index.md').open('a', encoding='utf-8') as output:
+                    output.write(f'\n[Forbidden]({target})\n')
+                with self.assertRaises(ValueError):
+                    self.store.promote(self.root, review['review_id'], self.store.tree_digest(directory))
+                self.assertFalse((self.root / 'vault/sources').exists())
+
+    def test_duplicate_public_id_and_partial_warning_removal_are_rejected(self):
+        receipt, review = self.review()
+        directory = Path(review['directory'])
+        note = directory / 'index.md'
+        public_id = vault.metadata(note.read_text())[0]['id']
+        existing_id = vault.metadata((self.root / 'vault/index.md').read_text())[0]['id']
+        note.write_text(note.read_text().replace(public_id, existing_id))
+        with self.assertRaises(ValueError):
+            self.store.promote(self.root, review['review_id'], self.store.tree_digest(directory))
+        def partial(*args):
+            return {**self.convert(*args), 'state': 'partial', 'warnings': ['incomplete_conversion']}
+        self.source.write_text('partial revision')
+        receipt = self.documents.ingest(self.root, self.source, convert=partial)
+        review = self.store.prepare_review(self.root, receipt['source_id'], receipt['revision'])
+        directory = Path(review['directory'])
+        note = directory / 'index.md'
+        note.write_text(note.read_text().replace('partial', 'ready').replace('incomplete_conversion', 'none'))
+        with self.assertRaises(ValueError):
+            self.store.promote(self.root, review['review_id'], self.store.tree_digest(directory))
+
+    def test_source_changes_after_preparation_do_not_change_review_snapshot(self):
+        receipt, review = self.review()
+        directory = Path(review['directory'])
+        before = self.store.tree_digest(directory)
+        (self.root / receipt['note_path']).write_text('Changed after preparation.')
+        self.assertEqual(self.store.tree_digest(directory), before)
+        result = self.store.promote(self.root, review['review_id'], before)
+        self.assertIn('Public evidence paragraph.', (self.root / result['note_path']).read_text())
+
+    def test_shared_index_identity_conflict_is_rejected_before_public_writes(self):
+        receipt, review = self.review()
+        index = self.root / 'vault/index.md'
+        original = index.read_text(encoding='utf-8')
+        identity = vault.metadata(original)[0]['id']
+        reserved = str(uuid.uuid5(uuid.UUID(receipt['project_id']), 'vault/sources/index.md'))
+        index.write_text(original.replace(identity, reserved), encoding='utf-8')
+        with self.assertRaises(ValueError):
+            self.store.promote(self.root, review['review_id'], review['digest'])
+        self.assertFalse((self.root / 'vault/sources').exists())
 
 
 class RuntimeTests(unittest.TestCase):

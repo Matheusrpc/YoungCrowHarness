@@ -114,6 +114,8 @@ def local_path(source, target):
     if target.startswith(('/', '\\')) or re.match(r'^[A-Za-z]:', target):
         raise ValueError('Use a relative file path inside the project.')
     parsed = urlsplit(target)
+    if parsed.scheme == 'file':
+        raise ValueError('Local file URIs are not portable project links.')
     if parsed.scheme:
         return None
     decoded = unquote(parsed.path)

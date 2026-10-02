@@ -160,7 +160,7 @@ revision = hashlib.sha256(payload).hexdigest()
 
 **Interfaces:** `relate(root, source_id, revision, target_id, relation, evidence) -> dict`; relações aceitas `supports`, `complements`, `contradicts`, `supersedes`, `used-in`. `prepare_review(root, source_id, revision) -> dict` gera `review_id` e diretório privado editável. `promote(root, review_id, approved_digest) -> dict` verifica o digest de todos os arquivos da cópia e retorna os caminhos públicos. CLI expõe `relate`, `prepare-review` e `promote` com esses campos; autorização humana continua sendo responsabilidade da sessão, não consequência de conhecer um hash.
 
-- [ ] **Escrever testes RED para vínculo e publicação.** Criar uma feature real com `personalize.py feature`, relacionar a fonte com evidência de trecho e verificar que a nota compartilhada fica intacta. Para promoção:
+- [x] **Escrever testes RED para vínculo e publicação.** Criar uma feature real com `personalize.py feature`, relacionar a fonte com evidência de trecho e verificar que a nota compartilhada fica intacta. Para promoção:
 
 ```python
 review = document_store.prepare_review(root, source_id, revision)
@@ -173,8 +173,8 @@ self.assertFalse((root / 'vault/sources').exists())
 
 No teste, `root`, `source_id` e `revision` vêm da ingestão controlada da tarefa 3. Cobrir mudança de ativo, link privado, revisão parcial sem aviso, caminhos absolutos, URI `file:`, IDs duplicados e alteração na fonte após preparação. A cópia revisada é imutável após o digest aprovado, independentemente de atualizações posteriores do original.
 
-- [ ] **Implementar relações com evidência.** Resolver IDs por índice do próprio projeto; recusar alvo inexistente. Manter relações em notas locais, com links de revisão; atualizar microíndices sem duplicação. “Contradiz” registra hipótese quando não confirmado. Uma revisão substituída permanece navegável. Registrar uso de capacidades somente a partir de execução observada; a skill não preenche agentes ou MCPs por suposição.
-- [ ] **Implementar promoção seletiva.** Preparar cópia privada com IDs públicos novos, frontmatter e links internos reescritos; excluir proveniência privada por padrão. Preservar proveniência publicável revisada. Digest inclui nomes relativos e bytes de todos os arquivos da cópia, ordenados. Antes de escrever, validar a cópia como conjunto, o digest aprovado e ausência de links para as raízes privadas. Sanitização automática não substitui a revisão humana do texto e das imagens. Não executar operações Git; manter mapeamento original/cópia apenas local.
+- [x] **Implementar relações com evidência.** Resolver IDs por índice do próprio projeto; recusar alvo inexistente. Manter relações em notas locais, com links de revisão; atualizar microíndices sem duplicação. “Contradiz” registra hipótese quando não confirmado. Uma revisão substituída permanece navegável. Registrar uso de capacidades somente a partir de execução observada; a skill não preenche agentes ou MCPs por suposição.
+- [x] **Implementar promoção seletiva.** Preparar cópia privada com IDs públicos novos, frontmatter e links internos reescritos; excluir proveniência privada por padrão. Preservar proveniência publicável revisada. Digest inclui nomes relativos e bytes de todos os arquivos da cópia, ordenados. Antes de escrever, validar a cópia como conjunto, o digest aprovado e ausência de links para as raízes privadas. Sanitização automática não substitui a revisão humana do texto e das imagens. Não executar operações Git; manter mapeamento original/cópia apenas local.
 
 ```python
 entries = sorted((p.relative_to(review_dir).as_posix(), hashlib.sha256(p.read_bytes()).hexdigest())
@@ -184,7 +184,7 @@ digest = hashlib.sha256(json.dumps(entries, separators=(',', ':')).encode()).hex
 
 Verificar tipos e limites dos caminhos antes desse cálculo; não seguir symlinks, junctions ou hardlinks. O próprio recibo de revisão fica fora da pasta cujo digest é calculado.
 
-- [ ] **GREEN e prova D02.** Demonstrar PDF → nota local → feature → decisão → cópia revisada, sem títulos privados no diff público. Conferir navegação local e clone contendo somente a área compartilhada. Documentar revisão de imagens, limites de anonimização e backup local. Commit `vault: relacionar fontes e revisar publicacao`.
+- [x] **GREEN e prova D02.** Demonstrar PDF → nota local → feature → decisão → cópia revisada, sem títulos privados no diff público. Conferir navegação local e clone contendo somente a área compartilhada. Documentar revisão de imagens, limites de anonimização e backup local. Commit `vault: relacionar fontes e revisar publicacao`.
 
 ## D03: aquisição e mídia
 

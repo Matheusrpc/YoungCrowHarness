@@ -14,11 +14,15 @@ ROOT = Path(__file__).resolve().parents[1]
 FILES = ('setup.sh', 'CLAUDE.md', 'AGENTS.md', '.mcp.json', '.env.example',
          '.gitignore', '.codex/hooks.json', '.claude/settings.json',
          'skills-lock.json', 'docs/CLAUDE.en.md', 'skills/humanizer-ptbr/SKILL.md', '.codex/config.toml')
-FILES += ('scripts/integrations.py', 'skills/integrate-from-docs/SKILL.md',
+INTEGRATION_FILES = ('scripts/integrations.py', 'skills/integrate-from-docs/SKILL.md',
           'skills/integrate-from-docs/references/memory.md', 'vault/index.md',
           'vault/integrations/index.md', 'vault/capabilities/index.md',
           '.agents/skills/integrate-from-docs/SKILL.md', '.claude/skills/integrate-from-docs/SKILL.md',
           '.claude/agents/integration-specialist.md', '.codex/agents/integration-specialist.toml')
+PERSONALIZER_FILES = ('scripts/personalize.py', 'skills/personalizer/SKILL.md',
+                      'skills/personalizer/references/interview.md',
+                      '.claude/skills/personalizer/SKILL.md', '.agents/skills/personalizer/SKILL.md')
+FILES += INTEGRATION_FILES + PERSONALIZER_FILES
 
 
 def shell_path(path):
@@ -328,13 +332,28 @@ class SetupTests(unittest.TestCase):
     def test_integration_vault_and_native_entries(self):
         result = self.run_setup('--no-plugins')
         self.assertEqual(result.returncode, 0, result.stderr)
-        for rel in FILES[-10:]:
+        for rel in INTEGRATION_FILES:
             self.assertTrue((self.target / rel).is_file(), rel)
         self.git('init', '-q', str(self.target))
         self.assertEqual(self.git('-C', str(self.target), 'check-ignore', '--no-index',
                                  '.agents/skills/integrate-from-docs/SKILL.md', check=False).returncode, 1)
         identity = tomllib.loads((self.target / '.codex/agents/integration-specialist.toml').read_text())
         self.assertEqual(identity['name'], 'integration-specialist')
+
+    def test_personalizer_installed_and_runs_in_consumer(self):
+        result = self.run_setup('--no-plugins')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for rel in PERSONALIZER_FILES:
+            self.assertTrue((self.target / rel).is_file(), rel)
+        result = subprocess.run([sys.executable, str(self.target / 'scripts/personalize.py'),
+                                 'init', '--mode', 'new', '--run', 'first'], cwd=self.target,
+                                capture_output=True, encoding='utf-8')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('product/index.md', (self.target / 'vault/index.md').read_text(encoding='utf-8'))
+
+    def test_missing_personalizer_source_blocks_setup(self):
+        (self.source / 'skills/personalizer/references/interview.md').unlink()
+        self.assert_no_project_writes(self.run_setup('--no-plugins'))
 
     def test_force_preserves_vault_knowledge(self):
         original = b'# Conhecimento do produto\r\n'

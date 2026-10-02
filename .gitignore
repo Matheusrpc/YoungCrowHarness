@@ -19,6 +19,7 @@ node_modules/
 # skills de terceiros instaladas localmente (o setup.sh instala do upstream)
 .agents/skills/*/
 !.agents/skills/integrate-from-docs/
+!.agents/skills/personalizer/
 
 # impeccable-ignore-start
 .impeccable/config.local.json

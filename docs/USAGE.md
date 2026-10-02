@@ -11,7 +11,7 @@
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Antes de começar
 
 Este guia cobre o instalador, o vault de integrações e o especialista em fornecedores. O setup cria o índice geral, os índices de integrações/capacidades, a skill e a entrada nativa do agente para os clientes selecionados. Fornecedores, serviços e execuções são criados sob demanda.
-Personalizer, auditoria automática de migração, outras áreas do vault e sincronização automática Graphify/claude-mem continuam [planejados](superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
+A skill `personalizer` conduz entrevista e auditoria de adoção; seu comando cria os registros de produto, features, decisões e operação quando necessário. Sincronização automática Graphify/claude-mem e orquestração autônoma de papéis continuam [planejadas](superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 
 Use Bash no Linux ou Git Bash no Windows, com Git e Python 3 disponíveis no mesmo terminal:
 
@@ -30,6 +30,7 @@ O setup atende os dois clientes por padrão (`--client both`). Use `--client cla
 | Instruções | `CLAUDE.md` | `AGENTS.md`, que orienta ler `CLAUDE.md` |
 | Skills humanizer e humanizer-ptbr | `~/.claude/skills/`, no usuário | `.agents/skills/`, dentro do projeto |
 | Skill integrate-from-docs | `.claude/skills/integrate-from-docs/` | `.agents/skills/integrate-from-docs/` |
+| Skill personalizer | `.claude/skills/personalizer/` | `.agents/skills/personalizer/` |
 | Agente integration-specialist | `.claude/agents/integration-specialist.md` | `.codex/agents/integration-specialist.toml` |
 | MCP | `.mcp.json` | `.codex/config.toml` |
 | Hooks | `.claude/settings.json` | `.codex/hooks.json` |
@@ -142,6 +143,35 @@ Para cada entrega, mantenha um relato em `docs/relatorios/` e evidências leves 
 
 Para retomar, peça ao agente que leia as instruções e o último relato da frente antes de modificar arquivos. Para integrações, comece em `vault/index.md` e siga fornecedor → serviço → execução. Atualize links e estado ao concluir. Uma ferramenta disponível não concede permissão para usá-la em qualquer ambiente.
 
+<a id="personalizer-pt"></a>
+
+## <img src="../assets/gema-ambar.svg" height="24" alt=""> Personalizar e retomar
+
+Depois do setup, abra o Claude ou Codex na raiz do produto. Use `/personalizer` no Claude ou `$personalizer` no Codex e informe a ideia ou o objetivo da adoção. O agente lê o que já existe e pergunta pelas decisões que faltam. Não precisa haver um plano completo para começar.
+
+> Use personalizer para adaptar este projeto à minha ideia: [descreva]. Preserve as convenções e o design existentes. Registre respostas e dúvidas no vault, personalize os guias e prepare uma primeira feature pequena. Produção fica fora deste pedido.
+
+O modo `new` parte de uma ideia; `existing` inclui leitura do código, instruções, testes, skills/MCPs/hooks, documentação e design. Essa auditoria é conduzida pelo agente, com evidências registradas. O comando abaixo apenas prepara os arquivos:
+
+```bash
+python3 scripts/personalize.py init --mode new --run descoberta-inicial
+# Para adoção de código existente, use --mode existing.
+```
+
+O índice `vault/product/index.md` leva ao perfil, plano de adoção e entrevistas. No modo existente, também leva a `audit.md`. O modo fica em `vault/product/onboarding.json`; retome com o mesmo modo e ID de entrevista. Se os registros divergirem, reconcilie o contexto antes de mudar de modo. Repetir o comando preserva as notas.
+
+Peça uma pausa quando precisar. A skill salva respostas, fontes, dúvidas e a próxima pergunta. Em outra sessão, diga “retome personalizer por `vault/product/index.md`”. Um orçamento desconhecido pode bloquear hospedagem sem impedir uma entrega local independente.
+
+Com escopo e aceite definidos, prepare a primeira feature:
+
+```bash
+python3 scripts/personalize.py feature --slug agendamento --run primeira-entrega
+```
+
+O microíndice da feature reúne contexto e estados; `delivery.md` contém a divisão em entregas; `runs/` guarda mudanças, testes, revisão, capacidades usadas e próximo passo. Linke decisões e integrações existentes, acrescentando referências de volta. O [fluxo no README](../README.md#processo-pt) mostra a passagem entre responsáveis e as decisões de publicação.
+
+O agente adapta os guias por edições pontuais e registra o diff em `adoption.md`; o CLI não substitui suas regras. Toda implementação atualiza README e uso afetado, com revisão `humanizer` e preservação do design. Publicação e custos precisam estar no escopo autorizado. PM/Tech Lead são papéis do rito, e memória externa continua separada da gravação no vault.
+
 <a id="integracoes-pt"></a>
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Documentar e executar integrações
@@ -206,7 +236,7 @@ Os testes usam Git local e simulam chamadas de rede/plugins, com um diretório d
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Before you start
 
 This guide covers setup, the integration vault and vendor specialist. Setup installs the general, integration and capability indices, shared skill and native agent entries for the selected clients. Provider/service/run notes are created on demand.
-The personalizer, automated migration audit, remaining vault areas and automatic Graphify/claude-mem synchronization are still [planned](superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
+The `personalizer` skill conducts discovery and adoption audits; its command creates product, feature, decision and operation notes on demand. Automatic Graphify/claude-mem synchronization and autonomous role orchestration remain [planned](superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 
 Use Linux Bash or Windows Git Bash with working `bash --version`, `git --version` and `python3 --version` in that terminal. If Windows opens the Microsoft Store for `python3`, configure the installed Python on Git Bash's PATH first. These commands are not native PowerShell commands.
 
@@ -299,6 +329,31 @@ The current workflow is manual. One person can fill several roles with agents; s
 Create delivery reports in `docs/relatorios/` and lightweight evidence in `docs/medicoes/` as needed, following `CLAUDE.md`. Include a topic identifier, objective, development status, production status with evidence, decisions, files/commits, tests, required versus actually used agents/skills/MCPs, unresolved work and links to related reports. Keep sensitive logs and secrets out.
 
 At the next session, read the project instructions and latest workstream report before editing. For integrations, follow `vault/index.md` → provider → service → run. Update links and state when finished. Tool availability does not grant authorization for every environment.
+
+<a id="personalizer-en"></a>
+
+## <img src="../assets/gema-ambar.svg" height="24" alt=""> Personalize and resume
+
+After setup, open your client at the product root and invoke `/personalizer` in Claude or `$personalizer` in Codex. Describe the idea or adoption goal. The agent reads existing evidence and asks about missing decisions.
+
+> Use personalizer to adapt this project to [idea]. Preserve its conventions and design, record answers and unknowns, adapt the guides and prepare one small feature. Production is outside this request.
+
+```bash
+python3 scripts/personalize.py init --mode new --run initial-discovery
+# Use --mode existing when adopting an existing codebase.
+```
+
+The command prepares records; the agent performs the interview and audit. `vault/product/index.md` links profile, adoption plan and interview notes; existing mode adds `audit.md`. Resume with the recorded mode in `vault/product/onboarding.json` and the same interview ID. Repeated commands preserve notes; conflicting modes require reconciling the context.
+
+When you pause, the skill saves confirmed answers, sources, open questions and the next question. A new session can resume from the product index. An unknown hosting budget need not block an independent local delivery.
+
+```bash
+python3 scripts/personalize.py feature --slug booking --run first-slice
+```
+
+The feature index links context and state, `delivery.md` defines small slices, and `runs/` records changes, checks, review, capabilities used and the next step. Crosslink canonical decisions and integrations. The [README process](../README.md#process-en) shows responsibilities and release decisions.
+
+Guide adaptation uses targeted agent edits recorded in `adoption.md`; the CLI does not replace project rules. Every implementation updates README and affected usage docs with humanizer review, preserving the design. Publication and costs follow current authorization. PM/Tech Lead are process roles; external memory synchronization remains separate.
 
 <a id="integrations-en"></a>
 

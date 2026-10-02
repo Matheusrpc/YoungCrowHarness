@@ -10,6 +10,10 @@
   operador sobre branches, worktrees e push.
 - Registre pareceres e provas em `docs/relatorios/` e `docs/medicoes/`, com caminhos explícitos e a
   distinção entre evidência visual, medição técnica e pendência.
+- Toda implementação atualiza o `README.md` e o guia de uso afetado. Revise a redação com a skill
+  `humanizer`, mantenha PT/EN coerentes e preserve o design atual, inclusive o diagrama do processo.
+- Para personalizar ou adotar o harness, use `personalizer` e retome por `vault/product/index.md`
+  quando existir. A instrução compartilhada está em `skills/personalizer/SKILL.md`.
 
 ## Navegador: fechar é obrigatório
 

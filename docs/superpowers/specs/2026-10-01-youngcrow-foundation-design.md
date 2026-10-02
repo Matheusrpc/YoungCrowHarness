@@ -2,7 +2,7 @@
 
 Data: 2026-10-01
 
-Estado: direção aprovada pelo mantenedor em 2026-10-01. Instalador e adaptações Claude Code/Codex implementados no PR #1; demais frentes continuam planejadas. O requisito R12 acrescenta a área de integrações solicitada pelo mantenedor. A especificação distingue a direção do produto das entregas já verificadas.
+Estado: direção aprovada pelo mantenedor em 2026-10-01. O PR #1 reúne o instalador para Claude Code/Codex, o vault de integrações e o personalizer com entrevista retomável e adoção guiada. Sincronização externa de memória, governança técnica completa e orquestração autônoma continuam planejadas. O requisito R12 cobre a área de integrações. A especificação distingue a direção do produto das entregas já verificadas.
 
 ## Objetivo e público
 
@@ -154,11 +154,13 @@ Uma automação de CI executará essa suíte em Linux. A verificação local com
 
 Essa sequência organiza o produto. O [plano do instalador](../plans/2026-10-01-installer-reliability.md) registra o primeiro incremento. As demais frentes terão contratos próprios; o contrato de integrações acrescenta R12 sem acoplar sua implementação às correções já entregues do instalador.
 
+O [contrato do personalizer](2026-10-02-personalizer-design.md) cobre a frente 4 e acrescenta índices de produto, features, decisões e operação à frente 2. A skill conduz a entrevista e a auditoria; o comando cria e preserva os registros. O [relatório do piloto](../../relatorios/2026-10-02-personalizer.md) registra a retomada de uma entrevista e uma entrega local. Esse ensaio não valida publicação em produção nem encerra as frentes 3, 5 e 6.
+
 ## Referências de desenho
 
 - [Graphify](https://github.com/Graphify-Labs/graphify): candidato a descoberta estrutural e consulta de relações.
 - [claude-mem](https://github.com/thedotmack/claude-mem): candidato a captura e recuperação de observações de sessões.
-- [grill-me](https://www.aihero.dev/skills-grill-me): referência de investigação por perguntas; o personalizer precisará acrescentar persistência e personalização do projeto.
+- [grill-me](https://www.aihero.dev/skills-grill-me): referência de investigação por perguntas; o personalizer acrescenta persistência e personalização do projeto.
 - [Armazenamento do Obsidian](https://help.obsidian.md/Files+and+folders/How+Obsidian+stores+data) e [links internos](https://help.obsidian.md/Linking+notes+and+files/Internal+links): base de interoperabilidade do vault.
 
 As ferramentas candidatas foram consultadas durante o diagnóstico; sua integração com o YoungCrowHarness ainda não foi testada.

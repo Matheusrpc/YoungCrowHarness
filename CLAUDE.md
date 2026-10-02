@@ -43,6 +43,11 @@ publica é o placar: `ATRASO: <alvo1> <n> | <alvo2> <n> | ...`
 
 ## Sessão e evidência
 
+- Toda implementação atualiza o `README.md` e a documentação de uso afetada. Use `humanizer` na
+  redação e preserve o design existente; mantenha o diagrama do processo coerente com o que funciona.
+- Para personalizar o projeto, use `personalizer` (`skills/personalizer/SKILL.md`).
+  Retome entrevistas por `vault/product/index.md`, sem repetir respostas já confirmadas.
+
 - Para integrações de fornecedores, use `integrate-from-docs` e o papel `integration-specialist`.
   Comece em `vault/index.md`; a instrução compartilhada está em `skills/integrate-from-docs/SKILL.md`.
   Registre fontes, decisões, testes e estados de desenvolvimento/produção antes de encerrar a execução.

@@ -52,9 +52,9 @@ def check_codex(executable, project, env):
         print('Codex: project MCP configuration recognized; example servers disabled.')
         skills = request(2, 'skills/list', {'cwds': [str(project)], 'forceReload': True})
         found = {s['name'] for entry in skills['data'] for s in entry['skills']}
-        assert {'humanizer', 'humanizer-ptbr', 'integrate-from-docs'} <= found, found
+        assert {'humanizer', 'humanizer-ptbr', 'integrate-from-docs', 'personalizer'} <= found, found
         assert not any(entry['errors'] for entry in skills['data']), skills
-        print('Codex: humanizer, humanizer-ptbr and integrate-from-docs discovered by the real skill loader.')
+        print('Codex: humanizer, humanizer-ptbr, integrate-from-docs and personalizer discovered by the real skill loader.')
         hooks = request(3, 'hooks/list', {'cwds': [str(project)]})
         assert not any(entry['errors'] for entry in hooks['data']), hooks
         found_hooks = [h for entry in hooks['data'] for h in entry['hooks']]
@@ -99,8 +99,9 @@ def check_claude_discovery(executable, project, env):
                 assert response.get('subtype') == 'success', response
                 data = response['response']
                 assert any(c['name'] == 'integrate-from-docs' for c in data['commands']), data.keys()
+                assert any(c['name'] == 'personalizer' for c in data['commands']), data.keys()
                 assert any(a['name'] == 'integration-specialist' for a in data['agents']), data.keys()
-                print('Claude: integrate-from-docs and integration-specialist discovered by SDK initialization; no model turn.')
+                print('Claude: personalizer, integrate-from-docs and integration-specialist discovered by SDK initialization; no model turn.')
                 break
     finally:
         process.terminate()

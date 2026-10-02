@@ -38,15 +38,16 @@ FILES=(CLAUDE.md AGENTS.md .env.example skills-lock.json docs/CLAUDE.en.md)
 FILES+=(scripts/integrations.py skills/integrate-from-docs/SKILL.md
   skills/integrate-from-docs/references/memory.md
   vault/index.md vault/integrations/index.md vault/capabilities/index.md)
+FILES+=(scripts/personalize.py skills/personalizer/SKILL.md skills/personalizer/references/interview.md)
 SKILL_ROOTS=()
 if [ "$CLIENT" != codex ]; then
   FILES+=(.mcp.json .claude/settings.json .claude/agents/integration-specialist.md
-    .claude/skills/integrate-from-docs/SKILL.md)
+    .claude/skills/integrate-from-docs/SKILL.md .claude/skills/personalizer/SKILL.md)
   SKILL_ROOTS+=("$HOME/.claude/skills")
 fi
 if [ "$CLIENT" != claude ]; then
   FILES+=(.codex/hooks.json .codex/config.toml .codex/agents/integration-specialist.toml
-    .agents/skills/integrate-from-docs/SKILL.md)
+    .agents/skills/integrate-from-docs/SKILL.md .agents/skills/personalizer/SKILL.md)
   SKILL_ROOTS+=("$TARGET/.agents/skills")
 fi
 for ferramenta in python3 git mkdir cp chmod mv mktemp; do

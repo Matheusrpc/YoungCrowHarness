@@ -5,6 +5,11 @@ forks that work in English. Keep only one of the two as the real `CLAUDE.md`.
 
 ## Laws
 
+Every implementation updates `README.md` and affected usage documentation. Use `humanizer` for
+the prose, preserve the existing design and keep the process diagram aligned with actual behavior.
+Use `personalizer` (`skills/personalizer/SKILL.md`) for project adoption; resume recorded interviews
+from `vault/product/index.md` without repeating confirmed answers.
+
 For vendor integrations, use `integrate-from-docs` and the `integration-specialist` role.
 Start at `vault/index.md`; shared instructions live in `skills/integrate-from-docs/SKILL.md`.
 Record sources, decisions, tests and separate development/production states before handing off.

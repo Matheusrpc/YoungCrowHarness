@@ -31,6 +31,8 @@ def check_path(root, relative):
             raise ValueError('Linked vault path is not supported.')
         if stat.S_ISDIR(metadata.st_mode) != (i < len(parts) - 1):
             raise ValueError('Wrong path type in vault.')
+        if stat.S_ISREG(metadata.st_mode) and metadata.st_nlink > 1:
+            raise ValueError('Hardlinked vault file is not supported.')
 
 
 def note(project, path, kind, title, parent, body, now):

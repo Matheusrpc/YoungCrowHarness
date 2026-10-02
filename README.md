@@ -218,8 +218,9 @@ no sandbox somente leitura recorreu ao Markdown. Claude Code tem descoberta veri
 real pendente de login. M04 permanece parcial.
 O [relatório](docs/relatorios/2026-10-02-memory-discovery.md) registra o estado atual de M01–M04.
 Próxima frente: [governança de skills, agentes e MCPs](docs/superpowers/specs/2026-10-02-capability-governance-design.md).
-O desenho propõe conferir origem, conteúdo e permissões, revisar mudanças e provar os controles em
-cada cliente. Está em revisão; ainda não acrescenta controles ativos.
+O desenho aprovado cobre origem, conteúdo, permissões e provas por cliente. O
+[plano de implementação](docs/superpowers/plans/2026-10-02-capability-governance.md) está em revisão:
+catálogo verificável, auditoria offline, pacote privado, adoção e prova nativa. Ainda não há controles novos ativos.
 Consultas e diagnóstico preservam as notas e o `.gitignore`. Se o índice estiver corrompido,
 a consulta usa o Markdown atual; a reconstrução fica explícita no [guia de uso](docs/USAGE.md#memória-consultar-notas-selecionadas).
 claude-mem, sincronização entre máquinas e orquestração autônoma de papéis continuam na
@@ -480,8 +481,9 @@ sandbox fell back to Markdown. Claude Code discovery is verified; model conversa
 M04 remains partial. The
 [report](docs/relatorios/2026-10-02-memory-discovery.md) records current M01–M04 evidence.
 Next: [skill, agent and MCP governance](docs/superpowers/specs/2026-10-02-capability-governance-design.md).
-The design proposes checking origin, content and permissions, reviewing changes and testing each
-client's controls. It is under review; no new controls are active yet.
+The approved design covers origin, content, permissions and evidence for each client. The
+[implementation plan](docs/superpowers/plans/2026-10-02-capability-governance.md) is under review:
+verifiable catalog, offline audit, private review bundle, adoption and native proof. No new controls are active yet.
 Queries and diagnostics preserve notes and `.gitignore`. If the index is corrupt, retrieval
 uses current Markdown; rebuilding is explicit in the [usage guide](docs/USAGE.md#memory-query-selected-notes).
 claude-mem, cross-machine synchronization and autonomous role orchestration remain in the

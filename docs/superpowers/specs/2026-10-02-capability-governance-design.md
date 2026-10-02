@@ -1,6 +1,7 @@
 # Governança de skills, agentes e MCPs
 
-Estado: proposta para revisão do mantenedor. Não implementada. Base: main `16191ec`, com memória
+Estado: desenho aprovado pelo mantenedor em 2026-10-02; [plano de implementação](../plans/2026-10-02-capability-governance.md)
+preparado para revisão. Não implementado. Base: main `16191ec`, com memória
 consultável publicada no PR #7. Este desenho desenvolve R06, R07 e a frente 3 da
 [direção do produto](2026-10-01-youngcrow-foundation-design.md). A prova M04 de memória permanece
 parcial e não será apresentada como concluída por esta entrega.
@@ -201,5 +202,5 @@ com este desenho. A leitura das páginas oficiais é registrada separadamente do
 - [Claude Code: MCP](https://code.claude.com/docs/en/mcp): escopos e distinção entre configuração de projeto e controles gerenciados.
 - [Claude Code: skills](https://code.claude.com/docs/en/skills): descoberta, campos de invocação e efeitos de `allowed-tools`.
 
-Próxima etapa: revisão deste desenho pelo mantenedor; depois, plano de implementação com arquivos,
-ordem das entregas, testes e método de execução. Não há controle novo ativo nesta proposta.
+Próxima etapa: revisão do plano de implementação, que detalha arquivos, entregas, testes e o método
+nativo já escolhido. A aprovação do desenho está registrada; nenhum controle novo foi ativado.

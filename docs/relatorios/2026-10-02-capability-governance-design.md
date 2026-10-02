@@ -51,6 +51,31 @@ publicação do PR #7. Os diagramas operacionais existentes foram preservados. N
 de código que justificasse repetir a suíte de produto local; os checks documentais e o CI do PR
 registram a validação desta etapa.
 
-Próxima ação: revisão do desenho pelo mantenedor e, depois, plano de implementação. A falha
-reproduzida de HTML precisa de uma correção delimitada, com regressão e prova real, antes de usar
-essas fontes convertidas como evidência. M04 de memória continua parcial.
+## Desenho aprovado e plano escrito
+
+O mantenedor aprovou o desenho em 2026-10-02. O [plano de implementação](../superpowers/plans/2026-10-02-capability-governance.md)
+detalha cinco entregas: catálogo e identidade, auditoria offline, pacote privado, adoção pelos
+dois clientes e prova nativa com documentação. A execução preserva o método nativo já escolhido.
+
+A inspeção do instalador confirmou que as quatro configurações dos clientes são preservadas
+mesmo com `--force`; contratos locais em `skills/` e o manifesto ainda podem ser substituídos.
+O plano inclui proteção e regressão para essa diferença. Não houve mudança no instalador nesta etapa.
+
+A revisão do plano conferiu G01–G09, contratos entre tarefas, limites de leitura, segredos em
+configuração, privacidade dos pacotes e invalidação por alteração dos inputs. Também define
+evidência positiva para o teste de permissões: uma chamada permitida precisa funcionar antes de
+um contador zerado poder sustentar a recusa da chamada proibida. Login ausente continua pendência.
+
+README PT/EN e direção do produto agora distinguem desenho aprovado, plano em revisão e controles
+ainda não implementados. O design e os diagramas operacionais foram preservados. Skills usadas
+nesta etapa: writing-plans, karpathy, ponytail, humanizer e verification-before-completion.
+Revisão feita pelo executor, sem subagentes; nenhuma sessão adicional de modelo ou MCP iniciada.
+
+Validação documental: 115 referências locais nos documentos tocados e notas de retomada resolvidas;
+46 notas do vault, zero problemas; 15 trechos Python do plano com sintaxe válida. Essa checagem de
+sintaxe não executa os testes planejados nem comprova o produto ainda inexistente. `git diff --check`
+passou, e as pastas privadas continuam sem arquivos rastreados. Os checks do PR registram o CI.
+
+Próxima ação: revisão do plano escrito, seguida da implementação. A falha reproduzida de HTML
+precisa de uma correção delimitada, com regressão e prova real, antes de usar essas fontes
+convertidas como evidência. M04 de memória continua parcial.

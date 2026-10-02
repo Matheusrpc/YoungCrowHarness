@@ -2,7 +2,7 @@
 
 Frente: ingestão de fontes para o vault. Data: 2026-10-02 (UTC).
 
-**Estado: proposta para revisão, sem implementação.** O mantenedor pediu ingestão de documentos, anexos, áudio e vídeo com Docling, Markdown no vault e referências às features e demais notas. Confirmou que o material deve permanecer local e só entrar no Git após revisão. O desenho abaixo detalha essa direção; a instalação, a conversão e a captura nos clientes ainda precisam ser implementadas e demonstradas.
+**Estado: desenho aprovado pelo mantenedor em 2026-10-02 (UTC), sem implementação.** O mantenedor pediu ingestão de documentos, anexos, áudio e vídeo com Docling, Markdown no vault e referências às features e demais notas. Confirmou que o material deve permanecer local e só entrar no Git após revisão. O [plano de execução](../plans/2026-10-02-docling-ingestion.md) detalha as entregas; a instalação, a conversão e a captura nos clientes ainda precisam ser implementadas e demonstradas.
 
 ## Resultado esperado
 

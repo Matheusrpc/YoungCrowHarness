@@ -165,8 +165,11 @@ def hash_file(path):
 
 
 def metadata(info):
-    return dict(mode=stat.S_IMODE(info.st_mode),
-                attributes=getattr(info, 'st_file_attributes', 0) & 0x2007 if os.name == 'nt' else 0)
+    value = dict(mode=stat.S_IMODE(info.st_mode),
+                 attributes=getattr(info, 'st_file_attributes', 0) & 0x2007 if os.name == 'nt' else 0)
+    if os.name != 'nt':
+        value['gid'] = info.st_gid
+    return value
 
 
 def relative_path(value):
@@ -268,11 +271,13 @@ def inspect_permissions(root, *, role):
                     'transition': 'transition-check'}[role], root)
     if not hasattr(os, 'listxattr'):
         raise ValueError('unsupported_permissions')
+    groups = {*os.getgroups(), os.getegid()}
     for directory, dirs, files in os.walk(root, followlinks=False):
         for path in [Path(directory), *(Path(directory) / name for name in dirs + files)]:
             checked_path(path)
             info = path.stat()
-            if info.st_uid != os.getuid() or info.st_mode & 0o7000 or os.listxattr(path):
+            if (info.st_uid != os.getuid() or info.st_gid not in groups
+                    or info.st_mode & 0o7000 or os.listxattr(path)):
                 raise ValueError('unsupported_permissions')
     parent = root.parent.stat()
     if os.listxattr(root.parent):
@@ -303,6 +308,8 @@ def apply_metadata(path, value):
         if not ctypes.windll.kernel32.SetFileAttributesW(str(path), attributes or 128):
             raise OSError('attribute_restore_failed')
     else:
+        if path.stat().st_gid != value['gid']:
+            os.chown(path, -1, value['gid'])
         os.chmod(path, value['mode'])
 
 

@@ -80,6 +80,8 @@ Para experimentar, use `--trial`: ele guarda um ponto privado antes da primeira 
 fora de qualquer repo Git, no mesmo volume. Instala arquivos e skills próprios do projeto e pula
 plugins e downloads de skills. O ponto original permanece nas próximas execuções. Veja
 [como consultar, sair e recuperar uma interrupção](docs/USAGE.md#adocao-reversivel-pt).
+As consultas Git do trial desativam monitores externos desde a primeira verificação. No Linux,
+o retorno preserva também os grupos dos arquivos, dentro do perfil de permissões aceito.
 
 Sem `--trial`, a instalação normal não cria ponto de retorno e segue o comportamento abaixo.
 O `setup.sh` copia o harness preservando os arquivos existentes e acrescenta proteção ao `.gitignore`.
@@ -372,6 +374,9 @@ For a first try, use `--trial`: it saves a private baseline before the first wri
 Git repository and on the same volume. It installs bundled project files and skills, skipping
 plugins and skill downloads. Repeated setup preserves the original baseline. See
 [status, exit and interruption recovery](docs/USAGE.md#reversible-adoption-en).
+
+Trial Git queries disable external filesystem monitors from the first check. On Linux, restoration
+also preserves file groups within the supported permission profile.
 
 Without `--trial`, normal installation creates no restore point and behaves as described below.
 `setup.sh` preserves existing project files and appends protection to `.gitignore`.

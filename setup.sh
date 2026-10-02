@@ -73,6 +73,20 @@ for ferramenta in python3 git mkdir cp chmod mv mktemp; do
   command -v "$ferramenta" >/dev/null 2>&1 || falhar "dependência ausente / missing dependency: $ferramenta"
 done
 python3 -c 'import json, pathlib, sys' || falhar 'python3 indisponível / unavailable'
+if [ "$TRIAL" = 1 ]; then
+  # All trial probes, including the public preflight and child, use the same safe Git reader.
+  git() {
+    python3 -B - "$HARNESS_DIR/scripts" "$@" <<'PY'
+import pathlib, sys
+sys.path.insert(0, sys.argv[1])
+from adoption_fs import git_read
+result = git_read(pathlib.Path.cwd(), *sys.argv[2:])
+sys.stdout.buffer.write(result.stdout)
+sys.stderr.buffer.write(result.stderr)
+sys.exit(result.returncode)
+PY
+  }
+fi
 if [ "$TRIAL_CHILD" = 1 ]; then
   IFS= read -r SIGNAL || exit 2
   [ "$SIGNAL" = ready ] && [ -n "${YOUNGCROW_ADOPTION_TOKEN:-}" ] && [ -n "${YOUNGCROW_ADOPTION_BASE:-}" ] || exit 2

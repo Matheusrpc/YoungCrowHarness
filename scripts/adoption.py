@@ -17,8 +17,10 @@ from document_store import atomic_write, process_alive, safe_path
 
 RUNNER_FILES = ('adoption.py', 'adoption_fs.py', 'adoption_acl.ps1', 'document_store.py', 'integrations.py')
 PHASES = ('capturing', 'ready', 'installing', 'installed', 'install_failed', 'restoring', 'restored')
-TRANSACTION_PHASES = ('copying', 'prepared', 'privatizing_current', 'current_private', 'moving_current',
-                      'current_moved', 'activating_baseline', 'baseline_activated', 'complete', 'invalidated')
+# Minimum revision of each phase, allowing optional Windows and existing-root steps.
+TRANSACTION_PHASES = dict(copying=1, prepared=2, privatizing_current=3, current_private=4,
+                          moving_current=3, current_moved=4, activating_baseline=5,
+                          baseline_activated=5, complete=6, invalidated=2)
 MAX_RECORD = 32 * 1024**2
 
 
@@ -490,10 +492,17 @@ def preview(root, base):
                     permission_step=proposal['permission_step'])
 
 
-def write_journal(transaction, previous, phase):
-    if phase not in TRANSACTION_PHASES:
+def validate_journal(journal):
+    if (not isinstance(journal, dict) or not isinstance(journal.get('phase'), str)
+            or journal['phase'] not in TRANSACTION_PHASES
+            or type(journal.get('revision')) is not int
+            or not TRANSACTION_PHASES[journal['phase']] <= journal['revision'] < 2**63):
         raise ValueError('invalid_transaction')
+
+
+def write_journal(transaction, previous, phase):
     journal = dict(previous, phase=phase, revision=previous.get('revision', 0) + 1)
+    validate_journal(journal)
     write_record(transaction, 'journal.json', journal)
     return journal
 
@@ -508,6 +517,7 @@ def transaction_for(store, identity):
 
 
 def recovery_result(root, store, state, journal, *, historical=False):
+    validate_journal(journal)
     transaction = transaction_for(store, state['transaction_id'])
     recovery = transaction / 'trial-copy'
     if fs.tree_digest(fs.inspect_tree(recovery)) != journal['trial_digest']:
@@ -532,6 +542,7 @@ def ensure_snapshot(source, target, inventory, transaction):
 
 
 def resume_transaction(root, store, state, transaction, journal):
+    validate_journal(journal)
     baseline = verify_baseline(store, state)
     trial = read_record(transaction, 'trial.json')
     if (journal.get('schema') != 1 or journal.get('phase') not in TRANSACTION_PHASES

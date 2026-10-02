@@ -119,8 +119,10 @@ No Windows, o perfil exige ACLs herdadas e dono atual; recusa streams extras, ju
 não preserváveis. Caminhos derivados precisam ter menos de 248 unidades UTF-16, incluindo o
 armazenamento interno. `unsupported_path_length` pede uma base mais curta, por exemplo `C:/yc-backups`;
 o setup reserva espaço de caminho para os arquivos distribuídos. Arquivos novos muito longos também
-podem bloquear a saída antes da troca. No POSIX, só permissões simples do dono atual são aceitas;
-ACLs estendidas, xattrs e bits especiais são recusados. Links, hardlinks, submódulos, Git compartilhado
+podem bloquear a saída antes da troca. No POSIX, permissões simples do dono atual e grupos dos quais
+ele ainda faz parte são preservados; grupos que o processo não pode restaurar são recusados.
+ACLs estendidas, xattrs e bits especiais são recusados. As consultas Git do trial ignoram configurações
+globais, variáveis Git herdadas e monitores externos desde o preflight. Links, hardlinks, submódulos, Git compartilhado
 e worktrees não entram neste perfil. Encerre agentes, editores que salvam e processos Git antes das
 operações: o lock coordena o harness, mas não impede um programa externo de escrever.
 Plugins globais, serviços, publicações remotas e mudanças fora da pasta ficam fora do retorno.
@@ -775,7 +777,9 @@ Windows requires inherited ACLs and current ownership; extra streams, junctions 
 attributes are refused. Derived paths must remain below 248 UTF-16 units, including internal storage.
 For `unsupported_path_length`, choose a shorter base, such as `C:/yc-backups`; setup reserves path
 space for bundled files. Long files created later can also block exit before the exchange. POSIX
-supports current ownership and simple modes; extended ACLs, xattrs and special mode bits are refused.
+preserves current ownership, simple modes and groups the process still belongs to; unsupported groups,
+extended ACLs, xattrs and special mode bits are refused. Trial Git queries ignore global configuration,
+inherited Git variables and external filesystem monitors from the first preflight.
 Links, hardlinks, submodules, shared Git metadata and worktrees are outside this profile. Stop agents,
 autosaving editors and Git processes first: the harness lock cannot prevent external writers.
 Global plugins, services, remote publications and changes outside the folder are excluded.

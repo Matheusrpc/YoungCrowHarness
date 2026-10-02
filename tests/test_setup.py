@@ -248,6 +248,7 @@ class SetupTests(unittest.TestCase):
         self.source, self.target = self.base / 'source', self.base / 'project with spaces'
         self.home, self.bin = self.base / 'home', self.base / 'bin'
         self.calls, self.upstream = self.base / 'calls.jsonl', self.base / 'upstream'
+        self.calls.touch()  # No intercepted calls is a valid result for project-only trial.
         for folder in (self.source, self.target, self.home, self.bin, self.upstream):
             folder.mkdir()
         if os.name == 'nt':

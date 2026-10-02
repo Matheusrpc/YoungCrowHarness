@@ -327,10 +327,18 @@ def ensure_space(base, size):
         raise ValueError('insufficient_space')
 
 
+def ensure_paths_fit(destination, relatives):
+    # Native PowerShell 5.1 uses the legacy Windows directory-path limit.
+    if os.name == 'nt' and any(len(str(destination / relative).encode('utf-16-le')) // 2 >= 248
+                              for relative in ('', *relatives)):
+        raise ValueError('unsupported_path_length')
+
+
 def copy_verified(source, destination, expected):
     source, destination = checked_path(source), checked_path(destination)
     for entry in expected['entries']:
         relative_path(entry['path'])
+    ensure_paths_fit(destination, [entry['path'] for entry in expected['entries']])
     if destination.exists():
         raise ValueError('destination_exists')
     if tree_digest(inspect_tree(source)) != tree_digest(expected):

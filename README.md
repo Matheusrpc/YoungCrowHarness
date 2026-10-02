@@ -70,12 +70,18 @@ instalada não comprova autorização nem uso; cada execução deve registrar as
 
 ```bash
 git clone https://github.com/Matheusrpc/YoungCrowHarness.git
-bash YoungCrowHarness/setup.sh meu-projeto --client both --nome "Meu Projeto"
+bash YoungCrowHarness/setup.sh meu-projeto --trial --client both --nome "Meu Projeto"
 ```
 
 **Passo a passo:** [repo do zero](docs/USAGE.md#zero-pt) · [migrar repo existente](docs/USAGE.md#migrar-pt) · [como operar](docs/USAGE.md#operar-pt).
 
 Requer Bash, Git e `python3` funcionando no mesmo terminal. No Windows, use Git Bash.
+Para experimentar, use `--trial`: ele guarda um ponto privado antes da primeira escrita,
+fora de qualquer repo Git, no mesmo volume. Instala arquivos e skills próprios do projeto e pula
+plugins e downloads de skills. O ponto original permanece nas próximas execuções. Veja
+[como consultar, sair e recuperar uma interrupção](docs/USAGE.md#adocao-reversivel-pt).
+
+Sem `--trial`, a instalação normal não cria ponto de retorno e segue o comportamento abaixo.
 O `setup.sh` copia o harness preservando os arquivos existentes e acrescenta proteção ao `.gitignore`.
 Cria um `.env` local a partir do `.env.example`, com permissão 600 onde suportada, para você preencher à mão.
 Instala a skill `humanizer` do upstream (commit pinado) e a `humanizer-ptbr`: em `~/.claude/skills/` para Claude
@@ -210,9 +216,9 @@ uso entre máquinas. Graphify aponta de volta às notas e revisões; claude-mem 
 A [adoção reversível](docs/superpowers/specs/2026-10-02-reversible-adoption-design.md) tem desenho aprovado
 e [plano de implementação aprovado](docs/superpowers/plans/2026-10-02-reversible-adoption.md): salvar o
 repositório antes do setup e permitir o retorno, preservando uma cópia privada do trabalho do teste.
-O modo de teste previsto instala apenas arquivos do projeto, sem alterar o perfil global dos clientes.
+O modo `--trial` instala apenas arquivos do projeto, sem alterar o perfil global dos clientes.
 A implementação já inclui captura, prévia, retorno confirmado e recuperação após interrupção.
-A integração ao setup está em andamento. Configurações globais e serviços externos
+O setup preserva o primeiro ponto ao repetir a instalação. Configurações globais e serviços externos
 exigem tratamento separado; instalações antigas sem ponto inicial não terão recuperação retroativa garantida.
 
 O desenho do Docling foi aprovado. O [plano de execução](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
@@ -350,12 +356,18 @@ does not prove authorization or use; each run should record the capabilities act
 
 ```bash
 git clone https://github.com/Matheusrpc/YoungCrowHarness.git
-bash YoungCrowHarness/setup.sh my-project --client both --name "My Project"
+bash YoungCrowHarness/setup.sh my-project --trial --client both --name "My Project"
 ```
 
 **Step by step:** [new repository](docs/USAGE.md#new-en) · [adopt an existing repo](docs/USAGE.md#migrate-en) · [daily operation](docs/USAGE.md#operate-en).
 
 Requires Bash, Git and a working `python3` in the same terminal. On Windows, use Git Bash.
+For a first try, use `--trial`: it saves a private baseline before the first write, outside every
+Git repository and on the same volume. It installs bundled project files and skills, skipping
+plugins and skill downloads. Repeated setup preserves the original baseline. See
+[status, exit and interruption recovery](docs/USAGE.md#reversible-adoption-en).
+
+Without `--trial`, normal installation creates no restore point and behaves as described below.
 `setup.sh` preserves existing project files and appends protection to `.gitignore`.
 It creates a local `.env` from `.env.example`, with permission 600 where supported, for you to fill in
 by hand. It installs the `humanizer` skill from upstream (pinned commit) and `humanizer-ptbr` into
@@ -491,9 +503,9 @@ across machines. Graphify points back to source notes and revisions; claude-mem 
 [Reversible adoption](docs/superpowers/specs/2026-10-02-reversible-adoption-design.md) has an approved design
 and an [approved implementation plan](docs/superpowers/plans/2026-10-02-reversible-adoption.md): save the
 repository before setup and allow restoration while retaining a private copy of trial work.
-The planned trial mode installs project files only, leaving client profiles outside the project unchanged.
+The `--trial` mode installs project files only, leaving client profiles outside the project unchanged.
 Implementation includes baseline capture, preview, confirmed restoration and interruption recovery.
-Setup integration is in progress. Global configuration and external services require
+Repeated setup preserves the first baseline. Global configuration and external services require
 separate handling; existing installations without a baseline cannot have guaranteed retroactive recovery.
 
 The Docling design is approved. The [implementation plan](docs/superpowers/plans/2026-10-02-docling-ingestion.md)

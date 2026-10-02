@@ -63,9 +63,26 @@ Hashes verify bytes, not human approval. Applying changes follows the operator's
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Antes de começar
 
-A adoção reversível está em implementação. O perfil inicial cobre arquivos comuns, diretórios vazios
+<a id="adocao-reversivel-pt"></a>
+
+Use `--trial` no primeiro setup para guardar um ponto anterior à adoção. O perfil inicial cobre arquivos comuns, diretórios vazios
 e Git independente, incluindo arquivos ignorados e mudanças sem commit. Links, worktrees, submódulos
-e metadados que não possam ser preservados serão recusados. O setup atual ainda não cria um ponto de retorno.
+e metadados que não possam ser preservados são recusados antes da instalação. Sem `--trial`, o setup não cria ponto de retorno.
+
+Encerre os escritores do projeto. O pai do destino deve existir. A base padrão é
+`.youngcrow-recovery`, ao lado do destino; escolha outra base com `--backup-root CAMINHO`.
+Ela precisa ficar fora de qualquer Git, no mesmo volume, com acesso restrito ao dono.
+O modo de teste pula instalações globais, plugins e downloads de skills nos dois clientes.
+`--sem-plugins` sozinho ainda instala skills e não oferece essa proteção.
+
+```bash
+bash YoungCrowHarness/setup.sh meu-projeto --trial --client both --backup-root ./backups-privados
+```
+
+Guarde o caminho `runner` retornado em local privado. Para repetir ou retomar uma instalação
+parcial, use o mesmo destino e a mesma base: o ponto inicial não muda. Uma instalação antiga
+sem esse ponto não permite reconstruir o estado anterior. Depois de restaurar, o registro é histórico;
+uma adoção nova exige outro destino ainda não adotado ou tratamento manual, preservando as cópias anteriores.
 
 A preparação pode ser feita a partir da cópia do harness, antes do setup, com escritores do projeto
 encerrados. Escolha uma pasta de backup no mesmo volume, fora de qualquer repo Git:
@@ -91,6 +108,22 @@ O resultado informa `recovery_path` e `displaced_path`; as duas cópias ficam pr
 Se houver interrupção, consulte `status` pelo runner. Com dono e filho encerrados, use
 `recover-lock --confirm LOCK_ID` e depois `recover --confirm TRANSACTION_ID`, com os IDs retornados.
 Mudanças após a prévia exigem nova revisão. O retorno nunca é um efeito automático do setup.
+
+O armazenamento inclui arquivos ignorados e pode conter segredos: não o publique nem o indexe no
+vault, Graphify ou claude-mem. O vault recebe apenas ID da adoção, data, estado e próxima ação.
+A captura aceita até 100 mil entradas e 64 GiB. Reserve o tamanho inicial para a captura; na saída,
+precisa haver espaço livre para uma cópia do projeto atual, outra do ponto inicial e 64 MiB adicionais.
+As cópias não são apagadas automaticamente. Não há garantia contra falha de disco ou energia.
+
+No Windows, o perfil exige ACLs herdadas e dono atual; recusa streams extras, junctions e atributos
+não preserváveis. Caminhos derivados precisam ter menos de 248 unidades UTF-16, incluindo o
+armazenamento interno. `unsupported_path_length` pede uma base mais curta, por exemplo `C:/yc-backups`;
+o setup reserva espaço de caminho para os arquivos distribuídos. Arquivos novos muito longos também
+podem bloquear a saída antes da troca. No POSIX, só permissões simples do dono atual são aceitas;
+ACLs estendidas, xattrs e bits especiais são recusados. Links, hardlinks, submódulos, Git compartilhado
+e worktrees não entram neste perfil. Encerre agentes, editores que salvam e processos Git antes das
+operações: o lock coordena o harness, mas não impede um programa externo de escrever.
+Plugins globais, serviços, publicações remotas e mudanças fora da pasta ficam fora do retorno.
 
 Este guia cobre o instalador, o vault de integrações e o especialista em fornecedores. O setup cria o índice geral, os índices de integrações/capacidades, a skill e a entrada nativa do agente para os clientes selecionados. Fornecedores, serviços e execuções são criados sob demanda.
 A skill `personalizer` conduz entrevista e auditoria de adoção; seu comando cria os registros de produto, features, decisões e operação quando necessário. Sincronização automática Graphify/claude-mem e orquestração autônoma de papéis continuam [planejadas](superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
@@ -135,11 +168,11 @@ Execute uma instalação por destino de cada vez. O preflight recusa links em ca
 
    ```bash
    git clone https://github.com/Matheusrpc/YoungCrowHarness.git
-   bash YoungCrowHarness/setup.sh meu-projeto --client both --nome "Meu Projeto" --sem-plugins
+   bash YoungCrowHarness/setup.sh meu-projeto --trial --client both --nome "Meu Projeto"
    cd meu-projeto
    ```
 
-   Remova `--sem-plugins` se quiser instalar também os plugins de marketplace do inventário. A saída distingue componentes copiados, mantidos e pulados.
+   Guarde o `runner` retornado. O teste pula plugins e downloads; a saída distingue componentes copiados, mantidos e pulados.
 
 2. Inicialize o Git e confira a proteção do arquivo local:
 
@@ -176,7 +209,7 @@ Execute uma instalação por destino de cada vez. O preflight recusa links em ca
 3. Com o clone do YoungCrowHarness em uma pasta irmã, execute sem `--force`:
 
    ```bash
-   bash ../YoungCrowHarness/setup.sh . --client both --nome "Meu Produto" --sem-plugins
+   bash ../YoungCrowHarness/setup.sh . --trial --client both --nome "Meu Produto"
    git diff --stat
    git diff
    git status --short
@@ -686,9 +719,26 @@ passe o `.exe`, não o lançador `.ps1` ou `.cmd`. Resultado pendente retorna 2;
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Before you start
 
-Reversible adoption is being implemented. The initial profile covers regular files, empty directories
+<a id="reversible-adoption-en"></a>
+
+Use `--trial` on first setup to save the pre-adoption state. The initial profile covers regular files, empty directories
 and standalone Git repositories, including ignored files and uncommitted work. Links, worktrees,
-submodules and metadata that cannot be preserved will be refused. The current setup does not yet create a restore point.
+submodules and metadata that cannot be preserved are refused before installation. Setup without `--trial` creates no restore point.
+
+Stop project writers first. The destination's parent must exist. The default base is
+`.youngcrow-recovery` beside the destination; override it with `--backup-root PATH`.
+It must be outside every Git repository, on the same volume, and accessible only to its owner.
+Trial skips global installs, plugins and skill downloads for both clients.
+`--no-plugins` alone still installs skills and does not provide this protection.
+
+```bash
+bash YoungCrowHarness/setup.sh my-project --trial --client both --backup-root ./private-backups
+```
+
+Keep the returned `runner` path private. Repeat setup or resume a partial install with the same
+destination and backup base: the first baseline stays unchanged. Older installations without that
+baseline cannot reconstruct the pre-adoption state. After restoration, the record is historical;
+a new adoption requires another not-yet-adopted destination or manual handling, retaining earlier copies.
 
 Run preparation from the harness checkout before setup, with project writers stopped.
 Choose a backup directory on the same volume and outside every Git repository:
@@ -715,6 +765,21 @@ After interruption, inspect `status` through the runner. Once the owner and chil
 `recover-lock --confirm LOCK_ID`, then `recover --confirm TRANSACTION_ID`, with the reported IDs.
 Changes after preview require a new review. Setup never triggers restoration automatically.
 
+Storage includes ignored files and may contain secrets: keep it out of Git, the vault, Graphify and
+claude-mem. Vault notes contain only adoption ID, date, state and next action. Capture accepts up to
+100,000 entries and 64 GiB. Allow the initial size for capture; exit needs free space for a copy of
+the current project, another copy of the baseline and 64 MiB of reserve. Copies are never cleaned
+up automatically. Disk failure and power-loss durability are not guaranteed.
+
+Windows requires inherited ACLs and current ownership; extra streams, junctions and unsupported
+attributes are refused. Derived paths must remain below 248 UTF-16 units, including internal storage.
+For `unsupported_path_length`, choose a shorter base, such as `C:/yc-backups`; setup reserves path
+space for bundled files. Long files created later can also block exit before the exchange. POSIX
+supports current ownership and simple modes; extended ACLs, xattrs and special mode bits are refused.
+Links, hardlinks, submodules, shared Git metadata and worktrees are outside this profile. Stop agents,
+autosaving editors and Git processes first: the harness lock cannot prevent external writers.
+Global plugins, services, remote publications and changes outside the folder are excluded.
+
 This guide covers setup, the integration vault and vendor specialist. Setup installs the general, integration and capability indices, shared skill and native agent entries for the selected clients. Provider/service/run notes are created on demand.
 The `personalizer` skill conducts discovery and adoption audits; its command creates product, feature, decision and operation notes on demand. Automatic Graphify/claude-mem synchronization and autonomous role orchestration remain [planned](superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 
@@ -734,14 +799,14 @@ Claude marketplace plugins are installed when `claude` is available, unless `--n
 
    ```bash
    git clone https://github.com/Matheusrpc/YoungCrowHarness.git
-   bash YoungCrowHarness/setup.sh my-project --client both --name "My Project" --no-plugins
+   bash YoungCrowHarness/setup.sh my-project --trial --client both --name "My Project"
    cd my-project
    git init
    git check-ignore --no-index .env
    git ls-files -- .env
    ```
 
-   The ignore check must print `.env`; the tracked-files check must be empty. Setup prepares the ignore rule but does not initialize Git. Omit `--no-plugins` to install marketplace plugins as well.
+   The ignore check must print `.env`; the tracked-files check must be empty. Setup prepares the ignore rule but does not initialize Git. Keep the returned external `runner`; trial skips plugins and skill downloads.
 
 2. Fill in the project rules in `CLAUDE.md` and `AGENTS.md`: objective, real test/build commands, write boundaries, environments, publication authorization and rollback. For English, use `docs/CLAUDE.en.md` as your `CLAUDE.md`. Resolve all `<fill in>` placeholders. Document the product's existing design system.
 
@@ -768,7 +833,7 @@ Claude marketplace plugins are installed when `claude` is available, unless `--n
 3. With the harness clone in a sibling folder, run without `--force`:
 
    ```bash
-   bash ../YoungCrowHarness/setup.sh . --client both --name "My Product" --no-plugins
+   bash ../YoungCrowHarness/setup.sh . --trial --client both --name "My Product"
    git diff --stat
    git diff
    git status --short

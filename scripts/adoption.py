@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import uuid
@@ -210,6 +211,10 @@ def recover_lock(root, base, confirmation):
         if destination.exists():
             raise ValueError('lock_changed')
         os.rename(safe_path(store, 'lock.json'), destination)
+        state = read_state(store)
+        if state['state'] == 'installing':
+            verify_binding(root, state)
+            write_state(store, state, state='install_failed')
     return dict(state='lock_recovered', next_action='inspect_status')
 
 
@@ -379,6 +384,71 @@ def create_and_bind_root_if_absent(root, store, state):
     return state
 
 
+def verify_child(root, base):
+    root, base = fs.checked_path(root), fs.validate_storage(root, base, create=False)
+    store = store_for(root, base)
+    state = read_state(store)
+    lock = read_record(store, 'lock.json')
+    if (state['state'] != 'installing' or not os.environ.get('YOUNGCROW_ADOPTION_TOKEN')
+            or lock.get('token') != os.environ['YOUNGCROW_ADOPTION_TOKEN']
+            or not owner_alive(lock) or not owner_alive(lock, child=True)):
+        raise ValueError('invalid_install_child')
+    verify_binding(root, state)
+    verify_baseline(store, state)
+    return dict(state='install_child_verified')
+
+
+def run_install(root, base, source, options):
+    root, source = fs.checked_path(root), fs.checked_path(source)
+    if root == source or root in source.parents or source in root.parents:
+        raise ValueError('invalid_install_source')
+    # Reserve space for bundled paths before creating the baseline or the project.
+    trial_target = store_for(root, fs.checked_path(base)) / 'transactions' / str(uuid.UUID(int=0)) / 'trial-copy'
+    fs.ensure_paths_fit(trial_target, ['x' * 64, *[e['path'] for e in fs.inspect_tree(root)['entries']]])
+    prepare(root, base)
+    base = fs.validate_storage(root, base, create=False)
+    store = store_for(root, base)
+    with adoption_lease(store) as lease:
+        state = read_state(store)
+        verify_binding(root, state)
+        verify_baseline(store, state)
+        if state['state'] not in ('ready', 'installed', 'install_failed'):
+            raise ValueError('adoption_not_ready')
+        if state['state'] == 'ready' and fs.tree_digest(fs.inspect_tree(root)) != state['baseline_digest']:
+            raise ValueError('source_changed')
+        if fs.inspect_permissions(root, role='project') != state['parent_policy']:
+            raise ValueError('parent_permissions_changed')
+        state = create_and_bind_root_if_absent(root, store, state)
+        state = write_state(store, state, state='installing')
+        bash = shutil.which('bash')
+        if not bash:
+            write_state(store, state, state='install_failed')
+            raise ValueError('missing_bash')
+        env = {k: v for k, v in os.environ.items()
+               if k not in ('BASH_ENV', 'ENV') and not k.startswith('PYTHON')}
+        env.update(YOUNGCROW_ADOPTION_TOKEN=lease['token'], YOUNGCROW_ADOPTION_BASE=str(base))
+        child = None
+        try:
+            child = subprocess.Popen([bash, '--noprofile', '--norc', str(source / 'setup.sh'),
+                                      str(root), '--trial-child', *options],
+                                     cwd=source, env=env, stdin=subprocess.PIPE)
+            fs.child_observer(child.pid)
+            child.stdin.write(b'ready\n')
+            child.stdin.close()
+            code = child.wait()
+            fs.child_observer(None)
+            state = write_state(store, state, state='installed' if code == 0 else 'install_failed')
+            print(json.dumps(public_status(store, state), ensure_ascii=True))
+            return code
+        except BaseException:
+            # Stop only the start pipe. A released child keeps its persistent lease until it exits.
+            if child is not None and child.stdin and not child.stdin.closed:
+                child.stdin.close()
+            if child is None or child.poll() is not None:
+                write_state(store, state, state='install_failed')
+            raise
+
+
 def proposal_for(root, store, state):
     if state['state'] not in ('ready', 'installed', 'install_failed'):
         raise ValueError('adoption_not_ready')
@@ -454,10 +524,10 @@ def ensure_snapshot(source, target, inventory, transaction):
         if fs.tree_digest(fs.inspect_tree(target)) == fs.tree_digest(inventory):
             fs.inspect_permissions(target, role='snapshot')
             return
-        archive = fs.checked_path(transaction / 'incomplete')
+        archive = fs.checked_path(transaction.parent.parent / 'incomplete')
         archive.mkdir(exist_ok=True)
         # Both paths are fixed descendants of this owned transaction; retain the partial copy.
-        os.rename(fs.checked_path(target), fs.checked_path(archive / (target.name + '-' + str(uuid.uuid4()))))
+        os.rename(fs.checked_path(target), fs.checked_path(archive / str(uuid.uuid4())))
     fs.copy_verified(source, target, inventory)
 
 
@@ -580,6 +650,8 @@ def restore(root, base, confirmation):
         fs.ensure_space(store, trial['total_bytes'] + read_record(store, 'baseline/inventory.json')['total_bytes'])
         transaction_id = str(uuid.uuid4())
         transaction = transaction_for(store, transaction_id)
+        fs.ensure_paths_fit(transaction / 'trial-copy', [e['path'] for e in trial['entries']])
+        fs.ensure_paths_fit(transaction / 'install', [e['path'] for e in read_record(store, 'baseline/inventory.json')['entries']])
         transaction.parent.mkdir(exist_ok=True)
         fs.private_dir(transaction)
         write_record(transaction, 'trial.json', trial)
@@ -613,7 +685,7 @@ def main(argv=None):
     parser.add_argument('--root', type=Path, required=True)
     parser.add_argument('--backup-root', type=Path)
     sub = parser.add_subparsers(dest='command', required=True)
-    for name in ('prepare', 'status', 'recover-lock', 'restore', 'recover'):
+    for name in ('prepare', 'status', 'recover-lock', 'restore', 'recover', 'verify-child', 'install'):
         command = sub.add_parser(name)
         command.add_argument('--json', action='store_true')
         if name in ('recover-lock', 'recover'):
@@ -622,10 +694,25 @@ def main(argv=None):
             group = command.add_mutually_exclusive_group(required=True)
             group.add_argument('--confirm')
             group.add_argument('--dry-run', action='store_true')
+        elif name == 'install':
+            command.add_argument('--source', type=Path, required=True)
+            command.add_argument('--client', choices=('claude', 'codex', 'both'), default='both')
+            command.add_argument('--name')
+            command.add_argument('--force', action='store_true')
     args = parser.parse_args(argv)
     try:
         root = fs.checked_path(args.root)
         base = fs.checked_path(args.backup_root or root.parent / '.youngcrow-recovery')
+        if args.command == 'install':
+            options = ['--client', args.client]
+            if args.name:
+                options += ['--name', args.name]
+            if args.force:
+                options += ['--force']
+            return run_install(root, base, args.source, options)
+        if args.command == 'verify-child':
+            print(json.dumps(verify_child(root, base)))
+            return 0
         if args.command in ('restore', 'recover') and not getattr(args, 'dry_run', False):
             store = store_for(root, fs.validate_storage(root, base, create=False))
             state = read_state(store)

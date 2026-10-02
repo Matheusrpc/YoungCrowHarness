@@ -12,6 +12,7 @@ MAX_ENTRIES = 100_000
 MAX_BYTES = 64 * 1024**3
 BLOCK = 1024**2
 RESERVE = 64 * 1024**2
+child_observer = None  # One adoption controller per process; records native helper ownership.
 
 
 def canonical(value):
@@ -71,14 +72,28 @@ def outside_git(path):
 def acl(mode, root):
     shell = Path(os.environ.get('SystemRoot', 'C:/Windows')) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
     env = dict(os.environ, PSModulePath=str(shell.parent / 'Modules'))
-    result = subprocess.run([str(shell), '-NoLogo', '-NoProfile', '-NonInteractive',
+    process = subprocess.Popen([str(shell), '-NoLogo', '-NoProfile', '-NonInteractive',
                              '-ExecutionPolicy', 'Bypass', '-File',
                              str(Path(__file__).with_name('adoption_acl.ps1')),
-                             '-Mode', mode, '-LiteralPath', str(root)],
-                            capture_output=True, timeout=120, encoding='utf-8', env=env)
-    if result.returncode:
+                             '-Mode', mode, '-LiteralPath', str(root), '-AwaitParent'],
+                               stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                               encoding='utf-8', env=env)
+    observer = child_observer
+    try:
+        if observer is not None:
+            observer(process.pid)
+        stdout, _ = process.communicate('ready\n', timeout=120)
+    except BaseException:
+        if process.poll() is None:
+            process.kill()  # Only this invocation's own helper.
+        process.communicate()
+        raise
+    finally:
+        if observer is not None and process.poll() is not None:
+            observer(None)
+    if process.returncode:
         raise ValueError('unsupported_permissions')
-    return json.loads(result.stdout)
+    return json.loads(stdout)
 
 
 def private_dir(path):
@@ -147,7 +162,7 @@ def hash_file(path):
 
 def metadata(info):
     return dict(mode=stat.S_IMODE(info.st_mode),
-                attributes=getattr(info, 'st_file_attributes', 0) & 7 if os.name == 'nt' else 0)
+                attributes=getattr(info, 'st_file_attributes', 0) & 0x2007 if os.name == 'nt' else 0)
 
 
 def relative_path(value):
@@ -232,7 +247,7 @@ def inspect_tree(root):
 
 def inspect_permissions(root, *, role):
     root = checked_path(root)
-    if role not in ('project', 'snapshot'):
+    if role not in ('project', 'snapshot', 'transition'):
         raise ValueError('invalid_role')
     if os.name == 'nt':
         stack = [root] if root.exists() else []
@@ -245,7 +260,8 @@ def inspect_permissions(root, *, role):
                 raise ValueError('inventory_limit')
             if path.is_dir():
                 stack.extend(path.iterdir())
-        return acl('profile-check' if role == 'project' else 'private-check', root)
+        return acl({'project': 'profile-check', 'snapshot': 'private-check',
+                    'transition': 'transition-check'}[role], root)
     if not hasattr(os, 'listxattr'):
         raise ValueError('unsupported_permissions')
     for directory, dirs, files in os.walk(root, followlinks=False):

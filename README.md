@@ -211,7 +211,8 @@ A [adoção reversível](docs/superpowers/specs/2026-10-02-reversible-adoption-d
 e [plano de implementação aprovado](docs/superpowers/plans/2026-10-02-reversible-adoption.md): salvar o
 repositório antes do setup e permitir o retorno, preservando uma cópia privada do trabalho do teste.
 O modo de teste previsto instala apenas arquivos do projeto, sem alterar o perfil global dos clientes.
-A implementação já inclui captura e consulta do ponto inicial. A restauração automática ainda não está disponível. Configurações globais e serviços externos
+A implementação já inclui captura, prévia, retorno confirmado e recuperação após interrupção.
+A integração ao setup está em andamento. Configurações globais e serviços externos
 exigem tratamento separado; instalações antigas sem ponto inicial não terão recuperação retroativa garantida.
 
 O desenho do Docling foi aprovado. O [plano de execução](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
@@ -491,7 +492,8 @@ across machines. Graphify points back to source notes and revisions; claude-mem 
 and an [approved implementation plan](docs/superpowers/plans/2026-10-02-reversible-adoption.md): save the
 repository before setup and allow restoration while retaining a private copy of trial work.
 The planned trial mode installs project files only, leaving client profiles outside the project unchanged.
-Implementation includes baseline capture and status inspection. Automatic restoration is not available yet. Global configuration and external services require
+Implementation includes baseline capture, preview, confirmed restoration and interruption recovery.
+Setup integration is in progress. Global configuration and external services require
 separate handling; existing installations without a baseline cannot have guaranteed retroactive recovery.
 
 The Docling design is approved. The [implementation plan](docs/superpowers/plans/2026-10-02-docling-ingestion.md)

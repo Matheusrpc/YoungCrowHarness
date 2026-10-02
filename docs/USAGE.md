@@ -77,7 +77,20 @@ python scripts/adoption.py --root /caminho/projeto --backup-root /caminho/backup
 
 `prepare` recusa instalações YoungCrow reconhecidas sem ponto anterior e preserva um ponto existente.
 `status` não cria arquivos. Guarde o caminho `runner` informado: ele fica fora do projeto.
-Esses comandos ainda não oferecem restauração nesta etapa da implementação.
+O retorno já pode ser ensaiado pelo runner externo, com todos os escritores do projeto encerrados:
+
+```bash
+python /caminho/runner/adoption.py --root /caminho/projeto --backup-root /caminho/backups restore --dry-run --json
+# Revise o relatório privado; use o digest atual somente após confirmar a saída.
+python /caminho/runner/adoption.py --root /caminho/projeto --backup-root /caminho/backups restore --confirm DIGEST --json
+```
+
+A confirmação autoriza copiar e verificar o trabalho do teste antes de retirar a pasta atual.
+No Windows, também autoriza restringir temporariamente suas permissões durante a troca.
+O resultado informa `recovery_path` e `displaced_path`; as duas cópias ficam preservadas.
+Se houver interrupção, consulte `status` pelo runner. Com dono e filho encerrados, use
+`recover-lock --confirm LOCK_ID` e depois `recover --confirm TRANSACTION_ID`, com os IDs retornados.
+Mudanças após a prévia exigem nova revisão. O retorno nunca é um efeito automático do setup.
 
 Este guia cobre o instalador, o vault de integrações e o especialista em fornecedores. O setup cria o índice geral, os índices de integrações/capacidades, a skill e a entrada nativa do agente para os clientes selecionados. Fornecedores, serviços e execuções são criados sob demanda.
 A skill `personalizer` conduz entrevista e auditoria de adoção; seu comando cria os registros de produto, features, decisões e operação quando necessário. Sincronização automática Graphify/claude-mem e orquestração autônoma de papéis continuam [planejadas](superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
@@ -687,7 +700,20 @@ python scripts/adoption.py --root /path/project --backup-root /path/backups stat
 
 `prepare` refuses recognized YoungCrow installations without a prior baseline and preserves existing
 baselines. `status` creates no files. Keep the returned `runner` path; it is outside the project.
-These commands do not yet provide restoration at this implementation stage.
+Restoration can already be rehearsed through the external runner, with all project writers stopped:
+
+```bash
+python /path/runner/adoption.py --root /path/project --backup-root /path/backups restore --dry-run --json
+# Review the private report; use its current digest only after confirming the exit.
+python /path/runner/adoption.py --root /path/project --backup-root /path/backups restore --confirm DIGEST --json
+```
+
+Confirmation authorizes copying and verifying trial work before moving the current folder.
+On Windows it also authorizes temporarily restricting permissions during the exchange.
+The result reports `recovery_path` and `displaced_path`; both copies are retained.
+After interruption, inspect `status` through the runner. Once the owner and child have stopped, use
+`recover-lock --confirm LOCK_ID`, then `recover --confirm TRANSACTION_ID`, with the reported IDs.
+Changes after preview require a new review. Setup never triggers restoration automatically.
 
 This guide covers setup, the integration vault and vendor specialist. Setup installs the general, integration and capability indices, shared skill and native agent entries for the selected clients. Provider/service/run notes are created on demand.
 The `personalizer` skill conducts discovery and adoption audits; its command creates product, feature, decision and operation notes on demand. Automatic Graphify/claude-mem synchronization and autonomous role orchestration remain [planned](superpowers/specs/2026-10-01-youngcrow-foundation-design.md).

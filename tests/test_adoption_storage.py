@@ -56,6 +56,15 @@ class StorageFixture(unittest.TestCase):
 
 
 class StorageTests(StorageFixture):
+    @unittest.skipUnless(os.name == 'nt', 'Windows file attributes')
+    def test_not_indexed_attribute_is_preserved(self):
+        import ctypes
+        self.write('file', b'data')
+        self.assertTrue(ctypes.windll.kernel32.SetFileAttributesW(str(self.project / 'file'), 0x2000))
+        before = self.fs.inspect_tree(self.project)
+        self.fs.copy_verified(self.project, self.copy, before)
+        self.assertTrue((self.copy / 'file').stat().st_file_attributes & 0x2000)
+
     def test_snapshot_keeps_dirty_git_ignored_bytes_and_empty_directories(self):
         self.seed_dirty_git()
         before = self.fs.inspect_tree(self.project)

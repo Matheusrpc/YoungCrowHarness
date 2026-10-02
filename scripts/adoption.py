@@ -16,6 +16,8 @@ from document_store import atomic_write, process_alive, safe_path
 
 RUNNER_FILES = ('adoption.py', 'adoption_fs.py', 'adoption_acl.ps1', 'document_store.py', 'integrations.py')
 PHASES = ('capturing', 'ready', 'installing', 'installed', 'install_failed', 'restoring', 'restored')
+TRANSACTION_PHASES = ('copying', 'prepared', 'privatizing_current', 'current_private', 'moving_current',
+                      'current_moved', 'activating_baseline', 'baseline_activated', 'complete', 'invalidated')
 MAX_RECORD = 32 * 1024**2
 
 
@@ -173,9 +175,18 @@ def adoption_lease(store):
                 os.fsync(output.fileno())
         except FileExistsError as error:
             raise ValueError('locked') from error
+    previous_observer = fs.child_observer
+    def observe(pid):
+        current = read_record(store, 'lock.json')
+        if current.get('token') != lock['token']:
+            raise ValueError('lock_changed')
+        current.update(child_pid=pid, child_start=process_start(pid) if pid is not None else None)
+        write_record(store, 'lock.json', current)
+    fs.child_observer = observe
     try:
         yield lock
     finally:
+        fs.child_observer = previous_observer
         # A stopped controller may leave a child alive: never release that lease.
         with lock_guard(store):
             current = read_record(store, 'lock.json')
@@ -274,9 +285,12 @@ def verify_baseline(store, state):
 
 
 def public_status(store, state):
-    return dict(adoption_id=state['adoption_id'], state=state['state'],
+    result = dict(adoption_id=state['adoption_id'], state=state['state'],
                 root_exists=state['root_exists'], baseline_digest=state.get('baseline_digest'),
                 runner=str(store / 'runner/adoption.py'), revision=state['revision'])
+    if state.get('transaction_id'):
+        result['transaction_id'] = state['transaction_id']
+    return result
 
 
 def status(root, base):
@@ -285,6 +299,8 @@ def status(root, base):
     if not (store / 'state.json').exists():
         return dict(state='missing_baseline')
     state = read_state(store)
+    if state['root'] != root_key(root):
+        raise ValueError('root_identity_changed')
     if state['state'] not in ('restoring', 'restored'):
         verify_binding(root, state)
     if state['state'] != 'capturing':
@@ -350,22 +366,283 @@ def prepare(root, base):
         return public_status(store, state)
 
 
+def create_and_bind_root_if_absent(root, store, state):
+    verify_binding(root, state)
+    verify_baseline(store, state)
+    if root.exists():
+        return state
+    if state.get('root_creation') == 'pending':
+        raise ValueError('root_creation_unresolved')
+    state = write_state(store, state, root_creation='pending')
+    root.mkdir()
+    state = write_state(store, state, root_creation='bound', active_identity=fs.identity(root))
+    return state
+
+
+def proposal_for(root, store, state):
+    if state['state'] not in ('ready', 'installed', 'install_failed'):
+        raise ValueError('adoption_not_ready')
+    verify_binding(root, state)
+    baseline = verify_baseline(store, state)
+    current = fs.inspect_tree(root)
+    if not current['exists']:
+        raise ValueError('missing_trial_root')
+    git_preflight(root, current)
+    policy = fs.inspect_permissions(root, role='project')
+    if policy != state['parent_policy']:
+        raise ValueError('parent_permissions_changed')
+    old = {entry['path']: entry for entry in baseline['entries']}
+    new = {entry['path']: entry for entry in current['entries']}
+    changes = dict(added=sorted(new.keys() - old.keys()), removed=sorted(old.keys() - new.keys()),
+                   modified=sorted(name for name in new.keys() & old.keys() if new[name] != old[name]))
+    proposal = dict(schema=1, adoption_id=state['adoption_id'], revision=state['revision'],
+                    baseline_digest=state['baseline_digest'], current_digest=fs.tree_digest(current),
+                    root_identity=fs.identity(root), parent_policy=policy, changes=changes,
+                    permission_step='private_before_move' if os.name == 'nt' else 'private_container')
+    return proposal, current
+
+
+def preview(root, base):
+    root, base = fs.checked_path(root), fs.validate_storage(root, base, create=False)
+    store = store_for(root, base)
+    if not (store / 'state.json').is_file():
+        raise ValueError('missing_baseline')
+    with adoption_lease(store):
+        proposal, _ = proposal_for(root, store, read_state(store))
+        digest = fs.tree_digest(proposal)
+        path = 'previews/' + digest + '.json'
+        if not (store / path).exists():
+            write_record(store, path, proposal)
+        elif read_record(store, path) != proposal:
+            raise ValueError('preview_corrupt')
+        return dict(digest=digest, counts={name: len(paths) for name, paths in proposal['changes'].items()},
+                    report=str(store / path), runner=str(store / 'runner/adoption.py'),
+                    permission_step=proposal['permission_step'])
+
+
+def write_journal(transaction, previous, phase):
+    if phase not in TRANSACTION_PHASES:
+        raise ValueError('invalid_transaction')
+    journal = dict(previous, phase=phase, revision=previous.get('revision', 0) + 1)
+    write_record(transaction, 'journal.json', journal)
+    return journal
+
+
+def transaction_for(store, identity):
+    try:
+        if str(uuid.UUID(identity)) != identity:
+            raise ValueError('invalid_transaction')
+    except (ValueError, TypeError, AttributeError) as error:
+        raise ValueError('invalid_transaction') from error
+    return fs.checked_path(store / 'transactions' / identity)
+
+
+def recovery_result(root, store, state, journal, *, historical=False):
+    transaction = transaction_for(store, state['transaction_id'])
+    recovery = transaction / 'trial-copy'
+    if fs.tree_digest(fs.inspect_tree(recovery)) != journal['trial_digest']:
+        raise ValueError('recovery_corrupt')
+    fs.inspect_permissions(recovery, role='snapshot')
+    result = public_status(store, state)
+    result.update(recovery_path=str(recovery), displaced_path=str(transaction / 'displaced'),
+                  historical=historical, drift=fs.tree_digest(fs.inspect_tree(root)) != state['baseline_digest'])
+    return result
+
+
+def ensure_snapshot(source, target, inventory, transaction):
+    if target.exists():
+        if fs.tree_digest(fs.inspect_tree(target)) == fs.tree_digest(inventory):
+            fs.inspect_permissions(target, role='snapshot')
+            return
+        archive = fs.checked_path(transaction / 'incomplete')
+        archive.mkdir(exist_ok=True)
+        # Both paths are fixed descendants of this owned transaction; retain the partial copy.
+        os.rename(fs.checked_path(target), fs.checked_path(archive / (target.name + '-' + str(uuid.uuid4()))))
+    fs.copy_verified(source, target, inventory)
+
+
+def resume_transaction(root, store, state, transaction, journal):
+    baseline = verify_baseline(store, state)
+    trial = read_record(transaction, 'trial.json')
+    if (journal.get('schema') != 1 or journal.get('phase') not in TRANSACTION_PHASES
+            or journal.get('adoption_id') != state['adoption_id']
+            or journal.get('baseline_digest') != state['baseline_digest']
+            or journal.get('trial_digest') != fs.tree_digest(trial)
+            or journal.get('transaction_id') != state['transaction_id']
+            or state['root'] != root_key(root) or state['parent_identity'] != fs.identity(root.parent)):
+        raise ValueError('invalid_transaction')
+    if journal['phase'] == 'invalidated':
+        raise ValueError('stale_preview')
+    displaced, install = transaction / 'displaced', transaction / 'install'
+    if journal['phase'] == 'copying':
+        if fs.identity(root) != journal['current_identity']:
+            raise ValueError('root_identity_changed')
+        if fs.tree_digest(fs.inspect_tree(root)) != journal['trial_digest']:
+            write_journal(transaction, journal, 'invalidated')
+            write_state(store, state, state=journal['previous_state'], transaction_id=None)
+            raise ValueError('stale_preview')
+        fs.ensure_space(store, trial['total_bytes'] + baseline['total_bytes'])
+        ensure_snapshot(root, transaction / 'trial-copy', trial, transaction)
+        ensure_snapshot(store / 'baseline/tree', install, baseline, transaction)
+        journal['install_identity'] = fs.identity(install)
+        journal = write_journal(transaction, journal, 'prepared')
+    if fs.tree_digest(fs.inspect_tree(transaction / 'trial-copy')) != journal['trial_digest']:
+        raise ValueError('recovery_corrupt')
+    fs.inspect_permissions(transaction / 'trial-copy', role='snapshot')
+
+    if not displaced.exists():
+        if journal['phase'] not in ('prepared', 'privatizing_current', 'current_private', 'moving_current'):
+            raise ValueError('ambiguous_transaction')
+        if fs.identity(root) != journal['current_identity']:
+            raise ValueError('root_identity_changed')
+        observed = fs.inspect_tree(root)
+        if fs.tree_digest(observed) != journal['trial_digest']:
+            if os.name == 'nt' and journal['phase'] != 'prepared':
+                fs.inspect_permissions(root, role='transition')
+                fs.restore_permissions(root, observed, state['parent_policy'])
+            write_journal(transaction, journal, 'invalidated')
+            write_state(store, state, state=journal['previous_state'], transaction_id=None)
+            raise ValueError('stale_preview')
+        git_preflight(root, observed)
+        role = 'project' if journal['phase'] == 'prepared' else 'transition'
+        if fs.inspect_permissions(root, role=role) != state['parent_policy']:
+            raise ValueError('parent_permissions_changed')
+        if (fs.identity(install) != journal['install_identity'] or
+                fs.tree_digest(fs.inspect_tree(install)) != state['baseline_digest']):
+            raise ValueError('install_corrupt')
+        if os.name == 'nt':
+            journal = write_journal(transaction, journal, 'privatizing_current')
+            fs.protect_for_storage(root)
+            journal = write_journal(transaction, journal, 'current_private')
+        if fs.identity(root) != journal['current_identity']:
+            raise ValueError('root_identity_changed')
+        observed = fs.inspect_tree(root)
+        if fs.tree_digest(observed) != journal['trial_digest']:
+            fs.restore_permissions(root, observed, state['parent_policy'])
+            write_journal(transaction, journal, 'invalidated')
+            write_state(store, state, state=journal['previous_state'], transaction_id=None)
+            raise ValueError('stale_preview')
+        journal = write_journal(transaction, journal, 'moving_current')
+        # No deletion or overwrite: exact validated source, absent destination, same volume.
+        os.rename(fs.checked_path(root), fs.checked_path(displaced))
+        journal = write_journal(transaction, journal, 'current_moved')
+
+    if (fs.identity(displaced) != journal['current_identity'] or
+            fs.tree_digest(fs.inspect_tree(displaced)) != journal['trial_digest']):
+        raise ValueError('displaced_changed')
+    fs.inspect_permissions(displaced, role='snapshot')
+    if baseline['exists']:
+        if not root.exists():
+            if journal['phase'] not in ('moving_current', 'current_moved', 'activating_baseline'):
+                raise ValueError('ambiguous_transaction')
+            if (fs.identity(install) != journal['install_identity'] or
+                    fs.tree_digest(fs.inspect_tree(install)) != state['baseline_digest']):
+                raise ValueError('install_corrupt')
+            journal = write_journal(transaction, journal, 'activating_baseline')
+            os.rename(fs.checked_path(install), fs.checked_path(root))
+        elif (install.exists() or fs.identity(root) != journal['install_identity']
+              or fs.tree_digest(fs.inspect_tree(root)) != state['baseline_digest']):
+            raise ValueError('ambiguous_transaction')
+    elif root.exists() or install.exists():
+        raise ValueError('ambiguous_transaction')
+    journal = write_journal(transaction, journal, 'baseline_activated')
+    fs.restore_permissions(root, baseline, state['parent_policy'])
+    if fs.tree_digest(fs.inspect_tree(root)) != state['baseline_digest']:
+        raise ValueError('restore_not_verified')
+    journal = write_journal(transaction, journal, 'complete')
+    state = write_state(store, state, state='restored', active_identity=fs.identity(root))
+    return recovery_result(root, store, state, journal)
+
+
+def restore(root, base, confirmation):
+    if not isinstance(confirmation, str) or not re.fullmatch('[0-9a-f]{64}', confirmation):
+        raise ValueError('invalid_confirmation')
+    root, base = fs.checked_path(root), fs.validate_storage(root, base, create=False)
+    store = store_for(root, base)
+    if not (store / 'state.json').is_file():
+        raise ValueError('missing_baseline')
+    with adoption_lease(store):
+        state = read_state(store)
+        if state['state'] == 'restored':
+            transaction = transaction_for(store, state['transaction_id'])
+            journal = read_record(transaction, 'journal.json')
+            if journal['preview_digest'] != confirmation or state['root'] != root_key(root):
+                raise ValueError('stale_preview')
+            verify_baseline(store, state)
+            return recovery_result(root, store, state, journal, historical=True)
+        expected_path = 'previews/' + confirmation + '.json'
+        if not (store / expected_path).is_file():
+            raise ValueError('missing_preview')
+        expected = read_record(store, expected_path)
+        proposal, trial = proposal_for(root, store, state)
+        if fs.tree_digest(expected) != confirmation or proposal != expected:
+            raise ValueError('stale_preview')
+        fs.ensure_space(store, trial['total_bytes'] + read_record(store, 'baseline/inventory.json')['total_bytes'])
+        transaction_id = str(uuid.uuid4())
+        transaction = transaction_for(store, transaction_id)
+        transaction.parent.mkdir(exist_ok=True)
+        fs.private_dir(transaction)
+        write_record(transaction, 'trial.json', trial)
+        journal = dict(schema=1, transaction_id=transaction_id, adoption_id=state['adoption_id'],
+                       preview_digest=confirmation, trial_digest=proposal['current_digest'],
+                       baseline_digest=state['baseline_digest'], current_identity=fs.identity(root),
+                       previous_state=state['state'], install_identity=None)
+        journal = write_journal(transaction, journal, 'copying')
+        state = write_state(store, state, state='restoring', transaction_id=transaction_id)
+        return resume_transaction(root, store, state, transaction, journal)
+
+
+def recover(root, base, transaction):
+    root, base = fs.checked_path(root), fs.validate_storage(root, base, create=False)
+    store = store_for(root, base)
+    if not (store / 'state.json').is_file():
+        raise ValueError('missing_baseline')
+    with adoption_lease(store):
+        state = read_state(store)
+        directory = transaction_for(store, transaction)
+        if state.get('transaction_id') != transaction or state['state'] not in ('restoring', 'restored'):
+            raise ValueError('invalid_transaction')
+        journal = read_record(directory, 'journal.json')
+        if state['state'] == 'restored':
+            return recovery_result(root, store, state, journal, historical=True)
+        return resume_transaction(root, store, state, directory, journal)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description='Private local adoption records; stop project writers first.')
     parser.add_argument('--root', type=Path, required=True)
     parser.add_argument('--backup-root', type=Path)
     sub = parser.add_subparsers(dest='command', required=True)
-    for name in ('prepare', 'status', 'recover-lock'):
+    for name in ('prepare', 'status', 'recover-lock', 'restore', 'recover'):
         command = sub.add_parser(name)
         command.add_argument('--json', action='store_true')
-        if name == 'recover-lock':
+        if name in ('recover-lock', 'recover'):
             command.add_argument('--confirm', required=True)
+        elif name == 'restore':
+            group = command.add_mutually_exclusive_group(required=True)
+            group.add_argument('--confirm')
+            group.add_argument('--dry-run', action='store_true')
     args = parser.parse_args(argv)
     try:
         root = fs.checked_path(args.root)
         base = fs.checked_path(args.backup_root or root.parent / '.youngcrow-recovery')
+        if args.command in ('restore', 'recover') and not getattr(args, 'dry_run', False):
+            store = store_for(root, fs.validate_storage(root, base, create=False))
+            state = read_state(store)
+            verify_baseline(store, state)
+            runner = store / 'runner/adoption.py'
+            if Path(__file__).resolve() != runner.resolve():
+                # The immutable external runner survives the removal of project scripts.
+                return subprocess.run([sys.executable, '-B', '-E', '-s', '-S', str(runner),
+                                       '--root', str(root), '--backup-root', str(base), args.command,
+                                       '--confirm', args.confirm, '--json'], cwd=base).returncode
+            os.chdir(base)
         if args.command == 'recover-lock':
             result = recover_lock(root, base, args.confirm)
+        elif args.command == 'restore':
+            result = preview(root, base) if args.dry_run else restore(root, base, args.confirm)
+        elif args.command == 'recover':
+            result = recover(root, base, args.confirm)
         else:
             result = globals()[args.command](root, base)
         print(json.dumps(result, ensure_ascii=True))
@@ -373,7 +650,7 @@ def main(argv=None):
     except (ValueError, OSError, KeyError, TypeError, subprocess.SubprocessError) as error:
         code = str(error) if isinstance(error, ValueError) and re.fullmatch('[a-z_]+', str(error)) else 'operation_failed'
         print(json.dumps(dict(state='failed', code=code)), file=sys.stderr)
-        return 2
+        return 1 if code == 'stale_preview' else 2
 
 
 if __name__ == '__main__':

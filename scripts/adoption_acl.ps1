@@ -1,7 +1,8 @@
 param(
-    [ValidateSet('private-create','private-apply','private-check','profile-check','parent-check','restore-inheritance')]
+    [ValidateSet('private-create','private-apply','private-check','profile-check','parent-check','restore-inheritance','transition-check')]
     [string]$Mode,
-    [Parameter(Mandatory=$true)][string]$LiteralPath
+    [Parameter(Mandatory=$true)][string]$LiteralPath,
+    [switch]$AwaitParent
 )
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
@@ -27,6 +28,7 @@ function ApplyAcl($item, $acl) {
     else { [System.IO.File]::SetAccessControl($item.FullName, $acl) }
 }
 try {
+    if ($AwaitParent -and [Console]::ReadLine() -ne 'ready') { throw 'parent_not_ready' }
     if ($Mode -eq 'private-create') {
         if (Test-Path -LiteralPath $LiteralPath) { throw 'exists' }
         [void][System.IO.Directory]::CreateDirectory($LiteralPath, (PrivateAcl $true))
@@ -63,11 +65,17 @@ try {
         if ($acl.GetOwner($sidType).Value -ne $sid.Value) { throw 'owner' }
         $rules = @($acl.GetAccessRules($true, $true, $sidType))
         if (-not $rules.Count) { throw 'empty_acl' }
+        if ($Mode -eq 'transition-check') {
+            $private = @($rules | Where-Object { $_.IdentityReference.Value -ne $sid.Value -or
+                $_.AccessControlType -ne 'Allow' -or ([int]$_.FileSystemRights -band 0x1f01ff) -ne 0x1f01ff }).Count -eq 0
+            $inherited = -not $acl.AreAccessRulesProtected -and @($rules | Where-Object { -not $_.IsInherited }).Count -eq 0
+            if (-not ($private -or $inherited)) { throw 'unexpected_acl' }
+        }
         foreach ($rule in $rules) {
             if ($Mode -in @('private-create','private-apply','private-check')) {
                 if ($rule.IdentityReference.Value -ne $sid.Value -or $rule.AccessControlType -ne 'Allow' -or
                     ([int]$rule.FileSystemRights -band 0x1f01ff) -ne 0x1f01ff) { throw 'not_private' }
-            } elseif ($rule.IsInherited -eq $false) { throw 'custom_acl' }
+            } elseif ($Mode -ne 'transition-check' -and $rule.IsInherited -eq $false) { throw 'custom_acl' }
         }
         if ($Mode -in @('profile-check','restore-inheritance') -and $acl.AreAccessRulesProtected) { throw 'custom_acl' }
         if (-not $item.PSIsContainer) {
@@ -75,7 +83,7 @@ try {
             if (@($streams | Where-Object { $_.Stream -ne ':$DATA' }).Count) { throw 'ads' }
         }
     }
-    if ($Mode -in @('profile-check','restore-inheritance')) { ParentPolicy | ConvertTo-Json -Compress }
+    if ($Mode -in @('profile-check','restore-inheritance','transition-check')) { ParentPolicy | ConvertTo-Json -Compress }
     else { @{private=$true} | ConvertTo-Json -Compress }
 } catch {
     # No path, file content, ACL principal or user data in diagnostics.

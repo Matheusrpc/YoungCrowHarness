@@ -1,7 +1,7 @@
 # Adoção reversível do YoungCrow
 
 Estado: desenho aprovado pelo mantenedor em 2026-10-02. O [plano de implementação](../plans/2026-10-02-reversible-adoption.md)
-está em revisão. Nenhum comando de restauração foi implementado.
+também foi aprovado; implementação em andamento.
 
 ## Resultado esperado
 

@@ -10,7 +10,7 @@
 
 **Spec:** [Desenho aprovado pelo mantenedor em 2026-10-02](../specs/2026-10-02-reversible-adoption-design.md).
 
-Estado: plano escrito para revisão. O desenho foi aprovado; implementação e restauração não foram executadas. Método preservado: execução nativa nesta sessão, um escritor por checkout e uma revisão independente ao final. PR #9 continua documental até a revisão deste plano.
+Estado: plano aprovado pelo mantenedor em 2026-10-02; implementação em andamento. Método preservado: execução nativa nesta sessão, um escritor por checkout e uma revisão independente ao final. Ensaios de restauração serão restritos a projetos descartáveis dos testes.
 
 ## Global Constraints
 

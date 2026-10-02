@@ -63,6 +63,10 @@ Hashes verify bytes, not human approval. Applying changes follows the operator's
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Antes de começar
 
+A adoção reversível está em implementação. O perfil inicial cobre arquivos comuns, diretórios vazios
+e Git independente, incluindo arquivos ignorados e mudanças sem commit. Links, worktrees, submódulos
+e metadados que não possam ser preservados serão recusados. O setup atual ainda não cria um ponto de retorno.
+
 Este guia cobre o instalador, o vault de integrações e o especialista em fornecedores. O setup cria o índice geral, os índices de integrações/capacidades, a skill e a entrada nativa do agente para os clientes selecionados. Fornecedores, serviços e execuções são criados sob demanda.
 A skill `personalizer` conduz entrevista e auditoria de adoção; seu comando cria os registros de produto, features, decisões e operação quando necessário. Sincronização automática Graphify/claude-mem e orquestração autônoma de papéis continuam [planejadas](superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 
@@ -656,6 +660,10 @@ passe o `.exe`, não o lançador `.ps1` ou `.cmd`. Resultado pendente retorna 2;
 <a id="english"></a>
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Before you start
+
+Reversible adoption is being implemented. The initial profile covers regular files, empty directories
+and standalone Git repositories, including ignored files and uncommitted work. Links, worktrees,
+submodules and metadata that cannot be preserved will be refused. The current setup does not yet create a restore point.
 
 This guide covers setup, the integration vault and vendor specialist. Setup installs the general, integration and capability indices, shared skill and native agent entries for the selected clients. Provider/service/run notes are created on demand.
 The `personalizer` skill conducts discovery and adoption audits; its command creates product, feature, decision and operation notes on demand. Automatic Graphify/claude-mem synchronization and autonomous role orchestration remain [planned](superpowers/specs/2026-10-01-youngcrow-foundation-design.md).

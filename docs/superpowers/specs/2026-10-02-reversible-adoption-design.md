@@ -1,6 +1,7 @@
 # Adoção reversível do YoungCrow
 
-Estado: proposta para revisão do mantenedor. Nenhum comando de restauração foi implementado.
+Estado: desenho aprovado pelo mantenedor em 2026-10-02. O [plano de implementação](../plans/2026-10-02-reversible-adoption.md)
+está em revisão. Nenhum comando de restauração foi implementado.
 
 ## Resultado esperado
 
@@ -112,5 +113,5 @@ só entra como disponível depois das provas correspondentes.
 | Projeto sem ponto inicial | Nenhuma promessa de recuperação retroativa |
 | Claude Code e Codex | Mesmo resultado de arquivos, sem depender de histórico da conversa |
 
-Próximo passo: revisar este alcance e escrever o plano de implementação com testes de perda de dados,
-recuperação de interrupções e isolamento dos clientes antes de adicionar o caminho destrutivo de retorno.
+Próximo passo: revisar o plano de implementação, que detalha preservação dos dados, recuperação de
+interrupções e isolamento dos clientes. Depois dessa revisão, iniciar a implementação pelo armazenamento privado.

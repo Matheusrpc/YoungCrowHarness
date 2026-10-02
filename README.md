@@ -207,8 +207,10 @@ uso entre máquinas. Graphify aponta de volta às notas e revisões; claude-mem 
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> Próximas entregas
 
-A [adoção reversível](docs/superpowers/specs/2026-10-02-reversible-adoption-design.md) está em proposta:
-salvar o repositório antes do setup e permitir o retorno, preservando uma cópia do trabalho do teste.
+A [adoção reversível](docs/superpowers/specs/2026-10-02-reversible-adoption-design.md) tem desenho aprovado
+e [plano de implementação em revisão](docs/superpowers/plans/2026-10-02-reversible-adoption.md): salvar o
+repositório antes do setup e permitir o retorno, preservando uma cópia privada do trabalho do teste.
+O modo de teste previsto instala apenas arquivos do projeto, sem alterar o perfil global dos clientes.
 A restauração automática ainda não está disponível. Configurações globais e serviços externos
 exigem tratamento separado; instalações antigas sem ponto inicial não terão recuperação retroativa garantida.
 
@@ -485,8 +487,10 @@ across machines. Graphify points back to source notes and revisions; claude-mem 
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> Next deliveries
 
-[Reversible adoption](docs/superpowers/specs/2026-10-02-reversible-adoption-design.md) is a proposal:
-save the repository before setup and allow restoration while retaining a copy of trial work.
+[Reversible adoption](docs/superpowers/specs/2026-10-02-reversible-adoption-design.md) has an approved design
+and an [implementation plan under review](docs/superpowers/plans/2026-10-02-reversible-adoption.md): save the
+repository before setup and allow restoration while retaining a private copy of trial work.
+The planned trial mode installs project files only, leaving client profiles outside the project unchanged.
 Automatic restoration is not available yet. Global configuration and external services require
 separate handling; existing installations without a baseline cannot have guaranteed retroactive recovery.
 

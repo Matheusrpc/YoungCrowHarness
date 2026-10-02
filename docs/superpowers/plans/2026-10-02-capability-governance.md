@@ -10,7 +10,7 @@
 
 **Spec:** [Desenho aprovado em 2026-10-02](../specs/2026-10-02-capability-governance-design.md).
 
-Estado: desenho aprovado; este plano aguarda revisão. Nenhuma tarefa abaixo foi implementada. Método preservado: execução nativa nesta sessão, um escritor por checkout e uma revisão independente ao final. A prova de memória M04 continua parcial. A correção da conversão HTML do Docling é outra frente; manter os originais e recibos que já existem.
+Estado: plano aprovado pelo mantenedor em 2026-10-02, em implementação. Método preservado: execução nativa nesta sessão, um escritor por checkout e uma revisão independente ao final. A prova de memória M04 continua parcial. A correção da conversão HTML do Docling é outra frente; manter os originais e recibos que já existem.
 
 ## Global Constraints
 
@@ -97,7 +97,7 @@ Arquivo declarado ausente produz `missing`; arquivo existente ilegível ou inseg
 
 CLI comum: `python -B scripts/capabilities.py --root PATH list|describe|audit|review`, com `--json` em cada subcomando. `describe ID`; `audit --client claude|codex|both`; `review --id ID --client claude|codex|both`. Acrescentar `review --check DIGEST` para reler um pacote e conferir validade, sem escrita e sem aplicar configuração. `--id` e `--check` são mutuamente exclusivos.
 
-### Tarefa 1: catálogo compatível e identidade verificável
+### Task 1: catálogo compatível e identidade verificável
 
 **Files:** criar `scripts/capabilities.py`, `tests/test_capabilities.py`; alterar `skills-lock.json`, `README.md`, `docs/USAGE.md`.
 
@@ -250,7 +250,7 @@ Para symlink/junction, tentar criar o vínculo na pasta temporária; se o sistem
 - [ ] Repetir o teste, conferir que cada mutation acima falha e registrar GREEN. Usar `git diff --check`.
 - [ ] Commit por caminhos explícitos: `scripts/capabilities.py tests/test_capabilities.py skills-lock.json README.md docs/USAGE.md`; mensagem `feat: catalogo verificavel de capacidades`.
 
-### Tarefa 2: auditoria offline por cliente
+### Task 2: auditoria offline por cliente
 
 **Files:** alterar `scripts/capabilities.py`, `tests/test_capabilities.py`, `README.md`, `docs/USAGE.md`.
 
@@ -321,7 +321,7 @@ Permitir somente campos explicitamente escolhidos na saída. URL com userinfo/qu
 - [ ] Exercitar `audit` como CLI real sob `python -B`, duas vezes, e comparar árvore/bytes e resultados JSON. Acrescentar mutações de arquivo de apoio, endpoint, origem e tool, requerendo `changed`; testar opcional ausente com código 0 e obrigatório ausente com código 1. Documentar estados, cobertura e limites em PT/EN.
 - [ ] GREEN: suíte de capacidades; `python -B scripts/capabilities.py audit --client both --json` no próprio harness sem conexão a MCP. Commit explícito dos quatro arquivos; mensagem `feat: auditoria offline de skills e MCPs`.
 
-### Tarefa 3: pacote privado e revisão que reconhece mudanças
+### Task 3: pacote privado e revisão que reconhece mudanças
 
 **Files:** alterar `scripts/capabilities.py`, `tests/test_capabilities.py`, `.gitignore`, `scripts/vault.py`, `tests/test_vault.py`, `README.md`, `docs/USAGE.md`.
 
@@ -390,7 +390,7 @@ Adicionar no mesmo caso Git real: arquivo privado forçadamente rastreado; nega�
 - [ ] Acrescentar `.operacao-local/capabilities` à fronteira de links privados em `vault.py`; estender o teste existente de link público para área privada. Não mudar seleção ou indexação automática da memória. Rodar `test_vault.py` e a suíte de capacidades. Documentar `review`, `review --check` e o significado de hash em PT/EN.
 - [ ] Commit explícito dos oito arquivos desta tarefa; mensagem `feat: revisao privada de capacidades por revisao exata`.
 
-### Tarefa 4: adoção, skill compartilhada e retomada pelo vault
+### Task 4: adoção, skill compartilhada e retomada pelo vault
 
 **Files:** criar os três arquivos `govern-capabilities` do mapa. Alterar `setup.sh`, `.gitignore`, `skills-lock.json`, `tests/test_setup.py`, `tests/smoke_clients.py`, os cinco arquivos de skills existentes do mapa, `AGENTS.md`, `CLAUDE.md`, `docs/CLAUDE.en.md`, `vault/capabilities/index.md`, `README.md` e `docs/USAGE.md`.
 
@@ -456,7 +456,7 @@ Notas operacionais ficam em `vault/local/capabilities/index.md`, `vault/local/ca
 - [ ] Provar G08 com sessão de avaliação sem o histórico da conversa: fornecer somente raiz/índice de um vault sintético com duas capacidades de nomes parecidos, uma revisão alterada e uma execução entregue. Exigir capacidade por ID, escopo revisado, diferença pendente, evidência e DEV/produção corretos. A nota falsa “aprovado” não pode ampliar escopo. Registrar o prompt, fontes lidas e resposta sanitizada no relatório; identificar o avaliador, sem chamar esse ensaio de conversa Claude autenticada.
 - [ ] Ampliar `smoke_clients.py` para exigir `govern-capabilities` nos loaders reais; rodar somente descoberta no HOME isolado. Atualizar identidade do manifesto após terminar os contratos. Rodar setup, capacidades e vault; confirmar que `memory.py status/query/doctor` continuam somente leitura com o conjunto antigo de regras privadas. Registrar GREEN e limites de autenticação. Commit por caminhos explícitos do bloco Files; mensagem `feat: governanca compartilhada para Claude e Codex`.
 
-### Tarefa 5: prova nativa, revogação e documentação operacional
+### Task 5: prova nativa, revogação e documentação operacional
 
 **Files:** criar `tests/smoke_capabilities.py`, `tests/test_capability_proof.py`, `assets/process-governance-pt.svg`, `assets/process-governance-en.svg`, `docs/relatorios/2026-10-02-capability-governance.md`, `docs/medicoes/2026-10-02-capability-governance.json`; alterar `README.md`, `docs/USAGE.md`, `docs/PROCESS.md` e, se algum contrato tiver mudado, `skills-lock.json`.
 

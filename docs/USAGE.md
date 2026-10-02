@@ -11,6 +11,16 @@ detalha decisões, pausas e retomada.
 See the [usage diagrams](../README.md#process-en) for new projects, adoption, daily work, source intake and memory retrieval.
 The [complete process](PROCESS.md#english) includes decisions, pauses and resumption.
 
+Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;
+`python scripts/capabilities.py describe retrieve-memory --json` apresenta o contrato. A leitura
+aceita manifestos 2 e 3, não inicializa o vault e não instala capacidades. Versão declarada e hash
+de arquivos não comprovam execução. A auditoria e a revisão são detalhadas conforme forem entregues.
+
+Capability catalog: `python scripts/capabilities.py list --json` shows purpose and clients;
+`python scripts/capabilities.py describe retrieve-memory --json` presents the contract. Reading
+supports manifest versions 2 and 3, without initializing the vault or installing capabilities.
+Declared versions and file hashes do not prove execution. Audit and review follow in this delivery.
+
 <img src="../assets/vidro.svg" alt="" width="100%">
 
 <a id="portugues"></a>

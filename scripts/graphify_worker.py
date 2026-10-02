@@ -59,12 +59,21 @@ def handle(request):
         return dict(result, graph=build(request['snapshot']))
     if request['action'] != 'query':
         raise ValueError('unknown_action')
-    from graphify.cli import dispatch_command
-    sys.argv = ['graphify', 'query', request['question'], '--graph', request['graph_path'], '--budget', '1000']
-    output = StringIO()
-    with redirect_stdout(output):
-        dispatch_command('query')
-    return dict(result, source_files=parse_query(output.getvalue()))
+    from graphify.serve import _query_graph_text
+    from graphify.security import check_graph_file_size_cap
+    from networkx.readwrite import json_graph
+    graph_path = Path(request['graph_path'])
+    check_graph_file_size_cap(graph_path)
+    data = json.loads(graph_path.read_text(encoding='utf-8'))
+    for link in data.get('links', []):
+        link.setdefault('_src', link.get('source'))
+        link.setdefault('_tgt', link.get('target'))
+    graph = json_graph.node_link_graph(data, edges='links')
+    # The pinned CLI writes a hook stamp beside the graph. Query its in-memory
+    # engine directly so a read cannot mutate a published index generation.
+    output = _query_graph_text(graph, request['question'], mode='bfs', depth=2,
+                               token_budget=1000, context_filters=[], graph_path=str(graph_path))
+    return dict(result, source_files=parse_query(output))
 
 
 def main():

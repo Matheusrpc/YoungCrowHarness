@@ -41,6 +41,11 @@ def main():
         index_args.extend(['--note', path])
     built, build_measurement = cli(*index_args)
     assert built['state'] == 'ready', built
+    builds = root / '.operacao-local/memory/builds'
+    def derived_files():
+        return {p.relative_to(builds).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                for p in builds.rglob('*') if p.is_file()}
+    before_queries = derived_files()
     measured = []
     navigation = []
     for run in ('cold', 'repeated'):
@@ -56,6 +61,7 @@ def main():
                 characters_returned=len(raw.decode('utf-8'))))
             result, measurement = cli('query', expected['question'])
             assert result['provider'] == args.provider, result
+            assert derived_files() == before_queries, 'Query wrote outside its private runtime'
             stale = [hit['path'] for hit in result['results'] if hit['revision'] != hashlib.sha256((root / hit['path']).read_bytes()).hexdigest()]
             assert not stale, stale
             correct = any(hit['path'] == expected['path'] and expected['quote'] in hit['excerpt'] for hit in result['results'])
@@ -105,6 +111,7 @@ def main():
                 (root / path).write_bytes(raw)
             cli(*index_args)
     report = dict(provider=args.provider, fingerprint=built['fingerprint'], build=build_measurement,
+                  derived_unchanged_by_query=True,
                   notes=len(data['paths']), duplicate_titles_preserved=duplicate_titles,
                   navigation=navigation, measurements=measured)
     (root / ('smoke-' + args.provider + '.json')).write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')

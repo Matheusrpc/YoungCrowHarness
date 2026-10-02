@@ -1,5 +1,8 @@
 # Memória consultável — prova de 2026-10-02
 
+Continuação: a [rodada entre sessões](2026-10-02-memory-continuity.md) registra a correção da
+escrita auxiliar do Graphify e distingue as conversas anteriores do controle nativo após o ajuste.
+
 Frente: memória consultável. O vault Markdown continua sendo o registro principal. A entrega
 acrescenta seleção explícita, consulta com identidade/revisão, Graphify opcional e a skill comum
 `retrieve-memory`. A prova de modelo no Claude Code permanece pendente de login; M04 é parcial.

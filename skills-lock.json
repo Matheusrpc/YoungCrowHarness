@@ -179,8 +179,8 @@
       "expected": {
         "contract_sha256": "882ba9355ba6bc988420f44e8aceb7c47e018bda01b68622a90d3299984110b2",
         "files_sha256": {
-          "claude": "680b12c158aefc81306b7064184df2ccac57d4cf53a7f2a9e78858e04894fc86",
-          "codex": "732fb9e595b20d485518c9ff4024bebaf0e61f041096ea1abe7c2894e6017da3"
+          "claude": "125b149cfd098757800a8d0728c892cfe2113c947a39044b59d65535712c6da2",
+          "codex": "3592f2eb31bc4cf69a48e1ff3b6c5232718b38426871a840009528f55b270704"
         }
       },
       "legacy_ref": "skills_de_projeto/retrieve-memory"

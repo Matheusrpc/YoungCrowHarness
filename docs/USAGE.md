@@ -672,6 +672,20 @@ No Windows, use `py -3.12` ou o caminho do Python 3.12 no primeiro comando, e `p
 
 O grafo representa links explícitos entre notas. Sua busca local combina termos e relações; a IA da sessão interpreta as evidências. Esse adaptador não chama modelos, instala MCPs ou registra um grafo global. Em Claude Code ou Codex, peça: “Use retrieve-memory para retomar pagamentos; confira decisões, desenvolvimento, produção e próxima ação.” A mesma skill acompanha o setup para projetos novos e migrações. Ela abre as evidências e registra IDs/revisões no handoff.
 
+Para conferir a passagem entre sessões, salve um handoff com fontes, UUIDs, revisões, decisões,
+estado de DEV/produção e próxima ação. Vincule-o ao microíndice e valide o vault. Encerre o escritor
+e abra uma sessão nova, sem colar a conversa anterior. Peça a retomada pelos índices e confira se
+ela encontrou o mesmo registro e releu as fontes atuais. Um handoff novo não entra automaticamente
+na seleção do Graphify; o índice do vault permite encontrá-lo.
+
+Confira o `provider` e os avisos de cada `query`: `status: ready` sozinho não comprova consulta ao
+grafo. O adaptador usa o motor de consulta do Graphify 0.9.73 sem gravar o marcador auxiliar da CLI
+na geração do índice. A requisição temporária continua restrita ao runtime privado. A
+[prova de continuidade](relatorios/2026-10-02-memory-continuity.md) separa o ensaio nativo corrigido
+da conversa real, que ainda precisa ser repetida. Antes de testar, confira a revisão dos scripts e
+skills da fixture, a autenticação e o limite de sessões. Registre fallback sem ampliar permissões
+automaticamente.
+
 Para operar o índice:
 
 ```bash
@@ -1278,6 +1292,20 @@ python3 scripts/memory.py --root . query "payments"
 On Windows, use `py -3.12` or the Python 3.12 executable path for setup, and `python` for the other commands. The pinned version is `graphifyy==0.9.73`, installed under `.operacao-local/memory/runtime/venv`. Setup records resolved versions; `doctor` checks them without reinstalling. Missing runtime returns `pending`, incompatible versions return `unsupported`, and errors return `failed`. Selected Markdown remains available for retrieval. Graphify queries need temporary writes under `.operacao-local/memory/runtime/`; in a read-only client, inspect fallback warnings.
 
 The graph represents explicit links between notes. Local search combines terms and relations; the session AI interprets the evidence. This adapter does not call models, install MCPs or register a global graph. In Claude Code or Codex, ask: “Use retrieve-memory to resume payments; check decisions, development, production and the next action.” The same skill ships with setup for new and migrated projects. It opens evidence and records IDs/revisions in the handoff.
+
+To check continuity between sessions, save a handoff with sources, UUIDs, revisions, decisions,
+development/production status and the next action. Link it from the microindex and validate the
+vault. Close the writer and start a fresh session without pasting the previous conversation. Ask
+it to resume through the indices; check that it found the same record and reread current sources.
+A new handoff does not automatically join the Graphify selection; the vault index makes it discoverable.
+
+Check the `provider` and warnings from each `query`: `status: ready` alone does not prove a graph
+query. The adapter uses Graphify 0.9.73's query engine without writing the CLI's auxiliary stamp
+in the index generation. Its temporary request still stays within the private runtime. The
+[continuity test](relatorios/2026-10-02-memory-continuity.md) separates the corrected native probe
+from a real conversation, which still needs to be repeated. Before testing, check the fixture's
+script and skill revisions, authentication and session limit. Record fallback without automatically
+broadening permissions.
 
 To operate the index:
 

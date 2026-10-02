@@ -1,0 +1,202 @@
+{
+  "date": "2026-10-02",
+  "base_commit": "289dda3256fe1f2705926edfb98e71c112675bc8",
+  "scope": "synthetic Windows continuity; not a production or performance benchmark",
+  "codex": "0.158.0-alpha.2.1",
+  "model": "gpt-6-astra",
+  "graphify": "0.9.73",
+  "budget": {
+    "model_sessions": 2,
+    "seconds_per_session": 240,
+    "tool_calls_requested_per_session": 8,
+    "extra_api_spend": 0,
+    "existing_subscription": "ChatGPT"
+  },
+  "claude": {
+    "version": "2.1.220",
+    "logged_in": false,
+    "model_sessions": 0,
+    "handoff": "pending_authentication",
+    "mcp_execution_and_revocation": "pending_authentication"
+  },
+  "sessions": [
+    {
+      "phase": "write",
+      "exit_code": 0,
+      "seconds": 224.563,
+      "completed_turns": 1,
+      "shell_commands": 5,
+      "file_edits": 1,
+      "queries": [
+        {
+          "state": "ready",
+          "index_state": "ready",
+          "provider": "graphify",
+          "warnings": [],
+          "references": 5
+        }
+      ],
+      "changed_vault_files": [
+        "vault/local/index.md",
+        "vault/local/runs/graphify-continuity.md"
+      ],
+      "removed_vault_files": [],
+      "usage_reported": {
+        "input_tokens": 270562,
+        "cached_input_tokens": 232192,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 3431,
+        "reasoning_output_tokens": 523
+      },
+      "events_sha256": "0b7abf959aa84a4df4366e82bcd35549a1edfc83da6572d49f124936e1509874"
+    },
+    {
+      "phase": "resume",
+      "exit_code": 0,
+      "seconds": 180.883,
+      "completed_turns": 1,
+      "shell_commands": 6,
+      "file_edits": 0,
+      "queries": [
+        {
+          "state": "fallback",
+          "index_state": "failed",
+          "provider": "markdown",
+          "warnings": [
+            "worker_timeout"
+          ],
+          "references": 0
+        },
+        {
+          "state": "fallback",
+          "index_state": "failed",
+          "provider": "markdown",
+          "warnings": [
+            "worker_timeout"
+          ],
+          "references": 5
+        }
+      ],
+      "changed_vault_files": [],
+      "removed_vault_files": [],
+      "usage_reported": {
+        "input_tokens": 246206,
+        "cached_input_tokens": 178176,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 2640,
+        "reasoning_output_tokens": 153
+      },
+      "events_sha256": "4ab250eb5f0655d33b5e80ccca9befd59ac1420899089689f4c234be3dbda384"
+    }
+  ],
+  "fixture_code_comparison": [
+    {
+      "path": "scripts/memory.py",
+      "fixture_sha256": "2882ddb7815a16aaad4101abef81d86eff318f6ac8fdd78ab29e7a7c56bf1bce",
+      "base_sha256": "14e451605babd26d277ecbfdb603363c0b0e9a699dc604593992f0dc5b516142",
+      "matches_base": false
+    },
+    {
+      "path": "scripts/graphify_worker.py",
+      "fixture_sha256": "d456b9acc69f1f74e288963ad082e3d1ef80a8ee3e296c880c5595d31791a5c0",
+      "base_sha256": "d456b9acc69f1f74e288963ad082e3d1ef80a8ee3e296c880c5595d31791a5c0",
+      "matches_base": true
+    },
+    {
+      "path": "scripts/documents.py",
+      "fixture_sha256": "a42de542f39d967f44d4b72aba1a85ae2b6fb69d1b18dfa79797f3c882200a62",
+      "base_sha256": "a42de542f39d967f44d4b72aba1a85ae2b6fb69d1b18dfa79797f3c882200a62",
+      "matches_base": true
+    },
+    {
+      "path": "scripts/document_store.py",
+      "fixture_sha256": "f30b3123bd8f3771a5ad07bc1c9e89103a5d489f2f5c0da5616346f86cdeb664",
+      "base_sha256": "b57e4f497cb79e88f05af374f77976057f65868f425c0b49844d0c7cbd637436",
+      "matches_base": false
+    },
+    {
+      "path": "scripts/vault.py",
+      "fixture_sha256": "640acd0f968e9750d4cc80dbe07b7fc9abf3ea1405e8381408d4ab092e71afc9",
+      "base_sha256": "33a77336048d67169902e6a92759dee0ab8dde0f10449092de20e70e658e159c",
+      "matches_base": false
+    },
+    {
+      "path": "skills/retrieve-memory/SKILL.md",
+      "fixture_sha256": "e459ef70f01fdd97d62abc637b5c2801d529397d504c0f2cc1199cb83a8cdcd4",
+      "base_sha256": "f11e8d6480e6f151b78c0f79ce451812d59bf9d28fe97b665c7b8b87014b01f9",
+      "matches_base": false
+    }
+  ],
+  "handoff": {
+    "id": "c64dc38d-90bd-4b8b-a562-b301dd7ca0d4",
+    "sha256": "0df06f3cb8ca3cdbf7a15de19d808b9db2526a6be4de0673e82e5e4804bfb565",
+    "recovered_id_and_revision": true,
+    "distinct_session_ids": true,
+    "source_revisions_verified": 5,
+    "assessment": "manual review against tests/memory_fixture.py",
+    "api": "development; not published",
+    "portal": "synthetic release/demo-1 only",
+    "current_decision": "webhook",
+    "superseded_decision": "queue",
+    "next_action": "validate webhook signature"
+  },
+  "preflight": {
+    "vault_write_blocked": true,
+    "provider": "graphify",
+    "state": "ready",
+    "references": 5,
+    "warnings": [],
+    "error": null,
+    "client_closed": true,
+    "model_turns": 0,
+    "execution": "native app-server command/exec; cwd is memory runtime"
+  },
+  "preflight_current": {
+    "vault_write_blocked": true,
+    "provider": "markdown",
+    "state": "fallback",
+    "references": 5,
+    "warnings": [
+      "worker_timeout"
+    ],
+    "error": null,
+    "client_closed": true,
+    "model_turns": 0,
+    "execution": "native app-server command/exec; cwd is memory runtime"
+  },
+  "current_direct": {
+    "provider": "graphify",
+    "state": "ready",
+    "references": 5,
+    "warnings": [],
+    "model_turns": 0,
+    "sandbox": false
+  },
+  "fix": {
+    "worker_sha256": "7aca3e62997107af91291de09fa66890054045fb73ba0a41aef1587fa63ba745",
+    "root_cause": "CLI _touch_query_stamp writes cache/last_query_stamp beside graph.json; Windows tempfile retries in the protected existing directory.",
+    "regression_red": "Query wrote outside its private runtime",
+    "regression_green": {
+      "queries": 8,
+      "derived_unchanged": true,
+      "duplicate_titles_preserved": true
+    },
+    "native_after": {
+      "provider": "graphify",
+      "state": "ready",
+      "references": 5,
+      "warnings": [],
+      "vault_write_blocked": true,
+      "client_closed": true,
+      "model_turns": 0
+    }
+  },
+  "limitations": [
+    "Model sessions used a previously installed synthetic fixture with four compared files differing from base.",
+    "Current-base controls contain no model turn and do not replace current-base model acceptance.",
+    "Reduced-write model session timed out twice in Graphify and used Markdown fallback.",
+    "After the fix, the native probe passed; no further model session was started in this two-session round.",
+    "The written handoff claims no temporary file was created; the adapter uses and removes a private request file.",
+    "Claude authentication and real MCP enforcement remain unverified. M04 remains partial."
+  ]
+}

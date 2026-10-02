@@ -1,0 +1,236 @@
+{
+  "date": "2026-10-02",
+  "base_commit": "25b30413dcef72ac9cac5329818fdd64b82ef39d",
+  "scope": "Fresh synthetic installation on Windows; current-code live Codex continuity, not production or performance benchmarking",
+  "codex": "0.158.0-alpha.2.1",
+  "graphify": "0.9.73",
+  "budget": {
+    "model_sessions": 2,
+    "seconds_per_session": 300,
+    "tool_calls_requested_per_session": 8,
+    "existing_subscription": "ChatGPT",
+    "extra_api_spend": 0
+  },
+  "installation": {
+    "commit": "25b30413dcef72ac9cac5329818fdd64b82ef39d",
+    "files": [
+      {
+        "path": ".agents/skills/retrieve-memory/SKILL.md",
+        "sha256": "bd7775dff0d58b225b9ee74af3531d3c55a714b71d0a0ab9dae5d8165d7540cc"
+      },
+      {
+        "path": ".claude/skills/retrieve-memory/SKILL.md",
+        "sha256": "bd7775dff0d58b225b9ee74af3531d3c55a714b71d0a0ab9dae5d8165d7540cc"
+      },
+      {
+        "path": "requirements/graphify.txt",
+        "sha256": "9ca6b61e6a2ea461025c5b4d79e3a83e4af1f09a45d0f630e90b44867ab30dc5"
+      },
+      {
+        "path": "scripts/adoption.py",
+        "sha256": "97404f21b495f55c8ad3e2d53b096d4e8045fe9e9c033741c0b5d9c9d5042a4f"
+      },
+      {
+        "path": "scripts/adoption_acl.ps1",
+        "sha256": "9b3e0662d381da8547d94a9976854070f71029c945b3c64deca99704f6f2c748"
+      },
+      {
+        "path": "scripts/adoption_fs.py",
+        "sha256": "b5504f826193bf0653e01f99124ba17621e4298ffb63170e241ce1e41827be65"
+      },
+      {
+        "path": "scripts/capabilities.py",
+        "sha256": "59e7747e3c735e750a9ecc34edbea646625d067e80b203301ee2feee3a371198"
+      },
+      {
+        "path": "scripts/docling_worker.py",
+        "sha256": "ef0eb631a81abaed2bf162cdd6811045bddff8b81220a260cbd1471ea2393bdb"
+      },
+      {
+        "path": "scripts/document_store.py",
+        "sha256": "b57e4f497cb79e88f05af374f77976057f65868f425c0b49844d0c7cbd637436"
+      },
+      {
+        "path": "scripts/documents.py",
+        "sha256": "a42de542f39d967f44d4b72aba1a85ae2b6fb69d1b18dfa79797f3c882200a62"
+      },
+      {
+        "path": "scripts/graphify_worker.py",
+        "sha256": "7aca3e62997107af91291de09fa66890054045fb73ba0a41aef1587fa63ba745"
+      },
+      {
+        "path": "scripts/integrations.py",
+        "sha256": "29fc50039e714e37ea5050aa7b624c1d3381c646f0751987354385e06f23153b"
+      },
+      {
+        "path": "scripts/memory.py",
+        "sha256": "14e451605babd26d277ecbfdb603363c0b0e9a699dc604593992f0dc5b516142"
+      },
+      {
+        "path": "scripts/personalize.py",
+        "sha256": "2a306f2359541e52bde40f0cf9530b013f6842eecf146a3bb454b15971eab494"
+      },
+      {
+        "path": "scripts/source_fetch.py",
+        "sha256": "56748271b864566b034150563f9498a0e2a2d795564292e6f9979dc318e166b1"
+      },
+      {
+        "path": "scripts/source_prompt.py",
+        "sha256": "c9107da1b8a37165750738f1d26f9b093b1983f04d1d5b1c0e3fe99f0b4be781"
+      },
+      {
+        "path": "scripts/vault.py",
+        "sha256": "33a77336048d67169902e6a92759dee0ab8dde0f10449092de20e70e658e159c"
+      },
+      {
+        "path": "skills/govern-capabilities/SKILL.md",
+        "sha256": "b48134c0aba09173127c99f5f65b27a6d18d07353aa071f44a116cb2c7d9f647"
+      },
+      {
+        "path": "skills/ingest-source/SKILL.md",
+        "sha256": "197d51ac7b812f20b8634561a8784bf552a4523d229ae85bb69b192172292d62"
+      },
+      {
+        "path": "skills/integrate-from-docs/SKILL.md",
+        "sha256": "d93e6f9ba89e873a0d4e628a40d0eaf2d5a295e5f102df6f15a4a555a3151db8"
+      },
+      {
+        "path": "skills/integrate-from-docs/references/memory.md",
+        "sha256": "fa61fbfa2aaa9722db04dee10b9b854c16902d5070ad4ee1826863c53e27a67c"
+      },
+      {
+        "path": "skills/personalizer/SKILL.md",
+        "sha256": "3cf1e852dab2fbe972dda1496523ab79fc6b31c4b0700a02d56d1104ec812213"
+      },
+      {
+        "path": "skills/personalizer/references/interview.md",
+        "sha256": "27acb827c5daf39b039f9d6ff5a43ae41c412fcdf1bda3777dfc9c65929ec5c2"
+      },
+      {
+        "path": "skills/retrieve-memory/SKILL.md",
+        "sha256": "f11e8d6480e6f151b78c0f79ce451812d59bf9d28fe97b665c7b8b87014b01f9"
+      }
+    ],
+    "checked": 24,
+    "mismatches": []
+  },
+  "claude": {
+    "version": "2.1.220",
+    "logged_in": false,
+    "model_sessions": 0,
+    "handoff": "pending_authentication",
+    "mcp_execution_and_revocation": "pending_authentication"
+  },
+  "sessions": [
+    {
+      "phase": "write",
+      "model": "gpt-6-astra",
+      "seconds": 165.288,
+      "completed_turns": 1,
+      "shell_commands": 5,
+      "file_edits": 1,
+      "queries": [
+        {
+          "state": "ready",
+          "index_state": "ready",
+          "provider": "graphify",
+          "warnings": [],
+          "references": 5
+        }
+      ],
+      "changed_vault_files": [
+        "vault/local/index.md",
+        "vault/local/runs/graphify-current.md"
+      ],
+      "removed_vault_files": [],
+      "derived_unchanged": true,
+      "installation_rechecked": 24,
+      "usage_reported": {
+        "input_tokens": 197165,
+        "cached_input_tokens": 150528,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 2992,
+        "reasoning_output_tokens": 140
+      },
+      "events_sha256": "f49b6e559b3c26e20831cd23f3e9681c3a00f6a6bbde1e9fceb3e2ad74d0b253"
+    },
+    {
+      "phase": "resume",
+      "model": "gpt-6-astra",
+      "seconds": 151.981,
+      "completed_turns": 1,
+      "shell_commands": 6,
+      "file_edits": 0,
+      "queries": [
+        {
+          "state": "ready",
+          "index_state": "ready",
+          "provider": "graphify",
+          "warnings": [],
+          "references": 0
+        },
+        {
+          "state": "ready",
+          "index_state": "ready",
+          "provider": "graphify",
+          "warnings": [],
+          "references": 5
+        },
+        {
+          "index_state": "ready",
+          "provider": "graphify",
+          "warnings": [],
+          "references": 5,
+          "capture": "verification summary from repeated query"
+        }
+      ],
+      "changed_vault_files": [],
+      "removed_vault_files": [],
+      "derived_unchanged": true,
+      "installation_rechecked": 24,
+      "usage_reported": {
+        "input_tokens": 178827,
+        "cached_input_tokens": 117504,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 2812,
+        "reasoning_output_tokens": 68
+      },
+      "events_sha256": "1cdb21f09d80adc8515ca328f98c06036cd07cfc54cf282896576208099a4c6f"
+    }
+  ],
+  "handoff": {
+    "id": "de22d9d1-3d20-46ae-91d9-9ecbfcc7ed68",
+    "sha256": "6107e59710e0d7796588a67d8576a4b41ba39ac6665813c6df9b54f3243db1b0",
+    "recovered_id_and_revision": true,
+    "distinct_session_ids": true,
+    "source_revisions_verified": 5,
+    "assessment": "manual review against tests/memory_fixture.py",
+    "api": "development; not published",
+    "portal": "synthetic release/demo-1 only",
+    "current_decision": "webhook",
+    "superseded_decision": "queue",
+    "next_action": "validate webhook signature"
+  },
+  "preflight": {
+    "vault_write_blocked": true,
+    "provider": "graphify",
+    "state": "ready",
+    "references": 5,
+    "warnings": [],
+    "client_closed": true,
+    "model_turns": 0,
+    "execution": "native app-server command/exec; cwd is memory runtime"
+  },
+  "fixture_vault": {
+    "schema_version": 1,
+    "notes_checked": 12,
+    "issues": []
+  },
+  "limitations": [
+    "Five synthetic source notes on Windows; does not establish real production delivery or retrieval quality on larger corpora.",
+    "Writer used workspace-write; only resume used read-only vault with private runtime writes. Preflight tested denial without a model turn.",
+    "Session token totals do not isolate memory cost or demonstrate savings.",
+    "Claude authenticated handoff and MCP execution/revocation remain unverified; M04 remains partial.",
+    "No new test of stale revisions, another project or MCP enforcement in this round; prior evidence remains separately scoped."
+  ]
+}

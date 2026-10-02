@@ -436,4 +436,4 @@ Implementar os helpers do smoke como chamadas aos executáveis reais/fixtures lo
 
 Revisão interna: interfaces usam os mesmos nomes/campos entre tarefas; toda alteração destrutiva depende de baseline, cópia atual e prévia verificados. O runner externo resolve o desaparecimento do próprio harness. Os limites de perfil são explícitos, incluindo o caso de arquivos não suportados criados durante o teste. Não há limpeza automática de backups, sincronização de memória, nova dependência de modelo ou restauração de serviços externos.
 
-Próximo passo: revisão deste plano pelo mantenedor. Após aprovação, preservar o método nativo já escolhido e executar as cinco tarefas em sequência, com uma revisão independente ao final.
+Execução aprovada pelo mantenedor: preservar o método nativo já escolhido e executar as cinco tarefas em sequência, com uma revisão independente ao final.

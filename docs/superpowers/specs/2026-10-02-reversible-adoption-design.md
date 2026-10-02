@@ -113,5 +113,5 @@ só entra como disponível depois das provas correspondentes.
 | Projeto sem ponto inicial | Nenhuma promessa de recuperação retroativa |
 | Claude Code e Codex | Mesmo resultado de arquivos, sem depender de histórico da conversa |
 
-Próximo passo: revisar o plano de implementação, que detalha preservação dos dados, recuperação de
-interrupções e isolamento dos clientes. Depois dessa revisão, iniciar a implementação pelo armazenamento privado.
+Execução aprovada: seguir o plano, começando pelo armazenamento privado e pelas provas de preservação
+dos dados, depois implementar recuperação de interrupções e isolamento dos clientes.

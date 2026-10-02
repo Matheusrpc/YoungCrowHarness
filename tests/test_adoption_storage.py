@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 
 
-class StorageTests(unittest.TestCase):
+class StorageFixture(unittest.TestCase):
     def setUp(self):
         self.assertIsNotNone(importlib.util.find_spec('adoption_fs'), 'adoption storage not implemented')
         self.fs = importlib.import_module('adoption_fs')
@@ -54,6 +54,8 @@ class StorageTests(unittest.TestCase):
         self.write('new file ç.bin', b'\x00\xff')
         (self.project / 'empty').mkdir()
 
+
+class StorageTests(StorageFixture):
     def test_snapshot_keeps_dirty_git_ignored_bytes_and_empty_directories(self):
         self.seed_dirty_git()
         before = self.fs.inspect_tree(self.project)

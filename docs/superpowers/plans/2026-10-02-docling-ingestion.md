@@ -122,7 +122,7 @@ Configurar os backends para não buscar recursos remotos ou locais referenciados
 
 **Interfaces:** `ingest(root: Path, source: Path, *, source_id: str | None = None, convert=run_worker) -> dict`; CLI `documents.py ingest ARQUIVO [--source-id UUID] --json`, `documents.py status [--source-id UUID] --json`. `record_pending(root: Path, reason: str) -> dict` cria apenas recibo opaco, reutilizado na tarefa 7. `status` não imprime conteúdo de documentos; IDs e estado bastam.
 
-- [ ] **Escrever testes RED para sucesso, repetição, falha e origem distinta.** Fake apenas do conversor; armazenamento e Git reais. Dentro de `IngestTests`, preparar `self.root` como na tarefa 1, criar `self.source` e definir `self.convert` para gravar Markdown e devolver um resultado controlado. Teste mínimo:
+- [x] **Escrever testes RED para sucesso, repetição, falha e origem distinta.** Fake apenas do conversor; armazenamento e Git reais. Dentro de `IngestTests`, preparar `self.root` como na tarefa 1, criar `self.source` e definir `self.convert` para gravar Markdown e devolver um resultado controlado. Teste mínimo:
 
 ```python
 def test_failed_update_keeps_previous_revision(self):
@@ -139,8 +139,8 @@ def test_failed_update_keeps_previous_revision(self):
 
 Testar também uma segunda origem de bytes iguais com contexto distinto, reaproveitamento de extração, mudança de configuração, IDs de outro projeto e edição humana de uma nota. Nenhum desses casos apaga dados.
 
-- [ ] **Executar RED.** Rodar `test_documents.py` e conferir a falha da interface nova. Não instalar Docling na suíte de rotina.
-- [ ] **Implementar cópia limitada e revisão dos bytes copiados.** Validar arquivo regular e limites; copiar a origem indicada para temporário privado e calcular hash dessa cópia. Só então converter. Escrever extração com frontmatter, microíndice e recibo por renomeação atômica no mesmo volume; preparar as saídas e atualizar o índice por último. Uma interrupção deixa recibo retomável, sem tornar a revisão anterior inválida. Recusar concorrência com lock exclusivo por projeto, liberado em `finally`; lock abandonado exige diagnóstico de processo/revisão antes de remoção explícita.
+- [x] **Executar RED.** Rodar `test_documents.py` e conferir a falha da interface nova. Não instalar Docling na suíte de rotina.
+- [x] **Implementar cópia limitada e revisão dos bytes copiados.** Validar arquivo regular e limites; copiar a origem indicada para temporário privado e calcular hash dessa cópia. Só então converter. Escrever extração com frontmatter, microíndice e recibo por renomeação atômica no mesmo volume; preparar as saídas e atualizar o índice por último. Uma interrupção deixa recibo retomável, sem tornar a revisão anterior inválida. Recusar concorrência com lock exclusivo por projeto, liberado em `finally`; lock abandonado exige diagnóstico de processo/revisão antes de remoção explícita.
 
 ```python
 payload = json.dumps({'bytes_sha256': copied_sha256, 'converter': converter_info},
@@ -150,7 +150,7 @@ revision = hashlib.sha256(payload).hexdigest()
 
 `copied_sha256` é o digest do arquivo temporário e `converter_info` é o objeto registrado no recibo, com opções e modelos normalizados. Identidade não deriva desse hash. Reutilizar extração somente no mesmo projeto e perfil; preservar recebimentos e relações separados. Escapar títulos, neutralizar HTML ativo e tratar caminhos do Markdown extraído como dados, sem obedecer instruções do documento.
 
-- [ ] **GREEN e prova D01.** Exigir `vault.py check` limpo com as notas novas, dados locais ausentes de `git ls-files` e cópia original intacta. Rodar smoke real através de `ingest`, além do worker, e interromper uma conversão controlada para demonstrar retomada. Atualizar README e guia com comandos reais e estados. Commit `docling: persistir fontes e revisoes no vault`.
+- [x] **GREEN e prova D01.** Exigir `vault.py check` limpo com as notas novas, dados locais ausentes de `git ls-files` e cópia original intacta. Rodar smoke real através de `ingest`, além do worker, e interromper uma conversão controlada para demonstrar retomada. Atualizar README e guia com comandos reais e estados. Commit `docling: persistir fontes e revisoes no vault`.
 
 ## D02: relações e publicação revisada
 

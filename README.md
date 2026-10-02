@@ -44,7 +44,7 @@ O agente consulta o vault, executa o trabalho autorizado e registra o resultado.
 organizam e verificam as notas; credenciais, confiança e permissões continuam sob controle do cliente
 e do ambiente em que ele opera.
 
-![Arquitetura: Claude Code e Codex usam instruções e skills compartilhadas, registram entregas no vault e acessam MCPs configurados. Docling tem desenho aprovado e implementação pendente; Graphify e claude-mem são adaptadores planejados.](assets/architecture-pt.svg)
+![Arquitetura: Claude Code e Codex usam instruções e skills compartilhadas, registram entregas no vault e acessam MCPs configurados. Docling já guarda documentos locais e revisões; Graphify e claude-mem são adaptadores planejados.](assets/architecture-pt.svg)
 
 [Abrir diagrama](assets/architecture-pt.svg) · [Decisões de arquitetura](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md)
 
@@ -55,7 +55,7 @@ e do ambiente em que ele opera.
 | Skills, agentes e MCPs | Encontrar capacidades, configurar acesso e registrar o que cada execução usou | Catálogo inicial e configurações disponíveis; governança completa ainda planejada |
 | Integrações | Consultar fontes oficiais e documentar implementação, testes e operação | `integration-specialist` e `integrate-from-docs` disponíveis nos dois clientes |
 | Vault | Guardar contexto, índices, referências e estados de desenvolvimento/produção | Markdown, criação de notas e validador disponíveis; conteúdo mantido pelo agente |
-| Ingestão com Docling | Converter fontes acessíveis em Markdown local e ligá-las ao trabalho | Conversor local validado; persistência no vault em implementação |
+| Ingestão com Docling | Converter fontes acessíveis em Markdown local e ligá-las ao trabalho | Documentos locais, revisões e retomada verificados |
 | Graphify e claude-mem | Facilitar descoberta e recuperação a partir dos registros do vault | Adaptadores planejados; sem sincronização automática |
 
 O [catálogo de capacidades](vault/capabilities/index.md) reúne as entradas das skills e do especialista.
@@ -148,8 +148,8 @@ execução informa agentes, skills e MCPs realmente usados, o resultado e a pró
 e produção têm estados separados: código presente ou teste local não comprovam uma publicação.
 O validador confere a estrutura dessas referências; ele não certifica a veracidade das notas.
 
-O desenho aprovado do Docling acrescenta uma área `vault/local/`, ignorada pelo Git, para documentos
-convertidos, transcrições, imagens e seus índices. Originais e recibos ficarão em
+A ingestão com Docling guarda documentos convertidos, imagens e índices em `vault/local/`, ignorada
+pelo Git. Originais e recibos ficam em
 `.operacao-local/docling/`. Somente uma cópia revisada poderá entrar na área compartilhada
 `vault/sources/`. O validador já reconhece o índice local e recusa referências públicas a arquivos
 privados. O helper de armazenamento prepara e verifica o ignore antes de escrever. O ambiente
@@ -158,7 +158,7 @@ PDF, DOCX, HTML e uma imagem de página; a revisão do texto extraído continua 
 
 Os vínculos deverão preservar origem e revisão, inclusive quando um documento fundamentar uma feature
 ou contradizer outra fonte. A captura de anexos depende do que cada cliente expõe; entradas inacessíveis
-ficarão como pendências. O [contrato de ingestão](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
+são registradas como pendências quando a referência é recebida pelo comando. O [contrato de ingestão](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
 define esse comportamento. Material local não acompanha clones e precisará de backup privado para
 uso entre máquinas. Graphify e claude-mem, quando integrados, deverão apontar de volta às notas e revisões.
 
@@ -167,9 +167,9 @@ uso entre máquinas. Graphify e claude-mem, quando integrados, deverão apontar 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> Próximas entregas
 
 O desenho do Docling foi aprovado. O [plano de execução](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
-divide a implementação em quatro entregas; nenhuma delas está disponível ainda:
+divide a implementação em quatro entregas:
 
-1. Converter documentos locais e guardar Markdown, origem e revisão com proteção contra versionamento acidental.
+1. Verificado: documentos locais, Markdown, origem, revisões e retomada após interrupção, com proteção contra versionamento acidental.
 2. Relacionar fontes a features e decisões, preservar histórico e preparar publicação revisada.
 3. Processar áudio, vídeo e URLs acessíveis, registrando cobertura, limites e falhas.
 4. Validar ingestão e retomada em sessões reais de Claude Code e Codex.
@@ -252,7 +252,7 @@ Both clients use shared instructions and skills through their own native entries
 the vault, performs authorized work and records the result. Local commands organize and check notes;
 credentials, trust and permissions remain controlled by the client and its execution environment.
 
-![Architecture: Claude Code and Codex use shared instructions and skills, record deliveries in the vault and access configured MCPs. Docling has an approved design with implementation pending; Graphify and claude-mem are planned adapters.](assets/architecture-en.svg)
+![Architecture: Claude Code and Codex use shared instructions and skills, record deliveries in the vault and access configured MCPs. Docling stores local documents and revisions; Graphify and claude-mem are planned adapters.](assets/architecture-en.svg)
 
 [Open diagram](assets/architecture-en.svg) · [Architecture decisions](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md)
 
@@ -263,7 +263,7 @@ credentials, trust and permissions remain controlled by the client and its execu
 | Skills, agents and MCPs | Discover capabilities, configure access and record actual use | Initial catalog and configuration available; full governance remains planned |
 | Integrations | Consult official sources and document implementation, tests and operation | `integration-specialist` and `integrate-from-docs` available in both clients |
 | Vault | Keep context, indices, references and development/production states | Markdown, note creation and validation available; the agent maintains content |
-| Docling ingestion | Convert accessible sources into local Markdown linked to the work | Local converter verified; vault persistence being implemented |
+| Docling ingestion | Convert accessible sources into local Markdown linked to the work | Local documents, revisions and resumption verified |
 | Graphify and claude-mem | Support discovery and retrieval from vault records | Planned adapters; no automatic synchronization |
 
 The [capability catalog](vault/capabilities/index.md) links to the skills and integration specialist.
@@ -357,8 +357,8 @@ record names the agents, skills and MCPs actually used, the result and the next 
 and production have separate states: code or a local test does not prove a release. The validator
 checks reference structure; it does not certify the truth of a note.
 
-The approved Docling design adds a Git-ignored `vault/local/` area for converted documents,
-transcripts, images and their indices. Originals and receipts will live in `.operacao-local/docling/`.
+Docling ingestion stores converted documents, images and indices in the Git-ignored `vault/local/`
+area. Originals and receipts live in `.operacao-local/docling/`.
 Only a reviewed copy may enter the shared `vault/sources/` area. The validator recognizes the local
 index and rejects public references to private files. The storage helper prepares and verifies
 ignore rules before writing. Docling has [opt-in setup and local diagnostics](docs/USAGE.md#docling-en);
@@ -366,7 +366,7 @@ conversion was verified with PDF, DOCX, HTML and a page image. Extracted text st
 
 Links will preserve source and revision, including when a document supports a feature or contradicts
 another source. Attachment capture depends on what each client exposes; inaccessible inputs will
-remain pending. The [ingestion contract](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
+remain pending when their reference reaches the command. The [ingestion contract](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
 defines that behavior. Local material does not travel with clones and needs a private backup for use
 across machines. Future Graphify and claude-mem adapters must point back to the source notes and revisions.
 
@@ -375,9 +375,9 @@ across machines. Future Graphify and claude-mem adapters must point back to the 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> Next deliveries
 
 The Docling design is approved. The [implementation plan](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
-splits the work into four deliveries; none is available yet:
+splits the work into four deliveries:
 
-1. Convert local documents and store Markdown, origin and revision with protection against accidental tracking.
+1. Verified: local documents, Markdown, origin, revisions and resumption after interruption, protected against accidental tracking.
 2. Link sources to features and decisions, preserve history and prepare reviewed publication.
 3. Process audio, video and accessible URLs, recording coverage, limits and failures.
 4. Verify ingestion and resumption in real Claude Code and Codex sessions.

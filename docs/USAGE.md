@@ -301,7 +301,34 @@ O perfil inicial cobre PDF, DOCX, PNG/JPEG e HTML local, com teto de 100 MiB, 50
 Revise o texto extraído antes de usá-lo como evidência: uma imagem de página preservou a frase
 de prova, mas uma faixa horizontal com o mesmo texto teve palavras fora de ordem. `ready`
 indica que o processamento terminou; não certifica fidelidade ao original.
-O comando de ingestão, as relações e a publicação revisada estão sendo implementados nas etapas seguintes.
+
+Para guardar uma fonte e retomar seu estado:
+
+```bash
+python scripts/documents.py ingest "caminho/arquivo.pdf" --json
+python scripts/documents.py status --json
+python scripts/vault.py check --json
+```
+
+O recibo informa `source_id`, revisão, tentativa, estado e caminho da nota. A fonte ganha um
+microíndice em `vault/local/sources/`; os originais, recibos e extrações ficam em
+`.operacao-local/docling/`. Repetir a mesma origem reutiliza a extração quando bytes e configuração
+coincidem. Arquivos de origens diferentes mantêm identidades próprias, mesmo com conteúdo igual.
+
+Use `ingest "arquivo" --source-id UUID --json` para atualizar uma fonte já registrada ou retomar
+uma pendência pelo ID. Uma falha conserva a revisão válida anterior. Uma extração `partial` recebe
+nota própria com aviso e continua disponível quando uma tentativa posterior termina. Notas editadas
+manualmente são preservadas. `status` separa a revisão atual da última tentativa e não mostra o texto
+ou o caminho original do documento. Falta de arquivo ou ambiente fica como `pending`; formato não
+atendido retorna `unsupported`.
+
+Há um escritor por projeto. Se um processo for encerrado à força, consulte
+`python scripts/documents.py lock-status --json`. Somente com `owner_alive: false`, use
+`python scripts/documents.py recover-lock --token UUID --json`, com o token informado, e repita a
+ingestão. A recuperação recusa um processo ativo ou token diferente. Fechar uma sessão não apaga
+os documentos locais; mantenha seu backup privado.
+
+Relações com features e publicação de cópias revisadas serão acrescentadas nas próximas etapas.
 
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Falhas, repetição e manutenção
 
@@ -624,8 +651,34 @@ The initial profile covers PDF, DOCX, PNG/JPEG and local HTML, limited to 100 Mi
 30 minutes per conversion. It does not fetch resources referenced inside a document. Review the
 extracted text before using it as evidence: a page image preserved the test phrase, while a horizontal
 banner with the same text reordered words. `ready` means processing finished; it does not certify
-fidelity to the original. Ingestion,
-relations and reviewed publication are being implemented in the following steps.
+fidelity to the original.
+
+Store a source and resume its state with:
+
+```bash
+python scripts/documents.py ingest "path/document.pdf" --json
+python scripts/documents.py status --json
+python scripts/vault.py check --json
+```
+
+The receipt contains `source_id`, revision, attempt, state and note path. Each source has an index
+in `vault/local/sources/`; originals, receipts and extractions remain in `.operacao-local/docling/`.
+Repeating the same origin reuses extraction when bytes and configuration match. Different origins
+retain separate identities even when their contents are identical.
+
+Use `ingest "file" --source-id UUID --json` to update a known source or resume a pending source by ID.
+A failed attempt preserves the previous valid revision. A `partial` extraction gets a separate note
+with a warning, retained after a later successful attempt. Manual note edits are preserved. `status`
+separates the current revision from the latest attempt without showing source text or its original
+path. A missing file or runtime remains `pending`; an unsupported format returns `unsupported`.
+
+Each project has one writer. After a forced process termination, inspect
+`python scripts/documents.py lock-status --json`. Only when `owner_alive` is false, run
+`python scripts/documents.py recover-lock --token UUID --json` with the reported token, then repeat
+ingestion. Recovery rejects a live owner or a different token. Closing a session does not erase local
+documents; maintain a private backup.
+
+Feature relations and publication of reviewed copies are coming in the next steps.
 
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Failures and maintenance
 

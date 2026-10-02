@@ -1,15 +1,18 @@
 """Local document commands. The harness itself needs only the standard library."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
 import signal
 import subprocess
 import sys
+import uuid
 
 # Diagnostics must remain read-only even on a freshly installed consumer repo.
 sys.dont_write_bytecode = True
 from document_store import prepare_storage, safe_path
+import document_store as store
 
 VERSION = '2.132.0'
 BASE = '.operacao-local/docling'
@@ -25,6 +28,7 @@ def worker_environment(base, *, offline=True):
     env = {k: v for k, v in os.environ.items()
            if k.upper() in ('PATH', 'SYSTEMROOT', 'WINDIR', 'PATHEXT')}
     for folder in ('cache', 'temp', 'home'):
+        safe_path(base, Path(folder) / '.probe')
         (base / folder).mkdir(parents=True, exist_ok=True)
     env.update(HOME=str(base / 'home'), USERPROFILE=str(base / 'home'),
                LOCALAPPDATA=str(base / 'home'), APPDATA=str(base / 'home'),
@@ -44,13 +48,15 @@ def run_process(arguments, *, timeout, env):
     with subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, **options) as process:
         try:
             stdout, stderr = process.communicate(timeout=timeout)
-        except subprocess.TimeoutExpired:
+        except (subprocess.TimeoutExpired, KeyboardInterrupt) as interrupted:
             if os.name == 'nt':
                 subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'],
                                capture_output=True, timeout=15)
             else:
                 os.killpg(process.pid, signal.SIGKILL)
             process.communicate()
+            if isinstance(interrupted, KeyboardInterrupt):
+                raise
             raise subprocess.TimeoutExpired(['docling-worker'], timeout) from None
         return subprocess.CompletedProcess(['docling-worker'], process.returncode, stdout, stderr)
 
@@ -102,6 +108,7 @@ def doctor(root):
     if not executable.is_file():
         return failed('runtime_missing', 'pending')
     try:
+        safe_path(Path(root), Path(BASE) / 'venv/pyvenv.cfg')
         manifest = json.loads((base / 'environment.json').read_text(encoding='utf-8'))
         if manifest['docling'] != VERSION:
             return failed('runtime_version_mismatch')
@@ -129,6 +136,11 @@ def setup(root, profile='documents'):
         raise ValueError('Unsupported profile.')
     root = Path(root).resolve(strict=True)
     prepare_storage(root)
+    with store.project_lock(root):
+        return setup_runtime(root, profile)
+
+
+def setup_runtime(root, profile):
     base = root / BASE
     for relative in ('venv/pyvenv.cfg', 'models/.probe', 'cache/.probe', 'temp/.probe', 'home/.probe',
                      'environment.json', 'setup.log'):
@@ -174,6 +186,130 @@ def setup(root, profile='documents'):
     return doctor(root)
 
 
+def converter_info(root, profile):
+    manifest = safe_path(root, Path(BASE) / 'environment.json')
+    return dict(package='docling', version=VERSION, profile=profile,
+                models=['layout', 'tableformer', 'rapidocr-onnxruntime-latin'],
+                options=dict(max_pages=500, max_bytes=100 * 1024 * 1024, timeout=1800,
+                             remote_fetch=False, local_fetch=False, device='cpu',
+                             runtime_manifest_sha256=store.file_digest(manifest) if manifest.exists() else None))
+
+
+def new_receipt(record, reason='conversion_not_started'):
+    return dict(schema_version=1, project_id=record['project_id'], source_id=record['source_id'],
+                revision=None, attempt_id=str(uuid.uuid4()), state='pending', note_path=None,
+                converter=None, coverage={}, warnings=[reason], next_action='ingest_source')
+
+
+def record_pending(root, reason):
+    if reason not in ('source_unavailable', 'runtime_missing', 'unsupported_source', 'reference_needs_review'):
+        raise ValueError('Unknown pending reason.')
+    root = Path(root).resolve(strict=True)
+    project = prepare_storage(root)
+    with store.project_lock(root):
+        record = store.source_record(root, project, None)
+        receipt = new_receipt(record, reason)
+        store.save_attempt(root, record, receipt)
+        return receipt
+
+
+def status(root, source_id=None):
+    root = Path(root).resolve(strict=True)
+    if source_id is not None:
+        source_id = str(uuid.UUID(source_id))
+    results = []
+    for record in store.source_records(root):
+        if source_id is not None and record['source_id'] != source_id:
+            continue
+        receipt = store.read_json(root, Path(BASE) / record['source_id'] / 'attempts' / (record['latest_attempt'] + '.json'))
+        results.append(dict(source_id=record['source_id'], current_revision=record['current_revision'],
+                            current_note=record['current_note'], latest_attempt=receipt))
+    return results
+
+
+def ingest(root, source, *, source_id=None, convert=run_worker):
+    root, source = Path(root).resolve(strict=True), Path(source).absolute()
+    project = prepare_storage(root)
+    with store.project_lock(root):
+        record = store.source_record(root, project, source.as_uri(), source_id)
+        receipt = new_receipt(record)
+        store.save_attempt(root, record, receipt)
+        attempt = Path(BASE) / record['source_id'] / 'attempts' / receipt['attempt_id']
+        try:
+            if not source.is_file():
+                receipt['warnings'] = ['source_unavailable']
+                return receipt
+            extension = source.suffix.lower()
+            if extension not in ('.html', '.htm', '.pdf', '.docx', '.png', '.jpg', '.jpeg'):
+                receipt.update(state='unsupported', warnings=['unsupported_source'], next_action='provide_supported_source')
+                return receipt
+            if convert is run_worker:
+                diagnostic = doctor(root)
+                if diagnostic['state'] != 'ready':
+                    receipt.update(warnings=diagnostic['warnings'], next_action='setup_or_repair_runtime')
+                    return receipt
+            configuration = converter_info(root, 'documents')
+            # A suffix-sensitive parser is part of the conversion configuration.
+            configuration = {**configuration, 'input_format': {'.htm': '.html', '.jpeg': '.jpg'}.get(extension, extension)}
+            snapshot = attempt / ('original' + extension)
+            copied_hash = store.copy_source(root, source, snapshot, 100 * 1024 * 1024)
+            payload = json.dumps(dict(bytes_sha256=copied_hash, converter=configuration), sort_keys=True, separators=(',', ':')).encode()
+            revision = hashlib.sha256(payload).hexdigest()
+            receipt.update(revision=revision, converter=configuration, state='running', warnings=[], next_action='wait_for_conversion')
+            store.save_attempt(root, record, receipt)
+            revision_base = Path(BASE) / record['source_id'] / revision
+            original = safe_path(root, revision_base / ('original' + extension))
+            original.parent.mkdir(parents=True, exist_ok=True)
+            if original.exists():
+                if store.file_digest(original) != copied_hash:
+                    raise ValueError('Stored original changed; preserve it for inspection.')
+                (root / snapshot).unlink()
+            else:
+                os.replace(root / snapshot, original)
+            cache = Path(BASE) / 'extractions' / revision
+            cache_manifest = Path(BASE) / 'extractions' / (revision + '.json')
+            safe_path(root, cache / '.probe')
+            if safe_path(root, cache_manifest).exists():
+                cached = store.read_json(root, cache_manifest)
+                if store.tree_digest(root / cache) != cached['digest']:
+                    raise ValueError('Extraction cache changed; preserve it for inspection.')
+                result, output = cached['result'], root / cache
+            else:
+                output = root / BASE / 'work' / receipt['attempt_id']
+                safe_path(root, output.relative_to(root) / '.probe')
+                result = convert(original, output, root / BASE / 'venv', 'documents')
+                if result.get('state') in ('ready', 'partial'):
+                    store.normalize_assets(output)
+                if result.get('state') == 'ready':
+                    digest = store.tree_digest(output)
+                    safe_path(root, cache / '.probe')
+                    (root / cache).parent.mkdir(parents=True, exist_ok=True)
+                    os.replace(output, root / cache)
+                    output = root / cache
+                    store.write_json(root, cache_manifest, dict(digest=digest, result=result))
+            state = result.get('state', 'failed')
+            if state not in ('ready', 'partial', 'failed', 'unsupported', 'pending'):
+                state = 'failed'
+            warnings = [code for code in result.get('warnings', []) if isinstance(code, str) and code.replace('_', '').isalnum()]
+            receipt.update(state=state, warnings=warnings, coverage=result.get('coverage', {}),
+                           next_action='review_extraction' if state == 'ready' else 'inspect_and_retry')
+            if state in ('ready', 'partial'):
+                if state == 'partial' and not warnings:
+                    receipt['warnings'] = ['incomplete_conversion']
+                receipt['note_path'] = store.persist_note(root, record, receipt, output)
+                if state == 'ready' or record['current_revision'] is None:
+                    record.update(current_revision=revision, current_note=receipt['note_path'])
+            return receipt
+        except KeyboardInterrupt:
+            receipt.update(state='pending', warnings=['conversion_interrupted'], next_action='retry_same_source')
+            raise
+        except (OSError, ValueError, KeyError, TypeError):
+            receipt.update(state='failed', warnings=['ingestion_failed'], next_action='inspect_and_retry')
+            return receipt
+        finally:
+            store.save_attempt(root, record, receipt)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=Path.cwd())
@@ -182,17 +318,36 @@ def main():
     install.add_argument('--profile', choices=['documents'], default='documents')
     install.add_argument('--json', action='store_true')
     sub.add_parser('doctor').add_argument('--json', action='store_true')
+    ingest_parser = sub.add_parser('ingest')
+    ingest_parser.add_argument('source', type=Path)
+    ingest_parser.add_argument('--source-id')
+    ingest_parser.add_argument('--json', action='store_true')
+    status_parser = sub.add_parser('status')
+    status_parser.add_argument('--source-id')
+    status_parser.add_argument('--json', action='store_true')
+    sub.add_parser('lock-status').add_argument('--json', action='store_true')
+    recover = sub.add_parser('recover-lock')
+    recover.add_argument('--token', required=True)
+    recover.add_argument('--json', action='store_true')
     args = parser.parse_args()
     try:
         if args.command == 'setup':
             print('Installing project-local Docling 2.132.0, layout, tables and Latin OCR models.', file=sys.stderr)
             result = setup(args.root, args.profile)
-        else:
+        elif args.command == 'doctor':
             result = doctor(args.root)
+        elif args.command == 'ingest':
+            result = ingest(args.root, args.source, source_id=args.source_id)
+        elif args.command == 'lock-status':
+            result = store.lock_status(args.root.resolve(strict=True))
+        elif args.command == 'recover-lock':
+            result = store.recover_lock(args.root.resolve(strict=True), args.token)
+        else:
+            result = status(args.root, args.source_id)
     except (OSError, ValueError, subprocess.SubprocessError):
         result = failed('storage_or_runtime_check_failed')
     print(json.dumps(result, ensure_ascii=False))
-    return 0 if result['state'] == 'ready' else 1
+    return 0 if isinstance(result, list) or result['state'] in ('ready', 'locked', 'unlocked') else 1
 
 
 if __name__ == '__main__':

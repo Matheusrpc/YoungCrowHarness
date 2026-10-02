@@ -15,7 +15,7 @@ sys.path.insert(0, str(ROOT / 'scripts'))
 import vault
 
 
-class StorageTests(unittest.TestCase):
+class ProjectCase(unittest.TestCase):
     def setUp(self):
         (ROOT / '.runtime').mkdir(exist_ok=True)
         self.temp = tempfile.TemporaryDirectory(dir=ROOT / '.runtime')
@@ -36,6 +36,8 @@ class StorageTests(unittest.TestCase):
         return subprocess.run(['git', '-C', str(self.root), *args], env=self.env,
                               capture_output=True, check=check, timeout=10)
 
+
+class StorageTests(ProjectCase):
     def test_private_storage_is_ignored_and_vault_valid(self):
         identity = self.store.prepare_storage(self.root)
         uuid.UUID(identity)
@@ -109,6 +111,171 @@ class StorageTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.store.prepare_storage(self.root)
         self.assertEqual(list(outside.iterdir()), [])
+
+
+class IngestTests(ProjectCase):
+    def setUp(self):
+        super().setUp()
+        self.documents = importlib.import_module('documents')
+        self.source = self.root / 'private original.html'
+        self.source.write_text('<p>Original content.</p>', encoding='utf-8')
+        self.calls = []
+
+    def convert(self, source, output, runtime, profile):
+        self.calls.append(source.read_bytes())
+        output.mkdir(parents=True)
+        (output / 'content.md').write_text('Extracted source.\n<script>untrusted()</script>\n'
+            '[Unsafe](file:///private.txt) ![remote](https://example.invalid/tracker.png)\n', encoding='utf-8')
+        (output / 'document.json').write_text('{}')
+        return dict(state='ready', warnings=[], coverage={'pages': [1]})
+
+    def ingest(self, **kwargs):
+        return self.documents.ingest(self.root, self.source, convert=self.convert, **kwargs)
+
+    def test_ingest_and_repeat_keep_note_and_original_and_clean_vault(self):
+        original = self.source.read_bytes()
+        first = self.ingest()
+        self.assertEqual(first['state'], 'ready')
+        self.assertEqual(self.source.read_bytes(), original)
+        text = (self.root / first['note_path']).read_text(encoding='utf-8')
+        self.assertIn('Extracted source.', text)
+        self.assertNotIn('<script>', text)
+        self.assertNotIn('](file:', text)
+        self.assertNotIn('![remote](https:', text)
+        second = self.ingest()
+        self.assertEqual(first['source_id'], second['source_id'])
+        self.assertEqual(first['revision'], second['revision'])
+        self.assertNotEqual(first['attempt_id'], second['attempt_id'])
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(vault.check(self.root)['issues'], [])
+        self.git('add', '--', 'vault', '.gitignore')
+        self.assertNotIn(b'vault/local/', self.git('ls-files', '-z').stdout)
+
+    def test_same_bytes_different_sources_reuse_extraction_not_identity(self):
+        first = self.ingest()
+        other = self.root / 'different context.html'
+        other.write_bytes(self.source.read_bytes())
+        second = self.documents.ingest(self.root, other, convert=self.convert)
+        self.assertNotEqual(first['source_id'], second['source_id'])
+        self.assertEqual(first['revision'], second['revision'])
+        self.assertNotEqual(first['note_path'], second['note_path'])
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(vault.check(self.root)['issues'], [])
+
+    def test_failed_update_keeps_previous_revision(self):
+        first = self.ingest()
+        original = (self.root / first['note_path']).read_bytes()
+        self.source.write_text('changed input')
+        retry = self.documents.ingest(self.root, self.source, source_id=first['source_id'],
+                                      convert=lambda *args: dict(state='failed', warnings=['conversion_failed']))
+        self.assertEqual(retry['state'], 'failed')
+        self.assertIsNone(retry['note_path'])
+        self.assertEqual((self.root / first['note_path']).read_bytes(), original)
+        status = self.documents.status(self.root, first['source_id'])[0]
+        self.assertEqual(status['current_revision'], first['revision'])
+        self.assertEqual(status['latest_attempt']['attempt_id'], retry['attempt_id'])
+
+    def test_manual_note_edits_are_preserved(self):
+        first = self.ingest()
+        note = self.root / first['note_path']
+        manual = note.read_text(encoding='utf-8') + '\nHuman clarification.\n'
+        note.write_text(manual, encoding='utf-8')
+        self.ingest()
+        self.assertEqual(note.read_text(encoding='utf-8'), manual)
+
+    def test_configuration_changes_create_new_revision(self):
+        first = self.ingest()
+        original = self.documents.converter_info(self.root, 'documents')
+        changed = {**original, 'options': {**original['options'], 'fixture_option': True}}
+        with patch('documents.converter_info', return_value=changed):
+            second = self.ingest()
+        self.assertNotEqual(first['revision'], second['revision'])
+        self.assertEqual(len(self.calls), 2)
+
+    def test_foreign_source_identity_is_rejected(self):
+        with self.assertRaises(ValueError):
+            self.ingest(source_id=str(uuid.uuid4()))
+        self.assertEqual(self.calls, [])
+
+    def test_hash_and_conversion_use_copied_bytes(self):
+        original = self.source.read_bytes()
+        def mutate_original(source, output, runtime, profile):
+            self.source.write_text('changed after snapshot')
+            return self.convert(source, output, runtime, profile)
+        first = self.documents.ingest(self.root, self.source, convert=mutate_original)
+        self.assertEqual(first['state'], 'ready')
+        self.assertEqual(self.calls, [original])
+        second = self.ingest()
+        self.assertNotEqual(first['revision'], second['revision'])
+
+    def test_interrupt_is_resumable_and_lock_rejects_another_writer(self):
+        def interrupt(*args):
+            raise KeyboardInterrupt
+        with self.assertRaises(KeyboardInterrupt):
+            self.documents.ingest(self.root, self.source, convert=interrupt)
+        records = self.documents.status(self.root)
+        self.assertEqual(records[0]['latest_attempt']['state'], 'pending')
+        self.assertEqual(self.ingest()['state'], 'ready')
+        with self.store.project_lock(self.root):
+            with self.assertRaises(ValueError):
+                self.ingest()
+            with patch('documents.run_process', side_effect=AssertionError('setup must not start')):
+                with self.assertRaises(ValueError):
+                    self.documents.setup(self.root)
+
+    def test_pending_receipt_is_opaque_and_status_read_only(self):
+        result = self.documents.record_pending(self.root, 'source_unavailable')
+        self.assertEqual(result['state'], 'pending')
+        self.assertIsNone(result['note_path'])
+        files = {p: p.read_bytes() for p in self.root.rglob('*') if p.is_file()}
+        status = self.documents.status(self.root)
+        self.assertEqual(status[0]['latest_attempt']['source_id'], result['source_id'])
+        self.assertEqual(files, {p: p.read_bytes() for p in files})
+
+    def test_assets_have_working_links_in_a_project_with_a_long_path(self):
+        def with_asset(source, output, runtime, profile):
+            result = self.convert(source, output, runtime, profile)
+            asset = 'image_' + 'a' * 64 + '.png'
+            (output / 'assets').mkdir()
+            (output / 'assets' / asset).write_bytes(b'controlled image bytes')
+            (output / 'content.md').write_text(f'![Figure](assets/{asset})')
+            return result
+        result = self.documents.ingest(self.root, self.source, convert=with_asset)
+        self.assertEqual(result['state'], 'ready')
+        self.assertEqual(vault.check(self.root)['issues'], [])
+        self.assertEqual(len(list((self.root / 'vault/local').rglob('*.png'))), 1)
+
+    def test_partial_and_completed_attempts_have_separate_notes(self):
+        def partial(source, output, runtime, profile):
+            return {**self.convert(source, output, runtime, profile), 'state': 'partial'}
+        first = self.documents.ingest(self.root, self.source, convert=partial)
+        self.assertEqual(first['state'], 'partial')
+        self.assertTrue(first['warnings'])
+        original = (self.root / first['note_path']).read_bytes()
+        second = self.ingest()
+        self.assertEqual(second['state'], 'ready')
+        self.assertNotEqual(first['note_path'], second['note_path'])
+        self.assertEqual((self.root / first['note_path']).read_bytes(), original)
+        self.assertEqual(vault.check(self.root)['issues'], [])
+
+    def test_lock_recovery_requires_dead_owner_and_exact_token(self):
+        self.store.prepare_storage(self.root)
+        with self.store.project_lock(self.root):
+            lock = self.store.lock_status(self.root)
+            self.assertTrue(lock['owner_alive'])
+            with self.assertRaises(ValueError):
+                self.store.recover_lock(self.root, lock['token'])
+        child = subprocess.Popen([sys.executable, '-c', 'pass'])
+        child.wait(timeout=10)
+        token = str(uuid.uuid4())
+        lock_path = self.root / self.documents.BASE / 'lock.json'
+        lock_path.write_text(json.dumps(dict(pid=child.pid, token=token)))
+        self.assertFalse(self.store.lock_status(self.root)['owner_alive'])
+        with self.assertRaises(ValueError):
+            self.store.recover_lock(self.root, str(uuid.uuid4()))
+        self.assertTrue(lock_path.exists())
+        self.store.recover_lock(self.root, token)
+        self.assertFalse(lock_path.exists())
 
 
 class RuntimeTests(unittest.TestCase):

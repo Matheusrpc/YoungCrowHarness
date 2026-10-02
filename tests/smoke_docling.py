@@ -16,6 +16,57 @@ import documents
 PHRASE = 'Young Crow keeps source evidence.'
 
 
+def interruption_child(root, run):
+    if not run.resolve().is_relative_to(root / '.runtime/docling-smoke'):
+        raise ValueError('Controlled smoke directory required.')
+    def convert_then_pause(source, output, runtime, profile):
+        result = documents.run_worker(source, output, runtime, profile)
+        if result['state'] != 'ready':
+            return result
+        (run / 'converted.json').write_text(json.dumps({'state': result['state']}))
+        time.sleep(1800)  # Parent terminates this test process before note activation.
+        return result
+    result = documents.ingest(root, run / 'interrupt.html', convert=convert_then_pause)
+    print(json.dumps(result))
+    return 1
+
+
+def interruption_smoke(root, run):
+    run.mkdir(parents=True)
+    source = run / 'interrupt.html'
+    source.write_text(f'<html><body><p>{PHRASE}</p><p>Controlled run {run.name}</p></body></html>')
+    child = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), '--root', str(root),
+                              '--interrupt-child', str(run)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        deadline = time.monotonic() + 1800
+        while not (run / 'converted.json').exists():
+            if child.poll() is not None or time.monotonic() >= deadline:
+                raise RuntimeError('Controlled real conversion did not reach the interruption point.')
+            time.sleep(0.2)
+        child.terminate()
+        child.wait(timeout=30)
+    finally:
+        if child.poll() is None:
+            child.kill()
+            child.wait(timeout=30)
+        child.communicate()
+    lock = documents.store.lock_status(root)
+    assert lock['state'] == 'locked' and not lock['owner_alive']
+    documents.store.recover_lock(root, lock['token'])
+    record = next(r for r in documents.store.source_records(root) if r['locator'] == source.as_uri())
+    pending = documents.status(root, record['source_id'])[0]['latest_attempt']
+    assert pending['state'] == 'pending' and pending['note_path'] is None
+    resumed = documents.ingest(root, source, source_id=record['source_id'])
+    import vault
+    report = dict(conversion_before_interruption='ready', state_after_recovery=pending['state'],
+                  state_after_retry=resumed['state'], same_source_id=resumed['source_id'] == record['source_id'],
+                  phrase_found=bool(resumed['note_path']) and PHRASE in (root / resumed['note_path']).read_text(encoding='utf-8'),
+                  vault=vault.check(root))
+    (run / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
+    print(json.dumps(report, indent=2))
+    return 0 if report['state_after_retry'] == 'ready' and report['phrase_found'] and not report['vault']['issues'] else 1
+
+
 def fixtures(directory, runtime):
     directory.mkdir(parents=True)
     (directory / 'sample.html').write_text(f'<html><body><h1>{PHRASE}</h1><p>Controlled local fixture.</p>'
@@ -57,29 +108,48 @@ def main():
     parser.add_argument('--root', type=Path, default=ROOT)
     parser.add_argument('--profile', choices=['documents'], default='documents')
     parser.add_argument('--json', action='store_true')
+    parser.add_argument('--ingest', action='store_true', help='Verify storage and resumption through the public ingestion API.')
+    parser.add_argument('--interrupt', action='store_true', help='Kill a controlled run after real conversion, recover and resume.')
+    parser.add_argument('--interrupt-child', type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args()
     root = args.root.resolve()
+    if args.interrupt_child:
+        return interruption_child(root, args.interrupt_child)
     diagnostic = documents.doctor(root)
     if diagnostic['state'] != 'ready':
         print(json.dumps(diagnostic))
         return 1
     run = root / '.runtime/docling-smoke' / str(uuid.uuid4())
+    if args.interrupt:
+        return interruption_smoke(root, run)
     runtime = root / documents.BASE / 'venv'
     fixtures(run / 'inputs', runtime)
     results = []
     for source in sorted((run / 'inputs').iterdir()):
         output = run / source.suffix[1:]
         started = time.monotonic()
-        result = documents.run_worker(source, output, runtime, args.profile)
-        content = output / 'content.md'
+        original_digest = documents.store.file_digest(source)
+        result = documents.ingest(root, source) if args.ingest else documents.run_worker(source, output, runtime, args.profile)
+        content = root / result['note_path'] if args.ingest and result.get('note_path') else output / 'content.md'
         found = content.is_file() and PHRASE.lower() in re.sub(r'\s+', ' ', content.read_text(encoding='utf-8')).lower()
-        results.append(dict(format=source.suffix, state=result['state'], phrase_found=found,
+        item = dict(format=source.suffix, state=result['state'], phrase_found=found,
                             seconds=round(time.monotonic() - started, 2), warnings=result.get('warnings', []),
-                            coverage=result.get('coverage', {}), output=output.relative_to(root).as_posix()))
+                            coverage=result.get('coverage', {}), output=content.relative_to(root).as_posix())
+        if args.ingest:
+            repeated = documents.ingest(root, source)
+            item.update(original_unchanged=documents.store.file_digest(source) == original_digest,
+                        source_id=result['source_id'], revision=result['revision'],
+                        resumed=repeated['state'] == 'ready' and repeated['note_path'] == result['note_path'])
+        results.append(item)
     report = dict(doctor=diagnostic, results=results)
+    if args.ingest:
+        import vault
+        report['vault'] = vault.check(root)
     (run / 'report.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     print(json.dumps(report, indent=2))
-    return 0 if all(r['state'] == 'ready' and r['phrase_found'] for r in results) else 1
+    return 0 if (all(r['state'] == 'ready' and r['phrase_found'] and r.get('resumed', True)
+                    and r.get('original_unchanged', True) for r in results)
+                 and not report.get('vault', {}).get('issues')) else 1
 
 
 if __name__ == '__main__':

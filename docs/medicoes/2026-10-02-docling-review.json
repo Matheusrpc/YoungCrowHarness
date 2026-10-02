@@ -1,0 +1,23 @@
+{
+  "converter": "docling 2.132.0",
+  "source_format": "PDF",
+  "source_state": "ready",
+  "relations": [
+    "supports feature",
+    "used-in decision"
+  ],
+  "shared_feature_preserved_before_publication": true,
+  "public_copy_state": "ready",
+  "private_files_tracked": false,
+  "private_filename_in_shared_diff": false,
+  "local_vault": {
+    "schema_version": 1,
+    "notes_checked": 21,
+    "issues": []
+  },
+  "cloned_vault": {
+    "schema_version": 1,
+    "notes_checked": 15,
+    "issues": []
+  }
+}

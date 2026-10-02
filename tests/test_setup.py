@@ -22,7 +22,12 @@ INTEGRATION_FILES = ('scripts/integrations.py', 'skills/integrate-from-docs/SKIL
 PERSONALIZER_FILES = ('scripts/personalize.py', 'skills/personalizer/SKILL.md',
                       'skills/personalizer/references/interview.md',
                       '.claude/skills/personalizer/SKILL.md', '.agents/skills/personalizer/SKILL.md')
-FILES += INTEGRATION_FILES + PERSONALIZER_FILES + ('scripts/vault.py',)
+FILES += INTEGRATION_FILES + PERSONALIZER_FILES + ('scripts/vault.py', 'scripts/document_store.py')
+FILES += ('scripts/documents.py', 'scripts/docling_worker.py', 'requirements/docling.txt')
+FILES += ('scripts/source_fetch.py',)
+FILES += ('requirements/docling-media.txt',)
+FILES += ('scripts/source_prompt.py', 'skills/ingest-source/SKILL.md',
+          '.claude/skills/ingest-source/SKILL.md', '.agents/skills/ingest-source/SKILL.md')
 
 
 def shell_path(path):
@@ -48,6 +53,17 @@ def fake_git(args):
 
 
 class SetupTests(unittest.TestCase):
+    def test_force_preserves_client_settings_and_credentials(self):
+        originals = {name: 'CUSTOM_SENTINEL\n' for name in
+                     ('.mcp.json', '.codex/config.toml', '.claude/settings.json', '.codex/hooks.json')}
+        for name, content in originals.items():
+            write(self.target / name, content)
+        result = self.run_setup('--no-plugins', '--force')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for name, content in originals.items():
+            self.assertEqual((self.target / name).read_text(), content, name)
+        self.assertIn('merge', result.stdout)
+
     def setUp(self):
         self.bash = shutil.which('bash') or 'C:/Program Files/Git/bin/bash.exe'
         self.real_git = shutil.which('git')
@@ -301,6 +317,15 @@ class SetupTests(unittest.TestCase):
     def test_full_install_and_repeat(self):
         result = self.run_setup('--name', 'Complete project')
         self.assertEqual(result.returncode, 0, result.stderr)
+        for rel in ('scripts/documents.py', 'scripts/docling_worker.py', 'scripts/source_fetch.py',
+                    'requirements/docling.txt', 'requirements/docling-media.txt'):
+            self.assertEqual((self.target / rel).read_bytes(), (ROOT / rel).read_bytes())
+        paths = set(self.target.rglob('*'))
+        diagnostic = subprocess.run([sys.executable, str(self.target / 'scripts/documents.py'),
+                                     '--root', str(self.target), 'doctor', '--json'],
+                                    capture_output=True, timeout=30)
+        self.assertEqual(json.loads(diagnostic.stdout)['warnings'], ['runtime_missing'])
+        self.assertEqual(set(self.target.rglob('*')), paths)
         calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
         installs = [call[-1] for call in calls if call[:3] == ['claude', 'plugin', 'install']]
         self.assertEqual(len(installs), 5)

@@ -1,0 +1,147 @@
+{
+  "converter": "docling 2.132.0",
+  "model": "Whisper Base native CPU",
+  "fixture": "Controlled audible speech generated locally with Windows Speech; same WAV audio in MP4, no remote speech service.",
+  "results": [
+    {
+      "kind": "audio",
+      "state": "ready",
+      "phrase_found": true,
+      "warnings": [],
+      "coverage": {
+        "duration_seconds": 10.708163,
+        "transcript_intervals": [
+          [
+            0.0,
+            2.08
+          ],
+          [
+            2.72,
+            6.1
+          ],
+          [
+            7.1,
+            9.64
+          ]
+        ],
+        "frame_times": [],
+        "sampled_frames": 0
+      },
+      "seconds": 50.24
+    },
+    {
+      "kind": "video",
+      "state": "ready",
+      "phrase_found": true,
+      "warnings": [],
+      "coverage": {
+        "duration_seconds": 23.2,
+        "transcript_intervals": [
+          [
+            0.0,
+            2.08
+          ],
+          [
+            2.72,
+            6.1
+          ],
+          [
+            7.1,
+            9.64
+          ]
+        ],
+        "frame_times": [
+          0.0,
+          10.0,
+          20.0
+        ],
+        "sampled_frames": 3
+      },
+      "seconds": 31.78
+    },
+    {
+      "kind": "video_without_audio",
+      "state": "partial",
+      "phrase_found": false,
+      "warnings": [
+        "audio_track_absent"
+      ],
+      "coverage": {
+        "duration_seconds": 23.2,
+        "transcript_intervals": [],
+        "frame_times": [
+          0.0,
+          10.0,
+          20.0
+        ],
+        "sampled_frames": 3
+      },
+      "seconds": 19.27
+    }
+  ],
+  "real_pipeline_timeout": {
+    "state": "partial",
+    "warnings": [
+      "incomplete_conversion",
+      "transcript_empty",
+      "video_frames_absent",
+      "empty_extraction"
+    ],
+    "coverage": {
+      "duration_seconds": 23.2,
+      "transcript_intervals": [],
+      "frame_times": [],
+      "sampled_frames": 0
+    },
+    "converter": {
+      "package": "docling",
+      "version": "2.132.0",
+      "profile": "media",
+      "models": [
+        "whisper-base-native"
+      ],
+      "options": {
+        "max_pages": 500,
+        "max_bytes": 524288000,
+        "timeout": 0.001,
+        "remote_fetch": false,
+        "local_fetch": false,
+        "device": "cpu"
+      }
+    }
+  },
+  "vault": {
+    "schema_version": 1,
+    "notes_checked": 25,
+    "issues": []
+  },
+  "timeout_metadata_correction_verified": true,
+  "runtime": {
+    "docling": "2.132.0",
+    "python": "3.12.10",
+    "models": [
+      {
+        "path": "base.pt",
+        "size": 145262807
+      }
+    ],
+    "media_tools": {
+      "ffmpeg": {
+        "sha256": "3256173f3f8bffd7df12227c68adf68025edb1832273a9530688a7bb1ed8edec",
+        "version": "ffmpeg version 9.0.2-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers"
+      },
+      "ffprobe": {
+        "sha256": "f0d36ecbbdd3bcfac3efa078c96c7271c2e68b3810595552ac3b7f17e9a65c52",
+        "version": "ffprobe version 9.0.2-essentials_build-www.gyan.dev Copyright (c) 2007-2026 the FFmpeg developers"
+      }
+    },
+    "packages": {
+      "docling-core": "2.99.0",
+      "docling-slim": "2.132.0",
+      "numba": "0.68.0",
+      "numpy": "2.5.3",
+      "openai-whisper": "20250625",
+      "torch": "2.14.1"
+    }
+  }
+}

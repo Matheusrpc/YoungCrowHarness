@@ -42,11 +42,34 @@ class VaultTests(unittest.TestCase):
         return {issue['code'] for issue in result['issues']}
 
     def test_template_vault_is_valid_without_project_identity(self):
-        shutil.copytree(ROOT / 'vault', self.root / 'vault')
+        shutil.copytree(ROOT / 'vault', self.root / 'vault', ignore=shutil.ignore_patterns('local', 'project.json'))
         shutil.copytree(ROOT / 'skills', self.root / 'skills')
         result = self.check(0)
         self.assertEqual(result['notes_checked'], 3)
         self.assertEqual(result['issues'], [])
+
+    def test_private_root_is_optional_independent_and_can_link_public_notes(self):
+        self.note('index.md')
+        self.note('local/index.md', '[Sources](sources/index.md) [Vault](../index.md)')
+        self.note('local/sources/index.md', '[Note](note.md)', index='../index.md')
+        self.note('local/sources/note.md')
+        self.assertEqual(self.check(0)['notes_checked'], 4)
+
+    def test_public_links_to_private_locations_fail_even_when_missing(self):
+        self.note('index.md', '[Private](local/index.md) [Receipt](../.operacao-local/docling/receipt.json)')
+        result = self.check()
+        self.assertIn('private_reference', self.codes(result))
+        self.assertNotIn('receipt.json', json.dumps(result))
+
+    def test_public_parent_cannot_be_a_private_index(self):
+        self.note('index.md', '[Note](note.md)')
+        self.note('note.md', index='local/index.md')
+        self.note('local/index.md', '[Public](../note.md)')
+        self.assertIn('private_reference', self.codes(self.check()))
+
+    def test_file_uri_is_rejected_instead_of_treated_as_remote(self):
+        self.note('index.md', '[Local file](file:///private.txt)')
+        self.assertTrue(self.check()['issues'])
 
     def test_generated_product_feature_and_integration_are_valid_and_unchanged(self):
         for script, args in (

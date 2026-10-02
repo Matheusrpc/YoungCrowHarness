@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "date_utc": "2026-10-02",
+  "fixtures": "controlled synthetic HTML and an inaccessible attachment reference",
+  "private_material_committed": false,
+  "discovery": {
+    "codex_versions": ["0.146.0", "0.158.0-alpha.2.1"],
+    "claude_version": "2.1.220",
+    "shared_skill_discovered_both": true,
+    "codex_user_prompt_submit_discovered": true,
+    "method": "isolated native loaders; Codex loopback model fixture; Claude SDK initialization",
+    "external_mcp_connections": 0
+  },
+  "real_codex": {
+    "version": "0.158.0-alpha.2.1",
+    "model": "gpt-6-astra",
+    "billing_scope": "existing ChatGPT subscription; zero new monetary-spend ceiling",
+    "sessions": 2,
+    "ingestion_seconds": 235.53,
+    "recovery_seconds": 73.42,
+    "ingestion": "ready",
+    "inaccessible_attachment": "pending",
+    "evidence_relation": "complements",
+    "hostile_document_instructions_executed": false,
+    "recovered_without_session_history": ["source_id", "revision", "feature_id", "relation", "exact_evidence", "pending_source_id", "pending_reason", "next_action"],
+    "vault_notes": 31,
+    "vault_issues": 0,
+    "production_state": "unknown",
+    "external_mcp_connections": 0
+  },
+  "real_claude": {
+    "state": "pending",
+    "reason": "local_client_not_authenticated"
+  },
+  "hook_scope": {
+    "direct_command_tests": "Unix/Windows template commands; subdirectory with spaces; no Git",
+    "automatic_trusted_client_execution": "not demonstrated",
+    "unexposed_binary_attachments": "explicit pending command required",
+    "universal_capture_claimed": false
+  }
+}

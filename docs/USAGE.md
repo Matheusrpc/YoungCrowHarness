@@ -4,11 +4,11 @@
 
 [← README](../README.md) · [Português](#portugues) · [English](#english)
 
-Consulte os [três fluxos visuais de uso](../README.md#processo-pt) para localizar sua etapa:
-começar do zero, migrar um projeto ou operar uma entrega. O [processo completo](PROCESS.md#portugues)
+Consulte os [fluxos visuais de uso](../README.md#processo-pt) para localizar sua etapa:
+começar do zero, migrar um projeto, operar uma entrega ou incorporar fontes. O [processo completo](PROCESS.md#portugues)
 detalha decisões, pausas e retomada.
 
-See the [three usage diagrams](../README.md#process-en) for new projects, adoption and daily work.
+See the [usage diagrams](../README.md#process-en) for new projects, adoption, daily work and source intake.
 The [complete process](PROCESS.md#english) includes decisions, pauses and resumption.
 
 <img src="../assets/vidro.svg" alt="" width="100%">
@@ -38,6 +38,7 @@ O setup atende os dois clientes por padrão (`--client both`). Use `--client cla
 | Skills humanizer e humanizer-ptbr | `~/.claude/skills/`, no usuário | `.agents/skills/`, dentro do projeto |
 | Skill integrate-from-docs | `.claude/skills/integrate-from-docs/` | `.agents/skills/integrate-from-docs/` |
 | Skill personalizer | `.claude/skills/personalizer/` | `.agents/skills/personalizer/` |
+| Skill ingest-source | `.claude/skills/ingest-source/` | `.agents/skills/ingest-source/` |
 | Agente integration-specialist | `.claude/agents/integration-specialist.md` | `.codex/agents/integration-specialist.toml` |
 | MCP | `.mcp.json` | `.codex/config.toml` |
 | Hooks | `.claude/settings.json` | `.codex/hooks.json` |
@@ -153,6 +154,11 @@ Para retomar, peça ao agente que leia as instruções e o último relato da fre
 <a id="vault-check-pt"></a>
 
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Conferir a organização do vault
+
+O validador aceita `vault/local/index.md` como segunda entrada, quando existir. Notas locais podem
+referenciar notas compartilhadas; notas compartilhadas não podem apontar para `vault/local/` ou
+`.operacao-local/docling/`. A ocorrência `private_reference` pede remover ou revisar essa referência
+antes de publicar. O ignore não criptografa arquivos nem substitui backup.
 
 Execute na raiz do produto após atualizar as memórias e antes de encerrar uma entrega:
 
@@ -270,12 +276,201 @@ identidade Git de quem realizou o trabalho e os créditos de terceiros. O setup 
 existentes: em um projeto já adotado, ajuste apenas essas duas propriedades no JSON e mantenha os
 demais campos. Remover atribuições de commits antigos exige uma alteração separada do histórico.
 
+<a id="docling-pt"></a>
+
+<a id="fontes-pt"></a>
+
+### Usar documentos no Claude Code e no Codex
+
+O setup copia `ingest-source` e o hook `UserPromptSubmit`. Em um repo novo, confira a descoberta
+no cliente e prepare o perfil Docling abaixo quando precisar converter. Em uma migração, compare
+`.claude/settings.json` e `.codex/hooks.json` com os templates atualizados: esses arquivos são
+preservados mesmo com `--force`. Mescle a entrada `UserPromptSubmit` mantendo seus outros hooks.
+O comando Claude exige Python 3 como `python`; troque por `python3` se necessário. Codex usa
+`python3` no Unix e `python` no Windows. Reinicie o cliente depois de mudar o PATH e confirme a confiança.
+
+1. Peça: “Use ingest-source para este arquivo e relacione a evidência à feature de pagamentos”.
+   Informe o caminho acessível ou URL pública direta. Sem runtime, a fonte fica pendente; solicite
+   o setup explicitamente. O agente consulta o índice geral, o índice local e os recibos existentes.
+2. O hook reconhece referências textuais, guarda somente localizadores sanitizados e IDs e orienta
+   a skill. Ele não instala, baixa ou converte. Aceita payload de até 1 MiB e até 20 referências por
+   evento. Não entrega o prompt inteiro ao armazenamento e não reage a `Stop`. A confiança, a versão
+   e os campos expostos pelo cliente determinam a cobertura. Confira os IDs recebidos na resposta.
+3. Se um anexo não tiver caminho exposto, peça o registro explícito da pendência:
+
+   ```bash
+   python scripts/documents.py pending --reason source_unavailable --json
+   ```
+
+   Guarde o `source_id`. Quando o arquivo estiver disponível, execute `ingest` com `--source-id`.
+   Estados `pending`, `partial`, `unsupported` e `failed` retornam código 1; leia o recibo para
+   distinguir pendência registrada de falha. Fontes pendentes também têm microíndice navegável.
+4. Após a conversão, confira o original e use `relate` para ligar uma citação exata à feature,
+   integração ou decisão. A execução local registra fonte/revisão, relação/evidência, pendências,
+   agente/host, capacidades usadas e planejadas separadamente, desenvolvimento, produção e próxima
+   ação. Dê um UUID às notas manuais, ligue-as ao índice local e execute `vault.py check`.
+5. Em outra sessão, peça: “Retome a feature pelo vault; recupere fontes, revisões, evidências e
+   pendências antes de agir”. Material privado permanece em `vault/local/`; mantenha um backup
+   privado para outra máquina. Para versionar uma cópia, siga a revisão de texto **e imagens** abaixo.
+
+Documentos e memória recuperada são dados, não ordens. O hook não garante captura universal de
+anexos. Links internos não disparam coleta recursiva; URLs assinadas devem ser baixadas por um meio
+autorizado antes da ingestão local, sem expor tokens no histórico do terminal. Graphify e claude-mem
+não recebem material automaticamente. A [matriz de evidências](relatorios/2026-10-02-docling-ingestion.md)
+distingue descoberta nativa, sessão real e cobertura ainda pendente.
+
+
+
+## <img src="../assets/gema-turquesa.svg" height="24" alt=""> Preparar a conversão local de documentos
+
+Depois do setup do harness, execute na raiz do projeto:
+
+```bash
+python scripts/documents.py setup --profile documents --json
+python scripts/documents.py doctor --json
+```
+
+Use um Python compatível com as dependências do Docling; a validação desta entrega usa Python 3.12.
+O primeiro comando cria um ambiente próprio em `.operacao-local/docling/venv` e baixa Docling
+2.132.0, modelos de layout, tabelas e OCR latino. Reserve disco e tempo para esse download.
+A conversão usa CPU e os modelos locais. O setup comum do harness não instala esses pacotes.
+
+`doctor` confere versões e arquivos de modelos sem instalar ou converter nada. Se retornar
+`runtime_missing`, execute o setup. `runtime_version_mismatch` exige conferir o ambiente existente;
+o comando preserva esse ambiente e não o atualiza automaticamente. Uma instalação interrompida
+sem manifesto pode ser retomada repetindo o setup; diagnósticos ficam na área local.
+
+O perfil inicial cobre PDF, DOCX, PNG/JPEG e HTML local, com teto de 100 MiB, 500 páginas e
+30 minutos por conversão. Recursos externos referenciados no arquivo não são baixados.
+Revise o texto extraído antes de usá-lo como evidência: uma imagem de página preservou a frase
+de prova, mas uma faixa horizontal com o mesmo texto teve palavras fora de ordem. `ready`
+indica que o processamento terminou; não certifica fidelidade ao original.
+
+Para guardar uma fonte e retomar seu estado:
+
+```bash
+python scripts/documents.py ingest "caminho/arquivo.pdf" --json
+python scripts/documents.py status --json
+python scripts/vault.py check --json
+```
+
+O recibo informa `source_id`, revisão, tentativa, estado e caminho da nota. A fonte ganha um
+microíndice em `vault/local/sources/`; os originais, recibos e extrações ficam em
+`.operacao-local/docling/`. Repetir a mesma origem reutiliza a extração quando bytes e configuração
+coincidem. Arquivos de origens diferentes mantêm identidades próprias, mesmo com conteúdo igual.
+Uma extração sem manifesto de cache é preservada em `.operacao-local/docling/work/orphan-*`;
+a próxima ingestão converte novamente. Não é preciso apagar o cache para retomar.
+
+Na nota extraída, HTML, wikilinks e referências Markdown por rótulo ficam como texto legível.
+Links inline HTTP(S) continuam clicáveis; imagens inline só apontam para ativos locais validados.
+
+Use `ingest "arquivo" --source-id UUID --json` para atualizar uma fonte já registrada ou retomar
+uma pendência pelo ID. Uma falha conserva a revisão válida anterior. Uma extração `partial` recebe
+nota própria com aviso e continua disponível quando uma tentativa posterior termina. Notas editadas
+manualmente são preservadas. `status` separa a revisão atual da última tentativa e não mostra o texto
+ou o caminho original do documento. Falta de arquivo ou ambiente fica como `pending`; formato não
+atendido retorna `unsupported`.
+
+Para uma URL direta, use o mesmo comando:
+
+```bash
+python scripts/documents.py ingest "https://example.org/documento.pdf" --json
+```
+
+A aquisição aceita HTTP(S), até cinco redirecionamentos, 60 segundos no total e 100 MiB. O tipo
+é conferido nos bytes recebidos. Cada conexão usa um IP previamente validado, mantendo a verificação
+TLS do nome do servidor. Proxies e credenciais do ambiente não são usados. Recursos dentro de um
+documento não iniciam downloads. Uma página reconhecida como reprodução de vídeo ou áudio fica
+`pending`: forneça o arquivo ou uma transcrição acessível. A transcrição é uma fonte própria.
+
+O localizador salvo omite query e fragmento. URLs completas diferentes mantêm IDs próprios por uma
+chave opaca local; para renovar um link assinado da mesma fonte, informe `--source-id UUID`.
+Não coloque links com tokens em comandos que ficarão no histórico: prefira baixar o arquivo pela
+ferramenta autorizada e ingerir a cópia local. Os recibos não imprimem o link de acesso.
+
+Destinos privados são recusados por padrão. Se o projeto precisar de um servidor interno, o operador
+pode criar `.operacao-local/docling/acquisition.json` com `{"allowed_private_hosts":["docs.interno.example"]}`.
+Isso autoriza somente os nomes exatos listados, inclusive em redirecionamentos; revise essa exceção.
+Falhas de aquisição preservam a revisão anterior e indicam a próxima ação no recibo.
+
+Há um escritor por projeto. Se um processo for encerrado à força, consulte
+`python scripts/documents.py lock-status --json`. Somente com `owner_alive: false`, use
+`python scripts/documents.py recover-lock --token UUID --json`, com o token informado, e repita a
+ingestão. A recuperação recusa um processo ativo ou token diferente. Fechar uma sessão não apaga
+os documentos locais; mantenha seu backup privado.
+
+Para áudio e vídeo, disponibilize `ffmpeg` e `ffprobe` no PATH do cliente ou em
+`.operacao-local/docling/bin/`. O setup verifica esses executáveis e registra seus hashes; não os
+instala globalmente. A [página do FFmpeg](https://ffmpeg.org/download.html) indica distribuições por
+plataforma. No Windows, a prova desta entrega usa os binários Gyan 9.0.2, com o checksum do fornecedor.
+
+```bash
+python scripts/documents.py setup --profile media --json
+python scripts/documents.py doctor --profile media --json
+python scripts/documents.py ingest "caminho/gravação.wav" --json
+python scripts/documents.py ingest "caminho/vídeo.mp4" --json
+```
+
+O perfil cria `.operacao-local/docling/media/venv` e baixa o Whisper Base multilíngue para CPU.
+Identificação de locutores está desativada. No Windows, seu extra opcional é omitido porque exige
+compilação C++; transcrição e amostragem usam o pipeline nativo do Docling.
+Os pacotes de mídia ficam separados dos documentos; uma falha nessa instalação conserva o ambiente
+anterior. Isso ocupa espaço adicional. Depois de trocar FFmpeg/ffprobe, confira o diagnóstico antes
+de recriar o perfil. O setup não aceita silenciosamente executáveis diferentes dos registrados.
+
+Áudio aceita WAV, MP3, M4A, AAC, OGG e FLAC; vídeo aceita MP4, MOV, AVI, MKV e WEBM. Cada arquivo
+tem teto de 500 MiB e 60 minutos. O conversor dispõe de até 30 minutos e amostra até 200 quadros,
+normalmente a cada dez segundos. Formato aceito pelo pipeline não garante qualidade de transcrição.
+Áudio é normalizado localmente antes do ASR; o idioma é detectado pelo modelo, sem tradução automática.
+
+O recibo informa intervalos de transcrição e tempos dos quadros efetivamente obtidos. Ausência de áudio,
+transcrição vazia, falha parcial ou limite de quadros aparece nos avisos e mantém estado `partial`.
+Essas imagens não comprovam interpretação de todas as ações, textos ou telas de um vídeo. Um prazo
+esgotado que impeça exportar conteúdo retorna `failed`; uma saída parcial exportável preserva sua nota.
+O encerramento por prazo também termina os processos filhos. Confira transcrição e quadros antes de
+usar a gravação como evidência.
+
+Para ligar uma revisão a uma feature, decisão ou outra nota, use o ID do frontmatter de destino e
+um trecho presente na extração:
+
+```bash
+python scripts/documents.py relate --source-id UUID_FONTE --revision REVISAO --target-id ID_NOTA --relation supports --evidence "trecho presente na extração" --json
+```
+
+As relações disponíveis são `supports`, `complements`, `contradicts`, `supersedes` e `used-in`.
+O vínculo fica na área local e mantém a nota compartilhada intacta. A verificação confirma o trecho;
+o sentido da relação precisa de revisão. `contradicts` começa como hipótese.
+
+Para compartilhar uma fonte:
+
+```bash
+python scripts/documents.py prepare-review --source-id UUID_FONTE --revision REVISAO --json
+python scripts/documents.py review-status --review-id UUID_REVISAO --json
+python scripts/documents.py promote --review-id UUID_REVISAO --approved-digest DIGEST_APROVADO --json
+```
+
+O primeiro comando prepara uma cópia editável na área privada, com um ID público novo. Revise o
+texto e cada imagem nessa pasta, removendo o que não pode sair do ambiente local. Depois de editar,
+`review-status` fornece o digest atual e a lista de arquivos. Autorize essa cópia exata antes de
+executar `promote`: conhecer o digest não equivale a ter autorização humana.
+
+A promoção verifica todos os nomes e bytes, mantém avisos de extração parcial e recusa links para
+arquivos privados ou caminhos absolutos. Cada cópia pode conter uma nota Markdown e imagens raster,
+com teto de 2.000 arquivos e 500 MiB. HTML e autolinks fora de exemplos de código são recusados.
+Use `[rótulo](destino)` sem envolver o destino em sinais de menor/maior.
+O resultado entra em `vault/sources/`; não há `git add`, commit ou push automático.
+Só depois disso uma feature compartilhada deve receber um link para a fonte publicada. O mapeamento
+com a revisão original fica local. Mudanças posteriores no original não alteram a cópia preparada.
+
+Esse processo não anonimiza o conteúdo: um nome dentro de um parágrafo ou de uma imagem depende da
+revisão humana. Confira o diff e execute `vault.py check` antes de versionar.
+
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Falhas, repetição e manutenção
 
 | Situação | Comportamento e próximo passo |
 |---|---|
 | Reexecutar | Preserva arquivos existentes; renderiza o nome só nos guias recém-copiados. As regras finais de ignore não crescem em repetições do mesmo modo sem mudanças. |
-| `--force` | Substitui os templates gerenciados, inclusive configurações. Revise o diff antes de usar. Preserva notas do vault, `.env` e regras existentes de `.gitignore`. |
+| `--force` | Substitui templates gerenciados. Preserva vault, `.env`, regras de `.gitignore`, `.mcp.json`, `.codex/config.toml` e arquivos de hooks. Compare e mescle configurações existentes; revise o diff. |
 | Argumento inválido | Sai com código 2, antes de copiar arquivos. |
 | Falha de preflight | Sai com código não zero; resolva dependências, caminhos, manifesto ou `.env` rastreado e tente novamente. |
 | Humanizer divergente ou modificado | Preserva a instalação do usuário e interrompe. Compare com o commit do manifesto e decida manualmente como guardar suas mudanças; o setup não executa reset. |
@@ -428,6 +623,11 @@ At the next session, read the project instructions and latest workstream report 
 
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Check vault organization
 
+The validator accepts `vault/local/index.md` as a second entry when present. Local notes may link
+to shared notes; shared notes must not reference `vault/local/` or `.operacao-local/docling/`.
+A `private_reference` finding requires removing or reviewing that reference before publication.
+Ignore rules do not encrypt files or replace backups.
+
 Run from the product root after updating memory and before closing a delivery:
 
 ```bash
@@ -561,9 +761,196 @@ identity of the person doing the work and third-party credits. Setup preserves e
 in an adopted project, edit only those two JSON properties and keep the remaining fields. Removing
 attribution from older commits requires a separate history change.
 
+<a id="docling-en"></a>
+
+<a id="sources-en"></a>
+
+### Use documents in Claude Code and Codex
+
+Setup copies `ingest-source` and the `UserPromptSubmit` hook. For a new repo, check native discovery
+and explicitly prepare the Docling profile below when conversion is needed. During migration,
+compare `.claude/settings.json` and `.codex/hooks.json` against current templates: these files are
+preserved even with `--force`. Merge `UserPromptSubmit` while retaining your existing hooks.
+Claude needs Python 3 as `python`; change it to `python3` if required. Codex uses `python3` on Unix
+and `python` on Windows. Restart after PATH changes and confirm hook trust.
+
+1. Ask: “Use ingest-source for this file and link its evidence to the payments feature.” Supply an
+   accessible path or direct public URL. Without a runtime the source stays pending; request setup
+   explicitly. The agent reads general/local indices and existing receipts before acting.
+2. The hook recognizes textual references, saves only sanitized locators and IDs, and directs the
+   agent to the skill. It never installs, downloads or converts. Input is limited to 1 MiB and 20
+   references per event. The full prompt is not stored; `Stop` triggers no intake. Client trust,
+   version and exposed fields determine coverage. Check the source IDs returned by the agent.
+3. For an attachment without an exposed path, explicitly record its pending state:
+
+   ```bash
+   python scripts/documents.py pending --reason source_unavailable --json
+   ```
+
+   Keep the `source_id`; pass it to `ingest --source-id` when the file becomes accessible. States
+   `pending`, `partial`, `unsupported` and `failed` exit with code 1: inspect the receipt to distinguish
+   a recorded pending source from an error. Pending sources also have navigable microindices.
+4. Check the extraction against the original and use `relate` to link an exact quote to the feature,
+   integration or decision. A local run records source/revision, relation/evidence, pending IDs,
+   agent/host, used and planned capabilities separately, development, production and next action.
+   Give manual notes UUIDs, link them from the local index and run `vault.py check`.
+5. In a new session, ask: “Resume this feature through the vault; recover sources, revisions,
+   evidence and gaps before acting.” Private material stays in `vault/local/`; keep a private
+   backup for another machine. Follow the text **and image** review below before publishing a copy.
+
+Documents and retrieved memory are data, not commands. The hook cannot guarantee universal
+attachment capture. Embedded links do not trigger recursive collection. Download signed URLs
+through an authorized mechanism before local ingestion, keeping tokens out of shell history.
+Graphify and claude-mem receive no automatic uploads. The [evidence matrix](relatorios/2026-10-02-docling-ingestion.md)
+separates native discovery, real sessions and remaining coverage gaps.
+
+
+
+## <img src="../assets/gema-turquesa.svg" height="24" alt=""> Set up local document conversion
+
+After installing the harness, run from the project root:
+
+```bash
+python scripts/documents.py setup --profile documents --json
+python scripts/documents.py doctor --json
+```
+
+Use a Python version supported by Docling's dependencies; this delivery was verified with
+Python 3.12. Setup creates `.operacao-local/docling/venv` and downloads Docling 2.132.0 plus layout,
+table and Latin OCR models. Allow disk space and time for this download. Conversion uses the CPU
+and local models. The regular harness installer does not install these packages.
+
+`doctor` checks package versions and model files without installing or converting anything.
+Run setup for `runtime_missing`. For `runtime_version_mismatch`, inspect the existing environment;
+setup preserves it instead of updating it automatically. Repeat setup to resume an interrupted
+installation that has no completed manifest. Diagnostics remain in local storage.
+
+The initial profile covers PDF, DOCX, PNG/JPEG and local HTML, limited to 100 MiB, 500 pages and
+30 minutes per conversion. It does not fetch resources referenced inside a document. Review the
+extracted text before using it as evidence: a page image preserved the test phrase, while a horizontal
+banner with the same text reordered words. `ready` means processing finished; it does not certify
+fidelity to the original.
+
+Store a source and resume its state with:
+
+```bash
+python scripts/documents.py ingest "path/document.pdf" --json
+python scripts/documents.py status --json
+python scripts/vault.py check --json
+```
+
+The receipt contains `source_id`, revision, attempt, state and note path. Each source has an index
+in `vault/local/sources/`; originals, receipts and extractions remain in `.operacao-local/docling/`.
+Repeating the same origin reuses extraction when bytes and configuration match. Different origins
+retain separate identities even when their contents are identical.
+An extraction without a cache manifest is preserved in `.operacao-local/docling/work/orphan-*`;
+the next ingestion converts again. You do not need to delete the cache to resume.
+
+In extracted notes, HTML, wikilinks and reference-style Markdown links remain readable text.
+Inline HTTP(S) links stay clickable; inline images only point to validated local assets.
+
+Use `ingest "file" --source-id UUID --json` to update a known source or resume a pending source by ID.
+A failed attempt preserves the previous valid revision. A `partial` extraction gets a separate note
+with a warning, retained after a later successful attempt. Manual note edits are preserved. `status`
+separates the current revision from the latest attempt without showing source text or its original
+path. A missing file or runtime remains `pending`; an unsupported format returns `unsupported`.
+
+For a direct URL, use the same command:
+
+```bash
+python scripts/documents.py ingest "https://example.org/document.pdf" --json
+```
+
+Acquisition accepts HTTP(S), at most five redirects, 60 seconds total and 100 MiB. The file type is
+checked against the received bytes. Each connection uses a previously validated IP while preserving
+TLS hostname verification. Environment proxies and credentials are not inherited. Resources inside
+documents do not trigger downloads. A recognized video or audio playback page stays `pending`:
+provide an accessible file or transcript. A transcript is a separate source.
+
+The stored locator omits query and fragment. Different full URLs retain distinct IDs through an
+opaque local key; pass `--source-id UUID` when renewing a signed link for the same source.
+Avoid putting token-bearing links into shell history: download through an authorized tool and
+ingest the local copy instead. Receipts never print the access URL.
+
+Private destinations are rejected by default. For an internal server, the operator can create
+`.operacao-local/docling/acquisition.json` with `{"allowed_private_hosts":["docs.internal.example"]}`.
+This authorizes only the exact listed names, including redirects; review this exception.
+Acquisition failures preserve the previous revision and include a next action in the receipt.
+
+Each project has one writer. After a forced process termination, inspect
+`python scripts/documents.py lock-status --json`. Only when `owner_alive` is false, run
+`python scripts/documents.py recover-lock --token UUID --json` with the reported token, then repeat
+ingestion. Recovery rejects a live owner or a different token. Closing a session does not erase local
+documents; maintain a private backup.
+
+For audio and video, make `ffmpeg` and `ffprobe` available on the client's PATH or in
+`.operacao-local/docling/bin/`. Setup checks these executables and records their hashes; it does not
+install them globally. The [FFmpeg download page](https://ffmpeg.org/download.html) lists distributions
+by platform. The Windows proof uses Gyan 9.0.2 binaries with the publisher's checksum verified.
+
+```bash
+python scripts/documents.py setup --profile media --json
+python scripts/documents.py doctor --profile media --json
+python scripts/documents.py ingest "path/recording.wav" --json
+python scripts/documents.py ingest "path/video.mp4" --json
+```
+
+The profile creates `.operacao-local/docling/media/venv` and downloads multilingual Whisper Base for
+CPU use. Speaker diarization is disabled. On Windows its optional extra is omitted because it
+requires C++ compilation; transcription and sampling use Docling's native pipeline.
+Media packages are separate from the document runtime, so a failed install preserves the
+existing environment. This needs extra disk space. After replacing FFmpeg/ffprobe, inspect the
+diagnostic before recreating the profile. Setup will not silently accept different executables.
+
+Audio accepts WAV, MP3, M4A, AAC, OGG and FLAC; video accepts MP4, MOV, AVI, MKV and WEBM. Each file
+is limited to 500 MiB and 60 minutes. Conversion has up to 30 minutes and samples at most 200 frames,
+normally ten seconds apart. Pipeline format support does not guarantee transcription quality.
+Audio is normalized locally before ASR; the model detects language without automatic translation.
+
+The receipt reports transcript intervals and frame times actually produced. Missing audio, empty
+transcripts, partial failure or a frame limit appears in warnings and retains a `partial` state.
+These images do not establish understanding of every action, text or screen in a video. A timeout
+that prevents any export returns `failed`; an exportable partial result keeps its own note.
+Timeout cleanup also terminates child processes. Review transcripts and frames before using the
+recording as evidence.
+
+Link a revision to a feature, decision or another note using its frontmatter ID and a quote from
+the extraction:
+
+```bash
+python scripts/documents.py relate --source-id SOURCE_UUID --revision REVISION --target-id NOTE_ID --relation supports --evidence "quote present in the extraction" --json
+```
+
+Available relations are `supports`, `complements`, `contradicts`, `supersedes` and `used-in`.
+The relation stays local and leaves the shared note unchanged. Validation confirms the quote;
+the relationship's meaning needs review. `contradicts` starts as a hypothesis.
+
+To share a source:
+
+```bash
+python scripts/documents.py prepare-review --source-id SOURCE_UUID --revision REVISION --json
+python scripts/documents.py review-status --review-id REVIEW_UUID --json
+python scripts/documents.py promote --review-id REVIEW_UUID --approved-digest APPROVED_DIGEST --json
+```
+
+The first command prepares an editable private copy with a new public ID. Inspect its text and every
+image, removing anything that must remain local. After editing, `review-status` reports the current
+digest and file list. Authorize that exact copy before running `promote`: knowing a digest does not
+establish human permission.
+
+Promotion checks all filenames and bytes, preserves partial-extraction warnings and rejects private
+file links or absolute paths. A copy may contain one Markdown note and raster images, up to 2,000 files
+and 500 MiB. HTML and autolinks outside code examples are rejected; use `[label](destination)` without
+angle brackets around the destination. The result enters `vault/sources/`; the command never stages, commits or pushes it. A shared
+feature can then link to the published source. The original-to-copy mapping remains local. Later changes
+to the original do not alter the prepared copy.
+
+This process does not anonymize content: a name within a paragraph or image still requires human
+review. Inspect the diff and run `vault.py check` before tracking the files.
+
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Failures and maintenance
 
-Repeated runs preserve existing files and render the project name only in newly copied guides. `--force` replaces managed templates/configurations, but preserves vault notes, `.env` and existing ignore rules. Review changes before using it.
+Repeated runs preserve existing files and render the project name only in newly copied guides. `--force` replaces managed templates, but preserves vault notes, `.env`, ignore rules, `.mcp.json`, `.codex/config.toml` and hook files. Compare and merge existing configurations. Review changes before using it.
 
 Invalid arguments exit with code 2. Dependency, path, manifest, tracked-env and divergent-skill checks fail before project copies. Existing humanizer must be a clean repository at the manifest commit; changes are preserved and require your decision. Failed downloads/checkouts never activate the incomplete skill. Plugin failures identify their stage and return nonzero. Earlier successful steps remain in place; resolve the cause and retry.
 
@@ -589,3 +976,5 @@ Tests use local Git, simulated network/plugin calls and an isolated temporary ho
 <p align="center">
   <img src="../assets/assinatura.svg" alt="☧ Ora et labora ☧ et coda" width="100%">
 </p>
+
+- Docling: [formatos e limites do fornecedor](https://docling-project.github.io/docling/usage/supported_formats/) · [versão usada](https://github.com/docling-project/docling/tree/v2.132.0).

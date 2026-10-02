@@ -1,0 +1,6 @@
+# Separate project-local runtime; never mutates the documents profile.
+-r docling.txt
+docling[asr]==2.132.0
+# The video pipeline is part of docling-slim. On Windows its optional
+# diarization extra requires webrtcvad/C++ tools; diarization is disabled here.
+docling-slim[format-video]==2.132.0; sys_platform != "win32"

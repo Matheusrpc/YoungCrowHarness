@@ -4,6 +4,7 @@
 pgdata/
 .runtime/
 .operacao-local/
+/vault/local/
 
 # caches
 __pycache__/
@@ -30,3 +31,5 @@ node_modules/
 .impeccable/questions/
 .impeccable/live/
 # impeccable-ignore-end
+/.operacao-local/docling/
+!.agents/skills/ingest-source/

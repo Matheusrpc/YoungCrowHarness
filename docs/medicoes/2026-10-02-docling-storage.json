@@ -1,0 +1,81 @@
+{
+  "doctor": {
+    "state": "ready",
+    "warnings": [],
+    "profile": "documents",
+    "docling": "2.132.0",
+    "python": "3.12.10",
+    "models": 50
+  },
+  "results": [
+    {
+      "format": ".docx",
+      "state": "ready",
+      "phrase_found": true,
+      "seconds": 16.09,
+      "warnings": [],
+      "coverage": {
+        "pages": []
+      },
+      "original_unchanged": true,
+      "resumed": true
+    },
+    {
+      "format": ".html",
+      "state": "ready",
+      "phrase_found": true,
+      "seconds": 11.42,
+      "warnings": [],
+      "coverage": {
+        "pages": []
+      },
+      "original_unchanged": true,
+      "resumed": true
+    },
+    {
+      "format": ".pdf",
+      "state": "ready",
+      "phrase_found": true,
+      "seconds": 22.37,
+      "warnings": [],
+      "coverage": {
+        "pages": [
+          1
+        ]
+      },
+      "original_unchanged": true,
+      "resumed": true
+    },
+    {
+      "format": ".png",
+      "state": "ready",
+      "phrase_found": true,
+      "seconds": 25.3,
+      "warnings": [],
+      "coverage": {
+        "pages": [
+          1
+        ]
+      },
+      "original_unchanged": true,
+      "resumed": true
+    }
+  ],
+  "vault": {
+    "schema_version": 1,
+    "notes_checked": 13,
+    "issues": []
+  },
+  "interruption": {
+    "conversion_before_interruption": "ready",
+    "state_after_recovery": "pending",
+    "state_after_retry": "ready",
+    "same_source_id": true,
+    "phrase_found": true,
+    "vault": {
+      "schema_version": 1,
+      "notes_checked": 15,
+      "issues": []
+    }
+  }
+}

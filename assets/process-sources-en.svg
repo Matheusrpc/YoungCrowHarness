@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 980" width="1200" height="980" role="img" aria-labelledby="title desc" font-family="Georgia, serif">
+<title id="title">04 · Documents become project sources</title><desc id="desc">Short intake → local conversion → evidence → copy review</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#F3E7C6"/></marker></defs>
+<rect width="1200" height="980" fill="#17130f"/><rect x="12" y="12" width="1176" height="956" rx="10" fill="none" stroke="#725a35" stroke-width="2"/>
+<path d="M35 53L44 38L53 53L44 68Z" fill="#E8A317" stroke="#F3E7C6"/>
+<text x="68" y="57" text-anchor="start" font-size="29" fill="#F3E7C6" data-max-width="1070">
+<tspan x="68" dy="0">04 · Documents become project sources</tspan>
+</text>
+<text x="36" y="93" text-anchor="start" font-size="17" fill="#d6c8a8" data-max-width="1128">
+<tspan x="36" dy="0">Short intake → local conversion → evidence → copy review</tspan>
+</text>
+<path d="M83 190H130" fill="none" stroke="#F3E7C6" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M370 190H435" fill="none" stroke="#F3E7C6" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M565 190H720" fill="none" stroke="#F3E7C6" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M500 255V360H370" fill="none" stroke="#F3E7C6" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M900 235V315" fill="none" stroke="#F3E7C6" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M250 405V535H430" fill="none" stroke="#F3E7C6" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M900 405V460H650V490" fill="none" stroke="#F3E7C6" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M430 560H380V630H185" fill="none" stroke="#F3E7C6" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M650 580V650" fill="none" stroke="#F3E7C6" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M820 695H895" fill="none" stroke="#F3E7C6" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M960 760V825" fill="none" stroke="#F3E7C6" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M1025 695H1140V535H870" fill="none" stroke="#F3E7C6" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<circle cx="60" cy="190" r="23" fill="#1F7A4D" stroke="#F3E7C6" stroke-width="2"/>
+<rect x="130" y="145" width="240" height="90" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="250.0" y="182" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="216">
+<tspan x="250.0" dy="0">Receive reference</tspan>
+<tspan x="250.0" dy="27">Read indices and receipts</tspan>
+</text>
+<path d="M500 125L565 190L500 255L435 190Z" fill="#E8A317" stroke="#F3E7C6" stroke-width="2"/>
+<text x="500" y="184" text-anchor="middle" font-size="18" fill="#17130f" data-max-width="105">
+<tspan x="500" dy="0">Source</tspan>
+<tspan x="500" dy="27">accessible?</tspan>
+</text>
+<rect x="720" y="145" width="360" height="90" rx="9" fill="#F3E7C6" stroke="#E8A317" stroke-width="4"/>
+<text x="900.0" y="182" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="336">
+<tspan x="900.0" dy="0">Convert with Docling</tspan>
+<tspan x="900.0" dy="27">Keep source and revision</tspan>
+</text>
+<rect x="130" y="315" width="240" height="90" rx="9" fill="#F3E7C6" stroke="#B3202F" stroke-width="4"/>
+<text x="250.0" y="352" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="216">
+<tspan x="250.0" dy="0">Record pending input</tspan>
+<tspan x="250.0" dy="27">Request an accessible file</tspan>
+</text>
+<rect x="720" y="315" width="360" height="90" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="900.0" y="352" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="336">
+<tspan x="900.0" dy="0">Check text and images</tspan>
+<tspan x="900.0" dy="27">Link evidence to the feature</tspan>
+</text>
+<rect x="430" y="490" width="440" height="90" rx="9" fill="#F3E7C6" stroke="#5B2E8A" stroke-width="4"/>
+<text x="650.0" y="527" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="416">
+<tspan x="650.0" dy="0">Update topic indices</tspan>
+<tspan x="650.0" dy="27">IDs, capabilities used and next action</tspan>
+</text>
+<circle cx="160" cy="630" r="23" fill="#1F7A4D" stroke="#F3E7C6" stroke-width="5"/>
+<text x="160" y="680" text-anchor="middle" font-size="19" fill="#F3E7C6">
+<tspan x="160" dy="0">Resume</tspan>
+</text>
+<rect x="480" y="650" width="340" height="90" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="650.0" y="687" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="316">
+<tspan x="650.0" dy="0">Review the copy</tspan>
+<tspan x="650.0" dy="27">Text, images and digest</tspan>
+</text>
+<path d="M960 630L1025 695L960 760L895 695Z" fill="#E8A317" stroke="#F3E7C6" stroke-width="2"/>
+<text x="960" y="689" text-anchor="middle" font-size="18" fill="#17130f" data-max-width="105">
+<tspan x="960" dy="0">Copy</tspan>
+<tspan x="960" dy="27">approved?</tspan>
+</text>
+<rect x="790" y="825" width="340" height="90" rx="9" fill="#F3E7C6" stroke="#1F7A4D" stroke-width="4"/>
+<text x="960.0" y="862" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="316">
+<tspan x="960.0" dy="0">Promote reviewed copy</tspan>
+<tspan x="960.0" dy="27">Git within authorized scope</tspan>
+</text>
+<text x="630" y="175" text-anchor="middle" font-size="18" fill="#F3E7C6">
+<tspan x="630" dy="0">Yes</tspan>
+</text>
+<text x="529" y="293" text-anchor="middle" font-size="18" fill="#F3E7C6">
+<tspan x="529" dy="0">No</tspan>
+</text>
+<text x="981" y="797" text-anchor="middle" font-size="18" fill="#F3E7C6">
+<tspan x="981" dy="0">Yes</tspan>
+</text>
+<text x="1090" y="682" text-anchor="middle" font-size="18" fill="#F3E7C6">
+<tspan x="1090" dy="0">No</tspan>
+</text>
+<text x="655" y="618" text-anchor="middle" font-size="17" fill="#d6c8a8" data-max-width="500">
+<tspan x="655" dy="0">When sharing an extraction</tspan>
+</text>
+<text x="36" y="947" text-anchor="start" font-size="17" fill="#d6c8a8" data-max-width="1128">
+<tspan x="36" dy="0">Local by default · Changed copy? Review and approve again · Graphify / claude-mem: pending</tspan>
+</text>
+</svg>

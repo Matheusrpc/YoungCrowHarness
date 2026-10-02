@@ -17,4 +17,7 @@ Conhecimento durável do projeto / durable project knowledge.
 Comece pelo microíndice da frente. Registre decisões e evidências; siga os links, sem carregar todo o vault no contexto.
 Start with the topic index. Follow relevant links instead of loading the whole vault.
 
+Quando existir, consulte também `local/index.md`: fontes locais não acompanham clones.
+When present, also consult `local/index.md`: local sources do not travel with clones.
+
 Abra esta pasta como vault no Obsidian, ou navegue pelos mesmos links no GitHub.

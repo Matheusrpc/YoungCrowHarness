@@ -31,6 +31,7 @@ ideia até uma entrega verificada. Pode iniciar um projeto ou ser adotado em có
 O `personalizer` ajuda a definir o produto e registrar a primeira feature. O especialista em
 integrações consulta a documentação do fornecedor e mantém o histórico da implementação. As notas
 ligam decisões, capacidades usadas e evidências para outra sessão conseguir continuar o trabalho.
+O `ingest-source` conduz documentos e mídia até o vault local, com origem, revisão e vínculos de evidência.
 
 **Navegue:** [arquitetura](#arquitetura-pt) · [começar ou migrar](#setup-pt) · [processo](#processo-pt) ·
 [memória](#memoria-pt) · [próximas entregas](#evolucao-pt).
@@ -44,7 +45,7 @@ O agente consulta o vault, executa o trabalho autorizado e registra o resultado.
 organizam e verificam as notas; credenciais, confiança e permissões continuam sob controle do cliente
 e do ambiente em que ele opera.
 
-![Arquitetura: Claude Code e Codex usam instruções e skills compartilhadas, registram entregas no vault e acessam MCPs configurados. Docling tem desenho aprovado e implementação pendente; Graphify e claude-mem são adaptadores planejados.](assets/architecture-pt.svg)
+![Arquitetura: Claude Code e Codex usam instruções e skills compartilhadas, registram entregas no vault e acessam MCPs configurados. Docling guarda documentos, áudio, vídeo e revisões; Graphify e claude-mem são adaptadores planejados.](assets/architecture-pt.svg)
 
 [Abrir diagrama](assets/architecture-pt.svg) · [Decisões de arquitetura](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md)
 
@@ -55,7 +56,7 @@ e do ambiente em que ele opera.
 | Skills, agentes e MCPs | Encontrar capacidades, configurar acesso e registrar o que cada execução usou | Catálogo inicial e configurações disponíveis; governança completa ainda planejada |
 | Integrações | Consultar fontes oficiais e documentar implementação, testes e operação | `integration-specialist` e `integrate-from-docs` disponíveis nos dois clientes |
 | Vault | Guardar contexto, índices, referências e estados de desenvolvimento/produção | Markdown, criação de notas e validador disponíveis; conteúdo mantido pelo agente |
-| Ingestão com Docling | Converter fontes acessíveis em Markdown local e ligá-las ao trabalho | Desenho aprovado; implementação pendente |
+| Ingestão com Docling | Receber referências, converter fontes acessíveis e ligar evidências ao trabalho | CLI e skill compartilhada disponíveis; hook curto nos dois clientes; [cobertura real](docs/relatorios/2026-10-02-docling-ingestion.md) |
 | Graphify e claude-mem | Facilitar descoberta e recuperação a partir dos registros do vault | Adaptadores planejados; sem sincronização automática |
 
 O [catálogo de capacidades](vault/capabilities/index.md) reúne as entradas das skills e do especialista.
@@ -81,7 +82,8 @@ Instala a skill `humanizer` do upstream (commit pinado) e a `humanizer-ptbr`: em
 e `.agents/skills/` no projeto para Codex. Use `--client claude`, `--client codex` ou `--client both` (padrão). E,
 se o Claude Code estiver instalado, adiciona os marketplaces e instala os plugins listados em
 `skills-lock.json`. Rode com `--sem-plugins` para pular essa última parte, ou com `--force` para trocar
-os templates que já existem. `.env` e as regras existentes de `.gitignore` são preservados mesmo com force.
+os templates que já existem. Vault, `.env`, regras de `.gitignore` e configurações de clientes/MCPs
+são preservados mesmo com `--force`. Compare as configurações com os novos templates e mescle as entradas desejadas.
 As skills dos clientes selecionados continuam com `--sem-plugins`; as do Claude afetam o usuário.
 O modo Codex não chama o Claude. Plugins do Codex são instalados pelo catálogo do próprio cliente.
 Humanizer divergente ou modificado é preservado e interrompe o setup; falhas de instalação retornam código não zero.
@@ -130,6 +132,12 @@ agentes executam as etapas. PM e Tech Lead são responsabilidades, sem orquestra
 
 [Como operar](docs/USAGE.md#operar-pt) · [Abrir diagrama](assets/process-delivery-pt.svg) · [Fluxo completo com pausas e retomada](docs/PROCESS.md#portugues)
 
+### 4. Incorporar documentos e retomar suas fontes
+
+![Fontes: receber referência, recuperar índices, converter quando acessível, guardar pendência quando não, conferir extração e ligar evidência à feature. Publicação exige revisão e aprovação da cópia exata.](assets/process-sources-pt.svg)
+
+[Preparar Docling e operar nos clientes](docs/USAGE.md#fontes-pt) · [Abrir diagrama](assets/process-sources-pt.svg)
+
 Cada entrega atualiza o README com revisão de texto por `humanizer`. O vault guarda fontes, decisões,
 capacidades usadas, testes e próximo passo. Produção exige evidência do ambiente. Uma publicação
 fora do escopo fica como não aplicável; se faltar autorização, salve a pendência para a próxima sessão.
@@ -148,14 +156,28 @@ execução informa agentes, skills e MCPs realmente usados, o resultado e a pró
 e produção têm estados separados: código presente ou teste local não comprovam uma publicação.
 O validador confere a estrutura dessas referências; ele não certifica a veracidade das notas.
 
-O desenho aprovado do Docling acrescenta uma área `vault/local/`, ignorada pelo Git, para documentos
-convertidos, transcrições, imagens e seus índices. Originais e recibos ficarão em
-`.operacao-local/docling/`. Somente uma cópia revisada poderá entrar na área compartilhada
-`vault/sources/`. **Essas áreas e proteções de ingestão ainda não são criadas pelo setup atual.**
+A ingestão com Docling guarda documentos convertidos, imagens e índices em `vault/local/`, ignorada
+pelo Git. Originais e recibos ficam em
+`.operacao-local/docling/`. Uma cópia revisada pode entrar na área compartilhada
+`vault/sources/`. O validador já reconhece o índice local e recusa referências públicas a arquivos
+privados. O helper de armazenamento prepara e verifica o ignore antes de escrever. O ambiente
+Docling tem [setup opt-in e diagnóstico local](docs/USAGE.md#docling-pt). A conversão foi verificada com
+PDF, DOCX, HTML e uma imagem de página, além da aquisição e conversão de um PDF público por URL.
+Cada conexão valida o destino; downloads têm limites de tamanho e tempo. A revisão do texto extraído continua necessária.
+Na nota extraída, referências Markdown por rótulo viram texto legível; imagens ativas precisam ser
+arquivos locais validados. A cópia pública recusa HTML e autolinks. Se a gravação do cache for
+interrompida, a próxima ingestão preserva a extração incompleta e tenta novamente.
 
-Os vínculos deverão preservar origem e revisão, inclusive quando um documento fundamentar uma feature
-ou contradizer outra fonte. A captura de anexos depende do que cada cliente expõe; entradas inacessíveis
-ficarão como pendências. O [contrato de ingestão](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
+O perfil opcional de mídia usa Whisper Base local. A prova com WAV e MP4 preservou a frase falada,
+os intervalos da transcrição e três quadros amostrados. Um vídeo sem áudio manteve as imagens e
+o aviso de extração parcial. Os formatos, limites e comandos estão no [guia de uso](docs/USAGE.md#docling-pt).
+
+Os vínculos locais registram a revisão usada e um trecho de evidência para relacionar a fonte a features
+ou decisões. Contradições começam como hipóteses; o sentido da relação precisa ser revisado.
+O hook `UserPromptSubmit` registra referências textuais e chama a atenção do agente para `ingest-source`.
+Ele não baixa nem converte documentos. A skill recupera fontes anteriores, executa a ingestão e registra
+relações, capacidades usadas e próxima ação. Anexos sem caminho exposto ficam pendentes; invoque a skill
+explicitamente quando o cliente não entregar a referência ao hook. O [contrato de ingestão](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
 define esse comportamento. Material local não acompanha clones e precisará de backup privado para
 uso entre máquinas. Graphify e claude-mem, quando integrados, deverão apontar de volta às notas e revisões.
 
@@ -164,12 +186,12 @@ uso entre máquinas. Graphify e claude-mem, quando integrados, deverão apontar 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> Próximas entregas
 
 O desenho do Docling foi aprovado. O [plano de execução](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
-divide a implementação em quatro entregas; nenhuma delas está disponível ainda:
+registra quatro entregas e sua cobertura:
 
-1. Converter documentos locais e guardar Markdown, origem e revisão com proteção contra versionamento acidental.
-2. Relacionar fontes a features e decisões, preservar histórico e preparar publicação revisada.
-3. Processar áudio, vídeo e URLs acessíveis, registrando cobertura, limites e falhas.
-4. Validar ingestão e retomada em sessões reais de Claude Code e Codex.
+1. Verificado: documentos locais, Markdown, origem, revisões e retomada após interrupção, com proteção contra versionamento acidental.
+2. Verificado: vínculos com evidência, cópias para revisão e publicação local sem expor a proveniência privada.
+3. Verificado: URLs diretas, áudio e vídeo, com intervalos de transcrição, quadros, limites e falhas registrados.
+4. Codex: ingestão e retomada verificadas em duas sessões reais. Claude Code: descoberta verificada; conversa real pendente de login. Veja a [matriz e os limites](docs/relatorios/2026-10-02-docling-ingestion.md).
 
 Os adaptadores de memória e a orquestração autônoma de papéis seguem na
 [evolução do produto](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
@@ -181,7 +203,7 @@ Os adaptadores de memória e a orquestração autônoma de papéis seguem na
 | `CLAUDE.md` | O guia que o Claude Code lê no início de cada sessão: dez leis de trabalho, alvos de publicação, comandos e fronteiras. Em português. |
 | `docs/CLAUDE.en.md` | O mesmo guia em inglês. Fique com um dos dois. |
 | `AGENTS.md` | A entrada do Codex: lê o `CLAUDE.md` primeiro, um executor escreve por vez, revisores só leem, e o navegador fecha ao terminar. |
-| `.claude/settings.json` | Hooks do Claude Code. Chamam o detector de design do plugin `impeccable` depois de cada edição, só se ele estiver instalado. |
+| `.claude/settings.json` | Entrada curta para referências de documentos; hooks de design de `impeccable` quando instalado. |
 | `.codex/hooks.json` | Os mesmos hooks, no formato do Codex. |
 | `.codex/config.toml` | MCPs do Codex no escopo do projeto. Exemplos desativados até revisão; exige confiança do projeto. |
 | `.mcp.json` | Atalhos de MCP com URLs de exemplo. Nunca ponha token aqui; o token vai por variável de ambiente. |
@@ -191,6 +213,9 @@ Os adaptadores de memória e a orquestração autônoma de papéis seguem na
 | `skills/humanizer-ptbr/` | Juiz de texto em português: 25 padrões de escrita de máquina e como reescrever. |
 | `skills/personalizer/` | Entrevista retomável, auditoria guiada e adaptação do projeto. |
 | `skills/integrate-from-docs/` | Documentação oficial, implementação e histórico de integrações. |
+| `skills/ingest-source/` | Recuperação de fontes, ingestão, vínculos com evidência e publicação revisada. |
+| `scripts/documents.py` | Setup opcional do Docling, conversão local, recibos e revisão de cópias. |
+| `scripts/source_prompt.py` | Registra referências recebidas pelo hook, sem rede ou conversão. |
 | `vault/` | Índice geral e capacidades; produto, features, decisões e operação crescem conforme o uso. |
 | `scripts/personalize.py` | Cria os registros de personalização e a primeira feature sem substituir notas. |
 | `scripts/integrations.py` | Cria notas de fornecedores e exporta registros com identidade e revisão. |
@@ -237,6 +262,7 @@ verified delivery. Use it for a new product or adopt it in an existing codebase.
 The `personalizer` helps define the product and record its first feature. The integration specialist
 consults vendor documentation and keeps an implementation history. Notes link decisions, capabilities
 used and evidence so another session can continue the work.
+The `ingest-source` skill brings documents and media into the local vault with source identity, revisions and evidence links.
 
 **Navigate:** [architecture](#architecture-en) · [setup and adoption](#setup-en) · [process](#process-en) ·
 [memory](#memory-en) · [next deliveries](#roadmap-en).
@@ -249,7 +275,7 @@ Both clients use shared instructions and skills through their own native entries
 the vault, performs authorized work and records the result. Local commands organize and check notes;
 credentials, trust and permissions remain controlled by the client and its execution environment.
 
-![Architecture: Claude Code and Codex use shared instructions and skills, record deliveries in the vault and access configured MCPs. Docling has an approved design with implementation pending; Graphify and claude-mem are planned adapters.](assets/architecture-en.svg)
+![Architecture: Claude Code and Codex use shared instructions and skills, record deliveries in the vault and access configured MCPs. Docling stores documents, audio, video and revisions; Graphify and claude-mem are planned adapters.](assets/architecture-en.svg)
 
 [Open diagram](assets/architecture-en.svg) · [Architecture decisions](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md)
 
@@ -260,7 +286,7 @@ credentials, trust and permissions remain controlled by the client and its execu
 | Skills, agents and MCPs | Discover capabilities, configure access and record actual use | Initial catalog and configuration available; full governance remains planned |
 | Integrations | Consult official sources and document implementation, tests and operation | `integration-specialist` and `integrate-from-docs` available in both clients |
 | Vault | Keep context, indices, references and development/production states | Markdown, note creation and validation available; the agent maintains content |
-| Docling ingestion | Convert accessible sources into local Markdown linked to the work | Design approved; implementation pending |
+| Docling ingestion | Receive references, convert accessible sources and link evidence to work | CLI and shared skill available; short hook in both clients; [observed coverage](docs/relatorios/2026-10-02-docling-ingestion.md) |
 | Graphify and claude-mem | Support discovery and retrieval from vault records | Planned adapters; no automatic synchronization |
 
 The [capability catalog](vault/capabilities/index.md) links to the skills and integration specialist.
@@ -286,7 +312,8 @@ by hand. It installs the `humanizer` skill from upstream (pinned commit) and `hu
 `~/.claude/skills/` for Claude and project-local `.agents/skills/` for Codex. Choose `--client claude`,
 `--client codex` or `--client both` (default). For Claude, it adds the marketplaces and installs the plugins
 listed in `skills-lock.json`. Run it with `--no-plugins` to skip that last part, or with `--force` to
-replace existing templates. `.env` and existing ignore rules are preserved even with force.
+replace existing templates. Vault notes, `.env`, ignore rules and client/MCP configurations are
+preserved even with `--force`. Compare configurations with the new templates and merge the desired entries.
 Selected clients' skills still install with `--no-plugins`; Claude installations affect the user.
 Codex-only mode does not call Claude. Install Codex plugins through its own catalog.
 A dirty or mismatched humanizer is preserved and blocks setup; installation failures return nonzero.
@@ -336,6 +363,12 @@ the steps. PM and Tech Lead are responsibilities, without autonomous orchestrati
 
 [Daily operation](docs/USAGE.md#operate-en) · [Open diagram](assets/process-delivery-en.svg) · [Full flow with pauses and resumption](docs/PROCESS.md#english)
 
+### 4. Bring in documents and recover their sources
+
+![Sources: receive a reference, recover indices, convert accessible input, keep inaccessible input pending, check extraction and link evidence to the feature. Publication requires review and approval of the exact copy.](assets/process-sources-en.svg)
+
+[Prepare Docling and use it in both clients](docs/USAGE.md#sources-en) · [Open diagram](assets/process-sources-en.svg)
+
 Each delivery updates the README with `humanizer` prose review. The vault keeps sources, decisions,
 capabilities used, tests and the next action. Production requires environment evidence. Mark a
 release outside scope as not applicable; when authorization is missing, save it as pending for a later session.
@@ -354,14 +387,28 @@ record names the agents, skills and MCPs actually used, the result and the next 
 and production have separate states: code or a local test does not prove a release. The validator
 checks reference structure; it does not certify the truth of a note.
 
-The approved Docling design adds a Git-ignored `vault/local/` area for converted documents,
-transcripts, images and their indices. Originals and receipts will live in `.operacao-local/docling/`.
-Only a reviewed copy may enter the shared `vault/sources/` area. **The current setup does not yet
-create these areas or enforce ingestion protections.**
+Docling ingestion stores converted documents, images and indices in the Git-ignored `vault/local/`
+area. Originals and receipts live in `.operacao-local/docling/`.
+A reviewed copy can enter the shared `vault/sources/` area. The validator recognizes the local
+index and rejects public references to private files. The storage helper prepares and verifies
+ignore rules before writing. Docling has [opt-in setup and local diagnostics](docs/USAGE.md#docling-en);
+conversion was verified with PDF, DOCX, HTML and a page image, plus acquisition and conversion of a
+public PDF URL. Each connection validates its destination; downloads have size and time limits.
+Extracted text still needs review.
+In extracted notes, reference-style Markdown links become readable text; active images must be
+validated local files. Public copies reject HTML and autolinks. If a cache write is interrupted,
+the next ingestion preserves the incomplete extraction and retries.
 
-Links will preserve source and revision, including when a document supports a feature or contradicts
-another source. Attachment capture depends on what each client exposes; inaccessible inputs will
-remain pending. The [ingestion contract](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
+The optional media profile uses local Whisper Base. WAV and MP4 tests preserved the spoken phrase,
+transcript intervals and three sampled frames. A video without audio retained its images and a
+partial-extraction warning. See the [usage guide](docs/USAGE.md#docling-en) for formats, limits and commands.
+
+Local relations record the source revision and a supporting quote to link it to features or decisions.
+Contradictions start as hypotheses; the meaning of a relationship still needs review.
+The `UserPromptSubmit` hook records textual references and directs the agent to `ingest-source`.
+It does not download or convert documents. The skill recovers prior sources, performs ingestion and
+records relations, actual capabilities and the next action. Attachments without an exposed path stay
+pending; invoke the skill explicitly when the client does not pass a reference to the hook. The [ingestion contract](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
 defines that behavior. Local material does not travel with clones and needs a private backup for use
 across machines. Future Graphify and claude-mem adapters must point back to the source notes and revisions.
 
@@ -370,12 +417,12 @@ across machines. Future Graphify and claude-mem adapters must point back to the 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> Next deliveries
 
 The Docling design is approved. The [implementation plan](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
-splits the work into four deliveries; none is available yet:
+records four deliveries and their coverage:
 
-1. Convert local documents and store Markdown, origin and revision with protection against accidental tracking.
-2. Link sources to features and decisions, preserve history and prepare reviewed publication.
-3. Process audio, video and accessible URLs, recording coverage, limits and failures.
-4. Verify ingestion and resumption in real Claude Code and Codex sessions.
+1. Verified: local documents, Markdown, origin, revisions and resumption after interruption, protected against accidental tracking.
+2. Verified: evidence-backed relations, review copies and local publication without private provenance.
+3. Verified: direct URLs, audio and video, with transcript intervals, frames, limits and failures recorded.
+4. Codex: ingestion and recovery verified in two real sessions. Claude Code: discovery verified; live conversation pending login. See the [matrix and limits](docs/relatorios/2026-10-02-docling-ingestion.md).
 
 Memory adapters and autonomous role orchestration remain in the
 [product roadmap](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
@@ -387,7 +434,7 @@ Memory adapters and autonomous role orchestration remain in the
 | `CLAUDE.md` | The guide Claude Code reads at the start of every session: ten working laws, publication targets, commands and boundaries. In Portuguese. |
 | `docs/CLAUDE.en.md` | The same guide in English. Keep one of the two. |
 | `AGENTS.md` | The Codex entry point: read `CLAUDE.md` first, one writer at a time, reviewers only read, and the browser closes when the task ends. |
-| `.claude/settings.json` | Claude Code hooks. They call the `impeccable` plugin's design detector after each edit, only if it is installed. |
+| `.claude/settings.json` | Short document-reference intake hook; `impeccable` design hooks when installed. |
 | `.codex/hooks.json` | The same hooks, in Codex format. |
 | `.codex/config.toml` | Project-scoped Codex MCP servers. Examples start disabled for review; project trust is required. |
 | `.mcp.json` | MCP shortcuts with example URLs. Never put a token here; tokens travel through environment variables. |
@@ -397,6 +444,9 @@ Memory adapters and autonomous role orchestration remain in the
 | `skills/humanizer-ptbr/` | A text judge for Brazilian Portuguese: 25 patterns of machine writing and how to rewrite them. |
 | `skills/personalizer/` | Resumable interview, agent-led audit and project adoption. |
 | `skills/integrate-from-docs/` | Official sources, implementation and integration history. |
+| `skills/ingest-source/` | Source recovery, ingestion, evidence links and reviewed publication. |
+| `scripts/documents.py` | Optional Docling setup, local conversion, receipts and copy review. |
+| `scripts/source_prompt.py` | Records hook references without network access or conversion. |
 | `vault/` | General and capability indices; product, feature, decision and operation records grow as needed. |
 | `scripts/personalize.py` | Creates onboarding and feature records without replacing notes. |
 | `scripts/integrations.py` | Creates vendor records and exports identity/revision-addressed notes. |

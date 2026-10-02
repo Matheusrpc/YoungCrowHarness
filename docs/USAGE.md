@@ -475,6 +475,18 @@ a próxima ingestão converte novamente. Não é preciso apagar o cache para ret
 Na nota extraída, HTML, wikilinks e referências Markdown por rótulo ficam como texto legível.
 Links inline HTTP(S) continuam clicáveis; imagens inline só apontam para ativos locais validados.
 
+Em HTML, links como `/llms.txt`, `../guia` e `file:///arquivo` ficam como referências inativas
+no vault. O conversor recebe os bytes do original, sem tomar a pasta da cópia como origem da página.
+Ele não segue esses links nem baixa imagens, scripts ou outros recursos externos. Confira a URL
+de origem no registro privado da fonte quando precisar localizar uma referência relativa.
+
+Para retomar uma conversão HTML que falhou, atualize os scripts do harness e repita
+`ingest "pagina.html" --source-id UUID --json` com o original preservado, ou use a URL original
+para obter a versão disponível naquele momento. A mudança do adaptador gera uma nova revisão;
+recibos e originais anteriores permanecem guardados. Não é necessário reinstalar o Docling.
+Com o ambiente instalado, `python tests/smoke_docling_html.py` verifica texto, tabela, links e
+ausência de acesso aos recursos referenciados, usando apenas uma página sintética local.
+
 Use `ingest "arquivo" --source-id UUID --json` para atualizar uma fonte já registrada ou retomar
 uma pendência pelo ID. Uma falha conserva a revisão válida anterior. Uma extração `partial` recebe
 nota própria com aviso e continua disponível quando uma tentativa posterior termina. Notas editadas
@@ -1110,6 +1122,18 @@ the next ingestion converts again. You do not need to delete the cache to resume
 
 In extracted notes, HTML, wikilinks and reference-style Markdown links remain readable text.
 Inline HTTP(S) links stay clickable; inline images only point to validated local assets.
+
+In HTML, links such as `/llms.txt`, `../guide` and `file:///file` become inactive references
+in the vault. The converter receives the original bytes without treating the copy's folder as
+the page's origin. It does not follow these links or fetch images, scripts or other external
+resources. Check the source's private origin record when you need to locate a relative reference.
+
+To retry a failed HTML conversion, update the harness scripts and repeat
+`ingest "page.html" --source-id UUID --json` with the preserved original, or use the original URL
+to obtain the version available at that time. An adapter change creates a new revision; previous
+receipts and originals remain stored. You do not need to reinstall Docling. With the runtime
+installed, `python tests/smoke_docling_html.py` checks text, a table, links and absence of access
+to referenced resources, using only a local synthetic page.
 
 Use `ingest "file" --source-id UUID --json` to update a known source or resume a pending source by ID.
 A failed attempt preserves the previous valid revision. A `partial` extraction gets a separate note

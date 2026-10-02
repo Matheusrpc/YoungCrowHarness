@@ -195,6 +195,9 @@ privados. O helper de armazenamento prepara e verifica o ignore antes de escreve
 Docling tem [setup opt-in e diagnóstico local](docs/USAGE.md#docling-pt). A conversão foi verificada com
 PDF, DOCX, HTML e uma imagem de página, além da aquisição e conversão de um PDF público por URL.
 Cada conexão valida o destino; downloads têm limites de tamanho e tempo. A revisão do texto extraído continua necessária.
+HTML é convertido a partir dos bytes preservados, sem usar a pasta local como origem dos links.
+Referências como `/llms.txt` e `../guia` permanecem legíveis e inativas no vault; links HTTP(S)
+explícitos continuam clicáveis. A conversão não abre arquivos nem baixa recursos indicados pela página.
 Na nota extraída, referências Markdown por rótulo viram texto legível; imagens ativas precisam ser
 arquivos locais validados. A cópia pública recusa HTML e autolinks. Se a gravação do cache for
 interrompida, a próxima ingestão preserva a extração incompleta e tenta novamente.
@@ -493,6 +496,9 @@ ignore rules before writing. Docling has [opt-in setup and local diagnostics](do
 conversion was verified with PDF, DOCX, HTML and a page image, plus acquisition and conversion of a
 public PDF URL. Each connection validates its destination; downloads have size and time limits.
 Extracted text still needs review.
+HTML conversion uses the preserved bytes without treating the local folder as the origin of links.
+References such as `/llms.txt` and `../guide` remain readable and inactive in the vault; explicit
+HTTP(S) links stay clickable. Conversion does not open files or fetch resources referenced by the page.
 In extracted notes, reference-style Markdown links become readable text; active images must be
 validated local files. Public copies reject HTML and autolinks. If a cache write is interrupted,
 the next ingestion preserves the incomplete extraction and retries.

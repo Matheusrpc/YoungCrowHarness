@@ -245,9 +245,12 @@ registra quatro entregas e sua cobertura:
 
 A consulta Markdown, o Graphify opcional e a skill compartilhada estão implementados. O
 [plano de memória](docs/superpowers/plans/2026-10-02-memory-discovery.md) mantém a prova de cada
-cliente separada: Codex recuperou o handoff e reconheceu uma revisão alterada; a consulta Graphify
-no sandbox somente leitura recorreu ao Markdown. Claude Code tem descoberta verificada e conversa
-real pendente de login. M04 permanece parcial.
+cliente separada. Codex recuperou handoffs e reconheceu uma revisão alterada. A
+[rodada de continuidade](docs/relatorios/2026-10-02-memory-continuity.md) também revelou uma escrita
+auxiliar do Graphify que causava timeout no Windows com permissões restritas. O adaptador agora
+consulta sem alterar a geração do índice; a prova nativa passou mantendo o vault protegido.
+Ainda falta repetir a conversa real com essa correção. Claude Code tem descoberta verificada
+e conversa real pendente de login. M04 permanece parcial.
 O [relatório](docs/relatorios/2026-10-02-memory-discovery.md) registra o estado atual de M01–M04.
 A [governança de skills, agentes e MCPs](docs/superpowers/specs/2026-10-02-capability-governance-design.md)
 entrega catálogo verificável, auditoria offline, pacotes privados e uma skill comum aos dois clientes.
@@ -547,9 +550,12 @@ records four deliveries and their coverage:
 
 Markdown retrieval, optional Graphify and the shared skill are implemented. The
 [memory plan](docs/superpowers/plans/2026-10-02-memory-discovery.md) tracks each client separately:
-Codex recovered the handoff and recognized a changed revision; Graphify queries in its read-only
-sandbox fell back to Markdown. Claude Code discovery is verified; model conversation awaits login.
-M04 remains partial. The
+Codex recovered handoffs and recognized a changed revision. The
+[continuity round](docs/relatorios/2026-10-02-memory-continuity.md) also exposed an auxiliary Graphify
+write that timed out under restricted Windows permissions. The adapter now queries without changing
+the index generation; the native probe passed while keeping the vault protected. A real conversation
+with this fix remains to be tested. Claude Code discovery is verified; model conversation awaits
+login. M04 remains partial. The
 [report](docs/relatorios/2026-10-02-memory-discovery.md) records current M01–M04 evidence.
 [Skill, agent and MCP governance](docs/superpowers/specs/2026-10-02-capability-governance-design.md)
 provides a verifiable catalog, offline auditing, private review bundles and a shared skill.

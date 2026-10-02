@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" width="1200" height="750" role="img" aria-labelledby="title desc" font-family="Georgia, 'Times New Roman', serif">
+<title id="title">Arquitetura · do pedido à memória do projeto</title><desc id="desc">Clientes e skills compartilham o vault. Docling tem desenho aprovado; os adaptadores Graphify e claude-mem continuam planejados. Nenhuma das duas extensões está implementada.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#F3E7C6"/></marker></defs>
+<rect width="1200" height="750" fill="#17130f"/>
+<rect x="12" y="12" width="1176" height="726" rx="10" fill="none" stroke="#725a35" stroke-width="2"/>
+<path d="M35 53 L44 38 L53 53 L44 68 Z" fill="#1F4FA3" stroke="#F3E7C6"/>
+<text x="68" y="57" text-anchor="start" font-size="29" fill="#F3E7C6" data-max-width="1080">Arquitetura · do pedido à memória do projeto</text>
+<text x="36" y="93" text-anchor="start" font-size="17" fill="#d6c8a8" data-max-width="1128">Núcleo disponível e extensões com estado explícito</text>
+<rect x="40" y="132" width="280" height="110" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="3"/>
+<text x="180.0" y="161" text-anchor="middle" font-size="15" fill="#17130f" data-max-width="258">CLIENTES</text>
+<text x="180.0" y="189" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="258">Claude Code · Codex</text>
+<text x="180.0" y="217" text-anchor="middle" font-size="16" fill="#17130f" data-max-width="258">Entradas próprias por cliente</text>
+<rect x="400" y="132" width="400" height="110" rx="9" fill="#F3E7C6" stroke="#5B2E8A" stroke-width="3"/>
+<text x="600.0" y="161" text-anchor="middle" font-size="15" fill="#17130f" data-max-width="378">INSTRUÇÕES + SKILLS</text>
+<text x="600.0" y="189" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="378">personalizer · integrate-from-docs</text>
+<text x="600.0" y="217" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="378">Regras, contexto e trabalho autorizado</text>
+<rect x="880" y="132" width="280" height="110" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="3"/>
+<text x="1020.0" y="161" text-anchor="middle" font-size="15" fill="#17130f" data-max-width="258">CAPACIDADES</text>
+<text x="1020.0" y="189" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="258">Agentes · skills · MCPs</text>
+<text x="1020.0" y="217" text-anchor="middle" font-size="16" fill="#17130f" data-max-width="258">Configuração e acesso revisados</text>
+<rect x="40" y="348" width="280" height="135" rx="9" fill="#17130f" stroke="#E8A317" stroke-width="3" stroke-dasharray="9 7"/>
+<text x="180.0" y="377" text-anchor="middle" font-size="15" fill="#F3E7C6" data-max-width="258">DESENHO APROVADO</text>
+<text x="180.0" y="405" text-anchor="middle" font-size="19" fill="#F3E7C6" data-max-width="258">Docling</text>
+<text x="180.0" y="433" text-anchor="middle" font-size="16" fill="#F3E7C6" data-max-width="258">Documentos · áudio · vídeo</text>
+<text x="180.0" y="461" text-anchor="middle" font-size="16" fill="#F3E7C6" data-max-width="258">Implementação pendente</text>
+<rect x="380" y="348" width="440" height="135" rx="9" fill="#F3E7C6" stroke="#5B2E8A" stroke-width="3"/>
+<text x="600.0" y="377" text-anchor="middle" font-size="15" fill="#17130f" data-max-width="418">VAULT · MARKDOWN</text>
+<text x="600.0" y="405" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="418">Índice geral → microíndices</text>
+<text x="600.0" y="433" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="418">Fontes · features · decisões · execuções</text>
+<text x="600.0" y="461" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="418">Retomar contexto e registrar resultados</text>
+<rect x="880" y="348" width="280" height="135" rx="9" fill="#17130f" stroke="#725a35" stroke-width="3" stroke-dasharray="9 7"/>
+<text x="1020.0" y="377" text-anchor="middle" font-size="15" fill="#F3E7C6" data-max-width="258">PLANEJADO</text>
+<text x="1020.0" y="405" text-anchor="middle" font-size="19" fill="#F3E7C6" data-max-width="258">Graphify · claude-mem</text>
+<text x="1020.0" y="433" text-anchor="middle" font-size="16" fill="#F3E7C6" data-max-width="258">Índices derivados do vault</text>
+<text x="1020.0" y="461" text-anchor="middle" font-size="16" fill="#F3E7C6" data-max-width="258">Adaptadores pendentes</text>
+<rect x="380" y="574" width="440" height="110" rx="9" fill="#F3E7C6" stroke="#1F7A4D" stroke-width="3"/>
+<text x="600.0" y="603" text-anchor="middle" font-size="15" fill="#17130f" data-max-width="418">ENTREGA VERIFICADA</text>
+<text x="600.0" y="631" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="418">Definir → implementar → revisar</text>
+<text x="600.0" y="659" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="418">Publicar no escopo e registrar evidência</text>
+<path d="M320 187 H390" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M810 187 H870" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<path d="M600 252 V338" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<path d="M320 415 H370" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)" stroke-dasharray="8 7"/>
+<path d="M830 415 H870" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)" stroke-dasharray="8 7" marker-start="url(#arrow)"/>
+<path d="M600 493 V564" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<text x="36" y="718" text-anchor="start" font-size="18" fill="#d6c8a8" data-max-width="1128">Tracejado: extensão ainda não implementada. Conteúdo do vault é mantido pelo agente.</text>
+</svg>

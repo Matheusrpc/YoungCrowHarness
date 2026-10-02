@@ -26,6 +26,7 @@ O primeiro incremento melhora a confiabilidade do instalador atual. As demais fr
 | R10 | Avaliar Graphify e claude-mem para descoberta e continuidade de trabalho. |
 | R11 | Manter o núcleo reutilizável, com configuração específica para cada projeto. |
 | R12 | Reservar uma área do vault para integrações por fornecedor, com agente e skill especializados em implementar conforme documentação oficial, registrar evidências e permitir recuperação via índices e adaptadores de memória. |
+| R13 | Ingerir documentos e referências acessíveis com Docling, incluindo áudio e vídeo suportados, preservar Markdown e origem no vault local e relacionar fontes, features e decisões. O conteúdo só pode ser versionado após revisão. |
 
 ## Escolhas propostas para esta direção
 
@@ -153,6 +154,8 @@ Uma automação de CI executará essa suíte em Linux. A verificação local com
 | 6 | Esteira e exemplo público | Uma feature percorre definição, entrega, revisão e publicação autorizada com evidências. |
 
 Essa sequência organiza o produto. O [plano do instalador](../plans/2026-10-01-installer-reliability.md) registra o primeiro incremento. As demais frentes terão contratos próprios; o contrato de integrações acrescenta R12 sem acoplar sua implementação às correções já entregues do instalador.
+
+O mantenedor acrescentou R13 e escolheu armazenamento local com publicação revisada. O [desenho aprovado de ingestão com Docling](2026-10-02-docling-ingestion-design.md) detalha o fluxo, a privacidade e as relações entre fontes. O [plano de execução](../plans/2026-10-02-docling-ingestion.md) divide o trabalho em entregas; conversão e captura nos clientes ainda não foram implementadas.
 
 O [contrato do personalizer](2026-10-02-personalizer-design.md) cobre a frente 4 e acrescenta índices de produto, features, decisões e operação à frente 2. A skill conduz a entrevista e a auditoria; o comando cria e preserva os registros. O [relatório do piloto](../../relatorios/2026-10-02-personalizer.md) registra a retomada de uma entrevista e uma entrega local. Esse ensaio não valida publicação em produção nem encerra as frentes 3, 5 e 6.
 

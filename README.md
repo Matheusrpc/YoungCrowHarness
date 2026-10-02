@@ -24,23 +24,46 @@
 
 ## <img src="assets/gema-cobalto.svg" height="24" alt=""> O que é
 
-Um ponto de partida para projetos feitos com Claude Code e Codex. Você clona, roda um comando, e o
-projeto novo já nasce com as regras da casa, os hooks, os atalhos de MCP e as skills que valem a pena.
-Senhas, tokens e chaves devem ficar no ambiente local. O instalador protege o `.env` com uma regra
-de ignore e recusa um `.env` já rastreado; revise também os demais arquivos antes de versionar.
+Um harness reutilizável para desenvolvedores e pequenos times que trabalham com Claude Code e Codex.
+Reúne instruções de trabalho, skills, configurações de MCP e um vault em Markdown para levar uma
+ideia até uma entrega verificada. Pode iniciar um projeto ou ser adotado em código existente.
 
-O corvo do vitral é o mascote. Ele carrega uma medalha de São Bento, e o lema está na assinatura, no
-fim desta página.
+O `personalizer` ajuda a definir o produto e registrar a primeira feature. O especialista em
+integrações consulta a documentação do fornecedor e mantém o histórico da implementação. As notas
+ligam decisões, capacidades usadas e evidências para outra sessão conseguir continuar o trabalho.
 
-O `personalizer` ajuda a adaptar o harness ao seu produto: lê o projeto, pergunta o que falta,
-registra as decisões e prepara a primeira feature. A entrevista fica no [vault](vault/index.md),
-junto das entregas, integrações e evidências que permitem retomar o trabalho em outra sessão.
-Para fornecedores, `integration-specialist` e `integrate-from-docs` orientam a implementação a partir
-da documentação oficial. As duas skills funcionam com Claude Code e Codex.
+**Navegue:** [arquitetura](#arquitetura-pt) · [começar ou migrar](#setup-pt) · [processo](#processo-pt) ·
+[memória](#memoria-pt) · [próximas entregas](#evolucao-pt).
 
-A entrevista e a auditoria são conduzidas pelo agente. Os comandos organizam as notas e preservam
-o conteúdo existente. A sincronização automática com Graphify/claude-mem e a orquestração autônoma
-de papéis continuam na [evolução planejada](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
+<a id="arquitetura-pt"></a>
+
+## <img src="assets/gema-turquesa.svg" height="24" alt=""> Arquitetura e estado atual
+
+Os dois clientes usam instruções e skills compartilhadas, com entradas próprias para cada ambiente.
+O agente consulta o vault, executa o trabalho autorizado e registra o resultado. Os comandos locais
+organizam e verificam as notas; credenciais, confiança e permissões continuam sob controle do cliente
+e do ambiente em que ele opera.
+
+![Arquitetura: Claude Code e Codex usam instruções e skills compartilhadas, registram entregas no vault e acessam MCPs configurados. Docling tem desenho aprovado e implementação pendente; Graphify e claude-mem são adaptadores planejados.](assets/architecture-pt.svg)
+
+[Abrir diagrama](assets/architecture-pt.svg) · [Decisões de arquitetura](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md)
+
+| Camada | Responsabilidade | Estado |
+|---|---|---|
+| Claude Code e Codex | Ler as regras, descobrir skills e usar a configuração do cliente escolhido | Instalador e descoberta verificados; veja a [matriz de testes](#verificacao) |
+| Personalização | Entrevistar, auditar um projeto existente e preparar perfil e primeira feature | `personalizer` e registros locais disponíveis; entrevista conduzida pelo agente |
+| Skills, agentes e MCPs | Encontrar capacidades, configurar acesso e registrar o que cada execução usou | Catálogo inicial e configurações disponíveis; governança completa ainda planejada |
+| Integrações | Consultar fontes oficiais e documentar implementação, testes e operação | `integration-specialist` e `integrate-from-docs` disponíveis nos dois clientes |
+| Vault | Guardar contexto, índices, referências e estados de desenvolvimento/produção | Markdown, criação de notas e validador disponíveis; conteúdo mantido pelo agente |
+| Ingestão com Docling | Converter fontes acessíveis em Markdown local e ligá-las ao trabalho | Desenho aprovado; implementação pendente |
+| Graphify e claude-mem | Facilitar descoberta e recuperação a partir dos registros do vault | Adaptadores planejados; sem sincronização automática |
+
+O [catálogo de capacidades](vault/capabilities/index.md) reúne as entradas das skills e do especialista.
+O `skills-lock.json` registra origens; o setup verifica o commit de `humanizer`, mas ainda não fixa
+versões dos plugins de marketplace. MCPs exigem revisão de configuração e acesso. Uma capacidade
+instalada não comprova autorização nem uso; cada execução deve registrar as capacidades utilizadas.
+
+<a id="setup-pt"></a>
 
 ## <img src="assets/gema-rubi.svg" height="24" alt=""> Começar em um comando
 
@@ -111,6 +134,46 @@ Cada entrega atualiza o README com revisão de texto por `humanizer`. O vault gu
 capacidades usadas, testes e próximo passo. Produção exige evidência do ambiente. Uma publicação
 fora do escopo fica como não aplicável; se faltar autorização, salve a pendência para a próxima sessão.
 
+<a id="memoria-pt"></a>
+
+## <img src="assets/gema-violeta.svg" height="24" alt=""> Memória que continua entre sessões
+
+A entrada é [vault/index.md](vault/index.md). Dela, o agente segue o microíndice do tema e abre apenas
+as notas necessárias. Produto, features, decisões e operação são criados conforme o uso; integrações
+têm uma área própria para fontes, implementação e execuções. Os mesmos Markdowns podem ser lidos
+no repositório ou abertos como um vault no Obsidian.
+
+Uma feature deve ligar o problema às fontes, decisões, pequenas entregas e evidências. O registro de
+execução informa agentes, skills e MCPs realmente usados, o resultado e a próxima ação. Desenvolvimento
+e produção têm estados separados: código presente ou teste local não comprovam uma publicação.
+O validador confere a estrutura dessas referências; ele não certifica a veracidade das notas.
+
+O desenho aprovado do Docling acrescenta uma área `vault/local/`, ignorada pelo Git, para documentos
+convertidos, transcrições, imagens e seus índices. Originais e recibos ficarão em
+`.operacao-local/docling/`. Somente uma cópia revisada poderá entrar na área compartilhada
+`vault/sources/`. **Essas áreas e proteções de ingestão ainda não são criadas pelo setup atual.**
+
+Os vínculos deverão preservar origem e revisão, inclusive quando um documento fundamentar uma feature
+ou contradizer outra fonte. A captura de anexos depende do que cada cliente expõe; entradas inacessíveis
+ficarão como pendências. O [contrato de ingestão](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
+define esse comportamento. Material local não acompanha clones e precisará de backup privado para
+uso entre máquinas. Graphify e claude-mem, quando integrados, deverão apontar de volta às notas e revisões.
+
+<a id="evolucao-pt"></a>
+
+## <img src="assets/gema-ambar.svg" height="24" alt=""> Próximas entregas
+
+O desenho do Docling foi aprovado. O [plano de execução](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
+divide a implementação em quatro entregas; nenhuma delas está disponível ainda:
+
+1. Converter documentos locais e guardar Markdown, origem e revisão com proteção contra versionamento acidental.
+2. Relacionar fontes a features e decisões, preservar histórico e preparar publicação revisada.
+3. Processar áudio, vídeo e URLs acessíveis, registrando cobertura, limites e falhas.
+4. Validar ingestão e retomada em sessões reais de Claude Code e Codex.
+
+Os adaptadores de memória e a orquestração autônoma de papéis seguem na
+[evolução do produto](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
+
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
 | Arquivo | Para que serve |
@@ -167,21 +230,45 @@ repositório é MIT.
 
 ## <img src="assets/gema-cobalto.svg" height="24" alt=""> What it is
 
-A starting point for projects built with Claude Code and Codex. Clone it, run one command, and the new
-project starts with the house rules, the hooks, the MCP shortcuts and the skills that earn their place.
-Passwords, tokens and keys belong in the local environment. Setup protects `.env` with an ignore rule
-and rejects a tracked `.env`; review other files before committing them as well.
+A reusable harness for developers and small teams working with Claude Code and Codex. It combines
+working instructions, skills, MCP configuration and a Markdown vault to take an idea through a
+verified delivery. Use it for a new product or adopt it in an existing codebase.
 
-The crow in the stained glass is the mascot. It wears a Saint Benedict medal, and the motto is in the
-signature at the end of this page.
+The `personalizer` helps define the product and record its first feature. The integration specialist
+consults vendor documentation and keeps an implementation history. Notes link decisions, capabilities
+used and evidence so another session can continue the work.
 
-The `personalizer` reads your project, asks about missing decisions and prepares its profile and first
-feature. Interviews, deliveries, integrations and evidence live in the [vault](vault/index.md), so a
-later session can resume from the saved records. For vendor work, `integration-specialist` and
-`integrate-from-docs` guide implementation from official documentation. Both skills support Claude Code and Codex.
+**Navigate:** [architecture](#architecture-en) · [setup and adoption](#setup-en) · [process](#process-en) ·
+[memory](#memory-en) · [next deliveries](#roadmap-en).
 
-The agent conducts the interview and adoption audit. Commands organize notes and preserve existing
-content. Automatic Graphify/claude-mem synchronization and autonomous role orchestration remain planned.
+<a id="architecture-en"></a>
+
+## <img src="assets/gema-turquesa.svg" height="24" alt=""> Architecture and current state
+
+Both clients use shared instructions and skills through their own native entries. The agent reads
+the vault, performs authorized work and records the result. Local commands organize and check notes;
+credentials, trust and permissions remain controlled by the client and its execution environment.
+
+![Architecture: Claude Code and Codex use shared instructions and skills, record deliveries in the vault and access configured MCPs. Docling has an approved design with implementation pending; Graphify and claude-mem are planned adapters.](assets/architecture-en.svg)
+
+[Open diagram](assets/architecture-en.svg) · [Architecture decisions](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md)
+
+| Layer | Responsibility | State |
+|---|---|---|
+| Claude Code and Codex | Read rules, discover skills and use the selected client's configuration | Installer and discovery verified; see the [test matrix](#verification) |
+| Personalization | Interview, audit an existing project and prepare its profile and first feature | `personalizer` and local records available; the agent conducts the interview |
+| Skills, agents and MCPs | Discover capabilities, configure access and record actual use | Initial catalog and configuration available; full governance remains planned |
+| Integrations | Consult official sources and document implementation, tests and operation | `integration-specialist` and `integrate-from-docs` available in both clients |
+| Vault | Keep context, indices, references and development/production states | Markdown, note creation and validation available; the agent maintains content |
+| Docling ingestion | Convert accessible sources into local Markdown linked to the work | Design approved; implementation pending |
+| Graphify and claude-mem | Support discovery and retrieval from vault records | Planned adapters; no automatic synchronization |
+
+The [capability catalog](vault/capabilities/index.md) links to the skills and integration specialist.
+`skills-lock.json` records sources; setup verifies the `humanizer` commit but does not yet pin
+marketplace plugin versions. MCPs require configuration and access review. An installed capability
+does not prove authorization or use; each run should record the capabilities actually used.
+
+<a id="setup-en"></a>
 
 ## <img src="assets/gema-rubi.svg" height="24" alt=""> Start with one command
 
@@ -252,6 +339,46 @@ the steps. PM and Tech Lead are responsibilities, without autonomous orchestrati
 Each delivery updates the README with `humanizer` prose review. The vault keeps sources, decisions,
 capabilities used, tests and the next action. Production requires environment evidence. Mark a
 release outside scope as not applicable; when authorization is missing, save it as pending for a later session.
+
+<a id="memory-en"></a>
+
+## <img src="assets/gema-violeta.svg" height="24" alt=""> Memory across sessions
+
+Start at [vault/index.md](vault/index.md), follow the topic index and open only the notes needed for
+the task. Product, feature, decision and operation records are created as needed. Integrations have
+their own area for sources, implementation and runs. Read the same Markdown in the repository or
+open the folder as an Obsidian vault.
+
+A feature should link its problem to sources, decisions, small deliveries and evidence. Its run
+record names the agents, skills and MCPs actually used, the result and the next action. Development
+and production have separate states: code or a local test does not prove a release. The validator
+checks reference structure; it does not certify the truth of a note.
+
+The approved Docling design adds a Git-ignored `vault/local/` area for converted documents,
+transcripts, images and their indices. Originals and receipts will live in `.operacao-local/docling/`.
+Only a reviewed copy may enter the shared `vault/sources/` area. **The current setup does not yet
+create these areas or enforce ingestion protections.**
+
+Links will preserve source and revision, including when a document supports a feature or contradicts
+another source. Attachment capture depends on what each client exposes; inaccessible inputs will
+remain pending. The [ingestion contract](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
+defines that behavior. Local material does not travel with clones and needs a private backup for use
+across machines. Future Graphify and claude-mem adapters must point back to the source notes and revisions.
+
+<a id="roadmap-en"></a>
+
+## <img src="assets/gema-ambar.svg" height="24" alt=""> Next deliveries
+
+The Docling design is approved. The [implementation plan](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
+splits the work into four deliveries; none is available yet:
+
+1. Convert local documents and store Markdown, origin and revision with protection against accidental tracking.
+2. Link sources to features and decisions, preserve history and prepare reviewed publication.
+3. Process audio, video and accessible URLs, recording coverage, limits and failures.
+4. Verify ingestion and resumption in real Claude Code and Codex sessions.
+
+Memory adapters and autonomous role orchestration remain in the
+[product roadmap](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 

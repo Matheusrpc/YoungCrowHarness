@@ -8,6 +8,8 @@
   em paralelo, em contextos independentes; eles não corrigem nada, só emitem parecer.
 - Faça commits por caminhos explícitos e preserve alterações alheias. Respeite as instruções do
   operador sobre branches, worktrees e push.
+- Preserve a identidade Git do autor humano. Não acrescente coautoria ou assinatura de Claude,
+  Codex ou outro assistente de IA em commits e PRs; mantenha créditos e licenças de terceiros.
 - Registre pareceres e provas em `docs/relatorios/` e `docs/medicoes/`, com caminhos explícitos e a
   distinção entre evidência visual, medição técnica e pendência.
 - Toda implementação atualiza o `README.md` e o guia de uso afetado. Revise a redação com a skill

@@ -157,7 +157,7 @@ Normalizar caminhos relativos antes do teste de escopo. Recusar caminhos que nã
 
 Contrato inspecionado em `ef4450d9c28acb2b8cdc22d369c1777b77148eef`: [dependências](https://github.com/Graphify-Labs/graphify/blob/ef4450d9c28acb2b8cdc22d369c1777b77148eef/pyproject.toml), [construção](https://github.com/Graphify-Labs/graphify/blob/ef4450d9c28acb2b8cdc22d369c1777b77148eef/graphify/build.py), [comando query](https://github.com/Graphify-Labs/graphify/blob/ef4450d9c28acb2b8cdc22d369c1777b77148eef/graphify/cli.py), [renderização](https://github.com/Graphify-Labs/graphify/blob/ef4450d9c28acb2b8cdc22d369c1777b77148eef/graphify/serve.py). Construção usa `build_from_json`; `query` emite texto, não um JSON nativo de notas YoungCrow. A validação do harness é obrigatória porque o builder também tolera certos erros com avisos.
 
-- [ ] **RED: testar o adaptador sem rede.** Em `GraphifyTests`, usar o corpus da tarefa 1; substituir somente `run_process` nos testes unitários. Exigir `pending` para runtime ausente; `unsupported` para versão divergente; rejeição de grafo com nó extra, revisão/projeto divergente, link pendurado ou `source_file` fora do mapa. Verificar que dois títulos iguais preservam duas identidades. Incluir:
+- [x] **RED: testar o adaptador sem rede.** Em `GraphifyTests`, usar o corpus da tarefa 1; substituir somente `run_process` nos testes unitários. Exigir `pending` para runtime ausente; `unsupported` para versão divergente; rejeição de grafo com nó extra, revisão/projeto divergente, link pendurado ou `source_file` fora do mapa. Verificar que dois títulos iguais preservam duas identidades. Incluir:
 
 ```python
 def test_vendor_output_cannot_introduce_another_source(self):
@@ -171,11 +171,11 @@ def test_vendor_output_cannot_introduce_another_source(self):
 
 Rodar `python -m unittest discover -s tests -p test_graphify.py -v`; exigir RED pela ausência das novas interfaces. Testar também timeout, stderr com sentinela secreta e resposta JSON malformada: nenhum deles aparece como resultado `ready` ou vaza a sentinela na saída pública.
 
-- [ ] **Adicionar setup/doctor explícitos.** `requirements/graphify.txt` contém `graphifyy==0.9.73`, sem extras. Instalar somente em `.operacao-local/memory/runtime/venv`, depois do preflight. Usar Python 3.12 já disponível no host; ausência vira `unsupported`, sem download automático de outro Python. Reusar o padrão de venv/pip do Docling com esse requirements; timeout de setup 600 s, build 120 s, query/doctor 30 s. Registrar versão Python, versão do pacote e inventário resolvido localmente. `doctor` só verifica; não instala nem muda contas. Se o ambiente não resolver essa versão, registrar `unsupported` e preservar Markdown. Inicialmente provar Python 3.12 em Windows/Linux; não anunciar outras combinações sem teste.
+- [x] **Adicionar setup/doctor explícitos.** `requirements/graphify.txt` contém `graphifyy==0.9.73`, sem extras. Instalar somente em `.operacao-local/memory/runtime/venv`, depois do preflight. Usar Python 3.12 já disponível no host; ausência vira `unsupported`, sem download automático de outro Python. Reusar o padrão de venv/pip do Docling com esse requirements; timeout de setup 600 s, build 120 s, query/doctor 30 s. Registrar versão Python, versão do pacote e inventário resolvido localmente. `doctor` só verifica; não instala nem muda contas. Se o ambiente não resolver essa versão, registrar `unsupported` e preservar Markdown. Inicialmente provar Python 3.12 em Windows/Linux; não anunciar outras combinações sem teste.
 
 Para build/query, usar ambiente filtrado de `worker_environment`, `GRAPHIFY_QUERY_LOG_DISABLE=1`, `PYTHONHASHSEED=0` e diretório de trabalho privado. Chaves de provedores e configurações globais não são herdadas. O worker recebe um arquivo JSON privado como argumento, nunca a pergunta ou o conteúdo completo na linha de comando. O padrão é processamento local do grafo; não chamar `extract`, `install`, watcher, MCP ou deduplicação por LLM.
 
-- [ ] **Implementar a construção com o fornecedor.** O worker transforma cada nota em um nó `document` e cada link comprovado em `references/EXTRACTED`, com score `1.0`. IDs do fornecedor podem mudar; `source_file` e os metadados YoungCrow preservam a identidade. Não fazer deduplicação por título. Núcleo da chamada:
+- [x] **Implementar a construção com o fornecedor.** O worker transforma cada nota em um nó `document` e cada link comprovado em `references/EXTRACTED`, com score `1.0`. IDs do fornecedor podem mudar; `source_file` e os metadados YoungCrow preservam a identidade. Não fazer deduplicação por título. Núcleo da chamada:
 
 ```python
 from graphify.build import build_from_json
@@ -193,7 +193,7 @@ payload = json_graph.node_link_data(graph, edges='links')
 
 `extraction` contém `nodes`, `edges`, `hyperedges=[]`, `input_tokens=0`, `output_tokens=0`. Nó: `id=notes_<UUIDhex>_note`, `label=title`, `file_type=document`, `source_file=notes/<UUIDhex>.md`, `source_location=L1`, `youngcrow_id`, `youngcrow_revision`. Aresta: IDs de origem/destino, `relation=references`, `confidence=EXTRACTED`, `confidence_score=1.0`, `source_file` da origem e `source_location` do link. O manifesto YoungCrow retém todas as citações se o fornecedor colapsar ligações do mesmo par. Validar novamente nós, cobertura, atributos e extremos das arestas após a construção.
 
-- [ ] **Consultar o comando local e traduzir somente referências válidas.** Dentro do worker isolado, usar o dispatcher da versão fixada para evitar a rotina de atualização de skills globais do entrypoint. Não iniciar um servidor:
+- [x] **Consultar o comando local e traduzir somente referências válidas.** Dentro do worker isolado, usar o dispatcher da versão fixada para evitar a rotina de atualização de skills globais do entrypoint. Não iniciar um servidor:
 
 ```python
 from contextlib import redirect_stdout
@@ -209,7 +209,7 @@ with redirect_stdout(output):
 
 Extrair `source_files` apenas das linhas `NODE`, pelo campo final `[src=notes/<32 hex>.md loc=... community=...]`, preservando ordem e eliminando repetidos. Os campos emitidos pelo worker são controlados; títulos não podem forjar uma referência. Recusar formato inesperado, saída acima de 2 MiB ou arquivo que não pertença ao snapshot. Não repassar o texto bruto do fornecedor como prova. O pai valida o mapa e monta até cinco resultados com metadados e relações do vault. Perguntas sem correspondência retornam lista vazia; a skill pode reformular usando termos vistos nas notas/índices. A interpretação semântica continua na sessão do cliente.
 
-- [ ] **GREEN e smoke real opt-in.** `tests/smoke_memory.py --root <projeto de prova> --provider graphify` usa `seed`, executa CLI pública `index/query/status` e registra revisões, contagem, tempo e bytes. Deve falhar, não simular sucesso, se o runtime real estiver ausente. Rodar em ambiente de prova privado; comprovar construção e consulta com a versão instalada, títulos iguais preservados e fontes/citações corretas. Atualizar setup/README/USAGE com o caráter opcional e estados comprovados. Commit: `memory: adicionar adaptador local do Graphify`.
+- [x] **GREEN e smoke real opt-in.** `tests/smoke_memory.py --root <projeto de prova> --provider graphify` usa `seed`, executa CLI pública `index/query/status` e registra revisões, contagem, tempo e bytes. Deve falhar, não simular sucesso, se o runtime real estiver ausente. Rodar em ambiente de prova privado; comprovar construção e consulta com a versão instalada, títulos iguais preservados e fontes/citações corretas. Atualizar setup/README/USAGE com o caráter opcional e estados comprovados. Commit: `memory: adicionar adaptador local do Graphify`.
 
 ### Task 3: Atualização, falhas e retorno ao Markdown (M03)
 

@@ -534,7 +534,18 @@ python3 scripts/memory.py --root . status
 
 Troque o caminho pelo de uma nota existente. Repita `--note` para incluir outras notas. O limite inicial é 100 notas, 256 KiB por nota e 8 MiB no conjunto. O índice fica em `.operacao-local/memory/`, excluído do Git; notas e configurações dos clientes são preservadas. A primeira resposta traz até cinco referências. Abra as notas citadas para verificar decisões, publicação e próxima ação.
 
-Mudança ou remoção de uma nota torna o retrato antigo obsoleto. A consulta lê as notas atuais da seleção e avisa que o índice precisa ser reconstruído. Nesta etapa, repita `index` com os caminhos desejados. Sem seleção, o comando oferece os índices do vault para navegação. Graphify e a skill comum serão ligados nas próximas etapas do plano.
+Mudança ou remoção de uma nota torna o retrato antigo obsoleto. A consulta lê as notas atuais da seleção e avisa que o índice precisa ser reconstruído. Nesta etapa, repita `index` com os caminhos desejados. Sem seleção, o comando oferece os índices do vault para navegação. Graphify é opcional. Para instalá-lo neste projeto, execute o setup com Python 3.12:
+
+```bash
+python3.12 scripts/memory.py --root . setup-graphify
+python3 scripts/memory.py --root . doctor
+python3 scripts/memory.py --root . index --provider graphify --note vault/local/features/pagamentos/index.md
+python3 scripts/memory.py --root . query "pagamentos"
+```
+
+No Windows, use `py -3.12` ou o caminho do Python 3.12 no primeiro comando, e `python` nos demais. A versão fixada é `graphifyy==0.9.73`, instalada em `.operacao-local/memory/runtime/venv`. O setup registra as versões resolvidas; `doctor` confere o ambiente sem reinstalar. Runtime ausente retorna `pending`, versão incompatível retorna `unsupported` e falha retorna `failed`. A consulta continua disponível pelo Markdown selecionado.
+
+O grafo representa links explícitos entre notas. Sua busca local combina termos e relações; a IA da sessão interpreta as evidências. Esse adaptador não chama modelos, instala MCPs ou registra um grafo global. A skill comum será ligada na próxima etapa do plano.
 
 <a id="english"></a>
 
@@ -996,7 +1007,18 @@ python3 scripts/memory.py --root . status
 
 Replace the path with an existing note. Repeat `--note` to include more notes. Initial limits are 100 notes, 256 KiB per note and 8 MiB total. Derived state stays in `.operacao-local/memory/`, excluded from Git; notes and client settings are preserved. The first response includes up to five references. Open cited notes to verify decisions, publication and the next action.
 
-Changed or removed notes make the previous snapshot stale. Queries read current selected notes and report that the index needs rebuilding. At this stage, repeat `index` with the desired paths. With no selection, the command offers the vault indices for navigation. Graphify and the shared skill will be enabled in later plan steps.
+Changed or removed notes make the previous snapshot stale. Queries read current selected notes and report that the index needs rebuilding. At this stage, repeat `index` with the desired paths. With no selection, the command offers the vault indices for navigation. Graphify is optional. Install it for this project using Python 3.12:
+
+```bash
+python3.12 scripts/memory.py --root . setup-graphify
+python3 scripts/memory.py --root . doctor
+python3 scripts/memory.py --root . index --provider graphify --note vault/local/features/payments/index.md
+python3 scripts/memory.py --root . query "payments"
+```
+
+On Windows, use `py -3.12` or the Python 3.12 executable path for setup, and `python` for the other commands. The pinned version is `graphifyy==0.9.73`, installed under `.operacao-local/memory/runtime/venv`. Setup records resolved versions; `doctor` checks them without reinstalling. Missing runtime returns `pending`, incompatible versions return `unsupported`, and errors return `failed`. Selected Markdown remains available for retrieval.
+
+The graph represents explicit links between notes. Local search combines terms and relations; the session AI interprets the evidence. This adapter does not call models, install MCPs or register a global graph. The shared skill will be connected in the next plan step.
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Referências oficiais / Official references
 

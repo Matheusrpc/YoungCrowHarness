@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import subprocess
 import sys
 import uuid
 
@@ -11,9 +12,146 @@ sys.dont_write_bytecode = True
 from document_store import safe_path, prepare_storage, project_lock, write_json, file_digest
 from integrations import project_identity
 from vault import metadata, links, local_path, prose
+from documents import runtime_python, worker_environment, run_process
 
 BASE = '.operacao-local/memory'
 VERSION = '0.9.73'
+WORKER = Path(__file__).with_name('graphify_worker.py')
+
+
+def failure(code, state='failed'):
+    return dict(state=state, warnings=[code])
+
+
+def run_graphify(root: Path, action: str, request: dict) -> dict:
+    base = Path(root) / BASE / 'runtime'
+    executable = runtime_python(base / 'venv')
+    path = None
+    try:
+        safe_path(root, base.relative_to(root) / 'venv/pyvenv.cfg')
+        safe_path(root, executable.relative_to(root))
+        if not executable.is_file():
+            return failure('runtime_missing', 'pending')
+        prepare_storage(root)
+        env = worker_environment(base)
+        env.update(GRAPHIFY_QUERY_LOG_DISABLE='1', PYTHONHASHSEED='0')
+        relative = BASE + '/runtime/request-' + str(uuid.uuid4()) + '.json'
+        write_json(root, relative, dict(request, action=action))
+        path = safe_path(root, relative)
+        process = run_process([str(executable), '-I', str(WORKER), str(path)],
+                              timeout=120 if action == 'build' else 30, env=env)
+        if process.returncode or len(process.stdout) > 2 * 1024 * 1024:
+            return failure('worker_failed')
+        data = json.loads(process.stdout)
+        if not isinstance(data, dict):
+            return failure('invalid_worker_result')
+        if data.get('state') != 'ready':
+            code = data.get('code')
+            if code in ('runtime_version_mismatch', 'package_missing'):
+                return failure(code, 'unsupported' if code == 'runtime_version_mismatch' else 'pending')
+            return failure('vendor_failed')
+        if data.get('version') != VERSION:
+            return failure('runtime_version_mismatch', 'unsupported')
+        return data
+    except subprocess.TimeoutExpired:
+        return failure('worker_timeout')
+    except (ValueError, OSError, TypeError):
+        return failure('invalid_worker_result')
+    finally:
+        if path is not None:
+            path.unlink(missing_ok=True)
+
+
+def doctor(root: Path) -> dict:
+    root = Path(root).resolve(strict=True)
+    result = run_graphify(root, 'doctor', {})
+    if result['state'] != 'ready':
+        return result
+    if not str(result.get('python', '')).startswith('3.12.'):
+        return failure('python_312_required', 'unsupported')
+    try:
+        manifest = read(root, BASE + '/runtime/environment.json')
+        if manifest.get('packages') != result.get('packages'):
+            return failure('runtime_changed', 'unsupported')
+    except FileNotFoundError:
+        return failure('runtime_manifest_missing', 'pending')
+    except (ValueError, OSError):
+        return failure('invalid_runtime_manifest')
+    return result
+
+
+def setup_graphify(root: Path) -> dict:
+    root = Path(root).resolve(strict=True)
+    if sys.version_info[:2] != (3, 12):
+        return failure('run_setup_with_python_312', 'unsupported')
+    prepare_storage(root)
+    with project_lock(root):
+        base = root / BASE / 'runtime'
+        for relative in ('venv/pyvenv.cfg', 'environment.json', 'setup.log', 'cache/.probe', 'home/.probe', 'temp/.probe'):
+            safe_path(root, base.relative_to(root) / relative)
+        if (base / 'environment.json').exists():
+            return doctor(root)
+        env = worker_environment(base, offline=False)
+        executable = runtime_python(base / 'venv')
+        commands = []
+        if executable.exists():
+            actual = run_graphify(root, 'doctor', {})
+            if actual['state'] == 'unsupported':
+                return actual
+        else:
+            commands.append([sys.executable, '-m', 'venv', '--copies', str(base / 'venv')])
+        requirements = Path(__file__).resolve().parents[1] / 'requirements/graphify.txt'
+        commands.append([str(executable), '-m', 'pip', 'install', '--disable-pip-version-check', '-r', str(requirements)])
+        for command in commands:
+            try:
+                result = run_process(command, timeout=600, env=env)
+            except subprocess.TimeoutExpired:
+                return failure('setup_timeout')
+            with safe_path(root, BASE + '/runtime/setup.log').open('ab') as output:
+                output.write(result.stdout + result.stderr)
+            if result.returncode:
+                return failure('setup_failed')
+        actual = run_graphify(root, 'doctor', {})
+        if actual['state'] != 'ready':
+            return actual
+        write_json(root, BASE + '/runtime/environment.json', actual)
+        return doctor(root)
+
+
+def validate_graph(snapshot: dict, graph: dict) -> None:
+    try:
+        if (not isinstance(graph, dict) or graph.get('directed') is not True or graph.get('multigraph') is not False
+                or graph['graph']['project_id'] != snapshot['project_id']
+                or graph['graph']['fingerprint'] != snapshot['fingerprint']):
+            raise ValueError('invalid_graph_identity')
+        expected = {n['source_file']: n for n in snapshot['notes']}
+        found, identifiers = {}, {}
+        for node in graph['nodes']:
+            source, identity = node['source_file'], node['id']
+            if not isinstance(identity, str) or source not in expected or source in found or identity in identifiers:
+                raise ValueError('invalid_graph_node')
+            original = expected[source]
+            if (node['youngcrow_id'] != original['id'] or node['youngcrow_revision'] != original['revision']
+                    or node['label'] != original['title'] or node['file_type'] != 'document'
+                    or node['source_location'] != 'L1'):
+                raise ValueError('invalid_graph_provenance')
+            found[source], identifiers[identity] = node, original
+        if found.keys() != expected.keys():
+            raise ValueError('incomplete_graph')
+        expected_edges = {(r['source_id'], r['target_id']) for r in snapshot['relations']}
+        edges = set()
+        for edge in graph['links']:
+            source, target = identifiers[edge['source']], identifiers[edge['target']]
+            pair = (source['id'], target['id'])
+            if (pair not in expected_edges or pair in edges or edge['relation'] != 'references'
+                    or edge['confidence'] != 'EXTRACTED' or edge['confidence_score'] != 1.0
+                    or edge['source_file'] != source['source_file']):
+                raise ValueError('invalid_graph_relation')
+            edges.add(pair)
+        if edges != expected_edges:
+            raise ValueError('incomplete_graph_relations')
+    except (KeyError, TypeError, AttributeError):
+        raise ValueError('invalid_graph') from None
 
 
 def read(root, relative):
@@ -112,8 +250,6 @@ def snapshot(root: Path, paths: list[str], provider: str = 'markdown') -> dict:
 
 def index(root: Path, paths: list[str], provider: str = 'markdown') -> dict:
     root = Path(root).resolve(strict=True)
-    if provider != 'markdown':
-        raise ValueError('provider_unavailable')
     prepare_storage(root)
     with project_lock(root):
         snap = snapshot(root, paths, provider)
@@ -122,8 +258,21 @@ def index(root: Path, paths: list[str], provider: str = 'markdown') -> dict:
         write_json(root, folder + '/snapshot.json', snap)
         selection = dict(project_id=snap['project_id'], paths=[n['path'] for n in snap['notes']], provider=provider)
         write_json(root, BASE + '/selection.json', selection)
+        write_json(root, BASE + '/status.json', dict(state='pending'))
         active = dict(generation=generation, fingerprint=snap['fingerprint'],
                       snapshot_hash=file_digest(safe_path(root, folder + '/snapshot.json')))
+        if provider == 'graphify':
+            result = run_graphify(root, 'build', dict(snapshot=snap))
+            if result['state'] == 'ready':
+                try:
+                    validate_graph(snap, result.get('graph'))
+                except ValueError:
+                    result = failure('invalid_graph')
+            if result['state'] != 'ready':
+                write_json(root, BASE + '/status.json', result)
+                return result
+            write_json(root, folder + '/graph.json', result['graph'])
+            active['graph_hash'] = file_digest(safe_path(root, folder + '/graph.json'))
         write_json(root, BASE + '/active.json', active)
         write_json(root, BASE + '/status.json', dict(state='ready'))
     return dict(state='ready', fingerprint=snap['fingerprint'], notes=len(snap['notes']))
@@ -156,6 +305,12 @@ def load_state(root):
         state = 'ready' if not warnings and active['fingerprint'] == snap['fingerprint'] else 'stale'
     except FileNotFoundError:
         state = 'missing'
+    try:
+        recorded = read(root, BASE + '/status.json')
+        if recorded.get('state') in ('pending', 'failed', 'unsupported'):
+            state = recorded['state']
+    except FileNotFoundError:
+        pass
     return selection, snap, state, warnings, active
 
 
@@ -194,7 +349,7 @@ def query(root: Path, question: str, limit: int = 5) -> dict:
     result = dict(state='fallback', index_state='missing', provider='markdown', project_id=None,
                   warnings=[], navigation=navigation, results=[])
     try:
-        _, snap, state, warnings, _ = load_state(root)
+        _, snap, state, warnings, active = load_state(root)
     except FileNotFoundError:
         return result
     except (ValueError, KeyError, TypeError, OSError):
@@ -204,8 +359,29 @@ def query(root: Path, question: str, limit: int = 5) -> dict:
         _, body = metadata(note['text'])
         return sum(3 * note['title'].casefold().count(t) + body.casefold().count(t) for t in terms)
     ordered = sorted((n for n in snap['notes'] if score(n)), key=lambda n: (-score(n), n['path']))
+    provider = 'markdown'
+    if state == 'ready' and snap['provider'] == 'graphify':
+        try:
+            graph_path = BASE + '/builds/' + str(uuid.UUID(active['generation'])) + '/graph.json'
+            graph_file = safe_path(root, graph_path)
+            if file_digest(graph_file) != active['graph_hash']:
+                raise ValueError('graph_changed')
+            validate_graph(snap, read(root, graph_path))
+            response = run_graphify(root, 'query', dict(graph_path=str(graph_file), question=question))
+            if response['state'] != 'ready':
+                state = response['state']
+                warnings.extend(response['warnings'])
+            else:
+                sources = response.get('source_files')
+                by_source = {n['source_file']: n for n in snap['notes']}
+                if not isinstance(sources, list) or any(not isinstance(s, str) or s not in by_source for s in sources):
+                    raise ValueError('invalid_query_sources')
+                ordered = [by_source[s] for s in dict.fromkeys(sources)]
+                provider = 'graphify'
+        except (ValueError, OSError, KeyError, TypeError):
+            state, warnings = 'failed', [*warnings, 'invalid_graph_result']
     return dict(result, state='ready' if state == 'ready' else 'fallback', index_state=state,
-                project_id=snap['project_id'], warnings=warnings, results=render_results(snap, ordered, limit))
+                provider=provider, project_id=snap['project_id'], warnings=warnings, results=render_results(snap, ordered, limit))
 
 
 def main():
@@ -219,12 +395,18 @@ def main():
     find.add_argument('question')
     find.add_argument('--limit', type=int, default=5)
     sub.add_parser('status')
+    sub.add_parser('setup-graphify')
+    sub.add_parser('doctor')
     args = parser.parse_args()
     try:
         if args.command == 'index':
             result = index(args.root, args.note, args.provider)
         elif args.command == 'query':
             result = query(args.root, args.question, args.limit)
+        elif args.command == 'setup-graphify':
+            result = setup_graphify(args.root)
+        elif args.command == 'doctor':
+            result = doctor(args.root)
         else:
             result = status(args.root)
     except (ValueError, OSError, KeyError, TypeError):

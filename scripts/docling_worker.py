@@ -1,6 +1,7 @@
 """Docling SDK adapter, run only by the project's isolated Python environment."""
 import importlib.metadata
 from contextlib import redirect_stdout
+from io import BytesIO
 import json
 from pathlib import Path
 import platform
@@ -52,7 +53,7 @@ def media_result(status, document, media):
 def convert(request, *, document_timeout=1800):
     from docling.datamodel.accelerator_options import AcceleratorOptions, AcceleratorDevice
     from docling.datamodel.backend_options import HTMLBackendOptions, MsWordBackendOptions
-    from docling.datamodel.base_models import ConversionStatus, InputFormat
+    from docling.datamodel.base_models import ConversionStatus, DocumentStream, InputFormat
     from docling.datamodel.pipeline_options import PdfPipelineOptions, RapidOcrOptions
     from docling.document_converter import (DocumentConverter, HTMLFormatOption, WordFormatOption,
                                             PdfFormatOption, ImageFormatOption)
@@ -101,6 +102,15 @@ def convert(request, *, document_timeout=1800):
                             fetch_images=False, render_page=False, enable_remote_fetch=False, enable_local_fetch=False)),
                         InputFormat.DOCX: WordFormatOption(backend_options=MsWordBackendOptions(
                             enable_remote_fetch=False, enable_local_fetch=False))})
+    if profile == 'documents' and source.suffix.lower() in ('.html', '.htm'):
+        # These are preserved bytes, not a local website. A Path makes Docling
+        # resolve page hyperlinks against our storage directory. A stream keeps
+        # them as references; the vault neutralizes non-HTTP(S) destinations.
+        with source.open('rb') as html:
+            content = html.read(100 * 1024 * 1024 + 1)
+        if len(content) > 100 * 1024 * 1024:
+            raise ValueError('HTML source exceeds size limit.')
+        source = DocumentStream(name=source.name, stream=BytesIO(content))
     result = converter.convert(source, raises_on_error=False, max_num_pages=500,
                                max_file_size=(500 if profile == 'media' else 100) * 1024 * 1024)
     state = {ConversionStatus.SUCCESS: 'ready', ConversionStatus.PARTIAL_SUCCESS: 'partial'}.get(result.status, 'failed')

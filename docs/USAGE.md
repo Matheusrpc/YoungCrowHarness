@@ -322,6 +322,28 @@ manualmente são preservadas. `status` separa a revisão atual da última tentat
 ou o caminho original do documento. Falta de arquivo ou ambiente fica como `pending`; formato não
 atendido retorna `unsupported`.
 
+Para uma URL direta, use o mesmo comando:
+
+```bash
+python scripts/documents.py ingest "https://example.org/documento.pdf" --json
+```
+
+A aquisição aceita HTTP(S), até cinco redirecionamentos, 60 segundos no total e 100 MiB. O tipo
+é conferido nos bytes recebidos. Cada conexão usa um IP previamente validado, mantendo a verificação
+TLS do nome do servidor. Proxies e credenciais do ambiente não são usados. Recursos dentro de um
+documento não iniciam downloads. Uma página reconhecida como reprodução de vídeo ou áudio fica
+`pending`: forneça o arquivo ou uma transcrição acessível. A transcrição é uma fonte própria.
+
+O localizador salvo omite query e fragmento. URLs completas diferentes mantêm IDs próprios por uma
+chave opaca local; para renovar um link assinado da mesma fonte, informe `--source-id UUID`.
+Não coloque links com tokens em comandos que ficarão no histórico: prefira baixar o arquivo pela
+ferramenta autorizada e ingerir a cópia local. Os recibos não imprimem o link de acesso.
+
+Destinos privados são recusados por padrão. Se o projeto precisar de um servidor interno, o operador
+pode criar `.operacao-local/docling/acquisition.json` com `{"allowed_private_hosts":["docs.interno.example"]}`.
+Isso autoriza somente os nomes exatos listados, inclusive em redirecionamentos; revise essa exceção.
+Falhas de aquisição preservam a revisão anterior e indicam a próxima ação no recibo.
+
 Há um escritor por projeto. Se um processo for encerrado à força, consulte
 `python scripts/documents.py lock-status --json`. Somente com `owner_alive: false`, use
 `python scripts/documents.py recover-lock --token UUID --json`, com o token informado, e repita a
@@ -702,6 +724,28 @@ A failed attempt preserves the previous valid revision. A `partial` extraction g
 with a warning, retained after a later successful attempt. Manual note edits are preserved. `status`
 separates the current revision from the latest attempt without showing source text or its original
 path. A missing file or runtime remains `pending`; an unsupported format returns `unsupported`.
+
+For a direct URL, use the same command:
+
+```bash
+python scripts/documents.py ingest "https://example.org/document.pdf" --json
+```
+
+Acquisition accepts HTTP(S), at most five redirects, 60 seconds total and 100 MiB. The file type is
+checked against the received bytes. Each connection uses a previously validated IP while preserving
+TLS hostname verification. Environment proxies and credentials are not inherited. Resources inside
+documents do not trigger downloads. A recognized video or audio playback page stays `pending`:
+provide an accessible file or transcript. A transcript is a separate source.
+
+The stored locator omits query and fragment. Different full URLs retain distinct IDs through an
+opaque local key; pass `--source-id UUID` when renewing a signed link for the same source.
+Avoid putting token-bearing links into shell history: download through an authorized tool and
+ingest the local copy instead. Receipts never print the access URL.
+
+Private destinations are rejected by default. For an internal server, the operator can create
+`.operacao-local/docling/acquisition.json` with `{"allowed_private_hosts":["docs.internal.example"]}`.
+This authorizes only the exact listed names, including redirects; review this exception.
+Acquisition failures preserve the previous revision and include a next action in the receipt.
 
 Each project has one writer. After a forced process termination, inspect
 `python scripts/documents.py lock-status --json`. Only when `owner_alive` is false, run

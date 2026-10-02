@@ -194,7 +194,7 @@ Verificar tipos e limites dos caminhos antes desse cálculo; não seguir symlink
 
 **Interfaces:** `fetch_source(url: str, destination: Path, *, max_bytes: int, timeout_seconds: int = 60, allowed_private_hosts: tuple[str, ...] = ()) -> dict`; retorno contém caminho local, tipo observado e localizador sem credenciais. `public_addresses(host: str, port: int) -> list[str]` resolve e recusa endereços não globais, inclusive IPv4 mapeado em IPv6. CLI `ingest URL` reutiliza toda persistência da tarefa 3.
 
-- [ ] **Escrever testes RED de destino.** Mock apenas de DNS e transporte; servidor HTTP real em loopback só mediante allowlist explícita da fixture. Exemplo:
+- [x] **Escrever testes RED de destino.** Mock apenas de DNS e transporte; servidor HTTP real em loopback só mediante allowlist explícita da fixture. Exemplo:
 
 ```python
 with patch('socket.getaddrinfo', return_value=[
@@ -204,8 +204,8 @@ with patch('socket.getaddrinfo', return_value=[
 ```
 
 Adicionar redirecionamento público → privado, mudança de DNS, IPv6 link-local, userinfo, query assinada, resposta sem `Content-Length`, corpo maior que o informado, timeout, loop de redirects e nome sugerido com traversal. Exigir ausência de URL sensível nos logs.
-- [ ] **Implementar aquisição sem delegar URL ao conversor.** Aceitar HTTP(S), no máximo cinco redirecionamentos e 60 segundos totais de aquisição. Fazer stream de bytes com teto real; cabeçalhos e extensão não substituem detecção de tipo. Validar cada destino e conectar ao IP já aprovado, preservando Host/SNI e validação TLS. Usar `http.client`/`ssl` e resolução explícita; não herdar proxies/credenciais do ambiente. Não adicionar um downloader genérico de plataformas de vídeo. Guardar a URL de acesso apenas durante a chamada e remover credenciais/query do localizador persistido.
-- [ ] **GREEN e prova por URL.** Testes devem provar que uma segunda resolução não muda o IP da conexão. Rodar um download público controlado e sua conversão real; testar uma página sem arquivo acessível e exigir pendência, sem tratá-la como vídeo convertido. Atualizar limites e recuperação no guia. Commit `docling: adquirir fontes remotas com limites`.
+- [x] **Implementar aquisição sem delegar URL ao conversor.** Aceitar HTTP(S), no máximo cinco redirecionamentos e 60 segundos totais de aquisição. Fazer stream de bytes com teto real; cabeçalhos e extensão não substituem detecção de tipo. Validar cada destino e conectar ao IP já aprovado, preservando Host/SNI e validação TLS. Usar `http.client`/`ssl` e resolução explícita; não herdar proxies/credenciais do ambiente. Não adicionar um downloader genérico de plataformas de vídeo. Guardar a URL de acesso apenas durante a chamada e remover credenciais/query do localizador persistido.
+- [x] **GREEN e prova por URL.** Testes devem provar que uma segunda resolução não muda o IP da conexão. Rodar um download público controlado e sua conversão real; testar uma página sem arquivo acessível e exigir pendência, sem tratá-la como vídeo convertido. Atualizar limites e recuperação no guia. Commit `docling: adquirir fontes remotas com limites`.
 
 ### Task 6: áudio e vídeo com cobertura observável
 

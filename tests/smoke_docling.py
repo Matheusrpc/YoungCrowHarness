@@ -178,6 +178,23 @@ def review_smoke(root, run):
     return 0 if not clone_check['issues'] else 1
 
 
+def url_smoke(root):
+    import vault
+    source = 'https://raw.githubusercontent.com/mozilla/pdf.js/4c9b65f0e13fd290c326b38cb97436fa50b930f5/test/pdfs/basicapi.pdf'
+    started = time.monotonic()
+    result = documents.ingest(root, source)
+    note = root / result['note_path'] if result.get('note_path') else None
+    found = bool(note and 'Table Of Content' in re.sub(r'\s+', ' ', note.read_text(encoding='utf-8')))
+    report = dict(source=source, converter='docling ' + documents.VERSION, state=result['state'],
+                  phrase_found=found, warnings=result['warnings'], coverage=result['coverage'],
+                  seconds=round(time.monotonic() - started, 2), vault=vault.check(root))
+    run = root / '.runtime' / ('url-' + uuid.uuid4().hex[:12])
+    run.mkdir(parents=True)
+    (run / 'report.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
+    print(json.dumps(report, indent=2))
+    return 0 if result['state'] == 'ready' and found and not report['vault']['issues'] else 1
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=ROOT)
@@ -187,6 +204,7 @@ def main():
     parser.add_argument('--interrupt', action='store_true', help='Kill a controlled run after real conversion, recover and resume.')
     parser.add_argument('--interrupt-child', type=Path, help=argparse.SUPPRESS)
     parser.add_argument('--review', action='store_true', help='Verify real PDF, feature, decision, reviewed copy and shared clone.')
+    parser.add_argument('--url', action='store_true', help='Acquire the public PDF.js fixture and convert it with the real SDK.')
     args = parser.parse_args()
     root = args.root.resolve()
     if args.interrupt_child:
@@ -197,6 +215,8 @@ def main():
         return 1
     if args.review:
         return review_smoke(root, root / '.runtime' / ('review-' + uuid.uuid4().hex[:12]))
+    if args.url:
+        return url_smoke(root)
     run = root / '.runtime/docling-smoke' / str(uuid.uuid4())
     if args.interrupt:
         return interruption_smoke(root, run)

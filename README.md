@@ -154,7 +154,8 @@ pelo Git. Originais e recibos ficam em
 `vault/sources/`. O validador já reconhece o índice local e recusa referências públicas a arquivos
 privados. O helper de armazenamento prepara e verifica o ignore antes de escrever. O ambiente
 Docling tem [setup opt-in e diagnóstico local](docs/USAGE.md#docling-pt). A conversão foi verificada com
-PDF, DOCX, HTML e uma imagem de página; a revisão do texto extraído continua necessária.
+PDF, DOCX, HTML e uma imagem de página, além da aquisição e conversão de um PDF público por URL.
+Cada conexão valida o destino; downloads têm limites de tamanho e tempo. A revisão do texto extraído continua necessária.
 
 Os vínculos locais registram a revisão usada e um trecho de evidência para relacionar a fonte a features
 ou decisões. Contradições começam como hipóteses; o sentido da relação precisa ser revisado. A captura de anexos depende do que cada cliente expõe; entradas inacessíveis
@@ -171,7 +172,7 @@ divide a implementação em quatro entregas:
 
 1. Verificado: documentos locais, Markdown, origem, revisões e retomada após interrupção, com proteção contra versionamento acidental.
 2. Verificado: vínculos com evidência, cópias para revisão e publicação local sem expor a proveniência privada.
-3. Processar áudio, vídeo e URLs acessíveis, registrando cobertura, limites e falhas.
+3. URLs diretas verificadas. Próximo passo: áudio e vídeo, com cobertura, limites e falhas registrados.
 4. Validar ingestão e retomada em sessões reais de Claude Code e Codex.
 
 Os adaptadores de memória e a orquestração autônoma de papéis seguem na
@@ -362,7 +363,9 @@ area. Originals and receipts live in `.operacao-local/docling/`.
 A reviewed copy can enter the shared `vault/sources/` area. The validator recognizes the local
 index and rejects public references to private files. The storage helper prepares and verifies
 ignore rules before writing. Docling has [opt-in setup and local diagnostics](docs/USAGE.md#docling-en);
-conversion was verified with PDF, DOCX, HTML and a page image. Extracted text still needs review.
+conversion was verified with PDF, DOCX, HTML and a page image, plus acquisition and conversion of a
+public PDF URL. Each connection validates its destination; downloads have size and time limits.
+Extracted text still needs review.
 
 Local relations record the source revision and a supporting quote to link it to features or decisions.
 Contradictions start as hypotheses; the meaning of a relationship still needs review. Attachment capture depends on what each client exposes; inaccessible inputs will
@@ -379,7 +382,7 @@ splits the work into four deliveries:
 
 1. Verified: local documents, Markdown, origin, revisions and resumption after interruption, protected against accidental tracking.
 2. Verified: evidence-backed relations, review copies and local publication without private provenance.
-3. Process audio, video and accessible URLs, recording coverage, limits and failures.
+3. Direct URLs verified. Next: audio and video, recording coverage, limits and failures.
 4. Verify ingestion and resumption in real Claude Code and Codex sessions.
 
 Memory adapters and autonomous role orchestration remain in the

@@ -214,7 +214,7 @@ def source_records(root):
     return records
 
 
-def source_record(root, project, locator, source_id=None):
+def source_record(root, project, locator, source_id=None, *, origin_key=None):
     records = source_records(root)
     if any(record['project_id'] != project for record in records):
         raise ValueError('Source belongs to another project.')
@@ -224,8 +224,9 @@ def source_record(root, project, locator, source_id=None):
         if found is None:
             raise ValueError('Source identity does not belong to this project.')
         return found
-    found = next((record for record in records if locator is not None and record.get('locator') == locator), None)
-    return found or dict(project_id=project, source_id=str(uuid.uuid4()), locator=locator,
+    found = next((record for record in records if locator is not None
+                  and (record.get('origin_key') == origin_key if origin_key else record.get('locator') == locator)), None)
+    return found or dict(project_id=project, source_id=str(uuid.uuid4()), locator=locator, origin_key=origin_key,
                          current_revision=None, current_note=None, latest_attempt=None)
 
 

@@ -24,6 +24,7 @@ PERSONALIZER_FILES = ('scripts/personalize.py', 'skills/personalizer/SKILL.md',
                       '.claude/skills/personalizer/SKILL.md', '.agents/skills/personalizer/SKILL.md')
 FILES += INTEGRATION_FILES + PERSONALIZER_FILES + ('scripts/vault.py', 'scripts/document_store.py')
 FILES += ('scripts/documents.py', 'scripts/docling_worker.py', 'requirements/docling.txt')
+FILES += ('scripts/source_fetch.py',)
 
 
 def shell_path(path):
@@ -302,7 +303,7 @@ class SetupTests(unittest.TestCase):
     def test_full_install_and_repeat(self):
         result = self.run_setup('--name', 'Complete project')
         self.assertEqual(result.returncode, 0, result.stderr)
-        for rel in ('scripts/documents.py', 'scripts/docling_worker.py', 'requirements/docling.txt'):
+        for rel in ('scripts/documents.py', 'scripts/docling_worker.py', 'scripts/source_fetch.py', 'requirements/docling.txt'):
             self.assertEqual((self.target / rel).read_bytes(), (ROOT / rel).read_bytes())
         paths = set(self.target.rglob('*'))
         diagnostic = subprocess.run([sys.executable, str(self.target / 'scripts/documents.py'),

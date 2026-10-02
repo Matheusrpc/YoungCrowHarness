@@ -1,0 +1,22 @@
+{
+  "source": "https://raw.githubusercontent.com/mozilla/pdf.js/4c9b65f0e13fd290c326b38cb97436fa50b930f5/test/pdfs/basicapi.pdf",
+  "converter": "docling 2.132.0",
+  "state": "ready",
+  "phrase_found": true,
+  "warnings": [],
+  "coverage": {
+    "pages": [
+      1,
+      2,
+      3
+    ]
+  },
+  "seconds": 1.34,
+  "vault": {
+    "schema_version": 1,
+    "notes_checked": 19,
+    "issues": []
+  },
+  "first_real_conversion_seconds": 37.27,
+  "pinned_repeat_reused_same_bytes_extraction": true
+}

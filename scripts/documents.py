@@ -13,6 +13,7 @@ import uuid
 sys.dont_write_bytecode = True
 from document_store import prepare_storage, safe_path
 import document_store as store
+import source_fetch
 
 VERSION = '2.132.0'
 BASE = '.operacao-local/docling'
@@ -228,18 +229,44 @@ def status(root, source_id=None):
 
 
 def ingest(root, source, *, source_id=None, convert=run_worker):
-    root, source = Path(root).resolve(strict=True), Path(source).absolute()
+    root = Path(root).resolve(strict=True)
+    remote = isinstance(source, str) and '://' in source
+    if remote:
+        try:
+            locator = source_fetch.locator(source)
+        except ValueError:
+            return record_pending(root, 'source_unavailable')
+        origin_key = hashlib.sha256(source.encode()).hexdigest()
+    else:
+        source = Path(source).absolute()
+        locator, origin_key = source.as_uri(), None
     project = prepare_storage(root)
     with store.project_lock(root):
-        record = store.source_record(root, project, source.as_uri(), source_id)
+        record = store.source_record(root, project, locator, source_id, origin_key=origin_key)
         receipt = new_receipt(record)
         store.save_attempt(root, record, receipt)
         attempt = Path(BASE) / record['source_id'] / 'attempts' / receipt['attempt_id']
         try:
+            if remote:
+                policy_path = safe_path(root, Path(BASE) / 'acquisition.json')
+                policy = json.loads(policy_path.read_text(encoding='utf-8')) if policy_path.exists() else {}
+                allowed = policy.get('allowed_private_hosts', [])
+                if not isinstance(allowed, list) or any(not isinstance(host, str) or not host for host in allowed):
+                    raise ValueError('Invalid acquisition policy.')
+                destination = safe_path(root, attempt / 'download')
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                acquired = source_fetch.fetch_source(source, destination, max_bytes=100 * 1024 * 1024,
+                                                       allowed_private_hosts=tuple(allowed))
+                if acquired['state'] != 'ready':
+                    receipt.update(state=acquired['state'], warnings=acquired['warnings'], next_action='provide_direct_source')
+                    return receipt
+                source = Path(acquired['path'])
+                extension = acquired['extension']
+            else:
+                extension = source.suffix.lower()
             if not source.is_file():
                 receipt['warnings'] = ['source_unavailable']
                 return receipt
-            extension = source.suffix.lower()
             if extension not in ('.html', '.htm', '.pdf', '.docx', '.png', '.jpg', '.jpeg'):
                 receipt.update(state='unsupported', warnings=['unsupported_source'], next_action='provide_supported_source')
                 return receipt
@@ -303,6 +330,9 @@ def ingest(root, source, *, source_id=None, convert=run_worker):
         except KeyboardInterrupt:
             receipt.update(state='pending', warnings=['conversion_interrupted'], next_action='retry_same_source')
             raise
+        except source_fetch.AcquisitionError as error:
+            receipt.update(state='pending', warnings=[str(error)], next_action='provide_direct_source_or_retry')
+            return receipt
         except (OSError, ValueError, KeyError, TypeError):
             receipt.update(state='failed', warnings=['ingestion_failed'], next_action='inspect_and_retry')
             return receipt
@@ -319,7 +349,7 @@ def main():
     install.add_argument('--json', action='store_true')
     sub.add_parser('doctor').add_argument('--json', action='store_true')
     ingest_parser = sub.add_parser('ingest')
-    ingest_parser.add_argument('source', type=Path)
+    ingest_parser.add_argument('source')
     ingest_parser.add_argument('--source-id')
     ingest_parser.add_argument('--json', action='store_true')
     status_parser = sub.add_parser('status')

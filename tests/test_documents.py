@@ -134,6 +134,37 @@ class IngestCase(ProjectCase):
 
 
 class IngestTests(IngestCase):
+    def test_remote_sources_use_local_bytes_and_keep_queries_private(self):
+        from test_source_fetch import server
+        self.store.prepare_storage(self.root)
+        self.store.write_json(self.root, Path(self.documents.BASE) / 'acquisition.json',
+                              {'allowed_private_hosts': ['127.0.0.1']})
+        with server() as origin:
+            first = self.documents.ingest(self.root, origin + '/document?token=private-one', convert=self.convert)
+            repeated = self.documents.ingest(self.root, origin + '/document?token=private-one', convert=self.convert)
+            other = self.documents.ingest(self.root, origin + '/document?token=private-two', convert=self.convert)
+            watch = self.documents.ingest(self.root, origin + '/watch', convert=self.convert)
+        self.assertEqual(first['state'], 'ready')
+        self.assertEqual(first['source_id'], repeated['source_id'])
+        self.assertNotEqual(first['source_id'], other['source_id'])
+        self.assertEqual(first['revision'], other['revision'])
+        self.assertEqual(self.calls, [b'%PDF-1.4\ncontrolled bytes'])
+        self.assertEqual(watch['state'], 'pending')
+        self.assertIn('media_source_unavailable', watch['warnings'])
+        for path in (self.root / self.documents.BASE).rglob('*.json'):
+            self.assertNotIn('private-one', path.read_text())
+            self.assertNotIn('private-two', path.read_text())
+        self.assertEqual(vault.check(self.root)['issues'], [])
+
+    def test_remote_acquisition_failure_preserves_current_revision(self):
+        first = self.ingest()
+        failed = self.documents.ingest(self.root, 'http://127.0.0.1/private?token=secret',
+                                       source_id=first['source_id'], convert=self.convert)
+        self.assertEqual(failed['state'], 'pending')
+        self.assertEqual(failed['warnings'], ['source_address_not_allowed'])
+        self.assertEqual(self.documents.status(self.root, first['source_id'])[0]['current_revision'], first['revision'])
+        self.assertNotIn('secret', json.dumps(failed))
+
     def test_ingest_and_repeat_keep_note_and_original_and_clean_vault(self):
         original = self.source.read_bytes()
         first = self.ingest()

@@ -231,6 +231,34 @@ Os testes usam Git local e simulam chamadas de rede/plugins, com um diretório d
 
 <img src="../assets/vidro.svg" alt="" width="100%">
 
+<a id="protection-pt"></a>
+
+## <img src="../assets/gema-rubi.svg" height="24" alt=""> Proteger a branch principal
+
+No YoungCrowHarness, o ruleset `Protect main` está ativo para `main`, sem atores autorizados a
+ignorar as regras. Ele exige PR, resolução das conversas de revisão e o check `installer` emitido
+pelo GitHub Actions, com a branch atualizada em relação à base. Também bloqueia exclusão e force
+push. O arquivo [main.json](../.github/rulesets/main.json) registra a configuração; editar esse
+arquivo sozinho não altera o GitHub. Consulte o estado atual em **Settings → Rules → Rulesets**.
+
+Para adotar a proteção em outro repositório:
+
+1. Ative seu workflow de testes e confirme o nome do check em um PR. Aqui ele se chama `installer`.
+2. Em **Settings → Rules → Rulesets**, crie um ruleset de branch, selecione `main` e marque **Active**.
+3. Deixe a lista de bypass vazia. Ative **Restrict deletions**, **Block force pushes**,
+   **Require a pull request before merging** e a resolução das conversas.
+4. Em **Require status checks to pass**, selecione o check real, sua origem GitHub Actions e
+   **Require branches to be up to date before merging**. Um nome inexistente impedirá o merge.
+5. Com um único mantenedor, mantenha zero aprovações obrigatórias. Quando houver outro revisor com
+   escrita, exija uma aprovação e invalide aprovações antigas após mudanças. O autor não aprova o
+   próprio PR. Revisão de IA continua útil, mas não substitui essa aprovação humana independente.
+
+O fluxo diário passa a ser branch → PR → testes → revisão → merge. Até o administrador segue as
+regras; ele ainda pode editá-las nas configurações. Esta proteção não verifica sozinha segredos,
+vulnerabilidades ou a qualidade dos testes. O setup local não cria regras remotas.
+
+Referência: [regras disponíveis no GitHub](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets).
+
 <a id="english"></a>
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Before you start
@@ -378,6 +406,34 @@ Guide adaptation uses targeted agent edits recorded in `adoption.md`; the CLI do
 4. Verify official sources/versions, code/test links, separate development/production states, planned/used capabilities, evidence and next action. A fresh session should recover those from the indices without the previous conversation.
 
 5. `python3 scripts/integrations.py export --provider example --service payments` prints a YoungCrow envelope with IDs, paths, content and revision hashes. **This is not a vendor import format or automatic synchronization.** Review before transmission; no automatic secret redaction is performed. Follow the [memory reference](../skills/integrate-from-docs/references/memory.md) to check installed tools, project isolation, idempotency and confirmation. Without a compatible adapter, record `pending`/`unsupported` and use Markdown. Setup does not install Graphify or claude-mem.
+
+<a id="protection-en"></a>
+
+## <img src="../assets/gema-rubi.svg" height="24" alt=""> Protect the default branch
+
+YoungCrowHarness has an active `Protect main` ruleset for `main`, with no bypass actors. It requires
+a PR, resolved review conversations and the `installer` check from GitHub Actions, with the branch
+up to date against its base. Deletion and force pushes are blocked. The
+[main.json](../.github/rulesets/main.json) file records the configuration; changing that file alone
+does not update GitHub. Check the current state in **Settings → Rules → Rulesets**.
+
+To adopt this protection in another repository:
+
+1. Enable your test workflow and confirm its check name on a PR. This repository uses `installer`.
+2. In **Settings → Rules → Rulesets**, create a branch ruleset targeting `main` and choose **Active**.
+3. Leave the bypass list empty. Enable **Restrict deletions**, **Block force pushes**,
+   **Require a pull request before merging** and review conversation resolution.
+4. Under **Require status checks to pass**, choose the actual check, its GitHub Actions source and
+   **Require branches to be up to date before merging**. A nonexistent check name will block merges.
+5. With one maintainer, keep required approvals at zero. Once another reviewer has write access,
+   require one approval and dismiss stale approvals after changes. Authors cannot approve their own
+   PRs. AI review remains useful but does not replace this independent human approval.
+
+The daily path is branch → PR → tests → review → merge. Administrators follow the rules too, though
+they can still edit them in settings. Branch protection alone does not check secrets, vulnerabilities
+or test quality. Local setup does not create remote rules.
+
+Reference: [available GitHub rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets).
 
 <a id="maintenance-en"></a>
 

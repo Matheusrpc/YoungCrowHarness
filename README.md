@@ -353,6 +353,16 @@ The plugins listed in `skills-lock.json` belong to their authors. The rest of th
 
 ## <img src="assets/gema-cobalto.svg" height="24" alt=""> Verificação / Verification
 
+A `main` deste repositório exige PR, check `installer` do GitHub Actions aprovado, branch atualizada
+e conversas de revisão resolvidas. Exclusão e force push estão bloqueados, sem exceção para admins.
+Há um único mantenedor, portanto não se exige uma segunda aprovação. Veja a
+[configuração e como adotá-la](docs/USAGE.md#protection-pt); o setup não altera regras do GitHub.
+
+This repository's `main` requires a PR, the `installer` check from GitHub Actions, an up-to-date branch
+and resolved review conversations. Deletion and force pushes are blocked, with no admin bypass.
+With one maintainer, a second approval is not required. See the
+[configuration and adoption steps](docs/USAGE.md#protection-en); setup does not change GitHub rules.
+
 ```bash
 python3 -m unittest discover -s tests -v  # Python 3.11+
 bash -n setup.sh

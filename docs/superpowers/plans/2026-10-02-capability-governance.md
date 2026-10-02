@@ -10,7 +10,7 @@
 
 **Spec:** [Desenho aprovado em 2026-10-02](../specs/2026-10-02-capability-governance-design.md).
 
-Estado: plano aprovado pelo mantenedor em 2026-10-02, implementado; correções da revisão concluídas, regressão Linux e publicação em andamento. Método preservado: execução nativa nesta sessão, um escritor por checkout e uma revisão independente ao final. A prova de memória M04 continua parcial. A correção da conversão HTML do Docling é outra frente; manter os originais e recibos que já existem.
+Estado: plano aprovado pelo mantenedor em 2026-10-02, implementado e validado; publicação acompanhada pelo [PR #8](https://github.com/Matheusrpc/YoungCrowHarness/pull/8). Método preservado: execução nativa nesta sessão, um escritor por checkout e uma revisão independente ao final. A prova de memória M04 continua parcial. A correção da conversão HTML do Docling é outra frente; manter os originais e recibos que já existem.
 
 ## Global Constraints
 
@@ -518,7 +518,7 @@ Configuração de ensaio: Codex com servidor habilitado e `enabled_tools=["yc_re
 - [x] Rodar `test_capability_proof.py`, a suíte completa (`python -B -m unittest discover -s tests -v`) e o smoke opt-in por cliente disponível. Publicar somente medição sintética sanitizada, com hash/revisão testada, sistema, cliente, critérios, resultado e limitações. O CI normal executa a suíte offline; o ensaio nativo não vira dependência de login/fornecedor no CI.
 - [x] Atualizar README, USAGE e PROCESS nos dois idiomas: setup do zero, auditoria antes da migração, descoberta, leitura de diferenças, uso coberto pela autorização, revisão quando houver mudança, revogação e retomada. Criar os dois SVGs no design existente: fundo, cores, Georgia, caixas de processo, decisões e setas consistentes com `process-memory-*.svg`. Fluxo: descobrir → auditar → diferença? → revisar escopo → aplicar alteração autorizada → provar no cliente → registrar uso. Falha/desconhecido volta para pendência; retirada de acesso segue nova sessão e preserva histórico. Marcar etapas nativas pendentes no texto e no diagrama até a prova correspondente passar.
 - [x] Conferir links, `vault.py check`, `git diff --check`, privacidade e README PT/EN; inspecionar os SVGs renderizados e fechar o navegador se utilizado. Atualizar os hashes afetados no manifesto. Fazer a revisão independente final em modo somente leitura, abrangendo G01–G09 e os cinco Review Focus; corrigir achados e repetir somente testes afetados. Commit explícito dos arquivos da tarefa; mensagem `test: provar limites e operacao da governanca`.
-- [ ] Publicar pelo PR e checks protegidos. Só declarar G07/G09 completos com a prova nativa correspondente. Se houver pendência de login/dispatch, entregar catálogo/auditoria/revisão com a matriz parcial explícita e manter a frente de prova aberta; não usar verde do CI offline como substituto. Atualizar vault local e terminar com `ATRASO` medido contra a main.
+Publicação: seguir o [PR #8 e seus checks protegidos](https://github.com/Matheusrpc/YoungCrowHarness/pull/8). Só declarar G07/G09 completos com a prova nativa correspondente. Se houver pendência de login/dispatch, entregar catálogo/auditoria/revisão com a matriz parcial explícita e manter a frente de prova aberta; não usar verde do CI offline como substituto. Atualizar vault local e terminar com `ATRASO` medido contra a main.
 
 ## Matriz de cobertura e revisão deste plano
 
@@ -536,4 +536,4 @@ Configuração de ensaio: Codex com servidor habilitado e `enabled_tools=["yc_re
 
 Revisão do plano: cada critério foi associado a uma tarefa; os cinco Review Focus têm casos no ciclo de teste correspondente. Os nomes de APIs e campos são compartilhados pelos contratos acima. As tarefas têm commits separados, sem reescrever a arquitetura de storage, instalar um proxy ou ampliar o escopo de memória. A prova de permissão nativa tem uma saída parcial explícita porque a ausência de autenticação/dispatch não pode ser resolvida com simulação do próprio controle.
 
-Próxima ação: concluir regressão protegida do PR #8 e publicar. G07/G09 estão verificados no despacho local Codex e pendentes no Claude. A matriz no relatório registra essa entrega parcial; nenhum resultado de descoberta substitui execução. Todas as etapas de implementação foram executadas, inclusive as saídas de pendência previstas para a prova nativa.
+A regressão protegida passou com 202 testes (quatro skips de plataforma); a publicação segue o estado do PR #8. G07/G09 estão verificados no despacho local Codex e pendentes no Claude. A matriz no relatório registra essa entrega parcial; nenhum resultado de descoberta substitui execução. Todas as etapas de implementação foram executadas, inclusive as saídas de pendência previstas para a prova nativa.

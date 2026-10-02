@@ -42,7 +42,7 @@ de plataforma. A revisão independente encontrou três problemas: permissões Cl
 temporários de revisão fora do ignore e contagem/encerramento do MCP no caminho de erro. Cada um
 recebeu teste que falhou antes da correção. Depois passaram 21 testes de capacidades e quatro de
 prova, incluindo um servidor real aguardando entrada. O ensaio nativo Codex também foi repetido.
-A regressão completa após essas correções é executada no CI Linux protegido do PR #8.
+A regressão completa após essas correções passou no [CI Linux protegido do PR #8](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37009589168): 202 testes em 64,435 segundos, quatro skips específicos de plataforma. O job Graphify também passou.
 A medição da suíte final e a inspeção visual ficam na
 [medição sintética](../medicoes/2026-10-02-capability-governance.json).
 Os testes anteriores passaram em ciclos de falha/sucesso: catálogo (9), auditor (14 acumulados),

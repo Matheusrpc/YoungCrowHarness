@@ -53,8 +53,14 @@
       "status": "passed"
     },
     "final_linux_ci": {
-      "status": "pending",
-      "pull_request": 8
+      "status": "passed",
+      "tests": 202,
+      "seconds": 64.435,
+      "skipped": 4,
+      "pull_request": 8,
+      "run_id": 37009589168,
+      "code_revision": "9148e3e477649f832c3719f24dbdc1ee0c7436fe",
+      "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37009589168"
     }
   },
   "claims_scope": "Synthetic local dispatch only; not universal enforcement or model conversation.",

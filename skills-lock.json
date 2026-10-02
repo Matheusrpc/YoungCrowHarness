@@ -1,14 +1,20 @@
 {
   "version": 2,
   "skills_de_projeto": {
-    "personalizer": {
+    "ingest-source": {
       "versao": "1",
+      "versionado_aqui": "skills/ingest-source",
+      "claude": ".claude/skills/ingest-source",
+      "codex": ".agents/skills/ingest-source"
+    },
+    "personalizer": {
+      "versao": "2",
       "versionado_aqui": "skills/personalizer",
       "claude": ".claude/skills/personalizer",
       "codex": ".agents/skills/personalizer"
     },
     "integrate-from-docs": {
-      "versao": "1",
+      "versao": "2",
       "versionado_aqui": "skills/integrate-from-docs",
       "claude": ".claude/skills/integrate-from-docs",
       "codex": ".agents/skills/integrate-from-docs",

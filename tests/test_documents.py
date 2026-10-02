@@ -135,6 +135,15 @@ class IngestCase(ProjectCase):
 
 
 class IngestTests(IngestCase):
+    def test_resuming_an_opaque_pending_source_binds_its_first_locator(self):
+        pending = self.documents.record_pending(self.root, 'source_unavailable')
+        resumed = self.ingest(source_id=pending['source_id'])
+        repeated = self.ingest()
+        self.assertEqual(resumed['source_id'], pending['source_id'])
+        self.assertEqual(repeated['source_id'], pending['source_id'])
+        self.assertEqual(repeated['revision'], resumed['revision'])
+        self.assertEqual(len(self.calls), 1)
+
     def test_remote_sources_use_local_bytes_and_keep_queries_private(self):
         from test_source_fetch import server
         self.store.prepare_storage(self.root)

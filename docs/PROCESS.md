@@ -4,7 +4,7 @@
 
 <a id="portugues"></a>
 
-Os diagramas visíveis no README mostram as três entradas práticas: projeto novo, adoção e operação.
+Os diagramas visíveis no README mostram quatro caminhos: projeto novo, adoção, operação e ingestão de fontes.
 Este fluxo detalha as decisões de descoberta, revisão e publicação, incluindo pausas e recuperação.
 Os círculos representam eventos; as caixas, tarefas; os losangos, decisões. É uma documentação
 inspirada em BPMN. Pessoas e agentes executam o rito; PM e Tech Lead são responsabilidades.
@@ -25,7 +25,11 @@ flowchart TB
     F --> G[Definir feature, entregas e aceite]
   end
   subgraph execucao["Executor e especialista em integrações"]
-    G --> H[Implementar entrega e testar]
+    G --> S{Documentos ou referências?}
+    S -->|Sim| I[Usar ingest-source: extrair ou registrar pendência]
+    I --> Q[Registrar evidência disponível ou pendência]
+    Q --> H[Implementar entrega e testar]
+    S -->|Não| H
     H --> J[Atualizar README e vault]
   end
   subgraph verificacao["Revisor e responsável pela publicação"]
@@ -47,8 +51,8 @@ flowchart TB
   classDef gate fill:#f6d77a,color:#17130f,stroke:#17130f,stroke-width:2px;
   classDef memory fill:#5B2E8A,color:#fff,stroke:#17130f,stroke-width:2px;
   class A,Z,Y event;
-  class C,D,F,G,H,J,M,R,V,W task;
-  class B,E,K,L,N gate;
+  class C,D,F,G,H,J,M,R,V,W,I,Q task;
+  class B,E,K,L,N,S gate;
   class P,X memory;
   style descoberta fill:#f8f4eb,stroke:#17130f,color:#17130f
   style planejamento fill:#f8f4eb,stroke:#17130f,color:#17130f
@@ -60,9 +64,14 @@ Uma entrevista pausada retoma pelo índice de produto. Cada entrega registra cap
 testes, revisão e próximo passo; produção exige evidência do ambiente. Quando a publicação não faz
 parte do escopo, registre “não aplicável”; quando falta autorização, registre a pendência.
 
+Fontes inacessíveis bloqueiam apenas o trabalho que depende delas. Fontes e relações privadas ficam
+no índice local; compartilhá-las exige uma cópia revisada e aprovação do digest exato. A conversão
+usa estado persistido e limites; o hook só registra referências. Veja o [fluxo de fontes](../assets/process-sources-pt.svg)
+e o [guia de operação](USAGE.md#fontes-pt).
+
 <a id="english"></a>
 
-The README diagrams cover three practical paths: a new project, adoption and daily work.
+The README diagrams cover four paths: a new project, adoption, daily work and source intake.
 This detailed flow includes discovery, review and release decisions, pauses and recovery.
 Circles are events, boxes are tasks and diamonds are decisions. This is BPMN-inspired documentation.
 People and agents carry out the process; PM and Tech Lead are responsibilities.
@@ -83,7 +92,11 @@ flowchart TB
     F --> G[Define feature, slices and acceptance]
   end
   subgraph execution["Executor and integration specialist"]
-    G --> H[Implement a slice and test]
+    G --> S{Documents or references?}
+    S -->|Yes| I[Use ingest-source: extract or record pending]
+    I --> Q[Record available evidence or pending input]
+    Q --> H[Implement a slice and test]
+    S -->|No| H
     H --> J[Update README and vault]
   end
   subgraph verification["Reviewer and release owner"]
@@ -105,8 +118,8 @@ flowchart TB
   classDef gate fill:#f6d77a,color:#17130f,stroke:#17130f,stroke-width:2px;
   classDef memory fill:#5B2E8A,color:#fff,stroke:#17130f,stroke-width:2px;
   class A,Z,Y event;
-  class C,D,F,G,H,J,M,R,V,W task;
-  class B,E,K,L,N gate;
+  class C,D,F,G,H,J,M,R,V,W,I,Q task;
+  class B,E,K,L,N,S gate;
   class P,X memory;
   style discovery fill:#f8f4eb,stroke:#17130f,color:#17130f
   style planning fill:#f8f4eb,stroke:#17130f,color:#17130f
@@ -117,6 +130,11 @@ flowchart TB
 Resume a paused interview through the product index. Each delivery records capabilities used,
 tests, review and the next action; production requires environment evidence. Record release as
 “not applicable” when outside scope, or pending when authorization is missing.
+
+Inaccessible sources block only dependent work. Private sources and relations stay under the local
+index. Sharing them requires a reviewed copy and approval of its exact digest. Conversion uses
+persisted state and limits; the hook only records references. See the [source flow](../assets/process-sources-en.svg)
+and [operating guide](USAGE.md#sources-en).
 
 Os SVGs editáveis em `assets/process-*.svg` são as versões visuais do README. Ao mudar o rito,
 atualize os diagramas PT/EN, este fluxo e o guia de uso. Preserve a paleta e confira a legibilidade.

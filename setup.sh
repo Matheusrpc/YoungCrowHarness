@@ -43,15 +43,16 @@ FILES+=(scripts/vault.py scripts/document_store.py)
 FILES+=(scripts/documents.py scripts/docling_worker.py requirements/docling.txt)
 FILES+=(scripts/source_fetch.py)
 FILES+=(requirements/docling-media.txt)
+FILES+=(scripts/source_prompt.py skills/ingest-source/SKILL.md)
 SKILL_ROOTS=()
 if [ "$CLIENT" != codex ]; then
   FILES+=(.mcp.json .claude/settings.json .claude/agents/integration-specialist.md
-    .claude/skills/integrate-from-docs/SKILL.md .claude/skills/personalizer/SKILL.md)
+    .claude/skills/integrate-from-docs/SKILL.md .claude/skills/personalizer/SKILL.md .claude/skills/ingest-source/SKILL.md)
   SKILL_ROOTS+=("$HOME/.claude/skills")
 fi
 if [ "$CLIENT" != claude ]; then
   FILES+=(.codex/hooks.json .codex/config.toml .codex/agents/integration-specialist.toml
-    .agents/skills/integrate-from-docs/SKILL.md .agents/skills/personalizer/SKILL.md)
+    .agents/skills/integrate-from-docs/SKILL.md .agents/skills/personalizer/SKILL.md .agents/skills/ingest-source/SKILL.md)
   SKILL_ROOTS+=("$TARGET/.agents/skills")
 fi
 for ferramenta in python3 git mkdir cp chmod mv mktemp; do
@@ -164,6 +165,12 @@ copiar() {  # copiar <relativo>: nunca sobrescreve sem --force
   local rel="$1" src="$HARNESS_DIR/$1" dst="$TARGET/$1"
   # Knowledge is product data, never a replaceable configuration template.
   if [[ "$rel" == vault/* ]] && [ -e "$dst" ]; then echo "  mantido / preserved: $rel (vault)"; return; fi
+  case "$rel" in
+    .mcp.json|.codex/config.toml|.claude/settings.json|.codex/hooks.json)
+      if [ -e "$dst" ]; then
+        echo "  preservado / preserved: $rel; compare e mescle / compare and merge with $src"; return
+      fi ;;
+  esac
   if [ -e "$dst" ] && [ "$FORCE" != 1 ]; then echo "  mantido  $rel (já existe; use --force para trocar)"; return; fi
   mkdir -p "$(dirname "$dst")"; cp "$src" "$dst"; echo "  copiado  $rel"
   case "$rel" in

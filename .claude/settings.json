@@ -26,6 +26,17 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -c \"import pathlib,runpy,sys; c=pathlib.Path.cwd(); p=next(p/'scripts/source_prompt.py' for p in (c,*c.parents) if (p/'scripts/source_prompt.py').is_file()); sys.path.insert(0,str(p.parent)); runpy.run_path(str(p),run_name='__main__')\"",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

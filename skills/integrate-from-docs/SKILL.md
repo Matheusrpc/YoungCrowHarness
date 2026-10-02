@@ -11,6 +11,8 @@ Act as `integration-specialist` for the requested integration. Work inside the p
 
 Read the project's instructions, `vault/index.md`, `vault/integrations/index.md`, the provider/service microindex and relevant run. Retrieve only linked notes needed for this task. Check the current code/dependencies against those records. Ask only for missing decisions that affect execution; reuse existing answers.
 
+Use `ingest-source` for supplied documentation, attachments and URLs. Read `vault/local/index.md` and related source receipts when present. Required local execution fields: source IDs/revisions, evidence and relation, pending IDs/reasons, actual capabilities and next action. Keep these records linked through the local index; shared integration notes receive only reviewed information and shared links. An extracted supplier document still needs official-origin and version verification.
+
 Identify vendor, service, goal/feature and target environment. A request to document or diagnose does not authorize implementing or deploying. For a new integration or execution, from the project root run:
 
 ```bash

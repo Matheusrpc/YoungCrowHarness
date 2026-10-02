@@ -223,6 +223,8 @@ def source_record(root, project, locator, source_id=None, *, origin_key=None):
         found = next((record for record in records if record['source_id'] == source_id), None)
         if found is None:
             raise ValueError('Source identity does not belong to this project.')
+        if found.get('locator') is None and locator is not None:
+            found.update(locator=locator, origin_key=origin_key)
         return found
     found = next((record for record in records if locator is not None
                   and (record.get('origin_key') == origin_key if origin_key else record.get('locator') == locator)), None)
@@ -235,6 +237,18 @@ def save_attempt(root, record, receipt):
     write_json(root, base / 'attempts' / (receipt['attempt_id'] + '.json'), receipt)
     record['latest_attempt'] = receipt['attempt_id']
     write_json(root, base / 'source.json', record)
+    source_index(root, record['source_id'])
+
+
+def source_index(root, source_id):
+    index = Path('vault/local/sources') / source_id / 'index.md'
+    if not safe_path(root, index).exists():
+        body = (f'# Source {source_id}\n\n[Sources](../index.md)\n\n'
+                'Read the latest receipt for state and next action; a reference alone is not an extraction.\n\n'
+                f'```bash\npython3 scripts/documents.py status --source-id {source_id} --json\n```\n')
+        atomic_write(root, index, markdown(source_id, 'source', 'Source ' + source_id, '../index.md', body))
+    append_link(root, 'vault/local/sources/index.md', f'[{source_id}]({source_id}/index.md)')
+    return index
 
 
 def file_digest(path):
@@ -364,9 +378,7 @@ def persist_note(root, record, receipt, output):
                 '## Extracted source\n\n' + extracted + '\n')
         atomic_write(root, note, markdown(str(uuid.uuid5(uuid.UUID(source_id), key)), 'source',
                                          'Source ' + source_id, 'index.md', body))
-    if not (root / index).exists():
-        atomic_write(root, index, markdown(source_id, 'source', 'Source ' + source_id, '../index.md',
-                                          f'# Source {source_id}\n\n[Sources](../index.md)\n'))
+    source_index(root, source_id)
     # Activate navigation last. Existing human text is never regenerated.
     append_link(root, index, f'[{key}]({note.name})')
     append_link(root, 'vault/local/sources/index.md', f'[{source_id}]({source_id}/index.md)')

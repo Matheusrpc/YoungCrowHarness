@@ -11,6 +11,8 @@ Turn the owner's idea and existing evidence into a project-specific harness and 
 
 Read project instructions and `vault/index.md`. If onboarding exists, read `vault/product/index.md`, the profile, relevant interview and adoption notes. Check what changed in the repository since the last record. Reuse confirmed answers; distinguish operator statements, observed files/commands, hypotheses and unknowns. Do not load the whole vault.
 
+When discovery uses documents, attachments or URLs, use `ingest-source`. Read `vault/local/index.md` when present and the linked source receipts. Save source IDs/revisions, evidence, pending IDs/reasons, actual capabilities and next action in a local execution note; link it from the local index. Keep shared product notes free of private links and unreviewed source text.
+
 For first use, determine `new` or `existing` from the request and codebase; ask if ambiguous. From the project root:
 
 ```bash

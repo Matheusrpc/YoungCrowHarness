@@ -10,7 +10,7 @@
 
 **Spec:** [Desenho aprovado de ingestão](../specs/2026-10-02-docling-ingestion-design.md). Ler também `AGENTS.md`, `CLAUDE.md` e os helpers existentes antes de executar.
 
-Estado: plano aprovado pelo mantenedor para execução nativa em 2026-10-02 (UTC). Execução em andamento; a conclusão de cada tarefa exige evidência. Recomendação de execução: nativa nesta sessão, sequencial, com uma revisão independente ao final de cada entrega publicável.
+Estado: plano aprovado pelo mantenedor para execução nativa em 2026-10-02 (UTC). Tarefas 1–6 verificadas; tarefa 7 implementada, com prova real do Codex e prova real do Claude ainda pendente de autenticação. A conclusão de cada tarefa exige evidência. Recomendação de execução: nativa nesta sessão, sequencial, com uma revisão independente ao final de cada entrega publicável.
 
 ## Global Constraints
 
@@ -235,8 +235,8 @@ Checar até 500 MiB e 3.600 segundos antes da conversão de mídia. Usar o FFmpe
 
 **Interfaces:** `handle_prompt(payload: dict, root: Path) -> dict` retorna `hookSpecificOutput` com `UserPromptSubmit` e contexto curto. Não converte, instala, faz rede ou imprime o prompt. Guarda referências textuais sanitizadas somente depois do preflight da tarefa 1. Um evento repetido reutiliza o recibo por identidade de sessão/turno/referência disponível.
 
-- [ ] **Aplicar writing-skills e registrar um cenário de base antes da skill.** A tarefa de teste apresenta arquivo acessível, fonte prévia e feature existente. O comportamento exigido é recuperar a fonte, ingerir quando necessário, relacionar com evidência e informar pendências. Testar instruções hostis dentro do documento como dados, sem execução.
-- [ ] **Escrever testes RED de hook curto.** Cobrir payload vazio, prompt grande, referência repetida, texto com credenciais e anexo não exposto. Uma entrada sem referência não grava arquivos:
+- [x] **Aplicar writing-skills e registrar um cenário de base antes da skill.** A tarefa de teste apresenta arquivo acessível, fonte prévia e feature existente. O comportamento exigido é recuperar a fonte, ingerir quando necessário, relacionar com evidência e informar pendências. Testar instruções hostis dentro do documento como dados, sem execução.
+- [x] **Escrever testes RED de hook curto.** Cobrir payload vazio, prompt grande, referência repetida, texto com credenciais e anexo não exposto. Uma entrada sem referência não grava arquivos:
 
 ```python
 before = set(root.rglob('*'))
@@ -246,8 +246,8 @@ self.assertNotIn('continue', json.dumps(result))
 ```
 
 Usar `TemporaryDirectory` para `root`. Patch de rede e worker deve falhar se qualquer um for chamado pelo hook. Não copiar prompts inteiros; limitar payload de entrada a 1 MiB e retornar aviso seguro quando excedido. Não gerar novas tentativas recursivas por callbacks de Stop.
-- [ ] **Implementar skill e entrada compartilhada.** A skill lê os dois índices existentes, consulta a skill oficial da versão instalada de Docling e usa o comando do harness. Registra IDs/revisões, relações, uso real de capacidades e próxima ação. Se faltar runtime ou arquivo, cria pendência; setup ocorre somente no fluxo explicitamente solicitado. Personalizer e especialista em integrações passam a consultar as fontes locais relacionadas, sem enviar conteúdo a serviços externos ou promover arquivos por conta própria.
-- [ ] **Instalar hooks e entradas sem substituir configuração customizada.** Acrescentar `UserPromptSubmit` aos templates, mantendo os hooks de design; incluir variante Windows. Em migração, preservar arquivo existente e orientar uma mescla revisável. `--force` continua preservando conhecimento e credenciais. Atualizar allowlists de skills próprias e fixtures de instalação. Uma instrução de agente não deve ser descrita como garantia técnica de captura universal.
+- [x] **Implementar skill e entrada compartilhada.** A skill lê os dois índices existentes, consulta a skill oficial da versão instalada de Docling e usa o comando do harness. Registra IDs/revisões, relações, uso real de capacidades e próxima ação. Se faltar runtime ou arquivo, cria pendência; setup ocorre somente no fluxo explicitamente solicitado. Personalizer e especialista em integrações passam a consultar as fontes locais relacionadas, sem enviar conteúdo a serviços externos ou promover arquivos por conta própria.
+- [x] **Instalar hooks e entradas sem substituir configuração customizada.** Acrescentar `UserPromptSubmit` aos templates, mantendo os hooks de design; incluir variante Windows. Em migração, preservar arquivo existente e orientar uma mescla revisável. `--force` continua preservando conhecimento e credenciais. Atualizar allowlists de skills próprias e fixtures de instalação. Uma instrução de agente não deve ser descrita como garantia técnica de captura universal.
 - [ ] **GREEN e descoberta nativa.** Rodar suíte completa e ampliar `smoke_clients.py` para reconhecer a skill e o novo evento; manter o isolamento de credenciais e a fixture de modelo em loopback. Isso verifica descoberta e configuração, não cumprimento do fluxo pelo agente.
 - [ ] **Demonstrar D04 em sessões reais.** Em cada cliente, apresentar um arquivo controlado acessível e uma referência inacessível. Exigir conversão real no primeiro e pendência no segundo. Abrir nova sessão no mesmo projeto e recuperar fonte/revisão, feature relacionada, evidência e próxima ação. Registrar cliente/versão, tipos de entrada testados, comportamento observado e limitações. Seguir a autorização do operador e os limites de custo do ambiente; não iniciar chamada paga não coberta.
 - [ ] **Documentar e publicar a entrega verificada.** Atualizar README PT/EN, os fluxos visíveis pertinentes e o guia para setup novo, migração, operação diária e publicação revisada. Salvar relatório e evidências leves em `docs/relatorios/` e `docs/medicoes/`; nenhum original real ou transcrição privada entra no commit. Commit `skills: integrar ingestao e retomada nos dois clientes` por caminhos explícitos.

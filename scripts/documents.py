@@ -324,6 +324,7 @@ def converter_info(root, profile):
 
 def new_receipt(record, reason='conversion_not_started'):
     return dict(schema_version=1, project_id=record['project_id'], source_id=record['source_id'],
+                created_at=store.datetime.now(store.timezone.utc).isoformat(timespec='seconds'),
                 revision=None, attempt_id=str(uuid.uuid4()), state='pending', note_path=None,
                 converter=None, coverage={}, warnings=[reason], next_action='ingest_source')
 
@@ -485,6 +486,9 @@ def main():
     status_parser = sub.add_parser('status')
     status_parser.add_argument('--source-id')
     status_parser.add_argument('--json', action='store_true')
+    pending = sub.add_parser('pending', help='Record an inaccessible attachment without inventing its content.')
+    pending.add_argument('--reason', choices=['source_unavailable', 'runtime_missing', 'unsupported_source', 'reference_needs_review'], required=True)
+    pending.add_argument('--json', action='store_true')
     sub.add_parser('lock-status').add_argument('--json', action='store_true')
     recover = sub.add_parser('recover-lock')
     recover.add_argument('--token', required=True)
@@ -517,6 +521,8 @@ def main():
             result = doctor(args.root, args.profile)
         elif args.command == 'ingest':
             result = ingest(args.root, args.source, source_id=args.source_id)
+        elif args.command == 'pending':
+            result = record_pending(args.root, args.reason)
         elif args.command == 'lock-status':
             result = store.lock_status(args.root.resolve(strict=True))
         elif args.command == 'recover-lock':

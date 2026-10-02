@@ -26,6 +26,8 @@ FILES += INTEGRATION_FILES + PERSONALIZER_FILES + ('scripts/vault.py', 'scripts/
 FILES += ('scripts/documents.py', 'scripts/docling_worker.py', 'requirements/docling.txt')
 FILES += ('scripts/source_fetch.py',)
 FILES += ('requirements/docling-media.txt',)
+FILES += ('scripts/source_prompt.py', 'skills/ingest-source/SKILL.md',
+          '.claude/skills/ingest-source/SKILL.md', '.agents/skills/ingest-source/SKILL.md')
 
 
 def shell_path(path):
@@ -51,6 +53,17 @@ def fake_git(args):
 
 
 class SetupTests(unittest.TestCase):
+    def test_force_preserves_client_settings_and_credentials(self):
+        originals = {name: 'CUSTOM_SENTINEL\n' for name in
+                     ('.mcp.json', '.codex/config.toml', '.claude/settings.json', '.codex/hooks.json')}
+        for name, content in originals.items():
+            write(self.target / name, content)
+        result = self.run_setup('--no-plugins', '--force')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for name, content in originals.items():
+            self.assertEqual((self.target / name).read_text(), content, name)
+        self.assertIn('merge', result.stdout)
+
     def setUp(self):
         self.bash = shutil.which('bash') or 'C:/Program Files/Git/bin/bash.exe'
         self.real_git = shutil.which('git')

@@ -20,7 +20,7 @@
 <text x="1020.0" y="217" text-anchor="middle" font-size="16" fill="#17130f" data-max-width="258">Configuração e acesso revisados</text>
 <rect x="40" y="348" width="280" height="135" rx="9" fill="#F3E7C6" stroke="#E8A317" stroke-width="3"/>
 <text x="180.0" y="377" text-anchor="middle" font-size="15" fill="#17130f" data-max-width="258">DOCUMENTOS + MÍDIA</text>
-<text x="180.0" y="405" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="258">Docling</text>
+<text x="180.0" y="405" text-anchor="middle" font-size="19" fill="#17130f" data-max-width="258">ingest-source · Docling</text>
 <text x="180.0" y="433" text-anchor="middle" font-size="16" fill="#17130f" data-max-width="258">Markdown · origens · revisões</text>
 <text x="180.0" y="461" text-anchor="middle" font-size="16" fill="#17130f" data-max-width="258">Arquivos locais · URLs diretas</text>
 <rect x="380" y="348" width="440" height="135" rx="9" fill="#F3E7C6" stroke="#5B2E8A" stroke-width="3"/>

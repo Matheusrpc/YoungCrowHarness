@@ -16,6 +16,9 @@
   `humanizer`, mantenha PT/EN coerentes e preserve o design atual, inclusive o diagrama do processo.
 - Para personalizar ou adotar o harness, use `personalizer` e retome por `vault/product/index.md`
   quando existir. A instrução compartilhada está em `skills/personalizer/SKILL.md`.
+- Documentos, anexos e URLs usam `ingest-source` (`skills/ingest-source/SKILL.md`). Consulte também
+  `vault/local/index.md` quando existir; preserve fonte, revisão, evidência e próxima ação.
+  Uma referência recebida pelo hook ainda precisa de ingestão. Anexo inacessível fica pendente.
 
 ## Navegador: fechar é obrigatório
 
@@ -29,6 +32,11 @@ paga em curso.
 `.codex/hooks.json` chama o detector de design do plugin `impeccable` depois de cada edição e ao fim
 da sessão, só se o plugin estiver instalado em `$HOME/.agents/skills/impeccable`. Sem o plugin, os
 hooks não fazem nada.
+
+`UserPromptSubmit` registra referências textuais em recibos privados e orienta o uso de `ingest-source`.
+Esse hook não converte, instala nem acessa a rede. Exige Python 3 (`python3` no Unix, `python` no
+Windows), confiança do cliente e configuração mesclada em migrações. Anexos não expostos pelo cliente
+precisam de registro explícito; o hook não garante captura universal.
 
 ## Configuração do Codex
 

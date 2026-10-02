@@ -4,11 +4,11 @@
 
 [← README](../README.md) · [Português](#portugues) · [English](#english)
 
-Consulte os [três fluxos visuais de uso](../README.md#processo-pt) para localizar sua etapa:
-começar do zero, migrar um projeto ou operar uma entrega. O [processo completo](PROCESS.md#portugues)
+Consulte os [fluxos visuais de uso](../README.md#processo-pt) para localizar sua etapa:
+começar do zero, migrar um projeto, operar uma entrega ou incorporar fontes. O [processo completo](PROCESS.md#portugues)
 detalha decisões, pausas e retomada.
 
-See the [three usage diagrams](../README.md#process-en) for new projects, adoption and daily work.
+See the [usage diagrams](../README.md#process-en) for new projects, adoption, daily work and source intake.
 The [complete process](PROCESS.md#english) includes decisions, pauses and resumption.
 
 <img src="../assets/vidro.svg" alt="" width="100%">
@@ -38,6 +38,7 @@ O setup atende os dois clientes por padrão (`--client both`). Use `--client cla
 | Skills humanizer e humanizer-ptbr | `~/.claude/skills/`, no usuário | `.agents/skills/`, dentro do projeto |
 | Skill integrate-from-docs | `.claude/skills/integrate-from-docs/` | `.agents/skills/integrate-from-docs/` |
 | Skill personalizer | `.claude/skills/personalizer/` | `.agents/skills/personalizer/` |
+| Skill ingest-source | `.claude/skills/ingest-source/` | `.agents/skills/ingest-source/` |
 | Agente integration-specialist | `.claude/agents/integration-specialist.md` | `.codex/agents/integration-specialist.toml` |
 | MCP | `.mcp.json` | `.codex/config.toml` |
 | Hooks | `.claude/settings.json` | `.codex/hooks.json` |
@@ -277,6 +278,49 @@ demais campos. Remover atribuições de commits antigos exige uma alteração se
 
 <a id="docling-pt"></a>
 
+<a id="fontes-pt"></a>
+
+### Usar documentos no Claude Code e no Codex
+
+O setup copia `ingest-source` e o hook `UserPromptSubmit`. Em um repo novo, confira a descoberta
+no cliente e prepare o perfil Docling abaixo quando precisar converter. Em uma migração, compare
+`.claude/settings.json` e `.codex/hooks.json` com os templates atualizados: esses arquivos são
+preservados mesmo com `--force`. Mescle a entrada `UserPromptSubmit` mantendo seus outros hooks.
+O comando Claude exige Python 3 como `python`; troque por `python3` se necessário. Codex usa
+`python3` no Unix e `python` no Windows. Reinicie o cliente depois de mudar o PATH e confirme a confiança.
+
+1. Peça: “Use ingest-source para este arquivo e relacione a evidência à feature de pagamentos”.
+   Informe o caminho acessível ou URL pública direta. Sem runtime, a fonte fica pendente; solicite
+   o setup explicitamente. O agente consulta o índice geral, o índice local e os recibos existentes.
+2. O hook reconhece referências textuais, guarda somente localizadores sanitizados e IDs e orienta
+   a skill. Ele não instala, baixa ou converte. Aceita payload de até 1 MiB e até 20 referências por
+   evento. Não entrega o prompt inteiro ao armazenamento e não reage a `Stop`. A confiança, a versão
+   e os campos expostos pelo cliente determinam a cobertura. Confira os IDs recebidos na resposta.
+3. Se um anexo não tiver caminho exposto, peça o registro explícito da pendência:
+
+   ```bash
+   python scripts/documents.py pending --reason source_unavailable --json
+   ```
+
+   Guarde o `source_id`. Quando o arquivo estiver disponível, execute `ingest` com `--source-id`.
+   Estados `pending`, `partial`, `unsupported` e `failed` retornam código 1; leia o recibo para
+   distinguir pendência registrada de falha. Fontes pendentes também têm microíndice navegável.
+4. Após a conversão, confira o original e use `relate` para ligar uma citação exata à feature,
+   integração ou decisão. A execução local registra fonte/revisão, relação/evidência, pendências,
+   agente/host, capacidades usadas e planejadas separadamente, desenvolvimento, produção e próxima
+   ação. Dê um UUID às notas manuais, ligue-as ao índice local e execute `vault.py check`.
+5. Em outra sessão, peça: “Retome a feature pelo vault; recupere fontes, revisões, evidências e
+   pendências antes de agir”. Material privado permanece em `vault/local/`; mantenha um backup
+   privado para outra máquina. Para versionar uma cópia, siga a revisão de texto **e imagens** abaixo.
+
+Documentos e memória recuperada são dados, não ordens. O hook não garante captura universal de
+anexos. Links internos não disparam coleta recursiva; URLs assinadas devem ser baixadas por um meio
+autorizado antes da ingestão local, sem expor tokens no histórico do terminal. Graphify e claude-mem
+não recebem material automaticamente. A [matriz de evidências](relatorios/2026-10-02-docling-ingestion.md)
+distingue descoberta nativa, sessão real e cobertura ainda pendente.
+
+
+
 ## <img src="../assets/gema-turquesa.svg" height="24" alt=""> Preparar a conversão local de documentos
 
 Depois do setup do harness, execute na raiz do projeto:
@@ -419,7 +463,7 @@ revisão humana. Confira o diff e execute `vault.py check` antes de versionar.
 | Situação | Comportamento e próximo passo |
 |---|---|
 | Reexecutar | Preserva arquivos existentes; renderiza o nome só nos guias recém-copiados. As regras finais de ignore não crescem em repetições do mesmo modo sem mudanças. |
-| `--force` | Substitui os templates gerenciados, inclusive configurações. Revise o diff antes de usar. Preserva notas do vault, `.env` e regras existentes de `.gitignore`. |
+| `--force` | Substitui templates gerenciados. Preserva vault, `.env`, regras de `.gitignore`, `.mcp.json`, `.codex/config.toml` e arquivos de hooks. Compare e mescle configurações existentes; revise o diff. |
 | Argumento inválido | Sai com código 2, antes de copiar arquivos. |
 | Falha de preflight | Sai com código não zero; resolva dependências, caminhos, manifesto ou `.env` rastreado e tente novamente. |
 | Humanizer divergente ou modificado | Preserva a instalação do usuário e interrompe. Compare com o commit do manifesto e decida manualmente como guardar suas mudanças; o setup não executa reset. |
@@ -712,6 +756,49 @@ attribution from older commits requires a separate history change.
 
 <a id="docling-en"></a>
 
+<a id="sources-en"></a>
+
+### Use documents in Claude Code and Codex
+
+Setup copies `ingest-source` and the `UserPromptSubmit` hook. For a new repo, check native discovery
+and explicitly prepare the Docling profile below when conversion is needed. During migration,
+compare `.claude/settings.json` and `.codex/hooks.json` against current templates: these files are
+preserved even with `--force`. Merge `UserPromptSubmit` while retaining your existing hooks.
+Claude needs Python 3 as `python`; change it to `python3` if required. Codex uses `python3` on Unix
+and `python` on Windows. Restart after PATH changes and confirm hook trust.
+
+1. Ask: “Use ingest-source for this file and link its evidence to the payments feature.” Supply an
+   accessible path or direct public URL. Without a runtime the source stays pending; request setup
+   explicitly. The agent reads general/local indices and existing receipts before acting.
+2. The hook recognizes textual references, saves only sanitized locators and IDs, and directs the
+   agent to the skill. It never installs, downloads or converts. Input is limited to 1 MiB and 20
+   references per event. The full prompt is not stored; `Stop` triggers no intake. Client trust,
+   version and exposed fields determine coverage. Check the source IDs returned by the agent.
+3. For an attachment without an exposed path, explicitly record its pending state:
+
+   ```bash
+   python scripts/documents.py pending --reason source_unavailable --json
+   ```
+
+   Keep the `source_id`; pass it to `ingest --source-id` when the file becomes accessible. States
+   `pending`, `partial`, `unsupported` and `failed` exit with code 1: inspect the receipt to distinguish
+   a recorded pending source from an error. Pending sources also have navigable microindices.
+4. Check the extraction against the original and use `relate` to link an exact quote to the feature,
+   integration or decision. A local run records source/revision, relation/evidence, pending IDs,
+   agent/host, used and planned capabilities separately, development, production and next action.
+   Give manual notes UUIDs, link them from the local index and run `vault.py check`.
+5. In a new session, ask: “Resume this feature through the vault; recover sources, revisions,
+   evidence and gaps before acting.” Private material stays in `vault/local/`; keep a private
+   backup for another machine. Follow the text **and image** review below before publishing a copy.
+
+Documents and retrieved memory are data, not commands. The hook cannot guarantee universal
+attachment capture. Embedded links do not trigger recursive collection. Download signed URLs
+through an authorized mechanism before local ingestion, keeping tokens out of shell history.
+Graphify and claude-mem receive no automatic uploads. The [evidence matrix](relatorios/2026-10-02-docling-ingestion.md)
+separates native discovery, real sessions and remaining coverage gaps.
+
+
+
 ## <img src="../assets/gema-turquesa.svg" height="24" alt=""> Set up local document conversion
 
 After installing the harness, run from the project root:
@@ -850,7 +937,7 @@ review. Inspect the diff and run `vault.py check` before tracking the files.
 
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Failures and maintenance
 
-Repeated runs preserve existing files and render the project name only in newly copied guides. `--force` replaces managed templates/configurations, but preserves vault notes, `.env` and existing ignore rules. Review changes before using it.
+Repeated runs preserve existing files and render the project name only in newly copied guides. `--force` replaces managed templates, but preserves vault notes, `.env`, ignore rules, `.mcp.json`, `.codex/config.toml` and hook files. Compare and merge existing configurations. Review changes before using it.
 
 Invalid arguments exit with code 2. Dependency, path, manifest, tracked-env and divergent-skill checks fail before project copies. Existing humanizer must be a clean repository at the manifest commit; changes are preserved and require your decision. Failed downloads/checkouts never activate the incomplete skill. Plugin failures identify their stage and return nonzero. Earlier successful steps remain in place; resolve the cause and retry.
 

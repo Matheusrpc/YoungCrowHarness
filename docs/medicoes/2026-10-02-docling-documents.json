@@ -1,0 +1,62 @@
+{
+  "doctor": {
+    "state": "ready",
+    "warnings": [],
+    "profile": "documents",
+    "docling": "2.132.0",
+    "python": "3.12.10",
+    "models": 50
+  },
+  "results": [
+    {
+      "format": ".docx",
+      "state": "ready",
+      "phrase_found": true,
+      "seconds": 38.13,
+      "warnings": [],
+      "coverage": {
+        "pages": []
+      }
+    },
+    {
+      "format": ".html",
+      "state": "ready",
+      "phrase_found": true,
+      "seconds": 11.18,
+      "warnings": [],
+      "coverage": {
+        "pages": []
+      }
+    },
+    {
+      "format": ".pdf",
+      "state": "ready",
+      "phrase_found": true,
+      "seconds": 20.07,
+      "warnings": [],
+      "coverage": {
+        "pages": [
+          1
+        ]
+      }
+    },
+    {
+      "format": ".png",
+      "state": "ready",
+      "phrase_found": true,
+      "seconds": 25.84,
+      "warnings": [],
+      "coverage": {
+        "pages": [
+          1
+        ]
+      }
+    }
+  ],
+  "platform": "Windows",
+  "fixture": "controlled page, known phrase",
+  "models_bytes": 714539672,
+  "known_limitations": [
+    "Horizontal banner OCR reordered two words; inspect extraction against the source."
+  ]
+}

@@ -275,6 +275,34 @@ identidade Git de quem realizou o trabalho e os créditos de terceiros. O setup 
 existentes: em um projeto já adotado, ajuste apenas essas duas propriedades no JSON e mantenha os
 demais campos. Remover atribuições de commits antigos exige uma alteração separada do histórico.
 
+<a id="docling-pt"></a>
+
+## <img src="../assets/gema-turquesa.svg" height="24" alt=""> Preparar a conversão local de documentos
+
+Depois do setup do harness, execute na raiz do projeto:
+
+```bash
+python scripts/documents.py setup --profile documents --json
+python scripts/documents.py doctor --json
+```
+
+Use um Python compatível com as dependências do Docling; a validação desta entrega usa Python 3.12.
+O primeiro comando cria um ambiente próprio em `.operacao-local/docling/venv` e baixa Docling
+2.132.0, modelos de layout, tabelas e OCR latino. Reserve disco e tempo para esse download.
+A conversão usa CPU e os modelos locais. O setup comum do harness não instala esses pacotes.
+
+`doctor` confere versões e arquivos de modelos sem instalar ou converter nada. Se retornar
+`runtime_missing`, execute o setup. `runtime_version_mismatch` exige conferir o ambiente existente;
+o comando preserva esse ambiente e não o atualiza automaticamente. Uma instalação interrompida
+sem manifesto pode ser retomada repetindo o setup; diagnósticos ficam na área local.
+
+O perfil inicial cobre PDF, DOCX, PNG/JPEG e HTML local, com teto de 100 MiB, 500 páginas e
+30 minutos por conversão. Recursos externos referenciados no arquivo não são baixados.
+Revise o texto extraído antes de usá-lo como evidência: uma imagem de página preservou a frase
+de prova, mas uma faixa horizontal com o mesmo texto teve palavras fora de ordem. `ready`
+indica que o processamento terminou; não certifica fidelidade ao original.
+O comando de ingestão, as relações e a publicação revisada estão sendo implementados nas etapas seguintes.
+
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Falhas, repetição e manutenção
 
 | Situação | Comportamento e próximo passo |
@@ -571,6 +599,34 @@ identity of the person doing the work and third-party credits. Setup preserves e
 in an adopted project, edit only those two JSON properties and keep the remaining fields. Removing
 attribution from older commits requires a separate history change.
 
+<a id="docling-en"></a>
+
+## <img src="../assets/gema-turquesa.svg" height="24" alt=""> Set up local document conversion
+
+After installing the harness, run from the project root:
+
+```bash
+python scripts/documents.py setup --profile documents --json
+python scripts/documents.py doctor --json
+```
+
+Use a Python version supported by Docling's dependencies; this delivery was verified with
+Python 3.12. Setup creates `.operacao-local/docling/venv` and downloads Docling 2.132.0 plus layout,
+table and Latin OCR models. Allow disk space and time for this download. Conversion uses the CPU
+and local models. The regular harness installer does not install these packages.
+
+`doctor` checks package versions and model files without installing or converting anything.
+Run setup for `runtime_missing`. For `runtime_version_mismatch`, inspect the existing environment;
+setup preserves it instead of updating it automatically. Repeat setup to resume an interrupted
+installation that has no completed manifest. Diagnostics remain in local storage.
+
+The initial profile covers PDF, DOCX, PNG/JPEG and local HTML, limited to 100 MiB, 500 pages and
+30 minutes per conversion. It does not fetch resources referenced inside a document. Review the
+extracted text before using it as evidence: a page image preserved the test phrase, while a horizontal
+banner with the same text reordered words. `ready` means processing finished; it does not certify
+fidelity to the original. Ingestion,
+relations and reviewed publication are being implemented in the following steps.
+
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Failures and maintenance
 
 Repeated runs preserve existing files and render the project name only in newly copied guides. `--force` replaces managed templates/configurations, but preserves vault notes, `.env` and existing ignore rules. Review changes before using it.
@@ -599,3 +655,5 @@ Tests use local Git, simulated network/plugin calls and an isolated temporary ho
 <p align="center">
   <img src="../assets/assinatura.svg" alt="☧ Ora et labora ☧ et coda" width="100%">
 </p>
+
+- Docling: [formatos e limites do fornecedor](https://docling-project.github.io/docling/usage/supported_formats/) · [versão usada](https://github.com/docling-project/docling/tree/v2.132.0).

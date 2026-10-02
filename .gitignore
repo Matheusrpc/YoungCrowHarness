@@ -31,3 +31,4 @@ node_modules/
 .impeccable/questions/
 .impeccable/live/
 # impeccable-ignore-end
+/.operacao-local/docling/

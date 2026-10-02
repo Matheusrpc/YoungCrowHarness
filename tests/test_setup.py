@@ -23,6 +23,7 @@ PERSONALIZER_FILES = ('scripts/personalize.py', 'skills/personalizer/SKILL.md',
                       'skills/personalizer/references/interview.md',
                       '.claude/skills/personalizer/SKILL.md', '.agents/skills/personalizer/SKILL.md')
 FILES += INTEGRATION_FILES + PERSONALIZER_FILES + ('scripts/vault.py', 'scripts/document_store.py')
+FILES += ('scripts/documents.py', 'scripts/docling_worker.py', 'requirements/docling.txt')
 
 
 def shell_path(path):
@@ -301,6 +302,14 @@ class SetupTests(unittest.TestCase):
     def test_full_install_and_repeat(self):
         result = self.run_setup('--name', 'Complete project')
         self.assertEqual(result.returncode, 0, result.stderr)
+        for rel in ('scripts/documents.py', 'scripts/docling_worker.py', 'requirements/docling.txt'):
+            self.assertEqual((self.target / rel).read_bytes(), (ROOT / rel).read_bytes())
+        paths = set(self.target.rglob('*'))
+        diagnostic = subprocess.run([sys.executable, str(self.target / 'scripts/documents.py'),
+                                     '--root', str(self.target), 'doctor', '--json'],
+                                    capture_output=True, timeout=30)
+        self.assertEqual(json.loads(diagnostic.stdout)['warnings'], ['runtime_missing'])
+        self.assertEqual(set(self.target.rglob('*')), paths)
         calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
         installs = [call[-1] for call in calls if call[:3] == ['claude', 'plugin', 'install']]
         self.assertEqual(len(installs), 5)

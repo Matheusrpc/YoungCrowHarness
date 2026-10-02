@@ -150,6 +150,56 @@ Para cada entrega, mantenha um relato em `docs/relatorios/` e evidências leves 
 
 Para retomar, peça ao agente que leia as instruções e o último relato da frente antes de modificar arquivos. Para integrações, comece em `vault/index.md` e siga fornecedor → serviço → execução. Atualize links e estado ao concluir. Uma ferramenta disponível não concede permissão para usá-la em qualquer ambiente.
 
+<a id="vault-check-pt"></a>
+
+## <img src="../assets/gema-violeta.svg" height="24" alt=""> Conferir a organização do vault
+
+Execute na raiz do produto após atualizar as memórias e antes de encerrar uma entrega:
+
+```bash
+python3 scripts/vault.py check
+python3 scripts/vault.py check --json
+```
+
+O setup instala esse comando para Claude Code e Codex. Para um projeto que já usa o harness,
+atualize o clone de origem e repita o setup sem `--force`: o novo arquivo será copiado e as notas
+existentes serão preservadas. O comando usa Python e o helper `scripts/integrations.py`, sem serviços externos.
+
+A saída lista arquivo, código do problema e orientação. O código de saída é `0` quando as checagens
+passam, `1` quando há problemas no vault e `2` para argumentos inválidos. `--json` fornece os mesmos
+diagnósticos em formato estruturado, sem incluir o corpo das notas. Nenhum arquivo é corrigido ou criado.
+
+Cada nota Markdown precisa dos campos `id`, `type`, `title`, `origin`, `updated` e `index` no cabeçalho
+entre linhas `---`. Os comandos do personalizer e de integrações já os criam. Os valores são textos
+em uma linha, sem aspas ou entre aspas simples/duplas; `updated` usa data ISO, como `2026-10-01`,
+ou timestamp ISO. Outros campos do Obsidian podem continuar no cabeçalho e não são avaliados.
+Notas antigas sem esses campos são apontadas para revisão; não recebem identidades novas automaticamente.
+
+| Problema | Como resolver |
+|---|---|
+| `metadata` / `duplicate_id` | Complete os campos indicados. Preserve a identidade ao mover uma nota; notas distintas precisam de IDs distintos. |
+| `invalid_index` / `index_cycle` | Faça `index` apontar para um `index.md` do vault. A cadeia precisa chegar a `vault/index.md`, que aponta para si mesmo. |
+| `missing_index_link` / `unreachable` | Acrescente o link da nota ao microíndice declarado e ligue esse microíndice à navegação geral. |
+| `broken_link` / `ambiguous_link` | Corrija o destino ou o rótulo de referência. Em wikilinks ambíguos, use o caminho completo dentro do vault. |
+| `unsafe_path` / `unsafe_link` / `unreadable` | Confira permissões, UTF-8 e tipos dos arquivos. Links simbólicos, junctions, hardlinks e caminhos fora do projeto são recusados. |
+| `missing_vault` / `missing_root_index` | Instale ou recupere o vault e seu índice geral antes de conferir a navegação. |
+
+São conferidos links Markdown para arquivos, imagens, referências por rótulo e wikilinks como
+`[[features/pagamentos/index|Pagamentos]]`. Wikilinks com caminho partem da raiz do vault;
+`./` e `../` partem da nota atual. Um nome sem caminho pode encontrar uma nota de nome único.
+Links Markdown partem da pasta da nota e podem apontar para código ou documentação dentro do projeto.
+Prefira links Markdown relativos para navegar também no GitHub.
+
+Exemplos cercados por três ou mais crases/tils, código inline, comentários HTML e a pasta `.obsidian`
+ficam fora da checagem. Linhas indentadas são conferidas, inclusive sublistas: use cercas nos exemplos
+de código para evitar diagnósticos sobre links fictícios. URLs externas não são acessadas;
+fragmentos `#seção` não são validados. O comando verifica
+a estrutura dos campos obrigatórios e os formatos de link descritos, sem interpretar todo o YAML
+ou toda a sintaxe Markdown. Também não confirma a veracidade de relatos, ausência de segredos,
+resultados de testes ou estado de produção. Execute com o vault sem alterações concorrentes.
+Use rótulos simples nos links: rótulos com colchetes internos e aberturas escapadas como
+`\[exemplo](arquivo.md)` ainda exigem conferência manual.
+
 <a id="personalizer-pt"></a>
 
 ## <img src="../assets/gema-ambar.svg" height="24" alt=""> Personalizar e retomar
@@ -373,6 +423,55 @@ The current workflow is manual. One person can fill several roles with agents; s
 Create delivery reports in `docs/relatorios/` and lightweight evidence in `docs/medicoes/` as needed, following `CLAUDE.md`. Include a topic identifier, objective, development status, production status with evidence, decisions, files/commits, tests, required versus actually used agents/skills/MCPs, unresolved work and links to related reports. Keep sensitive logs and secrets out.
 
 At the next session, read the project instructions and latest workstream report before editing. For integrations, follow `vault/index.md` → provider → service → run. Update links and state when finished. Tool availability does not grant authorization for every environment.
+
+<a id="vault-check-en"></a>
+
+## <img src="../assets/gema-violeta.svg" height="24" alt=""> Check vault organization
+
+Run from the product root after updating memory and before closing a delivery:
+
+```bash
+python3 scripts/vault.py check
+python3 scripts/vault.py check --json
+```
+
+Setup installs this command for Claude Code and Codex. For an existing harness installation,
+update the source clone and run setup again without `--force`: it copies the new file and preserves
+existing notes. The command uses Python and `scripts/integrations.py`, with no external service.
+
+Output includes the file, issue code and guidance. Exit status is `0` when checks pass, `1` for vault
+issues and `2` for invalid arguments. `--json` returns the same diagnostics as structured data,
+without note bodies. The command does not repair or create files.
+
+Each Markdown note needs `id`, `type`, `title`, `origin`, `updated` and `index` in frontmatter between
+`---` lines. Personalizer and integration commands already create these fields. Values are single-line
+strings, unquoted or single/double quoted; `updated` is an ISO date such as `2026-10-01` or an ISO
+timestamp. Other Obsidian properties may remain in the header and are not evaluated. Legacy notes
+missing these fields are reported for review; new identities are never assigned automatically.
+
+| Issue | Resolution |
+|---|---|
+| `metadata` / `duplicate_id` | Complete the indicated fields. Keep identity when moving a note; distinct notes need distinct IDs. |
+| `invalid_index` / `index_cycle` | Point `index` to a vault `index.md`. The chain must reach `vault/index.md`, which references itself. |
+| `missing_index_link` / `unreachable` | Add a note link to its declared index and connect that index to general navigation. |
+| `broken_link` / `ambiguous_link` | Fix the destination or reference label. Use the full vault-relative path for ambiguous wikilinks. |
+| `unsafe_path` / `unsafe_link` / `unreadable` | Check permissions, UTF-8 and file types. Symlinks, junctions, hardlinks and paths outside the project are rejected. |
+| `missing_vault` / `missing_root_index` | Install or restore the vault and its general index before checking navigation. |
+
+The check covers Markdown file and image links, labeled references and wikilinks such as
+`[[features/payments/index|Payments]]`. Wiki paths start at the vault root; `./` and `../` start
+at the current note. A bare name may resolve to a uniquely named note. Markdown paths start at the
+note's directory and may reference code or documentation inside the project. Prefer relative
+Markdown links when the notes should also be navigable on GitHub.
+
+Fenced blocks using three or more backticks/tildes, inline code, HTML comments and `.obsidian` are
+excluded. Indented lines, including nested lists, are checked: fence code examples to avoid reports
+about fictional links. External URLs are not fetched; `#section` fragments are not checked.
+This validates required field structure and the link formats
+above, without implementing all YAML or Markdown syntax. It does not verify claims, detect secrets,
+confirm test outcomes or inspect production. Run it while the vault has no concurrent edits.
+Use simple link labels: nested brackets inside labels and escaped openings such as
+`\[example](file.md)` still require manual inspection.
 
 <a id="personalizer-en"></a>
 

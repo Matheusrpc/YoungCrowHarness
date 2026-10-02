@@ -39,6 +39,7 @@ FILES+=(scripts/integrations.py skills/integrate-from-docs/SKILL.md
   skills/integrate-from-docs/references/memory.md
   vault/index.md vault/integrations/index.md vault/capabilities/index.md)
 FILES+=(scripts/personalize.py skills/personalizer/SKILL.md skills/personalizer/references/interview.md)
+FILES+=(scripts/vault.py)
 SKILL_ROOTS=()
 if [ "$CLIENT" != codex ]; then
   FILES+=(.mcp.json .claude/settings.json .claude/agents/integration-specialist.md

@@ -22,7 +22,7 @@ INTEGRATION_FILES = ('scripts/integrations.py', 'skills/integrate-from-docs/SKIL
 PERSONALIZER_FILES = ('scripts/personalize.py', 'skills/personalizer/SKILL.md',
                       'skills/personalizer/references/interview.md',
                       '.claude/skills/personalizer/SKILL.md', '.agents/skills/personalizer/SKILL.md')
-FILES += INTEGRATION_FILES + PERSONALIZER_FILES
+FILES += INTEGRATION_FILES + PERSONALIZER_FILES + ('scripts/vault.py',)
 
 
 def shell_path(path):
@@ -354,6 +354,23 @@ class SetupTests(unittest.TestCase):
     def test_missing_personalizer_source_blocks_setup(self):
         (self.source / 'skills/personalizer/references/interview.md').unlink()
         self.assert_no_project_writes(self.run_setup('--no-plugins'))
+
+    def test_vault_check_installed_for_each_client_without_changing_notes(self):
+        for client in ('claude', 'codex'):
+            with self.subTest(client=client):
+                self.target = self.base / ('check-' + client)
+                self.target.mkdir()
+                result = self.run_setup('--client', client, '--sem-plugins')
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                before = {p.relative_to(self.target): p.read_bytes()
+                          for p in self.target.rglob('*') if p.is_file()}
+                result = subprocess.run([sys.executable, str(self.target / 'scripts/vault.py'),
+                                         'check', '--json'], cwd=self.target, capture_output=True,
+                                        encoding='utf-8', timeout=15)
+                self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+                self.assertEqual(json.loads(result.stdout)['notes_checked'], 3)
+                self.assertEqual(before, {p.relative_to(self.target): p.read_bytes()
+                                         for p in self.target.rglob('*') if p.is_file()})
 
     def test_force_preserves_vault_knowledge(self):
         original = b'# Conhecimento do produto\r\n'

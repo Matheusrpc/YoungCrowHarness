@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/badge/licen%C3%A7a-MIT-E8A317?style=for-the-badge&labelColor=17130f" alt="Licença MIT">
   <img src="https://img.shields.io/badge/Claude_Code-harness-1F4FA3?style=for-the-badge&labelColor=17130f" alt="Claude Code">
   <img src="https://img.shields.io/badge/Codex-harness-1F7A4D?style=for-the-badge&labelColor=17130f" alt="Codex">
-  <img src="https://img.shields.io/badge/sem_segredos-no_secrets-B3202F?style=for-the-badge&labelColor=17130f" alt="Sem segredos">
+  <img src="https://img.shields.io/badge/segredos-local_only-B3202F?style=for-the-badge&labelColor=17130f" alt="Mantenha segredos locais">
 </p>
 
 <p align="center">
@@ -26,29 +26,119 @@
 
 Um ponto de partida para projetos feitos com Claude Code e Codex. Você clona, roda um comando, e o
 projeto novo já nasce com as regras da casa, os hooks, os atalhos de MCP e as skills que valem a pena.
-Não tem segredo nenhum aqui dentro: tudo o que é senha, token ou chave fica no `.env` local, que o
-`.gitignore` já protege.
+Senhas, tokens e chaves devem ficar no ambiente local. O instalador protege o `.env` com uma regra
+de ignore e recusa um `.env` já rastreado; revise também os demais arquivos antes de versionar.
 
 O corvo do vitral é o mascote. Ele carrega uma medalha de São Bento, e o lema está na assinatura, no
 fim desta página.
+
+O `personalizer` ajuda a adaptar o harness ao seu produto: lê o projeto, pergunta o que falta,
+registra as decisões e prepara a primeira feature. A entrevista fica no [vault](vault/index.md),
+junto das entregas, integrações e evidências que permitem retomar o trabalho em outra sessão.
+Para fornecedores, `integration-specialist` e `integrate-from-docs` orientam a implementação a partir
+da documentação oficial. As duas skills funcionam com Claude Code e Codex.
+
+A entrevista e a auditoria são conduzidas pelo agente. Os comandos organizam as notas e preservam
+o conteúdo existente. A sincronização automática com Graphify/claude-mem e a orquestração autônoma
+de papéis continuam na [evolução planejada](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 
 ## <img src="assets/gema-rubi.svg" height="24" alt=""> Começar em um comando
 
 ```bash
 git clone https://github.com/Matheusrpc/YoungCrowHarness.git
-bash YoungCrowHarness/setup.sh meu-projeto --nome "Meu Projeto"
+bash YoungCrowHarness/setup.sh meu-projeto --client both --nome "Meu Projeto"
 ```
 
-O `setup.sh` faz quatro coisas. Copia o harness para a pasta do projeto sem sobrescrever o que já
-existe. Cria um `.env` local a partir do `.env.example`, com permissão 600, para você preencher à mão.
-Instala a skill `humanizer` do upstream (commit pinado) e a `humanizer-ptbr` em `~/.claude/skills/`. E,
+**Passo a passo:** [repo do zero](docs/USAGE.md#zero-pt) · [migrar repo existente](docs/USAGE.md#migrar-pt) · [como operar](docs/USAGE.md#operar-pt).
+
+Requer Bash, Git e `python3` funcionando no mesmo terminal. No Windows, use Git Bash.
+O `setup.sh` copia o harness preservando os arquivos existentes e acrescenta proteção ao `.gitignore`.
+Cria um `.env` local a partir do `.env.example`, com permissão 600 onde suportada, para você preencher à mão.
+Instala a skill `humanizer` do upstream (commit pinado) e a `humanizer-ptbr`: em `~/.claude/skills/` para Claude
+e `.agents/skills/` no projeto para Codex. Use `--client claude`, `--client codex` ou `--client both` (padrão). E,
 se o Claude Code estiver instalado, adiciona os marketplaces e instala os plugins listados em
 `skills-lock.json`. Rode com `--sem-plugins` para pular essa última parte, ou com `--force` para trocar
-arquivos que já existem.
+os templates que já existem. `.env` e as regras existentes de `.gitignore` são preservados mesmo com force.
+As skills dos clientes selecionados continuam com `--sem-plugins`; as do Claude afetam o usuário.
+O modo Codex não chama o Claude. Plugins do Codex são instalados pelo catálogo do próprio cliente.
+Humanizer divergente ou modificado é preservado e interrompe o setup; falhas de instalação retornam código não zero.
+O guia explica como retomar e quais componentes exigem instalação manual.
 
 Depois disso, abra o `CLAUDE.md` e troque cada `<preencher>` pelo que é seu: comandos de teste, alvos de
-publicação, fronteiras. Abra o `.mcp.json` e coloque as URLs dos seus servidores. Aí é só rodar
-`claude` dentro da pasta.
+publicação, fronteiras. Configure MCPs em `.mcp.json` para Claude e `.codex/config.toml` para Codex.
+Abra o cliente na pasta e [confira skills, MCPs e hooks](docs/USAGE.md#clientes-pt).
+
+Peça: “Use personalizer para adaptar este projeto. Leia o que já existe, pergunte o que falta e
+registre a primeira feature no vault.” Veja o [guia de personalização](docs/USAGE.md#personalizer-pt)
+para começar do zero, migrar ou retomar uma entrevista.
+
+<a id="processo-pt"></a>
+
+## <img src="assets/gema-violeta.svg" height="24" alt=""> Da ideia à entrega
+
+O fluxo abaixo usa eventos, tarefas, decisões e responsáveis, inspirado em BPMN. Ele descreve o
+rito assistido por pessoas e agentes. PM e Tech Lead são responsabilidades que podem ser assumidas
+em sessões diferentes; o harness ainda não executa uma equipe autônoma nem publica sozinho.
+
+O caminho principal é: descoberta → planejamento → implementação → revisão → publicação autorizada.
+Abra o diagrama para ver responsáveis, decisões e caminhos de retomada.
+
+<details>
+<summary>Ver o processo completo</summary>
+
+```mermaid
+flowchart TB
+  subgraph descoberta["Personalizer e operador"]
+    A((Ideia)) --> B{Projeto existente?}
+    B -->|Sim| C[Auditar código e convenções]
+    B -->|Não| D[Entrevistar e salvar respostas]
+    C --> D
+    D --> E{Contexto suficiente?}
+    E -->|Não| P[Salvar pendências e próxima pergunta]
+    P --> Z((Retomar depois))
+  end
+  subgraph planejamento["PM e Tech Lead"]
+    E -->|Sim| F[Adaptar perfil e guias]
+    F --> G[Definir feature, entregas e aceite]
+  end
+  subgraph execucao["Executor e especialista em integrações"]
+    G --> H[Implementar entrega e testar]
+    H --> J[Atualizar README e vault]
+  end
+  subgraph verificacao["Revisor e responsável pela publicação"]
+    J --> K{Revisão aprovada?}
+    K -->|Não| H
+    K -->|Sim| L{Publicar no escopo autorizado?}
+    L -->|Sim| M[Publicar e observar]
+    M --> N{Ambiente verificado?}
+    N -->|Não| R[Recuperar ou reverter e registrar]
+    R --> H
+    N -->|Sim| V[Registrar versão e evidência de produção]
+    L -->|Não| W[Registrar entrega e publicação pendente ou não aplicável]
+  end
+  V --> X[Salvar resultado e próximo passo no vault]
+  W --> X
+  X --> Y((Entrega registrada))
+  classDef event fill:#1F7A4D,color:#fff,stroke:#17130f,stroke-width:3px;
+  classDef task fill:#1F4FA3,color:#fff,stroke:#17130f,stroke-width:2px;
+  classDef gate fill:#f6d77a,color:#17130f,stroke:#17130f,stroke-width:2px;
+  classDef memory fill:#5B2E8A,color:#fff,stroke:#17130f,stroke-width:2px;
+  class A,Z,Y event;
+  class C,D,F,G,H,J,M,R,V,W task;
+  class B,E,K,L,N gate;
+  class P,X memory;
+  style descoberta fill:#f8f4eb,stroke:#17130f,color:#17130f
+  style planejamento fill:#f8f4eb,stroke:#17130f,color:#17130f
+  style execucao fill:#f8f4eb,stroke:#17130f,color:#17130f
+  style verificacao fill:#f8f4eb,stroke:#17130f,color:#17130f
+```
+
+</details>
+
+Em cada entrega, o README acompanha o comportamento implementado e passa pela revisão de texto
+com `humanizer`. O vault guarda fontes, decisões, capacidades usadas, testes e o próximo passo.
+Produção só muda de estado quando houver evidência do ambiente. Se faltar autorização, registre
+a pendência e encerre a sessão; a próxima retoma pelos índices.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
@@ -59,11 +149,17 @@ publicação, fronteiras. Abra o `.mcp.json` e coloque as URLs dos seus servidor
 | `AGENTS.md` | A entrada do Codex: lê o `CLAUDE.md` primeiro, um executor escreve por vez, revisores só leem, e o navegador fecha ao terminar. |
 | `.claude/settings.json` | Hooks do Claude Code. Chamam o detector de design do plugin `impeccable` depois de cada edição, só se ele estiver instalado. |
 | `.codex/hooks.json` | Os mesmos hooks, no formato do Codex. |
+| `.codex/config.toml` | MCPs do Codex no escopo do projeto. Exemplos desativados até revisão; exige confiança do projeto. |
 | `.mcp.json` | Atalhos de MCP com URLs de exemplo. Nunca ponha token aqui; o token vai por variável de ambiente. |
 | `.env.example` | Os nomes das variáveis que o projeto espera, com valores falsos. O `.env` real nasce daqui e nunca entra no git. |
 | `.gitignore` | Segredos, caches, evidência pesada e estado local fora do repositório. |
-| `skills-lock.json` | O retrato dos plugins e skills que o harness usa, com marketplace, versão e commit, para outra máquina reproduzir. |
+| `skills-lock.json` | Inventário dos plugins e origem das skills. O instalador verifica o commit de humanizer; versões dos plugins de marketplace ainda não são fixadas por este manifesto. |
 | `skills/humanizer-ptbr/` | Juiz de texto em português: 25 padrões de escrita de máquina e como reescrever. |
+| `skills/personalizer/` | Entrevista retomável, auditoria guiada e adaptação do projeto. |
+| `skills/integrate-from-docs/` | Documentação oficial, implementação e histórico de integrações. |
+| `vault/` | Índice geral e capacidades; produto, features, decisões e operação crescem conforme o uso. |
+| `scripts/personalize.py` | Cria os registros de personalização e a primeira feature sem substituir notas. |
+| `scripts/integrations.py` | Cria notas de fornecedores e exporta registros com identidade e revisão. |
 | `setup.sh` | O comando que monta tudo. |
 
 ## <img src="assets/gema-esmeralda.svg" height="24" alt=""> As dez leis
@@ -76,8 +172,8 @@ O texto completo, com o porquê de cada uma, está no `CLAUDE.md`.
 
 ## <img src="assets/gema-violeta.svg" height="24" alt=""> O que não está aqui
 
-Nenhuma senha, token, chave de API, IP, nome de máquina ou dado de cliente. O harness é a forma de
-trabalhar, não o trabalho. As skills de terceiros não estão copiadas: o `setup.sh` instala do upstream,
+Use exemplos públicos; mantenha credenciais e dados de clientes fora dos arquivos versionados.
+As skills de terceiros não estão copiadas: o `setup.sh` instala do upstream,
 com a licença e o commit de cada uma. Os plugins do `skills-lock.json` que vêm de diretório local (o
 `impeccable`) você instala à mão, seguindo a página do próprio plugin.
 
@@ -96,29 +192,118 @@ repositório é MIT.
 
 A starting point for projects built with Claude Code and Codex. Clone it, run one command, and the new
 project starts with the house rules, the hooks, the MCP shortcuts and the skills that earn their place.
-There is no secret inside: every password, token or key lives in a local `.env`, which the `.gitignore`
-already protects.
+Passwords, tokens and keys belong in the local environment. Setup protects `.env` with an ignore rule
+and rejects a tracked `.env`; review other files before committing them as well.
 
 The crow in the stained glass is the mascot. It wears a Saint Benedict medal, and the motto is in the
 signature at the end of this page.
+
+The `personalizer` reads your project, asks about missing decisions and prepares its profile and first
+feature. Interviews, deliveries, integrations and evidence live in the [vault](vault/index.md), so a
+later session can resume from the saved records. For vendor work, `integration-specialist` and
+`integrate-from-docs` guide implementation from official documentation. Both skills support Claude Code and Codex.
+
+The agent conducts the interview and adoption audit. Commands organize notes and preserve existing
+content. Automatic Graphify/claude-mem synchronization and autonomous role orchestration remain planned.
 
 ## <img src="assets/gema-rubi.svg" height="24" alt=""> Start with one command
 
 ```bash
 git clone https://github.com/Matheusrpc/YoungCrowHarness.git
-bash YoungCrowHarness/setup.sh my-project --name "My Project"
+bash YoungCrowHarness/setup.sh my-project --client both --name "My Project"
 ```
 
-`setup.sh` does four things. It copies the harness into the project folder without overwriting what is
-already there. It creates a local `.env` from `.env.example`, with permission 600, for you to fill in
+**Step by step:** [new repository](docs/USAGE.md#new-en) · [adopt an existing repo](docs/USAGE.md#migrate-en) · [daily operation](docs/USAGE.md#operate-en).
+
+Requires Bash, Git and a working `python3` in the same terminal. On Windows, use Git Bash.
+`setup.sh` preserves existing project files and appends protection to `.gitignore`.
+It creates a local `.env` from `.env.example`, with permission 600 where supported, for you to fill in
 by hand. It installs the `humanizer` skill from upstream (pinned commit) and `humanizer-ptbr` into
-`~/.claude/skills/`. And, if Claude Code is installed, it adds the marketplaces and installs the plugins
+`~/.claude/skills/` for Claude and project-local `.agents/skills/` for Codex. Choose `--client claude`,
+`--client codex` or `--client both` (default). For Claude, it adds the marketplaces and installs the plugins
 listed in `skills-lock.json`. Run it with `--no-plugins` to skip that last part, or with `--force` to
-replace files that already exist.
+replace existing templates. `.env` and existing ignore rules are preserved even with force.
+Selected clients' skills still install with `--no-plugins`; Claude installations affect the user.
+Codex-only mode does not call Claude. Install Codex plugins through its own catalog.
+A dirty or mismatched humanizer is preserved and blocks setup; installation failures return nonzero.
+The guide explains recovery and manual components.
 
 After that, open `CLAUDE.md` and replace each `<preencher>` (fill in) with what is yours: test commands,
 publication targets, boundaries. If you work in English, move `docs/CLAUDE.en.md` over `CLAUDE.md`.
-Open `.mcp.json` and put in the URLs of your servers. Then run `claude` inside the folder.
+Configure `.mcp.json` for Claude and `.codex/config.toml` for Codex. Open your client inside the folder
+and check loaded skills, MCPs and hooks using the [usage guide](docs/USAGE.md#english).
+
+Ask: “Use personalizer to adapt this project. Read what is already here, ask about missing decisions
+and record the first feature in the vault.” Follow the [personalization guide](docs/USAGE.md#personalizer-en)
+for a new product, adoption or a resumed interview.
+
+<a id="process-en"></a>
+
+## <img src="assets/gema-violeta.svg" height="24" alt=""> From idea to delivery
+
+This BPMN-style view shows events, tasks, decisions and responsibilities in Mermaid. People and
+agents carry out the process. PM and Tech Lead are roles that can be held in separate sessions;
+the harness does not yet run an autonomous team or deploy on its own.
+
+The main path is discovery → planning → implementation → review → authorized release.
+Expand the diagram for responsibilities, decisions and resumption paths.
+
+<details>
+<summary>View the complete process</summary>
+
+```mermaid
+flowchart TB
+  subgraph discovery["Personalizer and owner"]
+    A((Idea)) --> B{Existing project?}
+    B -->|Yes| C[Audit code and conventions]
+    B -->|No| D[Interview and save answers]
+    C --> D
+    D --> E{Enough context?}
+    E -->|No| P[Save gaps and next question]
+    P --> Z((Resume later))
+  end
+  subgraph planning["PM and Tech Lead"]
+    E -->|Yes| F[Adapt profile and guides]
+    F --> G[Define feature, slices and acceptance]
+  end
+  subgraph execution["Executor and integration specialist"]
+    G --> H[Implement a slice and test]
+    H --> J[Update README and vault]
+  end
+  subgraph verification["Reviewer and release owner"]
+    J --> K{Review approved?}
+    K -->|No| H
+    K -->|Yes| L{Release in authorized scope?}
+    L -->|Yes| M[Deploy and observe]
+    M --> N{Environment verified?}
+    N -->|No| R[Recover or roll back and record]
+    R --> H
+    N -->|Yes| V[Record version and production evidence]
+    L -->|No| W[Record delivery and release pending or not applicable]
+  end
+  V --> X[Save outcome and next action in the vault]
+  W --> X
+  X --> Y((Delivery recorded))
+  classDef event fill:#1F7A4D,color:#fff,stroke:#17130f,stroke-width:3px;
+  classDef task fill:#1F4FA3,color:#fff,stroke:#17130f,stroke-width:2px;
+  classDef gate fill:#f6d77a,color:#17130f,stroke:#17130f,stroke-width:2px;
+  classDef memory fill:#5B2E8A,color:#fff,stroke:#17130f,stroke-width:2px;
+  class A,Z,Y event;
+  class C,D,F,G,H,J,M,R,V,W task;
+  class B,E,K,L,N gate;
+  class P,X memory;
+  style discovery fill:#f8f4eb,stroke:#17130f,color:#17130f
+  style planning fill:#f8f4eb,stroke:#17130f,color:#17130f
+  style execution fill:#f8f4eb,stroke:#17130f,color:#17130f
+  style verification fill:#f8f4eb,stroke:#17130f,color:#17130f
+```
+
+</details>
+
+Every implemented delivery updates the README, with `humanizer` used to review the prose. The vault
+keeps sources, decisions, capabilities used, tests and the next action. Production state requires
+environment evidence. When authorization is missing, save the pending work and end the session;
+the next session resumes from the indices.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 
@@ -129,11 +314,17 @@ Open `.mcp.json` and put in the URLs of your servers. Then run `claude` inside t
 | `AGENTS.md` | The Codex entry point: read `CLAUDE.md` first, one writer at a time, reviewers only read, and the browser closes when the task ends. |
 | `.claude/settings.json` | Claude Code hooks. They call the `impeccable` plugin's design detector after each edit, only if it is installed. |
 | `.codex/hooks.json` | The same hooks, in Codex format. |
+| `.codex/config.toml` | Project-scoped Codex MCP servers. Examples start disabled for review; project trust is required. |
 | `.mcp.json` | MCP shortcuts with example URLs. Never put a token here; tokens travel through environment variables. |
 | `.env.example` | The names of the variables the project expects, with fake values. The real `.env` is born from it and never enters git. |
 | `.gitignore` | Secrets, caches, heavy evidence and local state stay out of the repository. |
-| `skills-lock.json` | A snapshot of the plugins and skills the harness uses, with marketplace, version and commit, so another machine can reproduce it. |
+| `skills-lock.json` | Plugin inventory and skill sources. The installer verifies the humanizer commit; this manifest does not yet pin marketplace plugin versions. |
 | `skills/humanizer-ptbr/` | A text judge for Brazilian Portuguese: 25 patterns of machine writing and how to rewrite them. |
+| `skills/personalizer/` | Resumable interview, agent-led audit and project adoption. |
+| `skills/integrate-from-docs/` | Official sources, implementation and integration history. |
+| `vault/` | General and capability indices; product, feature, decision and operation records grow as needed. |
+| `scripts/personalize.py` | Creates onboarding and feature records without replacing notes. |
+| `scripts/integrations.py` | Creates vendor records and exports identity/revision-addressed notes. |
 | `setup.sh` | The command that puts it all together. |
 
 ## <img src="assets/gema-esmeralda.svg" height="24" alt=""> The ten laws
@@ -146,8 +337,8 @@ The full text, with the reason behind each law, is in `docs/CLAUDE.en.md`.
 
 ## <img src="assets/gema-violeta.svg" height="24" alt=""> What is not here
 
-No password, token, API key, IP address, hostname or customer data. The harness is the way of working,
-not the work. Third party skills are not copied: `setup.sh` installs them from upstream, with each one's
+Use public examples; keep credentials and customer data out of tracked files.
+Third party skills are not copied: `setup.sh` installs them from upstream, with each one's
 license and commit. Plugins in `skills-lock.json` that come from a local directory (`impeccable`) you
 install by hand, following the plugin's own page.
 
@@ -156,6 +347,45 @@ install by hand, following the plugin's own page.
 The `humanizer` skill is [blader/humanizer](https://github.com/blader/humanizer), MIT, and its patterns
 come from Wikipedia's [«Signs of AI writing»](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
 The plugins listed in `skills-lock.json` belong to their authors. The rest of this repository is MIT.
+
+<a id="verificacao"></a>
+<a id="verification"></a>
+
+## <img src="assets/gema-cobalto.svg" height="24" alt=""> Verificação / Verification
+
+A `main` deste repositório exige PR, check `installer` do GitHub Actions aprovado, branch atualizada
+e conversas de revisão resolvidas. Exclusão e force push estão bloqueados, sem exceção para admins.
+Há um único mantenedor, portanto não se exige uma segunda aprovação. Veja a
+[configuração e como adotá-la](docs/USAGE.md#protection-pt); o setup não altera regras do GitHub.
+
+This repository's `main` requires a PR, the `installer` check from GitHub Actions, an up-to-date branch
+and resolved review conversations. Deletion and force pushes are blocked, with no admin bypass.
+With one maintainer, a second approval is not required. See the
+[configuration and adoption steps](docs/USAGE.md#protection-en); setup does not change GitHub rules.
+
+```bash
+python3 -m unittest discover -s tests -v  # Python 3.11+
+bash -n setup.sh
+```
+
+| Ambiente / Environment | Evidência / Evidence |
+|---|---|
+| Windows + Git Bash + Python 3.14 | Suíte local; casos de symlink exigem privilégio e rodam no CI Linux / local suite; symlink cases require privileges and run in Linux CI. |
+| Linux | Suíte automática a cada push/PR, incluindo symlinks / automated suite on every push/PR, including symlinks — [execuções / runs](https://github.com/Matheusrpc/YoungCrowHarness/actions). |
+| macOS / PowerShell nativo | Não verificados / not verified. Use Bash. |
+
+Os testes cobrem instalação, preservação, caminhos, índices e retomada. Casos de symlink rodam no Linux;
+o teste de junction nativa é exclusivo de Windows. A suíte usa Git local, usuário temporário e chamadas
+de plugins simuladas. Execute um setup por destino de cada vez.
+O teste opcional [smoke_clients.py](tests/smoke_clients.py) confere skills e agente nos clientes reais.
+O Codex envia uma requisição a um modelo fictício em loopback; o Claude carrega metadados pelo SDK.
+Não há chamada de modelo pago, execução de plugins reais ou conexão MCP. Confira o
+[guia dos clientes](docs/USAGE.md#clientes-pt) para confiança e ativação.
+
+Tests cover installation, preservation, paths, indices and resumption. Symlink cases run on Linux;
+the native junction test runs on Windows. The optional smoke check uses real client loaders, a
+loopback model fixture for Codex and SDK metadata initialization for Claude. It makes no paid model
+calls or MCP connections and does not prove third-party plugin execution.
 
 <p align="center">
   <img src="assets/assinatura.svg" alt="☧ Ora et labora ☧ et coda &lt;/&gt;" width="100%">

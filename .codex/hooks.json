@@ -7,6 +7,7 @@
           {
             "type": "command",
             "command": "[ ! -f \"$HOME/.agents/skills/impeccable/scripts/impeccable\" ] || \"$HOME/.agents/skills/impeccable/scripts/impeccable\" hook",
+            "commandWindows": "python -c \"import pathlib,subprocess; p=pathlib.Path.home()/'.agents/skills/impeccable/scripts/impeccable'; raise SystemExit(subprocess.call(['bash',str(p),'hook']) if p.is_file() else 0)\"",
             "timeout": 5,
             "statusMessage": "Checking UI changes"
           }
@@ -19,6 +20,7 @@
           {
             "type": "command",
             "command": "[ ! -f \"$HOME/.agents/skills/impeccable/scripts/impeccable\" ] || \"$HOME/.agents/skills/impeccable/scripts/impeccable\" hook",
+            "commandWindows": "python -c \"import pathlib,subprocess; p=pathlib.Path.home()/'.agents/skills/impeccable/scripts/impeccable'; raise SystemExit(subprocess.call(['bash',str(p),'hook']) if p.is_file() else 0)\"",
             "timeout": 30,
             "statusMessage": "Design deep pass"
           }

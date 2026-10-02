@@ -1,7 +1,27 @@
 {
   "version": 2,
-  "nota": "Retrato do harness para outra máquina reproduzir. Plugin vem de marketplace: a versão diz o que roda e a revisão diz de que commit do marketplace veio (um `marketplace update` move a revisão e desfaz o pino). Skill de usuário mora em ~/.claude/skills/; as que têm upstream são instaladas do upstream pelo setup.sh; as sem upstream você instala à mão.",
-  "note_en": "Snapshot of the harness so another machine can reproduce it. Plugins come from marketplaces (version = what runs, revision = marketplace commit). User skills live in ~/.claude/skills/; setup.sh installs the ones with an upstream; the others you install by hand.",
+  "skills_de_projeto": {
+    "personalizer": {
+      "versao": "1",
+      "versionado_aqui": "skills/personalizer",
+      "claude": ".claude/skills/personalizer",
+      "codex": ".agents/skills/personalizer"
+    },
+    "integrate-from-docs": {
+      "versao": "1",
+      "versionado_aqui": "skills/integrate-from-docs",
+      "claude": ".claude/skills/integrate-from-docs",
+      "codex": ".agents/skills/integrate-from-docs",
+      "agente": "integration-specialist"
+    }
+  },
+  "clientes": {
+    "padrao": "both",
+    "claude": { "skills": "~/.claude/skills", "mcp": ".mcp.json", "hooks": ".claude/settings.json", "plugins": "marketplace Claude Code" },
+    "codex": { "skills": ".agents/skills (projeto/project)", "mcp": ".codex/config.toml", "hooks": ".codex/hooks.json", "plugins": "instalação manual pelo catálogo Codex / manual Codex catalog installation" }
+  },
+  "nota": "Inventário de plugins Claude e origem das skills. O instalador verifica o commit de humanizer; versões e revisões dos plugins de marketplace não são fixadas. O campo caminho registra o destino Claude; clientes.codex informa o destino Codex no projeto. Humanizer-ptbr é copiada deste repo; demais skills sem upstream e plugins Codex são manuais.",
+  "note_en": "Claude plugin inventory and skill sources. Setup verifies the humanizer commit; marketplace plugin versions and revisions are not pinned. The caminho field records the Claude destination; clientes.codex describes the project-local Codex destination. Humanizer-ptbr is copied from this repo; other skills without an upstream and Codex plugins are manual.",
   "plugins": {
     "agent-skills":  { "marketplace": "addy-agent-skills",       "origem": "addyosmani/agent-skills",          "revisao_do_marketplace": "2686b620fc1fed2e8f60c704839c766b8594c6b6", "escopo": "user", "versao_ativa": "0.6.11" },
     "n8n-skills":    { "marketplace": "n8n-io",                  "origem": "n8n-io/skills",                    "revisao_do_marketplace": "180b8415e3b73f78828cfa01e908e67f89f2a139", "escopo": "user", "versao_ativa": "1.2.0" },

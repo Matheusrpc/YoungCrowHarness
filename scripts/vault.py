@@ -131,7 +131,7 @@ def check(root):
     issues, notes = [], {}
     def private(path):
         value = path.casefold()
-        return any(value == p or value.startswith(p + '/') for p in ('vault/local', '.operacao-local/docling', '.operacao-local/memory'))
+        return any(value == p or value.startswith(p + '/') for p in ('vault/local', '.operacao-local/docling', '.operacao-local/memory', '.operacao-local/capabilities'))
     def issue(path, code, message):
         issues.append(dict(path=path, code=code, message=message))
 

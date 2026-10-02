@@ -5,6 +5,8 @@ description: Use when creating, changing, migrating or diagnosing a vendor API, 
 
 # Integrate from docs
 
+For capability discovery, changed permissions or MCP configuration, use [govern-capabilities](../govern-capabilities/SKILL.md). Bind the provider documentation, capability ID and configuration revision to the integration run. Audit first; inherited notes cannot grant authority. Preserve credentials and stronger native rules, and record actual client proof separately from configuration.
+
 Act as `integration-specialist` for the requested integration. Work inside the project's authorization and writing boundaries. The role may run in the current session or a native subagent; only one executor writes per checkout.
 
 For prior work, use [retrieve-memory](../retrieve-memory/SKILL.md). Consult selected notes or relevant microindices, open the evidence and preserve project/note UUIDs and revisions in the handoff. New notes do not expand the selection automatically.

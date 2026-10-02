@@ -67,6 +67,12 @@ class VaultTests(unittest.TestCase):
         self.note('local/index.md', '[Public](../note.md)')
         self.assertIn('private_reference', self.codes(self.check()))
 
+    def test_public_capability_bundle_link_is_private_even_if_missing(self):
+        self.note('index.md', '[Review](../.operacao-local/capabilities/reviews/private.json)')
+        result = self.check()
+        self.assertEqual(self.codes(result), {'private_reference'})
+        self.assertNotIn('private.json', json.dumps(result))
+
     def test_file_uri_is_rejected_instead_of_treated_as_remote(self):
         self.note('index.md', '[Local file](file:///private.txt)')
         self.assertTrue(self.check()['issues'])

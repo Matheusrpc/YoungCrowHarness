@@ -11,6 +11,52 @@ detalha decisões, pausas e retomada.
 See the [usage diagrams](../README.md#process-en) for new projects, adoption, daily work, source intake and memory retrieval.
 The [complete process](PROCESS.md#english) includes decisions, pauses and resumption.
 
+Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;
+`python scripts/capabilities.py describe retrieve-memory --json` apresenta o contrato. A leitura
+aceita manifestos 2 e 3, não inicializa o vault e não instala capacidades. Versão declarada e hash
+de arquivos não comprovam execução. Use a skill `govern-capabilities` para conduzir o procedimento.
+
+Capability catalog: `python scripts/capabilities.py list --json` shows purpose and clients;
+`python scripts/capabilities.py describe retrieve-memory --json` presents the contract. Reading
+supports manifest versions 2 and 3, without initializing the vault or installing capabilities.
+Declared versions and file hashes do not prove execution.
+
+Auditoria / Audit: `python scripts/capabilities.py audit --client both --json`.
+Use `claude` ou `codex` para uma instalação de cliente único. Estados: `matched` (correspondência local),
+`changed`, `missing`, `unverified`, `unsupported` e `failed`. Código 0 exige correspondência dos requisitos
+obrigatórios; 1 indica pendência obrigatória; 2 indica entrada/configuração inválida ou ilegível.
+O relatório separa conteúdo, configuração e execução. Inventário externo, runtime instalado, aprovação
+nativa e configurações globais permanecem não verificados por essa leitura. Valores de configuração
+potencialmente secretos são omitidos, inclusive em erros. A auditoria não instala nem corrige arquivos.
+
+Use `claude` or `codex` for a single-client installation. States: `matched` (local correspondence),
+`changed`, `missing`, `unverified`, `unsupported` and `failed`. Exit 0 requires matching mandatory
+capabilities; 1 means a mandatory capability is pending; 2 means invalid or unreadable input/configuration.
+Content, configuration and execution are separate. External inventory, installed runtimes, native
+approval and global configuration remain unverified. Potentially secret configuration values are
+omitted, including errors. Auditing never installs, connects to MCPs or repairs files.
+
+Revisão privada / Private review:
+
+```bash
+python scripts/capabilities.py review --id retrieve-memory --client codex --json
+python scripts/capabilities.py review --check DIGEST --json
+```
+
+Troque `DIGEST` pelo valor retornado. A revisão exige `vault/project.json` válido e as pastas
+`vault/local`, `.operacao-local/docling` (lock) e `.operacao-local/capabilities` ignoradas pelo Git.
+Prepare a identidade pelo personalizer e as regras pelo setup; `review` não as corrige. Pacotes ficam
+em `.operacao-local/capabilities/reviews/`. A proposta aponta campos e hashes do contrato para comparação
+manual; argumentos, headers e configurações privadas não são copiados. Mudança de entrada exige nova
+revisão. O hash verifica bytes, não aprovação humana. Aplicação segue a autorização real do operador.
+
+Replace `DIGEST` with the returned value. Review requires a valid `vault/project.json` and Git-ignored
+`vault/local`, `.operacao-local/docling` (lock) and `.operacao-local/capabilities` directories. Initialize
+identity with personalizer and ignore rules with setup; `review` does not repair them. Bundles live in
+`.operacao-local/capabilities/reviews/`. Proposals reference contract fields and hashes for manual comparison;
+arguments, headers and private configurations are not copied. Changed inputs require a new review.
+Hashes verify bytes, not human approval. Applying changes follows the operator's actual authorization.
+
 <img src="../assets/vidro.svg" alt="" width="100%">
 
 <a id="portugues"></a>
@@ -470,7 +516,7 @@ revisão humana. Confira o diff e execute `vault.py check` antes de versionar.
 | Situação | Comportamento e próximo passo |
 |---|---|
 | Reexecutar | Preserva arquivos existentes; renderiza o nome só nos guias recém-copiados. As regras finais de ignore não crescem em repetições do mesmo modo sem mudanças. |
-| `--force` | Substitui templates gerenciados. Preserva vault, `.env`, regras de `.gitignore`, `.mcp.json`, `.codex/config.toml` e arquivos de hooks. Compare e mescle configurações existentes; revise o diff. |
+| `--force` | Substitui templates gerenciados. Preserva vault, `.env`, regras de `.gitignore`, manifesto, skills, agentes, `.mcp.json`, `.codex/config.toml` e hooks existentes. Compare e mescle; revise o diff. |
 | Argumento inválido | Sai com código 2, antes de copiar arquivos. |
 | Falha de preflight | Sai com código não zero; resolva dependências, caminhos, manifesto ou `.env` rastreado e tente novamente. |
 | Humanizer divergente ou modificado | Preserva a instalação do usuário e interrompe. Compare com o commit do manifesto e decida manualmente como guardar suas mudanças; o setup não executa reset. |
@@ -563,6 +609,49 @@ python3 scripts/memory.py --root . clear-index
 
 Memória e ingestão compartilham o lock do projeto. Se uma interrupção deixar `pending`, confira `python3 scripts/documents.py --root . lock-status`. A recuperação exige dono encerrado e o token mostrado: `python3 scripts/documents.py --root . recover-lock --token TOKEN`. Depois execute `rebuild`; não apague o lock manualmente.
 
+
+<a id="governanca-pt"></a>
+
+## Governança: descobrir, revisar e revogar
+
+Num projeto novo, conclua o setup para o cliente escolhido e use `personalizer` para criar a
+identidade do vault. Peça: “Use govern-capabilities para revisar as capacidades deste projeto.”
+Liste o catálogo, abra o contrato da capacidade necessária e audite o cliente antes de habilitá-la.
+
+Numa migração, inventarie primeiro manifesto, skills, agentes, MCPs e hooks existentes. Rode o
+auditor com `--root CAMINHO_DO_PROJETO` antes de aplicar mudanças; se não houver manifesto, registre
+a ausência e compare com o catálogo do harness. O setup preserva esses contratos e as configurações
+nativas, inclusive com `--force`. Mescle apenas o que o projeto precisa e execute a auditoria novamente.
+Use `--client codex` ou `--client claude` quando só houver um cliente.
+
+```bash
+python3 scripts/capabilities.py list --json
+python3 scripts/capabilities.py describe retrieve-memory --json
+python3 scripts/capabilities.py audit --client both --json
+python3 scripts/capabilities.py review --id retrieve-memory --client codex --json
+python3 scripts/capabilities.py review --check DIGEST --json
+```
+
+`review --id` grava um pacote privado; os outros comandos apenas leem. Confira finalidade, origem,
+arquivos e acessos propostos. Aplique diferenças pontuais dentro da autorização vigente. Um pacote
+antigo serve de histórico: se seus inputs mudaram, gere outra revisão. A skill não amplia permissões
+por conta própria nem executa comandos declarados no manifesto.
+
+Para retirar acesso, desabilite o servidor ou remova a permissão na configuração do cliente.
+Abra uma sessão nova e tente a operação retirada; confira a recusa e os registros do servidor.
+Se restaurar o acesso, faça outra prova positiva. Salve ID, versão, escopo, revisão e resultados
+no microíndice local de capacidades, ligado à feature e à execução. Preserve o histórico do vault.
+
+O ensaio sintético passou no Codex 0.158.0-alpha.2.1 pelo despacho local do app-server: uma chamada
+permitida, nenhuma chamada proibida, nenhuma chamada após revogação e uma após restauração.
+O ensaio mede esse caminho e essa versão; não comprova permissões de todos os plugins, clientes ou
+serviços. No Claude 2.1.220, descoberta foi verificada, mas autorização/recusa em execução continuam
+pendentes. O CI offline não substitui essas provas. Veja a [matriz](relatorios/2026-10-02-capability-governance.md).
+
+No checkout do harness, o ensaio opcional usa `python3 tests/smoke_capabilities.py --client codex
+--executable /caminho/absoluto/codex --root /caminho/novo/descartavel` (uma única linha). Ele exige uma
+pasta inexistente, cria um ambiente isolado e usa um MCP sintético, sem turno de modelo. No Windows,
+passe o `.exe`, não o lançador `.ps1` ou `.cmd`. Resultado pendente retorna 2; falha da prova retorna 1.
 
 <a id="english"></a>
 
@@ -994,7 +1083,7 @@ review. Inspect the diff and run `vault.py check` before tracking the files.
 
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Failures and maintenance
 
-Repeated runs preserve existing files and render the project name only in newly copied guides. `--force` replaces managed templates, but preserves vault notes, `.env`, ignore rules, `.mcp.json`, `.codex/config.toml` and hook files. Compare and merge existing configurations. Review changes before using it.
+Repeated runs preserve existing files and render the project name only in newly copied guides. `--force` replaces managed templates, but preserves vault notes, `.env`, ignore rules, existing manifests, skills, agents, `.mcp.json`, `.codex/config.toml` and hook files. Compare and merge existing configurations. Review changes before using it.
 
 Invalid arguments exit with code 2. Dependency, path, manifest, tracked-env and divergent-skill checks fail before project copies. Existing humanizer must be a clean repository at the manifest commit; changes are preserved and require your decision. Failed downloads/checkouts never activate the incomplete skill. Plugin failures identify their stage and return nonzero. Earlier successful steps remain in place; resolve the cause and retry.
 
@@ -1064,3 +1153,46 @@ Memory and ingestion share the project lock. If interruption leaves `pending`, i
 </p>
 
 - Docling: [formatos e limites do fornecedor](https://docling-project.github.io/docling/usage/supported_formats/) · [versão usada](https://github.com/docling-project/docling/tree/v2.132.0).
+
+<a id="governance-en"></a>
+
+## Governance: discover, review and revoke
+
+For a new project, complete setup for the selected client and use `personalizer` to create the
+vault identity. Ask: “Use govern-capabilities to review this project's capabilities.” List the
+catalog, open the contract for the capability you need and audit the client before enabling it.
+
+For migration, inventory existing manifests, skills, agents, MCPs and hooks first. Run the auditor
+with `--root PROJECT_PATH` before changing anything. If there is no manifest, record that absence
+and compare with the harness catalog. Setup preserves these contracts and native configurations,
+even with `--force`. Merge only what the project needs, then audit again. Use `--client codex` or
+`--client claude` for a single-client project.
+
+```bash
+python3 scripts/capabilities.py list --json
+python3 scripts/capabilities.py describe retrieve-memory --json
+python3 scripts/capabilities.py audit --client both --json
+python3 scripts/capabilities.py review --id retrieve-memory --client codex --json
+python3 scripts/capabilities.py review --check DIGEST --json
+```
+
+`review --id` writes a private bundle; the other commands only read. Check purpose, origin, files
+and proposed access. Apply targeted changes within current authorization. An old bundle is history:
+if its inputs changed, create a new review. The skill never expands access on its own or executes
+commands declared in the manifest.
+
+To revoke access, disable the server or remove the permission in the client configuration. Start
+a fresh session and attempt the revoked operation; check its rejection and the server records.
+If restoring access, run another positive check. Save ID, version, scope, revision and outcomes
+in the local capability index, linked to the feature and run. Preserve vault history.
+
+The synthetic probe passed in Codex 0.158.0-alpha.2.1 through local app-server dispatch: one allowed
+call, no forbidden calls, no calls after revocation and one after restoration. This verifies that
+path and version, not every plugin, client or service. Claude 2.1.220 discovery is verified, but
+runtime allow/deny proof remains pending. Offline CI cannot replace native proof. See the
+[matrix](relatorios/2026-10-02-capability-governance.md).
+
+In the harness checkout, the optional probe is `python3 tests/smoke_capabilities.py --client codex
+--executable /absolute/path/codex --root /new/disposable/path` (one line). The directory must not
+exist. The probe creates an isolated environment and synthetic MCP with no model turn. On Windows,
+select the actual `.exe`, not a `.ps1` or `.cmd` launcher. Pending exits with 2; failed proof exits with 1.

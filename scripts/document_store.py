@@ -122,13 +122,15 @@ def prepare_storage(root):
     return identity
 
 
-def atomic_write(root, relative, data):
+def atomic_write(root, relative, data, before_write=None):
     destination = safe_path(root, relative)
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = None
     try:
         with tempfile.NamedTemporaryFile(mode='wb', dir=destination.parent, prefix='.yc-', suffix='.tmp', delete=False) as output:
             temporary = Path(output.name)
+            if before_write is not None:
+                before_write(temporary.relative_to(root).as_posix())
             output.write(data.encode('utf-8') if isinstance(data, str) else data)
             output.flush()
             os.fsync(output.fileno())

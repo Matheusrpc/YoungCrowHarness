@@ -37,7 +37,7 @@ Consolidate confirmed context in `vault/product/profile.md`: problem/audience, s
 
 In `adoption.md`, list what to preserve/adapt/create and why. Apply the authorized changes to `CLAUDE.md`, `AGENTS.md` and relevant guidance as targeted edits. Retain custom rules and design references; resolve contradictions before dependent edits. Reference the canonical profile rather than copying the entire interview into every client. Show the diff and run pertinent checks. Never use setup `--force` as a semantic migration strategy.
 
-For each needed skill/MCP, record purpose, discovered path/server, origin/version if known, required access, approval owner and actual verification. Availability, necessity and authorization are separate fields. Update `vault/capabilities/index.md`; do not activate unrelated tools or fabricate successful installation.
+For each needed skill/MCP, use [govern-capabilities](../govern-capabilities/SKILL.md). Reuse confirmed client, mandatory/optional needs, data/environment limits and authorization. Audit an existing project before proposing changes; preserve its native configurations and modified skills. Record purpose, origin/version, required access, approval owner and actual verification. Availability, necessity and authorization are separate. Keep private observations in the local capability microindex; the shared catalog contains public contracts.
 
 ## First feature and handoff
 

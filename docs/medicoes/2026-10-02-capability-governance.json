@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-02",
+  "base": "16191ec0abc7ce27ed144d223cd9210252d6fe3b",
+  "platform": "Windows",
+  "native": {
+    "codex": {
+      "client": "codex",
+      "version": "codex-cli 0.158.0-alpha.2.1",
+      "started_at": "2026-10-02T12:53:14.312556+00:00",
+      "completed": true,
+      "allowed_calls": 1,
+      "denied_calls": 0,
+      "allowed_result": true,
+      "denial_observed": true,
+      "revoked_calls": 0,
+      "revocation_observed": true,
+      "restored_calls": 1,
+      "vault_unchanged": true,
+      "reason": "native_dispatch_observed",
+      "native_processes_alive": 0,
+      "model_turns": 0,
+      "status": "passed"
+    },
+    "claude": {
+      "client": "claude",
+      "version": "2.1.220 (Claude Code)",
+      "started_at": "2026-10-02T12:34:55.695095+00:00",
+      "completed": false,
+      "allowed_calls": 0,
+      "denied_calls": 0,
+      "allowed_result": false,
+      "denial_observed": false,
+      "revoked_calls": 0,
+      "revocation_observed": false,
+      "restored_calls": 0,
+      "vault_unchanged": true,
+      "reason": "native_dispatch_unavailable",
+      "native_processes_alive": 0,
+      "model_turns": 0,
+      "status": "pending"
+    }
+  },
+  "offline_suite": {
+    "windows_before_review_fixes": {
+      "tests": 198,
+      "seconds": 857.746,
+      "skipped": 8,
+      "status": "passed"
+    },
+    "review_fixes": {
+      "capability_tests": 21,
+      "proof_tests": 4,
+      "status": "passed"
+    },
+    "final_linux_ci": {
+      "status": "passed",
+      "tests": 202,
+      "seconds": 64.435,
+      "skipped": 4,
+      "pull_request": 8,
+      "run_id": 37009589168,
+      "code_revision": "9148e3e477649f832c3719f24dbdc1ee0c7436fe",
+      "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37009589168"
+    }
+  },
+  "claims_scope": "Synthetic local dispatch only; not universal enforcement or model conversation.",
+  "probe_sha256": "0ca398ed173e911a52224021152ec215568e92315080cff6f31763afce88c9c5",
+  "visual": [
+    {
+      "name": "process-governance-pt",
+      "overflow": []
+    },
+    {
+      "name": "process-governance-en",
+      "overflow": []
+    },
+    {
+      "mobile": {
+        "width": 358,
+        "right": 374,
+        "viewport": 390
+      }
+    }
+  ],
+  "visual_owned_browser_processes_alive": 0
+}

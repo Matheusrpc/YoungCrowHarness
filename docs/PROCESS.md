@@ -4,7 +4,7 @@
 
 <a id="portugues"></a>
 
-Os diagramas visíveis no README mostram cinco caminhos: projeto novo, adoção, operação, ingestão de fontes e retomada da memória.
+Os diagramas visíveis no README mostram seis caminhos: projeto novo, adoção, operação, ingestão de fontes, retomada da memória e governança.
 Este fluxo detalha as decisões de descoberta, revisão e publicação, incluindo pausas e recuperação.
 Os círculos representam eventos; as caixas, tarefas; os losangos, decisões. É uma documentação
 inspirada em BPMN. Pessoas e agentes executam o rito; PM e Tech Lead são responsabilidades.
@@ -75,9 +75,31 @@ leva ao Markdown atual. O agente abre as evidências antes de registrar decisõe
 Graphify processa o grafo local; a interpretação usa a IA da sessão. Publicação continua exigindo
 seu próprio registro de evidência. Veja os [comandos](USAGE.md#memoria-pt).
 
+
+O [fluxo de governança](../assets/process-governance-pt.svg) liga catálogo, auditoria e uso comprovado.
+Diferenças exigem revisão do escopo e aplicação autorizada. Falha ou desconhecimento vira pendência;
+o recibo privado não concede acesso. Revogar exige nova sessão e preserva notas e histórico.
+O ensaio sintético passou no Codex; a prova equivalente no Claude continua pendente.
+
+```mermaid
+flowchart TB
+  A[Descobrir contrato] --> B[Auditar cliente]
+  B --> C{Há diferença?}
+  C -->|Sim| D[Revisar escopo e pacote privado]
+  D --> E[Aplicar alteração autorizada]
+  C -->|Não| F[Provar uso no cliente]
+  E --> F
+  F --> G{Prova suficiente?}
+  G -->|Não| H[Registrar pendência e próxima ação]
+  G -->|Sim| I[Registrar capacidade e execução no vault]
+  I --> J[Revogar acesso quando necessário]
+  J --> K[Nova sessão: testar recusa]
+  K --> I
+```
+
 <a id="english"></a>
 
-The README diagrams cover five paths: a new project, adoption, daily work, source intake and memory retrieval.
+The README diagrams cover six paths: a new project, adoption, daily work, source intake, memory retrieval and governance.
 This detailed flow includes discovery, review and release decisions, pauses and recovery.
 Circles are events, boxes are tasks and diamonds are decisions. This is BPMN-inspired documentation.
 People and agents carry out the process; PM and Tech Lead are responsibilities.
@@ -148,3 +170,24 @@ The editable SVGs in `assets/process-*.svg` supply the README visuals. Process c
 both languages, this flow and the usage guide. Preserve the palette and check readability.
 
 [Memory retrieval](../assets/process-memory-en.svg) starts with saved, selected notes. A snapshot is activated only after validation. Queries check revisions; missing, stale or failed indices fall back to current Markdown. The agent opens evidence before recording decisions and the next action. Graphify processes the local graph; the session AI interprets it. Publication still requires its own evidence. See the [commands](USAGE.md#memory-en).
+
+The [governance flow](../assets/process-governance-en.svg) connects catalog, audit and observed use.
+Drift requires scope review and an authorized configuration change. Failed or unknown proof stays
+pending; a private receipt grants no access. Revocation needs a fresh session and preserves notes
+and history. The synthetic Codex probe passed; equivalent Claude proof remains pending.
+
+```mermaid
+flowchart TB
+  A[Discover contract] --> B[Audit client]
+  B --> C{Any drift?}
+  C -->|Yes| D[Review scope and private bundle]
+  D --> E[Apply authorized change]
+  C -->|No| F[Prove use in client]
+  E --> F
+  F --> G{Enough proof?}
+  G -->|No| H[Record pending state and next action]
+  G -->|Yes| I[Record capability and run in vault]
+  I --> J[Revoke access when needed]
+  J --> K[Fresh session: verify refusal]
+  K --> I
+```

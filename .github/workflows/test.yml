@@ -42,19 +42,20 @@ jobs:
           @'
           import os, pathlib, subprocess, time
           shell = pathlib.Path(os.environ['SystemRoot']) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
-          for label, profile in [('null', os.devnull), ('existing_file', str(shell))]:
+          for label, profile in [('null', os.devnull), ('existing_file', str(shell)), ('null_repeat', os.devnull)]:
               env = dict(os.environ, USERPROFILE=profile, LOCALAPPDATA=profile, APPDATA=profile,
                          PSModulePath=str(shell.parent / 'Modules'), PSModuleAnalysisCachePath=os.devnull)
               started = time.monotonic()
-              result = subprocess.run([str(shell), '-NoProfile', '-NonInteractive', '-Command', 'exit 0'], env=env, timeout=120)
+              result = subprocess.run([str(shell), '-NoProfile', '-NonInteractive', '-Command',
+                                       'Get-Acl -LiteralPath $env:SystemRoot | Out-Null; exit 0'], env=env, timeout=120)
               print(label, 'exit', result.returncode, 'seconds', round(time.monotonic() - started, 3), flush=True)
           '@ | python -B -
       - name: Verify native storage, permissions and crash recovery
-        run: python -B -m unittest discover -s tests -p "test_adoption*.py" -v -f
+        run: python -B tests/windows_fixture_runner.py -m unittest discover -s tests -p "test_adoption*.py" -v -f
       - name: Verify trial installer and unchanged global profile
-        run: python -B -m unittest discover -s tests -p test_setup.py -k trial -v -f
+        run: python -B tests/windows_fixture_runner.py -m unittest discover -s tests -p test_setup.py -k trial -v -f
       - name: Exercise return through the external runner
-        run: python -B tests/smoke_adoption.py --root "$env:RUNNER_TEMP/adoption-both" --client both
+        run: python -B tests/windows_fixture_runner.py tests/smoke_adoption.py --root "$env:RUNNER_TEMP/adoption-both" --client both
   graphify-smoke:
     runs-on: ubuntu-24.04
     timeout-minutes: 15

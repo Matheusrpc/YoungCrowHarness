@@ -10,7 +10,11 @@
 
 **Spec:** [Desenho aprovado pelo mantenedor em 2026-10-02](../specs/2026-10-02-reversible-adoption-design.md).
 
-Estado: plano aprovado pelo mantenedor em 2026-10-02; implementação em andamento. Método preservado: execução nativa nesta sessão, um escritor por checkout e uma revisão independente ao final. Ensaios de restauração serão restritos a projetos descartáveis dos testes.
+Estado: plano aprovado pelo mantenedor em 2026-10-02; implementação e validação concluídas.
+As cinco tarefas foram executadas, com um escritor por checkout e uma revisão independente.
+Os ensaios restauraram apenas projetos descartáveis. O [relatório final](../../relatorios/2026-10-02-reversible-adoption.md)
+registra testes, correções e diferenças em relação ao plano; a publicação está vinculada ao
+[PR #9](https://github.com/Matheusrpc/YoungCrowHarness/pull/9). Os checklists abaixo preservam o roteiro original aprovado.
 
 ## Global Constraints
 

@@ -220,15 +220,16 @@ uso entre máquinas. Graphify aponta de volta às notas e revisões; claude-mem 
 
 <a id="evolucao-pt"></a>
 
-## <img src="assets/gema-ambar.svg" height="24" alt=""> Próximas entregas
+## <img src="assets/gema-ambar.svg" height="24" alt=""> Entregas e próximos passos
 
-A [adoção reversível](docs/superpowers/specs/2026-10-02-reversible-adoption-design.md) tem desenho aprovado
-e [plano de implementação aprovado](docs/superpowers/plans/2026-10-02-reversible-adoption.md): salvar o
-repositório antes do setup e permitir o retorno, preservando uma cópia privada do trabalho do teste.
-O modo `--trial` instala apenas arquivos do projeto, sem alterar o perfil global dos clientes.
-A implementação já inclui captura, prévia, retorno confirmado e recuperação após interrupção.
-O setup preserva o primeiro ponto ao repetir a instalação. Configurações globais e serviços externos
-exigem tratamento separado; instalações antigas sem ponto inicial não terão recuperação retroativa garantida.
+A [adoção reversível](docs/USAGE.md#adocao-reversivel-pt) salva o projeto antes do primeiro setup
+com `--trial`. Para sair, revise a prévia e confirme o retorno pelo executor externo. O controlador
+verifica as cópias antes da troca e guarda o trabalho do teste em uma área privada.
+Repetir o setup mantém o ponto inicial; uma troca interrompida pode ser retomada pelo mesmo executor.
+O trial instala arquivos do projeto, sem alterar o perfil global dos clientes. Serviços e publicações
+externas exigem tratamento separado. Instalações antigas sem ponto inicial não têm retorno retroativo.
+O [relatório de validação](docs/relatorios/2026-10-02-reversible-adoption.md) registra ambientes,
+revisão e limites; o [plano executado](docs/superpowers/plans/2026-10-02-reversible-adoption.md) preserva as decisões.
 
 O desenho do Docling foi aprovado. O [plano de execução](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
 registra quatro entregas e sua cobertura:
@@ -517,15 +518,16 @@ across machines. Graphify points back to source notes and revisions; claude-mem 
 
 <a id="roadmap-en"></a>
 
-## <img src="assets/gema-ambar.svg" height="24" alt=""> Next deliveries
+## <img src="assets/gema-ambar.svg" height="24" alt=""> Deliveries and next steps
 
-[Reversible adoption](docs/superpowers/specs/2026-10-02-reversible-adoption-design.md) has an approved design
-and an [approved implementation plan](docs/superpowers/plans/2026-10-02-reversible-adoption.md): save the
-repository before setup and allow restoration while retaining a private copy of trial work.
-The `--trial` mode installs project files only, leaving client profiles outside the project unchanged.
-Implementation includes baseline capture, preview, confirmed restoration and interruption recovery.
-Repeated setup preserves the first baseline. Global configuration and external services require
-separate handling; existing installations without a baseline cannot have guaranteed retroactive recovery.
+[Reversible adoption](docs/USAGE.md#reversible-adoption-en) saves the project before the first
+setup with `--trial`. To leave, review the preview and confirm restoration through the external runner.
+The controller verifies both copies before exchanging directories and keeps trial work in private storage.
+Repeated setup retains the baseline; the same runner can resume an interrupted exchange.
+Trial installs project files without changing global client profiles. External services and publications
+require separate handling. Existing installations without a baseline cannot be restored retroactively.
+The [validation report](docs/relatorios/2026-10-02-reversible-adoption.md) records environments,
+review and limits; the [implementation plan](docs/superpowers/plans/2026-10-02-reversible-adoption.md) preserves the decisions.
 
 The Docling design is approved. The [implementation plan](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
 records four deliveries and their coverage:
@@ -633,8 +635,9 @@ bash -n setup.sh
 | Ambiente / Environment | Evidência / Evidence |
 |---|---|
 | Windows + Git Bash + Python 3.14 | Suíte local; casos de symlink exigem privilégio e rodam no CI Linux / local suite; symlink cases require privileges and run in Linux CI. |
+| Windows + Git Bash + Python 3.11 | CI de adoção: ACLs nativas, instalação trial e retorno por executor externo / adoption CI: native ACLs, trial setup and external-runner restoration. [Provas / evidence](docs/relatorios/2026-10-02-reversible-adoption.md). |
 | Linux | Suíte automática a cada push/PR, incluindo symlinks / automated suite on every push/PR, including symlinks — [execuções / runs](https://github.com/Matheusrpc/YoungCrowHarness/actions). |
-| macOS / PowerShell nativo | Não verificados / not verified. Use Bash. |
+| macOS / setup sem Bash | Não verificados / not verified. O setup exige Bash; o helper Windows usa PowerShell 5.1 / setup requires Bash; the Windows helper uses PowerShell 5.1. |
 
 Os testes cobrem instalação, preservação, caminhos, índices e retomada. Casos de symlink rodam no Linux;
 o teste de junction nativa é exclusivo de Windows. A suíte usa Git local, usuário temporário e chamadas

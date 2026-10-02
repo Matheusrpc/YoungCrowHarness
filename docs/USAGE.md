@@ -94,7 +94,7 @@ python scripts/adoption.py --root /caminho/projeto --backup-root /caminho/backup
 
 `prepare` recusa instalações YoungCrow reconhecidas sem ponto anterior e preserva um ponto existente.
 `status` não cria arquivos. Guarde o caminho `runner` informado: ele fica fora do projeto.
-O retorno já pode ser ensaiado pelo runner externo, com todos os escritores do projeto encerrados:
+Para retornar, use o runner externo e encerre todos os processos que escrevem no projeto:
 
 ```bash
 python /caminho/runner/adoption.py --root /caminho/projeto --backup-root /caminho/backups restore --dry-run --json
@@ -753,7 +753,7 @@ python scripts/adoption.py --root /path/project --backup-root /path/backups stat
 
 `prepare` refuses recognized YoungCrow installations without a prior baseline and preserves existing
 baselines. `status` creates no files. Keep the returned `runner` path; it is outside the project.
-Restoration can already be rehearsed through the external runner, with all project writers stopped:
+To restore, use the external runner and stop every process that writes to the project:
 
 ```bash
 python /path/runner/adoption.py --root /path/project --backup-root /path/backups restore --dry-run --json

@@ -1,7 +1,10 @@
 # Adoção reversível do YoungCrow
 
-Estado: desenho aprovado pelo mantenedor em 2026-10-02. O [plano de implementação](../plans/2026-10-02-reversible-adoption.md)
-também foi aprovado; implementação em andamento.
+Estado: desenho aprovado pelo mantenedor em 2026-10-02; implementação e validação concluídas.
+O [plano](../plans/2026-10-02-reversible-adoption.md) preserva o roteiro aprovado, e o
+[relatório](../../relatorios/2026-10-02-reversible-adoption.md) registra as provas e os ajustes de execução.
+Para os comandos disponíveis e seus limites, consulte o [guia de uso](../../USAGE.md#adocao-reversivel-pt).
+Publicação vinculada ao [PR #9](https://github.com/Matheusrpc/YoungCrowHarness/pull/9).
 
 ## Resultado esperado
 

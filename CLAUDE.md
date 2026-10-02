@@ -50,6 +50,10 @@ publica é o placar: `ATRASO: <alvo1> <n> | <alvo2> <n> | ...`
 - Para personalizar o projeto, use `personalizer` (`skills/personalizer/SKILL.md`).
   Retome entrevistas por `vault/product/index.md`, sem repetir respostas já confirmadas.
 
+- Para retomar uma frente ou localizar decisões e entregas anteriores, use `retrieve-memory`
+  (`skills/retrieve-memory/SKILL.md`). Consulte notas selecionadas, confira origem/revisão e
+  separe desenvolvimento de produção comprovada. Graphify é opcional; o vault é o registro principal.
+
 - Documentos, anexos, URLs, áudio e vídeo usam `ingest-source` (`skills/ingest-source/SKILL.md`).
   Consulte o índice geral e `vault/local/index.md` quando existir. Guarde fontes, revisões, relações
   com evidência, capacidades usadas e próxima ação. Referências inacessíveis ficam pendentes.

@@ -44,16 +44,16 @@ FILES+=(scripts/documents.py scripts/docling_worker.py requirements/docling.txt)
 FILES+=(scripts/source_fetch.py)
 FILES+=(requirements/docling-media.txt)
 FILES+=(scripts/source_prompt.py skills/ingest-source/SKILL.md)
-FILES+=(scripts/memory.py scripts/graphify_worker.py requirements/graphify.txt)
+FILES+=(scripts/memory.py scripts/graphify_worker.py requirements/graphify.txt skills/retrieve-memory/SKILL.md)
 SKILL_ROOTS=()
 if [ "$CLIENT" != codex ]; then
   FILES+=(.mcp.json .claude/settings.json .claude/agents/integration-specialist.md
-    .claude/skills/integrate-from-docs/SKILL.md .claude/skills/personalizer/SKILL.md .claude/skills/ingest-source/SKILL.md)
+    .claude/skills/integrate-from-docs/SKILL.md .claude/skills/personalizer/SKILL.md .claude/skills/ingest-source/SKILL.md .claude/skills/retrieve-memory/SKILL.md)
   SKILL_ROOTS+=("$HOME/.claude/skills")
 fi
 if [ "$CLIENT" != claude ]; then
   FILES+=(.codex/hooks.json .codex/config.toml .codex/agents/integration-specialist.toml
-    .agents/skills/integrate-from-docs/SKILL.md .agents/skills/personalizer/SKILL.md .agents/skills/ingest-source/SKILL.md)
+    .agents/skills/integrate-from-docs/SKILL.md .agents/skills/personalizer/SKILL.md .agents/skills/ingest-source/SKILL.md .agents/skills/retrieve-memory/SKILL.md)
   SKILL_ROOTS+=("$TARGET/.agents/skills")
 fi
 for ferramenta in python3 git mkdir cp chmod mv mktemp; do

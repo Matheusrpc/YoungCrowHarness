@@ -34,3 +34,5 @@ node_modules/
 /.operacao-local/docling/
 /.operacao-local/memory/
 !.agents/skills/ingest-source/
+
+!.agents/skills/retrieve-memory/

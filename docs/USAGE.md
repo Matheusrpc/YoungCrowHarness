@@ -545,7 +545,7 @@ python3 scripts/memory.py --root . query "pagamentos"
 
 No Windows, use `py -3.12` ou o caminho do Python 3.12 no primeiro comando, e `python` nos demais. A versão fixada é `graphifyy==0.9.73`, instalada em `.operacao-local/memory/runtime/venv`. O setup registra as versões resolvidas; `doctor` confere o ambiente sem reinstalar. Runtime ausente retorna `pending`, versão incompatível retorna `unsupported` e falha retorna `failed`. A consulta continua disponível pelo Markdown selecionado.
 
-O grafo representa links explícitos entre notas. Sua busca local combina termos e relações; a IA da sessão interpreta as evidências. Esse adaptador não chama modelos, instala MCPs ou registra um grafo global. A skill comum será ligada na próxima etapa do plano.
+O grafo representa links explícitos entre notas. Sua busca local combina termos e relações; a IA da sessão interpreta as evidências. Esse adaptador não chama modelos, instala MCPs ou registra um grafo global. Em Claude Code ou Codex, peça: “Use retrieve-memory para retomar pagamentos; confira decisões, desenvolvimento, produção e próxima ação.” A mesma skill acompanha o setup para projetos novos e migrações. Ela abre as evidências e registra IDs/revisões no handoff.
 
 Para operar o índice:
 
@@ -1031,7 +1031,7 @@ python3 scripts/memory.py --root . query "payments"
 
 On Windows, use `py -3.12` or the Python 3.12 executable path for setup, and `python` for the other commands. The pinned version is `graphifyy==0.9.73`, installed under `.operacao-local/memory/runtime/venv`. Setup records resolved versions; `doctor` checks them without reinstalling. Missing runtime returns `pending`, incompatible versions return `unsupported`, and errors return `failed`. Selected Markdown remains available for retrieval.
 
-The graph represents explicit links between notes. Local search combines terms and relations; the session AI interprets the evidence. This adapter does not call models, install MCPs or register a global graph. The shared skill will be connected in the next plan step.
+The graph represents explicit links between notes. Local search combines terms and relations; the session AI interprets the evidence. This adapter does not call models, install MCPs or register a global graph. In Claude Code or Codex, ask: “Use retrieve-memory to resume payments; check decisions, development, production and the next action.” The same skill ships with setup for new and migrated projects. It opens evidence and records IDs/revisions in the handoff.
 
 To operate the index:
 

@@ -7,6 +7,8 @@ description: Use when adapting YoungCrowHarness to a new product idea or adoptin
 
 Turn the owner's idea and existing evidence into a project-specific harness and a small, verifiable first feature. Work with the current authorization; onboarding does not automatically authorize implementing the product, installing tools, spending money or publishing.
 
+For prior work, use [retrieve-memory](../retrieve-memory/SKILL.md). Consult selected notes or relevant microindices, open the evidence and preserve project/note UUIDs and revisions in the handoff. New notes do not expand the selection automatically.
+
 ## Recover before asking
 
 Read project instructions and `vault/index.md`. If onboarding exists, read `vault/product/index.md`, the profile, relevant interview and adoption notes. Check what changed in the repository since the last record. Reuse confirmed answers; distinguish operator statements, observed files/commands, hypotheses and unknowns. Do not load the whole vault.
@@ -53,4 +55,4 @@ Every implemented delivery updates the README and affected usage docs. Use the a
 
 Record actual capabilities, changes, commands/results, review findings and next step in `runs/<id>.md`. Distinguish development, reviewed delivery, authorized publication and observed production; tests alone don't establish the latter. If publication is outside scope or awaits authorization, persist the pending state and end. Recovery/rollback and re-verification belong to a failed authorized deployment.
 
-Close onboarding when the next delivery's required decisions, responsibilities and checks are established and the authorized guide adaptation is recorded. Broader unknowns may remain listed. Mark interview status accurately (paused, blocked, sufficient for next delivery), read back the notes and leave one concrete next action. Graphify/claude-mem synchronization is separate; this skill does not install their adapters.
+Close onboarding when the next delivery's required decisions, responsibilities and checks are established and the authorized guide adaptation is recorded. Broader unknowns may remain listed. Mark interview status accurately (paused, blocked, sufficient for next delivery), read back the notes and leave one concrete next action. Present Markdown retrieval as available and Graphify as an optional project-local Python 3.12 runtime. Confirm selected paths and data boundaries, including interpretation by the current client AI. Preserve prior answers. This skill does not install the runtime or activate claude-mem or a memory MCP.

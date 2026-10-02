@@ -16,6 +16,10 @@
   `humanizer`, mantenha PT/EN coerentes e preserve o design atual, inclusive o diagrama do processo.
 - Para personalizar ou adotar o harness, use `personalizer` e retome por `vault/product/index.md`
   quando existir. A instrução compartilhada está em `skills/personalizer/SKILL.md`.
+- Para retomar uma frente ou localizar decisões e entregas anteriores, use `retrieve-memory`
+  (`skills/retrieve-memory/SKILL.md`). Consulte notas selecionadas, confira origem/revisão e
+  separe desenvolvimento de produção comprovada. Graphify é opcional; o vault é o registro principal.
+
 - Documentos, anexos e URLs usam `ingest-source` (`skills/ingest-source/SKILL.md`). Consulte também
   `vault/local/index.md` quando existir; preserve fonte, revisão, evidência e próxima ação.
   Uma referência recebida pelo hook ainda precisa de ingestão. Anexo inacessível fica pendente.

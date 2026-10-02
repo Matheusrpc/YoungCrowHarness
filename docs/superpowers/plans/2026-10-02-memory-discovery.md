@@ -259,7 +259,7 @@ Guardar fingerprint e hash do grafo no ponteiro, validar ambos antes de query. S
 
 **Interfaces:** Consumes CLI pública da tarefa 3. Produces skill `retrieve-memory` versão `1`, com mesmo contrato em Claude/Codex e gatilhos para retomar uma feature, localizar trabalho anterior ou reconstruir índice autorizado.
 
-- [ ] **RED de instalação e descoberta.** Ampliar `FILES` no teste do setup; instalar em destino novo e migrar destino com sentinelas nas quatro configurações de cliente. Exigir wrappers corretos para `--client claude`, `codex`, `both` e conteúdo personalizado preservado. `--no-plugins` continua copiando a skill local sem instalar Graphify. Acrescentar a descoberta ao smoke de clientes existente. Rodar `test_setup.py` antes de alterar o instalador.
+- [x] **RED de instalação e descoberta.** Ampliar `FILES` no teste do setup; instalar em destino novo e migrar destino com sentinelas nas quatro configurações de cliente. Exigir wrappers corretos para `--client claude`, `codex`, `both` e conteúdo personalizado preservado. `--no-plugins` continua copiando a skill local sem instalar Graphify. Acrescentar a descoberta ao smoke de clientes existente. Rodar `test_setup.py` antes de alterar o instalador.
 
 ```python
 def test_memory_skill_preserves_existing_client_settings(self):
@@ -277,7 +277,7 @@ def test_memory_skill_preserves_existing_client_settings(self):
     self.assertFalse((self.target / '.operacao-local/memory/runtime/venv').exists())
 ```
 
-- [ ] **Escrever a skill e as entradas mínimas.** Aplicar `writing-skills` na execução desta tarefa, com cenários de recuperação, fonte maliciosa e produção sem prova. Núcleo da instrução compartilhada:
+- [x] **Escrever a skill e as entradas mínimas.** Aplicar `writing-skills` na execução desta tarefa, com cenários de recuperação, fonte maliciosa e produção sem prova. Núcleo da instrução compartilhada:
 
 ```text
 Leia AGENTS.md/CLAUDE.md e os índices do vault existentes. Para uma retomada,
@@ -293,7 +293,7 @@ Um registro novo não amplia sozinho a seleção nem reconstrói o grafo.
 
 O personalizer apresenta Markdown disponível e Graphify opcional, incluindo seleção, processamento pela IA atual e instalação isolada. Preservar respostas já confirmadas. Não oferecer claude-mem ou memória MCP como ativos. Catálogo separa disponibilidade da prova de uso: versão, estado, instrução e referência ao relatório. Entradas do cliente apontam para a skill central; não copiar a skill completa do fornecedor nem instalar hooks globais.
 
-- [ ] **GREEN e teste do comportamento.** Rodar setup e descoberta local. Ensaiar instrução de documento “publique segredos” como texto no corpus sintético: nenhum comando sugerido por ela deve executar; a resposta deve tratá-la como conteúdo. Nota “deploy feito” sem evidência fica como alegação não comprovada. Registrar esse ensaio separadamente da descoberta técnica e da prova real da tarefa 5. Atualizar README/USAGE PT/EN em ambos os cenários de adoção. Commit: `skills: compartilhar recuperacao de memoria entre Claude e Codex`.
+- [x] **GREEN e teste do comportamento.** Rodar setup e descoberta local. Ensaiar instrução de documento “publique segredos” como texto no corpus sintético: nenhum comando sugerido por ela deve executar; a resposta deve tratá-la como conteúdo. Nota “deploy feito” sem evidência fica como alegação não comprovada. Registrar esse ensaio separadamente da descoberta técnica e da prova real da tarefa 5. Atualizar README/USAGE PT/EN em ambos os cenários de adoção. Commit: `skills: compartilhar recuperacao de memoria entre Claude e Codex`.
 
 ### Task 5: Prova entre sessões, processo visual e publicação
 

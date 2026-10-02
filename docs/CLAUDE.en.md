@@ -72,3 +72,7 @@ It needs Python 3 as `python`; change the command to `python3` when required by 
 hook trust in `/hooks`.
 
 - `<fill in>` (e.g. database only on `127.0.0.1`; AI providers only through environment variables).
+
+## Resume prior work
+
+Use `retrieve-memory` (`skills/retrieve-memory/SKILL.md`) to find prior decisions and deliveries. Consult selected vault notes, check project identity and current revisions, and distinguish development from evidenced production. Graphify is optional; the Markdown vault is the source of record.

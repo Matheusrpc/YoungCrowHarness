@@ -42,6 +42,10 @@ A entrevista e a auditoria são conduzidas pelo agente. Os comandos organizam as
 o conteúdo existente. A sincronização automática com Graphify/claude-mem e a orquestração autônoma
 de papéis continuam na [evolução planejada](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 
+A [proposta de ingestão com Docling](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
+está em revisão: documentos e mídia serão convertidos em Markdown local, ligados às features e
+versionados somente após revisão. Essa camada ainda não está implementada.
+
 ## <img src="assets/gema-rubi.svg" height="24" alt=""> Começar em um comando
 
 ```bash
@@ -182,6 +186,10 @@ later session can resume from the saved records. For vendor work, `integration-s
 
 The agent conducts the interview and adoption audit. Commands organize notes and preserve existing
 content. Automatic Graphify/claude-mem synchronization and autonomous role orchestration remain planned.
+
+The [Docling ingestion proposal](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
+is under review: documents and media would become local Markdown linked to features, with publication
+to Git only after review. This layer is not implemented yet.
 
 ## <img src="assets/gema-rubi.svg" height="24" alt=""> Start with one command
 

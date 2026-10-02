@@ -323,6 +323,8 @@ def inspect_client(root, client, *, records=None):
             codes.add('config_read_failed')
             rules = []
         result['permissions'][action] = [value_digest(rule) for rule in sorted(rules)]
+    # Keep only fingerprints; retain per-server scope so unrelated rules do not create drift.
+    result['mcp_permissions'] = {}
     servers = main.get('mcpServers' if client == 'claude' else 'mcp_servers', {})
     if not isinstance(servers, dict):
         codes.add('config_read_failed')
@@ -333,6 +335,20 @@ def inspect_client(root, client, *, records=None):
         if not isinstance(entry, dict) or not identifier(name):
             codes.add('config_read_failed')
             continue
+        if client == 'claude':
+            scoped = dict(allow=[], deny=[], ask=[], unknown=False)
+            prefix = f'mcp__{name}__'
+            for action in ('allow', 'deny', 'ask'):
+                for rule in permissions.get(action, []) if strings(permissions.get(action, [])) else []:
+                    if rule.startswith(prefix):
+                        tool = rule[len(prefix):]
+                        if re.fullmatch(r'[A-Za-z0-9_.-]+', tool):
+                            scoped[action].append(value_digest(rule))
+                        else:
+                            scoped['unknown'] = True
+                    elif rule.startswith('mcp') and (rule == f'mcp__{name}' or '*' in rule):
+                        scoped['unknown'] = True
+            result['mcp_permissions'][value_digest(name)] = scoped
         known = ({'type', 'url', 'command', 'args', 'env', 'headers'} if client == 'claude' else
                  {'url', 'command', 'args', 'env', 'env_vars', 'enabled', 'required', 'enabled_tools',
                   'disabled_tools', 'bearer_token_env_var', 'http_headers', 'env_http_headers',
@@ -420,11 +436,16 @@ def config_observation(cap, client, observed):
                                 for k, v in native.items()})
     if client == 'claude':
         # Native allow/deny patterns differ from Codex filters; exact MCP rules only.
+        rules = observed['mcp_permissions'][value_digest(native['server'])]
+        if rules['unknown']:
+            return 'unverified', ['permission_patterns_unverified']
         for key, action in [('allow_tools', 'allow'), ('deny_tools', 'deny')]:
             wanted.pop(key, None)
             expected = [value_digest(f"mcp__{native['server']}__{tool}") for tool in native.get(key, [])]
-            if not set(expected) <= set(observed['permissions'].get(action, [])):
+            if set(expected) != set(rules[action]):
                 return 'changed', ['permission_difference']
+        if rules['ask'] or set(rules['allow']) & set(rules['deny']):
+            return 'changed', ['permission_difference']
         if native.get('enabled') is not None:
             return 'unverified', ['native_approval_unobserved']
     if any(server['values'].get(k) != v for k, v in wanted.items()):
@@ -584,7 +605,8 @@ def prepare_review(root, capability_id, client):
         if path.exists():
             require(read_inputs(root, [relative])[relative] == data, 'review_tampered')
         else:
-            atomic_write(root, relative, data)
+            atomic_write(root, relative, data,
+                         before_write=lambda temporary: verify_review_storage(root, temporary))
         return dict(digest=digest, path=relative, state='prepared', authorization='not_asserted')
 
 

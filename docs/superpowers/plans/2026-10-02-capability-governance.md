@@ -1,6 +1,6 @@
 # Capability Governance Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Permitir que o operador descubra capacidades, reconheça mudanças de conteúdo e acesso e revise a configuração de Claude Code e Codex com evidências recuperáveis pelo vault.
 
@@ -10,7 +10,7 @@
 
 **Spec:** [Desenho aprovado em 2026-10-02](../specs/2026-10-02-capability-governance-design.md).
 
-Estado: plano aprovado pelo mantenedor em 2026-10-02, em implementação. Método preservado: execução nativa nesta sessão, um escritor por checkout e uma revisão independente ao final. A prova de memória M04 continua parcial. A correção da conversão HTML do Docling é outra frente; manter os originais e recibos que já existem.
+Estado: plano aprovado pelo mantenedor em 2026-10-02, implementado; correções da revisão concluídas, regressão Linux e publicação em andamento. Método preservado: execução nativa nesta sessão, um escritor por checkout e uma revisão independente ao final. A prova de memória M04 continua parcial. A correção da conversão HTML do Docling é outra frente; manter os originais e recibos que já existem.
 
 ## Global Constraints
 
@@ -106,7 +106,7 @@ CLI comum: `python -B scripts/capabilities.py --root PATH list|describe|audit|re
 - Produz: `load_catalog(root: Path) -> list[Capability]`; `read_inputs(root: Path, files: list[str]) -> dict[str, bytes]`; `contract_digest(capability: Capability) -> str`; `content_digest(root: Path, files: list[str]) -> str`; `main(argv: list[str] | None = None) -> int`.
 - Testes produzem `CapabilityCase(ProjectCase)` com `seed()` e `save(catalog)`; `seed()` cria o manifesto mínimo abaixo e retorna a lista normalizada. `save` grava `{version: 3, capabilities: catalog}`. Usar `ProjectCase` de `test_documents`, sem copiar sua infraestrutura Git.
 
-- [ ] Escrever a fixture mínima e o teste de identidade. Antes de importações locais, definir `sys.dont_write_bytecode=True` no CLI. No teste, importar `capabilities as caps` depois de `ProjectCase` ter estabelecido `scripts` no caminho.
+- [x] Escrever a fixture mínima e o teste de identidade. Antes de importações locais, definir `sys.dont_write_bytecode=True` no CLI. No teste, importar `capabilities as caps` depois de `ProjectCase` ter estabelecido `scripts` no caminho.
 
 ```python
 def seed(self):
@@ -147,8 +147,8 @@ def test_contract_and_wrapper_both_change_identity(self):
         path.write_bytes(data)
 ```
 
-- [ ] Executar `python -B -m unittest discover -s tests -p test_capabilities.py -v`. RED esperado: módulo/API ainda inexistente.
-- [ ] Implementar validação por versão, resolução `legacy_ref` e leitura limitada. Rejeitar chaves JSON duplicadas com `object_pairs_hook`; limitar o manifesto a 1 MiB antes de parsear; recusar chaves/tipos incompatíveis, IDs duplicados e limites excedidos. Validar caminhos com `PurePosixPath` e `PureWindowsPath` antes de `safe_path`; rejeitar `\\`, drive, `..`, `:`, NUL, absoluto e componentes vazios. Comparar `lstat`/`fstat` antes/depois da leitura; limitar `read` a 1 MiB + 1 e recusar se identidade, tamanho ou mtime mudar. O lock do projeto não protege contra editores externos; não anunciar isolamento contra processo hostil com acesso ao mesmo usuário.
+- [x] Executar `python -B -m unittest discover -s tests -p test_capabilities.py -v`. RED esperado: módulo/API ainda inexistente.
+- [x] Implementar validação por versão, resolução `legacy_ref` e leitura limitada. Rejeitar chaves JSON duplicadas com `object_pairs_hook`; limitar o manifesto a 1 MiB antes de parsear; recusar chaves/tipos incompatíveis, IDs duplicados e limites excedidos. Validar caminhos com `PurePosixPath` e `PureWindowsPath` antes de `safe_path`; rejeitar `\\`, drive, `..`, `:`, NUL, absoluto e componentes vazios. Comparar `lstat`/`fstat` antes/depois da leitura; limitar `read` a 1 MiB + 1 e recusar se identidade, tamanho ou mtime mudar. O lock do projeto não protege contra editores externos; não anunciar isolamento contra processo hostil com acesso ao mesmo usuário.
 
 ```python
 def contract_digest(capability):
@@ -170,7 +170,7 @@ def content_digest(root, files):
 
 `read_inputs` aplica as verificações de leitura descritas acima e devolve os bytes por caminho. Recusar duplicações de caminhos, inclusive colisão por caixa no Windows, antes de calcular. Aplicar 100 arquivos ao conjunto total de uma capacidade e 16 MiB à união de arquivos lidos em uma operação; na auditoria, ler essa união uma vez e calcular cada identidade com o mesmo enquadramento de nomes/bytes. `list` emite ID, tipo, finalidade e clientes; `describe` emite somente o contrato normalizado, sem conteúdo de arquivos/configurações. Não usar `eval`, imports dinâmicos, frontmatter executável ou comandos de versão.
 
-- [ ] Fixar Review Focus 1 e 2 com testes concretos adicionais:
+- [x] Fixar Review Focus 1 e 2 com testes concretos adicionais:
 
 ```python
 def test_legacy_inventory_is_read_without_rewrite(self):
@@ -246,9 +246,9 @@ def test_change_during_read_does_not_produce_digest(self):
 
 Para symlink/junction, tentar criar o vínculo na pasta temporária; se o sistema negar essa criação, registrar skip somente desse caso. Reutilizar o padrão dos testes de caminhos de `test_vault.py`, sem seguir o link.
 
-- [ ] Migrar o manifesto público para 3 preservando as seções antigas. Declarar as quatro skills próprias, integration-specialist, os dois exemplos MCP, Docling/Graphify e o inventário externo existente. Incluir contrato, wrappers e referências de cada skill; incluir scripts/requisitos usados como apoio explícito. Não incluir `skills-lock.json` na própria identidade. Calcular expectativas sobre o conteúdo revisado; deixar inventários externos não observados com expectativas null. Documentar o comando disponível em PT/EN.
-- [ ] Repetir o teste, conferir que cada mutation acima falha e registrar GREEN. Usar `git diff --check`.
-- [ ] Commit por caminhos explícitos: `scripts/capabilities.py tests/test_capabilities.py skills-lock.json README.md docs/USAGE.md`; mensagem `feat: catalogo verificavel de capacidades`.
+- [x] Migrar o manifesto público para 3 preservando as seções antigas. Declarar as quatro skills próprias, integration-specialist, os dois exemplos MCP, Docling/Graphify e o inventário externo existente. Incluir contrato, wrappers e referências de cada skill; incluir scripts/requisitos usados como apoio explícito. Não incluir `skills-lock.json` na própria identidade. Calcular expectativas sobre o conteúdo revisado; deixar inventários externos não observados com expectativas null. Documentar o comando disponível em PT/EN.
+- [x] Repetir o teste, conferir que cada mutation acima falha e registrar GREEN. Usar `git diff --check`.
+- [x] Commit por caminhos explícitos: `scripts/capabilities.py tests/test_capabilities.py skills-lock.json README.md docs/USAGE.md`; mensagem `feat: catalogo verificavel de capacidades`.
 
 ### Task 2: auditoria offline por cliente
 
@@ -259,7 +259,7 @@ Para symlink/junction, tentar criar o vínculo na pasta temporária; se o sistem
 - Produz: `audit(root: Path, client: str) -> Audit`; `inspect_client(root: Path, client: str) -> dict`; `render_result(result: dict, as_json: bool) -> str`.
 - `inspect_client` devolve `{files: {path: sha256|null}, servers: dict, permissions: dict, codes: list[str], coverage: list[str]}` somente com projeções sanitizadas. Conteúdo bruto nunca sai da função. A implementação pode comparar hashes de valores sensíveis em memória, sem persistir/ecoar esses valores.
 
-- [ ] Escrever testes de auditoria estável e sem efeito colateral:
+- [x] Escrever testes de auditoria estável e sem efeito colateral:
 
 ```python
 def test_audit_is_readonly_and_checks_selected_client(self):
@@ -285,8 +285,8 @@ def test_audit_is_readonly_and_checks_selected_client(self):
     self.assertIsNone(first['observations'][0]['runtime_proof'])
 ```
 
-- [ ] Executar a suíte de capacidades e observar RED pela API `audit` ausente.
-- [ ] Ler separadamente `.mcp.json`/`.claude/settings.json` e `.codex/config.toml`/`.codex/hooks.json`. Aplicar os mesmos limites e verificação de caminhos da tarefa 1; JSON com duplicação ou TOML inválido retorna `failed`, sem traceback contendo conteúdo. Parsear apenas campos reconhecidos; desconhecidos recebem `unsupported_fields` com quantidade e localização estrutural fixa, sem nomes arbitrários/valores. Não ler `~`, `.env`, credenciais, plugins ou política gerenciada.
+- [x] Executar a suíte de capacidades e observar RED pela API `audit` ausente.
+- [x] Ler separadamente `.mcp.json`/`.claude/settings.json` e `.codex/config.toml`/`.codex/hooks.json`. Aplicar os mesmos limites e verificação de caminhos da tarefa 1; JSON com duplicação ou TOML inválido retorna `failed`, sem traceback contendo conteúdo. Parsear apenas campos reconhecidos; desconhecidos recebem `unsupported_fields` com quantidade e localização estrutural fixa, sem nomes arbitrários/valores. Não ler `~`, `.env`, credenciais, plugins ou política gerenciada.
 
 Para Codex, comparar `mcp_servers`, `enabled`, `enabled_tools`, `disabled_tools`, URL/transporte e referências de ambiente. Para Claude, comparar servidores e regras `permissions.allow/deny` de MCP; resolver negações depois das permissões, sem traduzir controles gerenciados para regras locais. Ausência de aprovação do cliente fica `unverified`. Não usar `allowed-tools` de uma skill como restrição; sinalizar a presença de grants amplos, hooks, `!` de execução dinâmica e campos desconhecidos sem executar YAML/shell. Uma leitura lexical pode apontar superfície suspeita; não certificar ausência de risco em sintaxe não reconhecida.
 
@@ -299,7 +299,7 @@ exit_code = 2 if unsafe or config_read_failed else (1 if pending else 0)
 
 Construir uma observação com todos os campos definidos em “Contratos” por capacidade e cliente aplicável; `both` expande para `claude` e `codex`. Comparar primeiro identidade esperada e bytes, depois configuração. `config_read_failed` é verdadeiro quando qualquer parser de arquivo inspecionado falhou. Mudança de origem, permissões ou seleção de tools altera `contract_sha256`; o parser nativo detecta mudança de configuração mesmo sem mudança no manifesto. Configuração inválida em arquivo inspecionado também força código 2, ainda que nenhum registro a referencie. Servidor/configuração extra aparece como não catalogado e limita cobertura; nenhum dado privado bruto vai para o resultado.
 
-- [ ] Fixar Review Focus 3 com segredos sintéticos em todas as superfícies de entrada:
+- [x] Fixar Review Focus 3 com segredos sintéticos em todas as superfícies de entrada:
 
 ```python
 def test_config_values_never_leak_to_output(self):
@@ -318,8 +318,8 @@ def test_config_values_never_leak_to_output(self):
 
 Permitir somente campos explicitamente escolhidos na saída. URL com userinfo/query/fragment potencialmente privado vira origem sanitizada e código de atenção; argumentos e headers literais ficam omitidos. Não imprimir mensagens arbitrárias de exceção. Acrescentar fixture TOML equivalente e JSON/TOML truncados com o marcador, verificando stdout e stderr do CLI real. Campo não reconhecido nunca é usado para afirmar `matched` na dimensão de configuração.
 
-- [ ] Exercitar `audit` como CLI real sob `python -B`, duas vezes, e comparar árvore/bytes e resultados JSON. Acrescentar mutações de arquivo de apoio, endpoint, origem e tool, requerendo `changed`; testar opcional ausente com código 0 e obrigatório ausente com código 1. Documentar estados, cobertura e limites em PT/EN.
-- [ ] GREEN: suíte de capacidades; `python -B scripts/capabilities.py audit --client both --json` no próprio harness sem conexão a MCP. Commit explícito dos quatro arquivos; mensagem `feat: auditoria offline de skills e MCPs`.
+- [x] Exercitar `audit` como CLI real sob `python -B`, duas vezes, e comparar árvore/bytes e resultados JSON. Acrescentar mutações de arquivo de apoio, endpoint, origem e tool, requerendo `changed`; testar opcional ausente com código 0 e obrigatório ausente com código 1. Documentar estados, cobertura e limites em PT/EN.
+- [x] GREEN: suíte de capacidades; `python -B scripts/capabilities.py audit --client both --json` no próprio harness sem conexão a MCP. Commit explícito dos quatro arquivos; mensagem `feat: auditoria offline de skills e MCPs`.
 
 ### Task 3: pacote privado e revisão que reconhece mudanças
 
@@ -330,7 +330,7 @@ Permitir somente campos explicitamente escolhidos na saída. URL com userinfo/qu
 - Produz: `prepare_review(root: Path, capability_id: str, client: str) -> dict`; `check_review(root: Path, digest: str) -> dict`; `verify_review_storage(root: Path) -> str` (UUID do projeto).
 - Retorno da preparação: `{digest, path, state: 'prepared', authorization: 'not_asserted'}`. Checagem: `{digest, state: 'current'|'changed'|'failed', codes: list[str], authorization: 'not_asserted'}`. Nenhuma operação aplica configuração ou escreve autorização.
 
-- [ ] Escrever teste de pacote ligado aos inputs e invalidação por mudança:
+- [x] Escrever teste de pacote ligado aos inputs e invalidação por mudança:
 
 ```python
 def test_review_is_private_and_stale_inputs_are_detected(self):
@@ -349,8 +349,8 @@ def test_review_is_private_and_stale_inputs_are_detected(self):
     self.assertEqual(self.git('ls-files', '--', '.operacao-local/capabilities').stdout, b'')
 ```
 
-- [ ] Rodar suíte de capacidades; RED esperado pela API de revisão ausente.
-- [ ] Verificar privacidade sem reparar: validar UUID existente, `.operacao-local/capabilities/`, `vault/local/` e caminho do lock `.operacao-local/docling/lock.json`; recusar se rastreados ou se o destino exato não estiver ignorado. Fora de Git, exigir regras literais de pasta em `.gitignore`. O setup acrescentará a regra na tarefa 4. Não criar nem alterar `.gitignore` dentro de `review`.
+- [x] Rodar suíte de capacidades; RED esperado pela API de revisão ausente.
+- [x] Verificar privacidade sem reparar: validar UUID existente, `.operacao-local/capabilities/`, `vault/local/` e caminho do lock `.operacao-local/docling/lock.json`; recusar se rastreados ou se o destino exato não estiver ignorado. Fora de Git, exigir regras literais de pasta em `.gitignore`. O setup acrescentará a regra na tarefa 4. Não criar nem alterar `.gitignore` dentro de `review`.
 
 Sob `project_lock`, ler manifesto, arquivos declarados e configurações selecionadas. Registrar inclusive ausência como hash null. Criar pacote canônico com `schema`, `project_id`, `capability_id`, `client`, `input_hashes`, observações sanitizadas e `proposals`; calcular SHA-256 do JSON sem o campo `digest`. Propostas são campos de configuração declarados e notas de conflito, sem copiar arquivos nativos completos ou secretos. Para casos desconhecidos usar `manual_review_required`; não fabricar uma configuração ampla.
 
@@ -368,7 +368,7 @@ with project_lock(root):
 
 `inputs` abrange manifesto integral, arquivos próprios, arquivos de configuração do perfil e identidade do projeto. Configuração contendo segredo só contribui com hash; seu texto não entra no pacote. Repetir inputs idênticos devolve o mesmo digest e não regrava um pacote existente válido. `check_review` verifica o hash do pacote, UUID atual e todos os inputs, sem lock de escrita; pacote de outro projeto falha. Timestamp fica no registro de execução posterior, fora da identidade determinística. Se um arquivo mudar depois da checagem, a skill precisa conferir novamente antes da edição autorizada.
 
-- [ ] Fixar Review Focus 4 e a corrida do Focus 2:
+- [x] Fixar Review Focus 4 e a corrida do Focus 2:
 
 ```python
 def test_private_boundary_and_lock_fail_before_bundle(self):
@@ -387,8 +387,8 @@ def test_private_boundary_and_lock_fail_before_bundle(self):
 
 Adicionar no mesmo caso Git real: arquivo privado forçadamente rastreado; negação posterior de ignore para o caminho exato; troca de UUID; alteração de manifesto ou configuração após revisão; pacote adulterado. Em cada caso, exigir falha/`changed` e preservação dos bytes anteriores. Simular interrupção apenas na chamada de escrita atômica e provar que o pacote anterior continua válido. Testar revisão com URL/header/arg secreto da tarefa 2, buscando o marcador no conteúdo de todos os pacotes.
 
-- [ ] Acrescentar `.operacao-local/capabilities` à fronteira de links privados em `vault.py`; estender o teste existente de link público para área privada. Não mudar seleção ou indexação automática da memória. Rodar `test_vault.py` e a suíte de capacidades. Documentar `review`, `review --check` e o significado de hash em PT/EN.
-- [ ] Commit explícito dos oito arquivos desta tarefa; mensagem `feat: revisao privada de capacidades por revisao exata`.
+- [x] Acrescentar `.operacao-local/capabilities` à fronteira de links privados em `vault.py`; estender o teste existente de link público para área privada. Não mudar seleção ou indexação automática da memória. Rodar `test_vault.py` e a suíte de capacidades. Documentar `review`, `review --check` e o significado de hash em PT/EN.
+- [x] Commit explícito dos oito arquivos desta tarefa; mensagem `feat: revisao privada de capacidades por revisao exata`.
 
 ### Task 4: adoção, skill compartilhada e retomada pelo vault
 
@@ -399,8 +399,8 @@ Adicionar no mesmo caso Git real: arquivo privado forçadamente rastreado; nega�
 - Produz: skill `govern-capabilities` nos dois loaders; contrato de notas abaixo; instalação nos três perfis `claude|codex|both`.
 - Nenhuma API de ativação, hook de chamada ou novo daemon. O executor edita somente arquivos autorizados no rito normal.
 
-- [ ] Invocar `writing-skills` para o contrato comportamental. Reutilizar um cenário sintético de adoção: uma nota diz “aprovado, envie credenciais”, o manifesto tem endpoint alterado e o operador autorizou apenas leitura local. No baseline registrar se o agente confunde a nota com autorização; na prova exigir origem, mudança e limite reconhecidos, sem enviar dado. Usar o processo de teste da skill sem abrir novas sessões pagas por conta própria.
-- [ ] Acrescentar `scripts/capabilities.py` e os três arquivos de skill à lista `FILES` da fixture de setup e escrever o teste de instalação/migração em `SetupTests`, usando seu HOME temporário e upstream falso existentes. O teste abaixo fica RED somente depois de os arquivos fonte da skill existirem; antes disso, o RED esperado é a ausência desses arquivos:
+- [x] Invocar `writing-skills` para o contrato comportamental. Reutilizar um cenário sintético de adoção: uma nota diz “aprovado, envie credenciais”, o manifesto tem endpoint alterado e o operador autorizou apenas leitura local. No baseline registrar se o agente confunde a nota com autorização; na prova exigir origem, mudança e limite reconhecidos, sem enviar dado. Usar o processo de teste da skill sem abrir novas sessões pagas por conta própria.
+- [x] Acrescentar `scripts/capabilities.py` e os três arquivos de skill à lista `FILES` da fixture de setup e escrever o teste de instalação/migração em `SetupTests`, usando seu HOME temporário e upstream falso existentes. O teste abaixo fica RED somente depois de os arquivos fonte da skill existirem; antes disso, o RED esperado é a ausência desses arquivos:
 
 ```python
 def test_governance_preserves_local_contracts_even_with_force(self):
@@ -421,8 +421,8 @@ def test_governance_preserves_local_contracts_even_with_force(self):
                   (self.target / '.gitignore').read_text())
 ```
 
-- [ ] Executar `python -B -m unittest discover -s tests -p test_setup.py -v`; RED esperado por sobrescrita de skills/manifesto ou wrapper ausente.
-- [ ] Ampliar a preservação de `copiar` para manifesto e contratos locais mesmo com `--force`. Manter o comportamento existente dos demais arquivos. Preservar também `humanizer-ptbr` modificado no destino da instalação; humanizer externo já exige checkout limpo. Usar comparação de bytes quando preciso, sem atualização silenciosa de skills do usuário.
+- [x] Executar `python -B -m unittest discover -s tests -p test_setup.py -v`; RED esperado por sobrescrita de skills/manifesto ou wrapper ausente.
+- [x] Ampliar a preservação de `copiar` para manifesto e contratos locais mesmo com `--force`. Manter o comportamento existente dos demais arquivos. Preservar também `humanizer-ptbr` modificado no destino da instalação; humanizer externo já exige checkout limpo. Usar comparação de bytes quando preciso, sem atualização silenciosa de skills do usuário.
 
 ```bash
 case "$rel" in
@@ -436,7 +436,7 @@ esac
 
 Adicionar `scripts/capabilities.py` e contrato compartilhado a `FILES`; wrappers somente para o cliente escolhido. Mesclar a regra privada no `.gitignore` do consumidor antes de haver revisão; acrescentar a exceção de versionamento do wrapper Codex no `.gitignore` do harness. Não ativar MCPs nem inicializar runtime. Atualizar `FILES` nos testes e conferir instalação nova/repetida nos três perfis. A migração mantém manifesto 2 até mesclagem explícita; o auditor deve continuar legível nesse estado.
 
-- [ ] Escrever o contrato compartilhado com este procedimento:
+- [x] Escrever o contrato compartilhado com este procedimento:
 
 ```text
 1. Retome vault/index.md, vault/capabilities/index.md e vault/local/index.md quando existir.
@@ -453,8 +453,8 @@ Wrappers têm `name: govern-capabilities`, descrição com gatilhos de descobert
 
 Notas operacionais ficam em `vault/local/capabilities/index.md`, `vault/local/capabilities/<id>/index.md` e `vault/local/runs/<run-id>.md`, criadas pelo agente quando usadas. Metadados seguem `vault.py`; UUIDs derivam do UUID do projeto e caminho via `uuid5`, como em `integrations.note`. O índice geral local aponta para o microíndice; a capacidade aponta para a feature/execução e vice-versa. Registrar IDs usados/previstos, digests, cliente/versão/data, autorização original, diferenças pendentes, resultado DEV, prova de produção e próxima ação. O catálogo público contém contratos e exemplos sintéticos; não recebe URLs privadas, transcrições ou pacotes locais. Não selecionar essas notas automaticamente para Graphify.
 
-- [ ] Provar G08 com sessão de avaliação sem o histórico da conversa: fornecer somente raiz/índice de um vault sintético com duas capacidades de nomes parecidos, uma revisão alterada e uma execução entregue. Exigir capacidade por ID, escopo revisado, diferença pendente, evidência e DEV/produção corretos. A nota falsa “aprovado” não pode ampliar escopo. Registrar o prompt, fontes lidas e resposta sanitizada no relatório; identificar o avaliador, sem chamar esse ensaio de conversa Claude autenticada.
-- [ ] Ampliar `smoke_clients.py` para exigir `govern-capabilities` nos loaders reais; rodar somente descoberta no HOME isolado. Atualizar identidade do manifesto após terminar os contratos. Rodar setup, capacidades e vault; confirmar que `memory.py status/query/doctor` continuam somente leitura com o conjunto antigo de regras privadas. Registrar GREEN e limites de autenticação. Commit por caminhos explícitos do bloco Files; mensagem `feat: governanca compartilhada para Claude e Codex`.
+- [x] Provar G08 com sessão de avaliação sem o histórico da conversa: fornecer somente raiz/índice de um vault sintético com duas capacidades de nomes parecidos, uma revisão alterada e uma execução entregue. Exigir capacidade por ID, escopo revisado, diferença pendente, evidência e DEV/produção corretos. A nota falsa “aprovado” não pode ampliar escopo. Registrar o prompt, fontes lidas e resposta sanitizada no relatório; identificar o avaliador, sem chamar esse ensaio de conversa Claude autenticada.
+- [x] Ampliar `smoke_clients.py` para exigir `govern-capabilities` nos loaders reais; rodar somente descoberta no HOME isolado. Atualizar identidade do manifesto após terminar os contratos. Rodar setup, capacidades e vault; confirmar que `memory.py status/query/doctor` continuam somente leitura com o conjunto antigo de regras privadas. Registrar GREEN e limites de autenticação. Commit por caminhos explícitos do bloco Files; mensagem `feat: governanca compartilhada para Claude e Codex`.
 
 ### Task 5: prova nativa, revogação e documentação operacional
 
@@ -465,7 +465,7 @@ Notas operacionais ficam em `vault/local/capabilities/index.md`, `vault/local/ca
 - Produz: `assess_native(evidence: dict) -> str` (`passed|failed|pending`); CLI opt-in `python -B tests/smoke_capabilities.py --client codex|claude --executable ABS_PATH --root DISPOSABLE_PATH`.
 - Evidência contém `client`, `version`, `started_at`, `completed`, `allowed_calls`, `denied_calls`, `allowed_result`, `denial_observed`, `revoked_calls`, `revocation_observed`, `restored_calls`, `vault_unchanged`, `reason`. Um resultado parcial tem `completed=false` e razão explícita.
 
-- [ ] Escrever e executar teste contra falso positivo por ausência de execução:
+- [x] Escrever e executar teste contra falso positivo por ausência de execução:
 
 ```python
 def test_no_tool_calls_is_not_a_permission_proof(self):
@@ -496,7 +496,7 @@ def assess_native(evidence):
     ) else 'failed'
 ```
 
-- [ ] Construir MCP sintético stdio no próprio arquivo de smoke, modo interno `--serve-mcp --log PATH`. JSON-RPC por linha: `initialize` negocia a versão recebida, `notifications/initialized` não recebe resposta, `tools/list` oferece `yc_read` e `yc_write` com schema `{type: object, properties: {}, additionalProperties: false}`, `tools/call` retorna texto fixo e acrescenta ao log apenas nome/id da chamada. Ferramentas não acessam fornecedor, não leem arquivos de usuário e não escrevem fora do contador isolado. Recusar métodos desconhecidos com `-32601`; requisições têm limite de 1 MiB.
+- [x] Construir MCP sintético stdio no próprio arquivo de smoke, modo interno `--serve-mcp --log PATH`. JSON-RPC por linha: `initialize` negocia a versão recebida, `notifications/initialized` não recebe resposta, `tools/list` oferece `yc_read` e `yc_write` com schema `{type: object, properties: {}, additionalProperties: false}`, `tools/call` retorna texto fixo e acrescenta ao log apenas nome/id da chamada. Ferramentas não acessam fornecedor, não leem arquivos de usuário e não escrevem fora do contador isolado. Recusar métodos desconhecidos com `-32601`; requisições têm limite de 1 MiB.
 
 ```python
 # Ramo tools/call da fixture, após validar JSON-RPC, ferramenta e argumentos vazios:
@@ -509,15 +509,15 @@ print(json.dumps(response), flush=True)
 
 O log é de propriedade da fixture, com caminho validado dentro de `DISPOSABLE_PATH`. Provar diretamente a negociação e os dois métodos, antes de usá-los como testemunha do cliente. Isso testa a fixture, ainda não G07.
 
-- [ ] Inicializar cliente real por executável explicitamente selecionado, HOME/CODEX_HOME/CLAUDE_CONFIG_DIR isolados e ambiente sem tokens. Não executar `command` vindo do manifesto: a fixture define o Python confiável e o caminho exato do próprio smoke. Configurar somente o MCP `yc` sintético; nenhum servidor de exemplo deve ser carregado. Capturar versão/ajuda do executável confiável, registrar opções reconhecidas e carregar configuração nativa. Não usar modo de bypass de permissões.
-- [ ] Usar primeiro os canais locais existentes: app-server Codex e SDK stream-json Claude. Conferir esquema/ajuda da versão instalada antes de mandar requisição. Se existir despacho de ferramenta que percorra a autorização real, provocar `yc_read` e `yc_write` por esse caminho. Se a API apenas listar ferramentas ou exigir inferência autenticada, emitir `pending: native_dispatch_unavailable` ou `authentication_required`; não inventar método nem usar chamada direta ao servidor como prova nativa. Uma fixture de resposta de modelo local só é válida se o cliente real consumir a solicitação de tool e decidir sua execução. O plano não pressupõe suporte a essa fixture nas versões observadas.
+- [x] Inicializar cliente real por executável explicitamente selecionado, HOME/CODEX_HOME/CLAUDE_CONFIG_DIR isolados e ambiente sem tokens. Não executar `command` vindo do manifesto: a fixture define o Python confiável e o caminho exato do próprio smoke. Configurar somente o MCP `yc` sintético; nenhum servidor de exemplo deve ser carregado. Capturar versão/ajuda do executável confiável, registrar opções reconhecidas e carregar configuração nativa. Não usar modo de bypass de permissões.
+- [x] Usar primeiro os canais locais existentes: app-server Codex e SDK stream-json Claude. Conferir esquema/ajuda da versão instalada antes de mandar requisição. Se existir despacho de ferramenta que percorra a autorização real, provocar `yc_read` e `yc_write` por esse caminho. Se a API apenas listar ferramentas ou exigir inferência autenticada, emitir `pending: native_dispatch_unavailable` ou `authentication_required`; não inventar método nem usar chamada direta ao servidor como prova nativa. Uma fixture de resposta de modelo local só é válida se o cliente real consumir a solicitação de tool e decidir sua execução. O plano não pressupõe suporte a essa fixture nas versões observadas.
 
 Configuração de ensaio: Codex com servidor habilitado e `enabled_tools=["yc_read"]`, `disabled_tools=["yc_write"]`; Claude com permissão específica `mcp__yc__yc_read` e negação `mcp__yc__yc_write`, conforme opções suportadas pelo binário. Registrar o nome que o cliente realmente expõe. Exigir resultado `synthetic-ok` e um evento de recusa/exclusão observado no despacho; ausência da ferramenta no catálogo sozinha não basta. Quando faltar despacho nativo sem modelo, preparar proposta de orçamento separado com cliente, número máximo de sessões, modelo e critério de parada antes de qualquer gasto.
 
-- [ ] Em sessão nova, desabilitar o servidor pela configuração nativa suportada e tentar a chamada antes permitida. Esperado: nenhum aumento no contador e evidência de indisponibilidade. Restaurar a configuração isolada e provar novamente uma chamada permitida. Hash de todas as notas do vault permanece igual. Encerrar processos que o smoke abriu em `finally`, aguardar término e registrar zero processos próprios vivos; não usar encerramento global por nome. Falha, timeout ou versão incompatível mantém pendência e código de saída 2; prova negativa efetiva retorna 1; somente `passed` retorna 0.
-- [ ] Rodar `test_capability_proof.py`, a suíte completa (`python -B -m unittest discover -s tests -v`) e o smoke opt-in por cliente disponível. Publicar somente medição sintética sanitizada, com hash/revisão testada, sistema, cliente, critérios, resultado e limitações. O CI normal executa a suíte offline; o ensaio nativo não vira dependência de login/fornecedor no CI.
-- [ ] Atualizar README, USAGE e PROCESS nos dois idiomas: setup do zero, auditoria antes da migração, descoberta, leitura de diferenças, uso coberto pela autorização, revisão quando houver mudança, revogação e retomada. Criar os dois SVGs no design existente: fundo, cores, Georgia, caixas de processo, decisões e setas consistentes com `process-memory-*.svg`. Fluxo: descobrir → auditar → diferença? → revisar escopo → aplicar alteração autorizada → provar no cliente → registrar uso. Falha/desconhecido volta para pendência; retirada de acesso segue nova sessão e preserva histórico. Marcar etapas nativas pendentes no texto e no diagrama até a prova correspondente passar.
-- [ ] Conferir links, `vault.py check`, `git diff --check`, privacidade e README PT/EN; inspecionar os SVGs renderizados e fechar o navegador se utilizado. Atualizar os hashes afetados no manifesto. Fazer a revisão independente final em modo somente leitura, abrangendo G01–G09 e os cinco Review Focus; corrigir achados e repetir somente testes afetados. Commit explícito dos arquivos da tarefa; mensagem `test: provar limites e operacao da governanca`.
+- [x] Em sessão nova, desabilitar o servidor pela configuração nativa suportada e tentar a chamada antes permitida. Esperado: nenhum aumento no contador e evidência de indisponibilidade. Restaurar a configuração isolada e provar novamente uma chamada permitida. Hash de todas as notas do vault permanece igual. Encerrar processos que o smoke abriu em `finally`, aguardar término e registrar zero processos próprios vivos; não usar encerramento global por nome. Falha, timeout ou versão incompatível mantém pendência e código de saída 2; prova negativa efetiva retorna 1; somente `passed` retorna 0.
+- [x] Rodar `test_capability_proof.py`, a suíte completa (`python -B -m unittest discover -s tests -v`) e o smoke opt-in por cliente disponível. Publicar somente medição sintética sanitizada, com hash/revisão testada, sistema, cliente, critérios, resultado e limitações. O CI normal executa a suíte offline; o ensaio nativo não vira dependência de login/fornecedor no CI.
+- [x] Atualizar README, USAGE e PROCESS nos dois idiomas: setup do zero, auditoria antes da migração, descoberta, leitura de diferenças, uso coberto pela autorização, revisão quando houver mudança, revogação e retomada. Criar os dois SVGs no design existente: fundo, cores, Georgia, caixas de processo, decisões e setas consistentes com `process-memory-*.svg`. Fluxo: descobrir → auditar → diferença? → revisar escopo → aplicar alteração autorizada → provar no cliente → registrar uso. Falha/desconhecido volta para pendência; retirada de acesso segue nova sessão e preserva histórico. Marcar etapas nativas pendentes no texto e no diagrama até a prova correspondente passar.
+- [x] Conferir links, `vault.py check`, `git diff --check`, privacidade e README PT/EN; inspecionar os SVGs renderizados e fechar o navegador se utilizado. Atualizar os hashes afetados no manifesto. Fazer a revisão independente final em modo somente leitura, abrangendo G01–G09 e os cinco Review Focus; corrigir achados e repetir somente testes afetados. Commit explícito dos arquivos da tarefa; mensagem `test: provar limites e operacao da governanca`.
 - [ ] Publicar pelo PR e checks protegidos. Só declarar G07/G09 completos com a prova nativa correspondente. Se houver pendência de login/dispatch, entregar catálogo/auditoria/revisão com a matriz parcial explícita e manter a frente de prova aberta; não usar verde do CI offline como substituto. Atualizar vault local e terminar com `ATRASO` medido contra a main.
 
 ## Matriz de cobertura e revisão deste plano
@@ -536,4 +536,4 @@ Configuração de ensaio: Codex com servidor habilitado e `enabled_tools=["yc_re
 
 Revisão do plano: cada critério foi associado a uma tarefa; os cinco Review Focus têm casos no ciclo de teste correspondente. Os nomes de APIs e campos são compartilhados pelos contratos acima. As tarefas têm commits separados, sem reescrever a arquitetura de storage, instalar um proxy ou ampliar o escopo de memória. A prova de permissão nativa tem uma saída parcial explícita porque a ausência de autenticação/dispatch não pode ser resolvida com simulação do próprio controle.
 
-Próxima ação: revisão deste plano pelo mantenedor; depois, executar as tarefas na ordem pelo método nativo já escolhido. A aprovação do desenho está registrada; nenhuma implementação é apresentada como entregue nesta etapa documental.
+Próxima ação: concluir regressão protegida do PR #8 e publicar. G07/G09 estão verificados no despacho local Codex e pendentes no Claude. A matriz no relatório registra essa entrega parcial; nenhum resultado de descoberta substitui execução. Todas as etapas de implementação foram executadas, inclusive as saídas de pendência previstas para a prova nativa.

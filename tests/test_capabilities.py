@@ -176,6 +176,25 @@ class CatalogTests(CapabilityCase):
 
 
 class AuditTests(CapabilityCase):
+    def test_claude_conflicts_extra_grants_and_unknown_patterns_do_not_match(self):
+        catalog = self.seed()
+        catalog[0]['native'] = {'claude': dict(server='sample', transport='http',
+            url='https://example.invalid/mcp', allow_tools=['read'], deny_tools=['write'])}
+        self.save(catalog)
+        (self.root / '.mcp.json').write_text(json.dumps({'mcpServers': {'sample': {
+            'type': 'http', 'url': 'https://example.invalid/mcp'}}}), encoding='utf-8')
+        settings = self.root / '.claude/settings.json'
+        original = dict(allow=['mcp__sample__read'], deny=['mcp__sample__write'])
+        settings.write_text(json.dumps({'permissions': original}), encoding='utf-8')
+        self.assertEqual(caps.audit(self.root, 'claude')['observations'][0]['config_state'], 'matched')
+        for action, rule in [('deny', 'mcp__sample__read'), ('allow', 'mcp__sample__delete'),
+                             ('allow', 'mcp__sample__*'), ('ask', 'mcp__sample__read')]:
+            rules = {key: list(value) for key, value in original.items()}
+            rules.setdefault(action, []).append(rule)
+            settings.write_text(json.dumps({'permissions': rules}), encoding='utf-8')
+            self.assertNotEqual(caps.audit(self.root, 'claude')['observations'][0]['config_state'],
+                                'matched', (action, rule))
+
     def locked(self):
         catalog = self.seed()
         cap = catalog[0]
@@ -283,6 +302,18 @@ class AuditTests(CapabilityCase):
 
 
 class ReviewTests(CapabilityCase):
+    def test_unignored_atomic_temporary_is_rejected_before_payload_write(self):
+        self.ready()
+        with (self.root / '.gitignore').open('a', encoding='utf-8') as output:
+            output.write('!/.operacao-local/capabilities/\n/.operacao-local/capabilities/*\n'
+                         '!/.operacao-local/capabilities/reviews/\n'
+                         '/.operacao-local/capabilities/reviews/*\n'
+                         '!/.operacao-local/capabilities/reviews/*.tmp\n')
+        with self.assertRaises(ValueError):
+            caps.prepare_review(self.root, 'sample', 'codex')
+        area = self.root / '.operacao-local/capabilities/reviews'
+        self.assertFalse(list(area.glob('*')) if area.exists() else [])
+
     def ready(self):
         self.seed()
         self.store.prepare_storage(self.root)

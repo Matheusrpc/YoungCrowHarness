@@ -1,7 +1,7 @@
 # Governança de skills, agentes e MCPs
 
 Estado: desenho aprovado pelo mantenedor em 2026-10-02; [plano de implementação](../plans/2026-10-02-capability-governance.md)
-preparado para revisão. Não implementado. Base: main `16191ec`, com memória
+implementado com prova nativa parcial por cliente. Consulte a [matriz de evidências](../../relatorios/2026-10-02-capability-governance.md). Base: main `16191ec`, com memória
 consultável publicada no PR #7. Este desenho desenvolve R06, R07 e a frente 3 da
 [direção do produto](2026-10-01-youngcrow-foundation-design.md). A prova M04 de memória permanece
 parcial e não será apresentada como concluída por esta entrega.

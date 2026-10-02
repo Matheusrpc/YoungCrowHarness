@@ -610,6 +610,49 @@ python3 scripts/memory.py --root . clear-index
 Memória e ingestão compartilham o lock do projeto. Se uma interrupção deixar `pending`, confira `python3 scripts/documents.py --root . lock-status`. A recuperação exige dono encerrado e o token mostrado: `python3 scripts/documents.py --root . recover-lock --token TOKEN`. Depois execute `rebuild`; não apague o lock manualmente.
 
 
+<a id="governanca-pt"></a>
+
+## Governança: descobrir, revisar e revogar
+
+Num projeto novo, conclua o setup para o cliente escolhido e use `personalizer` para criar a
+identidade do vault. Peça: “Use govern-capabilities para revisar as capacidades deste projeto.”
+Liste o catálogo, abra o contrato da capacidade necessária e audite o cliente antes de habilitá-la.
+
+Numa migração, inventarie primeiro manifesto, skills, agentes, MCPs e hooks existentes. Rode o
+auditor com `--root CAMINHO_DO_PROJETO` antes de aplicar mudanças; se não houver manifesto, registre
+a ausência e compare com o catálogo do harness. O setup preserva esses contratos e as configurações
+nativas, inclusive com `--force`. Mescle apenas o que o projeto precisa e execute a auditoria novamente.
+Use `--client codex` ou `--client claude` quando só houver um cliente.
+
+```bash
+python3 scripts/capabilities.py list --json
+python3 scripts/capabilities.py describe retrieve-memory --json
+python3 scripts/capabilities.py audit --client both --json
+python3 scripts/capabilities.py review --id retrieve-memory --client codex --json
+python3 scripts/capabilities.py review --check DIGEST --json
+```
+
+`review --id` grava um pacote privado; os outros comandos apenas leem. Confira finalidade, origem,
+arquivos e acessos propostos. Aplique diferenças pontuais dentro da autorização vigente. Um pacote
+antigo serve de histórico: se seus inputs mudaram, gere outra revisão. A skill não amplia permissões
+por conta própria nem executa comandos declarados no manifesto.
+
+Para retirar acesso, desabilite o servidor ou remova a permissão na configuração do cliente.
+Abra uma sessão nova e tente a operação retirada; confira a recusa e os registros do servidor.
+Se restaurar o acesso, faça outra prova positiva. Salve ID, versão, escopo, revisão e resultados
+no microíndice local de capacidades, ligado à feature e à execução. Preserve o histórico do vault.
+
+O ensaio sintético passou no Codex 0.158.0-alpha.2.1 pelo despacho local do app-server: uma chamada
+permitida, nenhuma chamada proibida, nenhuma chamada após revogação e uma após restauração.
+O ensaio mede esse caminho e essa versão; não comprova permissões de todos os plugins, clientes ou
+serviços. No Claude 2.1.220, descoberta foi verificada, mas autorização/recusa em execução continuam
+pendentes. O CI offline não substitui essas provas. Veja a [matriz](relatorios/2026-10-02-capability-governance.md).
+
+No checkout do harness, o ensaio opcional usa `python3 tests/smoke_capabilities.py --client codex
+--executable /caminho/absoluto/codex --root /caminho/novo/descartavel` (uma única linha). Ele exige uma
+pasta inexistente, cria um ambiente isolado e usa um MCP sintético, sem turno de modelo. No Windows,
+passe o `.exe`, não o lançador `.ps1` ou `.cmd`. Resultado pendente retorna 2; falha da prova retorna 1.
+
 <a id="english"></a>
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Before you start
@@ -1110,3 +1153,46 @@ Memory and ingestion share the project lock. If interruption leaves `pending`, i
 </p>
 
 - Docling: [formatos e limites do fornecedor](https://docling-project.github.io/docling/usage/supported_formats/) · [versão usada](https://github.com/docling-project/docling/tree/v2.132.0).
+
+<a id="governance-en"></a>
+
+## Governance: discover, review and revoke
+
+For a new project, complete setup for the selected client and use `personalizer` to create the
+vault identity. Ask: “Use govern-capabilities to review this project's capabilities.” List the
+catalog, open the contract for the capability you need and audit the client before enabling it.
+
+For migration, inventory existing manifests, skills, agents, MCPs and hooks first. Run the auditor
+with `--root PROJECT_PATH` before changing anything. If there is no manifest, record that absence
+and compare with the harness catalog. Setup preserves these contracts and native configurations,
+even with `--force`. Merge only what the project needs, then audit again. Use `--client codex` or
+`--client claude` for a single-client project.
+
+```bash
+python3 scripts/capabilities.py list --json
+python3 scripts/capabilities.py describe retrieve-memory --json
+python3 scripts/capabilities.py audit --client both --json
+python3 scripts/capabilities.py review --id retrieve-memory --client codex --json
+python3 scripts/capabilities.py review --check DIGEST --json
+```
+
+`review --id` writes a private bundle; the other commands only read. Check purpose, origin, files
+and proposed access. Apply targeted changes within current authorization. An old bundle is history:
+if its inputs changed, create a new review. The skill never expands access on its own or executes
+commands declared in the manifest.
+
+To revoke access, disable the server or remove the permission in the client configuration. Start
+a fresh session and attempt the revoked operation; check its rejection and the server records.
+If restoring access, run another positive check. Save ID, version, scope, revision and outcomes
+in the local capability index, linked to the feature and run. Preserve vault history.
+
+The synthetic probe passed in Codex 0.158.0-alpha.2.1 through local app-server dispatch: one allowed
+call, no forbidden calls, no calls after revocation and one after restoration. This verifies that
+path and version, not every plugin, client or service. Claude 2.1.220 discovery is verified, but
+runtime allow/deny proof remains pending. Offline CI cannot replace native proof. See the
+[matrix](relatorios/2026-10-02-capability-governance.md).
+
+In the harness checkout, the optional probe is `python3 tests/smoke_capabilities.py --client codex
+--executable /absolute/path/codex --root /new/disposable/path` (one line). The directory must not
+exist. The probe creates an isolated environment and synthetic MCP with no model turn. On Windows,
+select the actual `.exe`, not a `.ps1` or `.cmd` launcher. Pending exits with 2; failed proof exits with 1.

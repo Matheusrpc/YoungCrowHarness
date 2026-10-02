@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1420" width="760" height="1420" role="img" aria-labelledby="title desc" font-family="Georgia, serif">
+<title id="title">06 · Governar skills e MCPs</title><desc id="desc">Catálogo, configuração e execução têm provas distintas. Revogar preserva notas e histórico. Hash não autoriza.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#F3E7C6"/></marker></defs>
+<rect width="760" height="1420" fill="#17130f"/><rect x="12" y="12" width="736" height="1396" rx="10" fill="none" stroke="#725a35" stroke-width="2"/>
+<text x="35" y="53" text-anchor="start" font-size="28" fill="#F3E7C6" data-max-width="695">
+<tspan x="35" dy="0">06 · Governar skills e MCPs</tspan>
+</text>
+<text x="35" y="92" text-anchor="start" font-size="20" fill="#d6c8a8" data-max-width="695">
+<tspan x="35" dy="0">Catálogo, configuração e execução têm provas distintas</tspan>
+</text>
+<circle cx="288" cy="115" r="13" fill="#1F7A4D" stroke="#F3E7C6" stroke-width="2"/>
+<path d="M288 128V140" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M288 224V270" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M288 354V400" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M288 540V600" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M288 684V750" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M288 834V910" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M288 994V1090" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M288 1174V1260" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M358 470H535V952H510" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M510 972H565" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M510 1132H565" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="65" y="140" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="287.5" y="174" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Descobrir capacidades</tspan>
+<tspan x="287.5" dy="30">Índice, ID e contrato</tspan>
+</text>
+<rect x="65" y="270" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="287.5" y="304" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Auditar o cliente</tspan>
+<tspan x="287.5" dy="30">Arquivos, origem e acesso</tspan>
+</text>
+<rect x="65" y="600" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#E8A317" stroke-width="4"/>
+<text x="287.5" y="634" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Revisar escopo</tspan>
+<tspan x="287.5" dy="30">Pacote privado e autorização</tspan>
+</text>
+<rect x="65" y="750" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#5B2E8A" stroke-width="4"/>
+<text x="287.5" y="784" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Aplicar mudança autorizada</tspan>
+<tspan x="287.5" dy="30">Preservar regras existentes</tspan>
+</text>
+<rect x="65" y="910" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="287.5" y="944" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Provar no cliente</tspan>
+<tspan x="287.5" dy="30">Permitir, negar e revogar</tspan>
+</text>
+<rect x="65" y="1090" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#1F7A4D" stroke-width="4"/>
+<text x="287.5" y="1124" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Registrar uso no vault</tspan>
+<tspan x="287.5" dy="30">Versão, provas e próxima ação</tspan>
+</text>
+<path d="M288 400L358 470L288 540L218 470Z" fill="#E8A317" stroke="#F3E7C6" stroke-width="2"/>
+<text x="288" y="462" text-anchor="middle" font-size="22" fill="#17130f" data-max-width="108">
+<tspan x="288" dy="0">Há</tspan>
+<tspan x="288" dy="30">diferença?</tspan>
+</text>
+<text x="325" y="578" text-anchor="middle" font-size="20" fill="#F3E7C6" data-max-width="70">
+<tspan x="325" dy="0">Sim</tspan>
+</text>
+<text x="430" y="450" text-anchor="middle" font-size="20" fill="#F3E7C6" data-max-width="70">
+<tspan x="430" dy="0">Não</tspan>
+</text>
+<rect x="565" y="910" width="165" height="125" rx="9" fill="#F3E7C6" stroke="#B3202F" stroke-width="4"/>
+<text x="647.5" y="944" text-anchor="middle" font-size="18" fill="#17130f" data-max-width="143">
+<tspan x="647.5" dy="0">Falha ou</tspan>
+<tspan x="647.5" dy="30">desconhecido:</tspan>
+<tspan x="647.5" dy="30">pendência</tspan>
+</text>
+<rect x="565" y="1090" width="165" height="125" rx="9" fill="#F3E7C6" stroke="#5B2E8A" stroke-width="4"/>
+<text x="647.5" y="1124" text-anchor="middle" font-size="17" fill="#17130f" data-max-width="143">
+<tspan x="647.5" dy="0">Revogar acesso</tspan>
+<tspan x="647.5" dy="30">Abrir nova sessão</tspan>
+<tspan x="647.5" dy="30">Testar e registrar</tspan>
+</text>
+<circle cx="288" cy="1274" r="14" fill="#1F7A4D" stroke="#F3E7C6" stroke-width="5"/>
+<text x="35" y="1347" text-anchor="start" font-size="19" fill="#d6c8a8" data-max-width="695">
+<tspan x="35" dy="0">Codex: prova sintética passou. Claude: prova pendente.</tspan>
+</text>
+<text x="35" y="1382" text-anchor="start" font-size="19" fill="#d6c8a8" data-max-width="695">
+<tspan x="35" dy="0">Revogar preserva notas e histórico. Hash não autoriza.</tspan>
+</text>
+</svg>

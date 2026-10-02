@@ -173,6 +173,10 @@ No corpus sintético, a referência esperada apareceu em 3 de 4 consultas Graphi
 consultas Markdown. O grafo não demonstrou vantagem geral nesse teste pequeno. Veja a
 [medição e os limites](docs/relatorios/2026-10-02-memory-discovery.md).
 
+![Governança: descobrir, auditar, revisar diferenças, aplicar mudanças autorizadas, provar no cliente e registrar no vault.](assets/process-governance-pt.svg)
+
+[Operar a governança](docs/USAGE.md#governanca-pt)
+
 
 A ingestão com Docling guarda documentos convertidos, imagens e índices em `vault/local/`, ignorada
 pelo Git. Originais e recibos ficam em
@@ -217,10 +221,11 @@ cliente separada: Codex recuperou o handoff e reconheceu uma revisão alterada; 
 no sandbox somente leitura recorreu ao Markdown. Claude Code tem descoberta verificada e conversa
 real pendente de login. M04 permanece parcial.
 O [relatório](docs/relatorios/2026-10-02-memory-discovery.md) registra o estado atual de M01–M04.
-Próxima frente: [governança de skills, agentes e MCPs](docs/superpowers/specs/2026-10-02-capability-governance-design.md).
-O desenho aprovado cobre origem, conteúdo, permissões e provas por cliente. O
-[plano aprovado](docs/superpowers/plans/2026-10-02-capability-governance.md) orienta a implementação:
-catálogo verificável, auditoria offline, pacote privado, adoção e prova nativa. O catálogo já pode ser consultado
+A [governança de skills, agentes e MCPs](docs/superpowers/specs/2026-10-02-capability-governance-design.md)
+entrega catálogo verificável, auditoria offline, pacotes privados e uma skill comum aos dois clientes.
+No ensaio sintético nativo, o Codex permitiu a ferramenta prevista, recusou a proibida e confirmou
+revogação/restauração em sessões novas. A prova equivalente no Claude permanece pendente. Veja a
+[matriz de evidências](docs/relatorios/2026-10-02-capability-governance.md). O catálogo já pode ser consultado
 com `python scripts/capabilities.py list` e `describe ID`. `audit --client both --json` compara arquivos
 e configurações sem iniciar MCPs. `review --id ID` prepara um pacote privado; `review --check DIGEST`
 confere se os arquivos continuam iguais. O pacote não concede autorização nem ativa a capacidade.
@@ -441,6 +446,10 @@ In the synthetic corpus, the expected reference appeared in 3 of 4 Graphify quer
 Markdown queries. The graph showed no general advantage in this small test. See the
 [measurement and limits](docs/relatorios/2026-10-02-memory-discovery.md).
 
+![Governance: discover, audit, review drift, apply authorized changes, prove in the client and record in the vault.](assets/process-governance-en.svg)
+
+[Operate governance](docs/USAGE.md#governance-en)
+
 
 Docling ingestion stores converted documents, images and indices in the Git-ignored `vault/local/`
 area. Originals and receipts live in `.operacao-local/docling/`.
@@ -485,10 +494,11 @@ Codex recovered the handoff and recognized a changed revision; Graphify queries 
 sandbox fell back to Markdown. Claude Code discovery is verified; model conversation awaits login.
 M04 remains partial. The
 [report](docs/relatorios/2026-10-02-memory-discovery.md) records current M01–M04 evidence.
-Next: [skill, agent and MCP governance](docs/superpowers/specs/2026-10-02-capability-governance-design.md).
-The approved design covers origin, content, permissions and evidence for each client. The
-[approved plan](docs/superpowers/plans/2026-10-02-capability-governance.md) guides implementation:
-verifiable catalog, offline audit, private review bundle, adoption and native proof. The catalog can be queried
+[Skill, agent and MCP governance](docs/superpowers/specs/2026-10-02-capability-governance-design.md)
+provides a verifiable catalog, offline auditing, private review bundles and a shared skill.
+The native synthetic Codex probe allowed the intended tool, rejected the forbidden tool and verified
+revocation/restoration in fresh sessions. Equivalent Claude proof remains pending. See the
+[evidence matrix](docs/relatorios/2026-10-02-capability-governance.md). The catalog can be queried
 with `python scripts/capabilities.py list` and `describe ID`. `audit --client both --json` compares files
 and configuration without starting MCPs. `review --id ID` prepares a private bundle; `review --check DIGEST`
 checks whether its inputs are unchanged. A bundle grants no authorization and activates nothing.

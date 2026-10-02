@@ -161,6 +161,8 @@ A [memória consultável](2026-10-02-memory-discovery-design.md) entrou na main 
 
 O [contrato do personalizer](2026-10-02-personalizer-design.md) cobre a frente 4 e acrescenta índices de produto, features, decisões e operação à frente 2. A skill conduz a entrevista e a auditoria; o comando cria e preserva os registros. O [relatório do piloto](../../relatorios/2026-10-02-personalizer.md) registra a retomada de uma entrevista e uma entrega local. Esse ensaio não valida publicação em produção nem encerra as frentes 3, 5 e 6.
 
+O incremento de [governança de capacidades](2026-10-02-capability-governance-design.md) entrega catálogo, auditoria offline, revisão privada e skill comum. A prova sintética de permissão e revogação passou no Codex; Claude permanece pendente. A [matriz G01–G09](../../relatorios/2026-10-02-capability-governance.md) delimita o que foi verificado.
+
 ## Referências de desenho
 
 - [Graphify](https://github.com/Graphify-Labs/graphify): candidato a descoberta estrutural e consulta de relações.

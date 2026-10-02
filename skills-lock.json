@@ -162,14 +162,14 @@
         ]
       },
       "permissions": {
+        "environments": [],
+        "data": [],
+        "network": [],
+        "credential_env": [],
         "write": [
           "authorized project files",
           "vault/local"
         ],
-        "environments": [],
-        "network": [],
-        "data": [],
-        "credential_env": [],
         "read": [
           "project instructions",
           "selected vault notes"
@@ -179,8 +179,8 @@
       "expected": {
         "contract_sha256": "882ba9355ba6bc988420f44e8aceb7c47e018bda01b68622a90d3299984110b2",
         "files_sha256": {
-          "claude": "499ac06a50c0a2cdd36099c3bb544347ac50c7cda55c515f06203ecb0ba82feb",
-          "codex": "89cd51ee7d5099ca6bd31fe827683f8d72c48140625db291c30ecfb793e57a5f"
+          "claude": "680b12c158aefc81306b7064184df2ccac57d4cf53a7f2a9e78858e04894fc86",
+          "codex": "732fb9e595b20d485518c9ff4024bebaf0e61f041096ea1abe7c2894e6017da3"
         }
       },
       "legacy_ref": "skills_de_projeto/retrieve-memory"
@@ -224,14 +224,14 @@
         ]
       },
       "permissions": {
+        "environments": [],
+        "data": [],
+        "network": [],
+        "credential_env": [],
         "write": [
           "authorized project files",
           "vault/local"
         ],
-        "environments": [],
-        "network": [],
-        "data": [],
-        "credential_env": [],
         "read": [
           "project instructions",
           "selected vault notes"
@@ -241,8 +241,8 @@
       "expected": {
         "contract_sha256": "f62691940874fb27919977a6856d54691bdfc627e117d10e4c6ac2e77aaa731c",
         "files_sha256": {
-          "claude": "fc9b3318c8a7ee92a1f7f498ee2aad4000f88e86a731f25ad639ae883464f6d9",
-          "codex": "247657a6c06ac693f8180a1b390d3d0cae2fea79534cfb917f56a239a3ded6d3"
+          "claude": "c561c508d57fab2d010aa2f12d40e0edc8f7e265f5a96692db86f056925fcaa7",
+          "codex": "a89a7c71e96e4794abc9e759ebb909f7826f831601b3e0421caff13ae1a8c7ff"
         }
       },
       "legacy_ref": "skills_de_projeto/ingest-source"
@@ -282,14 +282,14 @@
         ]
       },
       "permissions": {
+        "environments": [],
+        "data": [],
+        "network": [],
+        "credential_env": [],
         "write": [
           "authorized project files",
           "vault/local"
         ],
-        "environments": [],
-        "network": [],
-        "data": [],
-        "credential_env": [],
         "read": [
           "project instructions",
           "selected vault notes"
@@ -299,8 +299,8 @@
       "expected": {
         "contract_sha256": "b2f7f54e0cedb85286e2387669032ae88feecdb3ad5cca91a0a468fa71b12e0b",
         "files_sha256": {
-          "claude": "3d71cd69b24e1feb0fb05baf887645a1e8b668f6bd73167ddad3d66dee858c9f",
-          "codex": "a40705569f7dfda5ecbc4e74fb2a681dafea1a501886fcbae72dd8d47a8c6a74"
+          "claude": "5afd0fa8b00ec596a06e4523e9bc428d1eed21a0ed03c4127d9136f017c7c5b0",
+          "codex": "cd975bf7d7775151f58918ac4ffef785684ce4bd03ef09ae502521564c445d9e"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -339,14 +339,14 @@
         ]
       },
       "permissions": {
+        "environments": [],
+        "data": [],
+        "network": [],
+        "credential_env": [],
         "write": [
           "authorized project files",
           "vault/local"
         ],
-        "environments": [],
-        "network": [],
-        "data": [],
-        "credential_env": [],
         "read": [
           "project instructions",
           "selected vault notes"
@@ -356,8 +356,8 @@
       "expected": {
         "contract_sha256": "6bb2ddf73fce434b60a2572aa09a4e770840ebaab2f9d4c24bd948fe91f99b38",
         "files_sha256": {
-          "claude": "a44c433a51d69067ef10ae5bebe40bc3081eeb9400dafacbccfda05aa44f02e2",
-          "codex": "90c24b4fba4ffdb1bc85191e15716c9a294257b16ca200888c15ff9eb254f0a7"
+          "claude": "a5f9e4d6b74e618cd0f148852e4bd46634a2c465ebd2eb185dc70fa88e498d9a",
+          "codex": "c251fd132be15a95bed24a3a491914229ff545407256ca4a254ac603b08452c9"
         }
       },
       "legacy_ref": "skills_de_projeto/integrate-from-docs"
@@ -396,14 +396,14 @@
         ]
       },
       "permissions": {
+        "environments": [],
+        "data": [],
+        "network": [],
+        "credential_env": [],
         "write": [
           "authorized project files",
           "vault/local"
         ],
-        "environments": [],
-        "network": [],
-        "data": [],
-        "credential_env": [],
         "read": [
           "project instructions",
           "selected vault notes"
@@ -413,8 +413,8 @@
       "expected": {
         "contract_sha256": "b5f565af982866d606c8761dde8aea3e65ead88a29389a3a9764daaa6e07f4b2",
         "files_sha256": {
-          "claude": "df6cdd07a356bbd82c2858e66eb50c61d493f771ce659dbb544a44f4f09097f0",
-          "codex": "024c1eb993fe2900d94ff06f8e944b32267ba2493d85aa0c7348dc3b3e1a0c01"
+          "claude": "ae30e98a9bf30c21bff2f82cfef254c1cdbe669a22b0c7b9914c96ce449f96f8",
+          "codex": "1fd01db2b4e528155ad97e7cde940bc74490db05b728828abbd1dc9853ac6407"
         }
       },
       "legacy_ref": "skills_de_projeto/govern-capabilities"
@@ -443,11 +443,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},
@@ -484,11 +484,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},
@@ -525,11 +525,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},
@@ -566,11 +566,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},
@@ -607,11 +607,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},
@@ -648,11 +648,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},
@@ -689,11 +689,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},
@@ -730,11 +730,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},
@@ -771,11 +771,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},
@@ -812,11 +812,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},
@@ -853,11 +853,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},
@@ -906,11 +906,11 @@
         ]
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},
@@ -952,11 +952,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {
@@ -1011,11 +1011,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {
@@ -1072,11 +1072,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},
@@ -1120,11 +1120,11 @@
         "codex": []
       },
       "permissions": {
-        "write": [],
         "environments": [],
-        "network": [],
         "data": [],
+        "network": [],
         "credential_env": [],
+        "write": [],
         "read": []
       },
       "native": {},

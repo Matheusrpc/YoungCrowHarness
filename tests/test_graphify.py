@@ -1,5 +1,6 @@
 """Test the provider boundary without a provider installation or network."""
 import copy
+import hashlib
 import importlib.util
 import json
 import os
@@ -125,3 +126,57 @@ class GraphifyTests(ProjectCase):
         with self.assertRaises(ValueError):
             worker.parse_query('NODE bad [src=../private.md loc=L1 community=]')
         self.assertEqual(worker.parse_query('No matching nodes found.'), [])
+
+    def test_idempotence_and_failure_preserve_active_pointer(self):
+        self.runtime()
+        calls = []
+        def process(args, **kwargs):
+            req = json.loads(Path(args[-1]).read_text(encoding='utf-8'))
+            calls.append(req['action'])
+            return subprocess.CompletedProcess(args, 0, json.dumps(dict(state='ready', version=memory.VERSION,
+                graph=graph_for(req['snapshot']))).encode(), b'')
+        with patch.object(memory, 'run_process', side_effect=process):
+            memory.index(self.root, self.data['paths'], 'graphify')
+            self.assertTrue(memory.index(self.root, self.data['paths'], 'graphify')['reused'])
+        self.assertEqual(calls, ['build'])
+        pointer = self.root / memory.BASE / 'active.json'
+        original = pointer.read_bytes()
+        with patch.object(memory, 'run_process', return_value=subprocess.CompletedProcess([], 1, b'', b'')):
+            self.assertEqual(memory.index(self.root, self.data['paths'][:2], 'graphify')['state'], 'failed')
+        self.assertEqual(pointer.read_bytes(), original)
+        self.assertEqual(memory.query(self.root, 'Pagamentos')['provider'], 'markdown')
+        self.assertEqual(memory.disable(self.root)['state'], 'ready')
+
+    def test_source_change_during_build_never_activates(self):
+        self.runtime()
+        memory.index(self.root, self.data['paths'])
+        pointer = self.root / memory.BASE / 'active.json'
+        original = pointer.read_bytes()
+        def process(args, **kwargs):
+            req = json.loads(Path(args[-1]).read_text(encoding='utf-8'))
+            (self.root / self.data['paths'][0]).unlink()
+            return subprocess.CompletedProcess(args, 0, json.dumps(dict(state='ready', version=memory.VERSION,
+                graph=graph_for(req['snapshot']))).encode(), b'')
+        with patch.object(memory, 'run_process', side_effect=process):
+            self.assertEqual(memory.index(self.root, self.data['paths'], 'graphify')['state'], 'failed')
+        self.assertEqual(pointer.read_bytes(), original)
+
+    def test_query_discards_results_if_source_changes_in_flight(self):
+        self.runtime()
+        def process(args, **kwargs):
+            req = json.loads(Path(args[-1]).read_text(encoding='utf-8'))
+            if req['action'] == 'build':
+                result = dict(graph=graph_for(req['snapshot']))
+            else:
+                p = self.root / self.data['paths'][0]
+                p.write_text(p.read_text(encoding='utf-8') + '\nMudou durante consulta.\n', encoding='utf-8')
+                result = dict(source_files=[])
+            return subprocess.CompletedProcess(args, 0, json.dumps(dict(state='ready', version=memory.VERSION, **result)).encode(), b'')
+        with patch.object(memory, 'run_process', side_effect=process):
+            memory.index(self.root, self.data['paths'], 'graphify')
+            result = memory.query(self.root, 'Pagamentos')
+        self.assertEqual(result['index_state'], 'stale')
+        self.assertEqual(result['provider'], 'markdown')
+        self.assertTrue(result['results'])
+        for hit in result['results']:
+            self.assertEqual(hit['revision'], hashlib.sha256((self.root / hit['path']).read_bytes()).hexdigest())

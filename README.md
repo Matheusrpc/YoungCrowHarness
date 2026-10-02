@@ -197,7 +197,7 @@ Os adaptadores de memória e a orquestração autônoma de papéis seguem na
 [evolução do produto](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 O [desenho de memória aprovado](docs/superpowers/specs/2026-10-02-memory-discovery-design.md) define
 consulta ao vault com Graphify opcional. O [plano aprovado, em execução](docs/superpowers/plans/2026-10-02-memory-discovery.md)
-detalha cinco etapas. A consulta Markdown já seleciona notas por caminho e retorna até cinco referências com revisão; consulte o [roteiro](docs/USAGE.md#memoria-pt). O adaptador opcional Graphify 0.9.73 está implementado nesta branch; a prova entre sessões e a skill compartilhada seguem em andamento. claude-mem será avaliado em outra entrega.
+detalha cinco etapas. A consulta Markdown já seleciona notas por caminho e retorna até cinco referências com revisão; consulte o [roteiro](docs/USAGE.md#memoria-pt). O adaptador opcional Graphify 0.9.73 já permite reconstruir, desativar e limpar índices sem apagar as notas; a prova entre sessões e a skill compartilhada seguem em andamento. claude-mem será avaliado em outra entrega.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
@@ -431,7 +431,7 @@ Memory adapters and autonomous role orchestration remain in the
 [product roadmap](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 The [approved memory design](docs/superpowers/specs/2026-10-02-memory-discovery-design.md) defines
 vault retrieval with optional Graphify. The [approved plan, now in progress](docs/superpowers/plans/2026-10-02-memory-discovery.md)
-sets out five stages. Markdown retrieval now selects notes by path and returns up to five revision-backed references; see the [guide](docs/USAGE.md#memory-en). The optional Graphify 0.9.73 adapter is implemented on this branch; cross-session evidence and the shared skill are still in progress. claude-mem will be evaluated separately.
+sets out five stages. Markdown retrieval now selects notes by path and returns up to five revision-backed references; see the [guide](docs/USAGE.md#memory-en). The optional Graphify 0.9.73 adapter supports rebuilding, disabling and clearing indices while preserving notes; cross-session evidence and the shared skill are still in progress. claude-mem will be evaluated separately.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 

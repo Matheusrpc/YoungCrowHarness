@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import sys
 import unittest
+import uuid
 
 from test_documents import ProjectCase
 from memory_fixture import seed, OTHER
@@ -136,6 +137,83 @@ class MemoryTests(ProjectCase):
             with self.assertRaises(ValueError):
                 self.memory.query(self.root, question, limit)
         self.assertEqual(self.memory.query(self.root, 'NO_MATCH_SENTINEL')['results'], [])
+
+    def test_reuse_rebuild_rename_uuid_and_disable(self):
+        m = self.memory
+        first = m.index(self.root, self.data['paths'])
+        pointer = self.root / m.BASE / 'active.json'
+        original = pointer.read_bytes()
+        self.assertTrue(m.index(self.root, list(reversed(self.data['paths'])))['reused'])
+        self.assertEqual(pointer.read_bytes(), original)
+        unselected = self.root / 'vault/local/unselected.md'
+        unselected.write_text('Outside selection')
+        self.assertEqual(m.status(self.root)['state'], 'ready')
+        old = self.root / self.data['paths'][0]
+        old.rename(old.with_name('renamed.md'))
+        result = m.rebuild(self.root)
+        self.assertEqual(result['removed'], [self.data['paths'][0]])
+        self.assertEqual(result['notes'], 4)
+        self.assertNotEqual(result['fingerprint'], first['fingerprint'])
+        p = self.root / self.data['paths'][1]
+        new_id = str(uuid.uuid4())
+        p.write_text(p.read_text(encoding='utf-8').replace(self.data['ids'][1], new_id), encoding='utf-8')
+        self.assertEqual(m.status(self.root)['state'], 'stale')
+        self.assertIn(new_id, [r['id'] for r in m.query(self.root, 'Portal')['results']])
+        self.assertEqual(m.disable(self.root)['state'], 'ready')
+
+    def test_corrupt_cache_keeps_current_markdown_and_rebuild_repairs(self):
+        m = self.memory
+        for name in ('snapshot.json', 'active.json', 'status.json'):
+            m.index(self.root, self.data['paths'])
+            active = json.loads((self.root / m.BASE / 'active.json').read_text())
+            path = self.root / m.BASE / ('builds/' + active['generation'] + '/' + name if name == 'snapshot.json' else name)
+            path.write_text('{bad')
+            found = m.query(self.root, 'Pagamentos')
+            self.assertEqual(found['index_state'], 'failed')
+            self.assertTrue(found['results'])
+            self.assertEqual(found['provider'], 'markdown')
+            self.assertEqual(m.rebuild(self.root)['state'], 'ready')
+
+    def test_clear_keeps_sources_selection_runtime_and_empty_rebuild(self):
+        m = self.memory
+        m.index(self.root, self.data['paths'])
+        originals = {p: (self.root / p).read_bytes() for p in self.data['paths']}
+        selection = (self.root / m.BASE / 'selection.json').read_bytes()
+        runtime = self.root / m.BASE / 'runtime/keep.txt'
+        runtime.parent.mkdir()
+        runtime.write_text('preserve')
+        self.assertEqual(m.clear_index(self.root)['state'], 'missing')
+        self.assertEqual(m.clear_index(self.root)['state'], 'missing')
+        self.assertFalse((self.root / m.BASE / 'active.json').exists())
+        self.assertEqual((self.root / m.BASE / 'selection.json').read_bytes(), selection)
+        self.assertEqual(runtime.read_text(), 'preserve')
+        self.assertEqual(originals, {p: (self.root / p).read_bytes() for p in originals})
+        self.assertTrue(m.query(self.root, 'Pagamentos')['results'])
+        for p in self.data['paths']:
+            (self.root / p).unlink()
+        rebuilt = m.rebuild(self.root)
+        self.assertEqual(rebuilt['notes'], 0)
+        self.assertEqual(m.query(self.root, 'Pagamentos')['results'], [])
+
+    def test_clear_refuses_unknown_files_or_linked_generation_before_removing(self):
+        m = self.memory
+        m.index(self.root, self.data['paths'])
+        builds = self.root / m.BASE / 'builds'
+        generation = next(builds.iterdir())
+        unexpected = generation / 'not-an-index.txt'
+        unexpected.write_text('keep')
+        with self.assertRaises(ValueError):
+            m.clear_index(self.root)
+        self.assertTrue((generation / 'snapshot.json').exists())
+        unexpected.unlink()
+        linked = builds / str(uuid.uuid4())
+        try:
+            linked.symlink_to(self.root / 'vault/local/demo', target_is_directory=True)
+        except OSError:
+            self.skipTest('Symlink privilege unavailable; unexpected-file preflight was checked.')
+        with self.assertRaises(ValueError):
+            m.clear_index(self.root)
+        self.assertTrue((generation / 'snapshot.json').exists())
 
 
 if __name__ == '__main__':

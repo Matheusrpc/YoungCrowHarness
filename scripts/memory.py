@@ -253,6 +253,12 @@ def index(root: Path, paths: list[str], provider: str = 'markdown') -> dict:
     prepare_storage(root)
     with project_lock(root):
         snap = snapshot(root, paths, provider)
+        try:
+            _, current, state, _, _ = load_state(root)
+            if state == 'ready' and current['fingerprint'] == snap['fingerprint']:
+                return dict(state='ready', fingerprint=snap['fingerprint'], notes=len(snap['notes']), reused=True)
+        except (ValueError, OSError, KeyError, TypeError):
+            pass
         generation = str(uuid.uuid4())
         folder = BASE + '/builds/' + generation
         write_json(root, folder + '/snapshot.json', snap)
@@ -273,6 +279,13 @@ def index(root: Path, paths: list[str], provider: str = 'markdown') -> dict:
                 return result
             write_json(root, folder + '/graph.json', result['graph'])
             active['graph_hash'] = file_digest(safe_path(root, folder + '/graph.json'))
+        try:
+            if snapshot(root, paths, provider)['fingerprint'] != snap['fingerprint']:
+                raise ValueError('changed')
+        except (ValueError, OSError, KeyError, TypeError):
+            result = failure('sources_changed_during_build')
+            write_json(root, BASE + '/status.json', result)
+            return result
         write_json(root, BASE + '/active.json', active)
         write_json(root, BASE + '/status.json', dict(state='ready'))
     return dict(state='ready', fingerprint=snap['fingerprint'], notes=len(snap['notes']))
@@ -303,15 +316,69 @@ def load_state(root):
         if file_digest(stored) != active['snapshot_hash']:
             raise ValueError('snapshot_hash_mismatch')
         state = 'ready' if not warnings and active['fingerprint'] == snap['fingerprint'] else 'stale'
+        if state == 'ready' and snap['provider'] == 'graphify':
+            graph_path = BASE + '/builds/' + generation + '/graph.json'
+            if file_digest(safe_path(root, graph_path)) != active['graph_hash']:
+                raise ValueError('graph_hash_mismatch')
+            validate_graph(snap, read(root, graph_path))
     except FileNotFoundError:
         state = 'missing'
+    except (ValueError, OSError, KeyError, TypeError):
+        state, active = 'failed', None
+        warnings.append('invalid_cached_index')
     try:
         recorded = read(root, BASE + '/status.json')
         if recorded.get('state') in ('pending', 'failed', 'unsupported'):
             state = recorded['state']
+            warnings.extend(w for w in recorded.get('warnings', []) if isinstance(w, str) and re.fullmatch('[a-z_]+', w))
     except FileNotFoundError:
         pass
+    except (ValueError, OSError, TypeError, AttributeError):
+        state = 'failed'
+        warnings.append('invalid_index_status')
     return selection, snap, state, warnings, active
+
+
+def rebuild(root: Path) -> dict:
+    root = Path(root).resolve(strict=True)
+    selection, snap, _, _, _ = load_state(root)
+    paths = [n['path'] for n in snap['notes']]
+    return dict(index(root, paths, selection['provider']), removed=[p for p in selection['paths'] if p not in paths])
+
+
+def disable(root: Path) -> dict:
+    root = Path(root).resolve(strict=True)
+    _, snap, _, _, _ = load_state(root)
+    return index(root, [n['path'] for n in snap['notes']], 'markdown')
+
+
+def clear_index(root: Path) -> dict:
+    root = Path(root).resolve(strict=True)
+    prepare_storage(root)
+    with project_lock(root):
+        builds = safe_path(root, BASE + '/builds/.probe').parent
+        active = safe_path(root, BASE + '/active.json')
+        files, folders = [], []
+        if builds.exists():
+            for folder in builds.iterdir():
+                if str(uuid.UUID(folder.name)) != folder.name:
+                    raise ValueError('invalid_generation')
+                safe_path(root, folder.relative_to(root) / '.probe')
+                if not folder.resolve(strict=True).is_relative_to(builds.resolve(strict=True)):
+                    raise ValueError('generation_outside_builds')
+                for path in folder.iterdir():
+                    if path.name not in ('snapshot.json', 'graph.json'):
+                        raise ValueError('unknown_generation_file')
+                    files.append(safe_path(root, path.relative_to(root)))
+                folders.append(folder)
+        # All contents and resolved boundaries pass before any removal.
+        for path in files:
+            path.unlink()
+        for folder in folders:
+            folder.rmdir()
+        active.unlink(missing_ok=True)
+        write_json(root, BASE + '/status.json', dict(state='missing'))
+    return dict(state='missing', removed_generations=len(folders))
 
 
 def status(root: Path) -> dict:
@@ -355,10 +422,12 @@ def query(root: Path, question: str, limit: int = 5) -> dict:
     except (ValueError, KeyError, TypeError, OSError):
         return dict(result, index_state='failed', warnings=['invalid_memory_state'])
     terms = set(re.findall(r'[^\W_]+', question.casefold()))
-    def score(note):
-        _, body = metadata(note['text'])
-        return sum(3 * note['title'].casefold().count(t) + body.casefold().count(t) for t in terms)
-    ordered = sorted((n for n in snap['notes'] if score(n)), key=lambda n: (-score(n), n['path']))
+    def ranked(current):
+        def score(note):
+            _, body = metadata(note['text'])
+            return sum(3 * note['title'].casefold().count(t) + body.casefold().count(t) for t in terms)
+        return sorted((n for n in current['notes'] if score(n)), key=lambda n: (-score(n), n['path']))
+    ordered = ranked(snap)
     provider = 'markdown'
     if state == 'ready' and snap['provider'] == 'graphify':
         try:
@@ -378,8 +447,18 @@ def query(root: Path, question: str, limit: int = 5) -> dict:
                     raise ValueError('invalid_query_sources')
                 ordered = [by_source[s] for s in dict.fromkeys(sources)]
                 provider = 'graphify'
+            _, after, after_state, after_warnings, _ = load_state(root)
+            if after['fingerprint'] != snap['fingerprint'] or after_state != 'ready':
+                snap, state = after, after_state if after_state != 'ready' else 'stale'
+                warnings.extend([*after_warnings, 'sources_changed_during_query'])
+                provider, ordered = 'markdown', ranked(snap)
         except (ValueError, OSError, KeyError, TypeError):
-            state, warnings = 'failed', [*warnings, 'invalid_graph_result']
+            state, warnings, provider = 'failed', [*warnings, 'invalid_graph_result'], 'markdown'
+            try:
+                _, snap, _, _, _ = load_state(root)
+                ordered = ranked(snap)
+            except (ValueError, OSError, KeyError, TypeError):
+                ordered = []
     return dict(result, state='ready' if state == 'ready' else 'fallback', index_state=state,
                 provider=provider, project_id=snap['project_id'], warnings=warnings, results=render_results(snap, ordered, limit))
 
@@ -397,6 +476,9 @@ def main():
     sub.add_parser('status')
     sub.add_parser('setup-graphify')
     sub.add_parser('doctor')
+    sub.add_parser('rebuild')
+    sub.add_parser('disable')
+    sub.add_parser('clear-index')
     args = parser.parse_args()
     try:
         if args.command == 'index':
@@ -407,6 +489,12 @@ def main():
             result = setup_graphify(args.root)
         elif args.command == 'doctor':
             result = doctor(args.root)
+        elif args.command == 'rebuild':
+            result = rebuild(args.root)
+        elif args.command == 'disable':
+            result = disable(args.root)
+        elif args.command == 'clear-index':
+            result = clear_index(args.root)
         else:
             result = status(args.root)
     except (ValueError, OSError, KeyError, TypeError):

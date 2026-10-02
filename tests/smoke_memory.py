@@ -66,6 +66,33 @@ def main():
         memory.validate_graph(snap, duplicate['graph'])
         duplicate_titles = len(duplicate['graph']['nodes']) == len(data['paths'])
         assert duplicate_titles
+        executable = memory.runtime_python(root / memory.BASE / 'runtime/venv')
+        parked = executable.with_suffix('.smoke-disabled')
+        assert executable.resolve().is_relative_to(root) and parked.resolve().is_relative_to(root)
+        assert not parked.exists()
+        executable.rename(parked)
+        try:
+            missing, _ = cli('query', 'Pagamentos')
+            assert missing['index_state'] == 'pending' and missing['provider'] == 'markdown'
+            assert missing['results']
+        finally:
+            parked.rename(executable)
+        originals = {p: (root / p).read_bytes() for p in data['paths']}
+        try:
+            with (root / data['paths'][0]).open('a', encoding='utf-8') as output:
+                output.write('\nAlterado durante prova controlada.\n')
+            (root / data['paths'][1]).unlink()
+            changed, _ = cli('query', 'Pagamentos')
+            assert changed['index_state'] == 'stale' and changed['provider'] == 'markdown'
+            assert data['paths'][1] not in [hit['path'] for hit in changed['results']]
+            for hit in changed['results']:
+                assert hit['revision'] == hashlib.sha256((root / hit['path']).read_bytes()).hexdigest()
+            rebuilt, _ = cli('rebuild')
+            assert rebuilt['notes'] == 4 and rebuilt['removed'] == [data['paths'][1]]
+        finally:
+            for path, raw in originals.items():
+                (root / path).write_bytes(raw)
+            cli(*index_args)
     report = dict(provider=args.provider, fingerprint=built['fingerprint'], build=build_measurement,
                   notes=len(data['paths']), duplicate_titles_preserved=duplicate_titles, measurements=measured)
     (root / ('smoke-' + args.provider + '.json')).write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')

@@ -219,7 +219,7 @@ Extrair `source_files` apenas das linhas `NODE`, pelo campo final `[src=notes/<3
 - Consumes: `snapshot`, `index`, `query`, `run_graphify`, `validate_graph` definidos acima; `atomic_write(root, relative, data)`; `project_lock(root)`.
 - Produces: `rebuild(root: Path) -> dict`; `disable(root: Path) -> dict`; `clear_index(root: Path) -> dict`; os estados finais de `status(root)` e `query(root, question, limit=5)`.
 
-- [ ] **RED: provar transições e idempotência.** Preservar a regressão de obsolescência da tarefa 1 abaixo. Acrescentar os casos novos de transação e idempotência descritos após o bloco; são eles que devem falhar antes da implementação desta etapa. Usar mock somente na fronteira externa:
+- [x] **RED: provar transições e idempotência.** Preservar a regressão de obsolescência da tarefa 1 abaixo. Acrescentar os casos novos de transação e idempotência descritos após o bloco; são eles que devem falhar antes da implementação desta etapa. Usar mock somente na fronteira externa:
 
 ```python
 def test_changed_note_is_not_served_from_old_graph(self):
@@ -237,7 +237,7 @@ def test_changed_note_is_not_served_from_old_graph(self):
 
 Acrescentar remoção, rename, UUID trocado, índice adulterado, nova configuração e mudança durante `run_graphify`. Repetir `index` idêntico deve retornar a mesma fingerprint sem chamar o worker novamente. Build que falha preserva bytes do ponteiro anterior; consulta não usa esse ponteiro se a seleção/revisão divergir. Sem fornecedor, deve continuar lendo Markdown. Rodar os testes novos e confirmar RED nas transições ainda ausentes.
 
-- [ ] **Ativar uma geração por vez.** Sob `project_lock`, salvar seleção explícita e estado `pending`, montar nova geração, validar saída e recalcular retrato antes de substituir `active.json`. A revisão anterior só pode continuar utilizável se ainda corresponder à seleção e aos bytes atuais. Decisão central:
+- [x] **Ativar uma geração por vez.** Sob `project_lock`, salvar seleção explícita e estado `pending`, montar nova geração, validar saída e recalcular retrato antes de substituir `active.json`. A revisão anterior só pode continuar utilizável se ainda corresponder à seleção e aos bytes atuais. Decisão central:
 
 ```python
 before = snapshot(root, paths, provider)
@@ -249,9 +249,9 @@ if before['fingerprint'] != after['fingerprint']:
 
 Guardar fingerprint e hash do grafo no ponteiro, validar ambos antes de query. Se entrada/configuração/artefatos coincidirem, retornar `ready` com `reused=true`; não criar geração ou análise adicional. Falhas deixam `status.json` com código e estado apropriados. Interrupção não deixa ativo parcial. Lock abandonado continua usando a recuperação explícita existente (`documents.py lock-status` e `documents.py recover-lock --token`), verificando dono morto e token; a nova memória só sai de `pending` em `rebuild` explícito. Documentar esse lock compartilhado, sem segundo mecanismo de travamento.
 
-- [ ] **Completar fallback, desativação e remoção.** Query confere revisão antes e depois da consulta do fornecedor; se mudar, descarta seu resultado e faz fallback atual. Mudanças fora da seleção não invalidam o retrato. `rebuild` informa arquivos removidos e reconstrói com sobreviventes; zero sobreviventes produz índice vazio, sem scan adicional. `disable` persiste fornecedor Markdown. `clear-index` só remove gerações listadas dentro de `builds/` e `active.json`: verificar caminhos absolutos resolvidos dentro dessa raiz, recusar links de filesystem, verificar conteúdo de cada diretório e preservar runtime/seleção/vault. Testar diretório de geração substituído por link e comparar hashes das notas antes/depois.
+- [x] **Completar fallback, desativação e remoção.** Query confere revisão antes e depois da consulta do fornecedor; se mudar, descarta seu resultado e faz fallback atual. Mudanças fora da seleção não invalidam o retrato. `rebuild` informa arquivos removidos e reconstrói com sobreviventes; zero sobreviventes produz índice vazio, sem scan adicional. `disable` persiste fornecedor Markdown. `clear-index` só remove gerações listadas dentro de `builds/` e `active.json`: verificar caminhos absolutos resolvidos dentro dessa raiz, recusar links de filesystem, verificar conteúdo de cada diretório e preservar runtime/seleção/vault. Testar diretório de geração substituído por link e comparar hashes das notas antes/depois.
 
-- [ ] **GREEN com falha real controlada.** Rodar `test_memory.py`, `test_graphify.py` e o smoke real; renomear temporariamente o executável do runtime de prova para demonstrar ausência e restaurar em `finally`. Repetir consulta após alterar/remover uma nota; nenhuma referência antiga pode ser apresentada como atual. README/USAGE PT/EN recebem reconstrução, falhas, recuperação do lock, desativação e remoção. Commit: `memory: invalidar retratos antigos e preservar a retomada`.
+- [x] **GREEN com falha real controlada.** Rodar `test_memory.py`, `test_graphify.py` e o smoke real; renomear temporariamente o executável do runtime de prova para demonstrar ausência e restaurar em `finally`. Repetir consulta após alterar/remover uma nota; nenhuma referência antiga pode ser apresentada como atual. README/USAGE PT/EN recebem reconstrução, falhas, recuperação do lock, desativação e remoção. Commit: `memory: invalidar retratos antigos e preservar a retomada`.
 
 ### Task 4: Skill compartilhada e adoção nos dois clientes (M04, descoberta)
 

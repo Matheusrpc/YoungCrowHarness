@@ -27,6 +27,28 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: '3.11'
+      - name: Diagnose disposable Windows fixture
+        run: |
+          $probe = Join-Path $env:RUNNER_TEMP ('yc-profile-' + [guid]::NewGuid().ToString('N'))
+          [void][System.IO.Directory]::CreateDirectory($probe)
+          [System.IO.File]::WriteAllText((Join-Path $probe 'file.txt'), 'synthetic')
+          $sid = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+          foreach ($path in @($probe, (Join-Path $probe 'file.txt'))) {
+            $acl = Get-Acl -LiteralPath $path
+            @{owner_matches_user=($acl.GetOwner([System.Security.Principal.SecurityIdentifier]).Value -eq $sid);
+              owner_is_administrators=($acl.GetOwner([System.Security.Principal.SecurityIdentifier]).Value -eq 'S-1-5-32-544');
+              protected=$acl.AreAccessRulesProtected; explicit_rules=@($acl.Access | Where-Object {-not $_.IsInherited}).Count} | ConvertTo-Json -Compress
+          }
+          @'
+          import os, pathlib, subprocess, time
+          shell = pathlib.Path(os.environ['SystemRoot']) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
+          for label, profile in [('null', os.devnull), ('existing_file', str(shell))]:
+              env = dict(os.environ, USERPROFILE=profile, LOCALAPPDATA=profile, APPDATA=profile,
+                         PSModulePath=str(shell.parent / 'Modules'), PSModuleAnalysisCachePath=os.devnull)
+              started = time.monotonic()
+              result = subprocess.run([str(shell), '-NoProfile', '-NonInteractive', '-Command', 'exit 0'], env=env, timeout=120)
+              print(label, 'exit', result.returncode, 'seconds', round(time.monotonic() - started, 3), flush=True)
+          '@ | python -B -
       - name: Verify native storage, permissions and crash recovery
         run: python -B -m unittest discover -s tests -p "test_adoption*.py" -v -f
       - name: Verify trial installer and unchanged global profile

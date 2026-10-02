@@ -1,5 +1,9 @@
 # Continuidade entre sessões e consulta sem escrita no índice
 
+Continuação: a [prova com instalação atualizada](2026-10-02-memory-current-clients.md) concluiu
+duas sessões reais do Codex com a correção, sem timeout ou fallback. Este relatório preserva
+a captura anterior, com sua instalação e suas pendências na data do ensaio.
+
 Frente: memória entre sessões. Duas sessões independentes do Codex recuperaram o estado de uma
 fixture de Pagamentos. O ensaio revelou uma escrita auxiliar do Graphify que causava timeout no
 Windows com permissões restritas. A correção passou no SDK real e no executor nativo do Codex.

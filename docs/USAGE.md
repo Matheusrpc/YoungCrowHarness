@@ -681,10 +681,11 @@ na seleção do Graphify; o índice do vault permite encontrá-lo.
 Confira o `provider` e os avisos de cada `query`: `status: ready` sozinho não comprova consulta ao
 grafo. O adaptador usa o motor de consulta do Graphify 0.9.73 sem gravar o marcador auxiliar da CLI
 na geração do índice. A requisição temporária continua restrita ao runtime privado. A
-[prova de continuidade](relatorios/2026-10-02-memory-continuity.md) separa o ensaio nativo corrigido
-da conversa real, que ainda precisa ser repetida. Antes de testar, confira a revisão dos scripts e
-skills da fixture, a autenticação e o limite de sessões. Registre fallback sem ampliar permissões
-automaticamente.
+[prova com a instalação atual](relatorios/2026-10-02-memory-current-clients.md) registrou duas
+sessões Codex independentes com Graphify, sem timeout ou fallback. A retomada encontrou o handoff
+pelo índice e preservou notas e gerações. Antes de testar, confira a revisão dos scripts e
+skills da fixture, a autenticação e o limite de sessões. O ensaio autenticado no Claude segue
+pendente. Registre fallback sem ampliar permissões automaticamente.
 
 Para operar o índice:
 
@@ -1302,10 +1303,11 @@ A new handoff does not automatically join the Graphify selection; the vault inde
 Check the `provider` and warnings from each `query`: `status: ready` alone does not prove a graph
 query. The adapter uses Graphify 0.9.73's query engine without writing the CLI's auxiliary stamp
 in the index generation. Its temporary request still stays within the private runtime. The
-[continuity test](relatorios/2026-10-02-memory-continuity.md) separates the corrected native probe
-from a real conversation, which still needs to be repeated. Before testing, check the fixture's
-script and skill revisions, authentication and session limit. Record fallback without automatically
-broadening permissions.
+[current-installation test](relatorios/2026-10-02-memory-current-clients.md) recorded two independent
+Codex sessions using Graphify without timeout or fallback. Recovery found the handoff through
+the index and preserved notes and generations. Before testing, check the fixture's script and
+skill revisions, authentication and session limit. Authenticated Claude testing remains pending.
+Record fallback without automatically broadening permissions.
 
 To operate the index:
 

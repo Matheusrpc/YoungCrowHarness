@@ -2,6 +2,8 @@
 
 Continuação: a [rodada entre sessões](2026-10-02-memory-continuity.md) registra a correção da
 escrita auxiliar do Graphify e distingue as conversas anteriores do controle nativo após o ajuste.
+A [prova seguinte](2026-10-02-memory-current-clients.md) confirmou duas sessões reais do Codex
+com instalação atualizada, sem timeout ou fallback. As medições abaixo preservam o ensaio original.
 
 Frente: memória consultável. O vault Markdown continua sendo o registro principal. A entrega
 acrescenta seleção explícita, consulta com identidade/revisão, Graphify opcional e a skill comum

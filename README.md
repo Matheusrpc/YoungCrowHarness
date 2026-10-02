@@ -249,7 +249,9 @@ cliente separada. Codex recuperou handoffs e reconheceu uma revisão alterada. A
 [rodada de continuidade](docs/relatorios/2026-10-02-memory-continuity.md) também revelou uma escrita
 auxiliar do Graphify que causava timeout no Windows com permissões restritas. O adaptador agora
 consulta sem alterar a geração do índice; a prova nativa passou mantendo o vault protegido.
-Ainda falta repetir a conversa real com essa correção. Claude Code tem descoberta verificada
+Duas [sessões reais com a instalação atual](docs/relatorios/2026-10-02-memory-current-clients.md)
+também passaram: o handoff foi encontrado pelos índices, com UUIDs/revisões conferidos e Graphify
+sem fallback. A retomada preservou as notas e o grafo. Claude Code tem descoberta verificada
 e conversa real pendente de login. M04 permanece parcial.
 O [relatório](docs/relatorios/2026-10-02-memory-discovery.md) registra o estado atual de M01–M04.
 A [governança de skills, agentes e MCPs](docs/superpowers/specs/2026-10-02-capability-governance-design.md)
@@ -553,9 +555,11 @@ Markdown retrieval, optional Graphify and the shared skill are implemented. The
 Codex recovered handoffs and recognized a changed revision. The
 [continuity round](docs/relatorios/2026-10-02-memory-continuity.md) also exposed an auxiliary Graphify
 write that timed out under restricted Windows permissions. The adapter now queries without changing
-the index generation; the native probe passed while keeping the vault protected. A real conversation
-with this fix remains to be tested. Claude Code discovery is verified; model conversation awaits
-login. M04 remains partial. The
+the index generation; the native probe passed while keeping the vault protected. Two
+[real sessions on a current installation](docs/relatorios/2026-10-02-memory-current-clients.md)
+also passed: the handoff was found through the indices, UUIDs/revisions were checked and Graphify
+completed without fallback. Recovery preserved the notes and graph. Claude Code discovery is
+verified; model conversation awaits login. M04 remains partial. The
 [report](docs/relatorios/2026-10-02-memory-discovery.md) records current M01–M04 evidence.
 [Skill, agent and MCP governance](docs/superpowers/specs/2026-10-02-capability-governance-design.md)
 provides a verifiable catalog, offline auditing, private review bundles and a shared skill.

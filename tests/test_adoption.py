@@ -243,6 +243,49 @@ class RestoreTests(AdoptionFixture):
             self.a.restore(self.project, self.base, proposal['digest'])
         self.assertEqual(self.fs.inspect_tree(self.project), observed)
 
+    @unittest.skipIf(os.name == 'nt', 'POSIX secondary group permissions')
+    def test_posix_secondary_groups_survive_return(self):
+        groups = set(os.getgroups()) - {os.getegid()}
+        if not groups:
+            self.skipTest('requires an existing secondary group; Linux CI must exercise this')
+        group = min(groups)
+        self.write('shared/config', b'original')
+        paths = (self.project, self.project / 'shared', self.project / 'shared/config')
+        for path in paths:
+            os.chown(path, -1, group)
+        paths[-1].chmod(0o640)
+        self.a.prepare(self.project, self.base)
+        self.write('shared/config', b'trial')
+        preview = self.a.preview(self.project, self.base)
+        result = self.a.restore(self.project, self.base, preview['digest'])
+        self.assertEqual([p.stat().st_gid for p in paths], [group] * len(paths))
+        self.assertEqual(paths[-1].stat().st_mode & 0o777, 0o640)
+        self.assertEqual(paths[-1].read_bytes(), b'original')
+        self.assertEqual((Path(result['recovery_path']) / 'shared/config').stat().st_gid, group)
+
+    def test_invalid_journal_revision_refuses_recovery_without_writes(self):
+        self.write('app', b'original')
+        initial = self.a.prepare(self.project, self.base)
+        self.write('app', b'trial')
+        preview = self.a.preview(self.project, self.base)
+        crash = subprocess.run([sys.executable, '-B', str(Path(__file__).with_name('adoption_crash.py')),
+                                str(self.project), str(self.base), preview['digest'], 'prepared'],
+                               capture_output=True, timeout=180)
+        self.assertEqual(crash.returncode, 73, crash.stderr)
+        status = self.a.status(self.project, self.base)
+        self.a.recover_lock(self.project, self.base, status['lock_id'])
+        store = Path(initial['runner']).parent.parent
+        transaction = self.a.transaction_for(store, status['transaction_id'])
+        journal = self.a.read_record(transaction, 'journal.json')
+        before = self.fs.inspect_tree(self.project)
+        for revision in (-99, 0, 1, True, '2', 2.0, 2**63):
+            invalid = dict(journal, revision=revision)
+            self.a.write_record(transaction, 'journal.json', invalid)
+            with self.assertRaisesRegex(ValueError, 'invalid_transaction'):
+                self.a.recover(self.project, self.base, status['transaction_id'])
+            self.assertEqual(self.fs.inspect_tree(self.project), before)
+            self.assertEqual(self.a.read_record(transaction, 'journal.json'), invalid)
+
     def test_return_to_absence_preserves_new_project_work(self):
         self.project.rmdir()
         initial = self.a.prepare(self.project, self.base)

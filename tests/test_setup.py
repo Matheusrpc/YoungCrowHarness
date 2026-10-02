@@ -125,6 +125,35 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(self.adoption_status()['baseline_digest'], initial['baseline_digest'])
 
+    def test_trial_git_configuration_cannot_write_before_refusal(self):
+        self.git('init', '-q', str(self.target))
+        write(self.target / 'tracked', 'keep')
+        self.git('-C', str(self.target), 'add', 'tracked')
+        os.link(self.target / 'tracked', self.target / 'alias')
+        command = 'echo UNEXPECTED > marker.txt; echo UNEXPECTED > "$HOME/marker.txt"'
+        self.git('-C', str(self.target), 'config', 'core.fsmonitor', command)
+        before, profile = snapshot_bytes(self.target), snapshot_bytes(self.home)
+        result = self.run_setup('--trial', '--backup-root', shell_path(self.base / 'backups'),
+                                env={'GIT_CONFIG_COUNT': '1', 'GIT_CONFIG_KEY_0': 'core.fsmonitor',
+                                     'GIT_CONFIG_VALUE_0': command})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(snapshot_bytes(self.target), before)
+        self.assertEqual(snapshot_bytes(self.home), profile)
+        self.assertFalse((self.base / 'backups').exists())
+
+    def test_trial_git_configuration_is_disabled_in_installer_child(self):
+        self.git('init', '-q', str(self.target))
+        write(self.target / 'tracked', 'keep')
+        self.git('-C', str(self.target), 'add', 'tracked')
+        command = 'echo UNEXPECTED > marker.txt; echo UNEXPECTED > "$HOME/marker.txt"'
+        self.git('-C', str(self.target), 'config', 'core.fsmonitor', command)
+        profile = snapshot_bytes(self.home)
+        result = self.run_setup('--trial', '--backup-root', shell_path(self.base / 'backups'))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse((self.target / 'marker.txt').exists())
+        self.assertEqual(snapshot_bytes(self.home), profile)
+        self.assertEqual(self.adoption_status()['state'], 'installed')
+
     def test_trial_refuses_legacy_without_prior_baseline(self):
         for name in ('skills-lock.json', 'scripts/vault.py', 'skills/personalizer/SKILL.md'):
             write(self.target / name, 'existing')

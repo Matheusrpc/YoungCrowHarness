@@ -55,7 +55,7 @@ e do ambiente em que ele opera.
 | Skills, agentes e MCPs | Encontrar capacidades, configurar acesso e registrar o que cada execução usou | Catálogo inicial e configurações disponíveis; governança completa ainda planejada |
 | Integrações | Consultar fontes oficiais e documentar implementação, testes e operação | `integration-specialist` e `integrate-from-docs` disponíveis nos dois clientes |
 | Vault | Guardar contexto, índices, referências e estados de desenvolvimento/produção | Markdown, criação de notas e validador disponíveis; conteúdo mantido pelo agente |
-| Ingestão com Docling | Converter fontes acessíveis em Markdown local e ligá-las ao trabalho | Desenho aprovado; implementação pendente |
+| Ingestão com Docling | Converter fontes acessíveis em Markdown local e ligá-las ao trabalho | Desenho aprovado; base de armazenamento implementada, conversão pendente |
 | Graphify e claude-mem | Facilitar descoberta e recuperação a partir dos registros do vault | Adaptadores planejados; sem sincronização automática |
 
 O [catálogo de capacidades](vault/capabilities/index.md) reúne as entradas das skills e do especialista.
@@ -151,7 +151,9 @@ O validador confere a estrutura dessas referências; ele não certifica a veraci
 O desenho aprovado do Docling acrescenta uma área `vault/local/`, ignorada pelo Git, para documentos
 convertidos, transcrições, imagens e seus índices. Originais e recibos ficarão em
 `.operacao-local/docling/`. Somente uma cópia revisada poderá entrar na área compartilhada
-`vault/sources/`. **Essas áreas e proteções de ingestão ainda não são criadas pelo setup atual.**
+`vault/sources/`. O validador já reconhece o índice local e recusa referências públicas a arquivos
+privados. O helper de armazenamento prepara e verifica o ignore antes de escrever; conversão e
+configuração da ingestão ainda estão em implementação.
 
 Os vínculos deverão preservar origem e revisão, inclusive quando um documento fundamentar uma feature
 ou contradizer outra fonte. A captura de anexos depende do que cada cliente expõe; entradas inacessíveis
@@ -260,7 +262,7 @@ credentials, trust and permissions remain controlled by the client and its execu
 | Skills, agents and MCPs | Discover capabilities, configure access and record actual use | Initial catalog and configuration available; full governance remains planned |
 | Integrations | Consult official sources and document implementation, tests and operation | `integration-specialist` and `integrate-from-docs` available in both clients |
 | Vault | Keep context, indices, references and development/production states | Markdown, note creation and validation available; the agent maintains content |
-| Docling ingestion | Convert accessible sources into local Markdown linked to the work | Design approved; implementation pending |
+| Docling ingestion | Convert accessible sources into local Markdown linked to the work | Design approved; storage foundation implemented, conversion pending |
 | Graphify and claude-mem | Support discovery and retrieval from vault records | Planned adapters; no automatic synchronization |
 
 The [capability catalog](vault/capabilities/index.md) links to the skills and integration specialist.
@@ -356,8 +358,9 @@ checks reference structure; it does not certify the truth of a note.
 
 The approved Docling design adds a Git-ignored `vault/local/` area for converted documents,
 transcripts, images and their indices. Originals and receipts will live in `.operacao-local/docling/`.
-Only a reviewed copy may enter the shared `vault/sources/` area. **The current setup does not yet
-create these areas or enforce ingestion protections.**
+Only a reviewed copy may enter the shared `vault/sources/` area. The validator recognizes the local
+index and rejects public references to private files. The storage helper prepares and verifies
+ignore rules before writing; conversion and ingestion setup are still being implemented.
 
 Links will preserve source and revision, including when a document supports a feature or contradicts
 another source. Attachment capture depends on what each client exposes; inaccessible inputs will

@@ -10,7 +10,7 @@
 
 **Spec:** [Desenho aprovado de ingestão](../specs/2026-10-02-docling-ingestion-design.md). Ler também `AGENTS.md`, `CLAUDE.md` e os helpers existentes antes de executar.
 
-Estado: plano preparado para revisão. O mantenedor aprovou a especificação e a refatoração do README. Nenhuma tarefa de implementação abaixo foi executada. Recomendação de execução: nativa nesta sessão, sequencial, com uma revisão independente ao final de cada entrega publicável.
+Estado: plano aprovado pelo mantenedor para execução nativa em 2026-10-02 (UTC). Execução em andamento; a conclusão de cada tarefa exige evidência. Recomendação de execução: nativa nesta sessão, sequencial, com uma revisão independente ao final de cada entrega publicável.
 
 ## Global Constraints
 
@@ -54,13 +54,13 @@ O armazenamento gera UUIDs de projeto/fonte; a revisão de uma extração usa os
 
 ## D01: documentos locais
 
-### Tarefa 1: armazenamento privado e duas entradas do vault
+### Task 1: armazenamento privado e duas entradas do vault
 
 **Files:** criar `scripts/document_store.py` e `tests/test_documents.py`; modificar `.gitignore`, `scripts/vault.py`, `tests/test_vault.py`, `vault/index.md`, `setup.sh`, `tests/test_setup.py`, `README.md` e `docs/USAGE.md`.
 
 **Interfaces:** `prepare_storage(root: Path) -> str` retorna o ID do projeto após verificar proteção e criar índices ausentes. `check(root)` em `vault.py` mantém sua assinatura e saída JSON; passa a aceitar `vault/local/index.md` como segunda raiz, se existir. Acrescentar o código `private_reference` para links da área compartilhada à local, sem revelar o destino em sua mensagem.
 
-- [ ] **Escrever regressões de privacidade antes da implementação.** Em `tests/test_documents.py`, criar `StorageTests.setUp` com `TemporaryDirectory`, `self.root` e Git inicializado; importar módulos por `sys.path.insert(0, str(ROOT / 'scripts'))`. Um primeiro teste:
+- [x] **Escrever regressões de privacidade antes da implementação.** Em `tests/test_documents.py`, criar `StorageTests.setUp` com `TemporaryDirectory`, `self.root` e Git inicializado; importar módulos por `sys.path.insert(0, str(ROOT / 'scripts'))`. Um primeiro teste:
 
 ```python
 def test_private_storage_is_ignored(self):
@@ -73,8 +73,8 @@ def test_private_storage_is_ignored(self):
 
 Adicionar casos em Git pai com destino aninhado, ignore negado, diretório local já rastreado, execução sem Git, junction/symlink/hardlink e arquivo no lugar de diretório. Para o caso rastreado, criar um arquivo fictício, executar `git add -f` somente na fixture e exigir recusa sem alteração de seus bytes.
 
-- [ ] **Reproduzir a ausência.** `python -m unittest discover -s tests -p test_documents.py -v` deve falhar por módulo ausente. Acrescentar em `VaultTests` uma raiz local que referencia a si mesma, um microíndice local navegável e um link público para ele; exigir aceitação dos dois primeiros e `private_reference` no terceiro. Manter os testes de ciclos, ilhas e nomes ambíguos.
-- [ ] **Implementar preflight e criação exclusiva.** Validar todas as rotas antes da escrita. Calcular caminhos relativos à raiz Git real, verificar `git ls-files` e `git check-ignore` e acrescentar regras efetivas sem apagar regras do usuário. O trecho central da verificação usa argumentos, nunca shell:
+- [x] **Reproduzir a ausência.** `python -m unittest discover -s tests -p test_documents.py -v` deve falhar por módulo ausente. Acrescentar em `VaultTests` uma raiz local que referencia a si mesma, um microíndice local navegável e um link público para ele; exigir aceitação dos dois primeiros e `private_reference` no terceiro. Manter os testes de ciclos, ilhas e nomes ambíguos.
+- [x] **Implementar preflight e criação exclusiva.** Validar todas as rotas antes da escrita. Calcular caminhos relativos à raiz Git real, verificar `git ls-files` e `git check-ignore` e acrescentar regras efetivas sem apagar regras do usuário. O trecho central da verificação usa argumentos, nunca shell:
 
 ```python
 tracked = subprocess.run(['git', '-C', str(root), 'ls-files', '-z', '--',
@@ -86,10 +86,10 @@ if tracked:
 
 Criar o índice geral somente se ausente. Ele indica o caminho local como código; a raiz local referencia a si mesma e liga seus microíndices. O validador inicia navegação nas duas raízes existentes e mantém a detecção de ciclos dentro de cada cadeia. Links públicos para qualquer uma das duas áreas privadas falham; links locais para notas compartilhadas são aceitos.
 
-- [ ] **Instalar sem apagar conhecimento.** Acrescentar os arquivos necessários ao preflight e às fixtures `FILES` de setup; a área local nasce somente quando a ingestão for configurada. Acrescentar o ignore do harness e uma explicação PT/EN da diferença entre arquivos locais e versionados. Rodar os três testes relevantes de setup sobre criação, preservação e ignore, além de `test_documents.py` e `test_vault.py`.
-- [ ] **Commit por caminhos explícitos.** `git add -- scripts/document_store.py tests/test_documents.py .gitignore scripts/vault.py tests/test_vault.py vault/index.md setup.sh tests/test_setup.py README.md docs/USAGE.md`; commit `vault: separar fontes locais e compartilhadas` após revisão do diff.
+- [x] **Instalar sem apagar conhecimento.** Acrescentar os arquivos necessários ao preflight e às fixtures `FILES` de setup; a área local nasce somente quando a ingestão for configurada. Acrescentar o ignore do harness e uma explicação PT/EN da diferença entre arquivos locais e versionados. Rodar os três testes relevantes de setup sobre criação, preservação e ignore, além de `test_documents.py` e `test_vault.py`.
+- [x] **Commit por caminhos explícitos.** `git add -- scripts/document_store.py tests/test_documents.py .gitignore scripts/vault.py tests/test_vault.py vault/index.md setup.sh tests/test_setup.py README.md docs/USAGE.md`; commit `vault: separar fontes locais e compartilhadas` após revisão do diff.
 
-### Tarefa 2: ambiente Docling e conversor com diagnóstico
+### Task 2: ambiente Docling e conversor com diagnóstico
 
 **Files:** criar `scripts/documents.py`, `scripts/docling_worker.py`, `requirements/docling.txt` e `tests/smoke_docling.py`; ampliar `tests/test_documents.py`, `setup.sh`, `tests/test_setup.py`, `README.md` e `docs/USAGE.md`.
 
@@ -116,7 +116,7 @@ Configurar os backends para não buscar recursos remotos ou locais referenciados
 - [ ] **Demonstrar conversão real.** `tests/smoke_docling.py --profile documents --json` cria sob `.runtime/` HTML, PDF simples e DOCX com frase conhecida, usando biblioteca padrão, e PNG com a mesma frase via Pillow do ambiente Docling. A fixture PDF deve ter tabela xref válida; DOCX deve conter os componentes OOXML obrigatórios. Exigir a frase nos quatro resultados e registrar versões, tempo, status e caminhos de evidência sanitizados. Um stub não satisfaz este passo. Incompatibilidade da versão fixa exige registrar falha e resolver a versão antes de seguir.
 - [ ] **GREEN e documentação.** Rodar `test_documents.py`, o smoke real no ambiente isolado e os testes de instalação afetados. Documentar setup opt-in, custos locais de processamento/modelos, comando de diagnóstico e limitações observadas. Commit com os caminhos desta tarefa: `docling: adicionar conversor local isolado`.
 
-### Tarefa 3: ingestão, recibos, revisões e retomada
+### Task 3: ingestão, recibos, revisões e retomada
 
 **Files:** ampliar `scripts/documents.py`, `scripts/document_store.py`, `tests/test_documents.py`, `tests/smoke_docling.py`, `README.md` e `docs/USAGE.md`.
 
@@ -154,7 +154,7 @@ revision = hashlib.sha256(payload).hexdigest()
 
 ## D02: relações e publicação revisada
 
-### Tarefa 4: ligar conhecimento e promover somente cópias revisadas
+### Task 4: ligar conhecimento e promover somente cópias revisadas
 
 **Files:** ampliar `scripts/document_store.py`, `scripts/documents.py`, `tests/test_documents.py`, `scripts/vault.py`, `tests/test_vault.py`, `README.md` e `docs/USAGE.md`; criar o índice compartilhado `vault/sources/index.md` quando houver promoção.
 
@@ -188,7 +188,7 @@ Verificar tipos e limites dos caminhos antes desse cálculo; não seguir symlink
 
 ## D03: aquisição e mídia
 
-### Tarefa 5: aquisição limitada de URLs
+### Task 5: aquisição limitada de URLs
 
 **Files:** criar `scripts/source_fetch.py` e `tests/test_source_fetch.py`; ampliar `scripts/documents.py`, `tests/test_documents.py`, `README.md` e `docs/USAGE.md`.
 
@@ -207,7 +207,7 @@ Adicionar redirecionamento público → privado, mudança de DNS, IPv6 link-loca
 - [ ] **Implementar aquisição sem delegar URL ao conversor.** Aceitar HTTP(S), no máximo cinco redirecionamentos e 60 segundos totais de aquisição. Fazer stream de bytes com teto real; cabeçalhos e extensão não substituem detecção de tipo. Validar cada destino e conectar ao IP já aprovado, preservando Host/SNI e validação TLS. Usar `http.client`/`ssl` e resolução explícita; não herdar proxies/credenciais do ambiente. Não adicionar um downloader genérico de plataformas de vídeo. Guardar a URL de acesso apenas durante a chamada e remover credenciais/query do localizador persistido.
 - [ ] **GREEN e prova por URL.** Testes devem provar que uma segunda resolução não muda o IP da conexão. Rodar um download público controlado e sua conversão real; testar uma página sem arquivo acessível e exigir pendência, sem tratá-la como vídeo convertido. Atualizar limites e recuperação no guia. Commit `docling: adquirir fontes remotas com limites`.
 
-### Tarefa 6: áudio e vídeo com cobertura observável
+### Task 6: áudio e vídeo com cobertura observável
 
 **Files:** criar `requirements/docling-media.txt`; ampliar `scripts/docling_worker.py`, `scripts/documents.py`, `tests/test_documents.py`, `tests/smoke_docling.py`, `README.md` e `docs/USAGE.md`.
 
@@ -229,7 +229,7 @@ Checar até 500 MiB e 3.600 segundos antes da conversão de mídia. Usar o FFmpe
 
 ## D04: Claude Code e Codex
 
-### Tarefa 7: skill compartilhada, hooks curtos e retomada real
+### Task 7: skill compartilhada, hooks curtos e retomada real
 
 **Files:** criar `scripts/source_prompt.py`, `tests/test_source_prompt.py`, `skills/ingest-source/SKILL.md`, `.claude/skills/ingest-source/SKILL.md`, `.agents/skills/ingest-source/SKILL.md`; modificar `.claude/settings.json`, `.codex/hooks.json`, `skills-lock.json`, `vault/capabilities/index.md`, `skills/personalizer/SKILL.md`, `skills/integrate-from-docs/SKILL.md`, `AGENTS.md`, `CLAUDE.md`, `docs/CLAUDE.en.md`, `setup.sh`, `tests/test_setup.py`, `tests/smoke_clients.py`, `README.md`, `docs/USAGE.md` e `docs/PROCESS.md`.
 

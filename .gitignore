@@ -4,6 +4,7 @@
 pgdata/
 .runtime/
 .operacao-local/
+/vault/local/
 
 # caches
 __pycache__/

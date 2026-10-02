@@ -127,6 +127,9 @@ def local_path(source, target):
 
 def check(root):
     issues, notes = [], {}
+    def private(path):
+        value = path.casefold()
+        return any(value == p or value.startswith(p + '/') for p in ('vault/local', '.operacao-local/docling'))
     def issue(path, code, message):
         issues.append(dict(path=path, code=code, message=message))
 
@@ -178,6 +181,7 @@ def check(root):
 
     if 'vault/index.md' not in notes:
         issue('vault/index.md', 'missing_root_index', 'The general index must be a readable Markdown note.')
+    roots = {'vault/index.md', 'vault/local/index.md'} & notes.keys()
     identities, edges, parents = {}, {}, {}
     for source, (fields, body) in notes.items():
         identity = fields.get('id')
@@ -209,6 +213,9 @@ def check(root):
                     relative = local_path(source, target)
                 if relative is None:
                     continue
+                if not private(source) and private(relative):
+                    issue(source, 'private_reference', 'Shared notes must not reference private storage.')
+                    continue
                 if not safe(relative):
                     raise ValueError('Local link uses an unsupported path.')
                 if not (root / relative).is_file():
@@ -220,24 +227,27 @@ def check(root):
         if 'index' in fields:
             try:
                 parent = local_path(source, fields['index'])
+                if parent is not None and not private(source) and private(parent):
+                    issue(source, 'private_reference', 'Shared notes must not reference private storage.')
+                    continue
                 if parent not in notes or not parent.endswith('/index.md'):
                     raise ValueError
-                if source == 'vault/index.md' and parent != source:
+                if (source in roots and parent != source) or private(source) != private(parent):
                     raise ValueError
                 parents[source] = parent
             except ValueError:
                 issue(source, 'invalid_index', 'index must reference a vault index.md; the general index references itself.')
     for source, parent in parents.items():
-        if source != 'vault/index.md' and source not in edges.get(parent, set()):
+        if source not in roots and source not in edges.get(parent, set()):
             issue(source, 'missing_index_link', 'The declared index does not link back to this note.')
         current, seen = source, set()
-        while current in parents and current != 'vault/index.md':
+        while current in parents and current not in roots:
             if current in seen:
                 issue(source, 'index_cycle', 'The index chain contains a cycle instead of reaching the general index.')
                 break
             seen.add(current)
             current = parents[current]
-    reached, pending = set(), ['vault/index.md'] if 'vault/index.md' in notes else []
+    reached, pending = set(), list(roots)
     while pending:
         current = pending.pop()
         if current not in reached:

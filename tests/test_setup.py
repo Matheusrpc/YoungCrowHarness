@@ -22,7 +22,7 @@ INTEGRATION_FILES = ('scripts/integrations.py', 'skills/integrate-from-docs/SKIL
 PERSONALIZER_FILES = ('scripts/personalize.py', 'skills/personalizer/SKILL.md',
                       'skills/personalizer/references/interview.md',
                       '.claude/skills/personalizer/SKILL.md', '.agents/skills/personalizer/SKILL.md')
-FILES += INTEGRATION_FILES + PERSONALIZER_FILES + ('scripts/vault.py',)
+FILES += INTEGRATION_FILES + PERSONALIZER_FILES + ('scripts/vault.py', 'scripts/document_store.py')
 
 
 def shell_path(path):

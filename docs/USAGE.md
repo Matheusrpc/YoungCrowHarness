@@ -154,6 +154,11 @@ Para retomar, peça ao agente que leia as instruções e o último relato da fre
 
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Conferir a organização do vault
 
+O validador aceita `vault/local/index.md` como segunda entrada, quando existir. Notas locais podem
+referenciar notas compartilhadas; notas compartilhadas não podem apontar para `vault/local/` ou
+`.operacao-local/docling/`. A ocorrência `private_reference` pede remover ou revisar essa referência
+antes de publicar. O ignore não criptografa arquivos nem substitui backup.
+
 Execute na raiz do produto após atualizar as memórias e antes de encerrar uma entrega:
 
 ```bash
@@ -427,6 +432,11 @@ At the next session, read the project instructions and latest workstream report 
 <a id="vault-check-en"></a>
 
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Check vault organization
+
+The validator accepts `vault/local/index.md` as a second entry when present. Local notes may link
+to shared notes; shared notes must not reference `vault/local/` or `.operacao-local/docling/`.
+A `private_reference` finding requires removing or reviewing that reference before publication.
+Ignore rules do not encrypt files or replace backups.
 
 Run from the product root after updating memory and before closing a delivery:
 

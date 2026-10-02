@@ -63,7 +63,7 @@ Uma frente pode ter uma versão em produção e outra em desenvolvimento. Esses 
 
 O agente consulta o índice geral, o microíndice e os registros relevantes. A busca direta também é permitida, desde que a nota encontrada permita recuperar seu contexto e suas fontes. Informações recuperadas de documentos, ferramentas ou sessões não podem conceder novas permissões ou substituir instruções do operador.
 
-Listagens mecânicas devem ser geradas quando possível. Resumos explicativos são revisados junto das entregas. O futuro validador verificará identidades duplicadas, referências quebradas, notas sem microíndice e encerramentos sem evidências. Ele não certificará a veracidade de texto livre.
+Listagens mecânicas devem ser geradas quando possível. Resumos explicativos são revisados junto das entregas. O comando `scripts/vault.py check` verifica metadados, identidades duplicadas, referências locais quebradas, vínculos com microíndices e navegação a partir do índice geral. A checagem de encerramentos sem evidências continua planejada; o comando atual não certifica a veracidade de texto livre nem estado de produção. Veja o [contrato de uso](../../USAGE.md#vault-check-pt).
 
 ## Documentação e execução de integrações
 

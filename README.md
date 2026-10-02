@@ -72,6 +72,15 @@ Peça: “Use personalizer para adaptar este projeto. Leia o que já existe, per
 registre a primeira feature no vault.” Veja o [guia de personalização](docs/USAGE.md#personalizer-pt)
 para começar do zero, migrar ou retomar uma entrevista.
 
+Depois de registrar uma entrega, confira a organização da memória na raiz do produto:
+
+```bash
+python3 scripts/vault.py check
+```
+
+O comando aponta notas sem índice, links locais quebrados, IDs duplicados e memórias que ficaram
+fora da navegação. Ele só lê os arquivos. Veja [como validar e corrigir o vault](docs/USAGE.md#vault-check-pt).
+
 <a id="processo-pt"></a>
 
 ## <img src="assets/gema-violeta.svg" height="24" alt=""> Da ideia à entrega
@@ -122,6 +131,7 @@ fora do escopo fica como não aplicável; se faltar autorização, salve a pend�
 | `vault/` | Índice geral e capacidades; produto, features, decisões e operação crescem conforme o uso. |
 | `scripts/personalize.py` | Cria os registros de personalização e a primeira feature sem substituir notas. |
 | `scripts/integrations.py` | Cria notas de fornecedores e exporta registros com identidade e revisão. |
+| `scripts/vault.py` | Confere metadados, links e navegação do vault sem alterar as memórias. |
 | `setup.sh` | O comando que monta tudo. |
 
 ## <img src="assets/gema-esmeralda.svg" height="24" alt=""> As dez leis
@@ -204,6 +214,15 @@ Ask: “Use personalizer to adapt this project. Read what is already here, ask a
 and record the first feature in the vault.” Follow the [personalization guide](docs/USAGE.md#personalizer-en)
 for a new product, adoption or a resumed interview.
 
+After recording a delivery, check the memory structure from the product root:
+
+```bash
+python3 scripts/vault.py check
+```
+
+The command reports missing indices, broken local links, duplicate IDs and notes that cannot be
+reached through navigation. It only reads files. See [how to check and repair the vault](docs/USAGE.md#vault-check-en).
+
 <a id="process-en"></a>
 
 ## <img src="assets/gema-violeta.svg" height="24" alt=""> From idea to delivery
@@ -254,6 +273,7 @@ release outside scope as not applicable; when authorization is missing, save it 
 | `vault/` | General and capability indices; product, feature, decision and operation records grow as needed. |
 | `scripts/personalize.py` | Creates onboarding and feature records without replacing notes. |
 | `scripts/integrations.py` | Creates vendor records and exports identity/revision-addressed notes. |
+| `scripts/vault.py` | Checks vault metadata, links and navigation without changing memories. |
 | `setup.sh` | The command that puts it all together. |
 
 ## <img src="assets/gema-esmeralda.svg" height="24" alt=""> The ten laws

@@ -520,6 +520,22 @@ vulnerabilidades ou a qualidade dos testes. O setup local não cria regras remot
 
 Referência: [regras disponíveis no GitHub](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets).
 
+<a id="memoria-pt"></a>
+
+## Memória: consultar notas selecionadas
+
+Na raiz de um projeto novo ou migrado, escolha notas Markdown do vault que tenham UUID. Os índices existentes ajudam a localizar essas notas. A consulta não amplia a seleção sozinha.
+
+```bash
+python3 scripts/memory.py --root . index --note vault/local/features/pagamentos/index.md
+python3 scripts/memory.py --root . query "pagamentos"
+python3 scripts/memory.py --root . status
+```
+
+Troque o caminho pelo de uma nota existente. Repita `--note` para incluir outras notas. O limite inicial é 100 notas, 256 KiB por nota e 8 MiB no conjunto. O índice fica em `.operacao-local/memory/`, excluído do Git; notas e configurações dos clientes são preservadas. A primeira resposta traz até cinco referências. Abra as notas citadas para verificar decisões, publicação e próxima ação.
+
+Mudança ou remoção de uma nota torna o retrato antigo obsoleto. A consulta lê as notas atuais da seleção e avisa que o índice precisa ser reconstruído. Nesta etapa, repita `index` com os caminhos desejados. Sem seleção, o comando oferece os índices do vault para navegação. Graphify e a skill comum serão ligados nas próximas etapas do plano.
+
 <a id="english"></a>
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Before you start
@@ -965,6 +981,22 @@ git diff --check
 ```
 
 Tests use local Git, simulated network/plugin calls and an isolated temporary home. See the [verification matrix](../README.md#verification).
+
+<a id="memory-en"></a>
+
+## Memory: query selected notes
+
+From a new or adopted project's root, select Markdown vault notes with UUIDs. Existing indices help locate them. Queries never expand the selection automatically.
+
+```bash
+python3 scripts/memory.py --root . index --note vault/local/features/payments/index.md
+python3 scripts/memory.py --root . query "payments"
+python3 scripts/memory.py --root . status
+```
+
+Replace the path with an existing note. Repeat `--note` to include more notes. Initial limits are 100 notes, 256 KiB per note and 8 MiB total. Derived state stays in `.operacao-local/memory/`, excluded from Git; notes and client settings are preserved. The first response includes up to five references. Open cited notes to verify decisions, publication and the next action.
+
+Changed or removed notes make the previous snapshot stale. Queries read current selected notes and report that the index needs rebuilding. At this stage, repeat `index` with the desired paths. With no selection, the command offers the vault indices for navigation. Graphify and the shared skill will be enabled in later plan steps.
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Referências oficiais / Official references
 

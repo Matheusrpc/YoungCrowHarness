@@ -26,6 +26,7 @@ FILES += INTEGRATION_FILES + PERSONALIZER_FILES + ('scripts/vault.py', 'scripts/
 FILES += ('scripts/documents.py', 'scripts/docling_worker.py', 'requirements/docling.txt')
 FILES += ('scripts/source_fetch.py',)
 FILES += ('requirements/docling-media.txt',)
+FILES += ('scripts/memory.py',)
 FILES += ('scripts/source_prompt.py', 'skills/ingest-source/SKILL.md',
           '.claude/skills/ingest-source/SKILL.md', '.agents/skills/ingest-source/SKILL.md')
 

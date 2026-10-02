@@ -16,7 +16,7 @@ import uuid
 
 from integrations import check_path, project_identity
 
-PRIVATE = ('vault/local', '.operacao-local/docling')
+PRIVATE = ('vault/local', '.operacao-local/docling', '.operacao-local/memory')
 BASE = '.operacao-local/docling'
 
 
@@ -49,7 +49,8 @@ def prepare_storage(root):
         'vault/local/index.md': ('index.md', '# Local knowledge\n\n[Sources](sources/index.md)\n'),
         'vault/local/sources/index.md': ('../index.md', '# Sources\n\n[Local knowledge](../index.md)\n'),
     }
-    for relative in [*notes, 'vault/project.json', '.gitignore', '.operacao-local/docling/inbox/.probe']:
+    for relative in [*notes, 'vault/project.json', '.gitignore', '.operacao-local/docling/inbox/.probe',
+                     '.operacao-local/memory/.probe']:
         safe_path(root, relative)
     project_file = root / 'vault/project.json'
     identity = project_identity(project_file) if project_file.exists() else str(uuid.uuid4())
@@ -90,6 +91,12 @@ def prepare_storage(root):
         with project_file.open('x', encoding='utf-8', newline='\n') as output:
             json.dump({'project_id': identity}, output)
             output.write('\n')
+    from vault import links, local_path
+    local_index = 'vault/local/index.md'
+    destinations = [local_path(local_index, target) for target, kind in
+                    links(safe_path(root, local_index).read_text(encoding='utf-8')) if kind == 'markdown']
+    if 'vault/local/sources/index.md' not in destinations:
+        append_link(root, local_index, '[Sources](sources/index.md)')
     (root / '.operacao-local/docling/inbox').mkdir(parents=True, exist_ok=True)
     return identity
 

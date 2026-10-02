@@ -32,4 +32,5 @@ node_modules/
 .impeccable/live/
 # impeccable-ignore-end
 /.operacao-local/docling/
+/.operacao-local/memory/
 !.agents/skills/ingest-source/

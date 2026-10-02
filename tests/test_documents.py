@@ -39,6 +39,16 @@ class ProjectCase(unittest.TestCase):
 
 
 class StorageTests(ProjectCase):
+    def test_existing_local_index_keeps_new_sources_reachable(self):
+        import vault
+        self.store.prepare_storage(self.root)
+        local = self.root / 'vault/local/index.md'
+        local.write_text(local.read_text(encoding='utf-8').replace('[Sources](sources/index.md)', 'Custom local index.'),
+                         encoding='utf-8')
+        self.store.prepare_storage(self.root)
+        self.assertEqual(vault.check(self.root)['issues'], [])
+        self.assertIn('Custom local index.', local.read_text())
+
     def test_private_storage_is_ignored_and_vault_valid(self):
         identity = self.store.prepare_storage(self.root)
         uuid.UUID(identity)

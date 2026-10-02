@@ -10,7 +10,7 @@
 
 **Spec:** [Desenho aprovado em 2026-10-02](../specs/2026-10-02-memory-discovery-design.md).
 
-Estado: plano para revisão. O desenho foi aprovado; as tarefas abaixo ainda não foram executadas. Método já escolhido: execução nativa nesta sessão, um escritor por checkout e uma revisão independente ao final. Não abrir outra frente para claude-mem ou MCP durante esta entrega.
+Estado: plano aprovado em 2026-10-02, em execução. A consulta Markdown está implementada nesta branch; os adaptadores e as provas seguintes estão em andamento. Método já escolhido: execução nativa nesta sessão, um escritor por checkout e uma revisão independente ao final. Não abrir outra frente para claude-mem ou MCP durante esta entrega.
 
 ## Global Constraints
 
@@ -107,9 +107,9 @@ python scripts/memory.py --root . clear-index
 - Consumes: `prepare_storage(root) -> str`, `safe_path(root, relative) -> Path`, `metadata(text) -> tuple[dict, str]`, `links(text) -> list[tuple[str, str]]`, `local_path(source, target) -> str | None`, `project_lock(root)`.
 - Produces: `snapshot(root: Path, paths: list[str], provider: str = 'markdown') -> dict`; `index(root: Path, paths: list[str], provider: str = 'markdown') -> dict`; `query(root: Path, question: str, limit: int = 5) -> dict`; `status(root: Path) -> dict`. Test helper `seed(root: Path, project_id: str) -> dict` retorna `project_id`, `paths`, `ids` e `expected`, além de criar notas sintéticas com índices válidos.
 
-- [ ] **Fixar o corpus e as respostas antes da implementação.** Em `tests/memory_fixture.py`, usar `uuid5(UUID(project_id), relative_path)` para IDs e devolver os hashes dos arquivos escritos. Criar Pagamentos API e Pagamentos Portal; decisão antiga por fila, decisão substituta por webhook; entrega API somente em desenvolvimento; Portal com publicação e evidência sintética `release/demo-1`; pendência API “validar assinatura do webhook”. Um segundo projeto tem Pagamentos API com texto “Outro projeto”. Ligar notas pelos índices. Marcar todas as evidências como sintéticas. Registrar `expected` com pergunta, nota, trecho literal e estado esperado; os resultados esperados não são derivados da função de busca.
+- [x] **Fixar o corpus e as respostas antes da implementação.** Em `tests/memory_fixture.py`, usar `uuid5(UUID(project_id), relative_path)` para IDs e devolver os hashes dos arquivos escritos. Criar Pagamentos API e Pagamentos Portal; decisão antiga por fila, decisão substituta por webhook; entrega API somente em desenvolvimento; Portal com publicação e evidência sintética `release/demo-1`; pendência API “validar assinatura do webhook”. Um segundo projeto tem Pagamentos API com texto “Outro projeto”. Ligar notas pelos índices. Marcar todas as evidências como sintéticas. Registrar `expected` com pergunta, nota, trecho literal e estado esperado; os resultados esperados não são derivados da função de busca.
 
-- [ ] **RED: testar a fronteira e a recuperação mínima.** Criar a classe `MemoryTests`, com diretório temporário dentro de `.runtime`, `git init` isolado e limpeza via `TemporaryDirectory`. `self.data = seed(self.root, '9865926d-6293-4c63-a8ff-c8441674a043')`. Caso principal:
+- [x] **RED: testar a fronteira e a recuperação mínima.** Criar a classe `MemoryTests`, com diretório temporário dentro de `.runtime`, `git init` isolado e limpeza via `TemporaryDirectory`. `self.data = seed(self.root, '9865926d-6293-4c63-a8ff-c8441674a043')`. Caso principal:
 
 ```python
 def test_selected_notes_keep_identity_and_return_current_evidence(self):
@@ -127,7 +127,7 @@ def test_selected_notes_keep_identity_and_return_current_evidence(self):
 
 Acrescentar casos com títulos iguais e UUIDs diferentes, seleção do outro projeto via `../`, UUID duplicado, limite excedido, `.env`, diretório e UTF-8 inválido. Para `../`, symlink/junction/hardlink e armazenamento já rastreado, guardar os bytes existentes antes do comando e exigir ausência de nova cópia privada. Criar symlink somente quando o host permitir; declarar skip. Para Git, exercitar regra negada e repositório pai conforme os testes atuais. Rodar `python -m unittest discover -s tests -p test_memory.py -v`; esperar falha pela ausência de `memory`/interfaces, não erro do fixture.
 
-- [ ] **Implementar seleção e referências com os helpers existentes.** Acrescentar `.operacao-local/memory` às listas privadas do store e do validador, à pré-verificação de caminhos e às regras copiadas pelo setup. Rejeitar destinos rastreados antes de conteúdo privado. Validar primeiro todos os caminhos/tamanhos/IDs; depois produzir a projeção. Leitura e hash usam os mesmos bytes:
+- [x] **Implementar seleção e referências com os helpers existentes.** Acrescentar `.operacao-local/memory` às listas privadas do store e do validador, à pré-verificação de caminhos e às regras copiadas pelo setup. Rejeitar destinos rastreados antes de conteúdo privado. Validar primeiro todos os caminhos/tamanhos/IDs; depois produzir a projeção. Leitura e hash usam os mesmos bytes:
 
 ```python
 raw = safe_path(root, relative).read_bytes()
@@ -142,9 +142,9 @@ note = dict(id=identity, path=relative, title=fields['title'],
 
 Normalizar caminhos relativos antes do teste de escopo. Recusar caminhos que não sejam `.md` dentro de `vault`; deduplicar caminhos repetidos, mas rejeitar o mesmo UUID em arquivos distintos. Extrair relações apenas quando o destino resolvido pertence à seleção; guardar a citação e a revisão da nota de origem. Para wiki links, aplicar a regra de `vault.check`: sufixo `.md`, caminhos relativos ao vault ou à nota conforme o prefixo; basename ambíguo é recusado. Para referências Markdown, a citação inclui a definição do destino. Não inventar número de linha: usar `source_location=null` quando não houver posição comprovada. Escrever seleção/retrato sob o lock existente, com `atomic_write`. O fluxo Markdown já compara revisões antes de consultar; não deixar esse cuidado para o adaptador.
 
-- [ ] **Implementar consulta pequena e determinística.** Tokenizar com `re.findall(r'[^\W_]+', question.casefold())`; ordenar por ocorrências no título e no corpo, desempate pelo caminho, excluir score zero. Não atribuir estado de produção pela similaridade. Limitar trecho/resultados e preencher referências exclusivamente a partir das notas atuais. Sem seleção, devolver apenas índices existentes. Fonte alterada/removida leva a `fallback/stale`, lendo somente a seleção ainda válida e sinalizando o que falta. Não salvar perguntas por padrão.
+- [x] **Implementar consulta pequena e determinística.** Tokenizar com `re.findall(r'[^\W_]+', question.casefold())`; ordenar por ocorrências no título e no corpo, desempate pelo caminho, excluir score zero. Não atribuir estado de produção pela similaridade. Limitar trecho/resultados e preencher referências exclusivamente a partir das notas atuais. Sem seleção, devolver apenas índices existentes. Fonte alterada/removida leva a `fallback/stale`, lendo somente a seleção ainda válida e sinalizando o que falta. Não salvar perguntas por padrão.
 
-- [ ] **GREEN, roteiro e commit.** Rodar `test_memory.py`, `test_vault.py` e `test_setup.py`. Confirmar `git ls-files -- vault/local .operacao-local/memory` vazio no fixture. Acrescentar arquivos ao setup e à lista do teste. Atualizar README/USAGE PT/EN com `index`, `query` e seus limites; marcar Graphify como ainda não disponível neste ponto. Commit por esses caminhos explícitos: `memory: consultar notas selecionadas com origem e revisao`.
+- [x] **GREEN, roteiro e commit.** Rodar `test_memory.py`, `test_vault.py` e `test_setup.py`. Confirmar `git ls-files -- vault/local .operacao-local/memory` vazio no fixture. Acrescentar arquivos ao setup e à lista do teste. Atualizar README/USAGE PT/EN com `index`, `query` e seus limites; marcar Graphify como ainda não disponível neste ponto. Commit por esses caminhos explícitos: `memory: consultar notas selecionadas com origem e revisao`.
 
 ### Task 2: Graphify isolado e contrato real (M02)
 
@@ -324,4 +324,4 @@ measurement = dict(milliseconds=(time.perf_counter() - started) * 1000,
 
 Cobertura: M01 na tarefa 1; M02 na 2; M03 na 3; M04 nas 4–5. Identidade, privacidade e publicação revisada atravessam todas. As cinco classes de Review Focus têm testes nas tarefas indicadas. As interfaces mantêm os mesmos nomes, campos e estados do contrato. Os blocos de código são trechos de implementação com escopo definido pela tarefa, não comandos já executados.
 
-Antes de executar, ler este plano junto ao desenho. A revisão humana deste documento é a próxima etapa; a aprovação anterior permanece registrada como aprovação do desenho.
+Antes de executar, ler este plano junto ao desenho. O mantenedor aprovou este plano após aprovar o desenho; executar sem repetir esses gates.

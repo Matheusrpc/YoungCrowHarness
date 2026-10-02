@@ -44,6 +44,7 @@ FILES+=(scripts/documents.py scripts/docling_worker.py requirements/docling.txt)
 FILES+=(scripts/source_fetch.py)
 FILES+=(requirements/docling-media.txt)
 FILES+=(scripts/source_prompt.py skills/ingest-source/SKILL.md)
+FILES+=(scripts/memory.py)
 SKILL_ROOTS=()
 if [ "$CLIENT" != codex ]; then
   FILES+=(.mcp.json .claude/settings.json .claude/agents/integration-specialist.md
@@ -194,7 +195,7 @@ python3 - "$TARGET/.gitignore" "$CLIENT" <<'PY'
 import pathlib, sys
 p = pathlib.Path(sys.argv[1]); data = p.read_bytes()
 # Final rules override earlier negations; downloaded Git repos must not become gitlinks.
-rules = [b'/.env']
+rules = [b'/.env', b'/.operacao-local/memory/']
 if sys.argv[2] != 'claude':
     rules += [b'/.agents/skills/humanizer/', b'/.agents/skills/humanizer-ptbr/']
 if data.splitlines()[-len(rules):] != rules:

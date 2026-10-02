@@ -60,8 +60,12 @@ README e guia de uso PT/EN explicam o comportamento dos links e como repetir uma
 com o mesmo ID. Os diagramas e o design foram preservados. O microíndice privado registra as
 cinco fontes, revisões, hashes das notas, relações `used-in`, capacidades usadas e próxima ação.
 
-O [PR #10](https://github.com/Matheusrpc/YoungCrowHarness/pull/10) reúne a entrega. A regressão
-completa no CI está em andamento. Produção ainda não confirmada neste registro.
+O [PR #10](https://github.com/Matheusrpc/YoungCrowHarness/pull/10) reúne a entrega. A nova
+[regressão no CI](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37059476887), em
+`91b76c3`, passou no Linux: 254 testes em 67,978 segundos, 11 skips de plataforma e os exercícios
+de adoção nos três perfis. O teste Graphify também passou. A verificação de adoção no Windows
+ainda estava em execução nesta captura para revisão, anterior ao merge. Consulte o PR para
+as verificações finais e o estado de publicação.
 Para retornar ao comportamento anterior, reverta o commit da correção pelo fluxo de PR;
 isso preserva o histórico local das fontes e volta a expor a falha de conversão.
 

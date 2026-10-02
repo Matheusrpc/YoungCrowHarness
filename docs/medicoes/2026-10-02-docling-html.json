@@ -203,5 +203,15 @@
   "local_document_links": {
     "checked": 129,
     "broken": 0
+  },
+  "ci_after_catalog_fix": {
+    "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37059476887",
+    "head": "91b76c3b667e04c4ed8322d19f86975bd7c64116",
+    "installer": "success",
+    "tests": 254,
+    "seconds": 67.978,
+    "skipped": 11,
+    "graphify": "success",
+    "adoption_windows": "in_progress_at_snapshot"
   }
 }

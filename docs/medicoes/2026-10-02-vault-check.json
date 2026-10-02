@@ -1,0 +1,18 @@
+{
+  "code_revision": "04906fcb0dd91e47725aeff9894ce3028ac5f049",
+  "windows_full_suite": {"tests": 72, "passed": 67, "skipped": 5, "exit_code": 0},
+  "windows_final_vault_suite": {"tests": 17, "passed": 16, "skipped": 1, "exit_code": 0},
+  "linux_full_suite": {"tests": 74, "passed": 72, "skipped": 2, "exit_code": 0,
+    "run_url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/36952690673"},
+  "installed_clients_checked": ["claude", "codex"],
+  "generated_vault_notes": 19,
+  "consumer_files_unchanged": true,
+  "template_vault_notes": 3,
+  "template_vault_issues": 0,
+  "visible_process_images_on_github": 6,
+  "collapsed_processes_on_github": 0,
+  "design_assets_changed": false,
+  "browser_processes_remaining": 0,
+  "review_fixes": ["bounded escaped-link parsing", "nested-list links checked"],
+  "documented_limit": "Nested brackets in labels and escaped openings require manual inspection."
+}

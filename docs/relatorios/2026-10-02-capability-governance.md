@@ -77,3 +77,6 @@ servidor no Claude e a contagem real de processos quando a limpeza não termina.
 Claude precisa de prova de chamada permitida, recusa e revogação pelo cliente real. A prova de memória
 M04 e a correção separada da conversão HTML do Docling continuam abertas. Esta entrega não as encerra.
 Novos testes pagos exigem orçamento próprio; o smoke sintético não consome sessões de modelo.
+
+A falha HTML recebeu uma [correção separada](2026-10-02-docling-html.md), com as cinco fontes
+recuperadas. Consulte esse relatório para o estado de publicação; M04 e a prova Claude permanecem pendentes.

@@ -198,6 +198,7 @@ Cada conexão valida o destino; downloads têm limites de tamanho e tempo. A rev
 HTML é convertido a partir dos bytes preservados, sem usar a pasta local como origem dos links.
 Referências como `/llms.txt` e `../guia` permanecem legíveis e inativas no vault; links HTTP(S)
 explícitos continuam clicáveis. A conversão não abre arquivos nem baixa recursos indicados pela página.
+Veja a [recuperação das cinco páginas de documentação](docs/relatorios/2026-10-02-docling-html.md).
 Na nota extraída, referências Markdown por rótulo viram texto legível; imagens ativas precisam ser
 arquivos locais validados. A cópia pública recusa HTML e autolinks. Se a gravação do cache for
 interrompida, a próxima ingestão preserva a extração incompleta e tenta novamente.
@@ -499,6 +500,7 @@ Extracted text still needs review.
 HTML conversion uses the preserved bytes without treating the local folder as the origin of links.
 References such as `/llms.txt` and `../guide` remain readable and inactive in the vault; explicit
 HTTP(S) links stay clickable. Conversion does not open files or fetch resources referenced by the page.
+See the [recovery of five documentation pages](docs/relatorios/2026-10-02-docling-html.md).
 In extracted notes, reference-style Markdown links become readable text; active images must be
 validated local files. Public copies reject HTML and autolinks. If a cache write is interrupted,
 the next ingestion preserves the incomplete extraction and retries.

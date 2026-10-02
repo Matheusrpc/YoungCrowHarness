@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-02",
+  "base": "1bd7d55db742954f9ec1103af1a2a7e551350f85",
+  "runtime_commit": "37ff864335cf575a129db2b730e9980ce26de49c",
+  "environment": {
+    "platform": "Windows",
+    "python": "3.12.10",
+    "docling": "2.132.0",
+    "docling_core": "2.99.0"
+  },
+  "regression": {
+    "before": {
+      "result": {
+        "state": "failed",
+        "warnings": [
+          "incomplete_conversion"
+        ],
+        "coverage": {
+          "pages": []
+        },
+        "converter": {
+          "package": "docling",
+          "version": "2.132.0",
+          "profile": "documents",
+          "models": [
+            "layout",
+            "tableformer",
+            "rapidocr-onnxruntime-latin"
+          ],
+          "options": {
+            "max_pages": 500,
+            "max_bytes": 104857600,
+            "timeout": 1800,
+            "remote_fetch": false,
+            "local_fetch": false,
+            "device": "cpu"
+          }
+        }
+      },
+      "forbidden_access": [],
+      "seconds": 70.75
+    },
+    "after": {
+      "result": {
+        "state": "ready",
+        "warnings": [],
+        "coverage": {
+          "pages": []
+        },
+        "converter": {
+          "package": "docling",
+          "version": "2.132.0",
+          "profile": "documents",
+          "models": [
+            "layout",
+            "tableformer",
+            "rapidocr-onnxruntime-latin"
+          ],
+          "options": {
+            "max_pages": 500,
+            "max_bytes": 104857600,
+            "timeout": 1800,
+            "remote_fetch": false,
+            "local_fetch": false,
+            "device": "cpu"
+          }
+        }
+      },
+      "forbidden_access": [],
+      "seconds": 41.14
+    },
+    "exit_code_after": 0,
+    "neutralization_mutation": "all_four_checks_fail_on_raw_sdk_output"
+  },
+  "document_tests": {
+    "count": 49,
+    "seconds": 145.06,
+    "failures": 0
+  },
+  "review": {
+    "important_found": 1,
+    "fixed": 1,
+    "remaining": 0
+  },
+  "sources": [
+    {
+      "source_id": "410f7be1-b8d8-42b9-9566-0147834b96f5",
+      "url": "https://learn.chatgpt.com/docs/extend/mcp",
+      "before_state": "failed",
+      "old_revision": "9721012cda1402102b731ef16016900aaa89f64bd067e04628b287125e202479",
+      "original_sha256": "4445bb1bd5b058c1d0b3c8738da9dc59d686e8e999bac72475522fd8d4081c50",
+      "original_preserved": true,
+      "origin_preserved": true,
+      "state": "ready",
+      "new_revision": "b97d5aa4738426656f2fc0872890df9ded31ecc3fc34bb78162093a6bc3b6264",
+      "note_path": "vault/local/sources/410f7be1-b8d8-42b9-9566-0147834b96f5/content-b97d5aa4738426656f2fc0872890df9ded31ecc3fc34bb78162093a6bc3b6264.md",
+      "expected_heading": "Model Context Protocol",
+      "heading_found": true,
+      "cache_reused": true,
+      "warnings": [],
+      "seconds": 60.8
+    },
+    {
+      "source_id": "4b9d8d89-7c26-4b1d-b729-bb90caeabec1",
+      "url": "https://learn.chatgpt.com/docs/config-file/config-reference",
+      "before_state": "failed",
+      "old_revision": "3d8e1efbaf85873180e184ea06c45e5e362539f214b4c2a108a7cb91fe24e4de",
+      "original_sha256": "71764f18068c72c8070c8aee34d7aa696cb14e7657c142536ff23ce0ed5d53d1",
+      "original_preserved": true,
+      "origin_preserved": true,
+      "state": "ready",
+      "new_revision": "2b2f526a03fd3394ce6b4ba21f4a2f99345eab33bdea4f5f14e56fde5d53c63d",
+      "note_path": "vault/local/sources/4b9d8d89-7c26-4b1d-b729-bb90caeabec1/content-2b2f526a03fd3394ce6b4ba21f4a2f99345eab33bdea4f5f14e56fde5d53c63d.md",
+      "expected_heading": "Configuration Reference",
+      "heading_found": true,
+      "cache_reused": true,
+      "warnings": [],
+      "seconds": 95.37
+    },
+    {
+      "source_id": "c53314d0-0827-49a5-be7c-36570459a3b9",
+      "url": "https://code.claude.com/docs/en/permissions",
+      "before_state": "failed",
+      "old_revision": "285ec9e772d3280b66a2816511ac027243bc1739b185f1d61074d11d994b9a84",
+      "original_sha256": "25a1151046b80673edc909b7883707795732c1b075da7549def53965386f4f8e",
+      "original_preserved": true,
+      "origin_preserved": true,
+      "state": "ready",
+      "new_revision": "d52b1c8c27599ccf3eefe2d6cdcd2e4255e5bd06bcb57ae4b150d84e69ad483c",
+      "note_path": "vault/local/sources/c53314d0-0827-49a5-be7c-36570459a3b9/content-d52b1c8c27599ccf3eefe2d6cdcd2e4255e5bd06bcb57ae4b150d84e69ad483c.md",
+      "expected_heading": "Configure permissions",
+      "heading_found": true,
+      "cache_reused": true,
+      "warnings": [],
+      "seconds": 30.25
+    },
+    {
+      "source_id": "dbee6195-3ff8-4607-a0b6-234f4ac67773",
+      "url": "https://code.claude.com/docs/en/mcp",
+      "before_state": "failed",
+      "old_revision": "b498b1b7ea41c93efda7a474c6aa759d170506f9acd7725e393081f0866b3283",
+      "original_sha256": "da5a589e35096437171b6da1027fa58d8e1689c8d0e5867d6e7405b77aa791b2",
+      "original_preserved": true,
+      "origin_preserved": true,
+      "state": "ready",
+      "new_revision": "a47621c19846b1422b4fc6fae47ab36d9272401e1b6f319618cb00349c35ee64",
+      "note_path": "vault/local/sources/dbee6195-3ff8-4607-a0b6-234f4ac67773/content-a47621c19846b1422b4fc6fae47ab36d9272401e1b6f319618cb00349c35ee64.md",
+      "expected_heading": "Connect Claude Code to tools via MCP",
+      "heading_found": true,
+      "cache_reused": true,
+      "warnings": [],
+      "seconds": 36.22
+    },
+    {
+      "source_id": "7e6e51fe-0fb4-4426-aa2f-83712eb0b0ad",
+      "url": "https://code.claude.com/docs/en/skills",
+      "before_state": "failed",
+      "old_revision": "5265e4d97f79ef881237f373c4e933ae03b836ebe0e1bee149871589e19815b2",
+      "original_sha256": "39fd175ebb5659b0df98214c1faa29251915d07c01c6f94f9922032ee8ff524c",
+      "original_preserved": true,
+      "origin_preserved": true,
+      "state": "ready",
+      "new_revision": "e8fc6d47e5278a0ead9a4b24187ff294afcc481f81934aef567fe03b0ec71e72",
+      "note_path": "vault/local/sources/7e6e51fe-0fb4-4426-aa2f-83712eb0b0ad/content-e8fc6d47e5278a0ead9a4b24187ff294afcc481f81934aef567fe03b0ec71e72.md",
+      "expected_heading": "Extend Claude with skills",
+      "heading_found": true,
+      "cache_reused": true,
+      "warnings": [],
+      "seconds": 32.95
+    }
+  ],
+  "initial_ci": {
+    "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37058888732",
+    "tests": 254,
+    "skipped": 11,
+    "seconds": 74.883,
+    "failures": 3,
+    "test": "test_governance_installs_selected_profiles_and_audits",
+    "cause": "ingest-source content_difference",
+    "correction": "refresh_two_reviewed_files_sha256_only"
+  },
+  "capability_audit": {
+    "capability": "ingest-source",
+    "claude": "matched",
+    "codex": "matched",
+    "permissions_changed": false
+  },
+  "setup_regression": {
+    "tests": 1,
+    "client_profiles": [
+      "claude",
+      "codex",
+      "both"
+    ],
+    "seconds": 55.077,
+    "failures": 0
+  },
+  "vault": {
+    "notes_checked": 60,
+    "issues": []
+  },
+  "local_document_links": {
+    "checked": 129,
+    "broken": 0
+  }
+}

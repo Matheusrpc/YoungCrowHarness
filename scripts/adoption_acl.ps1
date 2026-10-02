@@ -5,6 +5,8 @@ param(
     [switch]$AwaitParent
 )
 $ErrorActionPreference = 'Stop'
+# Avoid module discovery on every isolated helper startup; use this shell's bundled module.
+Import-Module ($PSHOME + '/Modules/Microsoft.PowerShell.Utility/Microsoft.PowerShell.Utility.psd1')
 [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
 $sid = [System.Security.Principal.WindowsIdentity]::GetCurrent().User
 $sidType = [System.Security.Principal.SecurityIdentifier]

@@ -19,30 +19,6 @@ jobs:
           for client in claude codex both; do
             python3 -B tests/smoke_adoption.py --root "$RUNNER_TEMP/adoption-$client" --client "$client" || exit "$?"
           done
-  windows-startup-diagnostic:
-    runs-on: windows-latest
-    timeout-minutes: 5
-    steps:
-      - name: Measure remaining helper initialization
-        run: |
-          $shell = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
-          $env:USERPROFILE = 'NUL'
-          $env:LOCALAPPDATA = 'NUL'
-          $env:APPDATA = 'NUL'
-          $env:PSModuleAnalysisCachePath = 'NUL'
-          $env:PSModulePath = Join-Path (Split-Path $shell) 'Modules'
-          $commands = @(
-            '$null = New-Object System.Text.UTF8Encoding($false)',
-            '$null = [System.Text.UTF8Encoding]::new($false)',
-            '@{private=$true} | ConvertTo-Json -Compress',
-            'Import-Module ($PSHOME + "/Modules/Microsoft.PowerShell.Utility/Microsoft.PowerShell.Utility.psd1"); @{private=$true} | ConvertTo-Json -Compress',
-            '[void][System.Reflection.Assembly]::Load("System.Web.Extensions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"); [Console]::WriteLine([System.Web.Script.Serialization.JavaScriptSerializer]::new().Serialize(@{private=$true}))'
-          )
-          foreach ($command in $commands) {
-            $time = Measure-Command { & $shell -NoProfile -NonInteractive -Command $command | Write-Host }
-            Write-Output "$command : exit=$LASTEXITCODE seconds=$($time.TotalSeconds)"
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
   adoption-windows:
     runs-on: windows-latest
     timeout-minutes: 60

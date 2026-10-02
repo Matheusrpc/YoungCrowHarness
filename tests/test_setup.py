@@ -113,14 +113,19 @@ class SetupTests(unittest.TestCase):
 
     def test_trial_partial_failure_retains_baseline_and_repeats(self):
         write(self.target / 'original', 'keep')
-        self.wrapper('cp', 'case "$1" in */AGENTS.md) exit 19;; esac\nexec /usr/bin/cp "$@"')
+        installer = self.source / 'setup.sh'
+        original = installer.read_text(encoding='utf-8')
+        marker = '  local rel="$1" src="$HARNESS_DIR/$1" dst="$TARGET/$1"\n'
+        self.assertEqual(original.count(marker), 1)
+        # Fail inside this disposable installer; Git Bash launchers can reorder PATH.
+        write(installer, original.replace(marker, marker + '  [ "$rel" != AGENTS.md ] || exit 19\n'))
         args = ('--trial', '--backup-root', shell_path(self.base / 'backups'))
         failed = self.run_setup(*args)
-        self.assertNotEqual(failed.returncode, 0)
+        self.assertEqual(failed.returncode, 19, failed.stdout + failed.stderr)
         initial = self.adoption_status()
         self.assertEqual(initial['state'], 'install_failed')
         self.assertTrue((self.target / 'CLAUDE.md').exists())
-        (self.bin / 'cp').unlink()
+        write(installer, original)
         result = self.run_setup(*args)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(self.adoption_status()['baseline_digest'], initial['baseline_digest'])

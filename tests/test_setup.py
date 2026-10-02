@@ -221,6 +221,9 @@ class SetupTests(unittest.TestCase):
         self.calls, self.upstream = self.base / 'calls.jsonl', self.base / 'upstream'
         for folder in (self.source, self.target, self.home, self.bin, self.upstream):
             folder.mkdir()
+        if os.name == 'nt':
+            (self.home / 'AppData/Roaming').mkdir(parents=True)
+            (self.home / 'AppData/Local').mkdir()
         for rel in FILES:
             dest = self.source / rel
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -229,7 +232,7 @@ class SetupTests(unittest.TestCase):
         self.child_env = {key: value for key, value in os.environ.items()
                           if key.upper() in ('SYSTEMROOT', 'WINDIR', 'COMSPEC', 'TEMP', 'TMP', 'PATHEXT')}
         self.child_env.update(
-            HOME=shell_path(self.home), TEST_BIN=shell_path(self.bin), TEST_GIT_BIN=shell_path(Path(self.real_git).parent),
+            HOME=shell_path(self.home), USERPROFILE=str(self.home), TEST_BIN=shell_path(self.bin), TEST_GIT_BIN=shell_path(Path(self.real_git).parent),
             TEST_PYTHON=sys.executable.replace('\\', '/'), TEST_RUNNER=str(Path(__file__).resolve()).replace('\\', '/'),
             TEST_REAL_GIT=self.real_git, TEST_UPSTREAM=str(self.upstream), TEST_CALLS=str(self.calls),
             GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0',

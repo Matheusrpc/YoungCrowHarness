@@ -56,6 +56,19 @@ class StorageFixture(unittest.TestCase):
 
 
 class StorageTests(StorageFixture):
+    @unittest.skipUnless(os.name == 'nt', 'native Windows profile cache')
+    def test_acl_helper_does_not_write_user_profile(self):
+        profile = self.sandbox / 'home'
+        profile.mkdir()
+        (profile / 'AppData/Local').mkdir(parents=True)
+        (profile / 'AppData/Roaming').mkdir()
+        before = self.fs.inspect_tree(profile)
+        with patch.dict(os.environ, {'USERPROFILE': str(profile),
+                                     'LOCALAPPDATA': str(profile / 'AppData/Local'),
+                                     'APPDATA': str(profile / 'AppData/Roaming')}):
+            self.fs.acl('parent-check', self.project)
+        self.assertEqual(self.fs.inspect_tree(profile), before)
+
     @unittest.skipUnless(os.name == 'nt', 'Windows file attributes')
     def test_not_indexed_attribute_is_preserved(self):
         import ctypes

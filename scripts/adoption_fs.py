@@ -71,7 +71,11 @@ def outside_git(path):
 
 def acl(mode, root):
     shell = Path(os.environ.get('SystemRoot', 'C:/Windows')) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
-    env = dict(os.environ, PSModulePath=str(shell.parent / 'Modules'))
+    # Even -NoProfile writes CLR startup caches. NUL cannot host a directory;
+    # PowerShell tolerates the unavailable optimization cache. Keep user data untouched.
+    env = dict(os.environ, PSModulePath=str(shell.parent / 'Modules'),
+               USERPROFILE=os.devnull, LOCALAPPDATA=os.devnull, APPDATA=os.devnull,
+               PSModuleAnalysisCachePath=os.devnull)
     process = subprocess.Popen([str(shell), '-NoLogo', '-NoProfile', '-NonInteractive',
                              '-ExecutionPolicy', 'Bypass', '-File',
                              str(Path(__file__).with_name('adoption_acl.ps1')),

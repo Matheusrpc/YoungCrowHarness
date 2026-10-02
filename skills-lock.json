@@ -301,10 +301,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "ccc88df956e464cff4b754cf0f778c957989fc83b0b3e50cc94480ecc293517a",
+        "contract_sha256": "706792f5bdf2c47a61e53f6c0f45bb141015b75e2128d713031d78ce7fd3cbd7",
         "files_sha256": {
-          "claude": "088dee914ded2d6b950ee92d9fce6af6c180a4e5dcac686af29a95635f3441f5",
-          "codex": "a81a7c00c4a4bbc230474bd2aa3b29e11e48f74e1e1754e9bb7591ec427b2fbd"
+          "claude": "2a4d48a09af35670c551addd56b6833a6c4d4664039b94f8d19faca31a81ac35",
+          "codex": "366799ef86ae5464a0a69a610b85ca4b6305d706d1a46c3e85d9dacf2367d971"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"

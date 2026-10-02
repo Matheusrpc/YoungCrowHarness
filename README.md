@@ -209,6 +209,12 @@ explicitamente quando o cliente não entregar a referência ao hook. O [contrato
 define esse comportamento. Material local não acompanha clones e precisará de backup privado para
 uso entre máquinas. Graphify aponta de volta às notas e revisões; claude-mem continua planejado.
 
+### 7. Experimentar e voltar
+
+![Adoção reversível: validar, guardar o ponto inicial, experimentar e decidir continuar ou revisar a saída. A confirmação vem antes das cópias verificadas e da restauração. Interrupções têm recuperação externa.](assets/process-adoption-pt.svg)
+
+[Comandos, limites e recuperação](docs/USAGE.md#adocao-reversivel-pt) · [Abrir diagrama](assets/process-adoption-pt.svg)
+
 <a id="evolucao-pt"></a>
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> Próximas entregas
@@ -495,6 +501,12 @@ records relations, actual capabilities and the next action. Attachments without 
 pending; invoke the skill explicitly when the client does not pass a reference to the hook. The [ingestion contract](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
 defines that behavior. Local material does not travel with clones and needs a private backup for use
 across machines. Graphify points back to source notes and revisions; claude-mem remains planned.
+
+### 7. Try and return
+
+![Reversible adoption: validate, save the baseline, try the harness, then continue or review the exit. Confirmation precedes verified copies and restoration. Interruptions recover through an external runner.](assets/process-adoption-en.svg)
+
+[Commands, limits and recovery](docs/USAGE.md#reversible-adoption-en) · [Open diagram](assets/process-adoption-en.svg)
 
 <a id="roadmap-en"></a>
 

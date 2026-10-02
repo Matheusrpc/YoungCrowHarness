@@ -1,0 +1,22 @@
+{
+  "front": "reversible-adoption",
+  "date": "2026-10-02",
+  "state": "validation_in_progress",
+  "pr": "https://github.com/Matheusrpc/YoungCrowHarness/pull/9",
+  "baseline_main": "4e58453865f8bd082aa49987445c8082ff41291c",
+  "windows": {
+    "python": "3.14.4",
+    "adoption_tests": {"count": 39, "skipped": 1, "seconds": 1057.491, "passed": true},
+    "trial_setup": {"count": 6, "seconds": 411.318, "passed": true},
+    "profile_cache_regression": {"red_observed": true, "green_observed": true},
+    "final_ci": "pending",
+    "smoke": "pending"
+  },
+  "linux": {"full_regression": "pending_after_contract_fix", "smoke_profiles": ["claude", "codex", "both"]},
+  "skill": {"baseline_samples": 5, "guided_samples": 5, "guided_command_retrieval_passed": 5, "historical_approval_executed": 0},
+  "visual": {"svg_checked": 6, "text_overflow": 0, "mobile_viewport": 390, "mobile_image_width": 358, "owned_browsers_alive": 0},
+  "review": "pending",
+  "model_calls_in_automated_tests": 0,
+  "native_client_conversation": "not_exercised",
+  "real_user_repositories_restored": 0
+}

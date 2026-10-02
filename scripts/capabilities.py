@@ -8,6 +8,7 @@ from pathlib import Path, PurePosixPath, PureWindowsPath
 import re
 import stat
 import sys
+import tomllib
 from urllib.parse import urlsplit
 
 sys.dont_write_bytecode = True
@@ -255,6 +256,252 @@ def load_catalog(root):
     return catalog_from_bytes(read_inputs(root, ['skills-lock.json'])['skills-lock.json'])
 
 
+CONFIG_FILES = {'claude': ('.mcp.json', '.claude/settings.json'),
+                'codex': ('.codex/config.toml', '.codex/hooks.json')}
+COVERAGE = ['project_files_only', 'global_config_unobserved', 'plugins_unobserved',
+            'managed_policy_unobserved', 'sandbox_unobserved', 'credentials_unobserved',
+            'runtime_unobserved', 'client_version_unobserved']
+
+
+def value_digest(value):
+    return hashlib.sha256(canonical(value)).hexdigest()
+
+
+def existing_inputs(root, paths):
+    present = []
+    for relative in sorted(set(paths)):
+        relative_path(relative)
+        if safe_path(root, relative).exists():
+            present.append(relative)
+    return present
+
+
+def native_projection(native):
+    """Only hashes, booleans and fixed enums leave native configuration parsers."""
+    return {key: (value if key in ('enabled', 'transport') else value_digest(value))
+            for key, value in native.items() if key != 'server'}
+
+
+def inspect_client(root, client, *, records=None):
+    require(client in CLIENTS, 'invalid_client')
+    paths = CONFIG_FILES[client]
+    if records is None:
+        records = read_inputs(root, existing_inputs(root, paths))
+    result = dict(files={p: hashlib.sha256(records[p]).hexdigest() if p in records else None for p in paths},
+                  servers={}, permissions={}, codes=[], coverage=list(COVERAGE))
+    codes = set()
+    docs = {}
+    for relative in paths:
+        if relative not in records:
+            continue
+        try:
+            data = records[relative]
+            parsed = tomllib.loads(data.decode('utf-8-sig')) if relative.endswith('.toml') else parse_json(data)
+            require(isinstance(parsed, dict))
+            docs[relative] = parsed
+        except (ValueError, TypeError, UnicodeError, RecursionError):
+            codes.add('config_read_failed')
+    main = docs.get(paths[0], {})
+    settings = docs.get(paths[1], {})
+    known_main = {'mcpServers'} if client == 'claude' else {'mcp_servers', 'skills', 'agents', 'features', 'hooks'}
+    known_settings = {'permissions', 'hooks', 'attribution', 'enabledMcpjsonServers',
+                      'disabledMcpjsonServers', 'enableAllProjectMcpServers'} if client == 'claude' else {'hooks'}
+    if set(main) - known_main or set(settings) - known_settings:
+        codes.add('unsupported_fields')
+    if settings.get('hooks') or main.get('hooks'):
+        codes.add('hooks_present')
+    permissions = settings.get('permissions', {})
+    if not isinstance(permissions, dict):
+        codes.add('config_read_failed')
+        permissions = {}
+    if set(permissions) - {'allow', 'deny', 'ask'}:
+        codes.add('unsupported_fields')
+    for action in ('allow', 'deny', 'ask'):
+        rules = permissions.get(action, [])
+        if not strings(rules):
+            codes.add('config_read_failed')
+            rules = []
+        result['permissions'][action] = [value_digest(rule) for rule in sorted(rules)]
+    servers = main.get('mcpServers' if client == 'claude' else 'mcp_servers', {})
+    if not isinstance(servers, dict):
+        codes.add('config_read_failed')
+        servers = {}
+    require(len(servers) <= 200, 'capability_limit')
+    for name, entry in servers.items():
+        server_codes = set()
+        if not isinstance(entry, dict) or not identifier(name):
+            codes.add('config_read_failed')
+            continue
+        known = ({'type', 'url', 'command', 'args', 'env', 'headers'} if client == 'claude' else
+                 {'url', 'command', 'args', 'env', 'env_vars', 'enabled', 'required', 'enabled_tools',
+                  'disabled_tools', 'bearer_token_env_var', 'http_headers', 'env_http_headers',
+                  'startup_timeout_sec', 'tool_timeout_sec'})
+        if set(entry) - known:
+            server_codes.add('unsupported_fields')
+        transport = entry.get('type', 'http' if 'url' in entry else 'stdio')
+        if transport not in ('http', 'stdio'):
+            server_codes.add('unsupported_transport')
+            transport = 'unsupported'
+        projected = dict(transport=transport)
+        if client == 'codex':
+            enabled = entry.get('enabled', True)
+            if type(enabled) is not bool:
+                server_codes.add('config_read_failed')
+                enabled = None
+            projected['enabled'] = enabled
+        else:
+            # Loading project config is not proof of native approval or effective activation.
+            projected['enabled'] = None
+            codes.add('native_approval_unobserved')
+        for field in ('url', 'command'):
+            if field in entry:
+                if not text(entry[field]):
+                    server_codes.add('config_read_failed')
+                else:
+                    projected[field] = entry[field]
+        if 'url' in entry:
+            try:
+                safe_locator(entry['url'])
+            except ValueError:
+                server_codes.add('sensitive_config')
+        args = entry.get('args', [])
+        if not isinstance(args, list) or not all(text(v) for v in args):
+            server_codes.add('config_read_failed')
+            args = []
+        projected['args'] = args
+        if args:
+            server_codes.add('arguments_require_review')
+            if any(re.search(r'(?i)token|secret|password|credential|api.?key|bearer', v) for v in args):
+                server_codes.add('sensitive_config')
+        if entry.get('env') or entry.get('headers') or entry.get('http_headers'):
+            server_codes.add('sensitive_config')
+        credentials = entry.get('env_vars', [])
+        if not strings(credentials):
+            credentials = []
+            server_codes.add('config_read_failed')
+        credentials = list(credentials)
+        if 'bearer_token_env_var' in entry:
+            credentials.append(entry['bearer_token_env_var'])
+        env_headers = entry.get('env_http_headers', {})
+        if isinstance(env_headers, dict):
+            credentials.extend(env_headers.values())
+        else:
+            server_codes.add('config_read_failed')
+        if not all(isinstance(v, str) and re.fullmatch(r'[A-Z_][A-Z0-9_]*', v) for v in credentials):
+            server_codes.add('config_read_failed')
+            credentials = []
+        projected['credential_env'] = sorted(set(credentials))
+        for native_key, actual_key in [('allow_tools', 'enabled_tools'), ('deny_tools', 'disabled_tools')]:
+            if client == 'codex' and actual_key in entry:
+                if strings(entry[actual_key]):
+                    projected[native_key] = sorted(entry[actual_key])
+                else:
+                    server_codes.add('config_read_failed')
+        result['servers'][value_digest(name)] = dict(values=native_projection(projected), codes=sorted(server_codes))
+        codes.update(server_codes)
+    result['codes'] = sorted(codes)
+    return result
+
+
+def config_observation(cap, client, observed):
+    native = cap['native'].get(client)
+    if not native:
+        return None, []
+    server = observed['servers'].get(value_digest(native['server']))
+    if server is None:
+        return 'missing', ['server_missing']
+    codes = server['codes']
+    if 'config_read_failed' in codes:
+        return 'failed', codes
+    if 'unsupported_fields' in codes or 'unsupported_transport' in codes:
+        return 'unsupported', codes
+    wanted = native_projection({k: sorted(v) if k in ('allow_tools', 'deny_tools', 'credential_env') else v
+                                for k, v in native.items()})
+    if client == 'claude':
+        # Native allow/deny patterns differ from Codex filters; exact MCP rules only.
+        for key, action in [('allow_tools', 'allow'), ('deny_tools', 'deny')]:
+            wanted.pop(key, None)
+            expected = [value_digest(f"mcp__{native['server']}__{tool}") for tool in native.get(key, [])]
+            if not set(expected) <= set(observed['permissions'].get(action, [])):
+                return 'changed', ['permission_difference']
+        if native.get('enabled') is not None:
+            return 'unverified', ['native_approval_unobserved']
+    if any(server['values'].get(k) != v for k, v in wanted.items()):
+        return 'changed', ['config_difference']
+    if 'sensitive_config' in codes or 'arguments_require_review' in codes:
+        return 'unverified', codes
+    return 'matched', codes
+
+
+def audit(root, client):
+    try:
+        require(client in (*CLIENTS, 'both'), 'invalid_client')
+        selected = CLIENTS if client == 'both' else (client,)
+        first = read_inputs(root, ['skills-lock.json'])['skills-lock.json']
+        catalog = catalog_from_bytes(first)
+        paths = {'skills-lock.json'}
+        for c in selected:
+            paths.update(CONFIG_FILES[c])
+            for cap in catalog:
+                if c in cap['clients']:
+                    paths.update(cap['files']['common'] + cap['files'][c])
+        records = read_inputs(root, existing_inputs(root, paths))
+        require(records.get('skills-lock.json') == first, 'input_changed')
+        configs = {c: inspect_client(root, c, records=records) for c in selected}
+        hashes = {p: hashlib.sha256(records[p]).hexdigest() if p in records else None for p in sorted(paths)}
+        observations = []
+        for cap in catalog:
+            for c in selected:
+                if c not in cap['clients']:
+                    continue
+                files = cap['files']['common'] + cap['files'][c]
+                codes = []
+                expected = cap['expected']
+                if any(p not in records for p in files):
+                    content = 'missing'
+                    codes.append('file_missing')
+                elif expected['contract_sha256'] and expected['contract_sha256'] != contract_digest(cap):
+                    content = 'changed'
+                    codes.append('contract_difference')
+                elif files and expected['files_sha256'][c] and records_digest({p: records[p] for p in files}) != expected['files_sha256'][c]:
+                    content = 'changed'
+                    codes.append('content_difference')
+                elif (not expected['contract_sha256'] or not expected['files_sha256'][c]
+                      or cap['scope'] == 'inventory' or cap['kind'] in ('mcp', 'runtime')):
+                    content = 'unverified'
+                    codes.append('implementation_unobserved')
+                else:
+                    content = 'matched'
+                for p in files:
+                    data = records.get(p, b'')
+                    if re.search(rb'(?m)^allowed-tools\s*:', data):
+                        codes.append('skill_grants')
+                    if re.search(rb'!`|(?m:^hooks\s*:)', data):
+                        codes.append('dynamic_instructions')
+                config_state, config_codes = config_observation(cap, c, configs[c])
+                states = [content, config_state]
+                state = next(s for s in ('failed', 'unsupported', 'missing', 'changed', 'unverified', 'matched') if s in states)
+                observations.append(dict(id=cap['id'], client=c, required=cap['required'][c], state=state,
+                    content_state=content, config_state=config_state, codes=sorted(set(codes + config_codes)),
+                    input_hashes={p: hashes[p] for p in sorted({'skills-lock.json', *files, *CONFIG_FILES[c]})},
+                    observed_version=None, runtime_proof=None))
+        coverage = dict(limits=list(COVERAGE), files=hashes,
+                        clients={c: dict(codes=configs[c]['codes'], server_count=len(configs[c]['servers'])) for c in selected})
+        if not any(o['required'] for o in observations):
+            coverage['limits'].append('no_required_capabilities')
+        for c in selected:
+            declared = {value_digest(cap['native'][c]['server']) for cap in catalog if c in cap['native']}
+            if set(configs[c]['servers']) - declared:
+                coverage['clients'][c]['codes'].append('uncatalogued_servers')
+        unsafe = any('config_read_failed' in cfg['codes'] for cfg in configs.values())
+        pending = any(o['required'] and o['state'] != 'matched' for o in observations)
+        return dict(schema=1, client=client, observations=observations, coverage=coverage,
+                    exit_code=2 if unsafe else (1 if pending else 0))
+    except (OSError, ValueError, KeyError, TypeError, RecursionError):
+        return dict(schema=1, client=client, observations=[], coverage=dict(limits=list(COVERAGE)),
+                    codes=['invalid_or_unreadable_input'], exit_code=2)
+
+
 def render_result(result, as_json):
     # JSON escaping also makes terminal control characters inert in text mode.
     return json.dumps(result, ensure_ascii=True, indent=2 if as_json else None, sort_keys=True)
@@ -264,14 +511,21 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', default='.')
     commands = parser.add_subparsers(dest='command', required=True)
-    for name in ('list', 'describe'):
+    for name in ('list', 'describe', 'audit'):
         sub = commands.add_parser(name)
         sub.add_argument('--json', action='store_true')
         if name == 'describe':
             sub.add_argument('id')
+        if name == 'audit':
+            sub.add_argument('--client', choices=(*CLIENTS, 'both'), default='both')
     args = parser.parse_args(argv)
     try:
-        catalog = load_catalog(Path(args.root).resolve(strict=True))
+        root = Path(args.root).resolve(strict=True)
+        if args.command == 'audit':
+            result = audit(root, args.client)
+            print(render_result(result, args.json))
+            return result['exit_code']
+        catalog = load_catalog(root)
         if args.command == 'list':
             result = [{k: cap[k] for k in ('id', 'kind', 'purpose', 'clients')} for cap in catalog]
         else:

@@ -19,7 +19,22 @@ de arquivos não comprovam execução. A auditoria e a revisão são detalhadas 
 Capability catalog: `python scripts/capabilities.py list --json` shows purpose and clients;
 `python scripts/capabilities.py describe retrieve-memory --json` presents the contract. Reading
 supports manifest versions 2 and 3, without initializing the vault or installing capabilities.
-Declared versions and file hashes do not prove execution. Audit and review follow in this delivery.
+Declared versions and file hashes do not prove execution.
+
+Auditoria / Audit: `python scripts/capabilities.py audit --client both --json`.
+Use `claude` ou `codex` para uma instalação de cliente único. Estados: `matched` (correspondência local),
+`changed`, `missing`, `unverified`, `unsupported` e `failed`. Código 0 exige correspondência dos requisitos
+obrigatórios; 1 indica pendência obrigatória; 2 indica entrada/configuração inválida ou ilegível.
+O relatório separa conteúdo, configuração e execução. Inventário externo, runtime instalado, aprovação
+nativa e configurações globais permanecem não verificados por essa leitura. Valores de configuração
+potencialmente secretos são omitidos, inclusive em erros. A auditoria não instala nem corrige arquivos.
+
+Use `claude` or `codex` for a single-client installation. States: `matched` (local correspondence),
+`changed`, `missing`, `unverified`, `unsupported` and `failed`. Exit 0 requires matching mandatory
+capabilities; 1 means a mandatory capability is pending; 2 means invalid or unreadable input/configuration.
+Content, configuration and execution are separate. External inventory, installed runtimes, native
+approval and global configuration remain unverified. Potentially secret configuration values are
+omitted, including errors. Auditing never installs, connects to MCPs or repairs files.
 
 <img src="../assets/vidro.svg" alt="" width="100%">
 

@@ -175,5 +175,112 @@ class CatalogTests(CapabilityCase):
             caps.load_catalog(self.root)
 
 
+class AuditTests(CapabilityCase):
+    def locked(self):
+        catalog = self.seed()
+        cap = catalog[0]
+        cap['expected']['contract_sha256'] = caps.contract_digest(cap)
+        for client in caps.CLIENTS:
+            cap['expected']['files_sha256'][client] = caps.content_digest(
+                self.root, cap['files']['common'] + cap['files'][client])
+        self.save(catalog)
+        return catalog
+
+    def test_audit_is_readonly_and_selects_one_client(self):
+        self.locked()
+        (self.root / '.claude/skills/sample/SKILL.md').unlink()
+        before = {p.relative_to(self.root).as_posix(): p.read_bytes()
+                  for p in self.root.rglob('*') if p.is_file() and '.git' not in p.parts}
+        with patch('subprocess.Popen', side_effect=AssertionError('process forbidden')), \
+             patch('socket.socket', side_effect=AssertionError('network forbidden')):
+            first = caps.audit(self.root, 'codex')
+            second = caps.audit(self.root, 'codex')
+        self.assertEqual(first, second)
+        self.assertEqual(first['exit_code'], 0)
+        self.assertEqual(first['observations'][0]['state'], 'matched')
+        self.assertIsNone(first['observations'][0]['runtime_proof'])
+        self.assertEqual(self.cli('audit', '--client', 'codex', '--json').returncode, 0)
+        after = {p.relative_to(self.root).as_posix(): p.read_bytes()
+                 for p in self.root.rglob('*') if p.is_file() and '.git' not in p.parts}
+        self.assertEqual(before, after)
+        self.assertEqual(caps.audit(self.root, 'claude')['exit_code'], 1)
+
+    def test_drift_and_optional_missing_are_explicit(self):
+        for kind in ('support', 'origin', 'permission'):
+            catalog = self.locked()
+            if kind == 'support':
+                (self.root / 'skills/sample/help.md').write_bytes(b'drift')
+            elif kind == 'origin':
+                catalog[0]['origin']['locator'] = 'changed-origin'
+                self.save(catalog)
+            else:
+                catalog[0]['permissions']['network'] = ['https://example.invalid']
+                self.save(catalog)
+            result = caps.audit(self.root, 'codex')
+            self.assertEqual(result['observations'][0]['state'], 'changed', kind)
+            self.assertEqual(result['exit_code'], 1)
+        catalog = self.locked()
+        catalog[0]['required']['codex'] = False
+        self.save(catalog)
+        (self.root / 'skills/sample/SKILL.md').unlink()
+        result = caps.audit(self.root, 'codex')
+        self.assertEqual(result['exit_code'], 0)
+        self.assertEqual(result['observations'][0]['state'], 'missing')
+
+    def test_config_secret_values_never_leak(self):
+        self.locked()
+        marker = 'SYNTHETIC_SECRET_42'
+        payload = {'mcpServers': {'sample': {
+            'type': 'http', 'url': f'https://user:{marker}@example.invalid/mcp?token={marker}',
+            'headers': {'Authorization': marker}, 'args': ['--token', marker],
+            'env': {'TOKEN': marker}, 'unknown': {'private': marker}}}}
+        (self.root / '.mcp.json').write_text(json.dumps(payload), encoding='utf-8')
+        result = caps.audit(self.root, 'claude')
+        for as_json in (True, False):
+            self.assertNotIn(marker, caps.render_result(result, as_json))
+        self.assertIn('sensitive_config', json.dumps(result))
+        config = self.root / '.codex/config.toml'
+        config.parent.mkdir(exist_ok=True)
+        config.write_text(f'[mcp_servers.sample]\nurl="https://example.invalid/?token={marker}"\n'
+                          f'args=["--token", "{marker}"]\nunknown="{marker}"\n', encoding='utf-8')
+        result = caps.audit(self.root, 'codex')
+        self.assertNotIn(marker, caps.render_result(result, True))
+        self.assertIn('sensitive_config', json.dumps(result))
+        for relative, client in [('.mcp.json', 'claude'), ('.codex/config.toml', 'codex')]:
+            (self.root / relative).write_text(marker + ' broken {', encoding='utf-8')
+            result = self.cli('audit', '--client', client, '--json')
+            self.assertEqual(result.returncode, 2)
+            self.assertNotIn(marker, result.stdout + result.stderr)
+
+    def test_unknown_fields_and_hook_surfaces_are_not_trusted(self):
+        self.locked()
+        (self.root / '.mcp.json').write_text('{"mcpServers":{"sample":{"type":"http",'
+            '"url":"https://example.invalid","futurePolicy":true}}}', encoding='utf-8')
+        skill = self.root / 'skills/sample/SKILL.md'
+        skill.write_text('---\nallowed-tools: Bash(*)\n---\n!`malicious-command`\n', encoding='utf-8')
+        result = caps.audit(self.root, 'claude')
+        self.assertIn('unsupported_fields', json.dumps(result))
+        self.assertIn('skill_grants', json.dumps(result))
+        self.assertIn('dynamic_instructions', json.dumps(result))
+        self.assertFalse((self.root / 'malicious-command').exists())
+
+    def test_mcp_endpoint_and_tool_filters_drift(self):
+        catalog = self.locked()
+        native = dict(server='sample', transport='http', url='https://example.invalid/mcp',
+                      enabled=False, allow_tools=['read'], deny_tools=['write'])
+        catalog[0]['native'] = {'codex': native}
+        catalog[0]['expected']['contract_sha256'] = caps.contract_digest(catalog[0])
+        self.save(catalog)
+        config = self.root / '.codex/config.toml'
+        config.parent.mkdir(exist_ok=True)
+        original = ('[mcp_servers.sample]\nurl="https://example.invalid/mcp"\nenabled=false\n'
+                    'enabled_tools=["read"]\ndisabled_tools=["write"]\n')
+        config.write_text(original, encoding='utf-8')
+        self.assertEqual(caps.audit(self.root, 'codex')['observations'][0]['config_state'], 'matched')
+        for source, replacement in [('example.invalid/mcp', 'other.invalid/mcp'), ('["read"]', '["delete"]')]:
+            config.write_text(original.replace(source, replacement), encoding='utf-8')
+            self.assertEqual(caps.audit(self.root, 'codex')['observations'][0]['config_state'], 'changed')
+
+
 if __name__ == '__main__':
     unittest.main()

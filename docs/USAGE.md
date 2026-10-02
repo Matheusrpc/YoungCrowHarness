@@ -358,6 +358,11 @@ O recibo informa `source_id`, revisão, tentativa, estado e caminho da nota. A f
 microíndice em `vault/local/sources/`; os originais, recibos e extrações ficam em
 `.operacao-local/docling/`. Repetir a mesma origem reutiliza a extração quando bytes e configuração
 coincidem. Arquivos de origens diferentes mantêm identidades próprias, mesmo com conteúdo igual.
+Uma extração sem manifesto de cache é preservada em `.operacao-local/docling/work/orphan-*`;
+a próxima ingestão converte novamente. Não é preciso apagar o cache para retomar.
+
+Na nota extraída, HTML, wikilinks e referências Markdown por rótulo ficam como texto legível.
+Links inline HTTP(S) continuam clicáveis; imagens inline só apontam para ativos locais validados.
 
 Use `ingest "arquivo" --source-id UUID --json` para atualizar uma fonte já registrada ou retomar
 uma pendência pelo ID. Uma falha conserva a revisão válida anterior. Uma extração `partial` recebe
@@ -450,8 +455,10 @@ texto e cada imagem nessa pasta, removendo o que não pode sair do ambiente loca
 executar `promote`: conhecer o digest não equivale a ter autorização humana.
 
 A promoção verifica todos os nomes e bytes, mantém avisos de extração parcial e recusa links para
-arquivos privados ou caminhos absolutos. Aceita uma nota Markdown e imagens raster, até 2.000 arquivos
-e 500 MiB por cópia. O resultado entra em `vault/sources/`; não há `git add`, commit ou push automático.
+arquivos privados ou caminhos absolutos. Cada cópia pode conter uma nota Markdown e imagens raster,
+com teto de 2.000 arquivos e 500 MiB. HTML e autolinks fora de exemplos de código são recusados.
+Use `[rótulo](destino)` sem envolver o destino em sinais de menor/maior.
+O resultado entra em `vault/sources/`; não há `git add`, commit ou push automático.
 Só depois disso uma feature compartilhada deve receber um link para a fonte publicada. O mapeamento
 com a revisão original fica local. Mudanças posteriores no original não alteram a cópia preparada.
 
@@ -836,6 +843,11 @@ The receipt contains `source_id`, revision, attempt, state and note path. Each s
 in `vault/local/sources/`; originals, receipts and extractions remain in `.operacao-local/docling/`.
 Repeating the same origin reuses extraction when bytes and configuration match. Different origins
 retain separate identities even when their contents are identical.
+An extraction without a cache manifest is preserved in `.operacao-local/docling/work/orphan-*`;
+the next ingestion converts again. You do not need to delete the cache to resume.
+
+In extracted notes, HTML, wikilinks and reference-style Markdown links remain readable text.
+Inline HTTP(S) links stay clickable; inline images only point to validated local assets.
 
 Use `ingest "file" --source-id UUID --json` to update a known source or resume a pending source by ID.
 A failed attempt preserves the previous valid revision. A `partial` extraction gets a separate note
@@ -928,7 +940,8 @@ establish human permission.
 
 Promotion checks all filenames and bytes, preserves partial-extraction warnings and rejects private
 file links or absolute paths. A copy may contain one Markdown note and raster images, up to 2,000 files
-and 500 MiB. The result enters `vault/sources/`; the command never stages, commits or pushes it. A shared
+and 500 MiB. HTML and autolinks outside code examples are rejected; use `[label](destination)` without
+angle brackets around the destination. The result enters `vault/sources/`; the command never stages, commits or pushes it. A shared
 feature can then link to the published source. The original-to-copy mapping remains local. Later changes
 to the original do not alter the prepared copy.
 

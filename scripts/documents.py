@@ -430,6 +430,12 @@ def ingest(root, source, *, source_id=None, convert=run_worker):
                     raise ValueError('Extraction cache changed; preserve it for inspection.')
                 result, output = cached['result'], root / cache
             else:
+                if (root / cache).exists():
+                    # An interrupted manifest write must not poison this revision.
+                    # Preserve the unverified extraction rather than deleting it.
+                    orphan = safe_path(root, Path(BASE) / 'work' / ('orphan-' + receipt['attempt_id']) / '.probe').parent
+                    orphan.parent.mkdir(parents=True, exist_ok=True)
+                    os.replace(root / cache, orphan)
                 output = root / BASE / 'work' / receipt['attempt_id']
                 safe_path(root, output.relative_to(root) / '.probe')
                 result = convert(original, output, profile_base(root, profile) / 'venv', profile)

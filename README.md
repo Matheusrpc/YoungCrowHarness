@@ -164,6 +164,9 @@ privados. O helper de armazenamento prepara e verifica o ignore antes de escreve
 Docling tem [setup opt-in e diagnóstico local](docs/USAGE.md#docling-pt). A conversão foi verificada com
 PDF, DOCX, HTML e uma imagem de página, além da aquisição e conversão de um PDF público por URL.
 Cada conexão valida o destino; downloads têm limites de tamanho e tempo. A revisão do texto extraído continua necessária.
+Na nota extraída, referências Markdown por rótulo viram texto legível; imagens ativas precisam ser
+arquivos locais validados. A cópia pública recusa HTML e autolinks. Se a gravação do cache for
+interrompida, a próxima ingestão preserva a extração incompleta e tenta novamente.
 
 O perfil opcional de mídia usa Whisper Base local. A prova com WAV e MP4 preservou a frase falada,
 os intervalos da transcrição e três quadros amostrados. Um vídeo sem áudio manteve as imagens e
@@ -392,6 +395,9 @@ ignore rules before writing. Docling has [opt-in setup and local diagnostics](do
 conversion was verified with PDF, DOCX, HTML and a page image, plus acquisition and conversion of a
 public PDF URL. Each connection validates its destination; downloads have size and time limits.
 Extracted text still needs review.
+In extracted notes, reference-style Markdown links become readable text; active images must be
+validated local files. Public copies reject HTML and autolinks. If a cache write is interrupted,
+the next ingestion preserves the incomplete extraction and retries.
 
 The optional media profile uses local Whisper Base. WAV and MP4 tests preserved the spoken phrase,
 transcript intervals and three sampled frames. A video without audio retained its images and a

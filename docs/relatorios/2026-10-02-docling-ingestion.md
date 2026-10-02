@@ -74,6 +74,39 @@ foi apresentado como uma conversão real; essa prova veio depois na conversa nat
 - Proteções de links, caminhos e ignore não substituem isolamento do sistema operacional contra
   um processo local malicioso concorrente. O projeto mantém um escritor por checkout.
 
+## Revisão da branch
+
+A revisão independente cobriu `0beb2c4..8b56a86`, em modo somente leitura. Não apontou falhas
+críticas, itens menores nem trechos recusados por falta de escopo. Três problemas importantes
+foram reproduzidos antes da correção:
+
+| Problema | Correção | Regressão |
+|---|---|---|
+| Imagens remotas em sintaxe de referência escapavam do filtro inline | Referências por rótulo viram texto legível; links inline continuam sujeitos à validação | Cinco formas de referência, três destinos e preservação de imagem local/URL válida |
+| Uma interrupção entre ativar o cache e gravar seu manifesto impedia nova tentativa | A próxima ingestão preserva o diretório incompleto em `work/orphan-*` e converte novamente | Falha induzida no manifesto, retomada com mesmo ID/revisão e reutilização posterior |
+| HTML e autolinks podiam publicar vínculos privados com digest válido | Cópias públicas recusam essas formas fora de código; os destinos usam Markdown explícito | Quatro formas recusadas com digest atual, sem criar fonte pública |
+
+Os testes falharam antes das correções e passaram depois. A opção por neutralizar referências
+por rótulo evita manter outro parser Markdown. Isso reduz a formatação clicável dessas referências,
+mas conserva o texto e as imagens inline locais exportadas pelo Docling. O cache incompleto fica
+privado para inspeção; a recuperação não apaga arquivos. A aceitação de D04 continua parcial pela
+falta da sessão real autenticada do Claude Code.
+
+A prova D02 foi repetida com o código corrigido e Docling real: PDF `ready`, relações com feature
+e decisão, promoção da cópia revisada e clone somente com arquivos compartilhados. O vault da
+fixture teve 21 notas; o clone, 15. Ambos passaram sem problemas de navegação. Nenhum arquivo
+privado foi rastreado e o nome privado da fonte não apareceu no diff compartilhado.
+
+O vault de trabalho passou com 31 notas. A checagem de 99 links locais do README, guia, processo
+e relatório não encontrou destinos ausentes. O Git não rastreia `vault/local/`,
+`.operacao-local/`, `.runtime/`, `.env` ou `vault/project.json`.
+
+A suíte final `python -m unittest discover -s tests -v` executou 145 testes em 510,357 segundos
+no Windows: 140 passaram e cinco foram pulados pelas condições de plataforma/privilégio. A
+checagem de sintaxe Bash e `git diff --check` também passaram. As três regressões da revisão
+fazem parte dessa suíte. A entrega está reunida no [PR #6](https://github.com/Matheusrpc/YoungCrowHarness/pull/6),
+submetido ao check obrigatório `installer` antes de entrar na `main`.
+
 ## Decisões de execução
 
 Foi reutilizado o checkout isolado que já estava dedicado à frente. Os commits das tarefas 1–6

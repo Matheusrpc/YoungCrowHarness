@@ -135,6 +135,42 @@ class IngestCase(ProjectCase):
 
 
 class IngestTests(IngestCase):
+    def test_reference_links_cannot_load_remote_images_or_private_files(self):
+        output = self.root / 'extracted'
+        (output / 'assets').mkdir(parents=True)
+        (output / 'assets/1.png').write_bytes(b'controlled image')
+        for use in ('![tracker][ref]', '![ref][]', '![ref]', '[ref]', '[label][ref]'):
+            with self.subTest(use=use):
+                for target in ('https://example.invalid/track', 'file:///private.txt', '../../private.md'):
+                    text = use + '\n\n[ref]: ' + target
+                    result = self.store.extracted_markdown(text, output, 'assets/revision')
+                    self.assertEqual(vault.links(result), [])
+        result = self.store.extracted_markdown(
+            '![local](assets/1.png) [website](https://example.org/docs)', output, 'assets/revision')
+        self.assertEqual(vault.links(result), [('assets/revision/1.png', 'markdown'),
+                                               ('https://example.org/docs', 'markdown')])
+
+    def test_retry_recovers_cache_after_manifest_write_failure(self):
+        write = self.store.write_json
+        def fail_manifest(root, relative, value):
+            if Path(relative).parent == Path(self.documents.BASE) / 'extractions':
+                raise OSError('Simulated interrupted cache activation')
+            return write(root, relative, value)
+        with patch('document_store.write_json', side_effect=fail_manifest):
+            first = self.ingest()
+        self.assertEqual(first['state'], 'failed')
+        cache = self.root / self.documents.BASE / 'extractions' / first['revision']
+        original = (cache / 'content.md').read_bytes()
+        second = self.ingest()
+        self.assertEqual(second['state'], 'ready')
+        self.assertEqual(second['source_id'], first['source_id'])
+        self.assertEqual(second['revision'], first['revision'])
+        self.assertEqual(self.ingest()['state'], 'ready')
+        self.assertEqual(len(self.calls), 2)
+        orphans = list((self.root / self.documents.BASE / 'work').glob('orphan-*/content.md'))
+        self.assertEqual([p.read_bytes() for p in orphans], [original])
+        self.assertEqual(vault.check(self.root)['issues'], [])
+
     def test_resuming_an_opaque_pending_source_binds_its_first_locator(self):
         pending = self.documents.record_pending(self.root, 'source_unavailable')
         resumed = self.ingest(source_id=pending['source_id'])
@@ -331,6 +367,19 @@ class IngestTests(IngestCase):
 
 
 class ReviewTests(IngestCase):
+    def test_promotion_rejects_html_and_autolinks_with_current_digest(self):
+        for link in ('<a href="../../local/index.md">Private index</a>',
+                     '<file:///C:/private.txt>', '<https://example.org>',
+                     '<video\n src="file:///private.mp4">'):
+            with self.subTest(link=link):
+                receipt, review = self.review()
+                directory = Path(review['directory'])
+                with (directory / 'index.md').open('a', encoding='utf-8') as note:
+                    note.write('\n' + link + '\n')
+                with self.assertRaisesRegex(ValueError, 'explicit Markdown'):
+                    self.store.promote(self.root, review['review_id'], self.store.tree_digest(directory))
+                self.assertFalse((self.root / 'vault/sources').exists())
+
     def convert(self, source, output, runtime, profile):
         result = super().convert(source, output, runtime, profile)
         (output / 'content.md').write_text('Public evidence paragraph.\n\n![Figure](assets/figure.png)\n')

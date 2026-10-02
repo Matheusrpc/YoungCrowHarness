@@ -317,8 +317,15 @@ def extracted_markdown(text, output, asset_prefix):
                     return raw.replace(match[1], quote(asset_prefix + '/' + '/'.join(parts[1:]), safe='/'))
         # An escaped label and destination remain readable, without active links.
         return re.sub(r'([\\`*\[\]!()])', r'\\\1', raw)
-    text = INLINE.sub(link, text)
-    return text.replace('[[', '\\[\\[').replace(']]', '\\]\\]')
+    # Only validated inline links stay active. Entities keep reference-style
+    # links, definitions and wikilinks readable without a second Markdown parser.
+    def literal(value):
+        return value.replace('[', '&#91;').replace(']', '&#93;')
+    parts, end = [], 0
+    for match in INLINE.finditer(text):
+        parts.extend((literal(text[end:match.start()]), link(match)))
+        end = match.end()
+    return ''.join(parts) + literal(text[end:])
 
 
 def normalize_assets(output):
@@ -537,8 +544,8 @@ def validate_public_copy(root, directory, manifest):
         raise ValueError('Keep the extraction status visible.')
     if any(f'> Warning: {warning}.' not in visible for warning in manifest['warnings']):
         raise ValueError('Keep extraction warnings visible.')
-    if re.search(r'<\s*(?:script|iframe|object|embed|style|img)\b', body, re.I):
-        raise ValueError('Active HTML is not supported in a public copy.')
+    if re.search(r'<[^>]*>', prose(body)):
+        raise ValueError('Use explicit Markdown links without angle brackets; HTML and autolinks are unsupported.')
     public_note = f'vault/sources/{manifest["public_id"]}/index.md'
     for target, syntax in links(body):
         if syntax != 'markdown':

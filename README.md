@@ -44,7 +44,7 @@ O agente consulta o vault, executa o trabalho autorizado e registra o resultado.
 organizam e verificam as notas; credenciais, confiança e permissões continuam sob controle do cliente
 e do ambiente em que ele opera.
 
-![Arquitetura: Claude Code e Codex usam instruções e skills compartilhadas, registram entregas no vault e acessam MCPs configurados. Docling já guarda documentos locais e revisões; Graphify e claude-mem são adaptadores planejados.](assets/architecture-pt.svg)
+![Arquitetura: Claude Code e Codex usam instruções e skills compartilhadas, registram entregas no vault e acessam MCPs configurados. Docling guarda documentos, áudio, vídeo e revisões; Graphify e claude-mem são adaptadores planejados.](assets/architecture-pt.svg)
 
 [Abrir diagrama](assets/architecture-pt.svg) · [Decisões de arquitetura](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md)
 
@@ -55,7 +55,7 @@ e do ambiente em que ele opera.
 | Skills, agentes e MCPs | Encontrar capacidades, configurar acesso e registrar o que cada execução usou | Catálogo inicial e configurações disponíveis; governança completa ainda planejada |
 | Integrações | Consultar fontes oficiais e documentar implementação, testes e operação | `integration-specialist` e `integrate-from-docs` disponíveis nos dois clientes |
 | Vault | Guardar contexto, índices, referências e estados de desenvolvimento/produção | Markdown, criação de notas e validador disponíveis; conteúdo mantido pelo agente |
-| Ingestão com Docling | Converter fontes acessíveis em Markdown local e ligá-las ao trabalho | Documentos, revisões, vínculos e cópias revisadas verificados |
+| Ingestão com Docling | Converter fontes acessíveis em Markdown local e ligá-las ao trabalho | Documentos, mídia, URLs e cópias revisadas verificados |
 | Graphify e claude-mem | Facilitar descoberta e recuperação a partir dos registros do vault | Adaptadores planejados; sem sincronização automática |
 
 O [catálogo de capacidades](vault/capabilities/index.md) reúne as entradas das skills e do especialista.
@@ -157,6 +157,10 @@ Docling tem [setup opt-in e diagnóstico local](docs/USAGE.md#docling-pt). A con
 PDF, DOCX, HTML e uma imagem de página, além da aquisição e conversão de um PDF público por URL.
 Cada conexão valida o destino; downloads têm limites de tamanho e tempo. A revisão do texto extraído continua necessária.
 
+O perfil opcional de mídia usa Whisper Base local. A prova com WAV e MP4 preservou a frase falada,
+os intervalos da transcrição e três quadros amostrados. Um vídeo sem áudio manteve as imagens e
+o aviso de extração parcial. Os formatos, limites e comandos estão no [guia de uso](docs/USAGE.md#docling-pt).
+
 Os vínculos locais registram a revisão usada e um trecho de evidência para relacionar a fonte a features
 ou decisões. Contradições começam como hipóteses; o sentido da relação precisa ser revisado. A captura de anexos depende do que cada cliente expõe; entradas inacessíveis
 são registradas como pendências quando a referência é recebida pelo comando. O [contrato de ingestão](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
@@ -172,7 +176,7 @@ divide a implementação em quatro entregas:
 
 1. Verificado: documentos locais, Markdown, origem, revisões e retomada após interrupção, com proteção contra versionamento acidental.
 2. Verificado: vínculos com evidência, cópias para revisão e publicação local sem expor a proveniência privada.
-3. URLs diretas verificadas. Próximo passo: áudio e vídeo, com cobertura, limites e falhas registrados.
+3. Verificado: URLs diretas, áudio e vídeo, com intervalos de transcrição, quadros, limites e falhas registrados.
 4. Validar ingestão e retomada em sessões reais de Claude Code e Codex.
 
 Os adaptadores de memória e a orquestração autônoma de papéis seguem na
@@ -253,7 +257,7 @@ Both clients use shared instructions and skills through their own native entries
 the vault, performs authorized work and records the result. Local commands organize and check notes;
 credentials, trust and permissions remain controlled by the client and its execution environment.
 
-![Architecture: Claude Code and Codex use shared instructions and skills, record deliveries in the vault and access configured MCPs. Docling stores local documents and revisions; Graphify and claude-mem are planned adapters.](assets/architecture-en.svg)
+![Architecture: Claude Code and Codex use shared instructions and skills, record deliveries in the vault and access configured MCPs. Docling stores documents, audio, video and revisions; Graphify and claude-mem are planned adapters.](assets/architecture-en.svg)
 
 [Open diagram](assets/architecture-en.svg) · [Architecture decisions](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md)
 
@@ -264,7 +268,7 @@ credentials, trust and permissions remain controlled by the client and its execu
 | Skills, agents and MCPs | Discover capabilities, configure access and record actual use | Initial catalog and configuration available; full governance remains planned |
 | Integrations | Consult official sources and document implementation, tests and operation | `integration-specialist` and `integrate-from-docs` available in both clients |
 | Vault | Keep context, indices, references and development/production states | Markdown, note creation and validation available; the agent maintains content |
-| Docling ingestion | Convert accessible sources into local Markdown linked to the work | Documents, revisions, relations and reviewed copies verified |
+| Docling ingestion | Convert accessible sources into local Markdown linked to the work | Documents, media, URLs and reviewed copies verified |
 | Graphify and claude-mem | Support discovery and retrieval from vault records | Planned adapters; no automatic synchronization |
 
 The [capability catalog](vault/capabilities/index.md) links to the skills and integration specialist.
@@ -367,6 +371,10 @@ conversion was verified with PDF, DOCX, HTML and a page image, plus acquisition 
 public PDF URL. Each connection validates its destination; downloads have size and time limits.
 Extracted text still needs review.
 
+The optional media profile uses local Whisper Base. WAV and MP4 tests preserved the spoken phrase,
+transcript intervals and three sampled frames. A video without audio retained its images and a
+partial-extraction warning. See the [usage guide](docs/USAGE.md#docling-en) for formats, limits and commands.
+
 Local relations record the source revision and a supporting quote to link it to features or decisions.
 Contradictions start as hypotheses; the meaning of a relationship still needs review. Attachment capture depends on what each client exposes; inaccessible inputs will
 remain pending when their reference reaches the command. The [ingestion contract](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
@@ -382,7 +390,7 @@ splits the work into four deliveries:
 
 1. Verified: local documents, Markdown, origin, revisions and resumption after interruption, protected against accidental tracking.
 2. Verified: evidence-backed relations, review copies and local publication without private provenance.
-3. Direct URLs verified. Next: audio and video, recording coverage, limits and failures.
+3. Verified: direct URLs, audio and video, with transcript intervals, frames, limits and failures recorded.
 4. Verify ingestion and resumption in real Claude Code and Codex sessions.
 
 Memory adapters and autonomous role orchestration remain in the

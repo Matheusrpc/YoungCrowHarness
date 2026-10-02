@@ -195,10 +195,60 @@ def url_smoke(root):
     return 0 if result['state'] == 'ready' and found and not report['vault']['issues'] else 1
 
 
+def media_smoke(root, manifest_path):
+    import vault
+    manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+    run = root / '.runtime' / ('media-' + uuid.uuid4().hex[:12])
+    run.mkdir(parents=True)
+    results = []
+    for kind in ('audio', 'video', 'video_without_audio'):
+        source = (manifest_path.parent / manifest[kind]).resolve(strict=True)
+        started = time.monotonic()
+        result = documents.ingest(root, source)
+        note = root / result['note_path'] if result.get('note_path') else None
+        text = re.sub(r'[^a-z0-9]+', ' ', note.read_text(encoding='utf-8').lower()) if note else ''
+        found = re.sub(r'[^a-z0-9]+', ' ', manifest['phrase'].lower()).strip() in text
+        results.append(dict(kind=kind, state=result['state'], phrase_found=found,
+                            warnings=result['warnings'], coverage=result['coverage'],
+                            seconds=round(time.monotonic() - started, 2)))
+    # Exercise the real video pipeline's partial result under a tiny explicit
+    # test budget. Production conversion still gets its full 1,800 seconds.
+    runtime = documents.profile_base(root, 'media') / 'venv'
+    timeout_output = run / 'partial'
+    timeout_output.mkdir()
+    source = (manifest_path.parent / manifest['video']).resolve()
+    env = documents.worker_environment(runtime.parent)
+    request = dict(source=str(source), output=str(timeout_output), models=str(runtime.parent / 'models'),
+                   profile='media', media=documents.probe_media(source, env))
+    request_path = run / 'request.json'
+    request_path.write_text(json.dumps(request), encoding='utf-8')
+    driver = run / 'partial.py'
+    driver.write_text('import json,sys\nfrom pathlib import Path\nfrom contextlib import redirect_stdout\n'
+        f'sys.path.insert(0, {str(ROOT / "scripts")!r})\nimport docling_worker\n'
+        'with redirect_stdout(sys.stderr):\n result=docling_worker.convert(json.loads(Path(sys.argv[1]).read_text()),document_timeout=0.001)\n'
+        'print(json.dumps(result))\n', encoding='utf-8')
+    timed = documents.run_process([str(documents.runtime_python(runtime)), str(driver), str(request_path)],
+                                    timeout=1800, env=env)
+    (run / 'partial-stderr.log').write_bytes(timed.stderr)
+    partial = json.loads(timed.stdout) if timed.returncode == 0 else {'state': 'failed'}
+    assert partial.get('converter', {}).get('options', {}).get('timeout') == 0.001
+    report = dict(converter='docling ' + documents.VERSION, model='Whisper Base native CPU',
+                  fixture=manifest.get('provenance', 'operator-provided speech recording'),
+                  results=results, real_pipeline_timeout=partial, vault=vault.check(root))
+    (run / 'report.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
+    print(json.dumps(report, indent=2))
+    good = all(item['state'] == 'ready' and item['phrase_found'] and item['coverage'].get('transcript_intervals')
+               for item in results[:2])
+    good = good and bool(results[1]['coverage'].get('sampled_frames'))
+    good = good and results[2]['state'] == 'partial' and 'audio_track_absent' in results[2]['warnings']
+    return 0 if good and partial['state'] == 'partial' and not report['vault']['issues'] else 1
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=ROOT)
-    parser.add_argument('--profile', choices=['documents'], default='documents')
+    parser.add_argument('--profile', choices=['documents', 'media'], default='documents')
+    parser.add_argument('--media-manifest', type=Path, help='Local JSON with audio, video, video_without_audio and expected phrase.')
     parser.add_argument('--json', action='store_true')
     parser.add_argument('--ingest', action='store_true', help='Verify storage and resumption through the public ingestion API.')
     parser.add_argument('--interrupt', action='store_true', help='Kill a controlled run after real conversion, recover and resume.')
@@ -209,10 +259,14 @@ def main():
     root = args.root.resolve()
     if args.interrupt_child:
         return interruption_child(root, args.interrupt_child)
-    diagnostic = documents.doctor(root)
+    diagnostic = documents.doctor(root, args.profile)
     if diagnostic['state'] != 'ready':
         print(json.dumps(diagnostic))
         return 1
+    if args.profile == 'media':
+        if args.media_manifest is None:
+            parser.error('--profile media requires --media-manifest')
+        return media_smoke(root, args.media_manifest.resolve(strict=True))
     if args.review:
         return review_smoke(root, root / '.runtime' / ('review-' + uuid.uuid4().hex[:12]))
     if args.url:

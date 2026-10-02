@@ -121,6 +121,18 @@ def observed_type(path):
         return '.png'
     if prefix.startswith(b'\xff\xd8\xff'):
         return '.jpg'
+    if prefix.startswith(b'RIFF'):
+        return {b'WAVE': '.wav', b'AVI ': '.avi'}.get(prefix[8:12])
+    if prefix[4:8] == b'ftyp':
+        return '.m4a' if prefix[8:12] in (b'M4A ', b'M4B ') else '.mp4'
+    if prefix.startswith(b'\x1a\x45\xdf\xa3'):
+        return '.webm' if b'webm' in prefix[:4096] else '.mkv'
+    if prefix.startswith(b'fLaC'):
+        return '.flac'
+    if prefix.startswith(b'OggS'):
+        return '.ogg'
+    if prefix.startswith(b'ID3') or (len(prefix) > 1 and prefix[0] == 255 and prefix[1] & 0xe0 == 0xe0):
+        return '.aac' if len(prefix) > 1 and prefix[1] & 0xf6 == 0xf0 else '.mp3'
     if prefix.startswith(b'PK\x03\x04'):
         try:
             with zipfile.ZipFile(path) as archive:
@@ -181,6 +193,7 @@ def fetch_source(url, destination, *, max_bytes, timeout_seconds=60, allowed_pri
                 if length is not None and not 0 <= length <= max_bytes:
                     raise AcquisitionError('source_size_limit')
                 total = 0
+                media_size_allowed = False
                 with destination.open('xb') as output:
                     created = True
                     while not response.isclosed():
@@ -192,6 +205,12 @@ def fetch_source(url, destination, *, max_bytes, timeout_seconds=60, allowed_pri
                         if total > max_bytes:
                             raise AcquisitionError('source_size_limit')
                         output.write(chunk)
+                        if total > 100 * 1024 * 1024 and not media_size_allowed:
+                            output.flush()
+                            if observed_type(destination) not in ('.wav', '.mp3', '.m4a', '.aac', '.ogg', '.flac',
+                                                                  '.mp4', '.mov', '.avi', '.mkv', '.webm'):
+                                raise AcquisitionError('source_size_limit')
+                            media_size_allowed = True
                 remaining(deadline)
                 if length is not None and total != length:
                     raise AcquisitionError('source_incomplete_download')

@@ -3,7 +3,9 @@ import argparse
 import hashlib
 import json
 import os
+import math
 from pathlib import Path
+import shutil
 import signal
 import subprocess
 import sys
@@ -18,6 +20,46 @@ import source_fetch
 VERSION = '2.132.0'
 BASE = '.operacao-local/docling'
 WORKER = Path(__file__).with_name('docling_worker.py')
+MEDIA_FORMATS = {'.wav': 'wav', '.mp3': 'mp3', '.m4a': 'mov', '.aac': 'aac', '.ogg': 'ogg',
+                 '.flac': 'flac', '.mp4': 'mov', '.mov': 'mov', '.avi': 'avi', '.mkv': 'matroska', '.webm': 'matroska'}
+
+
+def profile_base(root, profile='documents'):
+    if profile not in ('documents', 'media'):
+        raise ValueError('Unsupported profile.')
+    return Path(root) / BASE / ('media' if profile == 'media' else '')
+
+
+def executable_path(base):
+    private_bin = (base.parent if base.name == 'media' else base) / 'bin'
+    return str(private_bin.absolute()) + os.pathsep + os.environ.get('PATH', '')
+
+
+def media_tools(env=None):
+    found = {name: shutil.which(name, path=(env or os.environ).get('PATH', '')) for name in ('ffmpeg', 'ffprobe')}
+    return found if all(found.values()) else {}
+
+
+def probe_media(source, env):
+    if source.stat().st_size > 500 * 1024 * 1024:
+        raise ValueError('media_size_limit')
+    tools = media_tools(env)
+    if not tools:
+        raise ValueError('ffmpeg_missing')
+    demuxer = MEDIA_FORMATS.get(source.suffix.lower())
+    if not demuxer:
+        raise ValueError('unsupported_media_format')
+    result = run_process([tools['ffprobe'], '-v', 'error', '-protocol_whitelist', 'file', '-f', demuxer,
+                          '-i', 'file:' + str(source.absolute()), '-show_entries', 'format=duration:stream=codec_type',
+                          '-of', 'json'], timeout=30, env=env)
+    if result.returncode:
+        raise ValueError('media_probe_failed')
+    data = json.loads(result.stdout)
+    duration = float(data.get('format', {}).get('duration', 'nan'))
+    if not math.isfinite(duration) or duration <= 0 or duration > 3600:
+        raise ValueError('media_duration_limit')
+    kinds = {stream.get('codec_type') for stream in data.get('streams', [])}
+    return dict(duration_seconds=duration, has_audio='audio' in kinds, has_video='video' in kinds)
 
 
 def runtime_python(runtime):
@@ -28,6 +70,7 @@ def worker_environment(base, *, offline=True):
     base = Path(base).absolute()
     env = {k: v for k, v in os.environ.items()
            if k.upper() in ('PATH', 'SYSTEMROOT', 'WINDIR', 'PATHEXT')}
+    env['PATH'] = executable_path(base)
     for folder in ('cache', 'temp', 'home'):
         safe_path(base, Path(folder) / '.probe')
         (base / folder).mkdir(parents=True, exist_ok=True)
@@ -44,21 +87,73 @@ def worker_environment(base, *, offline=True):
     return env
 
 
+def windows_job(process):
+    """Own the suspended worker and descendants before allowing it to run."""
+    import ctypes
+    from ctypes import wintypes as w
+    class Limits(ctypes.Structure):
+        _fields_ = [('process_time', ctypes.c_longlong), ('job_time', ctypes.c_longlong), ('flags', w.DWORD),
+                    ('min_working_set', ctypes.c_size_t), ('max_working_set', ctypes.c_size_t),
+                    ('active_processes', w.DWORD), ('affinity', ctypes.c_size_t), ('priority', w.DWORD), ('scheduling', w.DWORD)]
+    class Extended(ctypes.Structure):
+        _fields_ = [('basic', Limits), ('io', ctypes.c_ulonglong * 6),
+                    ('process_memory', ctypes.c_size_t), ('job_memory', ctypes.c_size_t),
+                    ('peak_process_memory', ctypes.c_size_t), ('peak_job_memory', ctypes.c_size_t)]
+    kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel.CreateJobObjectW.argtypes, kernel.CreateJobObjectW.restype = [ctypes.c_void_p, w.LPCWSTR], w.HANDLE
+    kernel.SetInformationJobObject.argtypes = [w.HANDLE, ctypes.c_int, ctypes.c_void_p, w.DWORD]
+    kernel.AssignProcessToJobObject.argtypes = [w.HANDLE, w.HANDLE]
+    kernel.CloseHandle.argtypes = [w.HANDLE]
+    job = kernel.CreateJobObjectW(None, None)
+    if not job:
+        raise ctypes.WinError(ctypes.get_last_error())
+    close = lambda: kernel.CloseHandle(job)
+    try:
+        limits = Extended()
+        limits.basic.flags = 0x2000  # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+        if not kernel.SetInformationJobObject(job, 9, ctypes.byref(limits), ctypes.sizeof(limits)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        if not kernel.AssignProcessToJobObject(job, int(process._handle)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        # Popen closes the initial thread handle; resume the process only after
+        # assignment. This avoids the race in assigning an already running worker.
+        native = ctypes.WinDLL('ntdll')
+        native.NtResumeProcess.argtypes, native.NtResumeProcess.restype = [w.HANDLE], w.LONG
+        if native.NtResumeProcess(int(process._handle)) != 0:
+            raise OSError('Cannot resume worker.')
+        return close
+    except BaseException:
+        close()
+        raise
+
+
 def run_process(arguments, *, timeout, env):
-    options = {'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == 'nt' else {'start_new_session': True}
+    options = {'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP | 0x4} if os.name == 'nt' else {'start_new_session': True}
     with subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, **options) as process:
+        close_job = None
         try:
+            if os.name == 'nt':
+                try:
+                    close_job = windows_job(process)
+                except BaseException:
+                    process.kill()
+                    process.communicate()
+                    raise
             stdout, stderr = process.communicate(timeout=timeout)
         except (subprocess.TimeoutExpired, KeyboardInterrupt) as interrupted:
             if os.name == 'nt':
-                subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'],
-                               capture_output=True, timeout=15)
+                if close_job:
+                    close_job()
+                    close_job = None
             else:
                 os.killpg(process.pid, signal.SIGKILL)
             process.communicate()
             if isinstance(interrupted, KeyboardInterrupt):
                 raise
             raise subprocess.TimeoutExpired(['docling-worker'], timeout) from None
+        finally:
+            if close_job:
+                close_job()
         return subprocess.CompletedProcess(['docling-worker'], process.returncode, stdout, stderr)
 
 
@@ -74,11 +169,14 @@ def run_worker(source, output, runtime, profile='documents'):
         return failed('runtime_missing', 'pending')
     output.mkdir(parents=True, exist_ok=False)
     request = output / 'request.json'
-    request.write_text(json.dumps(dict(source=str(source.absolute()), output=str(output.absolute()),
-                                       models=str((runtime.parent / 'models').absolute()), profile=profile)), encoding='utf-8')
     try:
+        env = worker_environment(runtime.parent)
+        media = probe_media(source, env) if profile == 'media' else None
+        request.write_text(json.dumps(dict(source=str(source.absolute()), output=str(output.absolute()),
+                                           models=str((runtime.parent / 'models').absolute()), profile=profile,
+                                           media=media)), encoding='utf-8')
         result = run_process([str(executable), str(WORKER), 'convert', str(request)], timeout=1800,
-                             env=worker_environment(runtime.parent))
+                             env=env)
         if result.returncode:
             (output / 'error.log').write_bytes(result.stderr)
             return failed('conversion_failed')
@@ -97,26 +195,40 @@ def run_worker(source, output, runtime, profile='documents'):
         return {key: data[key] for key in ('state', 'warnings', 'coverage', 'converter') if key in data}
     except subprocess.TimeoutExpired:
         return failed('conversion_timeout')
-    except (OSError, ValueError):
+    except ValueError as error:
+        code = str(error)
+        return failed(code if code in ('media_size_limit', 'media_duration_limit', 'media_probe_failed',
+                                       'unsupported_media_format', 'ffmpeg_missing') else 'invalid_worker_result')
+    except OSError:
         return failed('invalid_worker_result')
     finally:
         request.unlink(missing_ok=True)
 
 
-def doctor(root):
-    base = Path(root) / BASE
+def doctor(root, profile='documents'):
+    base = profile_base(root, profile)
+    relative_base = base.relative_to(root)
     executable = runtime_python(base / 'venv')
     if not executable.is_file():
         return failed('runtime_missing', 'pending')
     try:
-        safe_path(Path(root), Path(BASE) / 'venv/pyvenv.cfg')
+        safe_path(Path(root), relative_base / 'venv/pyvenv.cfg')
         manifest = json.loads((base / 'environment.json').read_text(encoding='utf-8'))
         if manifest['docling'] != VERSION:
             return failed('runtime_version_mismatch')
         if not manifest['packages'].get('onnxruntime'):
             return failed('runtime_dependencies_missing', 'pending')
+        if profile == 'media':
+            if not manifest['packages'].get('openai-whisper'):
+                return failed('runtime_dependencies_missing', 'pending')
+            tools = media_tools({'PATH': executable_path(base)})
+            if not tools:
+                return failed('ffmpeg_missing', 'pending')
+            if any(store.file_digest(Path(path)) != manifest.get('media_tools', {}).get(name, {}).get('sha256')
+                   for name, path in tools.items()):
+                return failed('ffmpeg_changed', 'pending')
         for item in manifest['models']:
-            path = safe_path(Path(root), Path(BASE) / 'models' / item['path'])
+            path = safe_path(Path(root), relative_base / 'models' / item['path'])
             if path.stat().st_size != item['size']:
                 return failed('models_incomplete', 'pending')
         if not manifest['models']:
@@ -133,8 +245,7 @@ def doctor(root):
 
 
 def setup(root, profile='documents'):
-    if profile != 'documents':
-        raise ValueError('Unsupported profile.')
+    profile_base(root, profile)
     root = Path(root).resolve(strict=True)
     prepare_storage(root)
     with store.project_lock(root):
@@ -142,16 +253,27 @@ def setup(root, profile='documents'):
 
 
 def setup_runtime(root, profile):
-    base = root / BASE
+    base = profile_base(root, profile)
     for relative in ('venv/pyvenv.cfg', 'models/.probe', 'cache/.probe', 'temp/.probe', 'home/.probe',
                      'environment.json', 'setup.log'):
-        safe_path(root, Path(BASE) / relative)
+        safe_path(root, base.relative_to(root) / relative)
     if (base / 'environment.json').exists():
-        result = doctor(root)
+        result = doctor(root, profile)
         if result['state'] != 'ready':
             raise ValueError('Existing runtime differs or is incomplete; inspect doctor before replacing it.')
         return result
     env = worker_environment(base, offline=False)
+    tool_records = {}
+    if profile == 'media':
+        tools = media_tools(env)
+        if not tools:
+            return failed('ffmpeg_missing', 'pending')
+        for name, path in tools.items():
+            result = run_process([path, '-version'], timeout=30, env=env)
+            if result.returncode:
+                return failed('setup_failed')
+            tool_records[name] = dict(sha256=store.file_digest(Path(path)),
+                                      version=result.stdout.decode(errors='replace').splitlines()[0])
     executable = runtime_python(base / 'venv')
     commands = []
     installed = None
@@ -167,10 +289,10 @@ def setup_runtime(root, profile):
             return failed('runtime_version_mismatch')
     if not executable.exists():
         commands.append([sys.executable, '-m', 'venv', str(base / 'venv')])
-    requirements = Path(__file__).resolve().parents[1] / 'requirements/docling.txt'
-    if installed is None or not packages.get('onnxruntime'):
+    requirements = Path(__file__).resolve().parents[1] / 'requirements' / ('docling-media.txt' if profile == 'media' else 'docling.txt')
+    if installed is None or not packages.get('onnxruntime') or (profile == 'media' and not packages.get('openai-whisper')):
         commands.append([str(executable), '-m', 'pip', 'install', '-r', str(requirements)])
-    commands.append([str(executable), str(WORKER), 'prepare', str(base / 'models')])
+    commands.append([str(executable), str(WORKER), 'prepare', str(base / 'models'), profile])
     for command in commands:
         result = run_process(command, timeout=1800, env=env)
         with (base / 'setup.log').open('ab') as log:
@@ -183,16 +305,20 @@ def setup_runtime(root, profile):
         return failed('runtime_version_mismatch')
     manifest.update(profile=profile, models=[dict(path=p.relative_to(base / 'models').as_posix(), size=p.stat().st_size)
                                             for p in sorted((base / 'models').rglob('*')) if p.is_file()])
+    if profile == 'media':
+        manifest['media_tools'] = tool_records
     (base / 'environment.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
-    return doctor(root)
+    return doctor(root, profile)
 
 
 def converter_info(root, profile):
-    manifest = safe_path(root, Path(BASE) / 'environment.json')
+    manifest = safe_path(root, profile_base(root, profile).relative_to(root) / 'environment.json')
     return dict(package='docling', version=VERSION, profile=profile,
-                models=['layout', 'tableformer', 'rapidocr-onnxruntime-latin'],
-                options=dict(max_pages=500, max_bytes=100 * 1024 * 1024, timeout=1800,
+                models=['whisper-base-native'] if profile == 'media' else ['layout', 'tableformer', 'rapidocr-onnxruntime-latin'],
+                options=dict(max_pages=500, max_bytes=(500 if profile == 'media' else 100) * 1024 * 1024, timeout=1800,
                              remote_fetch=False, local_fetch=False, device='cpu',
+                             **(dict(max_duration=3600, max_frames=200, frame_interval=10, diarization=False) if profile == 'media' else {}),
+                             adapter_sha256=store.file_digest(WORKER),
                              runtime_manifest_sha256=store.file_digest(manifest) if manifest.exists() else None))
 
 
@@ -255,7 +381,7 @@ def ingest(root, source, *, source_id=None, convert=run_worker):
                     raise ValueError('Invalid acquisition policy.')
                 destination = safe_path(root, attempt / 'download')
                 destination.parent.mkdir(parents=True, exist_ok=True)
-                acquired = source_fetch.fetch_source(source, destination, max_bytes=100 * 1024 * 1024,
+                acquired = source_fetch.fetch_source(source, destination, max_bytes=500 * 1024 * 1024,
                                                        allowed_private_hosts=tuple(allowed))
                 if acquired['state'] != 'ready':
                     receipt.update(state=acquired['state'], warnings=acquired['warnings'], next_action='provide_direct_source')
@@ -267,19 +393,20 @@ def ingest(root, source, *, source_id=None, convert=run_worker):
             if not source.is_file():
                 receipt['warnings'] = ['source_unavailable']
                 return receipt
-            if extension not in ('.html', '.htm', '.pdf', '.docx', '.png', '.jpg', '.jpeg'):
+            profile = 'media' if extension in MEDIA_FORMATS else 'documents'
+            if profile == 'documents' and extension not in ('.html', '.htm', '.pdf', '.docx', '.png', '.jpg', '.jpeg'):
                 receipt.update(state='unsupported', warnings=['unsupported_source'], next_action='provide_supported_source')
                 return receipt
             if convert is run_worker:
-                diagnostic = doctor(root)
+                diagnostic = doctor(root, profile)
                 if diagnostic['state'] != 'ready':
                     receipt.update(warnings=diagnostic['warnings'], next_action='setup_or_repair_runtime')
                     return receipt
-            configuration = converter_info(root, 'documents')
+            configuration = converter_info(root, profile)
             # A suffix-sensitive parser is part of the conversion configuration.
             configuration = {**configuration, 'input_format': {'.htm': '.html', '.jpeg': '.jpg'}.get(extension, extension)}
             snapshot = attempt / ('original' + extension)
-            copied_hash = store.copy_source(root, source, snapshot, 100 * 1024 * 1024)
+            copied_hash = store.copy_source(root, source, snapshot, (500 if profile == 'media' else 100) * 1024 * 1024)
             payload = json.dumps(dict(bytes_sha256=copied_hash, converter=configuration), sort_keys=True, separators=(',', ':')).encode()
             revision = hashlib.sha256(payload).hexdigest()
             receipt.update(revision=revision, converter=configuration, state='running', warnings=[], next_action='wait_for_conversion')
@@ -304,7 +431,7 @@ def ingest(root, source, *, source_id=None, convert=run_worker):
             else:
                 output = root / BASE / 'work' / receipt['attempt_id']
                 safe_path(root, output.relative_to(root) / '.probe')
-                result = convert(original, output, root / BASE / 'venv', 'documents')
+                result = convert(original, output, profile_base(root, profile) / 'venv', profile)
                 if result.get('state') in ('ready', 'partial'):
                     store.normalize_assets(output)
                 if result.get('state') == 'ready':
@@ -333,8 +460,9 @@ def ingest(root, source, *, source_id=None, convert=run_worker):
         except source_fetch.AcquisitionError as error:
             receipt.update(state='pending', warnings=[str(error)], next_action='provide_direct_source_or_retry')
             return receipt
-        except (OSError, ValueError, KeyError, TypeError):
-            receipt.update(state='failed', warnings=['ingestion_failed'], next_action='inspect_and_retry')
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            code = 'source_size_limit' if str(error) == 'source_size_limit' else 'ingestion_failed'
+            receipt.update(state='failed', warnings=[code], next_action='inspect_and_retry')
             return receipt
         finally:
             store.save_attempt(root, record, receipt)
@@ -345,9 +473,11 @@ def main():
     parser.add_argument('--root', type=Path, default=Path.cwd())
     sub = parser.add_subparsers(dest='command', required=True)
     install = sub.add_parser('setup')
-    install.add_argument('--profile', choices=['documents'], default='documents')
+    install.add_argument('--profile', choices=['documents', 'media'], default='documents')
     install.add_argument('--json', action='store_true')
-    sub.add_parser('doctor').add_argument('--json', action='store_true')
+    diagnostic = sub.add_parser('doctor')
+    diagnostic.add_argument('--json', action='store_true')
+    diagnostic.add_argument('--profile', choices=['documents', 'media'], default='documents')
     ingest_parser = sub.add_parser('ingest')
     ingest_parser.add_argument('source')
     ingest_parser.add_argument('--source-id')
@@ -380,10 +510,11 @@ def main():
     args = parser.parse_args()
     try:
         if args.command == 'setup':
-            print('Installing project-local Docling 2.132.0, layout, tables and Latin OCR models.', file=sys.stderr)
+            print('Installing project-local Docling 2.132.0 with ' +
+                  ('Whisper Base and media dependencies.' if args.profile == 'media' else 'layout, tables and Latin OCR models.'), file=sys.stderr)
             result = setup(args.root, args.profile)
         elif args.command == 'doctor':
-            result = doctor(args.root)
+            result = doctor(args.root, args.profile)
         elif args.command == 'ingest':
             result = ingest(args.root, args.source, source_id=args.source_id)
         elif args.command == 'lock-status':

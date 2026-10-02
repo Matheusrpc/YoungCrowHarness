@@ -213,9 +213,9 @@ Adicionar redirecionamento público → privado, mudança de DNS, IPv6 link-loca
 
 **Interfaces:** `setup --profile media` acrescenta ASR/vídeo ao ambiente isolado; `doctor` verifica FFmpeg e modelos. `run_worker(source, output, runtime, profile='media')` mantém o mesmo contrato, com cobertura de tempo e contagem de quadros observados.
 
-- [ ] **Escrever testes RED de falta de FFmpeg, limite de duração, status parcial e processo filho que excede o prazo.** O teste de status verifica que `PARTIAL_SUCCESS` nunca vira `ready`; o teste de timeout deve iniciar um processo controlado e confirmar que seus filhos também terminam.
-- [ ] **Fixar dependências de mídia após resolver o pacote da mesma versão candidata.** Usar `docling[asr]==2.132.0` e `docling-slim[format-video]==2.132.0`, conferindo a resolução antes de ativar o perfil. Preservar a instalação de documentos se a instalação de mídia falhar. Modelos e pacotes resolvidos ficam no diagnóstico local.
-- [ ] **Configurar os pipelines oficiais.** Áudio usa `AudioFormatOption` com `AsrPipeline`, modelo multilíngue `WHISPER_BASE` como perfil inicial de CPU; vídeo usa `VideoFormatOption` e quadros limitados. Não ativar diarização por padrão.
+- [x] **Escrever testes RED de falta de FFmpeg, limite de duração, status parcial e processo filho que excede o prazo.** O teste de status verifica que `PARTIAL_SUCCESS` nunca vira `ready`; o teste de timeout deve iniciar um processo controlado e confirmar que seus filhos também terminam.
+- [x] **Fixar dependências de mídia após resolver o pacote da mesma versão candidata.** Usar `docling[asr]==2.132.0` e `docling-slim[format-video]==2.132.0`, conferindo a resolução antes de ativar o perfil. Preservar a instalação de documentos se a instalação de mídia falhar. Modelos e pacotes resolvidos ficam no diagnóstico local.
+- [x] **Configurar os pipelines oficiais.** Áudio usa `AudioFormatOption` com `AsrPipeline`, modelo multilíngue `WHISPER_BASE` como perfil inicial de CPU; vídeo usa `VideoFormatOption` e quadros limitados. Não ativar diarização por padrão.
 
 ```python
 from docling.datamodel.pipeline_options import VideoPipelineOptions
@@ -225,7 +225,7 @@ video = VideoFormatOption(pipeline_options=VideoPipelineOptions(
 ```
 
 Checar até 500 MiB e 3.600 segundos antes da conversão de mídia. Usar o FFmpeg/ffprobe configurado, sem shell, para obter duração e processar apenas arquivo local. Preservar tempos e quadros emitidos, registrar trechos ausentes e não inferir interpretação visual completa. Arquivo sem áudio deve ter estado compatível com a saída realmente obtida, com a ausência registrada.
-- [ ] **GREEN e prova D03.** Ampliar o smoke para aceitar gravação controlada curta e versão MP4 da mesma gravação, acompanhadas da frase esperada em um manifesto local. Confirmar transcrição, tempos, imagens, retorno parcial por prazo e encerramento dos processos. A prova real não pode ser substituída por silêncio sintético ou SDK mockado. Atualizar matriz de formatos, modelo, limites de qualidade e guia. Commit `docling: ingerir audio e video com cobertura registrada`.
+- [x] **GREEN e prova D03.** Ampliar o smoke para aceitar gravação controlada curta e versão MP4 da mesma gravação, acompanhadas da frase esperada em um manifesto local. Confirmar transcrição, tempos, imagens, retorno parcial por prazo e encerramento dos processos. A prova real não pode ser substituída por silêncio sintético ou SDK mockado. Atualizar matriz de formatos, modelo, limites de qualidade e guia. Commit `docling: ingerir audio e video com cobertura registrada`.
 
 ## D04: Claude Code e Codex
 

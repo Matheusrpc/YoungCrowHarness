@@ -256,8 +256,9 @@ def tree_digest(folder):
 
 def copy_source(root, source, destination, limit):
     metadata = source.lstat()
-    if (not stat.S_ISREG(metadata.st_mode) or getattr(metadata, 'st_file_attributes', 0) & 0x400
-            or metadata.st_size > limit):
+    if metadata.st_size > limit:
+        raise ValueError('source_size_limit')
+    if not stat.S_ISREG(metadata.st_mode) or getattr(metadata, 'st_file_attributes', 0) & 0x400:
         raise ValueError('Source must be a regular file within the size limit.')
     target = safe_path(root, destination)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -269,7 +270,7 @@ def copy_source(root, source, destination, limit):
         while chunk := incoming.read(1024 * 1024):
             total += len(chunk)
             if total > limit:
-                raise ValueError('Source exceeds the size limit.')
+                raise ValueError('source_size_limit')
             output.write(chunk)
         after = os.fstat(incoming.fileno())
         if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):

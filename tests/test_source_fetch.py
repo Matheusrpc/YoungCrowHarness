@@ -171,6 +171,15 @@ class FetchTests(unittest.TestCase):
         connect.assert_not_called()
         self.assertLess(time.monotonic() - started, 0.4)
 
+    def test_media_type_comes_from_bytes_not_filename(self):
+        for data, expected in ((b'RIFF0000WAVEfmt ', '.wav'), (b'RIFF0000AVI ', '.avi'),
+                               (b'0000ftypisom', '.mp4'), (b'0000ftypM4A ', '.m4a'),
+                               (b'ID3audio', '.mp3'), (b'fLaCaudio', '.flac'), (b'OggSaudio', '.ogg'),
+                               (b'\x1a\x45\xdf\xa3webm', '.webm'), (b'<html>watch</html>', '.html')):
+            with self.subTest(expected=expected):
+                self.target.write_bytes(data)
+                self.assertEqual(self.fetch.observed_type(self.target), expected)
+
 
 if __name__ == '__main__':
     unittest.main()

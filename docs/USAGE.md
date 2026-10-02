@@ -350,6 +350,37 @@ Há um escritor por projeto. Se um processo for encerrado à força, consulte
 ingestão. A recuperação recusa um processo ativo ou token diferente. Fechar uma sessão não apaga
 os documentos locais; mantenha seu backup privado.
 
+Para áudio e vídeo, disponibilize `ffmpeg` e `ffprobe` no PATH do cliente ou em
+`.operacao-local/docling/bin/`. O setup verifica esses executáveis e registra seus hashes; não os
+instala globalmente. A [página do FFmpeg](https://ffmpeg.org/download.html) indica distribuições por
+plataforma. No Windows, a prova desta entrega usa os binários Gyan 9.0.2, com o checksum do fornecedor.
+
+```bash
+python scripts/documents.py setup --profile media --json
+python scripts/documents.py doctor --profile media --json
+python scripts/documents.py ingest "caminho/gravação.wav" --json
+python scripts/documents.py ingest "caminho/vídeo.mp4" --json
+```
+
+O perfil cria `.operacao-local/docling/media/venv` e baixa o Whisper Base multilíngue para CPU.
+Identificação de locutores está desativada. No Windows, seu extra opcional é omitido porque exige
+compilação C++; transcrição e amostragem usam o pipeline nativo do Docling.
+Os pacotes de mídia ficam separados dos documentos; uma falha nessa instalação conserva o ambiente
+anterior. Isso ocupa espaço adicional. Depois de trocar FFmpeg/ffprobe, confira o diagnóstico antes
+de recriar o perfil. O setup não aceita silenciosamente executáveis diferentes dos registrados.
+
+Áudio aceita WAV, MP3, M4A, AAC, OGG e FLAC; vídeo aceita MP4, MOV, AVI, MKV e WEBM. Cada arquivo
+tem teto de 500 MiB e 60 minutos. O conversor dispõe de até 30 minutos e amostra até 200 quadros,
+normalmente a cada dez segundos. Formato aceito pelo pipeline não garante qualidade de transcrição.
+Áudio é normalizado localmente antes do ASR; o idioma é detectado pelo modelo, sem tradução automática.
+
+O recibo informa intervalos de transcrição e tempos dos quadros efetivamente obtidos. Ausência de áudio,
+transcrição vazia, falha parcial ou limite de quadros aparece nos avisos e mantém estado `partial`.
+Essas imagens não comprovam interpretação de todas as ações, textos ou telas de um vídeo. Um prazo
+esgotado que impeça exportar conteúdo retorna `failed`; uma saída parcial exportável preserva sua nota.
+O encerramento por prazo também termina os processos filhos. Confira transcrição e quadros antes de
+usar a gravação como evidência.
+
 Para ligar uma revisão a uma feature, decisão ou outra nota, use o ID do frontmatter de destino e
 um trecho presente na extração:
 
@@ -752,6 +783,37 @@ Each project has one writer. After a forced process termination, inspect
 `python scripts/documents.py recover-lock --token UUID --json` with the reported token, then repeat
 ingestion. Recovery rejects a live owner or a different token. Closing a session does not erase local
 documents; maintain a private backup.
+
+For audio and video, make `ffmpeg` and `ffprobe` available on the client's PATH or in
+`.operacao-local/docling/bin/`. Setup checks these executables and records their hashes; it does not
+install them globally. The [FFmpeg download page](https://ffmpeg.org/download.html) lists distributions
+by platform. The Windows proof uses Gyan 9.0.2 binaries with the publisher's checksum verified.
+
+```bash
+python scripts/documents.py setup --profile media --json
+python scripts/documents.py doctor --profile media --json
+python scripts/documents.py ingest "path/recording.wav" --json
+python scripts/documents.py ingest "path/video.mp4" --json
+```
+
+The profile creates `.operacao-local/docling/media/venv` and downloads multilingual Whisper Base for
+CPU use. Speaker diarization is disabled. On Windows its optional extra is omitted because it
+requires C++ compilation; transcription and sampling use Docling's native pipeline.
+Media packages are separate from the document runtime, so a failed install preserves the
+existing environment. This needs extra disk space. After replacing FFmpeg/ffprobe, inspect the
+diagnostic before recreating the profile. Setup will not silently accept different executables.
+
+Audio accepts WAV, MP3, M4A, AAC, OGG and FLAC; video accepts MP4, MOV, AVI, MKV and WEBM. Each file
+is limited to 500 MiB and 60 minutes. Conversion has up to 30 minutes and samples at most 200 frames,
+normally ten seconds apart. Pipeline format support does not guarantee transcription quality.
+Audio is normalized locally before ASR; the model detects language without automatic translation.
+
+The receipt reports transcript intervals and frame times actually produced. Missing audio, empty
+transcripts, partial failure or a frame limit appears in warnings and retains a `partial` state.
+These images do not establish understanding of every action, text or screen in a video. A timeout
+that prevents any export returns `failed`; an exportable partial result keeps its own note.
+Timeout cleanup also terminates child processes. Review transcripts and frames before using the
+recording as evidence.
 
 Link a revision to a feature, decision or another note using its frontmatter ID and a quote from
 the extraction:

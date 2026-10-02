@@ -42,6 +42,7 @@ FILES+=(scripts/personalize.py skills/personalizer/SKILL.md skills/personalizer/
 FILES+=(scripts/vault.py scripts/document_store.py)
 FILES+=(scripts/documents.py scripts/docling_worker.py requirements/docling.txt)
 FILES+=(scripts/source_fetch.py)
+FILES+=(requirements/docling-media.txt)
 SKILL_ROOTS=()
 if [ "$CLIENT" != codex ]; then
   FILES+=(.mcp.json .claude/settings.json .claude/agents/integration-specialist.md

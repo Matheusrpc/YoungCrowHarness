@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 import uuid
 from unittest.mock import patch
@@ -225,6 +226,15 @@ class IngestTests(IngestCase):
         self.assertNotEqual(first['revision'], second['revision'])
         self.assertEqual(len(self.calls), 2)
 
+    def test_adapter_update_does_not_reuse_the_old_extraction(self):
+        first = self.ingest()
+        changed = self.root / 'adapter.py'
+        changed.write_text(self.documents.WORKER.read_text(encoding='utf-8') + '\n# Changed adapter\n', encoding='utf-8')
+        with patch('documents.WORKER', changed):
+            second = self.ingest()
+        self.assertNotEqual(first['revision'], second['revision'])
+        self.assertEqual(len(self.calls), 2)
+
     def test_foreign_source_identity_is_rejected(self):
         with self.assertRaises(ValueError):
             self.ingest(source_id=str(uuid.uuid4()))
@@ -424,6 +434,141 @@ class ReviewTests(IngestCase):
         with self.assertRaises(ValueError):
             self.store.promote(self.root, review['review_id'], review['digest'])
         self.assertFalse((self.root / 'vault/sources').exists())
+
+
+class MediaTests(IngestCase):
+    def test_missing_ffmpeg_does_not_modify_document_runtime(self):
+        self.store.prepare_storage(self.root)
+        manifest = self.root / self.documents.BASE / 'environment.json'
+        manifest.write_text('preserve document runtime')
+        with patch('documents.media_tools', return_value={}):
+            result = self.documents.setup(self.root, 'media')
+        self.assertEqual(result['warnings'], ['ffmpeg_missing'])
+        self.assertEqual(manifest.read_text(), 'preserve document runtime')
+
+    def test_failed_media_setup_keeps_documents_and_does_not_activate_media(self):
+        self.store.prepare_storage(self.root)
+        manifest = self.root / self.documents.BASE / 'environment.json'
+        manifest.write_text('preserve document runtime')
+        with patch('documents.media_tools', return_value={'ffmpeg': 'ffmpeg', 'ffprobe': 'ffprobe'}), \
+             patch('documents.run_process', return_value=subprocess.CompletedProcess([], 1, b'', b'private diagnostic')):
+            result = self.documents.setup(self.root, 'media')
+        self.assertEqual(result['warnings'], ['setup_failed'])
+        self.assertEqual(manifest.read_text(), 'preserve document runtime')
+        self.assertFalse((self.root / self.documents.BASE / 'media/environment.json').exists())
+
+    def test_probe_refuses_duration_and_size_and_forces_local_demuxer(self):
+        source = self.root / 'recording.mp4'
+        source.write_bytes(b'controlled media')
+        def probe(duration):
+            return subprocess.CompletedProcess([], 0, json.dumps({'format': {'duration': duration},
+                'streams': [{'codec_type': 'audio'}, {'codec_type': 'video'}]}).encode(), b'')
+        env = self.documents.worker_environment(self.root / self.documents.BASE / 'media')
+        with patch('documents.media_tools', return_value={'ffmpeg': 'ffmpeg', 'ffprobe': 'ffprobe'}), \
+             patch('documents.run_process', return_value=probe('3601')) as process:
+            with self.assertRaisesRegex(ValueError, 'media_duration_limit'):
+                self.documents.probe_media(source, env)
+            arguments = process.call_args.args[0]
+            self.assertIn('-protocol_whitelist', arguments)
+            self.assertIn('file', arguments)
+            self.assertIn('mov', arguments)
+            process.return_value = probe('5.2')
+            result = self.documents.probe_media(source, env)
+        self.assertEqual(result, dict(duration_seconds=5.2, has_audio=True, has_video=True))
+        with source.open('wb') as output:
+            output.truncate(500 * 1024 * 1024 + 1)
+        with patch('documents.run_process', side_effect=AssertionError('must reject before subprocess')):
+            with self.assertRaisesRegex(ValueError, 'media_size_limit'):
+                self.documents.probe_media(source, env)
+
+    def test_partial_media_keeps_observed_coverage_without_claiming_full_video(self):
+        worker = importlib.import_module('docling_worker')
+        extracted = {'texts': [{'text': 'Source phrase', 'source': [{'kind': 'track', 'start_time': 1.2, 'end_time': 3.4}]}],
+                     'pictures': [{'source': [{'kind': 'track', 'start_time': 0, 'end_time': 0.001}]}]}
+        state, coverage, warnings = worker.media_result('partial_success', extracted,
+            dict(duration_seconds=8, has_audio=True, has_video=True))
+        self.assertEqual(state, 'partial')
+        self.assertEqual(coverage['transcript_intervals'], [[1.2, 3.4]])
+        self.assertEqual(coverage['frame_times'], [0])
+        self.assertIn('incomplete_conversion', warnings)
+        state, coverage, warnings = worker.media_result('success', {'texts': [], 'pictures': extracted['pictures']},
+            dict(duration_seconds=8, has_audio=False, has_video=True))
+        self.assertEqual(state, 'partial')
+        self.assertIn('audio_track_absent', warnings)
+
+    def test_media_ingestion_preserves_partial_state_and_profile(self):
+        self.source = self.root / 'clip.mp4'
+        self.source.write_bytes(b'controlled media')
+        def partial(source, output, runtime, profile):
+            self.assertEqual(profile, 'media')
+            self.assertEqual(runtime, self.root / self.documents.BASE / 'media/venv')
+            result = self.convert(source, output, runtime, profile)
+            return {**result, 'state': 'partial', 'warnings': ['incomplete_conversion'],
+                    'coverage': {'transcript_intervals': [[0, 2]], 'frame_times': [0]}}
+        receipt = self.documents.ingest(self.root, self.source, convert=partial)
+        self.assertEqual(receipt['state'], 'partial')
+        self.assertEqual(receipt['converter']['profile'], 'media')
+        self.assertEqual(receipt['coverage']['frame_times'], [0])
+        self.assertEqual(vault.check(self.root)['issues'], [])
+
+    def test_media_size_rejection_has_actionable_receipt(self):
+        self.source = self.root / 'too-large.mp4'
+        with self.source.open('wb') as output:
+            output.truncate(500 * 1024 * 1024 + 1)
+        receipt = self.ingest()
+        self.assertEqual(receipt['warnings'], ['source_size_limit'])
+        self.assertEqual(self.calls, [])
+
+    def test_real_timeout_terminates_child_process(self):
+        pid_file = self.root / 'child.pid'
+        heartbeat = self.root / 'heartbeat'
+        child = self.root / 'child.py'
+        child.write_text('import sys,time\nfrom pathlib import Path\np=Path(sys.argv[1])\n'
+                         'while True:\n p.write_text(str(time.time()))\n time.sleep(.1)\n')
+        parent = self.root / 'parent.py'
+        parent.write_text('import subprocess,sys,time\nfrom pathlib import Path\n'
+            'p=subprocess.Popen([sys.executable,sys.argv[1],sys.argv[3]])\n'
+            'Path(sys.argv[2]).write_text(str(p.pid))\ntime.sleep(120)\n')
+        with self.assertRaises(subprocess.TimeoutExpired):
+            self.documents.run_process([sys.executable, str(parent), str(child), str(pid_file), str(heartbeat)],
+                timeout=2, env=self.documents.worker_environment(self.root / self.documents.BASE))
+        pid = int(pid_file.read_text())
+        before = heartbeat.read_bytes()
+        time.sleep(0.3)
+        self.assertEqual(heartbeat.read_bytes(), before)
+        if os.name == 'nt':
+            self.assertFalse(self.store.process_alive(pid))
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows process-tree regression')
+    def test_timeout_still_kills_child_after_parent_exits(self):
+        pid_file = self.root / 'orphan.pid'
+        parent = self.root / 'exiting.py'
+        parent.write_text('import subprocess,sys\nfrom pathlib import Path\n'
+            'p=subprocess.Popen([sys.executable,"-c","import time; time.sleep(120)"])\n'
+            'Path(sys.argv[1]).write_text(str(p.pid))\n')
+        driver = self.root / 'driver.py'
+        driver.write_text('import sys,subprocess\nfrom pathlib import Path\n'
+            f'sys.path.insert(0, {str(ROOT / "scripts")!r})\nimport documents\n'
+            'try:\n documents.run_process([sys.executable,sys.argv[1],sys.argv[2]],timeout=2,'
+            'env=documents.worker_environment(Path(sys.argv[3])))\n'
+            'except subprocess.TimeoutExpired:\n raise SystemExit(0)\nraise SystemExit(1)\n')
+        process = subprocess.Popen([sys.executable, str(driver), str(parent), str(pid_file),
+                                     str(self.root / self.documents.BASE)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        timed_out = False
+        try:
+            process.communicate(timeout=7)
+        except subprocess.TimeoutExpired:
+            timed_out = True
+        finally:
+            if pid_file.exists():
+                child_pid = int(pid_file.read_text())
+                if self.store.process_alive(child_pid):
+                    subprocess.run(['taskkill', '/PID', str(child_pid), '/F'], capture_output=True, timeout=10)
+            if process.poll() is None:
+                process.kill()
+            process.communicate(timeout=10)
+        self.assertFalse(timed_out, 'A dead parent must not leave the timeout handler waiting on its child.')
+        self.assertEqual(process.returncode, 0)
 
 
 class RuntimeTests(unittest.TestCase):

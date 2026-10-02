@@ -282,5 +282,83 @@ class AuditTests(CapabilityCase):
             self.assertEqual(caps.audit(self.root, 'codex')['observations'][0]['config_state'], 'changed')
 
 
+class ReviewTests(CapabilityCase):
+    def ready(self):
+        self.seed()
+        self.store.prepare_storage(self.root)
+        with (self.root / '.gitignore').open('a', encoding='utf-8') as output:
+            output.write('/.operacao-local/capabilities/\n')
+
+    def test_review_private_repeatable_and_invalidated_by_inputs(self):
+        self.ready()
+        before = (self.root / 'skills-lock.json').read_bytes()
+        receipt = caps.prepare_review(self.root, 'sample', 'codex')
+        self.assertEqual(receipt['authorization'], 'not_asserted')
+        self.assertEqual(receipt, caps.prepare_review(self.root, 'sample', 'codex'))
+        self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'current')
+        self.assertEqual(self.git('ls-files', '--', '.operacao-local/capabilities').stdout, b'')
+        self.assertEqual((self.root / 'skills-lock.json').read_bytes(), before)
+        for relative in ('skills/sample/SKILL.md', 'skills-lock.json', 'vault/project.json'):
+            path = self.root / relative
+            original = path.read_bytes()
+            path.write_bytes(original + b' ')
+            self.assertNotEqual(caps.check_review(self.root, receipt['digest'])['state'], 'current')
+            path.write_bytes(original)
+        config = self.root / '.codex/config.toml'
+        config.parent.mkdir(exist_ok=True)
+        config.write_text('[mcp_servers]\n', encoding='utf-8')
+        self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'changed')
+
+    def test_boundary_and_lock_fail_without_bundle(self):
+        self.seed()
+        self.store.prepare_storage(self.root)
+        with self.assertRaises(ValueError):
+            caps.prepare_review(self.root, 'sample', 'codex')
+        self.ready()
+        with self.store.project_lock(self.root):
+            with self.assertRaises(ValueError):
+                caps.prepare_review(self.root, 'sample', 'codex')
+        self.assertFalse((self.root / '.operacao-local/capabilities/reviews').exists())
+
+    def test_tracked_or_unignored_bundle_is_rejected(self):
+        self.ready()
+        receipt = caps.prepare_review(self.root, 'sample', 'codex')
+        self.git('add', '-f', '--', receipt['path'])
+        with self.assertRaises(ValueError):
+            caps.prepare_review(self.root, 'sample', 'codex')
+        self.git('rm', '--cached', '--', receipt['path'])
+        with (self.root / '.gitignore').open('a', encoding='utf-8') as output:
+            output.write('!/.operacao-local/capabilities/\n/.operacao-local/capabilities/*\n'
+                         '!/.operacao-local/capabilities/reviews/\n'
+                         '!/.operacao-local/capabilities/reviews/*.json\n')
+        with self.assertRaises(ValueError):
+            caps.prepare_review(self.root, 'sample', 'codex')
+
+    def test_secret_config_stays_out_of_bundle(self):
+        self.ready()
+        marker = 'SYNTHETIC_SECRET_42'
+        (self.root / '.mcp.json').write_text(json.dumps({'mcpServers': {'sample': {
+            'type': 'http', 'url': 'https://example.invalid',
+            'headers': {'Authorization': marker}, 'args': ['--token', marker]}}}), encoding='utf-8')
+        receipt = caps.prepare_review(self.root, 'sample', 'claude')
+        data = (self.root / receipt['path']).read_text(encoding='utf-8')
+        self.assertNotIn(marker, data)
+        self.assertIn('sensitive_config', data)
+
+    def test_interruption_preserves_previous_bundle_and_tampering_fails(self):
+        self.ready()
+        receipt = caps.prepare_review(self.root, 'sample', 'codex')
+        path = self.root / receipt['path']
+        previous = path.read_bytes()
+        (self.root / 'skills/sample/help.md').write_bytes(b'changed')
+        with patch('capabilities.atomic_write', side_effect=OSError('interrupted')):
+            with self.assertRaises(OSError):
+                caps.prepare_review(self.root, 'sample', 'codex')
+        self.assertEqual(path.read_bytes(), previous)
+        path.write_bytes(previous + b' ')
+        self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'failed')
+        self.assertFalse((self.root / '.operacao-local/docling/lock.json').exists())
+
+
 if __name__ == '__main__':
     unittest.main()

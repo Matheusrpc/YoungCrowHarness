@@ -222,7 +222,8 @@ O desenho aprovado cobre origem, conteúdo, permissões e provas por cliente. O
 [plano de implementação](docs/superpowers/plans/2026-10-02-capability-governance.md) está em revisão:
 catálogo verificável, auditoria offline, pacote privado, adoção e prova nativa. O catálogo já pode ser consultado
 com `python scripts/capabilities.py list` e `describe ID`. `audit --client both --json` compara arquivos
-e configurações sem iniciar MCPs. Permissões nativas ainda exigem sua própria prova.
+e configurações sem iniciar MCPs. `review --id ID` prepara um pacote privado; `review --check DIGEST`
+confere se os arquivos continuam iguais. O pacote não concede autorização nem ativa a capacidade.
 Consultas e diagnóstico preservam as notas e o `.gitignore`. Se o índice estiver corrompido,
 a consulta usa o Markdown atual; a reconstrução fica explícita no [guia de uso](docs/USAGE.md#memória-consultar-notas-selecionadas).
 claude-mem, sincronização entre máquinas e orquestração autônoma de papéis continuam na
@@ -487,7 +488,8 @@ The approved design covers origin, content, permissions and evidence for each cl
 [implementation plan](docs/superpowers/plans/2026-10-02-capability-governance.md) is under review:
 verifiable catalog, offline audit, private review bundle, adoption and native proof. The catalog can be queried
 with `python scripts/capabilities.py list` and `describe ID`. `audit --client both --json` compares files
-and configuration without starting MCPs. Native permissions still need their own proof.
+and configuration without starting MCPs. `review --id ID` prepares a private bundle; `review --check DIGEST`
+checks whether its inputs are unchanged. A bundle grants no authorization and activates nothing.
 Queries and diagnostics preserve notes and `.gitignore`. If the index is corrupt, retrieval
 uses current Markdown; rebuilding is explicit in the [usage guide](docs/USAGE.md#memory-query-selected-notes).
 claude-mem, cross-machine synchronization and autonomous role orchestration remain in the

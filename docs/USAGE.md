@@ -36,6 +36,27 @@ Content, configuration and execution are separate. External inventory, installed
 approval and global configuration remain unverified. Potentially secret configuration values are
 omitted, including errors. Auditing never installs, connects to MCPs or repairs files.
 
+Revisão privada / Private review:
+
+```bash
+python scripts/capabilities.py review --id retrieve-memory --client codex --json
+python scripts/capabilities.py review --check DIGEST --json
+```
+
+Troque `DIGEST` pelo valor retornado. A revisão exige `vault/project.json` válido e as pastas
+`vault/local`, `.operacao-local/docling` (lock) e `.operacao-local/capabilities` ignoradas pelo Git.
+Prepare a identidade pelo personalizer e as regras pelo setup; `review` não as corrige. Pacotes ficam
+em `.operacao-local/capabilities/reviews/`. A proposta aponta campos e hashes do contrato para comparação
+manual; argumentos, headers e configurações privadas não são copiados. Mudança de entrada exige nova
+revisão. O hash verifica bytes, não aprovação humana. Aplicação segue a autorização real do operador.
+
+Replace `DIGEST` with the returned value. Review requires a valid `vault/project.json` and Git-ignored
+`vault/local`, `.operacao-local/docling` (lock) and `.operacao-local/capabilities` directories. Initialize
+identity with personalizer and ignore rules with setup; `review` does not repair them. Bundles live in
+`.operacao-local/capabilities/reviews/`. Proposals reference contract fields and hashes for manual comparison;
+arguments, headers and private configurations are not copied. Changed inputs require a new review.
+Hashes verify bytes, not human approval. Applying changes follows the operator's actual authorization.
+
 <img src="../assets/vidro.svg" alt="" width="100%">
 
 <a id="portugues"></a>

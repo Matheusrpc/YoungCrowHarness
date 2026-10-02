@@ -33,6 +33,7 @@ node_modules/
 # impeccable-ignore-end
 /.operacao-local/docling/
 /.operacao-local/memory/
+/.operacao-local/capabilities/
 !.agents/skills/ingest-source/
 
 !.agents/skills/retrieve-memory/

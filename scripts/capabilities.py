@@ -10,9 +10,10 @@ import stat
 import sys
 import tomllib
 from urllib.parse import urlsplit
+import uuid
 
 sys.dont_write_bytecode = True
-from document_store import safe_path
+from document_store import safe_path, atomic_write, project_lock, git
 
 Capability = dict
 Observation = dict
@@ -507,17 +508,120 @@ def render_result(result, as_json):
     return json.dumps(result, ensure_ascii=True, indent=2 if as_json else None, sort_keys=True)
 
 
+REVIEW_BASE = '.operacao-local/capabilities'
+
+
+def verify_review_storage(root, destination=None):
+    private = (REVIEW_BASE, '.operacao-local/docling', 'vault/local')
+    for path in private:
+        safe_path(root, path + '/.probe')
+    identity = parse_json(read_inputs(root, ['vault/project.json'])['vault/project.json'])
+    project = str(uuid.UUID(identity['project_id']))
+    rules = read_inputs(root, ['.gitignore'])['.gitignore'].splitlines()
+    detected = git(root, 'rev-parse', '--show-toplevel')
+    if detected.returncode:
+        require(b'not a git repository' in detected.stderr.lower(), 'storage_not_ready')
+        require(all(('/' + p + '/').encode() in rules for p in private), 'storage_not_ready')
+        require(not any(line.startswith(b'!') for line in rules), 'ignore_negation_requires_git')
+    else:
+        tracked = git(root, 'ls-files', '-z', '--', *private)
+        require(tracked.returncode == 0 and not tracked.stdout, 'private_storage_tracked')
+        probes = [p + '/.probe' for p in private]
+        probes += [REVIEW_BASE + '/reviews/.probe.json', '.operacao-local/docling/lock.json']
+        if destination:
+            probes.append(destination)
+        for probe in probes:
+            safe_path(root, probe)
+            require(git(root, 'check-ignore', '--quiet', '--', probe).returncode == 0, 'storage_not_ready')
+    return project
+
+
+def review_payload(root, capability_id, client):
+    require(identifier(capability_id) and client in (*CLIENTS, 'both'), 'invalid_review')
+    project = verify_review_storage(root)
+    result = audit(root, client)
+    require(result['exit_code'] != 2, 'invalid_review_inputs')
+    observations = [o for o in result['observations'] if o['id'] == capability_id]
+    require(bool(observations), 'unknown_capability')
+    # Use the same manifest revision that the auditor read, not a later catalog silently.
+    data = read_inputs(root, ['skills-lock.json', 'vault/project.json'])
+    manifest_hash = hashlib.sha256(data['skills-lock.json']).hexdigest()
+    require(all(o['input_hashes']['skills-lock.json'] == manifest_hash for o in observations), 'input_changed')
+    cap = next(c for c in catalog_from_bytes(data['skills-lock.json']) if c['id'] == capability_id)
+    hashes = {p: digest for o in observations for p, digest in o['input_hashes'].items()}
+    hashes['vault/project.json'] = hashlib.sha256(data['vault/project.json']).hexdigest()
+    proposals = {}
+    for o in observations:
+        c = o['client']
+        native = cap['native'].get(c, {})
+        proposals[c] = dict(file=CONFIG_FILES[c][0], capability_id=capability_id,
+                            manifest_reference='skills-lock.json', fields=sorted(native),
+                            expected=native_projection(native), action='manual_review_required')
+    return dict(schema=1, project_id=project, capability_id=capability_id, client=client,
+                input_hashes=dict(sorted(hashes.items())), observations=observations,
+                coverage=result['coverage']['clients'], proposals=proposals,
+                authorization='not_asserted')
+
+
+def inputs_current(root, hashes):
+    require(isinstance(hashes, dict) and len(hashes) <= 205, 'invalid_review')
+    records = read_inputs(root, existing_inputs(root, list(hashes)))
+    return all((hashlib.sha256(records[p]).hexdigest() if p in records else None) == digest
+               for p, digest in hashes.items())
+
+
+def prepare_review(root, capability_id, client):
+    verify_review_storage(root)
+    with project_lock(root):
+        payload = review_payload(root, capability_id, client)
+        data = canonical(payload)
+        require(len(data) <= FILE_LIMIT, 'file_limit')
+        digest = hashlib.sha256(data).hexdigest()
+        relative = f'{REVIEW_BASE}/reviews/{digest}.json'
+        verify_review_storage(root, relative)
+        require(inputs_current(root, payload['input_hashes']), 'input_changed')
+        path = safe_path(root, relative)
+        if path.exists():
+            require(read_inputs(root, [relative])[relative] == data, 'review_tampered')
+        else:
+            atomic_write(root, relative, data)
+        return dict(digest=digest, path=relative, state='prepared', authorization='not_asserted')
+
+
+def check_review(root, digest):
+    result = dict(digest=digest if isinstance(digest, str) and re.fullmatch(r'[0-9a-f]{64}', digest) else None,
+                  state='failed', codes=[], authorization='not_asserted')
+    try:
+        require(result['digest'] is not None, 'invalid_review')
+        relative = f'{REVIEW_BASE}/reviews/{digest}.json'
+        project = verify_review_storage(root, relative)
+        data = read_inputs(root, [relative])[relative]
+        require(hashlib.sha256(data).hexdigest() == digest, 'review_tampered')
+        payload = parse_json(data)
+        require(payload['schema'] == 1 and payload['project_id'] == project, 'wrong_project')
+        result['state'] = 'current' if inputs_current(root, payload['input_hashes']) else 'changed'
+        if result['state'] == 'changed':
+            result['codes'] = ['input_changed']
+    except (OSError, ValueError, KeyError, TypeError, RecursionError):
+        result['codes'] = ['invalid_review_or_storage']
+    return result
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', default='.')
     commands = parser.add_subparsers(dest='command', required=True)
-    for name in ('list', 'describe', 'audit'):
+    for name in ('list', 'describe', 'audit', 'review'):
         sub = commands.add_parser(name)
         sub.add_argument('--json', action='store_true')
         if name == 'describe':
             sub.add_argument('id')
-        if name == 'audit':
+        if name in ('audit', 'review'):
             sub.add_argument('--client', choices=(*CLIENTS, 'both'), default='both')
+        if name == 'review':
+            group = sub.add_mutually_exclusive_group(required=True)
+            group.add_argument('--id')
+            group.add_argument('--check')
     args = parser.parse_args(argv)
     try:
         root = Path(args.root).resolve(strict=True)
@@ -525,6 +629,10 @@ def main(argv=None):
             result = audit(root, args.client)
             print(render_result(result, args.json))
             return result['exit_code']
+        if args.command == 'review':
+            result = check_review(root, args.check) if args.check else prepare_review(root, args.id, args.client)
+            print(render_result(result, args.json))
+            return {'prepared': 0, 'current': 0, 'changed': 1, 'failed': 2}[result['state']]
         catalog = load_catalog(root)
         if args.command == 'list':
             result = [{k: cap[k] for k in ('id', 'kind', 'purpose', 'clients')} for cap in catalog]

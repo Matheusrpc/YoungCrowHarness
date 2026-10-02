@@ -22,6 +22,12 @@ Before asking, search targeted repository evidence for the answer. If code contr
 
 ## Persist each round
 
+Before the first note, resolve whether the owner wants reversible trial. If requested, verify the
+pre-adoption baseline before writing. For an existing adoption, consult status and reuse its ID;
+an installation without a baseline has no verified pre-adoption return. In `adoption.md`, keep
+only ID, date, state and next action for this mechanism. Ask for current-preview confirmation
+when exiting; an old note records history and does not authorize the current restoration.
+
 Update `vault/product/interviews/<run>.md` with date, question, answer, source, certainty, decision and remaining dependencies. Keep confirmed answers distinct from suggested defaults. Save the exact next question and pause reason. Don't repeat the same question next session unless new evidence contradicts its answer; explain the contradiction when reopening it.
 
 Interview stop criterion: enough verified context to decide and validate the next authorized delivery. Unknown hosting cost may block a hosting choice while allowing an independent local prototype. Do not treat “I don't know” or a paused conversation as consent.

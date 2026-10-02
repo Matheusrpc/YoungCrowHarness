@@ -13,6 +13,26 @@ jobs:
         run: bash -n setup.sh
       - name: Run isolated regression tests
         run: python3 -m unittest discover -s tests -v
+      - name: Exercise reversible adoption in all client profiles
+        shell: bash
+        run: |
+          for client in claude codex both; do
+            python3 -B tests/smoke_adoption.py --root "$RUNNER_TEMP/adoption-$client" --client "$client" || exit "$?"
+          done
+  adoption-windows:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.11'
+      - name: Verify native storage, permissions and crash recovery
+        run: python -B tests/windows_fixture_runner.py -m unittest discover -s tests -p "test_adoption*.py" -v -f
+      - name: Verify trial installer and unchanged global profile
+        run: python -B tests/windows_fixture_runner.py -m unittest discover -s tests -p test_setup.py -k trial -v -f
+      - name: Exercise return through the external runner
+        run: python -B tests/windows_fixture_runner.py tests/smoke_adoption.py --root "$env:RUNNER_TEMP/adoption-both" --client both
   graphify-smoke:
     runs-on: ubuntu-24.04
     timeout-minutes: 15

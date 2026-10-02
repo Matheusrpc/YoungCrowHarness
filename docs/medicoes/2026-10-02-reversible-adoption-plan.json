@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-02",
+  "scope": "documentation_only",
+  "base": "4e58453865f8bd082aa49987445c8082ff41291c",
+  "status": "passed",
+  "local_markdown_links_checked": 99,
+  "python_examples_syntax_checked": 9,
+  "constraints_matched_verbatim": 12,
+  "implementation_tasks": 5,
+  "review_focus_cases": 5,
+  "placeholder_findings": [],
+  "document_errors": [],
+  "vault": {
+    "notes_checked": 47,
+    "issues": []
+  },
+  "runtime_code_changed": false,
+  "browsers_started": 0,
+  "paid_model_calls": 0,
+  "feature_execution": "not_implemented_or_tested"
+}

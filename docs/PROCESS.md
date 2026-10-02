@@ -4,15 +4,26 @@
 
 <a id="portugues"></a>
 
-Os diagramas visíveis no README mostram seis caminhos: projeto novo, adoção, operação, ingestão de fontes, retomada da memória e governança.
+Os diagramas visíveis no README mostram sete caminhos: projeto novo, adoção, operação, ingestão de fontes, retomada da memória, governança e saída do teste.
 Este fluxo detalha as decisões de descoberta, revisão e publicação, incluindo pausas e recuperação.
 Os círculos representam eventos; as caixas, tarefas; os losangos, decisões. É uma documentação
 inspirada em BPMN. Pessoas e agentes executam o rito; PM e Tech Lead são responsabilidades.
 
+Na primeira adoção, `--trial` captura o estado antes das notas e do setup. Para sair, siga o
+[fluxo de retorno](../assets/process-adoption-pt.svg): parar escritores, revisar a prévia atual,
+confirmar, verificar as cópias e restaurar pelo executor externo. Uma interrupção exige consultar
+o estado e confirmar a retomada. As cópias do trabalho ficam preservadas. Veja os
+[comandos e limites](USAGE.md#adocao-reversivel-pt); serviços externos ficam fora desse retorno.
+
 ```mermaid
 flowchart TB
   subgraph descoberta["Personalizer e operador"]
-    A((Ideia)) --> B{Projeto existente?}
+    A((Ideia)) --> AT{Testar com retorno?}
+    AT -->|Sim| AB[Validar e capturar antes de escrever]
+    AB --> AI[Setup --trial: arquivos locais]
+    AT -->|Não| AN[Setup normal: sem ponto inicial]
+    AI --> B{Projeto existente?}
+    AN --> B
     B -->|Sim| C[Auditar código e convenções]
     B -->|Não| D[Entrevistar e salvar respostas]
     C --> D
@@ -99,15 +110,26 @@ flowchart TB
 
 <a id="english"></a>
 
-The README diagrams cover six paths: a new project, adoption, daily work, source intake, memory retrieval and governance.
+The README diagrams cover seven paths: a new project, adoption, daily work, source intake, memory retrieval, governance and trial exit.
 This detailed flow includes discovery, review and release decisions, pauses and recovery.
 Circles are events, boxes are tasks and diamonds are decisions. This is BPMN-inspired documentation.
 People and agents carry out the process; PM and Tech Lead are responsibilities.
 
+On first adoption, `--trial` captures the state before notes or setup writes. To leave, follow the
+[return flow](../assets/process-adoption-en.svg): stop writers, review the current preview,
+confirm, verify both copies and restore through the external runner. After interruption, inspect
+status and confirm recovery. Trial copies are retained. See the
+[commands and limits](USAGE.md#reversible-adoption-en); external services are excluded.
+
 ```mermaid
 flowchart TB
   subgraph discovery["Personalizer and owner"]
-    A((Idea)) --> B{Existing project?}
+    A((Idea)) --> AT{Trial with return?}
+    AT -->|Yes| AB[Validate and capture before writing]
+    AB --> AI[Setup --trial: project files]
+    AT -->|No| AN[Normal setup: no initial baseline]
+    AI --> B{Existing project?}
+    AN --> B
     B -->|Yes| C[Audit code and conventions]
     B -->|No| D[Interview and save answers]
     C --> D

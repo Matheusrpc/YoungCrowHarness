@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1700" width="760" height="1700" role="img" aria-labelledby="title desc" font-family="Georgia, serif">
+<title id="title">07 · Experimentar e voltar</title><desc id="desc">Ponto anterior à primeira escrita, prévia atual, confirmação, cópias verificadas e recuperação após interrupção.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#F3E7C6"/></marker></defs>
+<rect width="760" height="1700" fill="#17130f"/><rect x="12" y="12" width="736" height="1676" rx="10" fill="none" stroke="#725a35" stroke-width="2"/>
+<text x="35" y="53" text-anchor="start" font-size="28" fill="#F3E7C6" data-max-width="695">
+<tspan x="35" dy="0">07 · Experimentar e voltar</tspan>
+</text>
+<text x="35" y="92" text-anchor="start" font-size="20" fill="#d6c8a8" data-max-width="695">
+<tspan x="35" dy="0">Operador e harness · um escritor por projeto</tspan>
+</text>
+<circle cx="288" cy="116" r="13" fill="#1F7A4D" stroke="#F3E7C6" stroke-width="2"/>
+<path d="M288 129V145" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="65" y="145" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="287.5" y="179" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Parar escritores e validar</tspan>
+<tspan x="287.5" dy="30">Perfil, espaço e armazenamento</tspan>
+</text>
+<path d="M288 229V275" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="65" y="275" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="287.5" y="309" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Guardar o ponto inicial</tspan>
+<tspan x="287.5" dy="30">Antes da primeira escrita</tspan>
+</text>
+<path d="M288 359V405" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="65" y="405" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="287.5" y="439" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Instalar com --trial</tspan>
+<tspan x="287.5" dy="30">Experimentar no Claude ou Codex</tspan>
+</text>
+<path d="M288 489V535" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M288 535L358 605L288 675L218 605Z" fill="#E8A317" stroke="#F3E7C6" stroke-width="2"/>
+<text x="288" y="597" text-anchor="middle" font-size="22" fill="#17130f" data-max-width="108">
+<tspan x="288" dy="0">Quer</tspan>
+<tspan x="288" dy="30">sair?</tspan>
+</text>
+<path d="M358 605H565" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="450" y="585" text-anchor="middle" font-size="20" fill="#F3E7C6" data-max-width="90">
+<tspan x="450" dy="0">Não</tspan>
+</text>
+<rect x="565" y="561" width="165" height="88" rx="9" fill="#F3E7C6" stroke="#1F7A4D" stroke-width="4"/>
+<text x="647.5" y="595" text-anchor="middle" font-size="20" fill="#17130f" data-max-width="143">
+<tspan x="647.5" dy="0">Continuar</tspan>
+<tspan x="647.5" dy="30">no projeto</tspan>
+</text>
+<path d="M288 675V740" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="325" y="713" text-anchor="middle" font-size="20" fill="#F3E7C6" data-max-width="80">
+<tspan x="325" dy="0">Sim</tspan>
+</text>
+<rect x="65" y="740" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="287.5" y="774" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Parar escritores e revisar</tspan>
+<tspan x="287.5" dy="30">Prévia privada do estado atual</tspan>
+</text>
+<path d="M288 824V870" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="65" y="870" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#E8A317" stroke-width="4"/>
+<text x="287.5" y="904" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Confirmar a saída</tspan>
+<tspan x="287.5" dy="30">Aprovação ligada à prévia atual</tspan>
+</text>
+<path d="M288 954V1000" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="65" y="1000" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="287.5" y="1034" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Copiar e verificar</tspan>
+<tspan x="287.5" dy="30">Trabalho do teste + ponto inicial</tspan>
+</text>
+<path d="M288 1084V1130" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="65" y="1130" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#5B2E8A" stroke-width="4"/>
+<text x="287.5" y="1164" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Restaurar pelo executor externo</tspan>
+<tspan x="287.5" dy="30">Permissões e troca das pastas</tspan>
+</text>
+<path d="M288 1214V1350" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="65" y="1350" width="445" height="84" rx="9" fill="#F3E7C6" stroke="#1F7A4D" stroke-width="4"/>
+<text x="287.5" y="1384" text-anchor="middle" font-size="23" fill="#17130f" data-max-width="423">
+<tspan x="287.5" dy="0">Conferir o estado original</tspan>
+<tspan x="287.5" dy="30">Manter as cópias do teste</tspan>
+</text>
+<path d="M288 1434V1500" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M510 1172H565" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="565" y="1125" width="165" height="132" rx="9" fill="#F3E7C6" stroke="#B3202F" stroke-width="4"/>
+<text x="647.5" y="1159" text-anchor="middle" font-size="17" fill="#17130f" data-max-width="143">
+<tspan x="647.5" dy="0">Interrupção</tspan>
+<tspan x="647.5" dy="30">Consultar estado</tspan>
+<tspan x="647.5" dy="30">Confirmar retorno</tspan>
+</text>
+<path d="M648 1257V1392H510" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<circle cx="288" cy="1514" r="14" fill="#1F7A4D" stroke="#F3E7C6" stroke-width="5"/>
+<text x="35" y="1582" text-anchor="start" font-size="19" fill="#d6c8a8" data-max-width="695">
+<tspan x="35" dy="0">Arquivos locais e Git independente. Efeitos externos ficam fora.</tspan>
+</text>
+<text x="35" y="1622" text-anchor="start" font-size="19" fill="#d6c8a8" data-max-width="695">
+<tspan x="35" dy="0">Se algo não puder ser verificado, preservar e registrar pendência.</tspan>
+</text>
+<text x="35" y="1662" text-anchor="start" font-size="19" fill="#d6c8a8" data-max-width="695">
+<tspan x="35" dy="0">Sem ponto anterior, não há retorno retroativo garantido.</tspan>
+</text>
+</svg>

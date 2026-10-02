@@ -32,6 +32,7 @@ FILES += ('scripts/source_prompt.py', 'skills/ingest-source/SKILL.md',
           '.claude/skills/ingest-source/SKILL.md', '.agents/skills/ingest-source/SKILL.md')
 FILES += ('scripts/capabilities.py', 'skills/govern-capabilities/SKILL.md',
           '.claude/skills/govern-capabilities/SKILL.md', '.agents/skills/govern-capabilities/SKILL.md')
+FILES += ('scripts/adoption.py', 'scripts/adoption_fs.py', 'scripts/adoption_acl.ps1')
 
 
 def shell_path(path):
@@ -42,6 +43,11 @@ def shell_path(path):
 def write(path, content):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding='utf-8', newline='\n')
+
+
+def snapshot_bytes(root):
+    return {p.relative_to(root).as_posix(): p.read_bytes() if p.is_file() else None
+            for p in root.rglob('*')}
 
 
 def fake_git(args):
@@ -57,6 +63,122 @@ def fake_git(args):
 
 
 class SetupTests(unittest.TestCase):
+    def adoption_status(self):
+        result = subprocess.run([sys.executable, '-B', str(self.source / 'scripts/adoption.py'),
+                                 '--root', str(self.target), '--backup-root', str(self.base / 'backups'),
+                                 'status', '--json'], capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return json.loads(result.stdout)
+
+    def test_trial_is_project_only_and_reuses_first_baseline(self):
+        for client in ('claude', 'codex', 'both'):
+            with self.subTest(client=client):
+                self.target = self.base / ('trial-' + client)
+                self.target.mkdir()
+                write(self.target / 'user.txt', 'before')
+                before_home = snapshot_bytes(self.home)
+                args = ('--trial', '--backup-root', shell_path(self.base / 'backups'), '--client', client)
+                first = self.run_setup(*args)
+                self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+                initial = self.adoption_status()
+                self.assertEqual(initial['state'], 'installed')
+                write(self.target / 'user.txt', 'trial work')
+                repeated = self.run_setup(*args, '--force')
+                self.assertEqual(repeated.returncode, 0, repeated.stdout + repeated.stderr)
+                self.assertEqual(self.adoption_status()['baseline_digest'], initial['baseline_digest'])
+                self.assertEqual(snapshot_bytes(self.home), before_home)
+                calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
+                self.assertFalse(any(call[0] == 'claude' or 'clone' in call[1:] for call in calls))
+
+    def test_trial_missing_target_has_absent_baseline(self):
+        self.target.rmdir()
+        result = self.run_setup('--trial', '--backup-root', shell_path(self.base / 'backups'))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse(self.adoption_status()['root_exists'])
+
+    def test_trial_internal_flag_cannot_be_forged(self):
+        before = snapshot_bytes(self.target)
+        result = self.run_setup('--trial-child', env={'YOUNGCROW_ADOPTION_TOKEN': 'forged',
+                                                     'YOUNGCROW_ADOPTION_BASE': str(self.base / 'backups')})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(snapshot_bytes(self.target), before)
+
+    def test_trial_refuses_unsupported_source_before_writes(self):
+        write(self.target / 'original', 'keep')
+        os.link(self.target / 'original', self.target / 'alias')
+        before = snapshot_bytes(self.target)
+        result = self.run_setup('--trial', '--backup-root', shell_path(self.base / 'backups'))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(snapshot_bytes(self.target), before)
+
+    def test_trial_partial_failure_retains_baseline_and_repeats(self):
+        write(self.target / 'original', 'keep')
+        installer = self.source / 'setup.sh'
+        original = installer.read_text(encoding='utf-8')
+        marker = '  local rel="$1" src="$HARNESS_DIR/$1" dst="$TARGET/$1"\n'
+        self.assertEqual(original.count(marker), 1)
+        # Fail inside this disposable installer; Git Bash launchers can reorder PATH.
+        write(installer, original.replace(marker, marker + '  [ "$rel" != AGENTS.md ] || exit 19\n'))
+        args = ('--trial', '--backup-root', shell_path(self.base / 'backups'))
+        failed = self.run_setup(*args)
+        self.assertEqual(failed.returncode, 19, failed.stdout + failed.stderr)
+        initial = self.adoption_status()
+        self.assertEqual(initial['state'], 'install_failed')
+        self.assertTrue((self.target / 'CLAUDE.md').exists())
+        write(installer, original)
+        result = self.run_setup(*args)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.adoption_status()['baseline_digest'], initial['baseline_digest'])
+
+    def test_trial_git_configuration_cannot_write_before_refusal(self):
+        self.git('init', '-q', str(self.target))
+        write(self.target / 'tracked', 'keep')
+        self.git('-C', str(self.target), 'add', 'tracked')
+        os.link(self.target / 'tracked', self.target / 'alias')
+        command = 'echo UNEXPECTED > marker.txt; echo UNEXPECTED > "$HOME/marker.txt"'
+        self.git('-C', str(self.target), 'config', 'core.fsmonitor', command)
+        before, profile = snapshot_bytes(self.target), snapshot_bytes(self.home)
+        result = self.run_setup('--trial', '--backup-root', shell_path(self.base / 'backups'),
+                                env={'GIT_CONFIG_COUNT': '1', 'GIT_CONFIG_KEY_0': 'core.fsmonitor',
+                                     'GIT_CONFIG_VALUE_0': command})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(snapshot_bytes(self.target), before)
+        self.assertEqual(snapshot_bytes(self.home), profile)
+        self.assertFalse((self.base / 'backups').exists())
+
+    def test_trial_git_configuration_is_disabled_in_installer_child(self):
+        self.git('init', '-q', str(self.target))
+        write(self.target / 'tracked', 'keep')
+        self.git('-C', str(self.target), 'add', 'tracked')
+        command = 'echo UNEXPECTED > marker.txt; echo UNEXPECTED > "$HOME/marker.txt"'
+        self.git('-C', str(self.target), 'config', 'core.fsmonitor', command)
+        profile = snapshot_bytes(self.home)
+        result = self.run_setup('--trial', '--backup-root', shell_path(self.base / 'backups'))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse((self.target / 'marker.txt').exists())
+        self.assertEqual(snapshot_bytes(self.home), profile)
+        self.assertEqual(self.adoption_status()['state'], 'installed')
+
+    def test_trial_refuses_legacy_without_prior_baseline(self):
+        for name in ('skills-lock.json', 'scripts/vault.py', 'skills/personalizer/SKILL.md'):
+            write(self.target / name, 'existing')
+        before = snapshot_bytes(self.target)
+        result = self.run_setup('--trial', '--backup-root', shell_path(self.base / 'backups'))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(snapshot_bytes(self.target), before)
+
+    @unittest.skipUnless(os.name == 'nt', 'native PowerShell path limit')
+    def test_trial_deep_backup_is_refused_before_first_write(self):
+        parent = self.base / ('long-' + 'x' * 70)
+        parent.mkdir()
+        write(self.target / 'original', 'keep')
+        before = snapshot_bytes(self.target)
+        result = self.run_setup('--trial', '--backup-root', shell_path(parent / 'backups'))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('unsupported_path_length', result.stderr)
+        self.assertEqual(snapshot_bytes(self.target), before)
+        self.assertFalse((parent / 'backups').exists())
+
     def test_governance_preserves_local_contracts_even_with_force(self):
         preserved = ('.mcp.json', '.codex/config.toml', '.claude/settings.json',
                      '.codex/hooks.json', 'skills-lock.json', 'skills/personalizer/SKILL.md',
@@ -122,16 +244,21 @@ class SetupTests(unittest.TestCase):
         self.real_git = shutil.which('git')
         if not Path(self.bash).is_file() or not self.real_git:
             self.fail('Tests require Bash (Git Bash on Windows) and Git.')
-        runtime = ROOT / '.runtime'
-        runtime.mkdir(exist_ok=True)
-        self.temp = tempfile.TemporaryDirectory(prefix='setup-test-', dir=runtime)
+        self.temp = tempfile.TemporaryDirectory(prefix='yc-')
         self.addCleanup(self.temp.cleanup)
-        self.base = Path(self.temp.name)
+        self.base = Path(self.temp.name).resolve()
+        boundary = subprocess.run([self.real_git, '-C', str(self.base), 'rev-parse', '--absolute-git-dir'],
+                                  capture_output=True)
+        self.assertNotEqual(boundary.returncode, 0, 'fixture must be outside Git')
         self.source, self.target = self.base / 'source', self.base / 'project with spaces'
         self.home, self.bin = self.base / 'home', self.base / 'bin'
         self.calls, self.upstream = self.base / 'calls.jsonl', self.base / 'upstream'
+        self.calls.touch()  # No intercepted calls is a valid result for project-only trial.
         for folder in (self.source, self.target, self.home, self.bin, self.upstream):
             folder.mkdir()
+        if os.name == 'nt':
+            (self.home / 'AppData/Roaming').mkdir(parents=True)
+            (self.home / 'AppData/Local').mkdir()
         for rel in FILES:
             dest = self.source / rel
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -140,7 +267,7 @@ class SetupTests(unittest.TestCase):
         self.child_env = {key: value for key, value in os.environ.items()
                           if key.upper() in ('SYSTEMROOT', 'WINDIR', 'COMSPEC', 'TEMP', 'TMP', 'PATHEXT')}
         self.child_env.update(
-            HOME=shell_path(self.home), TEST_BIN=shell_path(self.bin),
+            HOME=shell_path(self.home), USERPROFILE=str(self.home), TEST_BIN=shell_path(self.bin), TEST_GIT_BIN=shell_path(Path(self.real_git).parent),
             TEST_PYTHON=sys.executable.replace('\\', '/'), TEST_RUNNER=str(Path(__file__).resolve()).replace('\\', '/'),
             TEST_REAL_GIT=self.real_git, TEST_UPSTREAM=str(self.upstream), TEST_CALLS=str(self.calls),
             GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0',
@@ -173,9 +300,10 @@ class SetupTests(unittest.TestCase):
         child = self.child_env.copy()
         child.update(env or {})
         return subprocess.run(
-            [self.bash, '-c', 'export PATH="$TEST_BIN:/usr/bin:/bin"; exec /usr/bin/bash "$@"',
+            [self.bash, '-c', 'export PATH="$TEST_BIN:$TEST_GIT_BIN:/usr/bin:/bin"; exec /usr/bin/bash "$@"',
              'test-setup', shell_path(self.source / 'setup.sh'), shell_path(self.target), *args],
-            cwd=self.source, env=child, capture_output=True, encoding='utf-8', errors='replace', timeout=45)
+            cwd=self.source, env=child, capture_output=True, encoding='utf-8', errors='replace',
+            stdin=subprocess.DEVNULL, timeout=180 if any('trial' in a for a in args) else 45)
 
     def assert_no_project_writes(self, result):
         self.assertNotEqual(result.returncode, 0, result.stdout)

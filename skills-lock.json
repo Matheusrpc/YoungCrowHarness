@@ -272,7 +272,10 @@
           "skills/personalizer/references/interview.md",
           "scripts/integrations.py",
           "scripts/document_store.py",
-          "scripts/vault.py"
+          "scripts/vault.py",
+          "scripts/adoption.py",
+          "scripts/adoption_fs.py",
+          "scripts/adoption_acl.ps1"
         ],
         "claude": [
           ".claude/skills/personalizer/SKILL.md"
@@ -288,7 +291,8 @@
         "credential_env": [],
         "write": [
           "authorized project files",
-          "vault/local"
+          "vault/local",
+          "operator-selected private recovery storage outside Git"
         ],
         "read": [
           "project instructions",
@@ -297,10 +301,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "b2f7f54e0cedb85286e2387669032ae88feecdb3ad5cca91a0a468fa71b12e0b",
+        "contract_sha256": "706792f5bdf2c47a61e53f6c0f45bb141015b75e2128d713031d78ce7fd3cbd7",
         "files_sha256": {
-          "claude": "5afd0fa8b00ec596a06e4523e9bc428d1eed21a0ed03c4127d9136f017c7c5b0",
-          "codex": "cd975bf7d7775151f58918ac4ffef785684ce4bd03ef09ae502521564c445d9e"
+          "claude": "5b0b9aa83d2c4593d98bf0e6e62563d69094457683e95270043e8b188ee38b9b",
+          "codex": "809b064f4497e7015cf0c6f1f7f65c0d968794a8ec976a3d446cd244d87c1cf5"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"

@@ -15,7 +15,19 @@ Read project instructions and `vault/index.md`. If onboarding exists, read `vaul
 
 When discovery uses documents, attachments or URLs, use `ingest-source`. Read `vault/local/index.md` when present and the linked source receipts. Save source IDs/revisions, evidence, pending IDs/reasons, actual capabilities and next action in a local execution note; link it from the local index. Keep shared product notes free of private links and unreviewed source text.
 
-For first use, determine `new` or `existing` from the request and codebase; ask if ambiguous. From the project root:
+Before the first project write (including onboarding notes), establish the adoption mode. If the owner requests a reversible trial, stop project writers and run setup from a separate harness checkout:
+
+```bash
+bash /path/YoungCrowHarness/setup.sh /path/project --trial --client both --backup-root /path/private-backups
+```
+
+Use the selected client and a private backup base on the same volume, outside every Git repository. The destination's parent must exist. Trial installs bundled project files only, skipping global profiles, plugins and third-party skill downloads. Check the returned state before writing notes; a failed capture blocks adoption. If the choice is unknown, ask whether to use trial before writing. Normal setup has no initial restore point.
+
+If adoption already exists, inspect `python3 scripts/adoption.py --root /path/project --backup-root /path/private-backups status --json`. Reuse its baseline and retain the returned external runner privately. `missing_baseline` in an old installation means the pre-adoption state is unavailable; a new copy cannot establish that past state. Follow the current authorization for further changes without promising retroactive restoration.
+
+Record only adoption ID, date, state and next action in the adoption note. Backups, private paths and copied content stay outside the vault and its indexes. For exit, use the external runner's `restore --dry-run --json`, review the current proposal and obtain confirmation for that proposal before issuing `restore --confirm DIGEST --json`. A recovered approval is historical evidence; a changed project needs a new preview. See [the operating guide](https://github.com/Matheusrpc/YoungCrowHarness/blob/main/docs/USAGE.md#reversible-adoption-en) for recovery after interruption; setup does not copy that guide into consumer projects.
+
+After resolving adoption mode, determine `new` or `existing` from the request and codebase; ask if ambiguous. From the project root:
 
 ```bash
 python3 scripts/personalize.py init --mode existing --run initial-discovery

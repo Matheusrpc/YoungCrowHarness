@@ -70,12 +70,21 @@ instalada não comprova autorização nem uso; cada execução deve registrar as
 
 ```bash
 git clone https://github.com/Matheusrpc/YoungCrowHarness.git
-bash YoungCrowHarness/setup.sh meu-projeto --client both --nome "Meu Projeto"
+bash YoungCrowHarness/setup.sh meu-projeto --trial --client both --nome "Meu Projeto"
 ```
 
 **Passo a passo:** [repo do zero](docs/USAGE.md#zero-pt) · [migrar repo existente](docs/USAGE.md#migrar-pt) · [como operar](docs/USAGE.md#operar-pt).
 
 Requer Bash, Git e `python3` funcionando no mesmo terminal. No Windows, use Git Bash.
+Para experimentar, use `--trial`: ele guarda um ponto privado antes da primeira escrita,
+fora de qualquer repo Git, no mesmo volume. Instala arquivos e skills próprios do projeto e pula
+plugins e downloads de skills. O ponto original permanece nas próximas execuções. Veja
+[como consultar, sair e recuperar uma interrupção](docs/USAGE.md#adocao-reversivel-pt).
+As consultas Git do trial desativam monitores externos desde a primeira verificação. No Linux,
+o retorno preserva também os grupos dos arquivos, dentro do perfil de permissões aceito.
+No Windows, o perfil exige o usuário atual como dono e permissões herdadas da pasta pai.
+
+Sem `--trial`, a instalação normal não cria ponto de retorno e segue o comportamento abaixo.
 O `setup.sh` copia o harness preservando os arquivos existentes e acrescenta proteção ao `.gitignore`.
 Cria um `.env` local a partir do `.env.example`, com permissão 600 onde suportada, para você preencher à mão.
 Instala a skill `humanizer` do upstream (commit pinado) e a `humanizer-ptbr`: em `~/.claude/skills/` para Claude
@@ -203,9 +212,24 @@ explicitamente quando o cliente não entregar a referência ao hook. O [contrato
 define esse comportamento. Material local não acompanha clones e precisará de backup privado para
 uso entre máquinas. Graphify aponta de volta às notas e revisões; claude-mem continua planejado.
 
+### 7. Experimentar e voltar
+
+![Adoção reversível: validar, guardar o ponto inicial, experimentar e decidir continuar ou revisar a saída. A confirmação vem antes das cópias verificadas e da restauração. Interrupções têm recuperação externa.](assets/process-adoption-pt.svg)
+
+[Comandos, limites e recuperação](docs/USAGE.md#adocao-reversivel-pt) · [Abrir diagrama](assets/process-adoption-pt.svg)
+
 <a id="evolucao-pt"></a>
 
-## <img src="assets/gema-ambar.svg" height="24" alt=""> Próximas entregas
+## <img src="assets/gema-ambar.svg" height="24" alt=""> Entregas e próximos passos
+
+A [adoção reversível](docs/USAGE.md#adocao-reversivel-pt) salva o projeto antes do primeiro setup
+com `--trial`. Para sair, revise a prévia e confirme o retorno pelo executor externo. O controlador
+verifica as cópias antes da troca e guarda o trabalho do teste em uma área privada.
+Repetir o setup mantém o ponto inicial; uma troca interrompida pode ser retomada pelo mesmo executor.
+O trial instala arquivos do projeto, sem alterar o perfil global dos clientes. Serviços e publicações
+externas exigem tratamento separado. Instalações antigas sem ponto inicial não têm retorno retroativo.
+O [relatório de validação](docs/relatorios/2026-10-02-reversible-adoption.md) registra ambientes,
+revisão e limites; o [plano executado](docs/superpowers/plans/2026-10-02-reversible-adoption.md) preserva as decisões.
 
 O desenho do Docling foi aprovado. O [plano de execução](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
 registra quatro entregas e sua cobertura:
@@ -342,12 +366,22 @@ does not prove authorization or use; each run should record the capabilities act
 
 ```bash
 git clone https://github.com/Matheusrpc/YoungCrowHarness.git
-bash YoungCrowHarness/setup.sh my-project --client both --name "My Project"
+bash YoungCrowHarness/setup.sh my-project --trial --client both --name "My Project"
 ```
 
 **Step by step:** [new repository](docs/USAGE.md#new-en) · [adopt an existing repo](docs/USAGE.md#migrate-en) · [daily operation](docs/USAGE.md#operate-en).
 
 Requires Bash, Git and a working `python3` in the same terminal. On Windows, use Git Bash.
+For a first try, use `--trial`: it saves a private baseline before the first write, outside every
+Git repository and on the same volume. It installs bundled project files and skills, skipping
+plugins and skill downloads. Repeated setup preserves the original baseline. See
+[status, exit and interruption recovery](docs/USAGE.md#reversible-adoption-en).
+
+Trial Git queries disable external filesystem monitors from the first check. On Linux, restoration
+also preserves file groups within the supported permission profile.
+Windows requires the current user as owner and permissions inherited from the parent folder.
+
+Without `--trial`, normal installation creates no restore point and behaves as described below.
 `setup.sh` preserves existing project files and appends protection to `.gitignore`.
 It creates a local `.env` from `.env.example`, with permission 600 where supported, for you to fill in
 by hand. It installs the `humanizer` skill from upstream (pinned commit) and `humanizer-ptbr` into
@@ -476,9 +510,24 @@ pending; invoke the skill explicitly when the client does not pass a reference t
 defines that behavior. Local material does not travel with clones and needs a private backup for use
 across machines. Graphify points back to source notes and revisions; claude-mem remains planned.
 
+### 7. Try and return
+
+![Reversible adoption: validate, save the baseline, try the harness, then continue or review the exit. Confirmation precedes verified copies and restoration. Interruptions recover through an external runner.](assets/process-adoption-en.svg)
+
+[Commands, limits and recovery](docs/USAGE.md#reversible-adoption-en) · [Open diagram](assets/process-adoption-en.svg)
+
 <a id="roadmap-en"></a>
 
-## <img src="assets/gema-ambar.svg" height="24" alt=""> Next deliveries
+## <img src="assets/gema-ambar.svg" height="24" alt=""> Deliveries and next steps
+
+[Reversible adoption](docs/USAGE.md#reversible-adoption-en) saves the project before the first
+setup with `--trial`. To leave, review the preview and confirm restoration through the external runner.
+The controller verifies both copies before exchanging directories and keeps trial work in private storage.
+Repeated setup retains the baseline; the same runner can resume an interrupted exchange.
+Trial installs project files without changing global client profiles. External services and publications
+require separate handling. Existing installations without a baseline cannot be restored retroactively.
+The [validation report](docs/relatorios/2026-10-02-reversible-adoption.md) records environments,
+review and limits; the [implementation plan](docs/superpowers/plans/2026-10-02-reversible-adoption.md) preserves the decisions.
 
 The Docling design is approved. The [implementation plan](docs/superpowers/plans/2026-10-02-docling-ingestion.md)
 records four deliveries and their coverage:
@@ -586,8 +635,9 @@ bash -n setup.sh
 | Ambiente / Environment | Evidência / Evidence |
 |---|---|
 | Windows + Git Bash + Python 3.14 | Suíte local; casos de symlink exigem privilégio e rodam no CI Linux / local suite; symlink cases require privileges and run in Linux CI. |
+| Windows + Git Bash + Python 3.11 | CI de adoção: ACLs nativas, instalação trial e retorno por executor externo / adoption CI: native ACLs, trial setup and external-runner restoration. [Provas / evidence](docs/relatorios/2026-10-02-reversible-adoption.md). |
 | Linux | Suíte automática a cada push/PR, incluindo symlinks / automated suite on every push/PR, including symlinks — [execuções / runs](https://github.com/Matheusrpc/YoungCrowHarness/actions). |
-| macOS / PowerShell nativo | Não verificados / not verified. Use Bash. |
+| macOS / setup sem Bash | Não verificados / not verified. O setup exige Bash; o helper Windows usa PowerShell 5.1 / setup requires Bash; the Windows helper uses PowerShell 5.1. |
 
 Os testes cobrem instalação, preservação, caminhos, índices e retomada. Casos de symlink rodam no Linux;
 o teste de junction nativa é exclusivo de Windows. A suíte usa Git local, usuário temporário e chamadas

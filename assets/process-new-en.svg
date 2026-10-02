@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 330" width="1200" height="330" role="img" aria-labelledby="title desc" font-family="Georgia, 'Times New Roman', serif">
-<title id="title">01 · Start a new project</title><desc id="desc">Clone / the harness → Run setup / --client both → Check guides, / skills and MCPs → Open the client / and personalizer → Save the profile / and first feature</desc>
+<title id="title">01 · Start a new project</title><desc id="desc">Clone / the harness → Run setup / --trial → Check guides, / skills and MCPs → Open the client / and personalizer → Save the profile / and first feature</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#F3E7C6"/></marker></defs>
 <rect width="1200" height="330" fill="#17130f"/>
 <rect x="12" y="12" width="1176" height="306" rx="10" fill="none" stroke="#725a35" stroke-width="2"/>
@@ -29,7 +29,7 @@
 <rect x="318" y="137" width="166" height="88" rx="9" fill="#F3E7C6" stroke="#E8A317" stroke-width="5"/>
 <text x="401.0" y="175.0" text-anchor="middle" font-size="18" fill="#17130f" data-max-width="144">
 <tspan x="401.0" dy="0">Run setup</tspan>
-<tspan x="401.0" dy="24">--client both</tspan>
+<tspan x="401.0" dy="24">--trial</tspan>
 </text>
 <rect x="518" y="137" width="166" height="88" rx="9" fill="#F3E7C6" stroke="#5B2E8A" stroke-width="5"/>
 <text x="601.0" y="175.0" text-anchor="middle" font-size="18" fill="#17130f" data-max-width="144">

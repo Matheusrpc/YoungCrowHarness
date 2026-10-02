@@ -12,6 +12,7 @@ set -euo pipefail
 
 HARNESS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET="${1:-}"; NOME=""; FORCE=0; PLUGINS=1; CLIENT=both
+TRIAL=0; TRIAL_CHILD=0; BACKUP_ROOT=""
 shift || true
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -21,6 +22,13 @@ while [ $# -gt 0 ]; do
       fi
       NOME="$2"; shift 2 ;;
     --force) FORCE=1; shift ;;
+    --trial) TRIAL=1; shift ;;
+    --trial-child) TRIAL=1; TRIAL_CHILD=1; shift ;;
+    --backup-root)
+      if [ $# -lt 2 ] || [ -z "$2" ] || [[ "$2" == --* ]]; then
+        echo 'uso / usage: --backup-root exige caminho / requires a path' >&2; exit 2
+      fi
+      BACKUP_ROOT="$2"; shift 2 ;;
     --client)
       if [ $# -lt 2 ] || [[ "$2" != claude && "$2" != codex && "$2" != both ]]; then
         echo 'uso / usage: --client claude|codex|both' >&2; exit 2
@@ -34,6 +42,8 @@ if [ -z "$TARGET" ]; then
   echo 'uso: bash setup.sh <pasta> [--client claude|codex|both] [--nome "Nome"] [--force] [--sem-plugins]'; exit 2
 fi
 falhar() { printf '%s\n' "$1" >&2; exit 1; }
+[ -z "$BACKUP_ROOT" ] || [ "$TRIAL" = 1 ] || falhar '--backup-root exige / requires --trial'
+REQUESTED_TARGET="$TARGET"
 FILES=(CLAUDE.md AGENTS.md .env.example skills-lock.json docs/CLAUDE.en.md)
 FILES+=(scripts/integrations.py skills/integrate-from-docs/SKILL.md
   skills/integrate-from-docs/references/memory.md
@@ -46,6 +56,7 @@ FILES+=(requirements/docling-media.txt)
 FILES+=(scripts/source_prompt.py skills/ingest-source/SKILL.md)
 FILES+=(scripts/memory.py scripts/graphify_worker.py requirements/graphify.txt skills/retrieve-memory/SKILL.md)
 FILES+=(scripts/capabilities.py skills/govern-capabilities/SKILL.md)
+FILES+=(scripts/adoption.py scripts/adoption_fs.py scripts/adoption_acl.ps1)
 SKILL_ROOTS=()
 if [ "$CLIENT" != codex ]; then
   FILES+=(.mcp.json .claude/settings.json .claude/agents/integration-specialist.md
@@ -57,12 +68,32 @@ if [ "$CLIENT" != claude ]; then
     .agents/skills/integrate-from-docs/SKILL.md .agents/skills/personalizer/SKILL.md .agents/skills/ingest-source/SKILL.md .agents/skills/retrieve-memory/SKILL.md .agents/skills/govern-capabilities/SKILL.md)
   SKILL_ROOTS+=("$TARGET/.agents/skills")
 fi
+if [ "$TRIAL" = 1 ]; then SKILL_ROOTS=(); PLUGINS=0; fi
 for ferramenta in python3 git mkdir cp chmod mv mktemp; do
   command -v "$ferramenta" >/dev/null 2>&1 || falhar "dependência ausente / missing dependency: $ferramenta"
 done
 python3 -c 'import json, pathlib, sys' || falhar 'python3 indisponível / unavailable'
+if [ "$TRIAL" = 1 ]; then
+  # All trial probes, including the public preflight and child, use the same safe Git reader.
+  git() {
+    python3 -B - "$HARNESS_DIR/scripts" "$@" <<'PY'
+import pathlib, sys
+sys.path.insert(0, sys.argv[1])
+from adoption_fs import git_read
+result = git_read(pathlib.Path.cwd(), *sys.argv[2:])
+sys.stdout.buffer.write(result.stdout)
+sys.stderr.buffer.write(result.stderr)
+sys.exit(result.returncode)
+PY
+  }
+fi
+if [ "$TRIAL_CHILD" = 1 ]; then
+  IFS= read -r SIGNAL || exit 2
+  [ "$SIGNAL" = ready ] && [ -n "${YOUNGCROW_ADOPTION_TOKEN:-}" ] && [ -n "${YOUNGCROW_ADOPTION_BASE:-}" ] || exit 2
+  python3 -B "$HARNESS_DIR/scripts/adoption.py" --root "$TARGET" --backup-root "$YOUNGCROW_ADOPTION_BASE" verify-child --json
+fi
 # Preflight is read-only. Resolve the requested root, then reject links inside it.
-python3 - "$TARGET" "$HARNESS_DIR" "$HOME" "$CLIENT" "${FILES[@]}" <<'PY'
+python3 - "$TARGET" "$HARNESS_DIR" "$HOME" "$CLIENT" "$TRIAL" "${FILES[@]}" <<'PY'
 import json, pathlib, re, stat, sys
 
 def check_path(root, relative):
@@ -87,13 +118,13 @@ try:
         raise ValueError('destino inválido / invalid destination')
     if target.exists() and not target.is_dir():
         raise ValueError('destino não é diretório / destination is not a directory')
-    files = [*sys.argv[5:], '.gitignore']
+    files = [*sys.argv[6:], '.gitignore']
     for name in files:
         if not (source / name).is_file():
             raise ValueError('fonte ausente / missing source: ' + name)
         check_path(target, name)
     check_path(target, '.env')
-    roots = ([(user, '.claude/skills')] if client != 'codex' else []) + ([(target, '.agents/skills')] if client != 'claude' else [])
+    roots = [] if sys.argv[5] == '1' else (([(user, '.claude/skills')] if client != 'codex' else []) + ([(target, '.agents/skills')] if client != 'claude' else []))
     for root, relative in roots:
         for name in ('humanizer', 'humanizer-ptbr'):
             check_path(root, relative + '/' + name + '/SKILL.md')
@@ -160,6 +191,19 @@ for SK in "${SKILL_ROOTS[@]}"; do
     verificar_skill "$SK/humanizer" || falhar "humanizer divergente ou modificado / mismatched or dirty: $SK/humanizer; preservado / preserved"
   fi
 done
+if [ "$TRIAL" = 1 ] && [ "$TRIAL_CHILD" = 0 ]; then
+  ARGS=(--root "$REQUESTED_TARGET")
+  [ -z "$BACKUP_ROOT" ] || ARGS+=(--backup-root "$BACKUP_ROOT")
+  ARGS+=(install --source "$HARNESS_DIR" --client "$CLIENT")
+  [ -z "$NOME" ] || ARGS+=(--name "$NOME")
+  [ "$FORCE" = 0 ] || ARGS+=(--force)
+  exec python3 -B "$HARNESS_DIR/scripts/adoption.py" "${ARGS[@]}"
+fi
+if [ "$TRIAL" = 1 ]; then
+  echo '== teste local / local trial: sem plugins, downloads ou escrita no perfil global / no plugins, downloads or global profile writes'
+else
+  echo '== instalação normal: sem ponto de retorno inicial / normal installation: no initial restore point'
+fi
 mkdir -p "$TARGET"; TARGET="$(cd "$TARGET" && pwd -P)"
 [ -n "$NOME" ] || NOME="$(basename "$TARGET")"
 

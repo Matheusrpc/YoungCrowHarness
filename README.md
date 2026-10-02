@@ -76,69 +76,31 @@ para começar do zero, migrar ou retomar uma entrevista.
 
 ## <img src="assets/gema-violeta.svg" height="24" alt=""> Da ideia à entrega
 
-O fluxo abaixo usa eventos, tarefas, decisões e responsáveis, inspirado em BPMN. Ele descreve o
-rito assistido por pessoas e agentes. PM e Tech Lead são responsabilidades que podem ser assumidas
-em sessões diferentes; o harness ainda não executa uma equipe autônoma nem publica sozinho.
+Os fluxos abaixo mostram como começar, migrar e trabalhar com o harness. Círculos marcam eventos,
+caixas representam tarefas e losangos indicam decisões. O desenho é inspirado em BPMN; pessoas e
+agentes executam as etapas. PM e Tech Lead são responsabilidades, sem orquestração autônoma.
 
-O caminho principal é: descoberta → planejamento → implementação → revisão → publicação autorizada.
-Abra o diagrama para ver responsáveis, decisões e caminhos de retomada.
+### 1. Começar do zero
 
-<details>
-<summary>Ver o processo completo</summary>
+![Projeto novo: clonar o harness, rodar setup, conferir guias, skills e MCPs, abrir personalizer e salvar perfil e primeira feature.](assets/process-new-pt.svg)
 
-```mermaid
-flowchart TB
-  subgraph descoberta["Personalizer e operador"]
-    A((Ideia)) --> B{Projeto existente?}
-    B -->|Sim| C[Auditar código e convenções]
-    B -->|Não| D[Entrevistar e salvar respostas]
-    C --> D
-    D --> E{Contexto suficiente?}
-    E -->|Não| P[Salvar pendências e próxima pergunta]
-    P --> Z((Retomar depois))
-  end
-  subgraph planejamento["PM e Tech Lead"]
-    E -->|Sim| F[Adaptar perfil e guias]
-    F --> G[Definir feature, entregas e aceite]
-  end
-  subgraph execucao["Executor e especialista em integrações"]
-    G --> H[Implementar entrega e testar]
-    H --> J[Atualizar README e vault]
-  end
-  subgraph verificacao["Revisor e responsável pela publicação"]
-    J --> K{Revisão aprovada?}
-    K -->|Não| H
-    K -->|Sim| L{Publicar no escopo autorizado?}
-    L -->|Sim| M[Publicar e observar]
-    M --> N{Ambiente verificado?}
-    N -->|Não| R[Recuperar ou reverter e registrar]
-    R --> H
-    N -->|Sim| V[Registrar versão e evidência de produção]
-    L -->|Não| W[Registrar entrega e publicação pendente ou não aplicável]
-  end
-  V --> X[Salvar resultado e próximo passo no vault]
-  W --> X
-  X --> Y((Entrega registrada))
-  classDef event fill:#1F7A4D,color:#fff,stroke:#17130f,stroke-width:3px;
-  classDef task fill:#1F4FA3,color:#fff,stroke:#17130f,stroke-width:2px;
-  classDef gate fill:#f6d77a,color:#17130f,stroke:#17130f,stroke-width:2px;
-  classDef memory fill:#5B2E8A,color:#fff,stroke:#17130f,stroke-width:2px;
-  class A,Z,Y event;
-  class C,D,F,G,H,J,M,R,V,W task;
-  class B,E,K,L,N gate;
-  class P,X memory;
-  style descoberta fill:#f8f4eb,stroke:#17130f,color:#17130f
-  style planejamento fill:#f8f4eb,stroke:#17130f,color:#17130f
-  style execucao fill:#f8f4eb,stroke:#17130f,color:#17130f
-  style verificacao fill:#f8f4eb,stroke:#17130f,color:#17130f
-```
+[Passo a passo e comandos](docs/USAGE.md#zero-pt) · [Abrir diagrama](assets/process-new-pt.svg)
 
-</details>
+### 2. Migrar um projeto existente
 
-Em cada entrega, o README acompanha o comportamento implementado e passa pela revisão de texto
-com `humanizer`. O vault guarda fontes, decisões, capacidades usadas, testes e o próximo passo.
-Produção só muda de estado quando houver evidência do ambiente. Se faltar autorização, registre
-a pendência e encerre a sessão; a próxima retoma pelos índices.
+![Migração: salvar trabalho e abrir branch, auditar código e harness, executar setup sem force, usar personalizer em modo existing e validar uma entrega.](assets/process-migrate-pt.svg)
+
+[Passo a passo da adoção](docs/USAGE.md#migrar-pt) · [Abrir diagrama](assets/process-migrate-pt.svg)
+
+### 3. Operar até a entrega
+
+![Operação: recuperar o vault, definir e implementar uma entrega, testar e atualizar README, revisar, publicar somente quando autorizado, verificar o ambiente e salvar o resultado; falhas retornam à correção.](assets/process-delivery-pt.svg)
+
+[Como operar](docs/USAGE.md#operar-pt) · [Abrir diagrama](assets/process-delivery-pt.svg) · [Fluxo completo com pausas e retomada](docs/PROCESS.md#portugues)
+
+Cada entrega atualiza o README com revisão de texto por `humanizer`. O vault guarda fontes, decisões,
+capacidades usadas, testes e próximo passo. Produção exige evidência do ambiente. Uma publicação
+fora do escopo fica como não aplicável; se faltar autorização, salve a pendência para a próxima sessão.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
@@ -246,69 +208,31 @@ for a new product, adoption or a resumed interview.
 
 ## <img src="assets/gema-violeta.svg" height="24" alt=""> From idea to delivery
 
-This BPMN-style view shows events, tasks, decisions and responsibilities in Mermaid. People and
-agents carry out the process. PM and Tech Lead are roles that can be held in separate sessions;
-the harness does not yet run an autonomous team or deploy on its own.
+These flows show how to start, adopt and work with the harness. Circles mark events, boxes are
+tasks and diamonds are decisions. The diagrams are inspired by BPMN; people and agents carry out
+the steps. PM and Tech Lead are responsibilities, without autonomous orchestration.
 
-The main path is discovery → planning → implementation → review → authorized release.
-Expand the diagram for responsibilities, decisions and resumption paths.
+### 1. Start from scratch
 
-<details>
-<summary>View the complete process</summary>
+![New project: clone the harness, run setup, check guides, skills and MCPs, open personalizer, then save the profile and first feature.](assets/process-new-en.svg)
 
-```mermaid
-flowchart TB
-  subgraph discovery["Personalizer and owner"]
-    A((Idea)) --> B{Existing project?}
-    B -->|Yes| C[Audit code and conventions]
-    B -->|No| D[Interview and save answers]
-    C --> D
-    D --> E{Enough context?}
-    E -->|No| P[Save gaps and next question]
-    P --> Z((Resume later))
-  end
-  subgraph planning["PM and Tech Lead"]
-    E -->|Yes| F[Adapt profile and guides]
-    F --> G[Define feature, slices and acceptance]
-  end
-  subgraph execution["Executor and integration specialist"]
-    G --> H[Implement a slice and test]
-    H --> J[Update README and vault]
-  end
-  subgraph verification["Reviewer and release owner"]
-    J --> K{Review approved?}
-    K -->|No| H
-    K -->|Yes| L{Release in authorized scope?}
-    L -->|Yes| M[Deploy and observe]
-    M --> N{Environment verified?}
-    N -->|No| R[Recover or roll back and record]
-    R --> H
-    N -->|Yes| V[Record version and production evidence]
-    L -->|No| W[Record delivery and release pending or not applicable]
-  end
-  V --> X[Save outcome and next action in the vault]
-  W --> X
-  X --> Y((Delivery recorded))
-  classDef event fill:#1F7A4D,color:#fff,stroke:#17130f,stroke-width:3px;
-  classDef task fill:#1F4FA3,color:#fff,stroke:#17130f,stroke-width:2px;
-  classDef gate fill:#f6d77a,color:#17130f,stroke:#17130f,stroke-width:2px;
-  classDef memory fill:#5B2E8A,color:#fff,stroke:#17130f,stroke-width:2px;
-  class A,Z,Y event;
-  class C,D,F,G,H,J,M,R,V,W task;
-  class B,E,K,L,N gate;
-  class P,X memory;
-  style discovery fill:#f8f4eb,stroke:#17130f,color:#17130f
-  style planning fill:#f8f4eb,stroke:#17130f,color:#17130f
-  style execution fill:#f8f4eb,stroke:#17130f,color:#17130f
-  style verification fill:#f8f4eb,stroke:#17130f,color:#17130f
-```
+[Steps and commands](docs/USAGE.md#new-en) · [Open diagram](assets/process-new-en.svg)
 
-</details>
+### 2. Adopt an existing project
 
-Every implemented delivery updates the README, with `humanizer` used to review the prose. The vault
-keeps sources, decisions, capabilities used, tests and the next action. Production state requires
-environment evidence. When authorization is missing, save the pending work and end the session;
-the next session resumes from the indices.
+![Adoption: save work and create a branch, audit the code and harness, run setup without force, use personalizer in existing mode, then verify a delivery.](assets/process-migrate-en.svg)
+
+[Adoption steps](docs/USAGE.md#migrate-en) · [Open diagram](assets/process-migrate-en.svg)
+
+### 3. Work through a delivery
+
+![Daily work: recover vault context, define and implement a delivery, test and update README, review, release only when authorized, verify the environment and save the outcome; failures return to correction.](assets/process-delivery-en.svg)
+
+[Daily operation](docs/USAGE.md#operate-en) · [Open diagram](assets/process-delivery-en.svg) · [Full flow with pauses and resumption](docs/PROCESS.md#english)
+
+Each delivery updates the README with `humanizer` prose review. The vault keeps sources, decisions,
+capabilities used, tests and the next action. Production requires environment evidence. Mark a
+release outside scope as not applicable; when authorization is missing, save it as pending for a later session.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 

@@ -4,6 +4,13 @@
 
 [← README](../README.md) · [Português](#portugues) · [English](#english)
 
+Consulte os [três fluxos visuais de uso](../README.md#processo-pt) para localizar sua etapa:
+começar do zero, migrar um projeto ou operar uma entrega. O [processo completo](PROCESS.md#portugues)
+detalha decisões, pausas e retomada.
+
+See the [three usage diagrams](../README.md#process-en) for new projects, adoption and daily work.
+The [complete process](PROCESS.md#english) includes decisions, pauses and resumption.
+
 <img src="../assets/vidro.svg" alt="" width="100%">
 
 <a id="portugues"></a>

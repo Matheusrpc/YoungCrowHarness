@@ -175,6 +175,13 @@
           "provider": "graphify",
           "warnings": [],
           "references": 5
+        },
+        {
+          "index_state": "ready",
+          "provider": "graphify",
+          "warnings": [],
+          "references": 5,
+          "capture": "verification summary from repeated query"
         }
       ],
       "changed_vault_files": [],

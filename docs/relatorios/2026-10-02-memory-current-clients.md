@@ -48,7 +48,8 @@ com as cinco fontes escolhidas. Isso exercita a passagem desejada: salvar o resu
 ao índice e retomar pelas evidências numa sessão nova.
 
 Na retomada, `payments` retornou zero referências; `Pagamentos`, termo das notas, retornou cinco.
-As duas consultas usaram Graphify, sem avisos. Esse resultado não demonstra busca entre idiomas.
+Uma terceira consulta repetiu `Pagamentos` para comparar UUIDs e hashes. As três usaram Graphify,
+sem avisos. Esse resultado não demonstra busca entre idiomas.
 
 ## Como repetir e limites
 
@@ -74,6 +75,8 @@ foram removidas ao encerrar cada processo. O Git recebe somente este relatório,
 e os textos de uso revisados com humanizer. O design e os diagramas existentes foram preservados.
 Na conferência local, o vault do repositório passou com 65 notas e zero problemas; os 138 links
 locais dos textos revisados apontam para arquivos existentes. O diff não tem erros de whitespace.
+A revisão independente não encontrou P1/P2. O ajuste P3 incluiu na medição a terceira consulta
+da retomada, usada para conferir hashes; os registros originais permaneceram intactos.
 
 Esta captura antecede a publicação da documentação. O adaptador testado já está na main pelo
 [PR #11](https://github.com/Matheusrpc/YoungCrowHarness/pull/11), cujo CI terminou aprovado nos três

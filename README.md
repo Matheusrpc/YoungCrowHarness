@@ -53,7 +53,7 @@ e do ambiente em que ele opera.
 |---|---|---|
 | Claude Code e Codex | Ler as regras, descobrir skills e usar a configuração do cliente escolhido | Instalador e descoberta verificados; veja a [matriz de testes](#verificacao) |
 | Personalização | Entrevistar, auditar um projeto existente e preparar perfil e primeira feature | `personalizer` e registros locais disponíveis; entrevista conduzida pelo agente |
-| Skills, agentes e MCPs | Encontrar capacidades, configurar acesso e registrar o que cada execução usou | Catálogo inicial e configurações disponíveis; governança completa ainda planejada |
+| Skills, agentes e MCPs | Encontrar capacidades, comparar acesso e registrar o que cada execução usou | Catálogo, auditoria offline e revisão privada; prova nativa registrada por cliente |
 | Integrações | Consultar fontes oficiais e documentar implementação, testes e operação | `integration-specialist` e `integrate-from-docs` disponíveis nos dois clientes |
 | Vault | Guardar contexto, índices, referências e estados de desenvolvimento/produção | Markdown, criação de notas e validador disponíveis; conteúdo mantido pelo agente |
 | Ingestão com Docling | Receber referências, converter fontes acessíveis e ligar evidências ao trabalho | CLI e skill compartilhada disponíveis; hook curto nos dois clientes; [cobertura real](docs/relatorios/2026-10-02-docling-ingestion.md) |
@@ -219,11 +219,13 @@ real pendente de login. M04 permanece parcial.
 O [relatório](docs/relatorios/2026-10-02-memory-discovery.md) registra o estado atual de M01–M04.
 Próxima frente: [governança de skills, agentes e MCPs](docs/superpowers/specs/2026-10-02-capability-governance-design.md).
 O desenho aprovado cobre origem, conteúdo, permissões e provas por cliente. O
-[plano de implementação](docs/superpowers/plans/2026-10-02-capability-governance.md) está em revisão:
+[plano aprovado](docs/superpowers/plans/2026-10-02-capability-governance.md) orienta a implementação:
 catálogo verificável, auditoria offline, pacote privado, adoção e prova nativa. O catálogo já pode ser consultado
 com `python scripts/capabilities.py list` e `describe ID`. `audit --client both --json` compara arquivos
 e configurações sem iniciar MCPs. `review --id ID` prepara um pacote privado; `review --check DIGEST`
 confere se os arquivos continuam iguais. O pacote não concede autorização nem ativa a capacidade.
+Peça **“Use govern-capabilities para revisar as capacidades deste projeto.”** O setup instala a skill
+nos clientes escolhidos e preserva manifesto, skills e agentes existentes, mesmo com `--force`.
 Consultas e diagnóstico preservam as notas e o `.gitignore`. Se o índice estiver corrompido,
 a consulta usa o Markdown atual; a reconstrução fica explícita no [guia de uso](docs/USAGE.md#memória-consultar-notas-selecionadas).
 claude-mem, sincronização entre máquinas e orquestração autônoma de papéis continuam na
@@ -318,7 +320,7 @@ credentials, trust and permissions remain controlled by the client and its execu
 |---|---|---|
 | Claude Code and Codex | Read rules, discover skills and use the selected client's configuration | Installer and discovery verified; see the [test matrix](#verification) |
 | Personalization | Interview, audit an existing project and prepare its profile and first feature | `personalizer` and local records available; the agent conducts the interview |
-| Skills, agents and MCPs | Discover capabilities, configure access and record actual use | Initial catalog and configuration available; full governance remains planned |
+| Skills, agents and MCPs | Discover capabilities, compare access and record actual use | Catalog, offline audit and private review; native proof recorded per client |
 | Integrations | Consult official sources and document implementation, tests and operation | `integration-specialist` and `integrate-from-docs` available in both clients |
 | Vault | Keep context, indices, references and development/production states | Markdown, note creation and validation available; the agent maintains content |
 | Docling ingestion | Receive references, convert accessible sources and link evidence to work | CLI and shared skill available; short hook in both clients; [observed coverage](docs/relatorios/2026-10-02-docling-ingestion.md) |
@@ -485,11 +487,13 @@ M04 remains partial. The
 [report](docs/relatorios/2026-10-02-memory-discovery.md) records current M01–M04 evidence.
 Next: [skill, agent and MCP governance](docs/superpowers/specs/2026-10-02-capability-governance-design.md).
 The approved design covers origin, content, permissions and evidence for each client. The
-[implementation plan](docs/superpowers/plans/2026-10-02-capability-governance.md) is under review:
+[approved plan](docs/superpowers/plans/2026-10-02-capability-governance.md) guides implementation:
 verifiable catalog, offline audit, private review bundle, adoption and native proof. The catalog can be queried
 with `python scripts/capabilities.py list` and `describe ID`. `audit --client both --json` compares files
 and configuration without starting MCPs. `review --id ID` prepares a private bundle; `review --check DIGEST`
 checks whether its inputs are unchanged. A bundle grants no authorization and activates nothing.
+Ask **“Use govern-capabilities to review this project's capabilities.”** Setup installs the skill in
+selected clients and preserves existing manifests, skills and agents, even with `--force`.
 Queries and diagnostics preserve notes and `.gitignore`. If the index is corrupt, retrieval
 uses current Markdown; rebuilding is explicit in the [usage guide](docs/USAGE.md#memory-query-selected-notes).
 claude-mem, cross-machine synchronization and autonomous role orchestration remain in the

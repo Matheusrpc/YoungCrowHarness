@@ -1,2 +1,10 @@
 # Keep Bash entry points runnable after a Windows checkout.
 *.sh text eol=lf
+# Raw-byte capability identities must survive Windows and Unix checkouts.
+scripts/** text eol=lf
+skills/** text eol=lf
+.agents/skills/** text eol=lf
+.claude/skills/** text eol=lf
+.claude/agents/** text eol=lf
+.codex/agents/** text eol=lf
+requirements/** text eol=lf

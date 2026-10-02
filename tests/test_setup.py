@@ -30,6 +30,8 @@ FILES += ('scripts/memory.py', 'scripts/graphify_worker.py', 'requirements/graph
           'skills/retrieve-memory/SKILL.md', '.claude/skills/retrieve-memory/SKILL.md', '.agents/skills/retrieve-memory/SKILL.md')
 FILES += ('scripts/source_prompt.py', 'skills/ingest-source/SKILL.md',
           '.claude/skills/ingest-source/SKILL.md', '.agents/skills/ingest-source/SKILL.md')
+FILES += ('scripts/capabilities.py', 'skills/govern-capabilities/SKILL.md',
+          '.claude/skills/govern-capabilities/SKILL.md', '.agents/skills/govern-capabilities/SKILL.md')
 
 
 def shell_path(path):
@@ -55,6 +57,36 @@ def fake_git(args):
 
 
 class SetupTests(unittest.TestCase):
+    def test_governance_preserves_local_contracts_even_with_force(self):
+        preserved = ('.mcp.json', '.codex/config.toml', '.claude/settings.json',
+                     '.codex/hooks.json', 'skills-lock.json', 'skills/personalizer/SKILL.md',
+                     '.agents/skills/personalizer/SKILL.md', '.env')
+        for relative in preserved:
+            write(self.target / relative, 'CUSTOM_SENTINEL\n')
+        result = self.run_setup('--client', 'both', '--no-plugins', '--force')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for relative in preserved:
+            self.assertEqual((self.target / relative).read_text(), 'CUSTOM_SENTINEL\n', relative)
+        for directory in ('.claude', '.agents'):
+            self.assertTrue((self.target / directory / 'skills/govern-capabilities/SKILL.md').is_file())
+        self.assertIn('/.operacao-local/capabilities/', (self.target / '.gitignore').read_text())
+
+    def test_governance_installs_selected_profiles_and_audits(self):
+        for client in ('claude', 'codex', 'both'):
+            with self.subTest(client=client):
+                self.target = self.base / ('governance-' + client)
+                self.target.mkdir()
+                result = self.run_setup('--client', client, '--no-plugins')
+                self.assertEqual(result.returncode, 0, result.stderr)
+                for directory, selected in (('.claude', client != 'codex'), ('.agents', client != 'claude')):
+                    self.assertEqual((self.target / directory / 'skills/govern-capabilities/SKILL.md').is_file(), selected)
+                audit = subprocess.run([sys.executable, '-B', str(self.target / 'scripts/capabilities.py'),
+                                        '--root', str(self.target), 'audit', '--client', client, '--json'],
+                                       capture_output=True, text=True, timeout=15)
+                self.assertEqual(audit.returncode, 0, audit.stdout + audit.stderr)
+                observed = json.loads(audit.stdout)['observations']
+                self.assertTrue(any(o['id'] == 'govern-capabilities' and o['state'] == 'matched' for o in observed))
+
     def test_memory_skill_preserves_existing_client_settings(self):
         for client in ('claude', 'codex', 'both'):
             with self.subTest(client=client):

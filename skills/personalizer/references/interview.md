@@ -12,6 +12,7 @@ Read only the relevant branch. These are prompts to choose from, not a mandatory
 | Acceptance | What observable example proves this delivery works? What should happen on failure? | feature/delivery.md |
 | Technical constraints | Which dependencies/hosting are already chosen, and which decisions are still open? | profile.md, canonical decision |
 | Information and access | What data is handled, where may it be stored, and who authorizes each environment or provider? Do not ask for secret values. | profile.md and capability catalog |
+| Capability governance | Which client and capabilities are required for the next delivery? What read/write, network and environment scope is already authorized? Reuse prior answers; use govern-capabilities for changes. | profile.md and local capability microindex |
 | Memory selection | Which vault notes should a fresh session find first? Is Markdown sufficient, or is the optional local Graphify runtime requested? Reuse confirmed privacy and client-AI settings. | profile.md and capability catalog |
 | Work and cost | Which deadline, budget or operating limit is fixed? Which remains unknown? | profile.md |
 | Quality and operations | Which test/build checks and release/rollback process are verified today? | audit.md and operations index/linked runbook |

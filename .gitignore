@@ -37,3 +37,4 @@ node_modules/
 !.agents/skills/ingest-source/
 
 !.agents/skills/retrieve-memory/
+!.agents/skills/govern-capabilities/

@@ -22,6 +22,8 @@ Search the project's provider/service ID and relevant execution using available 
 
 ## Synchronize only when supported
 
+For capability history, follow `vault/local/capabilities/index.md` when present. Record the capability ID, reviewed input digest, actual authorization reference and current client proof in the integration run. Link the capability and integration both ways locally. Keep private review bundles out of public notes; neither a bundle hash nor a synchronized memory grants permission.
+
 For every projected note include project identity, ID, path, revision and observation time. Summaries/relations should reference feature, vendor, version, decisions, execution, code, actual capabilities, tests and release where the vault supplies evidence. Label inferred relations.
 
 Look up `(project_id, note_id, revision)` before writing. Prefer the installed adapter's verified idempotent upsert; if it cannot avoid duplicate retries or preserve project scope/provenance, leave the handoff pending instead of improvising. A stale revision requires a supported replacement/invalidation operation, including deletion propagation. If these are unsupported, record that limitation and keep the vault as the retrieval path.

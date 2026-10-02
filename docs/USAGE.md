@@ -14,7 +14,7 @@ The [complete process](PROCESS.md#english) includes decisions, pauses and resump
 Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;
 `python scripts/capabilities.py describe retrieve-memory --json` apresenta o contrato. A leitura
 aceita manifestos 2 e 3, não inicializa o vault e não instala capacidades. Versão declarada e hash
-de arquivos não comprovam execução. A auditoria e a revisão são detalhadas conforme forem entregues.
+de arquivos não comprovam execução. Use a skill `govern-capabilities` para conduzir o procedimento.
 
 Capability catalog: `python scripts/capabilities.py list --json` shows purpose and clients;
 `python scripts/capabilities.py describe retrieve-memory --json` presents the contract. Reading
@@ -516,7 +516,7 @@ revisão humana. Confira o diff e execute `vault.py check` antes de versionar.
 | Situação | Comportamento e próximo passo |
 |---|---|
 | Reexecutar | Preserva arquivos existentes; renderiza o nome só nos guias recém-copiados. As regras finais de ignore não crescem em repetições do mesmo modo sem mudanças. |
-| `--force` | Substitui templates gerenciados. Preserva vault, `.env`, regras de `.gitignore`, `.mcp.json`, `.codex/config.toml` e arquivos de hooks. Compare e mescle configurações existentes; revise o diff. |
+| `--force` | Substitui templates gerenciados. Preserva vault, `.env`, regras de `.gitignore`, manifesto, skills, agentes, `.mcp.json`, `.codex/config.toml` e hooks existentes. Compare e mescle; revise o diff. |
 | Argumento inválido | Sai com código 2, antes de copiar arquivos. |
 | Falha de preflight | Sai com código não zero; resolva dependências, caminhos, manifesto ou `.env` rastreado e tente novamente. |
 | Humanizer divergente ou modificado | Preserva a instalação do usuário e interrompe. Compare com o commit do manifesto e decida manualmente como guardar suas mudanças; o setup não executa reset. |
@@ -1040,7 +1040,7 @@ review. Inspect the diff and run `vault.py check` before tracking the files.
 
 ## <img src="../assets/gema-violeta.svg" height="24" alt=""> Failures and maintenance
 
-Repeated runs preserve existing files and render the project name only in newly copied guides. `--force` replaces managed templates, but preserves vault notes, `.env`, ignore rules, `.mcp.json`, `.codex/config.toml` and hook files. Compare and merge existing configurations. Review changes before using it.
+Repeated runs preserve existing files and render the project name only in newly copied guides. `--force` replaces managed templates, but preserves vault notes, `.env`, ignore rules, existing manifests, skills, agents, `.mcp.json`, `.codex/config.toml` and hook files. Compare and merge existing configurations. Review changes before using it.
 
 Invalid arguments exit with code 2. Dependency, path, manifest, tracked-env and divergent-skill checks fail before project copies. Existing humanizer must be a clean repository at the manifest commit; changes are preserved and require your decision. Failed downloads/checkouts never activate the incomplete skill. Plugin failures identify their stage and return nonzero. Earlier successful steps remain in place; resolve the cause and retry.
 

@@ -1,5 +1,9 @@
 # AGENTS.md: entrada do Codex ({{PROJETO}})
 
+- Para descobrir, revisar ou revogar skills, agentes e MCPs, use `govern-capabilities`
+  (`skills/govern-capabilities/SKILL.md`). Audite o cliente, preserve o escopo autorizado e registre
+  diferenças/evidências no microíndice local. Catálogo, configuração e execução são provas distintas.
+
 - Antes de agir, leia `CLAUDE.md` inteiro. Este arquivo complementa aquele, não o substitui.
 - Declare a frente no início de todo relatório. Preserve as leis, as fronteiras de escrita, os gates,
   as evidências e as autorizações do operador. Ler uma missão não autoriza executar frentes fora do

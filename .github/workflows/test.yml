@@ -28,9 +28,9 @@ jobs:
         with:
           python-version: '3.11'
       - name: Verify native storage, permissions and crash recovery
-        run: python -B -m unittest discover -s tests -p "test_adoption*.py" -v
+        run: python -B -m unittest discover -s tests -p "test_adoption*.py" -v -f
       - name: Verify trial installer and unchanged global profile
-        run: python -B -m unittest discover -s tests -p test_setup.py -k trial -v
+        run: python -B -m unittest discover -s tests -p test_setup.py -k trial -v -f
       - name: Exercise return through the external runner
         run: python -B tests/smoke_adoption.py --root "$env:RUNNER_TEMP/adoption-both" --client both
   graphify-smoke:

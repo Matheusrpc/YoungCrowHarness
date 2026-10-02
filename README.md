@@ -82,6 +82,7 @@ plugins e downloads de skills. O ponto original permanece nas próximas execuç�
 [como consultar, sair e recuperar uma interrupção](docs/USAGE.md#adocao-reversivel-pt).
 As consultas Git do trial desativam monitores externos desde a primeira verificação. No Linux,
 o retorno preserva também os grupos dos arquivos, dentro do perfil de permissões aceito.
+No Windows, o perfil exige o usuário atual como dono e permissões herdadas da pasta pai.
 
 Sem `--trial`, a instalação normal não cria ponto de retorno e segue o comportamento abaixo.
 O `setup.sh` copia o harness preservando os arquivos existentes e acrescenta proteção ao `.gitignore`.
@@ -377,6 +378,7 @@ plugins and skill downloads. Repeated setup preserves the original baseline. See
 
 Trial Git queries disable external filesystem monitors from the first check. On Linux, restoration
 also preserves file groups within the supported permission profile.
+Windows requires the current user as owner and permissions inherited from the parent folder.
 
 Without `--trial`, normal installation creates no restore point and behaves as described below.
 `setup.sh` preserves existing project files and appends protection to `.gitignore`.

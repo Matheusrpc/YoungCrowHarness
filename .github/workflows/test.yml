@@ -19,23 +19,6 @@ jobs:
           for client in claude codex both; do
             python3 -B tests/smoke_adoption.py --root "$RUNNER_TEMP/adoption-$client" --client "$client" || exit "$?"
           done
-  windows-acl-diagnostic:
-    runs-on: windows-latest
-    timeout-minutes: 5
-    steps:
-      - name: Compare native ACL readers without user profile writes
-        run: |
-          $shell = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
-          $env:USERPROFILE = 'NUL'
-          $env:LOCALAPPDATA = 'NUL'
-          $env:APPDATA = 'NUL'
-          $env:PSModuleAnalysisCachePath = 'NUL'
-          $env:PSModulePath = Join-Path (Split-Path $shell) 'Modules'
-          foreach ($command in @('Get-Acl -LiteralPath $env:SystemRoot | Out-Null', '[System.IO.Directory]::GetAccessControl($env:SystemRoot) | Out-Null', 'Get-Acl -LiteralPath $env:SystemRoot | Out-Null')) {
-            $time = Measure-Command { & $shell -NoProfile -NonInteractive -Command $command }
-            Write-Output "$command : exit=$LASTEXITCODE seconds=$($time.TotalSeconds)"
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
   adoption-windows:
     runs-on: windows-latest
     timeout-minutes: 60
@@ -44,29 +27,6 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: '3.11'
-      - name: Diagnose disposable Windows fixture
-        run: |
-          $probe = Join-Path $env:RUNNER_TEMP ('yc-profile-' + [guid]::NewGuid().ToString('N'))
-          [void][System.IO.Directory]::CreateDirectory($probe)
-          [System.IO.File]::WriteAllText((Join-Path $probe 'file.txt'), 'synthetic')
-          $sid = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
-          foreach ($path in @($probe, (Join-Path $probe 'file.txt'))) {
-            $acl = Get-Acl -LiteralPath $path
-            @{owner_matches_user=($acl.GetOwner([System.Security.Principal.SecurityIdentifier]).Value -eq $sid);
-              owner_is_administrators=($acl.GetOwner([System.Security.Principal.SecurityIdentifier]).Value -eq 'S-1-5-32-544');
-              protected=$acl.AreAccessRulesProtected; explicit_rules=@($acl.Access | Where-Object {-not $_.IsInherited}).Count} | ConvertTo-Json -Compress
-          }
-          @'
-          import os, pathlib, subprocess, time
-          shell = pathlib.Path(os.environ['SystemRoot']) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
-          for label, profile in [('null', os.devnull), ('existing_file', str(shell)), ('null_repeat', os.devnull)]:
-              env = dict(os.environ, USERPROFILE=profile, LOCALAPPDATA=profile, APPDATA=profile,
-                         PSModulePath=str(shell.parent / 'Modules'), PSModuleAnalysisCachePath=os.devnull)
-              started = time.monotonic()
-              result = subprocess.run([str(shell), '-NoProfile', '-NonInteractive', '-Command',
-                                       'Get-Acl -LiteralPath $env:SystemRoot | Out-Null; exit 0'], env=env, timeout=120)
-              print(label, 'exit', result.returncode, 'seconds', round(time.monotonic() - started, 3), flush=True)
-          '@ | python -B -
       - name: Verify native storage, permissions and crash recovery
         run: python -B tests/windows_fixture_runner.py -m unittest discover -s tests -p "test_adoption*.py" -v -f
       - name: Verify trial installer and unchanged global profile

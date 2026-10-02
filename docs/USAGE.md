@@ -115,7 +115,8 @@ A captura aceita até 100 mil entradas e 64 GiB. Reserve o tamanho inicial para 
 precisa haver espaço livre para uma cópia do projeto atual, outra do ponto inicial e 64 MiB adicionais.
 As cópias não são apagadas automaticamente. Não há garantia contra falha de disco ou energia.
 
-No Windows, o perfil exige ACLs herdadas e dono atual; recusa streams extras, junctions e atributos
+No Windows, o perfil exige ACLs herdadas e o usuário atual como dono. Pastas pertencentes ao grupo
+Administradores ficam fora desse perfil. O preflight recusa streams extras, junctions e atributos
 não preserváveis. Caminhos derivados precisam ter menos de 248 unidades UTF-16, incluindo o
 armazenamento interno. `unsupported_path_length` pede uma base mais curta, por exemplo `C:/yc-backups`;
 o setup reserva espaço de caminho para os arquivos distribuídos. Arquivos novos muito longos também
@@ -773,7 +774,8 @@ claude-mem. Vault notes contain only adoption ID, date, state and next action. C
 the current project, another copy of the baseline and 64 MiB of reserve. Copies are never cleaned
 up automatically. Disk failure and power-loss durability are not guaranteed.
 
-Windows requires inherited ACLs and current ownership; extra streams, junctions and unsupported
+Windows requires inherited ACLs and the current user as owner; folders owned by the Administrators
+group are outside this profile. Extra streams, junctions and unsupported
 attributes are refused. Derived paths must remain below 248 UTF-16 units, including internal storage.
 For `unsupported_path_length`, choose a shorter base, such as `C:/yc-backups`; setup reserves path
 space for bundled files. Long files created later can also block exit before the exchange. POSIX

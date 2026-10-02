@@ -18,9 +18,14 @@ function PrivateAcl($directory) {
     $acl.AddAccessRule($rule)
     return $acl
 }
+function ReadAcl($path) {
+    # Native reads avoid the measured Get-Acl overhead; retain DACL/owner/group semantics.
+    if ([System.IO.Directory]::Exists($path)) { return [System.IO.Directory]::GetAccessControl($path) }
+    return [System.IO.File]::GetAccessControl($path)
+}
 function ParentPolicy {
     $parent = [System.IO.Path]::GetDirectoryName($LiteralPath.TrimEnd('\','/'))
-    $parentAcl = Get-Acl -LiteralPath $parent
+    $parentAcl = ReadAcl $parent
     return @{platform='windows';parent_sddl=$parentAcl.GetSecurityDescriptorSddlForm('Access,Owner,Group')}
 }
 function ApplyAcl($item, $acl) {
@@ -54,14 +59,14 @@ try {
         if ($Mode -eq 'private-apply') {
             ApplyAcl $item (PrivateAcl $item.PSIsContainer)
         } elseif ($Mode -eq 'restore-inheritance') {
-            $acl = Get-Acl -LiteralPath $item.FullName
+            $acl = ReadAcl $item.FullName
             foreach ($rule in @($acl.GetAccessRules($true, $false, $sidType))) {
                 [void]$acl.RemoveAccessRuleSpecific($rule)
             }
             $acl.SetAccessRuleProtection($false, $false)
             ApplyAcl $item $acl
         }
-        $acl = Get-Acl -LiteralPath $item.FullName
+        $acl = ReadAcl $item.FullName
         if ($acl.GetOwner($sidType).Value -ne $sid.Value) { throw 'owner' }
         $rules = @($acl.GetAccessRules($true, $true, $sidType))
         if (-not $rules.Count) { throw 'empty_acl' }

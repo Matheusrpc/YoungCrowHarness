@@ -19,6 +19,23 @@ jobs:
           for client in claude codex both; do
             python3 -B tests/smoke_adoption.py --root "$RUNNER_TEMP/adoption-$client" --client "$client" || exit "$?"
           done
+  windows-acl-diagnostic:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - name: Compare native ACL readers without user profile writes
+        run: |
+          $shell = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
+          $env:USERPROFILE = 'NUL'
+          $env:LOCALAPPDATA = 'NUL'
+          $env:APPDATA = 'NUL'
+          $env:PSModuleAnalysisCachePath = 'NUL'
+          $env:PSModulePath = Join-Path (Split-Path $shell) 'Modules'
+          foreach ($command in @('Get-Acl -LiteralPath $env:SystemRoot | Out-Null', '[System.IO.Directory]::GetAccessControl($env:SystemRoot) | Out-Null', 'Get-Acl -LiteralPath $env:SystemRoot | Out-Null')) {
+            $time = Measure-Command { & $shell -NoProfile -NonInteractive -Command $command }
+            Write-Output "$command : exit=$LASTEXITCODE seconds=$($time.TotalSeconds)"
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
   adoption-windows:
     runs-on: windows-latest
     timeout-minutes: 60

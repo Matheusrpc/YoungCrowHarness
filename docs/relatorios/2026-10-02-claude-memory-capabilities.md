@@ -5,6 +5,9 @@ reconheceram uma fonte alterada e verificaram acesso, recusa, revogação e rest
 sintético. O ensaio também revelou referências indevidas no hook de documentos, corrigidas
 nesta entrega com regressões próprias.
 
+Continuação: a [prova de homônimos entre projetos](2026-10-02-memory-project-isolation.md) verificou
+o cenário restante de M04. Os estados e limites abaixo preservam a captura desta rodada anterior.
+
 ## Ambiente e limites da rodada
 
 A [medição](../medicoes/2026-10-02-claude-memory-capabilities.json) contém resultados, revisões,

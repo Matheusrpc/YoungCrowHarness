@@ -2,7 +2,9 @@
 
 Estado: desenho aprovado pelo mantenedor em 2026-10-02. O [plano de implementação](../plans/2026-10-02-memory-discovery.md)
 foi executado, com evidências e limites no [relatório](../../relatorios/2026-10-02-memory-discovery.md)
-e publicação pelo [PR #7](https://github.com/Matheusrpc/YoungCrowHarness/pull/7). M04 permanece parcial.
+e publicação pelo [PR #7](https://github.com/Matheusrpc/YoungCrowHarness/pull/7). As continuações de
+clientes e a [prova entre projetos](../../relatorios/2026-10-02-memory-project-isolation.md) verificaram
+M04 nos cenários publicados. Os resultados se limitam às versões, permissões e corpus registrados.
 Graphify foi instalado apenas no projeto sintético de prova; a instalação em cada projeto consumidor é opcional. Esta frente sucede
 a ingestão com Docling publicada no [PR #6](https://github.com/Matheusrpc/YoungCrowHarness/pull/6).
 A prova de conversa real do Docling no Claude continua pendente de ensaio; não é requisito

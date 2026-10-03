@@ -2,7 +2,7 @@
 
 Frente: exemplo reproduzível do YoungCrowHarness. Data: 2026-10-03.
 Estado: desenho aprovado pelo mantenedor em 2026-10-03 pelas respostas “Próximo” e “Aprovado”.
-Aplicação e publicação ainda não implementadas. O [plano de implementação](../plans/2026-10-03-public-pilot.md)
+Aplicação implementada; [relatório de execução](../../relatorios/2026-10-03-public-pilot.md) registra provas e pendências. O [plano de implementação](../plans/2026-10-03-public-pilot.md)
 detalha as entregas e suas verificações.
 
 ## Objetivo e contexto confirmado

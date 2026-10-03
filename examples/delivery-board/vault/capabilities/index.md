@@ -3,7 +3,7 @@ id: "b28e33fe-e6bd-5694-9fb5-05378b47b429"
 type: "index"
 title: "Capacidades do piloto"
 origin: "youngcrow/public-pilot"
-updated: "2026-10-03T11:41:15+00:00"
+updated: "2026-10-03T12:17:31+00:00"
 index: "../index.md"
 ---
 
@@ -14,7 +14,7 @@ index: "../index.md"
 | Capacidade | Necessidade | Uso observado nesta entrega |
 |---|---|---|
 | personalizer | Perfil, entrevista e entregas | Helpers executados; respostas do mantenedor registradas |
-| retrieve-memory | Retomada pelos índices | Instrução consultada pelo executor; prova nativa ainda pendente |
+| retrieve-memory | Retomada pelos índices | Leitura nativa no Codex comprovada; Claude aguarda login |
 | integrate-from-docs / integration-specialist | Contrato e operação Pages | Instrução consultada, papel exercido pelo executor; sem agente autônomo |
 | ingest-source / Docling | Documentação do fornecedor | Ingestão real realizada no desenho; fonte privada conservada no harness |
 | karpathy, ponytail, humanizer | Escopo pequeno, implementação e prosa | Aplicadas pelo executor |

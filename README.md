@@ -231,7 +231,8 @@ O próximo marco é o [piloto público](docs/superpowers/plans/2026-10-03-public
 um quadro de entregas para acompanhar projeto novo, migração, testes, memória e publicação.
 O [exemplo](examples/delivery-board/README.md) tem página com filtros, critérios e um vault próprio.
 O percurso local foi verificado por teclado e em tela estreita. No Windows e no Linux, projeto novo e migração
-passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do trial. A publicação está pendente.
+passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do trial. A publicação está pendente. A retomada passou no Codex; no Claude, aguarda renovação de login.
+Veja as [provas e limites](docs/relatorios/2026-10-03-public-pilot.md).
 O pacote usa uma lista explícita de arquivos e um manifesto de hashes; o CI do piloto valida dados, testes e navegação do vault.
 
 A [adoção reversível](docs/USAGE.md#adocao-reversivel-pt) salva o projeto antes do primeiro setup
@@ -545,7 +546,8 @@ The next milestone is the [public pilot](docs/superpowers/plans/2026-10-03-publi
 a delivery board covering a new project, adoption, tests, memory and publication.
 The [example](examples/delivery-board/README.md) has a page with filters, acceptance criteria and its own vault.
 The local flow was checked with keyboard navigation and a narrow viewport. On Windows and Linux, new and existing
-projects passed real setup and returned to their initial state while retaining trial work. Publication is pending.
+projects passed real setup and returned to their initial state while retaining trial work. Publication is pending. Retrieval passed in Codex; Claude needs a renewed login.
+See the [evidence and limits](docs/relatorios/2026-10-03-public-pilot.md).
 The package uses an explicit file list and hash manifest; the pilot CI checks data, tests and vault navigation.
 
 [Reversible adoption](docs/USAGE.md#reversible-adoption-en) saves the project before the first

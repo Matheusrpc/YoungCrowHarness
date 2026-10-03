@@ -26,12 +26,20 @@ class RunTests(RuntimeCase):
         self.addCleanup(self.native.stop)
 
     def observe(self):
-        return mission_clients.inspect_client(self.root, 'codex', Path(sys.executable))
+        return mission_clients.inspect_client(self.root, 'codex', Path(sys.executable).resolve())
 
     def check(self, manifest, mode='success'):
         build = mission_clients.build_check
         with patch.object(mission_clients, 'build_check', side_effect=lambda *args: self.fixture_plan(build(*args), mode)):
-            return self.runs.check_client(self.root, manifest, Path(sys.executable))
+            return self.runs.check_client(self.root, manifest, Path(sys.executable).resolve())
+
+    def reconcile(self, run):
+        path = 'vault/local/evidence-' + run['id'] + '.txt'
+        proof = self.root / path
+        proof.write_text('Fixture only: owned process terminated; synthetic external effect reviewed.')
+        ref = dict(path=path, sha256=hashlib.sha256(proof.read_bytes()).hexdigest())
+        evidence = dict(authorization_ref='Authorized fixture review', termination=ref, external_effect=ref)
+        return self.runs.reconcile_check(self.root, run['id'], evidence, run['revision'], str(uuid.uuid4()))
 
     def test_replay_never_starts_a_second_process(self):
         manifest = self.make_manifest()
@@ -172,13 +180,30 @@ class RunTests(RuntimeCase):
             value['limits']['max_agent_runs'] = 1
             return value
         with patch.object(self, 'configured', side_effect=config):
-            self.assertEqual(self.check(self.make_manifest(), 'malformed')['state'], 'failed')
+            run = self.check(self.make_manifest(), 'malformed')
+            self.assertEqual(run['state'], 'uncertain')
+            self.assertEqual(self.reconcile(run)['state'], 'interrupted')
         with self.assertRaisesRegex(ValueError, 'limit_exceeded'):
             self.check(self.make_manifest())
 
     def test_failed_protocol_never_reports_success_or_secret(self):
         for mode in ('malformed', 'secret'):
             run = self.check(self.make_manifest(), mode)
-            self.assertEqual(run['state'], 'failed')
+            self.assertEqual(run['state'], 'uncertain')
             self.assertNotIn('fixture-secret-never-print', json.dumps(run))
             self.assertIsNone(run['cost_usd'])
+            self.reconcile(run)
+
+    def test_effect_without_conclusive_result_blocks_new_dispatch(self):
+        for mode in ('after-effect', 'effect-crash', 'effect-truncated'):
+            with self.subTest(mode=mode):
+                manifest = self.make_manifest()
+                manifest['agent_seconds'] = 30
+                run = self.check(manifest, mode)
+                self.assertEqual(run['state'], 'uncertain')
+                self.assertEqual(self.check(manifest)['id'], run['id'])
+                marker = self.root / 'vault/local/operations/checks' / manifest['operation_id'] / 'dispatches.txt'
+                self.assertEqual(marker.read_text(), '1\n')
+                with self.assertRaisesRegex(ValueError, '^unresolved_run$'):
+                    self.check(self.make_manifest())
+                self.reconcile(run)

@@ -306,6 +306,8 @@ catálogo nativo. O desenvolvedor escolhe um nome explícito ou `latest`, que us
 atual do cliente para a conta. `client-default` conserva o esforço padrão do modelo. Uma prova
 autorizada reserva a tentativa antes de chamar e guarda o resultado no vault. Repetir o UUID
 consulta o mesmo recibo; resultado incerto bloqueia outra chamada até reconciliação.
+Timeout ou saída incompleta após liberar o cliente conservam esse bloqueio, mesmo com os
+processos encerrados. A inspeção do catálogo também supervisiona seus processos e descendentes.
 
 O [backlog completo](docs/BACKLOG.md) acompanha dependências e critérios de aceite. A entrega
 [2A: executor e adaptadores](docs/relatorios/2026-10-03-mission-runtime-adapters.md) está parcial:
@@ -666,6 +668,8 @@ catalog. The developer chooses an explicit name or `latest`, the client's curren
 for the account. `client-default` keeps the model's default effort. An authorized check reserves
 its attempt before calling and stores the result in the vault. Repeating its UUID reads the same
 receipt; an uncertain result blocks another call until reconciliation.
+Timeout or incomplete output after releasing the client retains that block, even after its
+processes exit. Catalog inspection also supervises its processes and descendants.
 
 The [full backlog](docs/BACKLOG.md#english-overview) tracks dependencies and acceptance criteria.
 [2A: executor and adapters](docs/relatorios/2026-10-03-mission-runtime-adapters.md) is partial:

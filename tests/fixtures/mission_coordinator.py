@@ -18,7 +18,7 @@ manifest = json.loads((root / 'vault/local/crash-manifest.json').read_text())
 marker = root / 'vault/local/operations/checks' / manifest['operation_id'] / 'dispatches.txt'
 if len(sys.argv) > 2 and sys.argv[2] == 'before-effect':
     with patch.object(mission_clients, 'discover', return_value=dict(version='0.146.0', models=catalog('codex'), controls=True, auth_kind='authenticated', profile_verified=True)):
-        observation = mission_clients.inspect_client(root, 'codex', Path(sys.executable))
+        observation = mission_clients.inspect_client(root, 'codex', Path(sys.executable).resolve())
         mission_runs.reserve_check(root, manifest, observation)
     os._exit(9)
 
@@ -41,4 +41,4 @@ def build(*args):
 
 with patch.object(mission_clients, 'discover', return_value=dict(version='0.146.0', models=catalog('codex'), controls=True, auth_kind='authenticated', profile_verified=True)):
     with patch.object(mission_clients, 'build_check', side_effect=build):
-        mission_runs.check_client(root, manifest, Path(sys.executable))
+        mission_runs.check_client(root, manifest, Path(sys.executable).resolve())

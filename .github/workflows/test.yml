@@ -59,7 +59,7 @@ jobs:
       - name: Verify mission diagnostics and process recovery
         run: python -B tests/windows_fixture_runner.py -m unittest discover -s tests -p "test_mission*.py" -v
       - name: Exercise bounded diagnostic adoption without model calls
-        run: python -B tests/windows_fixture_runner.py tests/smoke_mission_runtime.py --root "$env:RUNNER_TEMP/mission-runtime" --client both
+        run: python -B tests/windows_fixture_runner.py tests/smoke_mission_runtime.py --root "$env:SystemDrive/yrt" --client both
   graphify-smoke:
     runs-on: ubuntu-24.04
     timeout-minutes: 15

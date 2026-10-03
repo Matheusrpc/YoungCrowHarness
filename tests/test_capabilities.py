@@ -45,6 +45,11 @@ class CapabilityCase(ProjectCase):
 
 
 class CatalogTests(CapabilityCase):
+    def test_expected_contracts_hash_resolved_legacy_identity(self):
+        for cap in caps.load_catalog(ROOT):
+            if cap['expected']['contract_sha256'] is not None:
+                self.assertEqual(cap['expected']['contract_sha256'], caps.contract_digest(cap), cap['id'])
+
     def test_mission_catalog_has_explicit_diagnostic_permissions(self):
         names = {'yc-personalizer', 'yc-config', 'yc-missao', 'yc-status'}
         selected = [cap for cap in caps.load_catalog(ROOT) if cap['id'] in names]

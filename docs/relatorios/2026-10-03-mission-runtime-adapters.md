@@ -31,9 +31,33 @@ passando por instalação, execução, consulta, recuperação e retorno.
 
 Resultados consolidados e comandos ficam em
 [mission-runtime-adapters.json](../medicoes/mission-runtime-adapters.json).
-Os primeiros 69 testes de missões passaram no Windows em 848,731 segundos,
-com um skip exclusivo de Linux. Casos adicionais de recuperação e limite foram
-incluídos depois dessa corrida e têm medição separada.
+Antes da revisão final, 74 testes de missões passaram no Windows em 597,851 segundos,
+com um skip exclusivo de Linux. As regressões acrescentadas na revisão têm medição
+separada; a publicação exige também a suíte completa do CI.
+
+## Revisão independente
+
+A revisão apontou quatro problemas importantes. Todos entraram na mesma rodada de
+correção, com reprodução anterior e teste posterior:
+
+| Problema | Correção e prova |
+|---|---|
+| Timeout, queda ou saída inválida encerravam uma tentativa com possível efeito externo | Estado `uncertain` até conciliação; repetir UUID não chama de novo e outro UUID continua bloqueado |
+| Falha ao atribuir o Job Object deixava o bootstrap Windows vivo | Encerrar pelo handle próprio antes de liberar qualquer cliente; fechar os recursos mesmo no caminho de falha |
+| Recolher o processo Linux antes do último sinal permitia reutilização de PID/grupo | Observar com `waitid/WNOWAIT`, sinalizar o grupo próprio e só então recolher o líder |
+| Um descendente de inspeção podia manter stdout aberto sem prazo de término | Reusar o supervisor também nos metadados; preservar a sequência de pedidos/respostas do protocolo |
+
+A prova Windows do efeito inconclusivo passou em 142,671 segundos, cobrindo timeout,
+queda e resposta truncada após o marcador externo sintético. A suíte do supervisor
+passou com 10 testes em 15,164 segundos, um skip de plataforma. Não houve achado menor
+adiado nem uma segunda revisão por outro agente.
+
+O primeiro CI expôs dois problemas adicionais da preparação das provas: a fixture
+Linux passava o link do Python em vez do executável resolvido, e cinco hashes do
+catálogo usavam a identidade legada sem normalização. As fixtures e o lock foram
+corrigidos; o contrato normalizado ganhou regressão própria. A primeira prova de
+retorno Windows recusou um caminho longo. A fixture agora usa uma raiz curta,
+preservando a proteção de adoção.
 
 ## Matriz nativa
 
@@ -57,6 +81,9 @@ O executável Claude usado no ensaio tem o hash
 A documentação do modo seguro mantém certas políticas gerenciadas ativas. A prova
 local com ferramentas vazias não certifica essa precedência em outras instalações;
 por isso nenhum perfil de produção foi liberado nesta entrega.
+A repetição da inspeção supervisionada recuperou o catálogo Codex. A instalação Claude
+foi recusada como `unsupported_entry` por seu executável ser um hard link. A observação
+anterior do catálogo permanece histórica; essa recusa atual não foi contornada.
 Receber `latest` não baixa um cliente nem confirma o lançamento global mais recente.
 No catálogo inspecionado, as recomendações foram `gpt-5.6-sol` e `claude-opus-5[1m]`;
 esses nomes são observações, não defaults gravados no harness.
@@ -100,6 +127,43 @@ Decisões tomadas durante a execução do plano:
 - Manter ambos os perfis nativos bloqueados após a conferência das políticas gerenciadas;
   risco: a chamada real permanece indisponível até uma prova adicional. A autorização
   do mantenedor não substitui a comprovação dos limites exigidos pelo plano.
+- Reduzir ainda mais a raiz Windows da prova de retorno para acomodar os recibos aninhados;
+  risco: outros caminhos de backup ainda podem ultrapassar o limite documentado.
+- Resolver o caminho do Python somente nas fixtures Linux; risco: não comprova um launcher
+  alternativo, que continua fora do contrato de executável nativo.
+- Calcular os hashes legados pela identidade normalizada já usada na auditoria; risco:
+  uma divergência de catálogo continua exigindo nova revisão, sem marcar capacidade como executada.
+- Iniciar a revisão independente enquanto as provas finais ainda rodavam; risco: parecer
+  sem resultado final dos testes. A integração permanece condicionada à suíte verde.
+- Usar 30 segundos nos três cenários de efeito inconclusivo; cinco segundos expiravam no
+  preflight Windows. Risco: prova mais lenta, sem aumentar o limite do produto.
+
+Pontos que o revisor deixou para julgamento do executor:
+
+- Compatibilidade real de cada modelo/cliente: fica pendente e bloqueia o perfil; custo:
+  a execução nativa ainda não está disponível.
+- Teto financeiro de API, autenticação e políticas gerenciadas: manter bloqueados até prova;
+  custo: não há suporte API nesta entrega.
+- Hooks/MCPs iniciados pelo próprio cliente durante metadados: o supervisor limita a vida
+  dos processos, mas não certifica acesso a arquivos/rede; custo: políticas locais ainda
+  precisam de avaliação antes de liberar qualquer perfil de execução.
+- Troca concorrente de binário, política ou credencial: hashes e revalidação reduzem a janela,
+  sem eliminar toda condição de corrida; custo: exige prova adicional antes de liberar o perfil.
+- Fila, workers, transferência, QA, merge e deploy: permanecem nas frentes seguintes; custo:
+  o diagnóstico não produz software autonomamente.
+- macOS e Linux fora de x86-64: sem prova, ficam indisponíveis; custo: suporte de plataforma limitado.
+- Administrador hostil, edição direta do SQLite ou relato humano falso: fora da fronteira de
+  confiança do host cooperativo; custo: hashes não atestam a veracidade de uma conciliação.
+- CI e consumidores instalados: exigir resultados verdes antes do merge; custo: publicação
+  aguarda as provas, mesmo com os testes focados aprovados.
+- Caminhos longos no trial Windows: manter a recusa e documentar backup curto; custo:
+  o operador pode precisar escolher outro caminho antes do retorno.
+- Checkboxes e medições intermediárias: registrar apenas aceite observado, mantendo 2A aberto;
+  custo: progresso parcial não representa conclusão da esteira.
+- Fontes externas: usar documentação oficial conferida pelo executor e extração privada Docling;
+  custo: o parecer do revisor não recertifica a documentação do fornecedor.
+- Conservar os artefatos privados desta prova para auditoria, após a recusa anterior da limpeza
+  automática; custo: uso de disco local. Eles continuam ignorados pelo Git.
 
 ## Fontes consultadas
 

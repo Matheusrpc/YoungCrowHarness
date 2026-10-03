@@ -4,16 +4,14 @@ import json
 import math
 import os
 from pathlib import Path
-import queue
 import re
 import subprocess
-import threading
-import time
 
 from adoption_fs import hash_file
 from capabilities import canonical, parse_json
 from mission_backlog import require
 
+DISCOVERY_SECONDS = 30
 EVENT_LIMIT = 1024 * 1024
 OUTPUT_LIMIT = 8 * EVENT_LIMIT
 CLIENTS = ('codex', 'claude')
@@ -42,80 +40,32 @@ def safe_name(value):
 
 
 def _exchange(executable, args, cwd, requests=None, *, merge_stderr=False):
-    """Bounded local discovery. No user/model turn is ever sent here."""
-    flags = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
-    process = subprocess.Popen([str(executable), *args], cwd=cwd, stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT if merge_stderr else subprocess.DEVNULL,
-                               creationflags=flags, start_new_session=os.name != 'nt')
-    inbox, stopped = queue.Queue(maxsize=32), threading.Event()
-
-    def read():
-        total = 0
-        while not stopped.is_set():
-            line = process.stdout.readline(EVENT_LIMIT + 1)
-            total += len(line)
-            value = line if len(line) <= EVENT_LIMIT and total <= OUTPUT_LIMIT else False
-            while not stopped.is_set():
-                try:
-                    inbox.put(value, timeout=.1)
-                    break
-                except queue.Full:
-                    continue
-            if not line or value is False:
-                return
-
-    thread = threading.Thread(target=read, daemon=True)
-    thread.start()
-    deadline = time.monotonic() + 30
-
-    def receive():
-        try:
-            value = inbox.get(timeout=max(.01, deadline - time.monotonic()))
-        except queue.Empty:
-            raise ValueError('client_discovery_timeout') from None
-        require(value is not False, 'client_output_limit')
-        return value
-
-    try:
-        if requests is None:
-            process.stdin.close()
-            chunks = []
-            while True:
-                line = receive()
-                if not line:
-                    break
-                chunks.append(line)
-            require(process.wait(timeout=3) == 0, 'client_discovery_failed')
-            return b''.join(chunks).decode('utf-8', errors='strict')
-        responses = []
-        for request, expected in requests:
-            process.stdin.write(canonical(request) + b'\n')
-            process.stdin.flush()
-            if expected is None:
-                continue
-            while True:
-                line = receive()
-                require(bool(line), 'client_discovery_failed')
-                event = parse_json(line)
-                require(isinstance(event, dict), 'client_protocol_error')
-                if event.get('id') == expected or event.get('response', {}).get('request_id') == expected:
-                    require('error' not in event, 'client_discovery_failed')
-                    responses.append(event)
-                    break
-        return responses
-    finally:
-        stopped.set()
-        if process.poll() is None:
-            process.terminate()
-        try:
-            process.wait(timeout=3)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            process.wait(timeout=3)
-        if not process.stdin.closed:
-            process.stdin.close()
-        thread.join(timeout=3)
-        process.stdout.close()
+    """Bounded local metadata, owned by the same supervisor as diagnostics."""
+    from mission_process import supervise
+    result = supervise(dict(argv=[str(executable), *args], cwd=str(cwd), stdin=b'', exchange_requests=requests,
+                            timeout_seconds=DISCOVERY_SECONDS, output_limit_bytes=OUTPUT_LIMIT,
+                            connection='authenticated', client='metadata', credential_env=None,
+                            merge_stderr=merge_stderr),
+                       on_started=lambda _: None, stop_requested=lambda: False)
+    require(result['tree_reaped'], 'unsupported_containment')
+    require(result['reason'] != 'timeout', 'client_discovery_timeout')
+    require(result['reason'] != 'output_limit', 'client_output_limit')
+    require(result['reason'] == 'completed' and result['exit_code'] == 0, 'client_discovery_failed')
+    output = result['stdout']
+    require(all(len(line) <= EVENT_LIMIT for line in output.splitlines()), 'client_output_limit')
+    if requests is None:
+        return output.decode('utf-8', errors='strict')
+    events = [parse_json(line) for line in output.splitlines() if line.strip()]
+    require(all(isinstance(event, dict) for event in events), 'client_protocol_error')
+    responses = []
+    for _, expected in requests:
+        if expected is None:
+            continue
+        matches = [event for event in events if event.get('id') == expected or
+                   (isinstance(event.get('response'), dict) and event['response'].get('request_id') == expected)]
+        require(len(matches) == 1 and 'error' not in matches[0], 'client_discovery_failed')
+        responses.append(matches[0])
+    return responses
 
 
 def discover(executable, client, root):

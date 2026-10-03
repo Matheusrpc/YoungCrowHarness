@@ -168,7 +168,37 @@ def child_main():
             os.killpg(os.getpid(), signal.SIGKILL)
 
         threading.Thread(target=watch_parent, daemon=True).start()
-    client = subprocess.Popen(request['argv'], stdin=subprocess.PIPE)
+    exchanges = request.get('exchange_requests')
+    client = subprocess.Popen(request['argv'], stdin=subprocess.PIPE,
+                              stdout=subprocess.PIPE if exchanges is not None else None)
+    if exchanges is not None:
+        try:
+            for query, expected in exchanges:
+                client.stdin.write(json.dumps(query).encode() + b'\n')
+                client.stdin.flush()
+                if expected is None:
+                    continue
+                while True:
+                    line = client.stdout.readline(1024 * 1024 + 1)
+                    if not line or len(line) > 1024 * 1024:
+                        return 125
+                    sys.stdout.buffer.write(line)
+                    sys.stdout.buffer.flush()
+                    event = json.loads(line)
+                    if (event.get('id') == expected or
+                            isinstance(event.get('response'), dict) and event['response'].get('request_id') == expected):
+                        break
+            return 0
+        finally:
+            # All reads are inside the owned tree; the outer supervisor bounds cleanup too.
+            client.terminate()
+            try:
+                client.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                client.kill()
+                client.wait(timeout=3)
+            client.stdin.close()
+            client.stdout.close()
     client.communicate(base64.b64decode(request['stdin']))
     return client.returncode
 
@@ -186,6 +216,16 @@ def environment(plan):
     return env
 
 
+def peek_exit_code(process):
+    if os.name == 'nt':
+        return process.poll()
+    # WNOWAIT keeps the leader's PID occupied until the last group signal.
+    status = os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+    if status is None:
+        return None
+    return status.si_status if status.si_code == os.CLD_EXITED else -status.si_status
+
+
 def supervise(plan: dict, *, on_started, stop_requested) -> dict:
     if os.name != 'nt' and not (sys.platform == 'linux' and platform.machine().lower() in ('x86_64', 'amd64')):
         raise ValueError('unsupported_containment')
@@ -194,7 +234,7 @@ def supervise(plan: dict, *, on_started, stop_requested) -> dict:
     if not Path(plan['argv'][0]).is_file():
         return result
     env = environment(plan)
-    process, job, api = None, None, None
+    process, job, api, assigned = None, None, None, False
     streams, threads, stopped = queue.Queue(maxsize=16), [], threading.Event()
     started, total, output = time.monotonic(), 0, bytearray()
     name = ('Local\\YoungCrow-' if os.name == 'nt' else '') + str(uuid.uuid4())
@@ -221,8 +261,10 @@ def supervise(plan: dict, *, on_started, stop_requested) -> dict:
                                    cwd=plan['cwd'], env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE, start_new_session=os.name != 'nt',
                                    creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
-        if job and not api.AssignProcessToJobObject(job, int(process._handle)):
-            raise ValueError('unsupported_containment')
+        if job:
+            assigned = bool(api.AssignProcessToJobObject(job, int(process._handle)))
+            if not assigned:
+                raise ValueError('unsupported_containment')
         owner = dict(kind='windows-job' if job else 'linux-group', name=name, pid=process.pid)
         result['owner'] = owner
         on_started(owner)  # Persist ownership before giving the wrapper any executable.
@@ -231,11 +273,12 @@ def supervise(plan: dict, *, on_started, stop_requested) -> dict:
             thread.start()
             threads.append(thread)
         process.stdin.write(json.dumps(dict(argv=plan['argv'], stdin=base64.b64encode(plan['stdin']).decode(),
-                                           parent_pid=os.getpid(), timeout_seconds=plan['timeout_seconds'])).encode() + b'\n')
+                                           parent_pid=os.getpid(), timeout_seconds=plan['timeout_seconds'],
+                                           exchange_requests=plan.get('exchange_requests'))).encode() + b'\n')
         process.stdin.close()
         result.update(effect_started=True, reason='completed')
         done = 0
-        while done < 2 or process.poll() is None:
+        while done < 2 or peek_exit_code(process) is None:
             if stop_requested():
                 result['reason'] = 'cancelled'
                 break
@@ -250,38 +293,47 @@ def supervise(plan: dict, *, on_started, stop_requested) -> dict:
                 done += 1
                 continue
             total += len(chunk)
-            if label == 'out':
+            if label == 'out' or plan.get('merge_stderr', False):
                 output.extend(chunk[:max(0, plan['output_limit_bytes'] - len(output))])
             if total > plan['output_limit_bytes']:
                 result['reason'] = 'output_limit'
                 break
     finally:
         stopped.set()
-        if process:
-            result['exit_code'] = process.poll()
-            if job:
-                api.TerminateJobObject(job, 124)
-            elif os.name != 'nt':
+        try:
+            if process:
+                result['exit_code'] = peek_exit_code(process)
+                if assigned:
+                    api.TerminateJobObject(job, 124)
+                elif os.name != 'nt':
+                    try:
+                        os.killpg(process.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                elif process.poll() is None:
+                    process.kill()  # Own handle; the unassigned bootstrap never received a request.
                 try:
-                    os.killpg(process.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-            elif process.poll() is None:
-                process.kill()  # The unassigned bootstrap never received a client request.
-            process.wait(timeout=5)
-            deadline = time.monotonic() + 3
-            while time.monotonic() < deadline:
-                remaining = active_job(api, job) if job else len(linux_members(process.pid)) if os.name != 'nt' else 0
-                if remaining == 0:
-                    break
-                time.sleep(.02)
-            result['tree_reaped'] = remaining == 0
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    result['tree_reaped'] = False
+                deadline = time.monotonic() + 3
+                while time.monotonic() < deadline:
+                    remaining = active_job(api, job) if assigned else len(linux_members(process.pid)) if os.name != 'nt' else 0
+                    if remaining == 0:
+                        break
+                    time.sleep(.02)
+                result['tree_reaped'] &= remaining == 0
+        finally:
+            if job:
+                api.CloseHandle(job)
             for thread in threads:
                 thread.join(timeout=1)
-            for stream in (process.stdin, process.stdout, process.stderr):
-                stream.close()
-        if job:
-            api.CloseHandle(job)
+            if process:
+                process.stdin.close()
+                # A failed containment operation must not hang on a reader's IO lock.
+                if not any(thread.is_alive() for thread in threads):
+                    process.stdout.close()
+                    process.stderr.close()
     result.update(stdout=bytes(output), elapsed_seconds=round(time.monotonic() - started, 6))
     return result
 

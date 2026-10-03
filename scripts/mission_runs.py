@@ -229,14 +229,13 @@ def check_client(root: Path, manifest: dict, executable: Path) -> dict:
         if run['state'] not in TERMINAL and (claimed or run['state'] == 'reserved'):
             run = transition_run(root, run['id'], dict(kind='uncertain'), run['revision'], str(uuid.uuid4()))
         return project(root, run)
-    event = dict(kind='finished', state='failed', reason=result['reason'], exit_code=result['exit_code'],
+    event = dict(kind='finished', state='uncertain' if result['effect_started'] else 'failed',
+                 reason=result['reason'], exit_code=result['exit_code'],
                  elapsed_seconds=result['elapsed_seconds'])
     if result['reason'] == 'completed' and result['exit_code'] != 0:
         event['reason'] = 'protocol_failed'
     if not result['tree_reaped']:
         event.update(state='uncertain', reason='tree_not_reaped')
-    elif result['reason'] in ('timeout', 'cancelled'):
-        event['state'] = 'interrupted'
     elif result['reason'] == 'completed' and result['exit_code'] == 0:
         try:
             decoded = clients.decode_result(agent['client'], clients.parse_events(result['stdout']), manifest['operation_id'])

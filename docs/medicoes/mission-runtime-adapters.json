@@ -36,6 +36,24 @@
       "codex": "passed",
       "mission_skills": 4,
       "model_turns": 0
+    },
+    "supervisor_review": {
+      "tests": 10,
+      "skipped": 1,
+      "seconds": 15.164,
+      "result": "passed"
+    },
+    "inconclusive_effect_review": {
+      "tests": 1,
+      "scenarios": 3,
+      "seconds": 142.671,
+      "result": "passed"
+    },
+    "capabilities": {
+      "tests": 23,
+      "skipped": 1,
+      "seconds": 69.596,
+      "result": "passed"
     }
   },
   "linux": {
@@ -47,15 +65,17 @@
       "catalog": "observed",
       "auth": "authenticated",
       "profile": "blocked_view_image",
-      "model_turns": 0
+      "model_turns": 0,
+      "supervised_inspection": "passed"
     },
     "claude": {
       "version": "2.1.220",
-      "catalog": "observed",
+      "catalog": "historical_observation",
       "auth": "authenticated",
       "profile": "blocked_managed_policy_unverified",
       "model_turns": 0,
-      "live_result": "unsupported"
+      "live_result": "unsupported",
+      "current_inspection": "blocked_hard_link_unsupported_entry"
     },
     "api": "unsupported",
     "linux": "profile_unverified"
@@ -65,5 +85,12 @@
     "python -B tests/windows_fixture_runner.py -m unittest discover -s tests -p test_setup.py -k runtime_helpers -v",
     "python -B tests/windows_fixture_runner.py tests/smoke_mission_runtime.py --root ABSENT_SHORT_PATH --client both"
   ],
-  "raw_outputs": "private_only"
+  "raw_outputs": "private_only",
+  "review": {
+    "independent": true,
+    "important": 4,
+    "fixed_with_red_green": 4,
+    "deferred_minors": 0,
+    "full_suite": "pending"
+  }
 }

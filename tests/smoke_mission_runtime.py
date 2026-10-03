@@ -35,7 +35,7 @@ metadata=dict(version='fixture-1',controls=True,auth_kind='authenticated',profil
                            supportedReasoningEfforts=[dict(reasoningEffort='medium')])])
 with patch.object(mission_clients,'discover',return_value=metadata):
     with patch.object(mission_clients,'build_check',side_effect=build):
-        sys.exit(missions.main(['client','check','--manifest',sys.argv[1],'--executable',sys.executable,'--json']))
+        sys.exit(missions.main(['client','check','--manifest',sys.argv[1],'--executable',str(Path(sys.executable).resolve()),'--json']))
 '''
 
 
@@ -56,6 +56,21 @@ def runtime_smoke(root, client):
         def check_client(mode='success', expected=0):
             return json.loads(invoke(mode, expected))
 
+        def reconcile(run):
+            proof = 'vault/local/reconciliation-' + run['id'] + '.txt'
+            write(project / proof, b'Fixture: owned tree terminated; synthetic external effect reviewed.')
+            reference = dict(path=proof, sha256=hashlib.sha256((project / proof).read_bytes()).hexdigest())
+            evidence = 'vault/local/runtime-evidence.json'
+            write(project / evidence, json.dumps(dict(authorization_ref='Authorized deterministic fixture recovery',
+                                                      termination=reference, external_effect=reference)).encode())
+            recovered = json.loads(run_command([sys.executable, '-B', 'scripts/missions.py', 'client', 'reconcile',
+                                               '--run', run['id'], '--evidence', evidence,
+                                               '--expected-revision', str(run['revision']), '--operation-id', str(uuid.uuid4()),
+                                               '--json'], env=env, cwd=project, expected=1))
+            check(recovered['state'] == 'interrupted' and recovered['cost_usd'] is None, 'reconciliation_failed')
+
+        run_command = run
+
         first = check_client()
         repeated = check_client()
         check(first['id'] == repeated['id'] and repeated['state'] == 'succeeded', 'duplicate_check')
@@ -67,7 +82,8 @@ def runtime_smoke(root, client):
         check(before == after and len(history['runs']) == 1, 'readonly_receipts_failed')
         manifest.update(operation_id=str(uuid.uuid4()), agent_seconds=5)
         timeout = check_client('child', expected=1)
-        check(timeout['state'] == 'interrupted' and timeout['reason'] == 'timeout', 'timeout_not_enforced')
+        check(timeout['state'] == 'uncertain' and timeout['reason'] == 'timeout', 'timeout_not_enforced')
+        reconcile(timeout)
         manifest.update(operation_id=str(uuid.uuid4()), agent_seconds=60)
         invoke('coordinator-crash', expected=9)
         # Give native containment a bounded window to reap the crashed coordinator's child.
@@ -80,21 +96,11 @@ def runtime_smoke(root, client):
         check(crashed['state'] == 'uncertain', 'crash_not_recovered')
         marker = project / 'vault/local/operations/checks' / manifest['operation_id'] / 'dispatches.txt'
         check(marker.read_text() == '1\n', 'crash_dispatched_twice')
-        proof = 'vault/local/runtime-reconciliation.txt'
-        write(project / proof, b'Fixture: owned tree terminated; only the expected nonce was emitted. Reviewed.')
-        reference = dict(path=proof, sha256=hashlib.sha256((project / proof).read_bytes()).hexdigest())
-        evidence = 'vault/local/runtime-evidence.json'
-        write(project / evidence, json.dumps(dict(authorization_ref='Authorized deterministic fixture recovery',
-                                                  termination=reference, external_effect=reference)).encode())
-        recovered = json.loads(run([sys.executable, '-B', 'scripts/missions.py', 'client', 'reconcile',
-                                    '--run', crashed['id'], '--evidence', evidence,
-                                    '--expected-revision', str(crashed['revision']), '--operation-id', str(uuid.uuid4()),
-                                    '--json'], env=env, cwd=project, expected=1))
-        check(recovered['state'] == 'interrupted' and recovered['cost_usd'] is None, 'reconciliation_failed')
+        reconcile(crashed)
         status = json.loads(run([sys.executable, '-B', 'scripts/missions.py', '--json', 'status', mission_id], env=env, cwd=project))
         check(not status['runnable'] and status['check_available'], 'mission_execution_enabled')
         outcomes.append(dict(mode=case, diagnostic='succeeded', replay='same_run', dispatches=1,
-                             read_only=True, timeout='interrupted', crash='uncertain', reconciliation='interrupted',
+                             read_only=True, timeout='uncertain', crash='uncertain', reconciliation='interrupted',
                              runtime_available=False))
 
     return dict(mission_smoke(root, client, extra_check=exercise), diagnostics=outcomes)

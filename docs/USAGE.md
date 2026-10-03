@@ -1697,7 +1697,10 @@ python3 -B scripts/missions.py client inspect --client claude --executable CAMIN
 O catálogo é consultado a cada operação nova. `latest` é resolvido e registrado naquele momento;
 não baixa clientes nem garante o lançamento global mais recente. A inspeção usa versão, ajuda,
 metadados e status de autenticação oficiais, sem enviar um turno de modelo. Não cria banco ou
-recibos do harness. O próprio cliente pode manter caches locais.
+recibos do harness. Cada processo de inspeção e seus descendentes usam o mesmo supervisor,
+com prazo de 30 segundos e saída limitada. O próprio cliente pode manter caches locais.
+O executável precisa ser um arquivo regular, sem link simbólico ou hard link; o diagnóstico
+recusa entradas compartilhadas em vez de alterar a instalação do cliente.
 
 Crie `vault/local/client-check.json` com os UUIDs e a revisão reais. `authorization_ref` registra a
 autorização que você concedeu; o texto do modelo não pode concedê-la. Este exemplo usa até 120
@@ -1737,6 +1740,9 @@ entire manifest unchanged when retrying the same operation. A new operation refr
 catalog and resolves `latest`; it neither upgrades clients nor guarantees the newest global
 release. Inspection sends no model turn and creates no harness database or receipts; the
 native client may maintain its own caches.
+Each metadata process and its descendants use the supervisor with a 30-second deadline and
+bounded output. The executable must be a regular file without symbolic or hard links; inspection
+rejects shared entries without changing the client installation.
 
 The check only asks for its JSON nonce back. Arbitrary prompts, URLs, shell and additional
 capabilities are rejected. Requested, resolved and observed model values remain separate.
@@ -1750,10 +1756,13 @@ O primeiro diagnóstico autorizado migra o esquema 1 para 2 numa transação adi
 na projeção deixa `pending`; repetir o mesmo manifesto recupera a nota sem repetir o modelo.
 `conflict` preserva uma edição humana e requer comparação manual.
 
-Se o coordenador cair, consulte os recibos e repita **o mesmo manifesto**. A operação anterior
-pode ficar `uncertain`; nenhum UUID novo permite contornar esse bloqueio. Confira término dos
-processos e o efeito externo antes de reconciliar. Guarde a análise em arquivos privados e
-referencie seus bytes exatos num JSON, por exemplo `vault/local/client-evidence.json`:
+Se o coordenador cair, consulte os recibos e repita **o mesmo manifesto**. Depois de liberar o
+cliente, timeout, cancelamento, queda ou saída inválida ficam `uncertain` quando não há resultado
+conclusivo validado. Encerrar os processos não confirma o efeito no fornecedor. Nenhum UUID novo
+permite contornar esse bloqueio. Confira término dos processos e efeito externo antes de
+reconciliar. Guarde a análise em arquivos privados e referencie seus bytes exatos num JSON,
+por exemplo `vault/local/client-evidence.json`. Notas Markdown precisam dos metadados do vault;
+use `.txt` para evidência em texto simples.
 
 ```json
 {
@@ -1776,10 +1785,22 @@ Os limites contam reservas anteriores, inclusive falhas. Criar outro UUID não r
 check migrates schema 1 to 2 atomically. Repeating a manifest repairs a pending projection without
 calling the model again; human edits produce a preserved conflict. After a crash, read receipts
 and retry the same manifest. `uncertain` blocks new operations until operator reconciliation.
+After releasing the client, timeout, cancellation, a crash or invalid output remains uncertain
+without a validated conclusive result. Reaping processes does not prove the provider's outcome.
 Review process termination and external effects, then bind private evidence files by SHA-256
 using the command above. Hashes identify bytes, not truth. Reconciliation also requires the
 recorded process to be gone; it never kills an operator-supplied PID. It records `interrupted`
 without resetting attempts, reserved time or unknown cost. Failed runs still consume limits.
+Markdown evidence requires vault metadata; use `.txt` for plain text.
+
+No Windows, prefira um caminho curto para `--backup-root` ao testar o harness. Os recibos
+aninhados de missão também entram no snapshot de retorno e podem exceder o limite conservador
+de caminhos da adoção. O runner recusa esse caso antes da troca; preserve o snapshot e resolva
+o caminho indicado pelo diagnóstico.
+
+On Windows, use a short `--backup-root` when trying the harness. Nested mission receipts also
+enter the return snapshot and can exceed adoption's conservative path limit. The runner rejects
+that case before swapping directories; preserve the snapshot and resolve the reported path.
 
 | Código / Code | Ação / Action |
 |---|---|

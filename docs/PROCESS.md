@@ -15,6 +15,11 @@ confirmar, verificar as cópias e restaurar pelo executor externo. Uma interrup�
 o estado e confirmar a retomada. As cópias do trabalho ficam preservadas. Veja os
 [comandos e limites](USAGE.md#adocao-reversivel-pt); serviços externos ficam fora desse retorno.
 
+
+O [roteiro do quadro de entregas](../examples/delivery-board/README.md) aplica esse fluxo a um projeto
+novo e a uma migração, com testes, notas, publicação e retorno. Consulte o [vault do exemplo](../examples/delivery-board/vault/index.md)
+para seguir a feature, a decisão e as provas da mesma entrega.
+
 ```mermaid
 flowchart TB
   subgraph descoberta["Personalizer e operador"]
@@ -120,6 +125,11 @@ On first adoption, `--trial` captures the state before notes or setup writes. To
 confirm, verify both copies and restore through the external runner. After interruption, inspect
 status and confirm recovery. Trial copies are retained. See the
 [commands and limits](USAGE.md#reversible-adoption-en); external services are excluded.
+
+
+The [delivery board recipe](../examples/delivery-board/README.md) applies this flow to a new project
+and adoption, with tests, notes, publication and restoration. Follow the [example vault](../examples/delivery-board/vault/index.md)
+from the feature to its decision and evidence.
 
 ```mermaid
 flowchart TB

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "list",
+    "title": "Listar entregas",
+    "summary": "Encontrar o objetivo, os critérios de aceite e as referências de cada frente.",
+    "status": "production",
+    "acceptance": ["Cada entrega mostra seu estado e objetivo.", "Os critérios e as referências podem ser consultados por teclado."],
+    "evidence": ["https://github.com/Matheusrpc/YoungCrowHarness/blob/main/examples/delivery-board/vault/features/delivery-board/index.md"]
+  },
+  {
+    "id": "filter",
+    "title": "Filtrar entregas",
+    "summary": "Combinar estado e busca para retomar uma frente sem percorrer o histórico inteiro.",
+    "status": "development",
+    "acceptance": ["Estado e busca funcionam juntos.", "Um filtro vazio explica o resultado; limpar restaura a lista completa."],
+    "evidence": ["https://github.com/Matheusrpc/YoungCrowHarness/blob/main/examples/delivery-board/vault/decisions/static-site.md"]
+  },
+  {
+    "id": "export",
+    "title": "Exportar relatório",
+    "summary": "Ideia fictícia para ilustrar uma entrega planejada. A demonstração não oferece exportação.",
+    "status": "planned",
+    "acceptance": ["O relatório distinguiria dados do cenário e provas reais de publicação."],
+    "evidence": ["https://github.com/Matheusrpc/YoungCrowHarness/blob/main/examples/delivery-board/vault/operations/index.md"]
+  }
+]

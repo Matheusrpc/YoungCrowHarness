@@ -31,7 +31,8 @@ def run(args, *, env, cwd, expected=0):
     return result.stdout
 
 
-def smoke(root, client):
+def smoke(root, client, *, prepare_existing=None, exercise=None,
+          cases=('absent', 'dirty-git', 'interrupted')):
     root = fs.checked_path(root)
     if root.exists() or not root.parent.is_dir():
         raise ValueError('requires_new_disposable_root')
@@ -62,7 +63,7 @@ def smoke(root, client):
                GIT_TERMINAL_PROMPT='0', PYTHONDONTWRITEBYTECODE='1')
     home_before = fs.inspect_tree(home)
     results = []
-    for case in ('absent', 'dirty-git', 'interrupted'):
+    for case in cases:
         project = root / case
         def git_call(*args):
             return run([git, '-c', 'core.fsmonitor=false', '-C', str(project), *args], env=env, cwd=root)
@@ -71,6 +72,8 @@ def smoke(root, client):
             git_call('init', '-q')
             write(project / 'app.txt', b'original commit\n')
             write(project / '.gitignore', b'.env\n')
+            if prepare_existing is not None:
+                prepare_existing(project, case, env)
             git_call('add', '--', 'app.txt', '.gitignore')
             git_call('-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'initial')
             write(project / 'app.txt', b'staged before adoption\n')
@@ -92,6 +95,8 @@ def smoke(root, client):
         receipt = json.loads(output.decode('utf-8', errors='replace').splitlines()[-1])
         if receipt['state'] != 'installed':
             raise ValueError('installation_not_verified')
+        if exercise is not None:
+            exercise(project, case, env)
         runner = receipt['runner']
         def cli(*args):
             return json.loads(run([sys.executable, '-B', runner, '--root', str(project),

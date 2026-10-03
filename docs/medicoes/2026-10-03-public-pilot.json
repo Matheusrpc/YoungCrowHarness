@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-03T12:17:31+00:00",
+  "status": "pending_native_claude_and_publication",
+  "project_id": "f60e681f-a8f3-40a5-aac6-fbcdc7aad86c",
+  "feature_id": "7a8f5020-54ab-5c9d-8355-137c4fba336f",
+  "ci": {
+    "run": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37121661946",
+    "revision": "f2610c15bfad52133d3921f770f7e03b18f0a7d1",
+    "node": {
+      "passed": 8,
+      "skipped": 0
+    },
+    "python": {
+      "total": 256,
+      "skipped": 11,
+      "failed": 0
+    },
+    "windows_storage": {
+      "total": 43,
+      "skipped": 2,
+      "failed": 0
+    },
+    "windows_trial_setup": {
+      "total": 9,
+      "failed": 0
+    },
+    "jobs": [
+      "installer",
+      "public-pilot",
+      "adoption-windows",
+      "graphify-smoke"
+    ]
+  },
+  "adoption": {
+    "windows_local": {
+      "platform": "Windows",
+      "python": "3.14.4",
+      "client": "both",
+      "git": "git version 2.54.0.windows.1",
+      "revision": "0c3d3e97466dbf9d1240cec43ee6893b44a81a3f",
+      "cases": [
+        {
+          "case": "absent",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        },
+        {
+          "case": "dirty-git",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        }
+      ],
+      "model_calls": 0,
+      "native_client_conversation": "not_exercised",
+      "deliveries": [
+        {
+          "mode": "new",
+          "project_id": "f26bec87-0580-474f-b654-64da082568cd",
+          "tests_passed": 4,
+          "native_model_calls": 0,
+          "capabilities_audit_exit": 0,
+          "original_instructions_preserved": false
+        },
+        {
+          "mode": "existing",
+          "project_id": "5ad8a7c0-2566-4d49-8304-a2b4ab39e34f",
+          "tests_passed": 4,
+          "native_model_calls": 0,
+          "capabilities_audit_exit": 0,
+          "original_instructions_preserved": true
+        }
+      ]
+    },
+    "windows_ci": {
+      "platform": "Windows",
+      "python": "3.11.9",
+      "client": "both",
+      "git": "git version 2.55.0.windows.5",
+      "revision": "f2610c15bfad52133d3921f770f7e03b18f0a7d1",
+      "cases": [
+        {
+          "case": "absent",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        },
+        {
+          "case": "dirty-git",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        }
+      ],
+      "model_calls": 0,
+      "native_client_conversation": "not_exercised",
+      "deliveries": [
+        {
+          "mode": "new",
+          "project_id": "e8476142-71c6-4e8f-b833-fe1c81bea289",
+          "tests_passed": 4,
+          "native_model_calls": 0,
+          "capabilities_audit_exit": 0,
+          "original_instructions_preserved": false
+        },
+        {
+          "mode": "existing",
+          "project_id": "560fd8db-98e9-425d-be40-3fa92942d9c8",
+          "tests_passed": 4,
+          "native_model_calls": 0,
+          "capabilities_audit_exit": 0,
+          "original_instructions_preserved": true
+        }
+      ]
+    },
+    "linux_ci": {
+      "platform": "Linux",
+      "python": "3.12.3",
+      "client": "both",
+      "git": "git version 2.55.0",
+      "revision": "f2610c15bfad52133d3921f770f7e03b18f0a7d1",
+      "cases": [
+        {
+          "case": "absent",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        },
+        {
+          "case": "dirty-git",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        }
+      ],
+      "model_calls": 0,
+      "native_client_conversation": "not_exercised",
+      "deliveries": [
+        {
+          "mode": "new",
+          "project_id": "14f2bdec-012f-4718-9c00-b711f98689bf",
+          "tests_passed": 4,
+          "native_model_calls": 0,
+          "capabilities_audit_exit": 0,
+          "original_instructions_preserved": false
+        },
+        {
+          "mode": "existing",
+          "project_id": "b2212b0f-ef33-4f6e-988c-7d9c15dd263a",
+          "tests_passed": 4,
+          "native_model_calls": 0,
+          "capabilities_audit_exit": 0,
+          "original_instructions_preserved": true
+        }
+      ]
+    }
+  },
+  "local_browser": {
+    "passed": true,
+    "widths": [
+      1280,
+      360
+    ],
+    "keyboard": true,
+    "empty_and_reset": true,
+    "literal_html": true,
+    "http_json_network_errors": true,
+    "manifest_fallback": true,
+    "remaining_owned_processes": 0
+  },
+  "native": {
+    "codex": {
+      "passed": true,
+      "project_id": "f60e681f-a8f3-40a5-aac6-fbcdc7aad86c",
+      "feature_id": "7a8f5020-54ab-5c9d-8355-137c4fba336f",
+      "evidence": [
+        {
+          "path": "vault/features/delivery-board/index.md",
+          "note_id": "7a8f5020-54ab-5c9d-8355-137c4fba336f",
+          "sha256": "bc5bd4102cb325640c03eefcdfac99385ad7c5d23d83543ecfddb2ac03a0d634",
+          "repository_blob_sha256": "bc5bd4102cb325640c03eefcdfac99385ad7c5d23d83543ecfddb2ac03a0d634",
+          "observed_line_endings": "LF"
+        },
+        {
+          "path": "vault/decisions/static-site.md",
+          "note_id": "3b61f893-3cd4-5bde-ba34-3fb78808aac2",
+          "sha256": "97c6964f790869c563b1cbad4f01ec8e1194b860d42f0983252782cb62053bdf",
+          "repository_blob_sha256": "97c6964f790869c563b1cbad4f01ec8e1194b860d42f0983252782cb62053bdf",
+          "observed_line_endings": "LF"
+        },
+        {
+          "path": "vault/features/delivery-board/delivery.md",
+          "note_id": "c1a90a67-924d-5a86-8e14-62d3ff499a56",
+          "sha256": "ba849fa0ab7b4654bc2a48a53695292facaa6f3ed95c51938b583e7e080fce2c",
+          "repository_blob_sha256": "ba849fa0ab7b4654bc2a48a53695292facaa6f3ed95c51938b583e7e080fce2c",
+          "observed_line_endings": "LF"
+        },
+        {
+          "path": "vault/features/delivery-board/runs/implementation.md",
+          "note_id": "2dc50f58-624a-5e75-bc51-dbec4d93d6a3",
+          "sha256": "81d39aa17eb94c6c678f62a66b740da0a2fc6aac5fb923ff482059d8b409b9e7",
+          "repository_blob_sha256": "81d39aa17eb94c6c678f62a66b740da0a2fc6aac5fb923ff482059d8b409b9e7",
+          "observed_line_endings": "LF"
+        },
+        {
+          "path": "vault/operations/index.md",
+          "note_id": "78e0331e-c5b3-56b7-9586-9d9171f76409",
+          "sha256": "554d0cb163f28caf55df9ac95902ad10997ff209348b3c7de54f4634fad8f1f7",
+          "repository_blob_sha256": "554d0cb163f28caf55df9ac95902ad10997ff209348b3c7de54f4634fad8f1f7",
+          "observed_line_endings": "LF"
+        },
+        {
+          "path": "vault/integrations/github/pages/index.md",
+          "note_id": "12a8dbc4-b0ad-534e-8056-3ccd9e3b7d7d",
+          "sha256": "6fa786b7a91020797e3d9fef8ea36f77c12a79dcddef7a2bdc9cdc3511deca6c",
+          "repository_blob_sha256": "6fa786b7a91020797e3d9fef8ea36f77c12a79dcddef7a2bdc9cdc3511deca6c",
+          "observed_line_endings": "LF"
+        },
+        {
+          "path": "vault/integrations/github/pages/implementation.md",
+          "note_id": "cd667baf-3f62-5142-9032-c5a718366005",
+          "sha256": "b5849d19c8032c80a19796731363751d4a37425f965fae01fd84b2c98cb5465f",
+          "repository_blob_sha256": "b5849d19c8032c80a19796731363751d4a37425f965fae01fd84b2c98cb5465f",
+          "observed_line_endings": "LF"
+        },
+        {
+          "path": "vault/integrations/github/pages/operations.md",
+          "note_id": "65f249d5-9bec-5c19-90b7-4d968caf9c3d",
+          "sha256": "d4c550651ea971defdafb4f3191687c721d3a61ce1db75e0b4438662ade840b6",
+          "repository_blob_sha256": "d4c550651ea971defdafb4f3191687c721d3a61ce1db75e0b4438662ade840b6",
+          "observed_line_endings": "LF"
+        },
+        {
+          "path": "vault/integrations/github/pages/runs/public-pilot.md",
+          "note_id": "0e1f248a-2679-57b2-91f0-61bcc00d5a10",
+          "sha256": "17a3afe2429df44c9c25effad530e097400d386b99a05e9f385d9e3d1ec8500a",
+          "repository_blob_sha256": "17a3afe2429df44c9c25effad530e097400d386b99a05e9f385d9e3d1ec8500a",
+          "observed_line_endings": "LF"
+        }
+      ],
+      "production": {
+        "status": "não verificada",
+        "description": "Nenhuma URL observada, revisão publicada ou execução de deploy comprovada nas notas. Pages ainda não habilitado segundo o registro da integração.",
+        "observed_url": null,
+        "published_revision": null,
+        "deploy_run": null,
+        "fictional_data_is_production_evidence": false
+      },
+      "next_action": "Comparar este handoff do Codex com uma retomada independente em sessão nova do Claude, conferindo identidade, UUIDs, hashes e distinção entre desenvolvimento e produção para concluir P06.",
+      "capabilities_used": {
+        "skills": [
+          "retrieve-memory",
+          "karpathy",
+          "ponytail"
+        ],
+        "local_operations": [
+          "Leitura de arquivos e navegação pelos microíndices.",
+          "Busca textual com rg.",
+          "Python: memory.py status e query, validação dos UUIDs e unicidade das nove notas de evidência.",
+          "PowerShell: Get-FileHash SHA256."
+        ],
+        "tool_calls": {
+          "functions.exec": 7,
+          "exec_command": 7
+        },
+        "agents": [],
+        "mcps": []
+      },
+      "warnings": [
+        "vault/local/index.md ausente. memory.py status retornou selection_missing; query retornou index_state missing, sem resultados. Recuperação feita diretamente pelos índices Markdown.",
+        "Há resumos desatualizados: delivery.md ainda indica CI Linux pendente; o índice Pages ainda indica pacote pendente. O registro detalhado da execução documenta o pacote testado e CI Linux aprovado.",
+        "O evento de CI das 12:04:10Z aparece no corpo da execução, embora seu frontmatter updated indique 11:41:15Z; a identificação do evento mais recente usa o conteúdo.",
+        "UUIDs validados e hashes calculados sobre os arquivos atuais. Não havia revisões de índice disponíveis para comparação histórica.",
+        "A primeira formatação dos hashes falhou por restrição do PowerShell; a repetição com Select-Object retornou todos os hashes.",
+        "As provas históricas são registros locais, não validações reexecutadas nesta sessão. Nenhum arquivo foi alterado, nenhuma fonte ingerida e nada foi publicado."
+      ],
+      "receipt": {
+        "client": "codex",
+        "seconds": 189.994,
+        "tool_calls": 7,
+        "model_turn_started": true,
+        "stop_reason": "completed",
+        "exit_code": 0,
+        "owned_process_ended": true,
+        "temporary_credential_removed": true,
+        "original_auth_unchanged": true,
+        "changed_files": [],
+        "removed_files": []
+      },
+      "snapshot_revision": "3bc9f17644c87669902a5f8e163bde454ae8bc81",
+      "status": "passed",
+      "version": "codex-cli 0.158.0-alpha.2.1"
+    },
+    "claude": {
+      "status": "pending",
+      "reason": "oauth_expired_could_not_refresh",
+      "version": "2.1.220",
+      "receipt": {
+        "client": "claude",
+        "seconds": 5.066,
+        "tool_calls": 0,
+        "model_turn_started": true,
+        "stop_reason": "completed",
+        "exit_code": 1,
+        "owned_process_ended": true,
+        "temporary_credential_removed": true,
+        "original_auth_unchanged": true,
+        "changed_files": [],
+        "removed_files": []
+      },
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "next_action": "Operator renews Claude login; declare a new bounded attempt before repeating."
+    }
+  },
+  "review": {
+    "status": "passed_after_fix",
+    "base": "27eed807b19a2938811d361d7aab4b5e8d618ace",
+    "head_reviewed": "3d581c551f0cc68572258d7b97572a933d00c0b4",
+    "model": "gpt-6-astra",
+    "critical": 0,
+    "important_fixed": [
+      "Create preview parent on fresh clones"
+    ],
+    "minor": 0,
+    "declined_to_judge": []
+  },
+  "production": {
+    "status": "unverified"
+  }
+}

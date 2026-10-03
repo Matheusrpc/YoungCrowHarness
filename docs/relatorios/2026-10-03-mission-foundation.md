@@ -44,7 +44,11 @@ Três regressões reproduziram as falhas e passaram após a correção (52,235 s
 configuração, processo SQLite interrompido com journal real e projeção acima de 1 MiB. O reparo
 explícito permite recuperar o journal antes de validar o banco; status permanece sem escrita.
 Projeções grandes usam o hash contínuo já usado pela adoção, preservando edições humanas.
-Não houve nova revisão; a correção será confirmada pela suíte final e pelo CI.
+Não houve nova revisão: as correções foram confirmadas pelos 296 testes no Linux (11 skips de
+plataforma) e pelos 36 testes de missões no Windows. O [CI da versão corrigida](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37150657805)
+passou nos quatro jobs. O Windows também passou pelas 43 verificações de adoção (dois skips),
+nove de instalação trial e pelo smoke de missões, usando Python 3.11.9. O smoke Linux usou Python
+3.12.3. Ambos restauraram consumidores novos/existentes e preservaram o trabalho do trial.
 
 ## Decisões de execução e detalhes adiados
 
@@ -67,6 +71,9 @@ Não houve nova revisão; a correção será confirmada pela suíte final e pelo
 
 ## Publicação
 
-[PR #18](https://github.com/Matheusrpc/YoungCrowHarness/pull/18) aberto. Revisão e correções realizadas; CI final pendente. Esta nota não afirma atualização da `main`.
+Entrega reunida no [PR #18](https://github.com/Matheusrpc/YoungCrowHarness/pull/18), com revisão,
+correções e CI aprovados sobre o código `caf8b29`. Os últimos ajustes registram essas provas e o
+passo a passo. O estado atual da integração está no PR; este relatório registra o checkpoint
+anterior ao merge protegido. Nenhum produto do adotante foi publicado por esta entrega.
 
 ATRASO: main 1

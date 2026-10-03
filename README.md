@@ -296,6 +296,10 @@ automáticos pertencem às próximas entregas. Veja o [passo a passo](docs/USAGE
 
 [Abrir o processo de preparação em tamanho completo](assets/process-mission-planning-pt.svg)
 
+[Provas da entrega](docs/relatorios/2026-10-03-mission-foundation.md): 296 testes no Linux, 36 testes
+de missões no Windows e percurso de adoção/retorno nos dois sistemas. O ensaio usa a CLI instalada;
+não comprova uma conversa nativa com os modelos configurados.
+
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
 | Arquivo | Para que serve |
@@ -629,6 +633,10 @@ belong to later deliveries. See the [walkthrough](docs/USAGE.md#mission-workflow
 ![Prepare a mission: personalizer, agent configuration, backlog, feature selection, refinement and status. Automatic execution remains unavailable.](assets/process-mission-planning-en.svg)
 
 [Open the preparation process at full size](assets/process-mission-planning-en.svg)
+
+[Delivery evidence](docs/relatorios/2026-10-03-mission-foundation.md): 296 Linux tests, 36 Windows
+mission tests and adoption/restoration scenarios on both systems. The smoke uses the installed CLI;
+it does not establish a native conversation with the configured models.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 

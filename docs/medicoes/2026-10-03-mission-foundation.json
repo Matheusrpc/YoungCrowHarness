@@ -31,6 +31,33 @@
         "existing fixture path length",
         "existing PID fixture read race"
       ]
+    },
+    "final_linux_suite": {
+      "tests": 296,
+      "seconds": 90.709,
+      "skipped": 11,
+      "result": "passed",
+      "run_url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37150657805"
+    },
+    "final_windows_missions": {
+      "tests": 36,
+      "seconds": 277.496,
+      "result": "passed",
+      "head_sha": "caf8b2929b68eab10363548dfe6e9f42c3a76b1f"
+    },
+    "windows_ci_adoption": {
+      "suites": [
+        {
+          "tests": 43,
+          "seconds": 328.387
+        },
+        {
+          "tests": 9,
+          "seconds": 103.349
+        }
+      ],
+      "result": "passed",
+      "skipped": 2
     }
   },
   "skills": {
@@ -148,12 +175,161 @@
         "scripts/mission_vault.py": "0dc4ff24125032f6202976bddeddbdcfe9a041e50d133ee1011a62684bb3dc9f"
       }
     },
-    "linux": "pending CI"
+    "linux": {
+      "platform": "Linux",
+      "python": "3.12.3",
+      "client": "both",
+      "git": "git version 2.55.0",
+      "revision": "1f6ab187527f3beac9bbdc1e17224a26372576a2",
+      "cases": [
+        {
+          "case": "absent",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        },
+        {
+          "case": "dirty-git",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        }
+      ],
+      "model_calls": 0,
+      "native_client_conversation": "not_exercised",
+      "missions": [
+        {
+          "mode": "new",
+          "project_id": "2c1efc05-ddc8-4e97-ac65-ffa74aa3d6df",
+          "features": 2,
+          "pbis": 4,
+          "mission_codes": [
+            "M001",
+            "M002",
+            "M003"
+          ],
+          "existing_hashes_preserved": false,
+          "legacy_hashes": {},
+          "snapshots_frozen": true,
+          "replay_without_duplicate": true,
+          "read_only_status": true,
+          "projection_recovered": true,
+          "vault_notes": 47,
+          "state": "prepared",
+          "runtime_available": false
+        },
+        {
+          "mode": "existing",
+          "project_id": "201be38f-d554-4de9-9595-aa9401ba2775",
+          "features": 2,
+          "pbis": 4,
+          "mission_codes": [
+            "M001",
+            "M002",
+            "M003"
+          ],
+          "existing_hashes_preserved": true,
+          "legacy_hashes": {
+            "vault/project.json": "72efb303b5fa02ccd1346de5fbb3b9aef27376f27156794b970b2196782736f5",
+            "vault/product/profile.md": "4e24abb3b314b85c0fa672a55835df76b8223f5c95ca5919d14a6968ff317b65",
+            "vault/features/legacy/index.md": "95d43160073e093b84d69989d1f21885648b2871763959021cb454ba0b1d8b1f",
+            "youngcrow/agents.json": "711963ea1ae04364f4c85799911a91b15dc8d9da359d5e76cfdf90f05844aa18"
+          },
+          "snapshots_frozen": true,
+          "replay_without_duplicate": true,
+          "read_only_status": true,
+          "projection_recovered": true,
+          "vault_notes": 54,
+          "state": "prepared",
+          "runtime_available": false
+        }
+      ],
+      "native_execution": "not_run",
+      "run_url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37150657805",
+      "job_id": 111283693598,
+      "head_sha": "caf8b2929b68eab10363548dfe6e9f42c3a76b1f"
+    },
+    "windows_ci": {
+      "platform": "Windows",
+      "python": "3.11.9",
+      "client": "both",
+      "git": "git version 2.55.0.windows.5",
+      "revision": "1f6ab187527f3beac9bbdc1e17224a26372576a2",
+      "cases": [
+        {
+          "case": "absent",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        },
+        {
+          "case": "dirty-git",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        }
+      ],
+      "model_calls": 0,
+      "native_client_conversation": "not_exercised",
+      "missions": [
+        {
+          "mode": "new",
+          "project_id": "fe7f3f8d-e8d2-49be-995e-ea4145864e4d",
+          "features": 2,
+          "pbis": 4,
+          "mission_codes": [
+            "M001",
+            "M002",
+            "M003"
+          ],
+          "existing_hashes_preserved": false,
+          "legacy_hashes": {},
+          "snapshots_frozen": true,
+          "replay_without_duplicate": true,
+          "read_only_status": true,
+          "projection_recovered": true,
+          "vault_notes": 47,
+          "state": "prepared",
+          "runtime_available": false
+        },
+        {
+          "mode": "existing",
+          "project_id": "7be4e366-07b2-4bc4-9dc4-e178abf007ea",
+          "features": 2,
+          "pbis": 4,
+          "mission_codes": [
+            "M001",
+            "M002",
+            "M003"
+          ],
+          "existing_hashes_preserved": true,
+          "legacy_hashes": {
+            "vault/project.json": "6b3b036d87c26f8589537ba72fee419be03a639163cdf6784a06781aa7feb126",
+            "vault/product/profile.md": "b568fd7c9ebadd262c6bf0b5bc2ac979553ee096fd76fa74a49fae24ceef8e9b",
+            "vault/features/legacy/index.md": "9d637cd8d5c410b9430aeb646330c6f902bdaeb05bbd9b8989ed5d82172e4216",
+            "youngcrow/agents.json": "711963ea1ae04364f4c85799911a91b15dc8d9da359d5e76cfdf90f05844aa18"
+          },
+          "snapshots_frozen": true,
+          "replay_without_duplicate": true,
+          "read_only_status": true,
+          "projection_recovered": true,
+          "vault_notes": 54,
+          "state": "prepared",
+          "runtime_available": false
+        }
+      ],
+      "native_execution": "not_run",
+      "run_url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37150657805",
+      "job_id": 111283693565,
+      "head_sha": "caf8b2929b68eab10363548dfe6e9f42c3a76b1f"
+    }
   },
   "publication": {
+    "pr": "https://github.com/Matheusrpc/YoungCrowHarness/pull/18",
     "branch": "feat/mission-foundation",
-    "main": "pending",
-    "pr": "https://github.com/Matheusrpc/YoungCrowHarness/pull/18"
+    "checkpoint": "CI approved; evidence recorded before protected merge; consult PR for current merge state",
+    "verified_code_sha": "caf8b2929b68eab10363548dfe6e9f42c3a76b1f",
+    "ci_url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37150657805"
   },
   "review": {
     "model": "gpt-6-astra",
@@ -171,6 +347,6 @@
       "passed": 3,
       "seconds": 52.235
     },
-    "full_suite": "pending final CI"
+    "full_suite": "passed: 296 Linux tests, 36 Windows mission tests; all four CI jobs passed"
   }
 }

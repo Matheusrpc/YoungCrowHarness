@@ -1,8 +1,8 @@
 # Piloto público: evidências de implementação
 
 Frente: quadro de entregas. Data: 2026-10-03. O código, o pacote e a adoção estão verificados.
-A retomada passou no Codex. Claude permanece pendente por autenticação expirada; revisão e publicação
-ainda não foram concluídas. O piloto completo não está fechado.
+A retomada passou no Codex. Claude permanece pendente por autenticação expirada; a revisão independente terminou e a publicação
+ainda não foi concluída. O piloto completo não está fechado.
 
 [Exemplo e roteiro](../../examples/delivery-board/README.md) · [Medições](../medicoes/2026-10-03-public-pilot.json)
 · [Vault](../../examples/delivery-board/vault/index.md)
@@ -60,5 +60,8 @@ e nenhum arquivo do contexto de prova modificado. Graphify e claude-mem não for
 ## Revisão e publicação
 
 O workflow preparado publica somente main, com staging permitido e permissão de escrita apenas no job
-de deploy. Revisão independente, configuração de Pages e observação externa permanecem pendentes.
+de deploy. A revisão independente do intervalo 27eed80..3d581c5 encontrou um problema P2 no roteiro:
+a prévia exigia uma pasta pai inexistente em um clone novo. A receita agora cria essa pasta;
+a falha foi reproduzida antes da correção e o pacote passou depois. Sem achados críticos, menores
+ou comportamentos deixados sem julgamento. Configuração de Pages e observação externa permanecem pendentes.
 A pendência de autenticação não será apresentada como falha ou sucesso de recuperação do Claude.

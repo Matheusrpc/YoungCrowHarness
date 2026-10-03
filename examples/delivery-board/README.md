@@ -19,10 +19,12 @@ As [medições e limitações](../../docs/relatorios/2026-10-03-public-pilot.md)
 Para preparar uma prévia a partir da raiz do harness, escolha um destino novo fora da pasta do exemplo:
 
 ```bash
+python -c "from pathlib import Path; Path('.runtime').mkdir(exist_ok=True)"
 node examples/delivery-board/package.mjs .runtime/pilot-site REVISION
 python -m http.server 8765 --bind 127.0.0.1 --directory .runtime/pilot-site
 ```
 
+O primeiro comando cria o diretório pai da prévia, inclusive em um clone novo; funciona no Bash e no PowerShell.
 Troque `REVISION` pela revisão Git de 40 caracteres obtida com `git rev-parse HEAD`. No PowerShell,
 capture-a em `$revision = git rev-parse HEAD` e passe `$revision` no lugar de `REVISION`.
 O gerador recusa destino existente, links de arquivo, dados inválidos e destinos dentro da origem.
@@ -44,7 +46,7 @@ Run the command above from `examples/delivery-board`, with Node 24. The harness 
 
 The model validates input and combines status and search. The page was checked at 1280px and 360px,
 with keyboard controls, empty results, reset and loading failures. To preview the allowed package,
-run the two commands above from the harness root. Replace `REVISION` with the 40-character output of
+run the commands above from the harness root. The first creates the parent directory, including on a fresh clone. Replace `REVISION` with the 40-character output of
 `git rev-parse HEAD`; in PowerShell assign it to `$revision` and pass that variable. Choose a new
 destination outside the source; existing destinations, linked files and invalid data are refused.
 Open `http://127.0.0.1:8765`, then stop the server. The package contains six public files and a hash

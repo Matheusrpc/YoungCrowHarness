@@ -316,7 +316,16 @@
     }
   },
   "review": {
-    "status": "pending"
+    "status": "passed_after_fix",
+    "base": "27eed807b19a2938811d361d7aab4b5e8d618ace",
+    "head_reviewed": "3d581c551f0cc68572258d7b97572a933d00c0b4",
+    "model": "gpt-6-astra",
+    "critical": 0,
+    "important_fixed": [
+      "Create preview parent on fresh clones"
+    ],
+    "minor": 0,
+    "declined_to_judge": []
   },
   "production": {
     "status": "unverified"

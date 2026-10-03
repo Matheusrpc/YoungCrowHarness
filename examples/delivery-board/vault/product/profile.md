@@ -3,7 +3,7 @@ id: "52afdaf0-b360-50d5-9724-a917ab0fcd8c"
 type: "product"
 title: "Perfil do quadro de entregas"
 origin: "youngcrow/public-pilot"
-updated: "2026-10-03T11:41:15+00:00"
+updated: "2026-10-03T12:24:54.296Z"
 index: "index.md"
 ---
 
@@ -26,4 +26,4 @@ avalia diff e evidências. Esses são papéis, sem orquestração autônoma. O o
 
 Comando verificado: `node --test tests/model.test.mjs` a partir da pasta do exemplo.
 O aceite completo está na feature. Fontes e recibos privados não acompanham os arquivos públicos.
-Desenvolvimento: página, modelo e dados testados. Produção: ainda não verificada.
+Desenvolvimento: página, modelo e dados testados. Produção: verificada; revisão e prova externa na operação ligada acima.

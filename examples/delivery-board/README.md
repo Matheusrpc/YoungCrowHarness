@@ -1,6 +1,6 @@
 # Quadro de entregas / Delivery board
 
-[YoungCrowHarness](../../README.md) · [Vault](vault/index.md) · [Plano](../../docs/superpowers/plans/2026-10-03-public-pilot.md)
+[Demonstração / Live demo](https://matheusrpc.github.io/YoungCrowHarness/) · [YoungCrowHarness](../../README.md) · [Vault](vault/index.md) · [Plano](../../docs/superpowers/plans/2026-10-03-public-pilot.md)
 
 Este exemplo acompanha uma entrega desde a descoberta até a publicação. Os três itens de `data.json`
 são fictícios; o estado real da demonstração fica no [registro de operação](vault/operations/index.md).
@@ -13,7 +13,7 @@ node --test tests/*.test.mjs
 Execute na pasta `examples/delivery-board`. O modelo valida os dados e combina estado e busca.
 A página usa controles nativos e mostra critérios e referências. O percurso local foi conferido em
 1280px e 360px, com teclado, filtros vazios, limpeza e falhas de carregamento. Os dois consumidores
-passaram por adoção e retorno no Windows e no Linux, com trabalho do trial preservado. Retomada nativa passou no Codex; Claude aguarda login. Publicação pendente.
+passaram por adoção e retorno no Windows e no Linux, com trabalho do trial preservado. Retomada nativa passou no Codex; Claude aguarda login. Publicação verificada, com revisão e hashes na operação.
 As [medições e limitações](../../docs/relatorios/2026-10-03-public-pilot.md) detalham cada prova.
 
 Para preparar uma prévia a partir da raiz do harness, escolha um destino novo fora da pasta do exemplo:
@@ -31,8 +31,7 @@ O gerador recusa destino existente, links de arquivo, dados inválidos e destino
 Para repetir, escolha outro diretório novo. Abra `http://127.0.0.1:8765` e encerre o servidor depois da consulta.
 O pacote contém apenas HTML, CSS, dois módulos, JSON revisado, a gema e `manifest.json`.
 O manifesto associa hashes à revisão informada; ele não concede aprovação nem autentica o conteúdo.
-Os links do vault usam a main e só ficam
-disponíveis quando esta frente for integrada.
+Os links do vault usam a main; a prova externa conferiu os três destinos públicos.
 
 O vault tem identidade própria e índices de produto, features, decisões, integração e operação.
 Comece pelo índice geral e siga a frente. O setup não copia este exemplo para todos os consumidores.
@@ -51,8 +50,8 @@ run the commands above from the harness root. The first creates the parent direc
 destination outside the source; existing destinations, linked files and invalid data are refused.
 Open `http://127.0.0.1:8765`, then stop the server. The package contains six public files and a hash
 manifest. The manifest records bytes and the supplied revision, not approval or authentication.
-Vault links become available after merge.
-Both consumers passed reversible adoption on Windows and Linux, with trial work preserved. Native retrieval passed in Codex; Claude needs a renewed login. Publication remains pending.
+The external check verified all three public vault destinations.
+Both consumers passed reversible adoption on Windows and Linux, with trial work preserved. Native retrieval passed in Codex; Claude needs a renewed login. Publication passed revision, hash and browser checks.
 See the [evidence and limits](../../docs/relatorios/2026-10-03-public-pilot.md). The example has its own vault identity and linked
 indices. Setup does not copy this example into every consumer. Private notes, source documents, receipts
 and backups stay outside the public site.

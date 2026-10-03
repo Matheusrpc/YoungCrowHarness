@@ -1,8 +1,8 @@
 # Piloto público: evidências de implementação
 
 Frente: quadro de entregas. Data: 2026-10-03. O código, o pacote e a adoção estão verificados.
-A retomada passou no Codex. Claude permanece pendente por autenticação expirada; a revisão independente terminou e a publicação
-ainda não foi concluída. O piloto completo não está fechado.
+A retomada passou no Codex. Claude permanece pendente por autenticação expirada; a revisão independente terminou e o site
+foi publicado e observado. O piloto completo não está fechado.
 
 [Exemplo e roteiro](../../examples/delivery-board/README.md) · [Medições](../medicoes/2026-10-03-public-pilot.json)
 · [Vault](../../examples/delivery-board/vault/index.md)
@@ -18,8 +18,8 @@ ainda não foi concluída. O piloto completo não está fechado.
 | P05 | Vault público com UUID próprio, índices e resumo conciliado | Passou; resumos corrigidos após a consulta nativa |
 | P06 | Codex: nove UUIDs e SHA-256; Claude: OAuth expirado | Pendente no Claude |
 | P07 | Oito testes Linux sem skips; pacote de seis arquivos e manifesto | Passou |
-| P08 | Pages, revisão e observação externa | Pendente |
-| P09 | README/guia PT/EN, receitas novo/migração/saída e processos ligados | Roteiro pronto; URL final pendente |
+| P08 | Pages, revisão, seis hashes e percurso externo | Passou |
+| P09 | README/guia PT/EN, receitas novo/migração/saída e processos ligados | Passou; demonstração e roteiro ligados |
 
 ## Testes e limites
 
@@ -63,5 +63,17 @@ O workflow preparado publica somente main, com staging permitido e permissão de
 de deploy. A revisão independente do intervalo 27eed80..3d581c5 encontrou um problema P2 no roteiro:
 a prévia exigia uma pasta pai inexistente em um clone novo. A receita agora cria essa pasta;
 a falha foi reproduzida antes da correção e o pacote passou depois. Sem achados críticos, menores
-ou comportamentos deixados sem julgamento. Configuração de Pages e observação externa permanecem pendentes.
+ou comportamentos deixados sem julgamento. Pages foi configurado com HTTPS e somente main; a observação externa passou.
 A pendência de autenticação não será apresentada como falha ou sucesso de recuperação do Claude.
+
+## Produção observada
+
+[Demonstração](https://matheusrpc.github.io/YoungCrowHarness/) · [Deploy](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37122731645) · [PR #16](https://github.com/Matheusrpc/YoungCrowHarness/pull/16).
+Em 2026-10-03T12:24:54.296Z, a revisão `2134134f14dc861be803173613bfd6a0d2e855e0` respondeu pela página e pelos seis arquivos públicos.
+Manifesto, bytes recebidos e blobs Git coincidiram. A prova externa percorreu filtros, vazio, limpeza,
+teclado e telas de 1280px/360px, verificou os três links do vault e encerrou seus processos (zero restantes).
+O retorno de produção está documentado, mas não foi acionado. P06 continua pendente no Claude.
+
+![Demonstração publicada em desktop](../medicoes/2026-10-03-public-pilot-desktop.png)
+
+![Demonstração publicada em tela estreita](../medicoes/2026-10-03-public-pilot-mobile.png)

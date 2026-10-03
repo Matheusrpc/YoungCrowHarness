@@ -3,7 +3,7 @@ id: "2dc50f58-624a-5e75-bc51-dbec4d93d6a3"
 type: "run"
 title: "Implementação do piloto"
 origin: "youngcrow/public-pilot"
-updated: "2026-10-03T11:41:15+00:00"
+updated: "2026-10-03T12:24:54.296Z"
 index: "../index.md"
 ---
 
@@ -20,13 +20,13 @@ Cobertura: combinação de filtros/vazio/limpeza, imutabilidade, contrato, links
 Personalizer e integrations criaram o vault deste exemplo com identidade independente.
 
 Baseline de helpers: 8 testes personalizer e 22 vault passaram, com um skip de plataforma em cada.
-Não confundir esse baseline com a prova de adoção da aplicação. Revisão independente ainda pendente.
+Não confundir esse baseline com a prova de adoção da aplicação. A revisão estava pendente nesta etapa; o resultado final está no relatório público.
 Skills lidas/usadas pelo executor: executing-plans, test-driven-development, karpathy, ponytail,
 humanizer, personalizer, retrieve-memory e integrate-from-docs. Nenhuma conversa nativa nova nesta etapa.
 MCP externo: zero. Graphify e claude-mem: não usados. README e guia acompanham a entrega.
 
-Desenvolvimento: página e modelo verificados localmente. Produção: não verificada.
-Próxima ação: retomada nativa nos dois clientes. O resumo da feature foi conciliado com este registro.
+Durante a implementação: página e modelo verificados localmente; produção ainda não observada.
+Naquela etapa, próxima ação: retomada nativa. Consulte [a prova nativa](native-memory.md) e a [operação atual](../../../operations/index.md).
 
 Task 2: primeiro navegador recebeu HTTP 404 antes da página existir. Depois o ensaio em Edge headless
 verificou 1280px/360px, combinação/vazio/limpeza, Tab/Shift+Tab/Enter/Espaço, foco, HTML literal

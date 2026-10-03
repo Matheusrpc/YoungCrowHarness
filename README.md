@@ -282,9 +282,13 @@ O desenho foi aprovado e o [plano da primeira entrega](docs/superpowers/plans/20
 está aprovado. A primeira base valida configurações de agentes offline em `youngcrow/agents.json`:
 três PBIs e três agentes simultâneos por padrão, três ciclos de correção e deploy manual.
 Modelo e esforço ficam pendentes até a escolha do usuário. Veja o
-[contrato de configuração](docs/USAGE.md#mission-config). Os comandos da esteira ainda estão em implementação.
+[contrato de configuração](docs/USAGE.md#mission-config). A CLI `scripts/missions.py` configura,
+importa o backlog, prepara missões e consulta o histórico. As entradas de skill estão em implementação.
 O backlog usa contratos Markdown com UUID, DoR, DoD e referências verificadas por hash.
 Novas notas começam em `vault/local/product/`; features existentes mantêm seus caminhos e conteúdo.
+Missões guardam a configuração e as revisões usadas no preparo. O status aponta fontes alteradas;
+`repair` recupera projeções pendentes e preserva edições humanas. Desenvolvimento, QA e deploy
+automáticos pertencem às próximas entregas. Veja o [passo a passo](docs/USAGE.md#mission-workflow).
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
@@ -606,9 +610,13 @@ and verified production. The design is approved and the
 [first delivery plan](docs/superpowers/plans/2026-10-03-mission-foundation.md) is approved.
 Offline agent configuration in `youngcrow/agents.json` defaults to three active PBIs, three parallel
 agents, three correction cycles and manual deployment. Model and effort remain pending until chosen.
-See the [configuration contract](docs/USAGE.md#mission-config). Pipeline commands are still being implemented.
+See the [configuration contract](docs/USAGE.md#mission-config). `scripts/missions.py` configures agents,
+imports backlog notes, prepares missions and reads history. Skill entries are still being implemented.
 Backlog Markdown contracts carry UUIDs, DoR, DoD and references checked by hash.
 New notes start in `vault/local/product/`; existing features keep their paths and content.
+Missions freeze their configuration and source revisions. Status reports changed inputs; `repair`
+recovers pending projections while preserving human edits. Automated development, QA and deployment
+belong to later deliveries. See the [walkthrough](docs/USAGE.md#mission-workflow).
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 

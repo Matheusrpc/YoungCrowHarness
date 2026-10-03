@@ -1,8 +1,5 @@
 """Small real-project fixtures shared by mission checks and the adoption smoke."""
-import hashlib
 import json
-from pathlib import Path
-import sys
 import uuid
 
 from test_documents import ProjectCase

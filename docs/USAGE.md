@@ -1486,3 +1486,78 @@ Legacy features without a contract remain readable with `missing_contract`. Read
 notes, moves files or executes commands mentioned in criteria. Malformed contracts, foreign project
 references and public links to private notes are rejected. Empty criteria remain draft; unknown
 historical dates stay unknown.
+
+<a id="mission-workflow"></a>
+
+## Preparar uma missão / Prepare a mission
+
+Depois do setup e da personalizer, use os comandos abaixo na raiz do produto. No Windows,
+`python` pode ser o nome do Python 3. Arquivos de entrada são caminhos relativos ao projeto.
+Guarde pedidos e backlog em `vault/local/`; mantenha o mesmo UUID de operação para repetir
+um pedido interrompido. Um pedido diferente exige outro UUID.
+
+```bash
+python3 -B scripts/missions.py --json config show
+python3 -B scripts/missions.py --json config validate --input vault/local/agents-draft.json
+python3 -B scripts/missions.py --json config apply --input vault/local/agents-draft.json --expected-digest absent
+python3 -B scripts/missions.py --json backlog import --note vault/local/product/epics/EPIC_UUID/index.md --expected-revision 0 --operation-id OPERATION_UUID --actor-id current-session --actor-role pm
+python3 -B scripts/missions.py --json prepare --input vault/local/mission-request.json --operation-id OPERATION_UUID --actor-id current-session --actor-role pm
+python3 -B scripts/missions.py --json status M001
+python3 -B scripts/missions.py --json repair M001
+```
+
+Substitua os marcadores por UUIDs reais. Importe primeiro o épico, depois features e PBIs;
+para PBIs, use `--actor-role tech_lead`. Cada importação tem seu próprio UUID de operação.
+O papel é uma atribuição declarada, sem autenticação de identidade. Uma nota importada recebe
+código E/F/P e revisão. Importar uma edição exige a revisão atual em `--expected-revision`.
+Para alterar os padrões, substitua `absent` pelo digest retornado por `config show`.
+
+O pedido da missão contém exatamente:
+
+```json
+{
+  "title": "Entrega definida com o PM",
+  "feature_ids": ["FEATURE_UUID"],
+  "priority": ["PBI_UUID_1", "PBI_UUID_2"],
+  "overrides": {},
+  "scope_reference": "Decisão aprovada e registrada no perfil"
+}
+```
+
+`feature_ids` seleciona uma ou mais features; `priority` ordena todos os PBIs importados dessas
+features, sem repetição. Três PBIs ativos é o padrão futuro de execução, não o tamanho total da missão.
+Critérios, dependências ou escolhas ausentes produzem `draft`. `prepared` indica planejamento
+completo; `runtime_available` e `runnable` continuam `false`. O backend não chama modelos nem
+executa as strings em `validation`.
+
+O histórico fica em `vault/local/operations/state.sqlite3`, com notas navegáveis de eventos e
+missões. `status` não cria nem repara arquivos. Se fontes mudarem, ele mostra `stale_inputs`;
+importe as edições e use `revise M001 --input ... --expected-revision N --operation-id UUID
+--actor-id current-session --actor-role pm` para preparar outra revisão. Mudar o padrão global
+não altera missões existentes. `revise` herda a configuração congelada e aplica apenas as
+substituições explícitas. As datas dos eventos registram importação/refinamento, sem inventar
+datas de desenvolvimento, QA ou produção.
+
+Uma falha de projeção mantém o evento confirmado no banco. Repita a mesma operação ou use
+`repair`; conflito com edição humana exige conciliar essa nota, sem apagar seu conteúdo.
+Saída 0 significa pedido válido (inclusive rascunho), 1 conflito ou falha operacional e 2 entrada
+inválida. Não edite o banco diretamente; guarde também esse arquivo em seu backup privado.
+
+After setup and personalization, run the commands above from the product root. Inputs are project-relative
+paths. Keep requests and backlog private. Use real UUIDs and a distinct operation UUID for each request;
+retry an interrupted request with its original UUID. Import epics, features and then PBIs. PBIs use
+`tech_lead`; other items and mission preparation use `pm`. These are declared roles, not authenticated identities.
+Updating an item requires its current revision; changing defaults requires the current configuration digest.
+
+A request selects one or more feature UUIDs and lists every imported PBI in priority order. Empty criteria,
+unresolved dependencies or missing choices produce `draft`; complete planning produces `prepared`.
+Runtime remains unavailable. Three active PBIs is the future execution default, not a mission size limit.
+The backend calls no models and never executes validation strings.
+
+SQLite keeps revisions and events privately, with navigable Markdown projections. `status` is read-only
+and reports changed inputs. Import edits, then use `revise` with the current revision and a new operation
+UUID. Global defaults never rewrite a mission; revision inherits frozen choices plus explicit overrides.
+Event times record import/refinement, without inventing development, QA or production dates.
+Retry or `repair` recovers a failed projection. Human edits are preserved and reported as conflicts.
+Exit 0 includes valid drafts; 1 means conflict or operational failure; 2 means invalid input. Include the
+database in private backups; do not edit it directly.

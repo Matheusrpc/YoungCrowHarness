@@ -18,6 +18,6 @@ Os ensaios usarão consumidores descartáveis externos: um destino inicialmente 
 com aplicação inicial, instruções próprias e mudanças preparadas/não preparadas. A captura trial ocorre
 antes da primeira nota de onboarding. Nenhum estado anterior é reconstruído retroativamente.
 
-Estado: ensaios de adoção desta aplicação ainda não executados. Backups, caminhos, fontes copiadas e
+Estado: dois consumidores verificados no Windows em 2026-10-03, com retorno exato e trial preservado. Backups, caminhos, fontes copiadas e
 recibos ficam privados, fora de qualquer Git. Esta nota poderá conter apenas ID de adoção, data,
 estado e próxima ação; o retorno do diretório não desfaz publicação ou serviços externos.

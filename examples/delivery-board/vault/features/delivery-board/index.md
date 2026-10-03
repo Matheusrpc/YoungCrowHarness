@@ -22,8 +22,8 @@ Responsável pela aprovação: mantenedor. Execução: Codex nesta sessão, um e
 |---|---|
 | P01: lista, combinação de filtros, vazio, limpeza e entrada inválida | 4 testes e percurso de navegador passam |
 | P02: teclado, tela estreita e processos encerrados | Verificado localmente em 1280px e 360px; zero processos próprios |
-| P03: setup novo e migração preservando instruções | Pendente para esta aplicação |
-| P04: ponto inicial restaurado e trabalho do trial preservado | Pendente para esta aplicação |
+| P03: setup novo e migração preservando instruções | Verificado no Windows; CI Linux pendente |
+| P04: ponto inicial restaurado e trabalho do trial preservado | Ambos os consumidores verificados no Windows |
 | P05: índices, identidade, links e resumo conciliado | 20 notas, zero problemas no validador |
 | P06: retomada em sessões novas de Claude e Codex | Pendente |
 | P07: pacote permitido e CI | Pacote local: 7 testes passam, 1 skip Windows; job CI preparado |
@@ -31,4 +31,4 @@ Responsável pela aprovação: mantenedor. Execução: Codex nesta sessão, um e
 | P09: roteiro PT/EN, README e processos | Documentação em andamento |
 
 Desenvolvimento: página, modelo e dados verificados localmente. Produção: não verificada.
-Próxima ação: exercitar consumidores novos e existentes; consultar a execução para o detalhe de cada prova.
+Próxima ação: conferir CI e retomar a memória nos dois clientes; consultar a execução para o detalhe de cada prova.

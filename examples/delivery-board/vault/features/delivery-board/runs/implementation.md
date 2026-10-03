@@ -26,7 +26,7 @@ humanizer, personalizer, retrieve-memory e integrate-from-docs. Nenhuma conversa
 MCP externo: zero. Graphify e claude-mem: não usados. README e guia acompanham a entrega.
 
 Desenvolvimento: página e modelo verificados localmente. Produção: não verificada.
-Próxima ação: consumidores novos e existentes, com retorno. O resumo da feature foi conciliado com este registro.
+Próxima ação: CI e retomada nativa nos dois clientes. O resumo da feature foi conciliado com este registro.
 
 Task 2: primeiro navegador recebeu HTTP 404 antes da página existir. Depois o ensaio em Edge headless
 verificou 1280px/360px, combinação/vazio/limpeza, Tab/Shift+Tab/Enter/Espaço, foco, HTML literal
@@ -42,3 +42,10 @@ e o manifesto chegam ao staging. Destino existente é preservado; hardlinks e da
 A página recupera uma revisão válida do manifesto e conserva a prévia quando ele é inválido.
 Prova de navegador passou novamente, com processos próprios zerados. Workflow de CI preparado;
 a execução remota ainda não ocorreu. O manifesto não é assinatura nem autorização.
+
+Task 4: Windows/Python 3.14.4/Git 2.54.0, perfil both. Setup real em destino ausente e Git
+existente; ambas as restaurações confirmaram árvores, Git e cópias do trabalho do trial. Perfil global
+inalterado; 4 testes Node e auditoria de capacidades com código 0 em cada consumidor.
+A configuração própria e os prefixos das instruções/README foram preservados na migração.
+O script copiou a versão canônica e usou helpers reais; não chamou modelos nem simulou conversa nativa.
+A prova Linux será executada no CI. O README contém os três percursos e limites do retorno.

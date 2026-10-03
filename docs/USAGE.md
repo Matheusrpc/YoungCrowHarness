@@ -12,11 +12,13 @@ See the [usage diagrams](../README.md#process-en) for new projects, adoption, da
 The [complete process](PROCESS.md#english) includes decisions, pauses and resumption.
 
 O [piloto público](../examples/delivery-board/README.md) reúne esses percursos em um exemplo com
-vault próprio. A página e os filtros foram verificados localmente, incluindo teclado e tela estreita; publicação e adoção estão em andamento.
+vault próprio. A página e os filtros foram verificados localmente, incluindo teclado e tela estreita.
+O roteiro explica início do zero, migração e saída; os dois consumidores passaram pela prova de retorno no Windows.
 O README do exemplo explica como gerar e servir somente o pacote permitido, em um destino novo.
 
 The [public pilot](../examples/delivery-board/README.md) brings these paths together in an example
-with its own vault. The page and filters were checked locally, including keyboard navigation and a narrow viewport; publication and adoption are in progress.
+with its own vault. The page and filters were checked locally, including keyboard navigation and a narrow viewport.
+The recipe covers a new project, migration and exit; both consumers passed the Windows restoration proof.
 The example README explains how to build and serve only the allowed package, using a new destination.
 
 Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;

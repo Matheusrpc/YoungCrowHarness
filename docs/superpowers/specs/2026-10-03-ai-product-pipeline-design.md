@@ -2,7 +2,7 @@
 
 Frente: missões de produto, da descoberta à produção verificada.
 
-Data: 2026-10-03. Estado: desenho conceitual aprovado; especificação escrita aguardando revisão.
+Data: 2026-10-03. Estado: especificação escrita aprovada pelo mantenedor em 2026-10-03.
 As capacidades e os comandos descritos neste documento são planejados. O harness atual ainda
 não executa essa esteira autônoma. Este documento consolida as seis partes discutidas com o
 mantenedor e estabelece o contrato para os planos de implementação.
@@ -500,10 +500,11 @@ nos clientes correspondentes.
 
 ## Revisão e próximo passo
 
-As escolhas conceituais foram aprovadas durante a entrevista. SQLite, a organização de arquivos,
-o uso de API por meio dos clientes oficiais e o protocolo de transferência são detalhamentos
-técnicos desta especificação, agora submetidos à revisão escrita. Nenhum executor, skill de
-comando, agente de produto ou configuração de publicação foi implementado nesta etapa.
+As escolhas conceituais foram aprovadas durante a entrevista. A revisão escrita aprovou também
+SQLite, a organização de arquivos, o uso de API por meio dos clientes oficiais e o protocolo de
+transferência. Nenhum executor, skill de comando, agente de produto ou configuração de publicação
+foi implementado nesta etapa.
 
-Após a aprovação deste documento, produzir o plano da frente 1 com arquivos afetados, cenários
-de aceite, verificações e método de execução. A aprovação do plano precede alterações de produto.
+O [plano da frente 1](../plans/2026-10-03-mission-foundation.md) detalha arquivos afetados,
+cenários de aceite e verificações. Sua revisão e a escolha do método de execução precedem
+alterações de produto.

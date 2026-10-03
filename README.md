@@ -278,7 +278,8 @@ claude-mem, sincronização entre máquinas e orquestração autônoma de papéi
 [evolução do produto](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 O [desenho da esteira com agentes de IA](docs/superpowers/specs/2026-10-03-ai-product-pipeline-design.md)
 detalha personalizer, missões, três PBIs simultâneos por padrão, QA e produção verificada.
-Essa esteira está em revisão de especificação; seus comandos ainda não estão implementados.
+O desenho foi aprovado e o [plano da primeira entrega](docs/superpowers/plans/2026-10-03-mission-foundation.md)
+está em revisão. Os comandos da esteira ainda não estão implementados.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
@@ -596,7 +597,9 @@ claude-mem, cross-machine synchronization and autonomous role orchestration rema
 [product roadmap](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 The [AI product pipeline design](docs/superpowers/specs/2026-10-03-ai-product-pipeline-design.md),
 written in Portuguese, covers the personalizer, missions, three concurrent PBIs by default, QA
-and verified production. Its specification is under review; its commands are not implemented yet.
+and verified production. The design is approved and the
+[first delivery plan](docs/superpowers/plans/2026-10-03-mission-foundation.md) is under review.
+The pipeline commands are not implemented yet.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 

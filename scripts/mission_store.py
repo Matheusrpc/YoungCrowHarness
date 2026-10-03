@@ -42,7 +42,7 @@ def validate_database(conn, project):
 @contextmanager
 def reader(root, *, project=None):
     path = safe_path(root, DB_PATH)
-    if not path.exists():
+    if not path.exists() or path.stat().st_size == 0:
         yield None
         return
     project = preflight(root) if project is None else project
@@ -62,17 +62,19 @@ def reader(root, *, project=None):
 @contextmanager
 def transaction(root: Path):
     project = preflight(root)
-    with reader(root, project=project):
-        pass  # Validate an existing database before opening it for writes.
     path = safe_path(root, DB_PATH)
-    if not path.exists():
+    if not path.exists() or path.stat().st_size == 0:
         prepare_storage(root)
     path.parent.mkdir(parents=True, exist_ok=True)
     conn = None
     try:
         conn = sqlite3.connect(path, timeout=3, isolation_level=None)
-        conn.execute('PRAGMA foreign_keys=ON')
         conn.execute('PRAGMA trusted_schema=OFF')
+        # A writable connection lets SQLite roll back a hot journal before reading its schema.
+        # Validate existing tables before changing journal mode or any application data.
+        if conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall():
+            validate_database(conn, project)
+        conn.execute('PRAGMA foreign_keys=ON')
         require(conn.execute('PRAGMA journal_mode=DELETE').fetchone()[0] == 'delete', 'invalid_store')
         conn.execute('BEGIN IMMEDIATE')
         tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()

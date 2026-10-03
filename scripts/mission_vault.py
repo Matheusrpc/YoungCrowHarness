@@ -5,7 +5,7 @@ import posixpath
 import re
 import uuid
 
-from capabilities import read_inputs
+from adoption_fs import hash_file
 from document_store import safe_path, atomic_write, append_link
 from mission_backlog import identity, KINDS, START, END, require
 
@@ -36,6 +36,11 @@ def render_item(project_id: str, item_id: str, kind: str, title: str, parent_id:
 def projection_paths(record, event):
     folder = 'vault/local/missions' if record['kind'] == 'mission' else 'vault/local/operations/items'
     return [f"{folder}/{record['id']}/index.md", f"vault/local/operations/events/{event['sequence']:06}-{event['event_id']}.md"]
+
+
+def projection_hash(root, path):
+    # Aggregated projections can exceed the per-source limit; stream only their digest.
+    return hash_file(safe_path(root, path))
 
 
 def project_receipt(root, receipt, record):
@@ -72,9 +77,9 @@ def project_receipt(root, receipt, record):
         # Check every output before changing any of them. A crash after a write can adopt identical bytes.
         for path, data, _ in outputs:
             if (root / path).exists():
-                observed = read_inputs(root, [path])[path]
+                observed = projection_hash(root, path)
                 saved = conn.execute('SELECT sha256 FROM projections WHERE path=?', (path,)).fetchone()
-                if observed != data and (saved is None or hashlib.sha256(observed).hexdigest() != saved[0]):
+                if observed != hashlib.sha256(data).hexdigest() and (saved is None or observed != saved[0]):
                     conn.execute("UPDATE events SET projection_state='conflict' WHERE seq=?", (event['sequence'],))
                     return dict(state='conflict', paths=paths)
         for path, (index, label) in indices.items():
@@ -88,7 +93,7 @@ def project_receipt(root, receipt, record):
                 ('vault/local/operations/index.md', 'events/index.md', 'Events')):
             append_link(root, source, f'[{label}]({target})')
         for path, data, sequence in outputs:
-            if not (root / path).exists() or read_inputs(root, [path])[path] != data:
+            if not (root / path).exists() or projection_hash(root, path) != hashlib.sha256(data).hexdigest():
                 atomic_write(root, path, data)
             conn.execute('INSERT INTO projections VALUES(?,?,?) ON CONFLICT(path) DO UPDATE SET sha256=excluded.sha256,sequence=excluded.sequence',
                          (path, hashlib.sha256(data).hexdigest(), sequence))

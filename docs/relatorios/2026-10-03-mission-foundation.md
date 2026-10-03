@@ -39,7 +39,12 @@ snapshots preservados, repetição sem evento duplicado, falha de projeção rec
 Vaults com 47 e 54 notas passaram. O retorno restaurou árvore e estado Git anteriores e conservou o
 trabalho do trial. Python 3.14.4, Git 2.54.0.windows.1, zero chamadas de modelo. A primeira corrida
 identificou seções órfãs no índice legado preservado; a adaptação agora acrescenta links ausentes.
-O CI Linux e a revisão independente ainda estão pendentes.
+A revisão independente, somente leitura, encontrou dois problemas importantes de recuperação.
+Três regressões reproduziram as falhas e passaram após a correção (52,235 s): rollback da primeira
+configuração, processo SQLite interrompido com journal real e projeção acima de 1 MiB. O reparo
+explícito permite recuperar o journal antes de validar o banco; status permanece sem escrita.
+Projeções grandes usam o hash contínuo já usado pela adoção, preservando edições humanas.
+Não houve nova revisão; a correção será confirmada pela suíte final e pelo CI.
 
 ## Decisões de execução e detalhes adiados
 
@@ -52,9 +57,16 @@ O CI Linux e a revisão independente ainda estão pendentes.
 - Task 4 Ruling: add fixture FILES entries only when files exist — baseline should fail on actual installation assertions rather than missing fixture inputs — cost if wrong: a missing fixture dependency could be hidden; explicit missing-dependency test covers it.
 - Final: minor (deferred): preexisting personalizer adoption.md wording mixes mechanism-only fields with general adoption planning; mission entry explicitly preserves the confirmed baseline.
 - Task 5 Ruling: use hosted Linux CI for the final full suite and both-client smoke because this Windows host has no installed Linux runtime; individual client installation is already exercised by setup tests — avoids installing a host runtime — cost if wrong: a Linux client-specific end-to-end interaction could escape the both-client smoke.
+- Final: Ruling: Model compatibility remains unverified in front 1; no provider can execute through this backend — cost if wrong: a future runner could accept an unsupported combination.
+- Final: Ruling: Limits/workers/branches/transfer are declarations for later fronts; runtime_available and runnable stay false — cost if wrong: consumers might mistake intent for enforced limits.
+- Final: Ruling: Product QA and deployment remain outside this delivery; harness tests are not product production proof — cost if wrong: users could infer an unverified release.
+- Final: Ruling: Native skill discovery/application remains unproven; reference probes and installed file checks are the current evidence — cost if wrong: a client-specific discovery failure remains possible.
+- Final: Ruling: Final Linux/Windows CI is a merge gate; the reviewer did not run it and the author will verify its result — cost if wrong: platform regressions could ship.
+- Final: Ruling: SVG legibility uses author visual inspection plus four measured viewports; no second browser review — cost if wrong: an unnoticed visual issue remains.
+- Final: Ruling: Multiple competing writers and administrative database tampering are outside the declared one-writer checkout contract; paths/privacy/schema are still validated — cost if wrong: unsupported writers may race.
 
 ## Publicação
 
-PR, revisão independente e CI pendentes. Esta nota não afirma atualização da `main`.
+[PR #18](https://github.com/Matheusrpc/YoungCrowHarness/pull/18) aberto. Revisão e correções realizadas; CI final pendente. Esta nota não afirma atualização da `main`.
 
 ATRASO: main 1

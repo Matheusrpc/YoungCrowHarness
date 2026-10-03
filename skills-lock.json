@@ -313,8 +313,8 @@
       "expected": {
         "contract_sha256": "16f0d34da792cae0a62d4360e2f719c1282d230db9c07863948b2390f7ddf463",
         "files_sha256": {
-          "claude": "1e951d47b1bbf9f3d1b8d9e52e9e9500dc768c494ff09251392fdc159722a25d",
-          "codex": "644883c682b2761cae3d96cfa294c9d53b3e195d065197622347e534c374d6b1"
+          "claude": "7b5310c7baf10a9609797a77132bf16262da7bba308ea1047fc4e072b7b3c310",
+          "codex": "e85d60cedb6268a377612ee63cee4beacfeabe9d68d43d715a7e504652c0ae70"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1222,8 +1222,8 @@
       "expected": {
         "contract_sha256": "ee81cd79d02decaea77124adf82269bf74078353020517d3b399541f3aa75a70",
         "files_sha256": {
-          "claude": "7cf459b4d1ef3b43056fd7455bb5d5bf9d37ff35dd876af5c6badc0874b57214",
-          "codex": "338698d7528b00c1845899a555504577cd29dba8b0af47677d79fdfc50f5f67a"
+          "claude": "b365afcb34f6fce5770db868a8982c336f1788ae06b9afadacf495f2dc37f9af",
+          "codex": "03d2f8cf294ea17c948c086ac81928b2e151b048152dc4525378390199abeec8"
         }
       }
     },
@@ -1265,7 +1265,8 @@
           "scripts/capabilities.py",
           "scripts/document_store.py",
           "scripts/integrations.py",
-          "scripts/vault.py"
+          "scripts/vault.py",
+          "scripts/adoption_fs.py"
         ],
         "claude": [
           ".claude/skills/yc-config/SKILL.md"
@@ -1291,10 +1292,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "77c7f865bc7bde804387bd15fe58c3281da011a9361cfb9c05625e9e521cfa54",
+        "contract_sha256": "a3865f7680b805a9f78b58f7f0e41074510bb6911153c0405eb39de4dce8201c",
         "files_sha256": {
-          "claude": "c3ec54546037a12c1d913295d14008a677c05c69539e509f25e301ca2ac4bcc5",
-          "codex": "4f8a45cc7338043c930ae5d0db73e0cf183b14bc959cd8df656407958879a285"
+          "claude": "5b4209f37e9e9436c6df6a7bb294edfc9a1d17e1c7788d98bb8b5a0a505509d4",
+          "codex": "2361826fe35aff4605a3c8a876563d9fa1485f7a9844563e36a2cc9196bec401"
         }
       }
     },
@@ -1336,7 +1337,8 @@
           "scripts/capabilities.py",
           "scripts/document_store.py",
           "scripts/integrations.py",
-          "scripts/vault.py"
+          "scripts/vault.py",
+          "scripts/adoption_fs.py"
         ],
         "claude": [
           ".claude/skills/yc-missao/SKILL.md"
@@ -1362,10 +1364,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "e2f94ac8395a645343697af7114b176b0b2a96c2a8732aecd684ac767bc161fa",
+        "contract_sha256": "25620a509777b6916efaa487d020d9af3b9e39bf2641d0a75c55ac68ecba2f8b",
         "files_sha256": {
-          "claude": "cf5d2c18136e7915c8f2ed8a730a95957b6c243760c597ee3b9d91537037cd7e",
-          "codex": "4eed3cd255bfc7a5d3d54135cea0eed736c321c08120c9a34a97ebde912000b9"
+          "claude": "eacaed8cedb17cb0414e9f670fb2e9978fc3c363323aa7bc2b626f60e98e5d65",
+          "codex": "ed955ab64faadd93980989972b1b42e17143e9a69e3fa281e7cad756d63c036b"
         }
       }
     },
@@ -1407,7 +1409,8 @@
           "scripts/capabilities.py",
           "scripts/document_store.py",
           "scripts/integrations.py",
-          "scripts/vault.py"
+          "scripts/vault.py",
+          "scripts/adoption_fs.py"
         ],
         "claude": [
           ".claude/skills/yc-status/SKILL.md"
@@ -1430,10 +1433,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "1115768be6ca5857dd5dca3c354f17cb511a35d7e0526865b916639b7cd50142",
+        "contract_sha256": "091549c3d66e68267b57113ccde1826c449fb52c8ac9c39bb9f7b157b862cbef",
         "files_sha256": {
-          "claude": "a6ab754f2428928a1b6883871081c79f20cc10dc30fd50606e727c6ea67e33aa",
-          "codex": "84e855a88b501ecf624323f93d6c4ad5e8a9911cbffe3b09b7ac0ac042db5d3d"
+          "claude": "9bb7dbba2a524df26bbff830bc225d723abc1a96d2b826d180cd6180c7fa3f4a",
+          "codex": "db4ab42c433949a997f4a1c5c9f146604f2acab3682586bd43e404c2ee8bcc54"
         }
       }
     }

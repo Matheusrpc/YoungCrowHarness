@@ -100,6 +100,71 @@ class MissionTests(MissionCase):
         self.assertEqual(recovered['projection_state'], 'current')
         self.assertEqual(len(self.db.list_records(self.root, 'mission')), 1)
 
+    def test_recovery_after_first_database_transaction_rolls_back(self):
+        with patch('missions.atomic_write', side_effect=OSError('synthetic interrupted first config')):
+            with self.assertRaises(OSError):
+                self.m.apply_config(self.root, self.configured(), None)
+        self.assertFalse((self.root / 'youngcrow/agents.json').exists())
+        before = self.snapshot()
+        self.assertEqual(self.m.mission_status(self.root, 'M001')['state'], 'not_initialized')
+        self.assertEqual(self.snapshot(), before)
+        result = self.m.apply_config(self.root, self.configured(), None)
+        self.assertEqual(result['gaps'], [])
+        self.assertEqual(self.db.list_records(self.root, None), [])
+
+    def test_recovery_after_real_hot_journal_preserves_committed_state(self):
+        request, actor = self.prepared_fixture()
+        receipt = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        original = self.db.get_record(self.root, receipt['record_id'])
+        script = '''import os, sqlite3, sys
+db = sqlite3.connect(sys.argv[1], isolation_level=None)
+db.execute('PRAGMA journal_mode=DELETE')
+db.execute('PRAGMA cache_size=1')
+db.execute('PRAGMA synchronous=FULL')
+db.execute('BEGIN IMMEDIATE')
+db.execute('UPDATE records SET snapshot=? WHERE id=?', ('x' * (2 * 1024 * 1024), sys.argv[2]))
+os._exit(73)
+'''
+        child = subprocess.run([sys.executable, '-B', '-c', script, str(self.root / DB), receipt['record_id']], timeout=20)
+        self.assertEqual(child.returncode, 73)
+        journal = self.root / (DB + '-journal')
+        self.assertTrue(journal.is_file())
+        self.assertNotEqual(journal.read_bytes()[:8], b'\x00' * 8)
+        before = self.snapshot()
+        with self.assertRaisesRegex(ValueError, 'invalid_store'):
+            self.m.mission_status(self.root, receipt['code'])
+        self.assertEqual(self.snapshot(), before)
+        # Explicit repair recovers SQLite; status remains strictly read-only.
+        self.assertEqual(self.m.repair(self.root, receipt['code'])['projection_state'], 'current')
+        self.assertEqual(self.db.get_record(self.root, receipt['record_id']), original)
+        self.assertEqual(self.m.repair(self.root, receipt['code'])['projection_state'], 'current')
+        self.assertEqual(len(self.m.mission_status(self.root, receipt['code'])['events']), 1)
+
+    def test_recovery_of_large_projection_preserves_human_edits(self):
+        paths = self.tree(features=1, pbis=2)
+        # Individually bounded sources aggregate to an operational note larger than 1 MiB.
+        for i, path in enumerate(paths[-2:]):
+            self.contract(path, acceptance=[f'{i}:{n}:' + 'x' * 7000 for n in range(90)])
+            self.assertLess((self.root / path).stat().st_size, 1024 * 1024)
+        for path in paths:
+            self.m.import_item(self.root, path, 0, str(uuid.uuid4()), TL if '/pbis/' in path else ACTOR)
+        self.m.apply_config(self.root, self.configured(), None)
+        request = dict(title='Large valid mission', feature_ids=[self.item_id(paths[1])],
+                       priority=[self.item_id(p) for p in paths[-2:]], overrides={}, scope_reference='Fixture')
+        receipt = self.m.prepare_mission(self.root, request, self.op_id, ACTOR)
+        self.assertEqual(receipt['projection_state'], 'current')
+        path = self.root / receipt['paths'][0]
+        self.assertGreater(path.stat().st_size, 1024 * 1024)
+        self.assertEqual(self.m.mission_status(self.root, receipt['code'])['projection_state'], 'current')
+        self.assertEqual(self.m.prepare_mission(self.root, request, self.op_id, ACTOR)['event_id'], receipt['event_id'])
+        self.assertEqual(self.m.repair(self.root, receipt['code'])['projection_state'], 'current')
+        request['title'] = 'Refined large mission'
+        self.m.revise_mission(self.root, receipt['code'], request, 1, str(uuid.uuid4()), ACTOR)
+        human = path.read_bytes() + b'\nPreserve human addition.\n'
+        path.write_bytes(human)
+        self.assertEqual(self.m.repair(self.root, receipt['code'])['projection_state'], 'conflict')
+        self.assertEqual(path.read_bytes(), human)
+
     def test_private_and_linked_storage_is_rejected(self):
         path = self.write_item('epic')
         self.git('add', '-f', '--', path)

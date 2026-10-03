@@ -1610,6 +1610,11 @@ Uma falha de projeção mantém o evento confirmado no banco. Repita a mesma ope
 `repair`; conflito com edição humana exige conciliar essa nota, sem apagar seu conteúdo.
 Saída 0 significa pedido válido (inclusive rascunho), 1 conflito ou falha operacional e 2 entrada
 inválida. Não edite o banco diretamente; guarde também esse arquivo em seu backup privado.
+Após uma interrupção com journal SQLite pendente, `status` pode retornar `invalid_store` sem alterar
+arquivos. Um `repair` explícito permite ao SQLite recuperar a transação antes de conferir o esquema
+aceito e projetar as notas. Bancos incompatíveis continuam recusados. Uma primeira gravação abortada
+que deixou arquivo vazio pode ser repetida. Projeções agregadas acima de 1 MiB usam hash contínuo;
+o limite das notas de entrada permanece igual.
 
 After setup and personalization, run the commands above from the product root. Inputs are project-relative
 paths. Keep requests and backlog private. Use real UUIDs and a distinct operation UUID for each request;
@@ -1628,4 +1633,8 @@ UUID. Global defaults never rewrite a mission; revision inherits frozen choices 
 Event times record import/refinement, without inventing development, QA or production dates.
 Retry or `repair` recovers a failed projection. Human edits are preserved and reported as conflicts.
 Exit 0 includes valid drafts; 1 means conflict or operational failure; 2 means invalid input. Include the
-database in private backups; do not edit it directly.
+database in private backups; do not edit it directly. After an interruption with a pending SQLite
+journal, `status` can return `invalid_store` without writing. Explicit `repair` allows SQLite recovery
+before validating the supported schema and projecting notes. Incompatible stores remain rejected.
+Retry a first write that left an empty database. Aggregated projections over 1 MiB use streaming hashes;
+source-note limits remain unchanged.

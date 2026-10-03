@@ -152,6 +152,25 @@
   },
   "publication": {
     "branch": "feat/mission-foundation",
-    "main": "pending"
+    "main": "pending",
+    "pr": "https://github.com/Matheusrpc/YoungCrowHarness/pull/18"
+  },
+  "review": {
+    "model": "gpt-6-astra",
+    "mode": "read-only",
+    "range": "ac3fe68..3431b3c",
+    "critical": 0,
+    "important": 2,
+    "fixes": [
+      "empty first database and hot journal recovery",
+      "streaming hashes for aggregated projections"
+    ],
+    "regression_tests": 3,
+    "red": "two store errors and false projection conflict reproduced",
+    "green": {
+      "passed": 3,
+      "seconds": 52.235
+    },
+    "full_suite": "pending final CI"
   }
 }

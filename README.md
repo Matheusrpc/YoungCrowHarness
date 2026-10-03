@@ -288,7 +288,8 @@ No Claude, use `/yc-*`; no Codex, use o seletor de skills ou `$yc-*`, conforme o
 O backlog usa contratos Markdown com UUID, DoR, DoD e referências verificadas por hash.
 Novas notas começam em `vault/local/product/`; features existentes mantêm seus caminhos e conteúdo.
 Missões guardam a configuração e as revisões usadas no preparo. O status aponta fontes alteradas;
-`repair` recupera projeções pendentes e preserva edições humanas. Desenvolvimento, QA e deploy
+`repair` recupera projeções pendentes, permite a recuperação do journal SQLite após interrupção
+e preserva edições humanas. Projeções agregadas grandes são conferidas por hash em leitura contínua. Desenvolvimento, QA e deploy
 automáticos pertencem às próximas entregas. Veja o [passo a passo](docs/USAGE.md#mission-workflow).
 
 ![Preparar uma missão: personalizer, configuração dos agentes, backlog, seleção de features, refinamento e consulta. Execução automática ainda indisponível.](assets/process-mission-planning-pt.svg)
@@ -621,7 +622,8 @@ Use `/yc-*` in Claude and the skill selector or `$yc-*` in Codex, as supported b
 Backlog Markdown contracts carry UUIDs, DoR, DoD and references checked by hash.
 New notes start in `vault/local/product/`; existing features keep their paths and content.
 Missions freeze their configuration and source revisions. Status reports changed inputs; `repair`
-recovers pending projections while preserving human edits. Automated development, QA and deployment
+recovers pending projections and interrupted SQLite journals while preserving human edits.
+Large aggregated projections use streaming hash checks. Automated development, QA and deployment
 belong to later deliveries. See the [walkthrough](docs/USAGE.md#mission-workflow).
 
 ![Prepare a mission: personalizer, agent configuration, backlog, feature selection, refinement and status. Automatic execution remains unavailable.](assets/process-mission-planning-en.svg)

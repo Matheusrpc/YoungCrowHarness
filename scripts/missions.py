@@ -15,7 +15,7 @@ try:
     from mission_config import CONFIG_PATH, ROLES, OPTIONAL_ROLES, normalize_config, load_config, effective_config, config_digest, config_gaps
     from mission_backlog import identity, project_id, read_item, validate_graph, require
     import mission_store as store
-    from mission_vault import project_receipt
+    from mission_vault import project_receipt, projection_hash
     HELPERS_READY = all(callable(getattr(capabilities, name, None)) for name in ('audit', 'load_catalog', 'contract_digest'))
 except (ImportError, AttributeError, SyntaxError):
     HELPERS_READY = False
@@ -226,7 +226,8 @@ def mission_status(root, mission_id):
     check_helpers()
     existing = store.get_record(root, mission_id)
     if existing is None:
-        return dict(schema_version=1, state='not_initialized' if not (root / store.DB_PATH).exists() else 'not_found',
+        path = safe_path(root, store.DB_PATH)
+        return dict(schema_version=1, state='not_initialized' if not path.exists() or path.stat().st_size == 0 else 'not_found',
                     runtime_available=False, runnable=False)
     require(existing['kind'] == 'mission', 'unknown_mission')
     snapshot = existing['snapshot']
@@ -248,7 +249,7 @@ def mission_status(root, mission_id):
         projections = conn.execute('SELECT p.path,p.sha256 FROM projections p JOIN events e ON e.seq=p.sequence WHERE e.record_id=?', (existing['id'],)).fetchall()
     for path, expected in projections:
         try:
-            if hashlib.sha256(read_inputs(root, [path])[path]).hexdigest() != expected:
+            if projection_hash(root, path) != expected:
                 state = 'conflict'
         except FileNotFoundError:
             if state != 'conflict':
@@ -264,6 +265,10 @@ def mission_status(root, mission_id):
 
 def repair(root, identifier):
     check_helpers()
+    path = safe_path(root, store.DB_PATH)
+    require(path.exists() and path.stat().st_size > 0, 'unknown_record')
+    with store.transaction(root):
+        pass  # Explicit repair may recover a hot journal; read-only status never does.
     record = store.get_record(root, identifier)
     require(record is not None, 'unknown_record')
     results = []

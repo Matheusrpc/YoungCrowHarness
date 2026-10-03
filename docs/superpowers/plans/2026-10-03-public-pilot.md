@@ -293,8 +293,8 @@ def smoke(root, client, *, prepare_existing=None, exercise=None,
 
 O comentário acima indica os dois pontos de extensão, sem reescrever o restante do smoke. Ambos retornam `None` ou lançam exceção; não recebem nem alteram a base privada. O novo CLI usa `cases=('absent','dirty-git')`. Smoke original conserva a prova de interrupção.
 
-- [ ] Escrever `tests/smoke_public_pilot.py` para chamar esses parâmetros ainda inexistentes e rodar numa raiz nova; confirmar falha de interface antes de modificar o smoke. Importar `smoke`, `run` e `write` de `smoke_adoption`; importar `fs` já usado pelo ensaio. Recusar raiz existente pelo mecanismo original.
-- [ ] Implementar os dois pontos de chamada antes das capturas correspondentes. Em `prepare_existing`, criar uma versão inicial pequena da aplicação que só lista os dados, README próprio e teste Node. Usar o módulo de dados da Task 1 e HTML/JS de listagem com `textContent`; preparar somente esses arquivos para o commit inicial do smoke, que continua criando suas mudanças preparadas/não preparadas depois desse commit. Manter `CLAUDE.md`, `.codex/config.toml`, `.env` sintético e diretório vazio já criados pelo smoke.
+- [x] Escrever `tests/smoke_public_pilot.py` para chamar esses parâmetros ainda inexistentes e rodar numa raiz nova; confirmar falha de interface antes de modificar o smoke. Importar `smoke`, `run` e `write` de `smoke_adoption`; importar `fs` já usado pelo ensaio. Recusar raiz existente pelo mecanismo original.
+- [x] Implementar os dois pontos de chamada antes das capturas correspondentes. Em `prepare_existing`, criar uma versão inicial pequena da aplicação que só lista os dados, README próprio e teste Node. Usar o módulo de dados da Task 1 e HTML/JS de listagem com `textContent`; preparar somente esses arquivos para o commit inicial do smoke, que continua criando suas mudanças preparadas/não preparadas depois desse commit. Manter `CLAUDE.md`, `.codex/config.toml`, `.env` sintético e diretório vazio já criados pelo smoke.
 
 ```python
 # Inserir no ramo existente de smoke, depois de escrever .gitignore e antes de git add/commit:
@@ -304,7 +304,7 @@ if prepare_existing is not None:
 if exercise is not None:
     exercise(project, case, env)
 ```
-- [ ] Em `exercise`, primeiro executar o personalizer instalado; depois copiar somente arquivos públicos e testes do exemplo para o consumidor. No caso existente, isso acrescenta o filtro à aplicação inicial. O consumidor novo recebe a primeira entrega. Registrar uma execução específica por modo, preservando UUIDs do consumidor e não copiando a identidade do vault público.
+- [x] Em `exercise`, primeiro executar o personalizer instalado; depois copiar somente arquivos públicos e testes do exemplo para o consumidor. No caso existente, isso acrescenta o filtro à aplicação inicial. O consumidor novo recebe a primeira entrega. Registrar uma execução específica por modo, preservando UUIDs do consumidor e não copiando a identidade do vault público.
 
 ```python
 mode = 'new' if case == 'absent' else 'existing'
@@ -319,16 +319,16 @@ run([sys.executable, '-B', 'scripts/vault.py', 'check', '--json'], env=env, cwd=
 
 Resolver `node = shutil.which('node')` antes de chamar smoke e falhar claramente se ausente. Não copiar o gerador com caminhos de origem do repo para fingir que o consumidor executou o pacote. Conservar comandos reais e resultados no README e no run do consumidor. No modo existente, auditar os arquivos iniciais, acrescentar referências de personalização às instruções sem apagar o texto anterior e conferir sua preservação.
 
-- [ ] Medir o estado antes/depois pelo smoke: `fs.inspect_tree`, HEAD, symbolic-ref, diff preparado/não preparado, status Git e perfil global. A cópia de recuperação deve ser idêntica à captura do trial, incluindo aplicação e notas. No consumidor ausente, a raiz deve voltar a não existir. Comparação falha encerra a prova como pendente, conservando cópias para análise.
-- [ ] Escrever roteiro humano do exemplo com dois percursos PT/EN: selecionar pasta/backup privados, setup trial, conferir recibo, personalizer, inventário em migração, entrega, teste, memória, prévia de saída e confirmação do digest. Não orientar clonagem dentro da raiz nova antes da captura. Guardar runner fora do consumidor. O script automatiza confirmação somente nas fixtures criadas por ele.
-- [ ] Rodar em Linux no job do exemplo e em Windows pelo wrapper já existente. Na máquina atual usar pai privado permitido, caminho curto, mesmo volume e fora de qualquer Git. Exemplo da forma do comando no Windows:
+- [x] Medir o estado antes/depois pelo smoke: `fs.inspect_tree`, HEAD, symbolic-ref, diff preparado/não preparado, status Git e perfil global. A cópia de recuperação deve ser idêntica à captura do trial, incluindo aplicação e notas. No consumidor ausente, a raiz deve voltar a não existir. Comparação falha encerra a prova como pendente, conservando cópias para análise.
+- [x] Escrever roteiro humano do exemplo com dois percursos PT/EN: selecionar pasta/backup privados, setup trial, conferir recibo, personalizer, inventário em migração, entrega, teste, memória, prévia de saída e confirmação do digest. Não orientar clonagem dentro da raiz nova antes da captura. Guardar runner fora do consumidor. O script automatiza confirmação somente nas fixtures criadas por ele.
+- [x] Rodar em Linux no job do exemplo e em Windows pelo wrapper já existente. Na máquina atual usar pai privado permitido, caminho curto, mesmo volume e fora de qualquer Git. Exemplo da forma do comando no Windows:
 
 ```powershell
 python -B tests/windows_fixture_runner.py tests/smoke_public_pilot.py --root "$env:TEMP/yc-pilot-new-run" --client both
 ```
 
 `yc-pilot-new-run` precisa estar ausente; escolher nome novo em repetição, sem apagar evidência anterior. No CI usar `$RUNNER_TEMP/public-pilot-adoption` e, no Windows, `$env:RUNNER_TEMP/public-pilot-adoption`. Acrescentar `actions/setup-node` com o mesmo SHA/Node 24 ao job Windows. Manter os smokes de `claude`, `codex` e `both` existentes e executar o novo em `both`.
-- [ ] Gravar JSON sanitizado: modo, cliente, revisão do harness, checks, retorno, preservação do trial/perfil e `model_calls: 0`. Não publicar caminhos privados, conteúdo de backup ou presumir conversa nativa pelo setup. Commit: `test: comprovar piloto em adocao nova e existente`.
+- [x] Gravar JSON sanitizado: modo, cliente, revisão do harness, checks, retorno, preservação do trial/perfil e `model_calls: 0`. Não publicar caminhos privados, conteúdo de backup ou presumir conversa nativa pelo setup. Commit: `test: comprovar piloto em adocao nova e existente`.
 
 ### Task 5: retomada real nos dois clientes e revisão independente
 

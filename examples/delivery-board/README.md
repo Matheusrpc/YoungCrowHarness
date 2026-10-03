@@ -13,7 +13,7 @@ node --test tests/*.test.mjs
 Execute na pasta `examples/delivery-board`. O modelo valida os dados e combina estado e busca.
 A página usa controles nativos e mostra critérios e referências. O percurso local foi conferido em
 1280px e 360px, com teclado, filtros vazios, limpeza e falhas de carregamento. Os dois consumidores
-passaram por adoção e retorno no Windows, com trabalho do trial preservado. Retomada nativa e publicação estão pendentes.
+passaram por adoção e retorno no Windows e no Linux, com trabalho do trial preservado. Retomada nativa e publicação estão pendentes.
 
 Para preparar uma prévia a partir da raiz do harness, escolha um destino novo fora da pasta do exemplo:
 
@@ -49,7 +49,7 @@ destination outside the source; existing destinations, linked files and invalid 
 Open `http://127.0.0.1:8765`, then stop the server. The package contains six public files and a hash
 manifest. The manifest records bytes and the supplied revision, not approval or authentication.
 Vault links become available after merge.
-Both consumers passed reversible adoption on Windows, with trial work preserved. Native retrieval and publication
+Both consumers passed reversible adoption on Windows and Linux, with trial work preserved. Native retrieval and publication
 are pending. The example has its own vault identity and linked
 indices. Setup does not copy this example into every consumer. Private notes, source documents, receipts
 and backups stay outside the public site.

@@ -20,3 +20,7 @@ do pacote e usa o ambiente github-pages com pages:write e id-token:write. Açõe
 Decisão do projeto: PRs só validam. Publicação usa main protegida e staging com seis arquivos permitidos,
 mais manifesto. Não usar upload da raiz. A URL real é obtida do deploy e verificada depois dele.
 Payload, paginação, webhook e segredos de usuário não se aplicam ao site estático. Nenhum SDK é necessário.
+
+A [API oficial de Pages](https://docs.github.com/en/rest/pages/pages), consultada em 2026-10-03 e ingerida privadamente,
+permite configurar build_type workflow e exigir HTTPS. A [API de ambientes](https://docs.github.com/en/rest/deployments/environments)
+define a restrição de branches do ambiente de publicação. A configuração deve permitir apenas a main.

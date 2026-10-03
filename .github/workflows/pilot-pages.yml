@@ -1,0 +1,48 @@
+name: Public pilot Pages
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/delivery-board/index.html'
+      - 'examples/delivery-board/style.css'
+      - 'examples/delivery-board/app.mjs'
+      - 'examples/delivery-board/model.mjs'
+      - 'examples/delivery-board/data.json'
+      - 'examples/delivery-board/gema-cobalto.svg'
+      - 'examples/delivery-board/package.mjs'
+      - '.github/workflows/pilot-pages.yml'
+permissions:
+  contents: read
+concurrency:
+  group: public-pilot-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: node --test examples/delivery-board/tests/*.test.mjs
+      - run: python3 ../../scripts/vault.py check --json
+        working-directory: examples/delivery-board
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
+      - run: node examples/delivery-board/package.mjs "$RUNNER_TEMP/public-pilot" "$GITHUB_SHA"
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b
+        with:
+          path: ${{ runner.temp }}/public-pilot
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e

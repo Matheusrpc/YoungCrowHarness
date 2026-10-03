@@ -13,12 +13,12 @@ The [complete process](PROCESS.md#english) includes decisions, pauses and resump
 
 O [piloto público](../examples/delivery-board/README.md) reúne esses percursos em um exemplo com
 vault próprio. A página e os filtros foram verificados localmente, incluindo teclado e tela estreita.
-O roteiro explica início do zero, migração e saída; os dois consumidores passaram pela prova de retorno no Windows.
+O roteiro explica início do zero, migração e saída; os dois consumidores passaram pela prova de retorno no Windows e no Linux.
 O README do exemplo explica como gerar e servir somente o pacote permitido, em um destino novo.
 
 The [public pilot](../examples/delivery-board/README.md) brings these paths together in an example
 with its own vault. The page and filters were checked locally, including keyboard navigation and a narrow viewport.
-The recipe covers a new project, migration and exit; both consumers passed the Windows restoration proof.
+The recipe covers a new project, migration and exit; both consumers passed restoration on Windows and Linux.
 The example README explains how to build and serve only the allowed package, using a new destination.
 
 Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;

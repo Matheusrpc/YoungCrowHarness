@@ -10,7 +10,11 @@
 
 **Spec:** [Esteira de produto com agentes de IA](../specs/2026-10-03-ai-product-pipeline-design.md), aprovada. Este plano cobre o incremento 2A da frente 2 e os itens [YC-201–YC-203](../../BACKLOG.md#frente-2-execução-e-continuidade).
 
-Frente: executor limitado e adaptadores. Estado: plano em revisão; nenhuma implementação ou chamada de modelo feita por este plano. Método preservado da entrega anterior: implementação inline, um escritor e revisão independente ao final.
+Frente: executor limitado e adaptadores. Plano aprovado pelo mantenedor. Implementação parcial:
+catálogo dinâmico, mecanismo delimitado e recibos implementados; provas de isolamento nativas
+continuam abertas e as chamadas reais estão bloqueadas. Nenhum turno foi enviado a fornecedor.
+Método: implementação inline, um escritor e revisão independente ao final. Resultados e desvios
+estão no [relatório da entrega](../../relatorios/2026-10-03-mission-runtime-adapters.md).
 
 ## Global Constraints
 
@@ -165,7 +169,7 @@ modos `version`, `help`, `success`, `malformed`, `secret`, `hang`, `child` e `cr
 apenas nos testes. `RuntimeCase` estende `MissionCase` e oferece `make_manifest()` e
 `fake_observation()` com UUIDs, modelo fictício, tempo de dez segundos e `max_runs: 1`.
 
-- [ ] **Step 1: escrever os testes de contrato e recusa.**
+- [x] **Step 1: escrever os testes de contrato e recusa.**
 
 ```python
 def test_inspection_never_verifies_model_or_changes_project(self):
@@ -188,10 +192,10 @@ fictício; este valor deve estar ausente em toda saída. Acrescentar
 em lista, modelo pedido preservado, campos desconhecidos/duplicados rejeitados e política
 alterada invalidada. Testar Codex e Claude, authenticated e API, sem rede.
 
-- [ ] **Step 2: executar o RED.** `python -m unittest discover -s tests -p test_mission_clients.py -v` deve falhar por ausência dos adaptadores/contratos.
-- [ ] **Step 3: implementar as três funções e o simulador.** Consultar versão/ajuda locais e fontes oficiais para mapear apenas protocolos compreendidos; anotar lacunas. Proibir shell, fallback e leitura/serialização de credenciais na inspeção. Usar parser JSON existente e limite de 1 MiB por evento/8 MiB por execução para a prova; atingir o limite encerra o diagnóstico com erro explícito.
-- [ ] **Step 4: repetir o comando e verificar GREEN.** Nenhum teste envia prompt a fornecedor. Documentar o diagnóstico como preparação do adaptador, ainda sem executor disponível.
-- [ ] **Step 5: commit por caminhos explícitos.** Mensagem `feat: validate mission client execution contracts`.
+- [x] **Step 2: executar o RED.** `python -m unittest discover -s tests -p test_mission_clients.py -v` deve falhar por ausência dos adaptadores/contratos.
+- [x] **Step 3: implementar as três funções e o simulador.** Consultar versão/ajuda locais e fontes oficiais para mapear apenas protocolos compreendidos; anotar lacunas. Proibir shell, fallback e leitura/serialização de credenciais na inspeção. Usar parser JSON existente e limite de 1 MiB por evento/8 MiB por execução para a prova; atingir o limite encerra o diagnóstico com erro explícito.
+- [x] **Step 4: repetir o comando e verificar GREEN.** Nenhum teste envia prompt a fornecedor. Documentar o diagnóstico como preparação do adaptador, ainda sem executor disponível.
+- [x] **Step 5: commit por caminhos explícitos.** Mensagem `feat: validate mission client execution contracts`.
 
 ## Task 2: YC-202 — execução limitada e recuperação
 
@@ -204,7 +208,7 @@ alterada invalidada. Testar Codex e Claude, authenticated e API, sem rede.
 existentes. Produz as operações de runs, `project_run` e `supervise` descritas acima. `make_manifest()`
 deve apontar para uma missão `prepared` criada pelos helpers reais da fundação.
 
-- [ ] **Step 1: escrever os testes de reserva, efeito e migração.**
+- [x] **Step 1: escrever os testes de reserva, efeito e migração.**
 
 ```python
 def test_replay_never_starts_a_second_process(self):
@@ -238,11 +242,11 @@ contém segredo fictício; transição repetida tem um evento; consumo não é z
 missão permanece `prepared`, com `runnable: false`; processo alheio permanece vivo e processos
 próprios chegam a zero. Um recibo válido exige término do protocolo além de exit code zero.
 
-- [ ] **Step 2: executar o RED.** `python -m unittest discover -s tests -p "test_mission_*.py" -v` deve apontar funções/transições novas ausentes; registrar as falhas exatas.
-- [ ] **Step 3: implementar reserva/transições e migração aditiva.** `reader` aceita esquemas conhecidos sem migrá-los. A primeira escrita de run cria as três tabelas e atualiza metadata na mesma transação; rollback conserva esquema 1 utilizável. Não apagar tabelas nem fazer upgrade pelo status. Uma reserva não conciliada bloqueia outro check no projeto, inclusive com novo UUID. Repetir `check` após queda concilia o estado conhecido sem novo spawn; quando faltar prova, registra `uncertain`. Consultas apenas mostram a pendência.
-- [ ] **Step 4: implementar supervisão e reconciliação.** Reservar antes de iniciar. Revalidar binário/política/configuração. Identificar processo/grupo e início, limitar stdout/stderr durante leitura, aplicar deadline monotônico e encerrar em `finally`. Linux usa grupo próprio com perfil que impeça descendentes de escapar; Windows precisa conter a árvore de processos antes de executar o filho, com Job Object ou controle nativo equivalente testado. PID sozinho e `taskkill`/kill genérico não provam propriedade. Plataforma sem contenção verificável retorna `unsupported` antes da chamada.
-- [ ] **Step 5: persistir recibos e projeções; verificar GREEN.** Repetir o comando da etapa 2 e executar `python -m unittest discover -s tests -p test_missions.py -v`. Comparar árvores antes/depois de leitura e conferir zero processos próprios. Atualizar uso e limitações PT/EN.
-- [ ] **Step 6: commit por caminhos explícitos.** Mensagem `feat: supervise bounded client checks with durable receipts`.
+- [x] **Step 2: executar o RED.** `python -m unittest discover -s tests -p "test_mission_*.py" -v` deve apontar funções/transições novas ausentes; registrar as falhas exatas.
+- [x] **Step 3: implementar reserva/transições e migração aditiva.** `reader` aceita esquemas conhecidos sem migrá-los. A primeira escrita de run cria as três tabelas e atualiza metadata na mesma transação; rollback conserva esquema 1 utilizável. Não apagar tabelas nem fazer upgrade pelo status. Uma reserva não conciliada bloqueia outro check no projeto, inclusive com novo UUID. Repetir `check` após queda concilia o estado conhecido sem novo spawn; quando faltar prova, registra `uncertain`. Consultas apenas mostram a pendência.
+- [x] **Step 4: implementar supervisão e reconciliação.** Reservar antes de iniciar. Revalidar binário/política/configuração. Identificar processo/grupo e início, limitar stdout/stderr durante leitura, aplicar deadline monotônico e encerrar em `finally`. Linux usa grupo próprio com perfil que impeça descendentes de escapar; Windows precisa conter a árvore de processos antes de executar o filho, com Job Object ou controle nativo equivalente testado. PID sozinho e `taskkill`/kill genérico não provam propriedade. Plataforma sem contenção verificável retorna `unsupported` antes da chamada.
+- [x] **Step 5: persistir recibos e projeções; verificar GREEN.** Repetir o comando da etapa 2 e executar `python -m unittest discover -s tests -p test_missions.py -v`. Comparar árvores antes/depois de leitura e conferir zero processos próprios. Atualizar uso e limitações PT/EN.
+- [x] **Step 6: commit por caminhos explícitos.** Mensagem `feat: supervise bounded client checks with durable receipts`.
 
 ## Task 3: YC-203 — CLI instalada, consulta e matriz de provas
 
@@ -267,14 +271,16 @@ nunca criam configuração, banco, vault ou diretório. O manifest contém a ope
 da CLI nunca recebem segredo. `yc-config` orienta inspeção, seleção e prova autorizada;
 `yc-status` mostra último resultado e bloqueios. Não instalar `yc-iniciar` nesta entrega.
 
-- [ ] **Step 1: escrever testes de instalação/CLI e smoke.** `test_runtime_helpers_preserve_existing_install`, `test_runtime_cli_readonly_on_fresh_project`, `test_cli_does_not_echo_client_secret`, `test_native_probe_requires_explicit_manifest` e `test_skill_entries_do_not_start_mission` verificam seleção Claude/Codex/both, helper ausente/incompatível, nenhum overwrite em migração/force e zero chamadas de modelo implícitas.
-- [ ] **Step 2: executar o RED.** `python -m unittest discover -s tests -p test_setup.py -k runtime -v` e `python -m unittest discover -s tests -p test_missions.py -k client -v`; esperar ausência dos helpers/entradas CLI.
-- [ ] **Step 3: ligar operações à CLI e ao setup.** Validar manifesto dentro da raiz, preservar privacidade e catálogo; atualizar hashes/dependências dos arquivos afetados. Exibir `check_available` e a prova específica de cliente sem mudar `runtime_available/runnable` da missão para verdadeiro. Atualizar o status sem reinterpretar recibos históricos.
-- [ ] **Step 4: executar o smoke determinístico nos dois sistemas.** `python -B tests/smoke_mission_runtime.py --root .runtime/mission-runtime-proof --client both` usa apenas o simulador. Deve adotar consumidor novo/existente, configurar/preparar, inspecionar, executar uma vez, repetir sem spawn, provocar timeout/queda, consultar/conciliar e retornar pelo trial. Conferir árvore, Git, arquivos humanos e perfil global preservados. Não alterar o contador de correções do PBI.
-- [ ] **Step 5: provar descoberta nativa e preparar a matriz.** Estender `tests/smoke_clients.py` para as quatro skills da fundação. Separar descoberta sem modelo de aplicação numa conversa. Registrar OS, cliente/versão/binário, modelo/effort, conexão, perfil/política, escopo de capacidades, resultado, limites e data. Cada célula será `verified`, `failed`, `unsupported` ou `not_run`; matriz sem prova real não anuncia suporte.
-- [ ] **Step 6: executar provas reais somente com entrada autorizada.** Modo separado `python -B tests/smoke_mission_runtime.py --native-manifest RELATIVE_PATH` exige modelo/configuração e manifesto de cada tentativa. Conferir login pela ferramenta oficial; se faltar, registrar pendência sem repetir. Cobrir Codex/Claude autenticados e API opcional em ambientes disponíveis, com uma execução por manifesto e limites definidos antes de chamar. Ausência de credencial conserva a célula pendente. Prova de API nunca usa credencial de assinatura. Não habilitar perfil de desenvolvimento com base nesta prova de diagnóstico.
-- [ ] **Step 7: verificar a entrega.** Linux: `python -m unittest discover -s tests -v`. Windows: `python -B tests/windows_fixture_runner.py -m unittest discover -s tests -p "test_mission*.py" -v` e o smoke pelo mesmo wrapper. CI usa simuladores; provas pagas nunca rodam em PR. Registrar resultados, falhas/skip e zero processos próprios restantes. Revisar diff completo em contexto independente uma vez; corrigir achados materiais com regressão reproduzida.
+- [x] **Step 1: escrever testes de instalação/CLI e smoke.** `test_runtime_helpers_preserve_existing_install`, `test_runtime_cli_readonly_on_fresh_project`, `test_cli_does_not_echo_client_secret`, `test_native_probe_requires_explicit_manifest` e `test_skill_entries_do_not_start_mission` verificam seleção Claude/Codex/both, helper ausente/incompatível, nenhum overwrite em migração/force e zero chamadas de modelo implícitas.
+- [x] **Step 2: executar o RED.** `python -m unittest discover -s tests -p test_setup.py -k runtime -v` e `python -m unittest discover -s tests -p test_missions.py -k client -v`; esperar ausência dos helpers/entradas CLI.
+- [x] **Step 3: ligar operações à CLI e ao setup.** Validar manifesto dentro da raiz, preservar privacidade e catálogo; atualizar hashes/dependências dos arquivos afetados. Exibir `check_available` e a prova específica de cliente sem mudar `runtime_available/runnable` da missão para verdadeiro. Atualizar o status sem reinterpretar recibos históricos.
+- [x] **Step 4: executar o smoke determinístico nos dois sistemas.** `python -B tests/smoke_mission_runtime.py --root CAMINHO_CURTO_AUSENTE_FORA_DO_GIT --client both` usa apenas o simulador. Deve adotar consumidor novo/existente, configurar/preparar, inspecionar, executar uma vez, repetir sem spawn, provocar timeout/queda, consultar/conciliar e retornar pelo trial. Conferir árvore, Git, arquivos humanos e perfil global preservados. Não alterar o contador de correções do PBI.
+- [x] **Step 5: provar descoberta nativa e preparar a matriz.** Estender `tests/smoke_clients.py` para as quatro skills da fundação. Separar descoberta sem modelo de aplicação numa conversa. Registrar OS, cliente/versão/binário, modelo/effort, conexão, perfil/política, escopo de capacidades, resultado, limites e data. Cada célula será `verified`, `failed`, `unsupported` ou `not_run`; matriz sem prova real não anuncia suporte.
+- [ ] **Step 6: executar provas reais somente com entrada autorizada.** Modo separado `python -B tests/smoke_mission_runtime.py --root CONSUMIDOR_PREPARADO --native-manifest RELATIVE_PATH --executable EXECUTAVEL_NATIVO` exige modelo/configuração e manifesto de cada tentativa. Conferir login pela ferramenta oficial; se faltar, registrar pendência sem repetir. Cobrir Codex/Claude autenticados e API opcional em ambientes disponíveis, com uma execução por manifesto e limites definidos antes de chamar. Ausência de credencial conserva a célula pendente. Prova de API nunca usa credencial de assinatura. Não habilitar perfil de desenvolvimento com base nesta prova de diagnóstico.
+- [x] **Step 7: verificar a entrega.** Linux: `python -m unittest discover -s tests -v`. Windows: `python -B tests/windows_fixture_runner.py -m unittest discover -s tests -p "test_mission*.py" -v` e o smoke pelo mesmo wrapper. CI usa simuladores; provas pagas nunca rodam em PR. Registrar resultados, falhas/skip e zero processos próprios restantes. Revisar diff completo em contexto independente uma vez; corrigir achados materiais com regressão reproduzida.
 - [ ] **Step 8: atualizar documentação e publicar.** README/guia PT/EN explicam inspeção, prova, consulta e recuperação com erros concretos. Preservar os SVGs de preparação, que ainda descrevem corretamente a missão; ligar diagnóstico pelo guia. Vincular evidências e atualizar YC-201–203 somente pelo aceite atingido. Commit `feat: expose verified mission client checks`; PR protegido, sem bypass, autor humano e memória local atualizada.
+
+Step 6 permanece bloqueado: perfis nativos sem prova de isolamento. A autorização existe, mas nenhum turno real foi enviado. Steps 4/7 passaram em Linux/Windows, com revisão independente e quatro correções verificadas. Step 8 acompanha a integração protegida pelo [PR #20](https://github.com/Matheusrpc/YoungCrowHarness/pull/20); documentação e nota privada estão atualizadas. A publicação parcial não fecha YC-203.
 
 ## Auto-revisão do plano e encerramento
 
@@ -294,5 +300,7 @@ como verificadas. Se faltar prova de um cliente padrão, a implementação pode 
 parcial, mas YC-203 e 2A continuam abertos. Autorizar chamadas não elimina limites nem necessidade
 de evidência. A próxima entrega será o plano de 2B, apoiado nesses contratos.
 
-Antes de implementar, o mantenedor revisa este plano escrito. O método inline já escolhido
-permanece; não é necessário escolher novamente entre modelos de execução.
+O mantenedor aprovou este plano e esclareceu que modelo e esforço devem vir das opções atuais
+do cliente, à escolha do desenvolvedor. `latest` significa recomendação atual da conta;
+`native: client-default` mantém o esforço padrão. A liberação dos perfis continua dependente de
+prova própria; aprovação da implementação não remove esse gate.

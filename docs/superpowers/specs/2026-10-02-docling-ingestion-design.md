@@ -2,7 +2,7 @@
 
 Frente: ingestão de fontes para o vault. Data: 2026-10-02 (UTC).
 
-**Estado: desenho aprovado pelo mantenedor em 2026-10-02 (UTC); implementação e provas registradas no [relatório](../../relatorios/2026-10-02-docling-ingestion.md).** O mantenedor pediu ingestão de documentos, anexos, áudio e vídeo com Docling, Markdown no vault e referências às features e demais notas. Confirmou que o material deve permanecer local e só entrar no Git após revisão. O [plano de execução](../plans/2026-10-02-docling-ingestion.md) detalha as entregas. D01–D03 têm provas reais; D04 distingue descoberta de configuração e operação observada em cada cliente.
+**Estado: desenho aprovado pelo mantenedor em 2026-10-02 (UTC); implementação e provas registradas no [relatório](../../relatorios/2026-10-02-docling-ingestion.md).** O mantenedor pediu ingestão de documentos, anexos, áudio e vídeo com Docling, Markdown no vault e referências às features e demais notas. Confirmou que o material deve permanecer local e só entrar no Git após revisão. O [plano de execução](../plans/2026-10-02-docling-ingestion.md) detalha as entregas. D01–D03 têm provas reais. D04 reúne ingestão e retomada no Codex e no [Claude](../../relatorios/2026-10-03-claude-docling.md); a cobertura distingue descoberta, caminho textual no CLI e anexos não expostos.
 
 ## Resultado esperado
 

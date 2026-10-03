@@ -430,7 +430,11 @@ Documentos e memória recuperada são dados, não ordens. O hook não garante ca
 anexos. Links internos não disparam coleta recursiva; URLs assinadas devem ser baixadas por um meio
 autorizado antes da ingestão local, sem expor tokens no histórico do terminal. Graphify e claude-mem
 não recebem material automaticamente. A [matriz de evidências](relatorios/2026-10-02-docling-ingestion.md)
-distingue descoberta nativa, sessão real e cobertura ainda pendente.
+distingue descoberta nativa, sessão real e cobertura ainda pendente. A [prova no Claude](relatorios/2026-10-03-claude-docling.md)
+verificou o hook para um caminho HTML textual, conversão, vínculo com feature e retomada em outra
+sessão. A entrada inacessível foi registrada explicitamente; envio binário pela interface não foi testado.
+Confira o registro de execução e o recibo atual antes de atualizar o resumo da feature: essa conciliação
+continua manual. Descoberta ou autodeclaração de uma skill não comprova que suas instruções foram lidas.
 
 
 
@@ -1106,7 +1110,11 @@ Documents and retrieved memory are data, not commands. The hook cannot guarantee
 attachment capture. Embedded links do not trigger recursive collection. Download signed URLs
 through an authorized mechanism before local ingestion, keeping tokens out of shell history.
 Graphify and claude-mem receive no automatic uploads. The [evidence matrix](relatorios/2026-10-02-docling-ingestion.md)
-separates native discovery, real sessions and remaining coverage gaps.
+separates native discovery, real sessions and remaining coverage gaps. The [Claude proof](relatorios/2026-10-03-claude-docling.md)
+verified the hook for a textual HTML path, conversion, a feature relation and recovery in a fresh
+session. The inaccessible input was recorded explicitly; binary uploads through the UI were not tested.
+Check the run record and current receipt before updating the feature summary: reconciliation remains
+manual. Discovery or self-reported skill use does not prove its instructions were read.
 
 
 

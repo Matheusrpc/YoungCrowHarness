@@ -5,8 +5,8 @@ Frente: documentos, mídia e retomada pelo vault. Implementação conforme o
 [plano aprovado](../superpowers/plans/2026-10-02-docling-ingestion.md).
 
 Esta captura descreve a entrega original. A [rodada Claude posterior](2026-10-02-claude-memory-capabilities.md)
-confirmou autenticação, memória e MCP; a ingestão completa pelo Docling em conversa Claude
-continua pendente. O adaptador Graphify foi entregue na [frente de memória](2026-10-02-memory-discovery.md).
+confirmou autenticação, memória e MCP. A [continuação de 2026-10-03](2026-10-03-claude-docling.md)
+verificou ingestão com Docling e retomada em duas sessões Claude, incluindo o hook para o caminho textual. O adaptador Graphify foi entregue na [frente de memória](2026-10-02-memory-discovery.md).
 
 ## Arquitetura entregue
 
@@ -40,7 +40,7 @@ sem adaptadores; nenhum material é enviado a esses serviços.
 | D04: descoberta em clientes nativos | `ingest-source` nos dois clientes; `UserPromptSubmit` reconhecido no Codex | [Clientes](../medicoes/2026-10-02-docling-clients.json) |
 | D04: conversa real no Codex | HTML convertido, evidência relacionada, anexo inacessível pendente | Mesmo registro de clientes |
 | D04: nova conversa no Codex, sem histórico | Recuperou fonte/revisão, feature, citação, pendência e próxima ação pelo vault | Mesmo registro de clientes |
-| D04: conversa real no Claude Code | Pendente: autenticação confirmada depois; falta ensaio de ingestão completa | Mesmo registro de clientes e continuação vinculada acima |
+| D04: conversa real no Claude Code | Verificado na continuação: HTML, relação, pendência e retomada sem histórico | [Relatório de 2026-10-03](2026-10-03-claude-docling.md) e [medições](../medicoes/2026-10-03-claude-docling.json) |
 
 A primeira conversa real no Codex levou 235,53 segundos; a recuperação, 73,42 segundos. São tempos
 observados de duas execuções, incluindo o modelo e as ferramentas, não um benchmark. O teste usou
@@ -130,5 +130,6 @@ não fazem parte das evidências versionadas.
 
 The implementation keeps documents local by default, with stable source identities, evidence
 relations and exact-copy review before sharing. Real Docling document/media tests and real Codex
-ingestion/recovery passed. Claude native discovery passed; its live conversation proof remains
-pending because the local client is not authenticated. Automatic attachment capture is not claimed.
+ingestion/recovery passed. The original capture only verified Claude discovery. The
+[2026-10-03 continuation](2026-10-03-claude-docling.md) adds real Claude ingestion/recovery
+and native hook capture of a textual HTML path. Universal attachment capture is not claimed.

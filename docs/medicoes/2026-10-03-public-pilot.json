@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "observed_at": "2026-10-03T12:17:31+00:00",
-  "status": "pending_native_claude_and_publication",
+  "observed_at": "2026-10-03T12:24:54.296Z",
+  "status": "published_claude_retrieval_pending",
   "project_id": "f60e681f-a8f3-40a5-aac6-fbcdc7aad86c",
   "feature_id": "7a8f5020-54ab-5c9d-8355-137c4fba336f",
   "ci": {
@@ -328,6 +328,37 @@
     "declined_to_judge": []
   },
   "production": {
-    "status": "unverified"
+    "passed": true,
+    "observed_at": "2026-10-03T12:24:54.296Z",
+    "url": "https://matheusrpc.github.io/YoungCrowHarness/",
+    "revision": "2134134f14dc861be803173613bfd6a0d2e855e0",
+    "files": {
+      "index.html": "039fff96f85b0150f556e979cc5c36d823a7ba31dd113433fcd0d83973c6d800",
+      "style.css": "0030bf13961322a904b8cde8c5848176c39587cb93092a2a402b4ac917d6b6fe",
+      "app.mjs": "ac30695c4132011caa8bf4999ac1bd584000d7a7cb30e0a1b93dca5efbb92511",
+      "model.mjs": "4bcc20e7df43e2003c308fb6da21d6204b9f1ecd928ca7c9f6d645cd9c685b2a",
+      "data.json": "87f72c8a90202257d9e311861b905c49eef04e75fa96fb53e45ba3facc0a4f92",
+      "gema-cobalto.svg": "8a9bced1fe8b8f601cd0eefa6b881b44b2fb3dcaa75674dcb1fbe74977a5a68d"
+    },
+    "viewports": [
+      1280,
+      360
+    ],
+    "keyboard": true,
+    "filters": true,
+    "empty": true,
+    "reset": true,
+    "evidenceLinks": [
+      "https://github.com/Matheusrpc/YoungCrowHarness/blob/main/examples/delivery-board/vault/features/delivery-board/index.md",
+      "https://github.com/Matheusrpc/YoungCrowHarness/blob/main/examples/delivery-board/vault/decisions/static-site.md",
+      "https://github.com/Matheusrpc/YoungCrowHarness/blob/main/examples/delivery-board/vault/operations/index.md"
+    ],
+    "status": "verified",
+    "deploy_run": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37122731645",
+    "https_enforced": true,
+    "permitted_branch": "main",
+    "remaining_owned_processes": 0,
+    "rollback_exercised": false,
+    "rollback": "Re-run the previous approved Pages workflow and recheck hashes; on the first release, unpublish Pages if withdrawal is needed."
   }
 }

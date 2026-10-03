@@ -3,7 +3,7 @@ id: "78e0331e-c5b3-56b7-9586-9d9171f76409"
 type: "index"
 title: "Operação da demonstração"
 origin: "youngcrow/public-pilot"
-updated: "2026-10-03T11:41:15+00:00"
+updated: "2026-10-03T12:24:54.296Z"
 index: "../index.md"
 ---
 
@@ -11,13 +11,20 @@ index: "../index.md"
 
 [Vault](../index.md) · [Feature](../features/delivery-board/index.md) · [Integração Pages](../integrations/github/pages/index.md)
 
-Produção: não verificada. Ainda não existe URL observada, revisão publicada ou run de deploy deste piloto.
-Os estados das três entregas na página pertencem ao cenário fictício e não mudam esse diagnóstico.
+Produção verificada em 2026-10-03T12:24:54.296Z: [abrir demonstração](https://matheusrpc.github.io/YoungCrowHarness/).
+Revisão publicada: `2134134f14dc861be803173613bfd6a0d2e855e0`. [Execução de deploy](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37122731645).
+Página e seis arquivos responderam HTTP 200. Os hashes do manifesto coincidem com os bytes recebidos
+e com os blobs Git dessa revisão aprovada. Filtros combinados, vazio, limpeza, teclado, links do vault
+e telas de 1280px/360px foram conferidos. Zero processos próprios de navegador ao fim.
+HTTPS obrigatório; ambiente github-pages permite apenas a branch main. PRs não publicam.
 
-Publicação prevista: pacote permitido, main protegida e GitHub Pages. A observação precisa conferir URL,
-manifesto, hashes e uso do filtro. Depois registrar data UTC, revisão, run e próxima ação nesta nota.
+Os estados das entregas na página pertencem ao cenário fictício. A prova de recuperação do Claude
+continua pendente por OAuth expirado; a publicação estática não encerra esse aceite.
+As [medições](https://github.com/Matheusrpc/YoungCrowHarness/blob/main/docs/medicoes/2026-10-03-public-pilot.json)
+preservam revisão, hashes e limites. Uma edição posterior só de relato não altera a versão do site.
 
-Retorno da publicação: repetir o deploy de uma revisão anterior comprovada e observar novamente.
-Na primeira publicação, sem versão anterior, despublicar se for necessário retirar a demonstração.
-Retorno da adoção: o executor externo restaura apenas o consumidor e conserva o trabalho do trial.
-Essas duas operações são independentes.
+Retorno da publicação: se existir release anterior comprovada, reexecutar o workflow de publicação
+daquela revisão aprovada e observar novamente URL/manifesto. Sem versão anterior, retirar o site
+pelo mecanismo oficial Pages se for necessário despublicar. Esse retorno não foi acionado nesta prova.
+Retorno da adoção: o executor externo restaura apenas o consumidor e conserva o trabalho do trial;
+as duas operações são independentes. Próxima ação: renovar login Claude e declarar nova prova limitada.

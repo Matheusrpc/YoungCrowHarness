@@ -3,7 +3,7 @@ id: "7c717c4d-412d-53cc-8f48-fe1b79dd1fd2"
 type: "run"
 title: "Retomada nativa do piloto"
 origin: "youngcrow/integrations"
-updated: "2026-10-03T12:17:45+00:00"
+updated: "2026-10-03T12:24:54.296Z"
 index: "../index.md"
 ---
 
@@ -22,5 +22,5 @@ Claude: tentativa encerrada antes de ferramentas ou tokens por OAuth expirado se
 Não houve recuperação comprovada nem repetição automática. O mantenedor precisa renovar o login.
 Cada sessão tinha teto de 300 segundos/24 ferramentas, assinatura existente e nenhuma API adicional.
 Perfis originais inalterados, cópias temporárias de credenciais removidas e processos próprios encerrados.
-MCPs externos, Graphify e claude-mem: zero uso. Desenvolvimento verificado; produção ainda pendente.
-Próxima ação: revisão/publicação e nova tentativa limitada no Claude após renovar o login.
+MCPs externos, Graphify e claude-mem: zero uso. Durante a consulta, desenvolvimento verificado e produção ainda pendente; consulte a operação atual.
+Próxima ação atual: nova tentativa limitada no Claude após renovar o login; a publicação está registrada na operação.

@@ -16,7 +16,7 @@ o estado e confirmar a retomada. As cópias do trabalho ficam preservadas. Veja 
 [comandos e limites](USAGE.md#adocao-reversivel-pt); serviços externos ficam fora desse retorno.
 
 
-O [roteiro do quadro de entregas](../examples/delivery-board/README.md) aplica esse fluxo a um projeto
+A [demonstração publicada](https://matheusrpc.github.io/YoungCrowHarness/) e o [roteiro do quadro de entregas](../examples/delivery-board/README.md) aplicam esse fluxo a um projeto
 novo e a uma migração, com testes, notas, publicação e retorno. Consulte o [vault do exemplo](../examples/delivery-board/vault/index.md)
 para seguir a feature, a decisão e as provas da mesma entrega.
 
@@ -127,7 +127,7 @@ status and confirm recovery. Trial copies are retained. See the
 [commands and limits](USAGE.md#reversible-adoption-en); external services are excluded.
 
 
-The [delivery board recipe](../examples/delivery-board/README.md) applies this flow to a new project
+The [published demonstration](https://matheusrpc.github.io/YoungCrowHarness/) and [delivery board recipe](../examples/delivery-board/README.md) apply this flow to a new project
 and adoption, with tests, notes, publication and restoration. Follow the [example vault](../examples/delivery-board/vault/index.md)
 from the feature to its decision and evidence.
 

@@ -10,7 +10,7 @@
 
 **Spec:** [Desenho aprovado](../specs/2026-10-03-public-pilot-design.md).
 
-Estado em 2026-10-03: plano aprovado pelo mantenedor; execução inline iniciada. O registro de implementação do exemplo e o relatório do piloto distinguem resultados comprovados de etapas pendentes.
+Estado em 2026-10-03: aplicação publicada e observada, adoção Windows/Linux e retomada Codex verificadas. P06 permanece pendente no Claude por OAuth expirado; o piloto completo não está fechado. O relatório registra a revisão publicada e a próxima ação.
 
 ## Global Constraints
 
@@ -336,10 +336,10 @@ python -B tests/windows_fixture_runner.py tests/smoke_public_pilot.py --root "$e
 
 **Interfaces:** respostas nativas em JSON com `project_id`, `feature_id`, `decision`, `development`, `production`, `evidence`, `next_action`, `capabilities_used`, `warnings`; cada item de `evidence` tem `path`, `note_id`, `sha256`. A saída é comparada com arquivos reais; autoafirmação de skill usada não basta.
 
-- [ ] Conciliar o resumo da feature com as Tasks 1 a 4, incluindo a publicação ainda não observada. Conferir links de volta, IDs e datas. Rodar o validador do vault do exemplo e do harness. Ler decisão, última execução e operação e resolver contradições antes de chamar modelos.
-- [ ] Preparar consumidores privados para leitura a partir do ensaio e copiar apenas o vault público revisado para um contexto de prova próprio, sem copiar `vault/local` do mantenedor. Manter explícito que esse contexto recupera a identidade do exemplo. Instalar/adaptar instruções e skills de leitura pelos mecanismos existentes; preservar os perfis globais. Confirmar versões e autenticação sem imprimir tokens. Não reutilizar as sessões ou orçamentos de provas anteriores.
-- [ ] Registrar orçamento antes das chamadas: uma sessão Claude e uma Codex, cada uma até 300 segundos e 24 chamadas de ferramentas, assinatura atual e zero API adicional. Reusar o padrão de runner privado já comprovado, com marcador durável por cliente antes de disparar, captura de eventos, término de processos próprios e limpeza apenas de credenciais temporárias próprias em `finally`. Confirmar flags na ajuda local dos clientes; não inventar flags de limites. O supervisor interrompe ao atingir o limite e conserva tentativa parcial. Não retomar automaticamente uma sessão falha.
-- [ ] Usar o mesmo pedido sem respostas fornecidas, em sessões novas e somente leitura:
+- [x] Conciliar o resumo da feature com as Tasks 1 a 4, incluindo a publicação ainda não observada. Conferir links de volta, IDs e datas. Rodar o validador do vault do exemplo e do harness. Ler decisão, última execução e operação e resolver contradições antes de chamar modelos.
+- [x] Preparar consumidores privados para leitura a partir do ensaio e copiar apenas o vault público revisado para um contexto de prova próprio, sem copiar `vault/local` do mantenedor. Manter explícito que esse contexto recupera a identidade do exemplo. Instalar/adaptar instruções e skills de leitura pelos mecanismos existentes; preservar os perfis globais. Confirmar versões e autenticação sem imprimir tokens. Não reutilizar as sessões ou orçamentos de provas anteriores.
+- [x] Registrar orçamento antes das chamadas: uma sessão Claude e uma Codex, cada uma até 300 segundos e 24 chamadas de ferramentas, assinatura atual e zero API adicional. Reusar o padrão de runner privado já comprovado, com marcador durável por cliente antes de disparar, captura de eventos, término de processos próprios e limpeza apenas de credenciais temporárias próprias em `finally`. Confirmar flags na ajuda local dos clientes; não inventar flags de limites. O supervisor interrompe ao atingir o limite e conserva tentativa parcial. Não retomar automaticamente uma sessão falha.
+- [x] Usar o mesmo pedido sem respostas fornecidas, em sessões novas e somente leitura:
 
 ```text
 Recupere o piloto do quadro de entregas pelos índices do vault deste projeto.
@@ -353,9 +353,9 @@ capabilities_used e warnings. Conte apenas capacidades realmente usadas nesta se
 ```
 
 - [ ] Comparar resposta com notas e SHA-256, conferir nos eventos as leituras efetivas, e comparar snapshots do consumidor antes/depois. Hooks podem gerar recibos privados: registrar essa diferença autorizada separadamente; notas públicas e código devem ficar iguais. Esperar que o cliente declare produção pendente quando essa é a evidência disponível. Zero MCP externo é resultado válido; não declarar Graphify ou claude-mem usados.
-- [ ] Registrar resultado por cliente, versões, duração, contagem de ferramentas, IDs/revisões recuperados, avisos e limitações. Não publicar eventos brutos. Um cliente que não recuperou a evidência deixa P06 pendente; não trocar a prova nativa por um mock.
-- [ ] Pedir a um subagente independente somente leitura a revisão do diff completo e do aceite. Usar `requesting-code-review` e o modelo mais capaz exigido por `executing-plans`; fornecer base/revisão, spec, plano, saídas e limites. O revisor não corrige arquivos. O escritor resolve achados pertinentes e repete apenas checks afetados, preservando a identidade das provas nativas se as notas mudarem depois.
-- [ ] Rodar suíte Python pertinente/completa antes do PR, testes Node e checagens de vault; preparar relatório com P01 a P07 e P09 no estado observado, P08 pendente. Commit: `docs: registrar provas e revisao do piloto publico`.
+- [x] Registrar resultado por cliente, versões, duração, contagem de ferramentas, IDs/revisões recuperados, avisos e limitações. Não publicar eventos brutos. Um cliente que não recuperou a evidência deixa P06 pendente; não trocar a prova nativa por um mock.
+- [x] Pedir a um subagente independente somente leitura a revisão do diff completo e do aceite. Usar `requesting-code-review` e o modelo mais capaz exigido por `executing-plans`; fornecer base/revisão, spec, plano, saídas e limites. O revisor não corrige arquivos. O escritor resolve achados pertinentes e repete apenas checks afetados, preservando a identidade das provas nativas se as notas mudarem depois.
+- [x] Rodar suíte Python pertinente/completa antes do PR, testes Node e checagens de vault; preparar relatório com P01 a P07 e P09 no estado observado, P08 pendente. Commit: `docs: registrar provas e revisao do piloto publico`.
 
 ### Task 6: publicar a revisão aprovada e fechar a documentação
 
@@ -363,8 +363,8 @@ capabilities_used e warnings. Conte apenas capacidades realmente usadas nesta se
 
 **Interfaces:** workflow publica somente main; `manifest.json` identifica a revisão efetivamente empacotada. A observação externa compara hashes dos seis arquivos, revisão e resposta da página, além de exercitar o filtro no navegador. O estado de produção contém data UTC, URL efetiva retornada, revisão, run e observação.
 
-- [ ] Revalidar a documentação oficial registrada na integração antes de habilitar Pages. Em 2026-10-03 foram conferidos por API os commits das ações: configure-pages v5 `983d7736d9b0ae728b81ab479565c72886d7745b`, upload-pages-artifact v4 `7b1f4a764d45c48632c6b24a0339c27f5614fb0b`, deploy-pages v4 `d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e`. A raiz já usa checkout `11d5960a326750d5838078e36cf38b85af677262`; não atualizar outras ações sem motivo.
-- [ ] Criar workflow separado com `contents: read` por padrão; `build` faz testes, valida vault e empacota, e só envia o staging. `deploy` depende de `build`, usa environment `github-pages`, permissões `pages: write` e `id-token: write`. Não usar `pull_request_target`, permissões de deploy no workflow de PR ou upload da raiz.
+- [x] Revalidar a documentação oficial registrada na integração antes de habilitar Pages. Em 2026-10-03 foram conferidos por API os commits das ações: configure-pages v5 `983d7736d9b0ae728b81ab479565c72886d7745b`, upload-pages-artifact v4 `7b1f4a764d45c48632c6b24a0339c27f5614fb0b`, deploy-pages v4 `d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e`. A raiz já usa checkout `11d5960a326750d5838078e36cf38b85af677262`; não atualizar outras ações sem motivo.
+- [x] Criar workflow separado com `contents: read` por padrão; `build` faz testes, valida vault e empacota, e só envia o staging. `deploy` depende de `build`, usa environment `github-pages`, permissões `pages: write` e `id-token: write`. Não usar `pull_request_target`, permissões de deploy no workflow de PR ou upload da raiz.
 
 ```yaml
 name: Public pilot Pages
@@ -417,13 +417,13 @@ jobs:
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
 ```
 
-- [ ] Incluir o workflow no diff da revisão independente antes de qualquer publicação; se criado depois da Task 5, pedir continuação ao mesmo revisor para esse diff. Criar PR com problema/resultado, aceite e testes reais, corpo por arquivo e autoria humana. Anexar o PR ao chat. Aguardar checks obrigatórios e `public-pilot`; não reduzir proteção para publicar.
-- [ ] Conferir configuração atual de Pages e environment. Sob a autorização de publicação deste piloto, habilitar fonte GitHub Actions no repo existente se ainda ausente, seguindo a interface/API oficial verificada. Limitar environment à main e conferir HTTPS. Divergência, custo inesperado ou necessidade de privilégio novo deixa apenas publicação pendente; não contratar serviço. Não anunciar URL como disponível antes do deploy.
-- [ ] Integrar normalmente pela main protegida; acompanhar run de deploy com intervalos, sem consulta incessante. Capturar `page_url` real. Na URL pública, solicitar manifesto e cada arquivo com timeout e conferir SHA/revisão contra o artefato aprovado. Exercitar filtros, vazio, limpeza, teclado e viewport estreita na página publicada. Encerrar todos os processos próprios do ensaio. Falha mantém P08 pendente.
-- [ ] Retorno: quando existir release anterior comprovada, repetir o run de publicação daquela revisão aprovada, reconstruindo a partir do mesmo SHA, e observar novamente URL/manifesto; não fazer force push. No primeiro deploy, se não houver versão anterior e a falha exigir retirar a demonstração, despublicar pelo mecanismo oficial do Pages e registrar o resultado. Distinguir esse retorno de publicação do retorno do consumidor da Task 4.
-- [ ] Atualizar relatório, JSON e operação com resultados observados; conciliar feature e integração. Acrescentar ao README e ao guia PT/EN URL da demo, roteiro novo/migração/saída, requisitos e limitações. Em `docs/PROCESS.md`, ligar a etapa de piloto ao roteiro e aos fluxos já existentes, preservando as caixas de processo e os assets. Usar humanizer.
-- [ ] Publicar as notas finais em um PR de documentação, se já estiverem após o merge da aplicação. Os filtros de caminhos do deploy evitam publicar de novo por mudar apenas relato/vault; a revisão publicada continua sendo um ancestral aprovado da main. Revalidar links e checks pertinentes, integrar normalmente e conferir main remota. O manifesto do site deve corresponder à revisão aprovada que gerou seus arquivos, não necessariamente a um commit posterior que só relata a prova.
-- [ ] Encerrar somente com a tabela abaixo preenchida por resultados reais. Relatar o placar `ATRASO: main N | Pages N`; Pages compara os arquivos publicáveis da main aos hashes observados, para que uma edição de relato não vire falso atraso de aplicação.
+- [x] Incluir o workflow no diff da revisão independente antes de qualquer publicação; se criado depois da Task 5, pedir continuação ao mesmo revisor para esse diff. Criar PR com problema/resultado, aceite e testes reais, corpo por arquivo e autoria humana. Anexar o PR ao chat. Aguardar checks obrigatórios e `public-pilot`; não reduzir proteção para publicar.
+- [x] Conferir configuração atual de Pages e environment. Sob a autorização de publicação deste piloto, habilitar fonte GitHub Actions no repo existente se ainda ausente, seguindo a interface/API oficial verificada. Limitar environment à main e conferir HTTPS. Divergência, custo inesperado ou necessidade de privilégio novo deixa apenas publicação pendente; não contratar serviço. Não anunciar URL como disponível antes do deploy.
+- [x] Integrar normalmente pela main protegida; acompanhar run de deploy com intervalos, sem consulta incessante. Capturar `page_url` real. Na URL pública, solicitar manifesto e cada arquivo com timeout e conferir SHA/revisão contra o artefato aprovado. Exercitar filtros, vazio, limpeza, teclado e viewport estreita na página publicada. Encerrar todos os processos próprios do ensaio. Falha mantém P08 pendente.
+- [x] Retorno: quando existir release anterior comprovada, repetir o run de publicação daquela revisão aprovada, reconstruindo a partir do mesmo SHA, e observar novamente URL/manifesto; não fazer force push. No primeiro deploy, se não houver versão anterior e a falha exigir retirar a demonstração, despublicar pelo mecanismo oficial do Pages e registrar o resultado. Distinguir esse retorno de publicação do retorno do consumidor da Task 4.
+- [x] Atualizar relatório, JSON e operação com resultados observados; conciliar feature e integração. Acrescentar ao README e ao guia PT/EN URL da demo, roteiro novo/migração/saída, requisitos e limitações. Em `docs/PROCESS.md`, ligar a etapa de piloto ao roteiro e aos fluxos já existentes, preservando as caixas de processo e os assets. Usar humanizer.
+- [x] Publicar as notas finais em um PR de documentação, se já estiverem após o merge da aplicação. Os filtros de caminhos do deploy evitam publicar de novo por mudar apenas relato/vault; a revisão publicada continua sendo um ancestral aprovado da main. Revalidar links e checks pertinentes, integrar normalmente e conferir main remota. O manifesto do site deve corresponder à revisão aprovada que gerou seus arquivos, não necessariamente a um commit posterior que só relata a prova.
+- [x] Encerrar somente com a tabela abaixo preenchida por resultados reais. Relatar o placar `ATRASO: main N | Pages N`; Pages compara os arquivos publicáveis da main aos hashes observados, para que uma edição de relato não vire falso atraso de aplicação.
 
 ## Cobertura e autocheck do plano
 
@@ -439,6 +439,6 @@ jobs:
 | P08 | 6 | Run, revisão aprovada, URL externa e hashes observados |
 | P09 | Todas; conclusão em 6 | README/guia PT/EN, processos preservados, demo e receita ligados |
 
-Autocheck antes de entregar o plano: comparar todos os requisitos com esta tabela; conferir contratos `Feature`, `Manifest` e callbacks; procurar instruções indefinidas; confirmar os cinco casos de Review Focus nos testes/provas correspondentes. Nenhum item marcado acima representa execução nesta etapa de planejamento.
+Autocheck antes de entregar o plano: comparar todos os requisitos com esta tabela; conferir contratos `Feature`, `Manifest` e callbacks; procurar instruções indefinidas; confirmar os cinco casos de Review Focus nos testes/provas correspondentes. Os marcadores agora refletem a execução; o aceite completo P06 continua pendente no Claude.
 
 Próxima entrega após este piloto: consolidar a primeira release, seus requisitos e o roteiro de adoção. Memória adicional e coordenação autônoma permanecem fora deste plano.

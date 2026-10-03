@@ -11,13 +11,13 @@ detalha decisões, pausas e retomada.
 See the [usage diagrams](../README.md#process-en) for new projects, adoption, daily work, source intake and memory retrieval.
 The [complete process](PROCESS.md#english) includes decisions, pauses and resumption.
 
-O [piloto público](../examples/delivery-board/README.md) reúne esses percursos em um exemplo com
+[Abra a demonstração](https://matheusrpc.github.io/YoungCrowHarness/) ou siga o [roteiro do piloto](../examples/delivery-board/README.md), que reúne esses percursos em um exemplo com
 vault próprio. A página e os filtros foram verificados localmente, incluindo teclado e tela estreita.
 O roteiro explica início do zero, migração e saída; os dois consumidores passaram pela prova de retorno no Windows e no Linux.
 A [prova de retomada](relatorios/2026-10-03-public-pilot.md) passou no Codex; Claude aguarda renovação de login.
 O README do exemplo explica como gerar e servir somente o pacote permitido, em um destino novo.
 
-The [public pilot](../examples/delivery-board/README.md) brings these paths together in an example
+[Open the demonstration](https://matheusrpc.github.io/YoungCrowHarness/) or follow the [pilot recipe](../examples/delivery-board/README.md), which brings these paths together in an example
 with its own vault. The page and filters were checked locally, including keyboard navigation and a narrow viewport.
 The recipe covers a new project, migration and exit; both consumers passed restoration on Windows and Linux.
 The [retrieval proof](relatorios/2026-10-03-public-pilot.md) passed in Codex; Claude needs a renewed login.

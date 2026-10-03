@@ -1458,3 +1458,31 @@ three parallel agents and three correction cycles (fixed in this version). Set p
 requires a positive decimal string in `api_budget_usd`. Deployment defaults to `manual`;
 `automatic` records intent. Mission overrides preserve project defaults. This backend does not yet
 enforce runtime limits or deploy products.
+
+## Contratos do backlog / Backlog contracts
+
+Novos épicos, features e PBIs ficam em `vault/local/product/{epics,features,pbis}/<uuid>/index.md`.
+Cada nota conserva seu UUID e declara o microíndice em `index`. O bloco entre
+`<!-- youngcrow:contract:start -->` e `<!-- youngcrow:contract:end -->` contém um único bloco
+JSON com `schema_version`, `project_id`, `parent_id`, `owner`, `objective`, `acceptance`, `dor`,
+`dod`, `validation`, `dependencies` e `references`. Veja o
+[contrato completo](superpowers/plans/2026-10-03-mission-foundation.md#notas-do-backlog-e-leitura-de-contratos).
+O PM define objetivo, aceite, DoR e DoD; o Tech Lead detalha PBIs, dependências e validação.
+Dependências são UUIDs de PBIs; referências usam `{note_id, path}` e apontam para notas locais.
+Acrescente links legíveis na prosa para navegar entre elas.
+
+Uma feature antiga sem contrato continua legível, com a pendência `missing_contract`.
+A leitura não reescreve notas, move arquivos nem executa comandos mencionados nos critérios.
+Contratos malformados, referências de outro projeto e links públicos para notas privadas são recusados.
+Critérios vazios deixam o item em rascunho. Datas históricas desconhecidas continuam desconhecidas.
+
+New epics, features and PBIs live in `vault/local/product/{epics,features,pbis}/<uuid>/index.md`.
+Each note keeps its UUID and names its micro-index in `index`. The marked contract contains one
+JSON block with the fields above. PM defines objectives, acceptance, DoR and DoD; Tech Lead details
+PBIs, dependencies and validation. Dependencies are PBI UUIDs; references use `{note_id, path}`
+and point to local notes. Add readable Markdown links for navigation.
+
+Legacy features without a contract remain readable with `missing_contract`. Reading never rewrites
+notes, moves files or executes commands mentioned in criteria. Malformed contracts, foreign project
+references and public links to private notes are rejected. Empty criteria remain draft; unknown
+historical dates stay unknown.

@@ -283,6 +283,8 @@ está aprovado. A primeira base valida configurações de agentes offline em `yo
 três PBIs e três agentes simultâneos por padrão, três ciclos de correção e deploy manual.
 Modelo e esforço ficam pendentes até a escolha do usuário. Veja o
 [contrato de configuração](docs/USAGE.md#mission-config). Os comandos da esteira ainda estão em implementação.
+O backlog usa contratos Markdown com UUID, DoR, DoD e referências verificadas por hash.
+Novas notas começam em `vault/local/product/`; features existentes mantêm seus caminhos e conteúdo.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
@@ -605,6 +607,8 @@ and verified production. The design is approved and the
 Offline agent configuration in `youngcrow/agents.json` defaults to three active PBIs, three parallel
 agents, three correction cycles and manual deployment. Model and effort remain pending until chosen.
 See the [configuration contract](docs/USAGE.md#mission-config). Pipeline commands are still being implemented.
+Backlog Markdown contracts carry UUIDs, DoR, DoD and references checked by hash.
+New notes start in `vault/local/product/`; existing features keep their paths and content.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 

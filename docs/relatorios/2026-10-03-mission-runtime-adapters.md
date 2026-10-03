@@ -31,9 +31,13 @@ passando por instalação, execução, consulta, recuperação e retorno.
 
 Resultados consolidados e comandos ficam em
 [mission-runtime-adapters.json](../medicoes/mission-runtime-adapters.json).
-Antes da revisão final, 74 testes de missões passaram no Windows em 597,851 segundos,
-com um skip exclusivo de Linux. As regressões acrescentadas na revisão têm medição
-separada; a publicação exige também a suíte completa do CI.
+Após as correções da revisão, a suíte de missões Windows passou com 81 testes em
+928,776 segundos e um skip de plataforma. A suíte completa Linux passou com 343 testes
+em 124,133 segundos e 13 skips. As provas instaladas passaram nos dois sistemas,
+incluindo consumidores novos e existentes, recuperação e retorno do trial.
+A publicação segue pelo [PR #20](https://github.com/Matheusrpc/YoungCrowHarness/pull/20),
+com verificações obrigatórias antes do merge. A nota de retomada privada passou pela
+validação do vault: 129 notas, nenhum problema.
 
 ## Revisão independente
 

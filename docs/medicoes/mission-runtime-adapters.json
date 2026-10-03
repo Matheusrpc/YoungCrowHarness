@@ -5,10 +5,11 @@
   "windows": {
     "python": "3.14.4",
     "mission_suite": {
-      "tests": 69,
+      "tests": 81,
       "skipped": 1,
-      "seconds": 848.731,
-      "result": "passed"
+      "seconds": 928.776,
+      "result": "passed",
+      "stage": "after_independent_review_fixes"
     },
     "setup_preservation": {
       "tests": 1,
@@ -25,7 +26,54 @@
       "seconds": 444.366,
       "result": "passed"
     },
-    "installed_smoke": "pending",
+    "installed_smoke": {
+      "platform": "Windows",
+      "python": "3.14.4",
+      "client": "both",
+      "git": "git version 2.54.0.windows.1",
+      "cases": [
+        {
+          "case": "absent",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        },
+        {
+          "case": "dirty-git",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        }
+      ],
+      "model_calls": 0,
+      "native_execution": "not_run",
+      "diagnostics": [
+        {
+          "mode": "absent",
+          "diagnostic": "succeeded",
+          "replay": "same_run",
+          "dispatches": 1,
+          "read_only": true,
+          "timeout": "uncertain",
+          "crash": "uncertain",
+          "reconciliation": "interrupted",
+          "runtime_available": false
+        },
+        {
+          "mode": "dirty-git",
+          "diagnostic": "succeeded",
+          "replay": "same_run",
+          "dispatches": 1,
+          "read_only": true,
+          "timeout": "uncertain",
+          "crash": "uncertain",
+          "reconciliation": "interrupted",
+          "runtime_available": false
+        }
+      ],
+      "result": "passed",
+      "stage": "review_validation_working_tree"
+    },
     "client_contracts": {
       "tests": 18,
       "seconds": 3.03,
@@ -54,10 +102,28 @@
       "skipped": 1,
       "seconds": 69.596,
       "result": "passed"
+    },
+    "mission_suite_initial": {
+      "tests": 69,
+      "skipped": 1,
+      "seconds": 848.731,
+      "result": "passed"
     }
   },
   "linux": {
-    "result": "pending_ci"
+    "result": "passed",
+    "tests": 343,
+    "seconds": 124.133,
+    "skipped": 13,
+    "revision": "fc23e9d4c78b32e3808aa585871e4c421a5cf69f",
+    "evidence": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37159307080/job/111309202989",
+    "installed_runtime_smoke": "passed",
+    "adoption_profiles": [
+      "claude",
+      "codex",
+      "both"
+    ],
+    "model_calls": 0
   },
   "native": {
     "codex": {
@@ -91,6 +157,16 @@
     "important": 4,
     "fixed_with_red_green": 4,
     "deferred_minors": 0,
-    "full_suite": "pending"
+    "full_suite": "passed"
+  },
+  "vault": {
+    "notes_checked": 129,
+    "issues": 0,
+    "handoff": "private"
+  },
+  "publication": {
+    "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/20",
+    "integration": "protected_merge_after_green_checks",
+    "live_profiles_enabled": 0
   }
 }

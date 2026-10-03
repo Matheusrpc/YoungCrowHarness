@@ -82,5 +82,5 @@ continua retornando pendência para despacho Claude; a conversa autenticada foi 
 Novos testes pagos exigem orçamento próprio; o smoke sintético não consome sessões de modelo.
 
 A falha HTML recebeu uma [correção separada](2026-10-02-docling-html.md), com as cinco fontes
-recuperadas. M04 segue parcial pelo ensaio ao vivo com termo idêntico em outro projeto. A ingestão
-completa pelo Docling em conversa Claude também permanece uma prova separada pendente.
+recuperadas. A [prova entre projetos](2026-10-02-memory-project-isolation.md) completou o cenário
+restante de M04. A ingestão completa pelo Docling em conversa Claude permanece uma prova separada pendente.

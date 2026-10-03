@@ -244,19 +244,16 @@ registra quatro entregas e sua cobertura:
 3. Verificado: URLs diretas, áudio e vídeo, com intervalos de transcrição, quadros, limites e falhas registrados.
 4. Codex: ingestão e retomada verificadas em duas sessões reais. Claude Code: descoberta verificada; ingestão completa em conversa ainda pendente. Veja a [matriz e os limites](docs/relatorios/2026-10-02-docling-ingestion.md).
 
-A consulta Markdown, o Graphify opcional e a skill compartilhada estão implementados. O
-[plano de memória](docs/superpowers/plans/2026-10-02-memory-discovery.md) mantém a prova de cada
-cliente separada. Codex recuperou handoffs e reconheceu uma revisão alterada. A
-[rodada de continuidade](docs/relatorios/2026-10-02-memory-continuity.md) também revelou uma escrita
-auxiliar do Graphify que causava timeout no Windows com permissões restritas. O adaptador agora
-consulta sem alterar a geração do índice; a prova nativa passou mantendo o vault protegido.
-Duas [sessões reais com a instalação atual](docs/relatorios/2026-10-02-memory-current-clients.md)
-também passaram: o handoff foi encontrado pelos índices, com UUIDs/revisões conferidos e Graphify
-sem fallback. A retomada preservou as notas e o grafo. O [ensaio autenticado no Claude](docs/relatorios/2026-10-02-claude-memory-capabilities.md)
-recuperou o handoff do Codex, salvou outro e reconheceu uma revisão alterada: usou Markdown com
-o grafo obsoleto e Graphify após reconstrução explícita. M04 permanece parcial; falta a prova
-ao vivo com termo idêntico em outro projeto.
-O [relatório](docs/relatorios/2026-10-02-memory-discovery.md) registra o estado atual de M01–M04.
+A consulta Markdown, o Graphify opcional e a skill compartilhada estão implementados. As provas
+de [Codex](docs/relatorios/2026-10-02-memory-current-clients.md) e
+[Claude](docs/relatorios/2026-10-02-claude-memory-capabilities.md) verificaram retomada por índices,
+UUIDs/revisões e consulta sem alterar notas ou gerações. Fontes alteradas usam Markdown enquanto
+o grafo está obsoleto; a reconstrução é explícita. Na [prova entre projetos](docs/relatorios/2026-10-02-memory-project-isolation.md),
+os dois clientes separaram temas de mesmo nome por raiz, `project_id`, UUID e revisão, sem misturar
+evidências de publicação. O roteiro e seus limites estão documentados: ambos os projetos estavam
+autorizados para leitura; não é uma prova de bloqueio de acesso pelo sistema operacional.
+M01–M04 estão verificados nos cenários do [relatório](docs/relatorios/2026-10-02-memory-discovery.md)
+e do [plano de memória](docs/superpowers/plans/2026-10-02-memory-discovery.md).
 A [governança de skills, agentes e MCPs](docs/superpowers/specs/2026-10-02-capability-governance-design.md)
 entrega catálogo verificável, auditoria offline, pacotes privados e uma skill comum aos dois clientes.
 Nos ensaios sintéticos nativos, Codex e Claude permitiram a ferramenta prevista, recusaram a
@@ -555,18 +552,15 @@ records four deliveries and their coverage:
 4. Codex: ingestion and recovery verified in two real sessions. Claude Code: discovery verified; full ingestion in a conversation still pending. See the [matrix and limits](docs/relatorios/2026-10-02-docling-ingestion.md).
 
 Markdown retrieval, optional Graphify and the shared skill are implemented. The
-[memory plan](docs/superpowers/plans/2026-10-02-memory-discovery.md) tracks each client separately:
-Codex recovered handoffs and recognized a changed revision. The
-[continuity round](docs/relatorios/2026-10-02-memory-continuity.md) also exposed an auxiliary Graphify
-write that timed out under restricted Windows permissions. The adapter now queries without changing
-the index generation; the native probe passed while keeping the vault protected. Two
-[real sessions on a current installation](docs/relatorios/2026-10-02-memory-current-clients.md)
-also passed: the handoff was found through the indices, UUIDs/revisions were checked and Graphify
-completed without fallback. Recovery preserved the notes and graph. The [authenticated Claude test](docs/relatorios/2026-10-02-claude-memory-capabilities.md)
-recovered the Codex handoff, saved another and recognized a changed revision: it used Markdown
-with the stale graph and Graphify after an explicit rebuild. M04 remains partial; the live test
-with an identical term in another project is still pending. The
-[report](docs/relatorios/2026-10-02-memory-discovery.md) records current M01–M04 evidence.
+[Codex](docs/relatorios/2026-10-02-memory-current-clients.md) and
+[Claude](docs/relatorios/2026-10-02-claude-memory-capabilities.md) tests verified recovery through
+indices, UUIDs/revisions and queries that preserve notes and generations. Changed sources use
+Markdown while the graph is stale; rebuilding is explicit. In the [cross-project test](docs/relatorios/2026-10-02-memory-project-isolation.md),
+both clients separated identically named topics by root, `project_id`, UUID and revision,
+without mixing publication evidence. The instructions and limits are documented: both projects
+were authorized for reading; this does not prove operating-system access restrictions.
+M01–M04 are verified in the scenarios covered by the [report](docs/relatorios/2026-10-02-memory-discovery.md)
+and [memory plan](docs/superpowers/plans/2026-10-02-memory-discovery.md).
 [Skill, agent and MCP governance](docs/superpowers/specs/2026-10-02-capability-governance-design.md)
 provides a verifiable catalog, offline auditing, private review bundles and a shared skill.
 The native synthetic Codex and Claude tests allowed the intended tool, rejected the forbidden tool

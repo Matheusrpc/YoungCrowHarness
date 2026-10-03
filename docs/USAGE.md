@@ -688,8 +688,15 @@ sessões Codex independentes com Graphify, sem timeout ou fallback. A retomada e
 pelo índice e preservou notas e gerações. Antes de testar, confira a revisão dos scripts e
 skills da fixture, a autenticação e o limite de sessões. O [ensaio autenticado no Claude](relatorios/2026-10-02-claude-memory-capabilities.md)
 passou em três sessões, incluindo revisão alterada, fallback Markdown e retorno ao Graphify após
-reconstrução explícita. Registre fallback sem ampliar permissões automaticamente. A prova ao vivo
-com termo idêntico em outro projeto ainda está pendente.
+reconstrução explícita. Registre fallback sem ampliar permissões automaticamente.
+
+Quando dois projetos tiverem o mesmo tema, consulte cada raiz autorizada separadamente com `--root`.
+Confira `project_id`, UUID e revisão antes de atribuir uma decisão ou publicação. Títulos e caminhos
+relativos iguais podem representar notas diferentes. A [prova em Codex e Claude](relatorios/2026-10-02-memory-project-isolation.md)
+preservou essa distinção em dois corpus Markdown; ambos estavam autorizados para leitura.
+Em um perfil que permite comandos específicos, execute cada comando na forma autorizada.
+Agrupar com variáveis, `cd` ou separadores pode exigir permissões diferentes. Se houver recusa,
+registre o que ficou sem verificação; uma revisão não calculada não deve receber um hash inventado.
 
 Para operar o índice:
 
@@ -1316,8 +1323,15 @@ Codex sessions using Graphify without timeout or fallback. Recovery found the ha
 the index and preserved notes and generations. Before testing, check the fixture's script and
 skill revisions, authentication and session limit. The [authenticated Claude test](relatorios/2026-10-02-claude-memory-capabilities.md)
 passed in three sessions, including a changed revision, Markdown fallback and return to Graphify
-after an explicit rebuild. Record fallback without automatically broadening permissions. The live
-test with an identical term in another project remains pending.
+after an explicit rebuild. Record fallback without automatically broadening permissions.
+
+When two projects share a topic name, query each authorized root separately with `--root`.
+Check `project_id`, UUID and revision before attributing a decision or publication. Identical titles
+and relative paths can refer to different notes. The [Codex and Claude test](relatorios/2026-10-02-memory-project-isolation.md)
+preserved that distinction across two Markdown corpora; both were authorized for reading.
+When a profile allows specific commands, execute each in its authorized form. Grouping commands
+with variables, `cd` or separators can require different permissions. If a command is denied,
+record what remains unverified; never invent a hash for a revision that was not computed.
 
 To operate the index:
 

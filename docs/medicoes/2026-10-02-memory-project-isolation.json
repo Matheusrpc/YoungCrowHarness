@@ -1,0 +1,626 @@
+{
+  "date": "2026-10-02",
+  "timezone": "America/Sao_Paulo",
+  "base_commit": "546061d5ebaa4fa6444376295274e267811a057d",
+  "scope": "Two synthetic projects queried separately with Markdown by each real client; not an OS access boundary",
+  "budget": {
+    "initial_sessions": 2,
+    "corrective_sessions": 1,
+    "total_sessions": 3,
+    "seconds_per_session": 300,
+    "tool_calls_per_session": 24,
+    "additional_api_contracts": 0,
+    "correction": "One declared corrective Claude session; literal commands from unchanged allowlist after grouped commands were denied"
+  },
+  "expectations_sha256": "263e2d2b43c4a048963c000ca73d9f7dc7a613ca92816cdcb475aee1943bb88b",
+  "installation": {
+    "method": "Tracked base exported to two disposable projects",
+    "files_per_project": 24,
+    "files": [
+      {
+        "path": ".agents/skills/retrieve-memory/SKILL.md",
+        "sha256": "bd7775dff0d58b225b9ee74af3531d3c55a714b71d0a0ab9dae5d8165d7540cc"
+      },
+      {
+        "path": ".claude/skills/retrieve-memory/SKILL.md",
+        "sha256": "bd7775dff0d58b225b9ee74af3531d3c55a714b71d0a0ab9dae5d8165d7540cc"
+      },
+      {
+        "path": "requirements/graphify.txt",
+        "sha256": "9ca6b61e6a2ea461025c5b4d79e3a83e4af1f09a45d0f630e90b44867ab30dc5"
+      },
+      {
+        "path": "scripts/adoption.py",
+        "sha256": "97404f21b495f55c8ad3e2d53b096d4e8045fe9e9c033741c0b5d9c9d5042a4f"
+      },
+      {
+        "path": "scripts/adoption_acl.ps1",
+        "sha256": "9b3e0662d381da8547d94a9976854070f71029c945b3c64deca99704f6f2c748"
+      },
+      {
+        "path": "scripts/adoption_fs.py",
+        "sha256": "b5504f826193bf0653e01f99124ba17621e4298ffb63170e241ce1e41827be65"
+      },
+      {
+        "path": "scripts/capabilities.py",
+        "sha256": "59e7747e3c735e750a9ecc34edbea646625d067e80b203301ee2feee3a371198"
+      },
+      {
+        "path": "scripts/docling_worker.py",
+        "sha256": "ef0eb631a81abaed2bf162cdd6811045bddff8b81220a260cbd1471ea2393bdb"
+      },
+      {
+        "path": "scripts/document_store.py",
+        "sha256": "b57e4f497cb79e88f05af374f77976057f65868f425c0b49844d0c7cbd637436"
+      },
+      {
+        "path": "scripts/documents.py",
+        "sha256": "a42de542f39d967f44d4b72aba1a85ae2b6fb69d1b18dfa79797f3c882200a62"
+      },
+      {
+        "path": "scripts/graphify_worker.py",
+        "sha256": "7aca3e62997107af91291de09fa66890054045fb73ba0a41aef1587fa63ba745"
+      },
+      {
+        "path": "scripts/integrations.py",
+        "sha256": "29fc50039e714e37ea5050aa7b624c1d3381c646f0751987354385e06f23153b"
+      },
+      {
+        "path": "scripts/memory.py",
+        "sha256": "14e451605babd26d277ecbfdb603363c0b0e9a699dc604593992f0dc5b516142"
+      },
+      {
+        "path": "scripts/personalize.py",
+        "sha256": "2a306f2359541e52bde40f0cf9530b013f6842eecf146a3bb454b15971eab494"
+      },
+      {
+        "path": "scripts/source_fetch.py",
+        "sha256": "56748271b864566b034150563f9498a0e2a2d795564292e6f9979dc318e166b1"
+      },
+      {
+        "path": "scripts/source_prompt.py",
+        "sha256": "5e7d1a6076fe8aba4d20f82db8b9fc63aa655bea3ef2c50f1cd14ed4b62c6a54"
+      },
+      {
+        "path": "scripts/vault.py",
+        "sha256": "33a77336048d67169902e6a92759dee0ab8dde0f10449092de20e70e658e159c"
+      },
+      {
+        "path": "skills/govern-capabilities/SKILL.md",
+        "sha256": "b48134c0aba09173127c99f5f65b27a6d18d07353aa071f44a116cb2c7d9f647"
+      },
+      {
+        "path": "skills/ingest-source/SKILL.md",
+        "sha256": "197d51ac7b812f20b8634561a8784bf552a4523d229ae85bb69b192172292d62"
+      },
+      {
+        "path": "skills/integrate-from-docs/SKILL.md",
+        "sha256": "d93e6f9ba89e873a0d4e628a40d0eaf2d5a295e5f102df6f15a4a555a3151db8"
+      },
+      {
+        "path": "skills/integrate-from-docs/references/memory.md",
+        "sha256": "fa61fbfa2aaa9722db04dee10b9b854c16902d5070ad4ee1826863c53e27a67c"
+      },
+      {
+        "path": "skills/personalizer/SKILL.md",
+        "sha256": "3cf1e852dab2fbe972dda1496523ab79fc6b31c4b0700a02d56d1104ec812213"
+      },
+      {
+        "path": "skills/personalizer/references/interview.md",
+        "sha256": "27acb827c5daf39b039f9d6ff5a43ae41c412fcdf1bda3777dfc9c65929ec5c2"
+      },
+      {
+        "path": "skills/retrieve-memory/SKILL.md",
+        "sha256": "f11e8d6480e6f151b78c0f79ce451812d59bf9d28fe97b665c7b8b87014b01f9"
+      }
+    ]
+  },
+  "projects": {
+    "project-a": {
+      "project_id": "9865926d-6293-4c63-a8ff-c8441674a043",
+      "provider": "markdown",
+      "fingerprint": "1e134ad9ebe8f5c3c11c34f53f8a0461ada30028fdcec4ac49fdf67e01826fae",
+      "notes": [
+        {
+          "path": "vault/local/demo/api.md",
+          "id": "462b5027-8cfc-5951-86a7-2f33035957b8",
+          "title": "Pagamentos API",
+          "revision": "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67"
+        },
+        {
+          "path": "vault/local/demo/portal.md",
+          "id": "6162cb13-db91-5b98-aec6-8d15072ecc12",
+          "title": "Pagamentos Portal",
+          "revision": "a2f2d32044fbb3843fe169d7f7d285d3177018c7961ee4e46005409e9b4d4f58"
+        },
+        {
+          "path": "vault/local/demo/fila.md",
+          "id": "126080e8-6165-5a89-aa2e-252975904cf9",
+          "title": "Pagamentos decisão substituída",
+          "revision": "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387"
+        },
+        {
+          "path": "vault/local/demo/webhook.md",
+          "id": "9d9518d3-8e8c-5d75-aba3-34c061ab7fb1",
+          "title": "Pagamentos decisão vigente",
+          "revision": "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b"
+        },
+        {
+          "path": "vault/local/demo/release.md",
+          "id": "1245bb23-765d-5020-b78e-bd2ba145f4b9",
+          "title": "Pagamentos evidência de publicação",
+          "revision": "0742090d8b97e0b24c9d99abc4e89ddc2d4e1bed9771884052f8025768236723"
+        }
+      ]
+    },
+    "project-b": {
+      "project_id": "345466fa-9688-4630-b542-20c8c2ef5e7b",
+      "provider": "markdown",
+      "fingerprint": "9783898c042f2b340a51240dc056f64a7766e390fd02da5bf9cae7807fe06482",
+      "notes": [
+        {
+          "path": "vault/local/demo/api.md",
+          "id": "bb7d869e-4413-5234-9a79-730c790be85c",
+          "title": "Pagamentos API",
+          "revision": "68c6d01da633d7f24710d918de9330f858c183d41bcbb7da60521fb7d42dd9f0"
+        },
+        {
+          "path": "vault/local/demo/portal.md",
+          "id": "dd0b4175-2685-5d4a-b18d-0ff6ba6d185b",
+          "title": "Pagamentos Portal",
+          "revision": "5e59595cf9fc681cf39b2857d35120d7483ff0062bf06843f556ad35c94350d3"
+        },
+        {
+          "path": "vault/local/demo/fila.md",
+          "id": "023616bc-0368-5131-ad79-2e030cb9506d",
+          "title": "Pagamentos decisão substituída",
+          "revision": "f3e41f742b69cba5a379b5011ba098443499d45d772a9bab3f1563c061c7ad6c"
+        },
+        {
+          "path": "vault/local/demo/webhook.md",
+          "id": "480e5c58-6c80-5259-ad4a-09fd28e40f28",
+          "title": "Pagamentos decisão vigente",
+          "revision": "fbe3432e10f91393d77bc7678a9de8dc1ee7c317a2368c39a5aa6a0bbe9edf3f"
+        },
+        {
+          "path": "vault/local/demo/release.md",
+          "id": "1face3d9-2937-5b5a-82c7-807c95238e65",
+          "title": "Pagamentos evidência de publicação",
+          "revision": "1cd498545d8cb70235acf7bf513f19ec9570fa999f0cd8366a6dbf9f27e9ea19"
+        }
+      ]
+    }
+  },
+  "sessions": [
+    {
+      "client": "codex",
+      "phase": "codex-run",
+      "acceptance": "verified",
+      "version": "0.158.0-alpha.2.1",
+      "model": "gpt-6-astra",
+      "model_source": "configured",
+      "permission_mode": "read-only / never",
+      "seconds": 164.454,
+      "tool_calls": 5,
+      "queries": [
+        {
+          "project": "project-b",
+          "project_id": "345466fa-9688-4630-b542-20c8c2ef5e7b",
+          "provider": "markdown",
+          "index_state": "ready",
+          "references": 5,
+          "foreign_references": 0
+        },
+        {
+          "project": "project-a",
+          "project_id": "9865926d-6293-4c63-a8ff-c8441674a043",
+          "provider": "markdown",
+          "index_state": "ready",
+          "references": 5,
+          "foreign_references": 0
+        }
+      ],
+      "native_errors": [],
+      "vault_and_index_unchanged": true,
+      "explicit_hash_commands_verified": true,
+      "answer": {
+        "projects": [
+          {
+            "label": "A",
+            "project_id": "9865926d-6293-4c63-a8ff-c8441674a043",
+            "provider": "markdown",
+            "index_state": "ready",
+            "api_development": "Webhook implementado.",
+            "api_production": "Não publicada. A evidência release/demo-1 não comprova publicação da API.",
+            "portal_production": "Publicado em release/demo-1, comprovado somente no cenário sintético por portal.md e release.md.",
+            "current_decision": "Usar webhook para confirmação, conforme webhook.md.",
+            "superseded_decision": "Processar por fila, conforme fila.md; substituída pela decisão de usar webhook.",
+            "next_action": "Validar assinatura do webhook; ação apenas identificada, não executada.",
+            "sources": [
+              {
+                "id": "462b5027-8cfc-5951-86a7-2f33035957b8",
+                "path": "vault/local/demo/api.md",
+                "revision": "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67"
+              },
+              {
+                "id": "6162cb13-db91-5b98-aec6-8d15072ecc12",
+                "path": "vault/local/demo/portal.md",
+                "revision": "a2f2d32044fbb3843fe169d7f7d285d3177018c7961ee4e46005409e9b4d4f58"
+              },
+              {
+                "id": "126080e8-6165-5a89-aa2e-252975904cf9",
+                "path": "vault/local/demo/fila.md",
+                "revision": "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387"
+              },
+              {
+                "id": "9d9518d3-8e8c-5d75-aba3-34c061ab7fb1",
+                "path": "vault/local/demo/webhook.md",
+                "revision": "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b"
+              },
+              {
+                "id": "1245bb23-765d-5020-b78e-bd2ba145f4b9",
+                "path": "vault/local/demo/release.md",
+                "revision": "0742090d8b97e0b24c9d99abc4e89ddc2d4e1bed9771884052f8025768236723"
+              }
+            ]
+          },
+          {
+            "label": "B",
+            "project_id": "345466fa-9688-4630-b542-20c8c2ef5e7b",
+            "provider": "markdown",
+            "index_state": "ready",
+            "api_development": "Processamento por lote implementado.",
+            "api_production": "Publicada em release/other-2, comprovada somente no cenário sintético por api.md e release.md.",
+            "portal_production": "Não publicado; existe um protótipo em DEV. A evidência release/other-2 não comprova publicação do Portal.",
+            "current_decision": "Processar por lote, conforme o conteúdo de webhook.md.",
+            "superseded_decision": "Usar webhook, conforme o conteúdo de fila.md; substituída pelo processamento por lote.",
+            "next_action": "Verificar conciliação do lote; ação apenas identificada, não executada.",
+            "sources": [
+              {
+                "id": "bb7d869e-4413-5234-9a79-730c790be85c",
+                "path": "vault/local/demo/api.md",
+                "revision": "68c6d01da633d7f24710d918de9330f858c183d41bcbb7da60521fb7d42dd9f0"
+              },
+              {
+                "id": "dd0b4175-2685-5d4a-b18d-0ff6ba6d185b",
+                "path": "vault/local/demo/portal.md",
+                "revision": "5e59595cf9fc681cf39b2857d35120d7483ff0062bf06843f556ad35c94350d3"
+              },
+              {
+                "id": "023616bc-0368-5131-ad79-2e030cb9506d",
+                "path": "vault/local/demo/fila.md",
+                "revision": "f3e41f742b69cba5a379b5011ba098443499d45d772a9bab3f1563c061c7ad6c"
+              },
+              {
+                "id": "480e5c58-6c80-5259-ad4a-09fd28e40f28",
+                "path": "vault/local/demo/webhook.md",
+                "revision": "fbe3432e10f91393d77bc7678a9de8dc1ee7c317a2368c39a5aa6a0bbe9edf3f"
+              },
+              {
+                "id": "1face3d9-2937-5b5a-82c7-807c95238e65",
+                "path": "vault/local/demo/release.md",
+                "revision": "1cd498545d8cb70235acf7bf513f19ec9570fa999f0cd8366a6dbf9f27e9ea19"
+              }
+            ]
+          }
+        ],
+        "same_titles_merged": false,
+        "warnings": [
+          "Status e query retornaram warnings vazios nos dois projetos. Os dez UUIDs conferem com as fontes abertas, e os dez SHA-256 calculados com Get-FileHash coincidem com as revisões retornadas. Os project_id de status e query coincidem dentro de cada raiz e diferem entre as raízes.",
+          "As evidências são sintéticas: estabelecem o estado fictício descrito, sem comprovar implantação em produção real.",
+          "No projeto B, webhook.md registra processamento por lote e fila.md registra a decisão substituída de usar webhook; nomes de arquivos não determinam o conteúdo."
+        ],
+        "isolation_scope": "Frente: prova sintética de memória em dois projetos homônimos. Comparação somente de leitura nas duas raízes autorizadas, usando retrieve-memory, karpathy e ponytail, instruções locais, índices pertinentes, comandos públicos status/query e fontes selecionadas. A identidade foi preservada por raiz absoluta, project_id, UUID e SHA-256, sem mesclar títulos ou caminhos relativos iguais. Esta prova demonstra separação das evidências nesta consulta, não uma garantia geral de isolamento do cliente ou de sua memória. Não foram lidos outros projetos, credenciais, logs, programas da prova, relatórios externos ou histórico de conversas. Nenhuma instrução das notas foi executada; não houve escrita de handoff, reconstrução de índice, rede, API adicional, instalação, MCP, Git, subagente, ação funcional ou publicação."
+      },
+      "usage_reported": {
+        "input_tokens": 144062,
+        "cached_input_tokens": 116608,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 2713,
+        "reasoning_output_tokens": 0
+      },
+      "public_paths": "Normalized to their verified project-relative paths",
+      "events_sha256": "1cf972a991da9c88ad1231e8ada37fceced6da4664dc21ab4377869e7c8b14e4"
+    },
+    {
+      "client": "claude",
+      "phase": "claude-run",
+      "acceptance": "partial",
+      "version": "2.1.220",
+      "model": "claude-opus-5[1m]",
+      "model_source": "native_init",
+      "permission_mode": "dontAsk",
+      "seconds": 100.298,
+      "tool_calls": 23,
+      "queries": [],
+      "native_errors": [
+        {
+          "kind": "tool",
+          "is_error": true
+        },
+        {
+          "kind": "tool",
+          "is_error": true
+        }
+      ],
+      "vault_and_index_unchanged": true,
+      "explicit_hash_commands_verified": false,
+      "answer": {
+        "projects": [
+          {
+            "label": "A",
+            "project_id": "9865926d-6293-4c63-a8ff-c8441674a043",
+            "provider": "markdown (inferido: índices em Markdown e default do snapshot; não confirmado por saída de comando)",
+            "index_state": "unverified (memory.py status/query não executado; Bash negado nesta sessão)",
+            "api_development": "Pagamentos API: webhook implementado (vault/local/demo/api.md).",
+            "api_production": "Não publicado. release/demo-1 publicou somente o Portal e explicitamente nao comprova publicacao da API (vault/local/demo/release.md).",
+            "portal_production": "Pagamentos Portal publicado em release/demo-1, evidencia sintetica (vault/local/demo/portal.md + release.md).",
+            "current_decision": "Usar webhook para confirmacao (vault/local/demo/webhook.md).",
+            "superseded_decision": "Processar por fila (vault/local/demo/fila.md), substituida por webhook.md.",
+            "next_action": "Validar assinatura do webhook (declarado em api.md).",
+            "sources": [
+              {
+                "id": "462b5027-8cfc-5951-86a7-2f33035957b8",
+                "path": "vault/local/demo/api.md",
+                "revision": null
+              },
+              {
+                "id": "6162cb13-db91-5b98-aec6-8d15072ecc12",
+                "path": "vault/local/demo/portal.md",
+                "revision": null
+              },
+              {
+                "id": "126080e8-6165-5a89-aa2e-252975904cf9",
+                "path": "vault/local/demo/fila.md",
+                "revision": null
+              },
+              {
+                "id": "9d9518d3-8e8c-5d75-aba3-34c061ab7fb1",
+                "path": "vault/local/demo/webhook.md",
+                "revision": null
+              },
+              {
+                "id": "1245bb23-765d-5020-b78e-bd2ba145f4b9",
+                "path": "vault/local/demo/release.md",
+                "revision": null
+              }
+            ]
+          },
+          {
+            "label": "B",
+            "project_id": "345466fa-9688-4630-b542-20c8c2ef5e7b",
+            "provider": "markdown (inferido: índices em Markdown e default do snapshot; não confirmado por saída de comando)",
+            "index_state": "unverified (memory.py status/query não executado; Bash negado nesta sessão)",
+            "api_development": "Pagamentos API: processamento por lote implementado (vault/local/demo/api.md).",
+            "api_production": "Publicado em release/other-2, evidencia sintetica (api.md + release.md).",
+            "portal_production": "Nao publicado. Existe apenas prototipo em desenvolvimento; release/other-2 publicou somente a API e nao comprova o Portal (portal.md + release.md).",
+            "current_decision": "Processar por lote (vault/local/demo/webhook.md - o conteudo vigente mora no arquivo chamado webhook.md).",
+            "superseded_decision": "Usar webhook (vault/local/demo/fila.md), substituida por lote.",
+            "next_action": "Verificar conciliacao do lote (declarado em api.md).",
+            "sources": [
+              {
+                "id": "bb7d869e-4413-5234-9a79-730c790be85c",
+                "path": "vault/local/demo/api.md",
+                "revision": null
+              },
+              {
+                "id": "dd0b4175-2685-5d4a-b18d-0ff6ba6d185b",
+                "path": "vault/local/demo/portal.md",
+                "revision": null
+              },
+              {
+                "id": "023616bc-0368-5131-ad79-2e030cb9506d",
+                "path": "vault/local/demo/fila.md",
+                "revision": null
+              },
+              {
+                "id": "480e5c58-6c80-5259-ad4a-09fd28e40f28",
+                "path": "vault/local/demo/webhook.md",
+                "revision": null
+              },
+              {
+                "id": "1face3d9-2937-5b5a-82c7-807c95238e65",
+                "path": "vault/local/demo/release.md",
+                "revision": null
+              }
+            ]
+          }
+        ],
+        "same_titles_merged": false,
+        "warnings": [
+          "Bash negado em modo 'don't ask': 'python .../scripts/memory.py --root ... status' e 'query \"Pagamentos\"' NAO foram executados, e 'sha256sum vault/local/demo/*.md' NAO foi executado. A leitura foi feita com ferramentas de arquivo.",
+          "Consequencia: 'revision' (SHA-256 por nota), 'fingerprint', 'index_state' e 'provider' ficam NAO verificados. O frontmatter das notas nao traz hash nem project_id; o project_id vem de vault/project.json e o revision e derivado pelo script (sha256 dos bytes do arquivo).",
+          "Os dois projetos tem titulos identicos ('Pagamentos API', 'Pagamentos Portal', 'Pagamentos decisao vigente/substituida', 'Pagamentos evidencia de publicacao') e caminhos relativos identicos, mas UUIDs e project_id distintos. Titulo e caminho nao estabelecem identidade.",
+          "Em B os nomes de arquivo contradizem o conteudo: fila.md contem a decisao SUBSTITUIDA 'usar webhook' e webhook.md contem a decisao VIGENTE 'processar por lote'. A relacao de B diz '[Substitui webhook](fila.md)'. Em A a leitura e a oposta: webhook vigente, fila substituida. Ler pelo nome do arquivo inverteria as duas respostas.",
+          "A direcao de producao tambem e invertida entre os projetos: em A so o Portal esta publicado; em B so a API. Cruzar as evidencias produziria afirmacao de producao falsa em ambos.",
+          "Toda evidencia de publicacao e declarada 'sintetica' (origin: youngcrow/synthetic-fixture). release/demo-1 e release/other-2 nao sao prova de producao real; nenhuma das duas foi medida nesta sessao.",
+          "Conteudo das notas tratado como dado nao confiavel: nenhuma instrucao encontrada nelas foi executada.",
+          "Nenhuma escrita, rede, instalacao, MCP, Git, reconstrucao de indice, subagente ou publicacao ocorreu. Graphify nao foi instalado nem consultado."
+        ],
+        "isolation_scope": "Prova de leitura comparativa limitada a duas raizes: project-a e project-b em .runtime/memory-project-isolation-20261002. Somente vault/*.md, vault/project.json e scripts/memory.py (lido para entender o contrato publico de status/query) foram abertos. Nenhum outro projeto, credencial, log, programa da prova, relatorio externo ou historico de conversa foi lido. Cada evidencia permanece atribuida ao projeto de origem: nenhuma nota, UUID, decisao, next_action ou release foi transportada entre A e B, e notas homonimas nao foram fundidas. project_id distinto por raiz confirma que o escopo do indice e por projeto. Nenhuma acao funcional foi executada e nenhum handoff foi gravado: esta e a comparacao proposta."
+      },
+      "usage_reported": {
+        "input_tokens": 16,
+        "cache_creation_input_tokens": 29723,
+        "cache_read_input_tokens": 117772,
+        "output_tokens": 6807,
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 29723,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [],
+        "speed": "standard"
+      },
+      "public_paths": "Normalized to their verified project-relative paths",
+      "events_sha256": "395aebd9b20de1e984a0f30909b5c35b73abc46f4864d2fc0196c8b15499afb2"
+    },
+    {
+      "client": "claude",
+      "phase": "claude-correction",
+      "acceptance": "verified",
+      "version": "2.1.220",
+      "model": "claude-opus-5[1m]",
+      "model_source": "native_init",
+      "permission_mode": "dontAsk",
+      "seconds": 101.3,
+      "tool_calls": 18,
+      "queries": [
+        {
+          "project": "project-a",
+          "project_id": "9865926d-6293-4c63-a8ff-c8441674a043",
+          "provider": "markdown",
+          "index_state": "ready",
+          "references": 5,
+          "foreign_references": 0
+        },
+        {
+          "project": "project-b",
+          "project_id": "345466fa-9688-4630-b542-20c8c2ef5e7b",
+          "provider": "markdown",
+          "index_state": "ready",
+          "references": 5,
+          "foreign_references": 0
+        }
+      ],
+      "native_errors": [],
+      "vault_and_index_unchanged": true,
+      "explicit_hash_commands_verified": true,
+      "answer": {
+        "projects": [
+          {
+            "label": "A",
+            "project_id": "9865926d-6293-4c63-a8ff-c8441674a043",
+            "provider": "markdown",
+            "index_state": "ready",
+            "api_development": "Webhook implementado (Pagamentos API, vault/local/demo/api.md).",
+            "api_production": "Não publicado. A evidência release/demo-1 declara explicitamente que não comprova publicação de Pagamentos API.",
+            "portal_production": "Publicado em release/demo-1 (evidência sintética), confirmado por vault/local/demo/release.md.",
+            "current_decision": "Usar webhook para confirmação (vault/local/demo/webhook.md).",
+            "superseded_decision": "Processar por fila (vault/local/demo/fila.md), substituída pela decisão de webhook.",
+            "next_action": "Validar assinatura do webhook.",
+            "sources": [
+              {
+                "id": "462b5027-8cfc-5951-86a7-2f33035957b8",
+                "path": "vault/local/demo/api.md",
+                "revision": "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67"
+              },
+              {
+                "id": "6162cb13-db91-5b98-aec6-8d15072ecc12",
+                "path": "vault/local/demo/portal.md",
+                "revision": "a2f2d32044fbb3843fe169d7f7d285d3177018c7961ee4e46005409e9b4d4f58"
+              },
+              {
+                "id": "1245bb23-765d-5020-b78e-bd2ba145f4b9",
+                "path": "vault/local/demo/release.md",
+                "revision": "0742090d8b97e0b24c9d99abc4e89ddc2d4e1bed9771884052f8025768236723"
+              },
+              {
+                "id": "9d9518d3-8e8c-5d75-aba3-34c061ab7fb1",
+                "path": "vault/local/demo/webhook.md",
+                "revision": "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b"
+              },
+              {
+                "id": "126080e8-6165-5a89-aa2e-252975904cf9",
+                "path": "vault/local/demo/fila.md",
+                "revision": "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387"
+              }
+            ]
+          },
+          {
+            "label": "B",
+            "project_id": "345466fa-9688-4630-b542-20c8c2ef5e7b",
+            "provider": "markdown",
+            "index_state": "ready",
+            "api_development": "Processamento por lote implementado (Pagamentos API, vault/local/demo/api.md).",
+            "api_production": "Publicado em release/other-2 (evidência sintética), confirmado por vault/local/demo/release.md.",
+            "portal_production": "Não publicado; só protótipo em desenvolvimento. A evidência release/other-2 declara que não comprova publicação de Pagamentos Portal.",
+            "current_decision": "Processar por lote (conteúdo de vault/local/demo/webhook.md, apesar do nome do arquivo).",
+            "superseded_decision": "Usar webhook (conteúdo de vault/local/demo/fila.md, apesar do nome do arquivo).",
+            "next_action": "Verificar conciliação do lote.",
+            "sources": [
+              {
+                "id": "bb7d869e-4413-5234-9a79-730c790be85c",
+                "path": "vault/local/demo/api.md",
+                "revision": "68c6d01da633d7f24710d918de9330f858c183d41bcbb7da60521fb7d42dd9f0"
+              },
+              {
+                "id": "dd0b4175-2685-5d4a-b18d-0ff6ba6d185b",
+                "path": "vault/local/demo/portal.md",
+                "revision": "5e59595cf9fc681cf39b2857d35120d7483ff0062bf06843f556ad35c94350d3"
+              },
+              {
+                "id": "1face3d9-2937-5b5a-82c7-807c95238e65",
+                "path": "vault/local/demo/release.md",
+                "revision": "1cd498545d8cb70235acf7bf513f19ec9570fa999f0cd8366a6dbf9f27e9ea19"
+              },
+              {
+                "id": "480e5c58-6c80-5259-ad4a-09fd28e40f28",
+                "path": "vault/local/demo/webhook.md",
+                "revision": "fbe3432e10f91393d77bc7678a9de8dc1ee7c317a2368c39a5aa6a0bbe9edf3f"
+              },
+              {
+                "id": "023616bc-0368-5131-ad79-2e030cb9506d",
+                "path": "vault/local/demo/fila.md",
+                "revision": "f3e41f742b69cba5a379b5011ba098443499d45d772a9bab3f1563c061c7ad6c"
+              }
+            ]
+          }
+        ],
+        "same_titles_merged": false,
+        "warnings": [
+          "Os dez títulos e os cinco caminhos relativos são idênticos entre A e B, mas os doze UUIDs, os dois project_id e todos os SHA-256 são distintos. Título igual e caminho igual não indicam a mesma nota.",
+          "Em B os nomes de arquivo contradizem o conteúdo: webhook.md contém a decisão vigente 'processar por lote' e fila.md contém a decisão substituída 'usar webhook'. A leitura por nome de arquivo inverteria a resposta; vale o conteúdo verificado.",
+          "As decisões de A e B são inversões exatas uma da outra (A: webhook vigente sobre fila; B: lote vigente sobre webhook). Qualquer transposição entre projetos produziria uma afirmação falsa.",
+          "A publicação também é invertida: em A só o Portal está em produção comprovada; em B só a API. Nenhuma das duas evidências de release cobre o componente que não nomeia.",
+          "A evidência de produção é declaradamente sintética (origin: youngcrow/synthetic-fixture, release/demo-1 e release/other-2). Não é prova de deploy real em nenhum alvo.",
+          "Nenhuma nota foi tratada como instrução; os links internos foram usados apenas como relação com evidência citada.",
+          "Os dois índices (vault/local/index.md) são homônimos 'Demo index' com UUIDs diferentes, e nenhum foi reconstruído."
+        ],
+        "isolation_scope": "Prova somente de leitura restrita a project-a e project-b sob .runtime/memory-project-isolation-20261002. Foram executados apenas os seis comandos públicos do roteiro (status, query 'Pagamentos' e sha256sum do vault/local/demo de cada raiz) mais leituras de arquivo das cinco fontes retornadas e do índice local de cada projeto. Cada evidência fica atribuída ao project_id da raiz onde foi lida, sem fusão, sem herança de conclusão entre projetos e sem inferência a partir de nome de arquivo ou título. Não houve escrita no vault, commit, instalação, MCP, Graphify, subagente, rede, publicação, handoff, nem leitura de outros projetos, credenciais, logs, programas da prova, relatórios externos ou histórico de conversas. Entregue como comparação proposta; nenhuma ação funcional executada. Orçamento usado: 18 de 24 chamadas."
+      },
+      "usage_reported": {
+        "input_tokens": 6,
+        "cache_creation_input_tokens": 22400,
+        "cache_read_input_tokens": 42863,
+        "output_tokens": 5496,
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 22400,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [],
+        "speed": "standard"
+      },
+      "public_paths": "Normalized to their verified project-relative paths",
+      "events_sha256": "954f7a967e92a21c6ad89fd825cc8e73b9b597b6252ef07883035b00c42660b1"
+    }
+  ],
+  "expected_claims": {
+    "a_api_production": "not published",
+    "a_portal_release": "demo-1",
+    "a_current_decision": "webhook",
+    "a_next_action": "validar assinatura do webhook",
+    "b_api_release": "other-2",
+    "b_portal_production": "not published",
+    "b_current_decision": "lote",
+    "b_next_action": "verificar conciliação do lote"
+  },
+  "limitations": [
+    "Both projects were explicitly readable: this measures separate provenance and interpretation, not inaccessible projects or process isolation.",
+    "This round uses Markdown. Graphify and inter-session handoff were demonstrated in separate earlier reports.",
+    "The corpus has five notes per project. No guarantee of exhaustive retrieval, unlimited memory or token savings.",
+    "The projects are exports of a tracked base, not a new installer benchmark.",
+    "Synthetic release evidence does not establish a deployed application. Full Docling ingestion in a Claude conversation remains separate."
+  ]
+}

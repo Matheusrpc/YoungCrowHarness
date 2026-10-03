@@ -4,12 +4,13 @@ Continuação: a [rodada entre sessões](2026-10-02-memory-continuity.md) regist
 escrita auxiliar do Graphify e distingue as conversas anteriores do controle nativo após o ajuste.
 A [prova seguinte](2026-10-02-memory-current-clients.md) confirmou duas sessões reais do Codex
 com instalação atualizada, sem timeout ou fallback. A [rodada Claude autenticada](2026-10-02-claude-memory-capabilities.md)
-comprovou handoff, revisão alterada e retorno ao Graphify. A matriz abaixo inclui essas continuações;
+comprovou handoff, revisão alterada e retorno ao Graphify. A [prova de homônimos entre projetos](2026-10-02-memory-project-isolation.md)
+completou o cenário restante de M04 em ambos os clientes. A matriz abaixo inclui essas continuações;
 as demais medições preservam o ensaio original.
 
 Frente: memória consultável. O vault Markdown continua sendo o registro principal. A entrega
 acrescenta seleção explícita, consulta com identidade/revisão, Graphify opcional e a skill comum
-`retrieve-memory`. M04 é parcial: falta a prova ao vivo com termo idêntico em outro projeto.
+`retrieve-memory`. M04 está verificado nos cenários publicados e nas versões de cliente testadas.
 
 ## Escopo e estados
 
@@ -18,7 +19,7 @@ acrescenta seleção explícita, consulta com identidade/revisão, Graphify opci
 | M01 — seleção e consulta | Corpus sintético; UUID por projeto/nota, revisão SHA-256, limites, links e isolamento | Verificado localmente |
 | M02 — Graphify | Pacote 0.9.73 real, Python 3.12.10 no Windows e 3.12.3 no Ubuntu 24.04, construção/consulta e títulos iguais sem fusão | Verificado no Windows e Linux |
 | M03 — atualização | Reuso sem nova construção, mudança durante build/query, remoção, rename, cache adulterado e retorno ao Markdown | Verificado localmente |
-| M04 — clientes | Descoberta e passagem entre sessões nos dois clientes; revisão alterada e fallback no Claude. Falta termo idêntico em outro projeto em sessão real | Parcial |
+| M04 — clientes | Descoberta e passagem entre sessões nos dois clientes; revisão alterada, fallback e temas homônimos de projetos distintos em sessões reais | Verificado nos cenários publicados |
 
 O runtime fica em `.operacao-local/memory/runtime/venv`. A instalação fixa `graphifyy==0.9.73`
 sem extras e salva o inventário resolvido localmente. Dependências transitivas são registradas,

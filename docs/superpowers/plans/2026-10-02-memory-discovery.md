@@ -10,7 +10,11 @@
 
 **Spec:** [Desenho aprovado em 2026-10-02](../specs/2026-10-02-memory-discovery-design.md).
 
-Estado: implementação e QA local verificados. Publicação e revisão final em andamento; M04 parcial por login ausente no Claude e fallback do Graphify no sandbox somente leitura do Codex. Método já escolhido: execução nativa nesta sessão, um escritor por checkout e uma revisão independente ao final. Não abrir outra frente para claude-mem ou MCP durante esta entrega.
+Estado: implementação publicada e M01–M04 verificados nos cenários registrados. As continuações
+resolveram a consulta Graphify no Codex, comprovaram memória no Claude autenticado e concluíram a
+[prova de temas homônimos entre projetos](../../relatorios/2026-10-02-memory-project-isolation.md).
+O relatório registra versões, permissões e limites. Método: um escritor por checkout e revisão independente
+ao final. Claude-mem e integrações de memória externas permanecem fora deste incremento.
 
 ## Global Constraints
 

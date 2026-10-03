@@ -4,8 +4,8 @@ Frente: continuidade de memória. Duas sessões independentes do Codex consultar
 instalação atualizada. A primeira salvou um handoff; a segunda encontrou o registro pelo índice,
 conferiu sua identidade e revisão e recuperou as cinco fontes. Ambas terminaram sem timeout ou
 fallback. A [continuação autenticada no Claude](2026-10-02-claude-memory-capabilities.md) acrescenta
-handoff, revisão alterada e permissões MCP. M04 permanece parcial: falta a prova ao vivo com
-termo idêntico em outro projeto. As medições abaixo preservam esta rodada Codex.
+handoff, revisão alterada e permissões MCP. A [prova de homônimos entre projetos](2026-10-02-memory-project-isolation.md)
+completou o cenário restante de M04. As medições abaixo preservam esta rodada Codex.
 
 ## Instalação e método
 

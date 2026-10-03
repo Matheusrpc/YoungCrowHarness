@@ -63,7 +63,7 @@ class ClientTests(unittest.TestCase):
         # Only external CLI discovery is replaced. Hash/path/policy and adapters remain real.
         with patch.object(self.module, 'discover', return_value={
                 'version': '0.146.0' if client == 'codex' else '2.1.220',
-                'models': catalog(client), 'controls': True}):
+                'models': catalog(client), 'controls': True, 'auth_kind': 'authenticated', 'profile_verified': True}):
             return self.module.inspect_client(self.root, client, self.executable)
 
     def agent(self, client='codex', **patches):
@@ -96,7 +96,7 @@ class ClientTests(unittest.TestCase):
             updated = catalog(client)
             updated[0]['model' if client == 'codex' else 'resolvedModel'] = 'fixture-new-release'
             with patch.object(self.module, 'discover', return_value={'version': observation['version'],
-                                                                   'models': updated, 'controls': True}):
+                                                                   'models': updated, 'controls': True, 'auth_kind': 'authenticated', 'profile_verified': True}):
                 newer = self.module.inspect_client(self.root, client, self.executable)
             self.assertEqual(self.module.build_check(self.agent(client), newer, self.manifest)['resolved_model'],
                              'fixture-new-release')
@@ -193,6 +193,33 @@ class ClientTests(unittest.TestCase):
             events[-1]['usage'] = 'secret-provider-output'
             with self.assertRaisesRegex(ValueError, '^client_protocol_error$'):
                 self.module.decode_result(client, events, self.manifest['operation_id'])
+
+    def test_client_default_effort_supports_models_without_effort_control(self):
+        observation = self.observation('claude')
+        observation['models'][1]['efforts'] = []
+        plan = self.module.build_check(self.agent('claude', model='fixture-fast',
+                                      effort={'level': 'native', 'native_value': 'client-default'}), observation, self.manifest)
+        self.assertEqual(plan['requested_effort'], 'client-default')
+        self.assertNotIn('--effort', plan['argv'])
+
+    def test_unknown_or_api_login_cannot_be_used_as_subscription(self):
+        observation = self.observation()
+        for auth in ('unknown', 'api'):
+            observation['auth_kind'] = auth
+            with self.assertRaisesRegex(ValueError, 'connection_unverified'):
+                self.module.build_check(self.agent(), observation, self.manifest)
+
+    def test_help_flags_do_not_prove_enforcement(self):
+        with patch.object(self.module, 'discover', return_value=dict(version='0.146.0', models=catalog('codex'), controls=True)):
+            observation = self.module.inspect_client(self.root, 'codex', self.executable)
+        self.assertIn('native_profile_unverified', observation['gaps'])
+
+    def test_loopback_tools_empty_does_not_certify_managed_policy(self):
+        observed_hash = 'af5bf1f1b2aadffc768eccd787084c6fdf9ba81624cbe96c1c6d9ac1a1550231'
+        with patch.object(self.module, 'hash_file', return_value=observed_hash), \
+             patch.object(self.module, 'discover', return_value=dict(version='2.1.220', models=catalog('claude'), controls=True)):
+            observation = self.module.inspect_client(self.root, 'claude', self.executable)
+        self.assertIn('native_profile_unverified', observation['gaps'])
 
 
 if __name__ == '__main__':

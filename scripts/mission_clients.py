@@ -17,6 +17,11 @@ from mission_backlog import require
 EVENT_LIMIT = 1024 * 1024
 OUTPUT_LIMIT = 8 * EVENT_LIMIT
 CLIENTS = ('codex', 'claude')
+# An executable/profile proof is independent of the changing account model catalog.
+# Unknown builds keep discovery available and execution blocked until a new proof.
+# Both native proofs remain open: Codex exposes view_image; Claude safe mode still
+# accepts managed policy. An empty loopback tool catalog alone cannot certify it.
+NATIVE_PROFILES = set()
 API_KEYS = {'codex': ('OPENAI_API_KEY', 'CODEX_API_KEY'),
             'claude': ('ANTHROPIC_API_KEY', 'ANTHROPIC_AUTH_TOKEN')}
 ROUTING_KEYS = ('OPENAI_BASE_URL', 'ANTHROPIC_BASE_URL', 'CLAUDE_CODE_USE_BEDROCK',
@@ -36,11 +41,11 @@ def safe_name(value):
     return isinstance(value, str) and 0 < len(value) <= 256 and re.fullmatch(r'[A-Za-z0-9_.:/\[\]-]+', value)
 
 
-def _exchange(executable, args, cwd, requests=None):
+def _exchange(executable, args, cwd, requests=None, *, merge_stderr=False):
     """Bounded local discovery. No user/model turn is ever sent here."""
     flags = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
     process = subprocess.Popen([str(executable), *args], cwd=cwd, stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT if merge_stderr else subprocess.DEVNULL,
                                creationflags=flags, start_new_session=os.name != 'nt')
     inbox, stopped = queue.Queue(maxsize=32), threading.Event()
 
@@ -146,7 +151,21 @@ def discover(executable, client, root):
         require(response.get('subtype') == 'success', 'client_discovery_failed')
         models = response.get('response', {}).get('models')
         require(isinstance(models, list), 'client_protocol_error')
-    return dict(version=match.group(1), models=models, controls=controls)
+    auth = 'unknown'
+    try:
+        raw = _exchange(executable, ['login', 'status'] if client == 'codex' else ['auth', 'status'], root, merge_stderr=client == 'codex')
+        if client == 'codex':
+            if 'logged in using chatgpt' in raw.lower():
+                auth = 'authenticated'
+            elif 'api key' in raw.lower():
+                auth = 'api'
+        else:
+            status = parse_json(raw.encode())
+            if status.get('loggedIn') is True:
+                auth = 'authenticated' if status.get('authMethod') == 'claude.ai' else 'api' if status.get('authMethod') in ('api_key', 'api_key_helper') else 'unknown'
+    except (ValueError, OSError, TypeError, AttributeError):
+        pass
+    return dict(version=match.group(1), models=models, controls=controls, auth_kind=auth)
 
 
 def model_catalog(client, entries):
@@ -176,12 +195,14 @@ def policy_snapshot(root, client):
         home = Path.home()
     except RuntimeError:
         raise ValueError('unsupported_policy') from None
-    paths += [home / p for p in ('.codex/config.toml', '.claude/settings.json')]
+    codex_home = Path(os.environ.get('CODEX_HOME', home / '.codex'))
+    claude_home = Path(os.environ.get('CLAUDE_CONFIG_DIR', home / '.claude'))
+    paths += [codex_home / 'config.toml', codex_home / 'hooks.json', claude_home / 'settings.json']
     managed = ([Path(os.environ.get('ProgramData', 'C:/ProgramData')) / 'ClaudeCode/managed-settings.json',
                 Path(os.environ.get('ProgramFiles', 'C:/Program Files')) / 'ClaudeCode/managed-settings.json']
                if os.name == 'nt' else [Path('/etc/claude-code/managed-settings.json'),
                                         Path('/Library/Application Support/ClaudeCode/managed-settings.json')])
-    managed += [Path('/etc/codex/requirements.toml'), home / '.codex/requirements.toml']
+    managed += [Path('/etc/codex/requirements.toml'), codex_home / 'requirements.toml']
     values = {}
     for path in paths + managed:
         require(not path.is_symlink(), 'unsupported_policy')
@@ -204,11 +225,14 @@ def inspect_client(root: Path, client: str, executable: Path) -> dict:
     require(hash_file(executable) == before and policy_snapshot(root, client)[0] == digest, 'stale_observation')
     if not discovered['controls']:
         gaps.append('unsupported_client_controls')
+    if not discovered.get('profile_verified', False) and (os.name, client, discovered['version'], before) not in NATIVE_PROFILES:
+        gaps.append('native_profile_unverified')
     return dict(client=client, version=discovered['version'], executable=str(executable),
                 executable_sha256=before, root=str(Path(root).resolve()), protocol=client + '-json-v1',
                 policy_digest=digest, connection_conflicts=[k for k in ROUTING_KEYS if os.environ.get(k)],
                 gaps=gaps, models=models, catalog_source='native_client',
-                latest_selection='client_recommended', model_compatibility='not_verified')
+                latest_selection='client_recommended', model_compatibility='not_verified',
+                auth_kind=discovered.get('auth_kind', 'unknown'))
 
 
 def build_check(agent: dict, observation: dict, manifest: dict) -> dict:
@@ -222,6 +246,7 @@ def build_check(agent: dict, observation: dict, manifest: dict) -> dict:
     require(agent['connection'] in ('authenticated', 'api'), 'invalid_connection')
     if agent['connection'] == 'authenticated':
         require(not any(os.environ.get(k) for k in API_KEYS[client]), 'connection_conflict')
+        require(observation['auth_kind'] == 'authenticated', 'connection_unverified')
     else:
         require(safe_name(agent.get('credential_env')), 'invalid_connection')
         require(manifest.get('api_budget_usd') is not None, 'api_budget_required')
@@ -234,7 +259,7 @@ def build_check(agent: dict, observation: dict, manifest: dict) -> dict:
     require(len({(m['model'], tuple(m['efforts'])) for m in choices}) == 1, 'ambiguous_model')
     selected = choices[0]
     effort = agent['effort']['native_value'] if agent['effort']['level'] == 'native' else agent['effort']['level']
-    require(effort in selected['efforts'], 'unsupported_combination')
+    require(effort == 'client-default' or effort in selected['efforts'], 'unsupported_combination')
     require(not agent.get('capabilities'), 'unsupported_probe_capabilities')
     nonce = manifest['operation_id']
     prompt = ('Return only this JSON object, with the same probe_id. No tools or other actions: '
@@ -243,13 +268,17 @@ def build_check(agent: dict, observation: dict, manifest: dict) -> dict:
         args = ['exec', '--json', '--ephemeral', '--ignore-user-config', '--sandbox', 'read-only',
                 '--skip-git-repo-check', '--color', 'never', '--model', selected['model'],
                 '-c', 'approval_policy="never"', '-c', 'web_search="disabled"',
-                '-c', 'mcp_servers={}', '-c', 'model_reasoning_effort=' + json.dumps(effort)]
+                '-c', 'mcp_servers={}', '-c', 'tools.view_image=false']
+        if effort != 'client-default':
+            args += ['-c', 'model_reasoning_effort=' + json.dumps(effort)]
         for feature in CODEX_DISABLED:
             args.extend(['--disable', feature])
         args.append('-')
     else:
         args = ['--print', '--output-format', 'stream-json', '--verbose', *CLAUDE_PROFILE,
-                '--model', selected['model'], '--effort', effort, '--permission-mode', 'dontAsk']
+                '--model', selected['model'], '--permission-mode', 'dontAsk']
+        if effort != 'client-default':
+            args += ['--effort', effort]
         if agent['connection'] == 'api':
             args += ['--max-budget-usd', manifest['api_budget_usd']]
     return dict(argv=[str(executable), *args], cwd=str(Path(observation['root']) / 'vault/local/operations/checks' / nonce),
@@ -258,7 +287,8 @@ def build_check(agent: dict, observation: dict, manifest: dict) -> dict:
                 resolved_model=selected['model'], requested_effort=effort, policy_digest=observation['policy_digest'],
                 executable_sha256=observation['executable_sha256'], credential_env=agent['credential_env'],
                 expected_nonce=nonce, version=observation['version'],
-                execution_gaps=['api_budget_unenforceable'] if client == 'codex' and agent['connection'] == 'api' else [])
+                execution_gaps=(['api_budget_unenforceable'] if client == 'codex' else ['api_connection_unverified'])
+                if agent['connection'] == 'api' else [])
 
 
 def parse_events(data: bytes) -> list[dict]:

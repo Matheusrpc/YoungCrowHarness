@@ -41,3 +41,6 @@ else:
     print(json.dumps({'type': 'turn.started'}))
     print(json.dumps({'type': 'item.completed', 'item': {'type': 'agent_message', 'text': json.dumps({'probe_id': nonce})}}))
     print(json.dumps({'type': 'turn.completed', 'usage': {'input_tokens': 1, 'output_tokens': 1}}))
+    if mode == 'after-effect':
+        sys.stdout.flush()
+        time.sleep(120)

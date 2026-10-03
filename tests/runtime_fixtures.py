@@ -1,7 +1,10 @@
 """Real prepared missions; only the external client executable is substituted."""
 from pathlib import Path
+import os
+import subprocess
 import sys
 import uuid
+from unittest.mock import patch
 
 from mission_fixtures import MissionCase
 import missions
@@ -10,6 +13,17 @@ FIXTURE = Path(__file__).parent / 'fixtures/mission_client.py'
 
 
 class RuntimeCase(MissionCase):
+    def git(self, *args, check=True):
+        return subprocess.run(['git', '-C', str(self.root), *args], env=self.env,
+                              capture_output=True, check=check, timeout=30)
+
+    def setUp(self):
+        super().setUp()
+        home = str(self.root / 'isolated-home')
+        env = patch.dict(os.environ, {'HOME': home, 'USERPROFILE': home})
+        env.start()
+        self.addCleanup(env.stop)
+
     def make_manifest(self):
         if not hasattr(self, 'mission'):
             paths = self.tree(pbis=1)
@@ -26,7 +40,7 @@ class RuntimeCase(MissionCase):
             self.mission = missions.prepare_mission(self.root, request, str(uuid.uuid4()), dict(id='fixture', role='pm'))
         return dict(schema_version=1, mission_id=self.mission['record_id'], mission_revision=1, role='pm',
                     operation_id=str(uuid.uuid4()), authorization_ref='Local deterministic test',
-                    agent_seconds=10, max_runs=1, api_budget_usd=None, fixture_id='echo-v1')
+                    agent_seconds=30, max_runs=1, api_budget_usd=None, fixture_id='echo-v1')
 
     def fixture_plan(self, plan, mode='success'):
         return dict(plan, argv=[sys.executable, '-I', '-S', str(FIXTURE.resolve()), mode])

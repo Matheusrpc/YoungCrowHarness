@@ -67,7 +67,87 @@
     "inspection": "desktop PT and mobile EN inspected; full-size link available"
   },
   "smoke": {
-    "windows": "running",
+    "windows": {
+      "platform": "Windows",
+      "python": "3.14.4",
+      "client": "both",
+      "git": "git version 2.54.0.windows.1",
+      "revision": "9e00796e0dffcfc3fd16587213820fe00c1a045b",
+      "cases": [
+        {
+          "case": "absent",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        },
+        {
+          "case": "dirty-git",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        }
+      ],
+      "model_calls": 0,
+      "native_client_conversation": "not_exercised",
+      "missions": [
+        {
+          "mode": "new",
+          "project_id": "fe5c5aaf-ca85-4978-b5ce-ea30c721c9ec",
+          "features": 2,
+          "pbis": 4,
+          "mission_codes": [
+            "M001",
+            "M002",
+            "M003"
+          ],
+          "existing_hashes_preserved": false,
+          "legacy_hashes": {},
+          "snapshots_frozen": true,
+          "replay_without_duplicate": true,
+          "read_only_status": true,
+          "projection_recovered": true,
+          "vault_notes": 47,
+          "state": "prepared",
+          "runtime_available": false
+        },
+        {
+          "mode": "existing",
+          "project_id": "d9ba4691-d541-45dd-a3ab-176d1a81db2d",
+          "features": 2,
+          "pbis": 4,
+          "mission_codes": [
+            "M001",
+            "M002",
+            "M003"
+          ],
+          "existing_hashes_preserved": true,
+          "legacy_hashes": {
+            "vault/project.json": "e953a7529a61ae5fa3b59b28440bb1e6c6c39b486061ade945a027ef120e7a23",
+            "vault/product/profile.md": "ff63e3e71b24ee6ebe465b06e99d2a7af382762c6b4fd37c0593531599bf9323",
+            "vault/features/legacy/index.md": "ead28989b3ca0d4ffe09479be203e2f6843e12379c82f9797cbf09ece803925e",
+            "youngcrow/agents.json": "711963ea1ae04364f4c85799911a91b15dc8d9da359d5e76cfdf90f05844aa18"
+          },
+          "snapshots_frozen": true,
+          "replay_without_duplicate": true,
+          "read_only_status": true,
+          "projection_recovered": true,
+          "vault_notes": 54,
+          "state": "prepared",
+          "runtime_available": false
+        }
+      ],
+      "native_execution": "not_run",
+      "working_tree": true,
+      "source_sha256": {
+        "tests/smoke_mission_foundation.py": "42d041df76b3e2efc0059e9f0fe09a5c93dee13e32338aa8410d333dcb24f53d",
+        "setup.sh": "e6e49bf1325f3c14f01f8bc600bfbecd3658b737fa9d60c41f33178ab463f3f7",
+        "scripts/missions.py": "8081a4253d7dbdce16c7f099eb9e9625a090a039e2d19c504898af87dde541d3",
+        "scripts/mission_backlog.py": "67153a457579ed71b3528cbfe30dfb9019694563f5ddb610f0254352dfbae834",
+        "scripts/mission_config.py": "8b773edfa6b38a6baf339b2df307a1b119ed1f90e1739cdc1cadb2bed74f89b0",
+        "scripts/mission_store.py": "b6e40cff43b7672a7e0246e531efe6f2e170d308b0d8532eea8e8811c1ce7259",
+        "scripts/mission_vault.py": "0dc4ff24125032f6202976bddeddbdcfe9a041e50d133ee1011a62684bb3dc9f"
+      }
+    },
     "linux": "pending CI"
   },
   "publication": {

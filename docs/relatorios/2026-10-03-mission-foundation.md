@@ -34,7 +34,12 @@ próprios de navegador restantes. O README oferece abertura em tamanho completo 
 A suíte anterior à alteração teve 256 testes, oito erros e dez skips no Windows: seis timeouts do
 instalador, uma limitação de caminho da fixture de retorno e uma corrida na leitura do PID de teste.
 O caso de preservação do guia passou isoladamente. Isso não é registrado como baseline verde.
-O ensaio final e o CI ainda estão em andamento; resultados serão acrescentados antes do fechamento.
+O smoke Windows passou em consumidores novo e existente: duas features, quatro PBIs, três missões,
+snapshots preservados, repetição sem evento duplicado, falha de projeção recuperada e consulta sem escrita.
+Vaults com 47 e 54 notas passaram. O retorno restaurou árvore e estado Git anteriores e conservou o
+trabalho do trial. Python 3.14.4, Git 2.54.0.windows.1, zero chamadas de modelo. A primeira corrida
+identificou seções órfãs no índice legado preservado; a adaptação agora acrescenta links ausentes.
+O CI Linux e a revisão independente ainda estão pendentes.
 
 ## Decisões de execução e detalhes adiados
 
@@ -46,6 +51,7 @@ O ensaio final e o CI ainda estão em andamento; resultados serão acrescentados
 - Task 4 Ruling: author reference tests/entries while task-3 final checks run, with one writer and no installed setup/catalog changes until baseline ends — independent reference preparation — cost if wrong: test discovery overlap; task-3 run loaded its modules first and passed all 32 cases.
 - Task 4 Ruling: add fixture FILES entries only when files exist — baseline should fail on actual installation assertions rather than missing fixture inputs — cost if wrong: a missing fixture dependency could be hidden; explicit missing-dependency test covers it.
 - Final: minor (deferred): preexisting personalizer adoption.md wording mixes mechanism-only fields with general adoption planning; mission entry explicitly preserves the confirmed baseline.
+- Task 5 Ruling: use hosted Linux CI for the final full suite and both-client smoke because this Windows host has no installed Linux runtime; individual client installation is already exercised by setup tests — avoids installing a host runtime — cost if wrong: a Linux client-specific end-to-end interaction could escape the both-client smoke.
 
 ## Publicação
 

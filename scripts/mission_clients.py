@@ -5,9 +5,10 @@ import math
 import os
 from pathlib import Path
 import re
+import stat
 import subprocess
 
-from adoption_fs import hash_file
+from adoption_fs import BLOCK, checked_path, hash_file, stamp
 from capabilities import canonical, parse_json
 from mission_backlog import require
 
@@ -37,6 +38,25 @@ CLAUDE_PROFILE = ['--safe-mode', '--tools', '', '--disallowedTools', 'mcp__*',
 
 def safe_name(value):
     return isinstance(value, str) and 0 < len(value) <= 256 and re.fullmatch(r'[A-Za-z0-9_.:/\[\]-]+', value)
+
+
+def hash_executable(path):
+    """Read installed binaries, including installer hard links; never write them."""
+    path = Path(path).absolute()
+    checked_path(path.parent)
+    before = path.lstat()
+    require(stat.S_ISREG(before.st_mode) and not getattr(before, 'st_file_attributes', 0) & 0x400,
+            'invalid_executable')
+    digest = hashlib.sha256()
+    descriptor = os.open(path, os.O_RDONLY | getattr(os, 'O_BINARY', 0) | getattr(os, 'O_NOFOLLOW', 0))
+    with os.fdopen(descriptor, 'rb') as source:
+        require(stamp(before) == stamp(os.fstat(source.fileno())), 'source_changed')
+        while chunk := source.read(BLOCK):
+            digest.update(chunk)
+        require(stamp(before) == stamp(os.fstat(source.fileno())), 'source_changed')
+    checked_path(path.parent)
+    require(stamp(before) == stamp(path.lstat()), 'source_changed')
+    return digest.hexdigest()
 
 
 def _exchange(executable, args, cwd, requests=None, *, merge_stderr=False):
@@ -165,14 +185,14 @@ def inspect_client(root: Path, client: str, executable: Path) -> dict:
     executable = Path(executable).absolute()
     require(executable.is_file() and not executable.is_symlink(), 'invalid_executable')
     require(os.name != 'nt' or executable.suffix.lower() == '.exe', 'invalid_executable')
-    before = hash_file(executable)
+    before = hash_executable(executable)
     digest, gaps = policy_snapshot(root, client)
     try:
         discovered = discover(executable, client, Path(root).resolve())
         models = model_catalog(client, discovered['models'])
     except (OSError, UnicodeError, KeyError, TypeError, subprocess.SubprocessError):
         raise ValueError('client_discovery_failed') from None
-    require(hash_file(executable) == before and policy_snapshot(root, client)[0] == digest, 'stale_observation')
+    require(hash_executable(executable) == before and policy_snapshot(root, client)[0] == digest, 'stale_observation')
     if not discovered['controls']:
         gaps.append('unsupported_client_controls')
     if not discovered.get('profile_verified', False) and (os.name, client, discovered['version'], before) not in NATIVE_PROFILES:
@@ -190,7 +210,7 @@ def build_check(agent: dict, observation: dict, manifest: dict) -> dict:
     require(client in CLIENTS and observation['client'] == client, 'invalid_client')
     require(not observation['gaps'], 'unsupported_policy')
     executable = Path(observation['executable'])
-    require(hash_file(executable) == observation['executable_sha256'] and
+    require(hash_executable(executable) == observation['executable_sha256'] and
             policy_snapshot(Path(observation['root']), client)[0] == observation['policy_digest'], 'stale_observation')
     require(not any(os.environ.get(k) for k in ROUTING_KEYS), 'connection_conflict')
     require(agent['connection'] in ('authenticated', 'api'), 'invalid_connection')

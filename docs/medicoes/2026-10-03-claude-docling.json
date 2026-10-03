@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "date_utc": "2026-10-03",
+  "base_commit": "146a8f360d0daf85af84775413f79ac5aba8068f",
+  "scope": "Synthetic local HTML, explicit inaccessible-reference intake, and recovery in a fresh Claude CLI session on Windows. Existing installed runtime; no fresh consumer setup or GUI upload test.",
+  "fixture": {
+    "synthetic": true,
+    "input_format": "html",
+    "source_sha256": "6a379a03de8742afb2a14772a412bac30d8336a8868d767f3d46f1173645b531",
+    "accessible_path_in_prompt": true,
+    "unexposed_attachment": "explicit pending reference, no binary uploaded"
+  },
+  "client": {
+    "name": "Claude Code",
+    "version": "2.1.220 (Claude Code)",
+    "settings_sources": [
+      "isolated user",
+      "project"
+    ],
+    "auto_memory": false,
+    "session_persistence": false,
+    "history_passed_to_recovery": false
+  },
+  "budget": {
+    "model_sessions": 2,
+    "additional_api_spend_ceiling": 0,
+    "authentication": "existing claude.ai subscription",
+    "ingest_seconds": 420,
+    "ingest_tools": 40,
+    "resume_seconds": 300,
+    "resume_tools": 28,
+    "retries": 0
+  },
+  "preflight": {
+    "model_called": false,
+    "metadata_only_attempts": 2,
+    "first_attempt": "Only project settings loaded, so isolated user skills were absent. Preserved log; no model request sent.",
+    "correction": "Enable isolated user plus project settings; found ingest-source, retrieve-memory, karpathy, ponytail.",
+    "fixture_preparation_correction": "Used project_id key from existing vault identity; retained the same synthetic fixture and feature UUID before any model call."
+  },
+  "sessions": [
+    {
+      "phase": "ingest",
+      "seconds": 205.952,
+      "tool_calls": 25,
+      "model_ids": [
+        "claude-opus-5[1m]"
+      ],
+      "completed": true,
+      "vault_changed": true,
+      "new_prompt_receipts": 1,
+      "permission_denials": [
+        "python scripts/documents.py ingest --help",
+        "python -c \"import hashlib,pathlib;p=pathlib.Path('vault/local/sources/2e34d6d1-9cb9-4f48-97e8-7f44b5722fca/content-99119b84d64d25353b14e3036874516b84545abed5143b936370cf06990b8150.md');print(hashlib.sha256(p.read_bytes()).hexdigest())\"",
+        "python scripts/vault.py --help",
+        "uuidgen"
+      ],
+      "shared_skill_files_read": [
+        "skills/ingest-source/SKILL.md"
+      ],
+      "events_sha256": "556933fd72999601da88904691139a790df5d14a9f613f91f350a0765cf95cb2"
+    },
+    {
+      "phase": "resume",
+      "seconds": 50.305,
+      "tool_calls": 10,
+      "model_ids": [
+        "claude-opus-5[1m]"
+      ],
+      "completed": true,
+      "vault_changed": false,
+      "new_prompt_receipts": 0,
+      "permission_denials": [],
+      "shared_skill_files_read": [],
+      "events_sha256": "6eb608c1f3bb8093a60143f53311ce9359ad4084c55200a1a881468976d3b31b"
+    }
+  ],
+  "conversion": {
+    "state": "ready",
+    "converter": {
+      "package": "docling",
+      "version": "2.132.0",
+      "profile": "documents",
+      "models": [
+        "layout",
+        "tableformer",
+        "rapidocr-onnxruntime-latin"
+      ],
+      "options": {
+        "max_pages": 500,
+        "max_bytes": 104857600,
+        "timeout": 1800,
+        "remote_fetch": false,
+        "local_fetch": false,
+        "device": "cpu",
+        "adapter_sha256": "ef0eb631a81abaed2bf162cdd6811045bddff8b81220a260cbd1471ea2393bdb",
+        "runtime_manifest_sha256": "6bae1bf95d322588f8981c336e63a5e148aa2762ff7f06ff0aa02e81a51bb13d"
+      },
+      "input_format": ".html"
+    },
+    "warnings": [],
+    "coverage": {
+      "pages": []
+    },
+    "original_unchanged": true,
+    "source_id": "2e34d6d1-9cb9-4f48-97e8-7f44b5722fca",
+    "revision": "99119b84d64d25353b14e3036874516b84545abed5143b936370cf06990b8150",
+    "source_note_id": "e1c5b3cc-8bd5-598e-8974-fff9332b79ed",
+    "source_note_sha256": "2466ef81b6cf37777db0ab911a77a6923de15da6fea5c9acb5c4821ba60ce312"
+  },
+  "recovery": {
+    "state": "verified",
+    "project_id": "9865926d-6293-4c63-a8ff-c8441674a043",
+    "feature_id": "36f74544-4f97-4ee6-b05a-b8dea58af46c",
+    "checked_fields": [
+      "project_id",
+      "source_id",
+      "revision",
+      "feature_id",
+      "evidence",
+      "pending_id",
+      "pending_reason",
+      "run_note",
+      "source_note",
+      "source_note_sha256",
+      "relation_id",
+      "relation_kind"
+    ],
+    "relation_id": "95612212-c29c-5d52-b5e4-d7bad01fd3da",
+    "relation_kind": "supports",
+    "exact_evidence": "Every retry must use the same request key.",
+    "next_action": "Request an authorized local video and reuse its pending source identity after the media doctor check.",
+    "original_fixture_read": false,
+    "vault_unchanged": true,
+    "production": "unknown"
+  },
+  "pending": {
+    "source_id": "36780e60-14d5-4af3-bb29-17016a0ca984",
+    "state": "pending",
+    "reason": "source_unavailable",
+    "note": null,
+    "revision": null
+  },
+  "hook": {
+    "automatic_native_execution": true,
+    "input": "textual HTML path in this CLI prompt",
+    "source_identity_reused": true,
+    "ingestion_performed_by_agent": true,
+    "universal_attachment_capture": false
+  },
+  "boundaries": {
+    "private_paths_tracked": false,
+    "public_source_promoted": false,
+    "source_injection_executed": false,
+    "external_mcp_connections": 0,
+    "new_runtime_installs": 0,
+    "browser_processes_started": 0,
+    "temporary_auth_removed": true,
+    "owned_clients_ended": true,
+    "source_lock": "unlocked"
+  },
+  "limitations": [
+    "One guided synthetic scenario per session; no benchmark, universal attachment support or general prompt-injection guarantee.",
+    "Four auxiliary shell commands were denied in ingestion; the permitted sha256sum and handwritten UUID completed the workflow. No denied commands in recovery.",
+    "The native traces show an ingest-source file read in ingestion and no SKILL.md read in recovery. Discovery and model self-reported skill use are not treated as execution evidence.",
+    "No native read of karpathy, ponytail, retrieve-memory or the vendor Docling skill body in these sessions. The coordinating executor read and applied the account skills.",
+    "The feature summary retained its initial pending line while the linked run recorded success; summary reconciliation remains manual. Recovery used the run/current source evidence.",
+    "The native run links an older project-isolation run used as a format reference; this is not an input to conversion or a dependency of the feature.",
+    "The provider received synthetic context through the existing client session. Conversion itself was local; no Graphify or claude-mem upload.",
+    "Native result prose contains replacement characters in some non-ASCII punctuation. Checked identities, hashes and the ASCII fixture quote match; arbitrary text fidelity is not established by this case."
+  ],
+  "vault": {
+    "schema_version": 1,
+    "notes_checked": 77,
+    "issues": []
+  },
+  "historical_codex_proof": "2026-10-02-docling-clients.json"
+}

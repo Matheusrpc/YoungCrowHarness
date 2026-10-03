@@ -242,7 +242,7 @@ registra quatro entregas e sua cobertura:
 1. Verificado: documentos locais, Markdown, origem, revisões e retomada após interrupção, com proteção contra versionamento acidental.
 2. Verificado: vínculos com evidência, cópias para revisão e publicação local sem expor a proveniência privada.
 3. Verificado: URLs diretas, áudio e vídeo, com intervalos de transcrição, quadros, limites e falhas registrados.
-4. Codex: ingestão e retomada verificadas em duas sessões reais. Claude Code: descoberta verificada; ingestão completa em conversa ainda pendente. Veja a [matriz e os limites](docs/relatorios/2026-10-02-docling-ingestion.md).
+4. Claude Code e Codex: ingestão de HTML, vínculo com feature, fonte inacessível pendente e retomada verificadas em sessões reais independentes. No Claude, o hook também registrou o caminho textual. Veja a [prova do Claude](docs/relatorios/2026-10-03-claude-docling.md) e a [matriz por cliente](docs/relatorios/2026-10-02-docling-ingestion.md); anexos sem caminho exposto exigem registro explícito.
 
 A consulta Markdown, o Graphify opcional e a skill compartilhada estão implementados. As provas
 de [Codex](docs/relatorios/2026-10-02-memory-current-clients.md) e
@@ -549,7 +549,7 @@ records four deliveries and their coverage:
 1. Verified: local documents, Markdown, origin, revisions and resumption after interruption, protected against accidental tracking.
 2. Verified: evidence-backed relations, review copies and local publication without private provenance.
 3. Verified: direct URLs, audio and video, with transcript intervals, frames, limits and failures recorded.
-4. Codex: ingestion and recovery verified in two real sessions. Claude Code: discovery verified; full ingestion in a conversation still pending. See the [matrix and limits](docs/relatorios/2026-10-02-docling-ingestion.md).
+4. Claude Code and Codex: HTML ingestion, a feature relation, an inaccessible-source record and recovery verified in fresh real sessions. The Claude hook also recorded the textual path. See the [Claude proof](docs/relatorios/2026-10-03-claude-docling.md) and [per-client matrix](docs/relatorios/2026-10-02-docling-ingestion.md); attachments without exposed paths need explicit intake.
 
 Markdown retrieval, optional Graphify and the shared skill are implemented. The
 [Codex](docs/relatorios/2026-10-02-memory-current-clients.md) and

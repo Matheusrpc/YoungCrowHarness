@@ -103,7 +103,8 @@ os controles de um fornecedor externo.
 G07 e G09 têm prova nos caminhos sintéticos dos dois clientes. A passagem básica de memória
 também está demonstrada em ambos, incluindo revisão alterada e fallback no Claude. M04 permanece
 parcial no plano: falta o ensaio ao vivo com termo idêntico em outro projeto. A ingestão completa
-com Docling dentro de uma conversa Claude ainda é uma prova separada pendente. Claude-mem,
+com Docling dentro de uma conversa Claude estava pendente nesta captura; a
+[rodada de 2026-10-03](2026-10-03-claude-docling.md) verificou ingestão e retomada. Claude-mem,
 sincronização entre máquinas e orquestração autônoma de papéis continuam planejados.
 
 README e guia PT/EN foram atualizados, mantendo os diagramas e o design. Esta captura antecede

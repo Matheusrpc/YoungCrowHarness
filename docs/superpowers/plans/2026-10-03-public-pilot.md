@@ -10,7 +10,7 @@
 
 **Spec:** [Desenho aprovado](../specs/2026-10-03-public-pilot-design.md).
 
-Estado em 2026-10-03: desenho aprovado; plano escrito para revisão. As caixas abaixo descrevem trabalho futuro, sem afirmar testes, publicação ou chamadas de clientes executados.
+Estado em 2026-10-03: plano aprovado pelo mantenedor; execução inline iniciada. O registro de implementação do exemplo e o relatório do piloto distinguem resultados comprovados de etapas pendentes.
 
 ## Global Constraints
 

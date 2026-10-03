@@ -5,6 +5,7 @@ pgdata/
 .runtime/
 .operacao-local/
 /vault/local/
+/examples/delivery-board/vault/local/
 
 # caches
 __pycache__/

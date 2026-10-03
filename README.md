@@ -279,7 +279,10 @@ claude-mem, sincronização entre máquinas e orquestração autônoma de papéi
 O [desenho da esteira com agentes de IA](docs/superpowers/specs/2026-10-03-ai-product-pipeline-design.md)
 detalha personalizer, missões, três PBIs simultâneos por padrão, QA e produção verificada.
 O desenho foi aprovado e o [plano da primeira entrega](docs/superpowers/plans/2026-10-03-mission-foundation.md)
-está em revisão. Os comandos da esteira ainda não estão implementados.
+está aprovado. A primeira base valida configurações de agentes offline em `youngcrow/agents.json`:
+três PBIs e três agentes simultâneos por padrão, três ciclos de correção e deploy manual.
+Modelo e esforço ficam pendentes até a escolha do usuário. Veja o
+[contrato de configuração](docs/USAGE.md#mission-config). Os comandos da esteira ainda estão em implementação.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
@@ -598,8 +601,10 @@ claude-mem, cross-machine synchronization and autonomous role orchestration rema
 The [AI product pipeline design](docs/superpowers/specs/2026-10-03-ai-product-pipeline-design.md),
 written in Portuguese, covers the personalizer, missions, three concurrent PBIs by default, QA
 and verified production. The design is approved and the
-[first delivery plan](docs/superpowers/plans/2026-10-03-mission-foundation.md) is under review.
-The pipeline commands are not implemented yet.
+[first delivery plan](docs/superpowers/plans/2026-10-03-mission-foundation.md) is approved.
+Offline agent configuration in `youngcrow/agents.json` defaults to three active PBIs, three parallel
+agents, three correction cycles and manual deployment. Model and effort remain pending until chosen.
+See the [configuration contract](docs/USAGE.md#mission-config). Pipeline commands are still being implemented.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 

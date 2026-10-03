@@ -1425,3 +1425,36 @@ In the harness checkout, the optional probe is `python3 tests/smoke_capabilities
 --executable /absolute/path/codex --root /new/disposable/path` (one line). The directory must not
 exist. The probe creates an isolated environment and synthetic MCP with no model turn. On Windows,
 select the actual `.exe`, not a `.ps1` or `.cmd` launcher. Pending exits with 2; failed proof exits with 1.
+
+<a id="mission-config"></a>
+
+## Configuração de agentes / Agent configuration
+
+`youngcrow/agents.json` usa `schema_version: 1` e exige objetos para `pm`, `tech_lead`, `developer`
+e `qa`; `integration_specialist` é opcional. Cada papel declara `client` (`claude` ou `codex`),
+`model`, `effort`, `connection`, `credential_env` e IDs de `capabilities`.
+Omitir cliente, modelo ou esforço deixa uma pendência. `effort.level` aceita `low`, `medium`,
+`high` ou `native`; só `native` exige `native_value`. A compatibilidade real depende de prova no cliente.
+
+`connection` começa em `authenticated`. Para API, escolha `api` e forneça somente o nome da
+variável em `credential_env`, nunca seu valor. A validação não lê credenciais nem chama modelos.
+Os padrões de `limits` são `max_active_pbis: 3`, `max_parallel_agents: 3` e
+`max_correction_cycles: 3` (fixo nesta versão). Defina `mission_active_seconds`, `agent_seconds`,
+`max_agent_runs` e `max_deploy_attempts` como inteiros positivos. API exige também `api_budget_usd`
+como string decimal positiva. `deploy_mode` começa em `manual`; `automatic` registra uma intenção.
+Substituições de missão alteram só os campos declarados e preservam os padrões do projeto.
+O backend desta etapa ainda não executa os limites nem faz deploy.
+
+`youngcrow/agents.json` requires `schema_version: 1` and objects for `pm`, `tech_lead`, `developer`
+and `qa`; `integration_specialist` is optional. Each role declares `client` (`claude` or `codex`),
+`model`, `effort`, `connection`, `credential_env` and capability IDs. Missing client, model or effort
+remains pending. Effort accepts `low`, `medium`, `high` or `native`; only `native` requires
+`native_value`. Schema validation does not verify client compatibility.
+
+Connections default to `authenticated`. API access is explicit and accepts an environment variable
+name only. Validation never reads its value or calls a model. Limits default to three active PBIs,
+three parallel agents and three correction cycles (fixed in this version). Set positive integers for
+`mission_active_seconds`, `agent_seconds`, `max_agent_runs` and `max_deploy_attempts`. API use also
+requires a positive decimal string in `api_budget_usd`. Deployment defaults to `manual`;
+`automatic` records intent. Mission overrides preserve project defaults. This backend does not yet
+enforce runtime limits or deploy products.

@@ -4,6 +4,10 @@ Frente: documentos, mídia e retomada pelo vault. Implementação conforme o
 [desenho](../superpowers/specs/2026-10-02-docling-ingestion-design.md) e o
 [plano aprovado](../superpowers/plans/2026-10-02-docling-ingestion.md).
 
+Esta captura descreve a entrega original. A [rodada Claude posterior](2026-10-02-claude-memory-capabilities.md)
+confirmou autenticação, memória e MCP; a ingestão completa pelo Docling em conversa Claude
+continua pendente. O adaptador Graphify foi entregue na [frente de memória](2026-10-02-memory-discovery.md).
+
 ## Arquitetura entregue
 
 `ingest-source` é a instrução comum de Claude Code e Codex. O hook `UserPromptSubmit` registra
@@ -36,7 +40,7 @@ sem adaptadores; nenhum material é enviado a esses serviços.
 | D04: descoberta em clientes nativos | `ingest-source` nos dois clientes; `UserPromptSubmit` reconhecido no Codex | [Clientes](../medicoes/2026-10-02-docling-clients.json) |
 | D04: conversa real no Codex | HTML convertido, evidência relacionada, anexo inacessível pendente | Mesmo registro de clientes |
 | D04: nova conversa no Codex, sem histórico | Recuperou fonte/revisão, feature, citação, pendência e próxima ação pelo vault | Mesmo registro de clientes |
-| D04: conversa real no Claude Code | Pendente: cliente local sem autenticação | Mesmo registro de clientes |
+| D04: conversa real no Claude Code | Pendente: autenticação confirmada depois; falta ensaio de ingestão completa | Mesmo registro de clientes e continuação vinculada acima |
 
 A primeira conversa real no Codex levou 235,53 segundos; a recuperação, 73,42 segundos. São tempos
 observados de duas execuções, incluindo o modelo e as ferramentas, não um benchmark. O teste usou

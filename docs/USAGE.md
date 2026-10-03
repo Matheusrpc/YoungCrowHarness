@@ -407,6 +407,8 @@ O comando Claude exige Python 3 como `python`; troque por `python3` se necessár
    a skill. Ele não instala, baixa ou converte. Aceita payload de até 1 MiB e até 20 referências por
    evento. Não entrega o prompt inteiro ao armazenamento e não reage a `Stop`. A confiança, a versão
    e os campos expostos pelo cliente determinam a cobertura. Confira os IDs recebidos na resposta.
+   Curingas de comandos e notas Markdown dentro do vault do projeto são ignorados. URLs e Markdown
+   externo ao vault continuam sendo registrados; use `ingest-source` explicitamente se necessário.
 3. Se um anexo não tiver caminho exposto, peça o registro explícito da pendência:
 
    ```bash
@@ -684,8 +686,10 @@ na geração do índice. A requisição temporária continua restrita ao runtime
 [prova com a instalação atual](relatorios/2026-10-02-memory-current-clients.md) registrou duas
 sessões Codex independentes com Graphify, sem timeout ou fallback. A retomada encontrou o handoff
 pelo índice e preservou notas e gerações. Antes de testar, confira a revisão dos scripts e
-skills da fixture, a autenticação e o limite de sessões. O ensaio autenticado no Claude segue
-pendente. Registre fallback sem ampliar permissões automaticamente.
+skills da fixture, a autenticação e o limite de sessões. O [ensaio autenticado no Claude](relatorios/2026-10-02-claude-memory-capabilities.md)
+passou em três sessões, incluindo revisão alterada, fallback Markdown e retorno ao Graphify após
+reconstrução explícita. Registre fallback sem ampliar permissões automaticamente. A prova ao vivo
+com termo idêntico em outro projeto ainda está pendente.
 
 Para operar o índice:
 
@@ -737,8 +741,10 @@ no microíndice local de capacidades, ligado à feature e à execução. Preserv
 O ensaio sintético passou no Codex 0.158.0-alpha.2.1 pelo despacho local do app-server: uma chamada
 permitida, nenhuma chamada proibida, nenhuma chamada após revogação e uma após restauração.
 O ensaio mede esse caminho e essa versão; não comprova permissões de todos os plugins, clientes ou
-serviços. No Claude 2.1.220, descoberta foi verificada, mas autorização/recusa em execução continuam
-pendentes. O CI offline não substitui essas provas. Veja a [matriz](relatorios/2026-10-02-capability-governance.md).
+serviços. O [ensaio autenticado no Claude 2.1.220](relatorios/2026-10-02-claude-memory-capabilities.md)
+também verificou leitura permitida, escrita recusada e retirada/restauração do MCP em sessões novas.
+Essa rodada usou modelo, permissões específicas e `dontAsk`; é separada do comando sem modelo abaixo.
+O CI offline não substitui essas provas. Veja a [matriz](relatorios/2026-10-02-capability-governance.md).
 
 No checkout do harness, o ensaio opcional usa `python3 tests/smoke_capabilities.py --client codex
 --executable /caminho/absoluto/codex --root /caminho/novo/descartavel` (uma única linha). Ele exige uma
@@ -1070,6 +1076,8 @@ and `python` on Windows. Restart after PATH changes and confirm hook trust.
    agent to the skill. It never installs, downloads or converts. Input is limited to 1 MiB and 20
    references per event. The full prompt is not stored; `Stop` triggers no intake. Client trust,
    version and exposed fields determine coverage. Check the source IDs returned by the agent.
+   Command globs and Markdown notes inside the project's vault are skipped. URLs and Markdown
+   outside the vault are still recorded; invoke `ingest-source` explicitly when needed.
 3. For an attachment without an exposed path, explicitly record its pending state:
 
    ```bash
@@ -1306,8 +1314,10 @@ in the index generation. Its temporary request still stays within the private ru
 [current-installation test](relatorios/2026-10-02-memory-current-clients.md) recorded two independent
 Codex sessions using Graphify without timeout or fallback. Recovery found the handoff through
 the index and preserved notes and generations. Before testing, check the fixture's script and
-skill revisions, authentication and session limit. Authenticated Claude testing remains pending.
-Record fallback without automatically broadening permissions.
+skill revisions, authentication and session limit. The [authenticated Claude test](relatorios/2026-10-02-claude-memory-capabilities.md)
+passed in three sessions, including a changed revision, Markdown fallback and return to Graphify
+after an explicit rebuild. Record fallback without automatically broadening permissions. The live
+test with an identical term in another project remains pending.
 
 To operate the index:
 
@@ -1371,8 +1381,10 @@ in the local capability index, linked to the feature and run. Preserve vault his
 
 The synthetic probe passed in Codex 0.158.0-alpha.2.1 through local app-server dispatch: one allowed
 call, no forbidden calls, no calls after revocation and one after restoration. This verifies that
-path and version, not every plugin, client or service. Claude 2.1.220 discovery is verified, but
-runtime allow/deny proof remains pending. Offline CI cannot replace native proof. See the
+path and version, not every plugin, client or service. The [authenticated Claude 2.1.220 test](relatorios/2026-10-02-claude-memory-capabilities.md)
+also verified allowed reads, denied writes and MCP removal/restoration in fresh sessions. It used
+a model, specific permissions and `dontAsk`; it is separate from the model-free command below.
+Offline CI cannot replace native proof. See the
 [matrix](relatorios/2026-10-02-capability-governance.md).
 
 In the harness checkout, the optional probe is `python3 tests/smoke_capabilities.py --client codex

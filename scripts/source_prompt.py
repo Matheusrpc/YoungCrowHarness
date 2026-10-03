@@ -1,6 +1,7 @@
 """Bounded UserPromptSubmit intake. Never downloads, converts or installs anything."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import sys
@@ -19,7 +20,7 @@ def context(message):
     return {'hookSpecificOutput': {'hookEventName': 'UserPromptSubmit', 'additionalContext': message}}
 
 
-def references(prompt, cwd):
+def references(prompt, cwd, root):
     found = []
     for match in URL.finditer(prompt):
         raw = match[0].rstrip('.,;)')
@@ -34,9 +35,15 @@ def references(prompt, cwd):
         raw = match[1] or match[2]
         if Path(raw).name.upper() in ('AGENTS.MD', 'CLAUDE.MD', 'SKILL.MD'):
             continue
+        if '*' in raw or '?' in raw:
+            continue
         path = Path(raw)
         if not path.is_absolute():
             path = cwd / path
+        # Vault notes are existing memory or handoff destinations, not new source intake.
+        # Normalize lexically without probing a referenced file or following symlinks.
+        if path.suffix.lower() == '.md' and Path(os.path.abspath(path)).is_relative_to(root / 'vault'):
+            continue
         found.append(dict(locator=path.absolute().as_uri(), origin_key=None, reason='reference_needs_review'))
     if not found and re.search(r'\b(anex\w*|attach\w*)\b', prompt, re.I):
         found.append(dict(locator=None, origin_key=None, reason='source_unavailable'))
@@ -57,7 +64,7 @@ def handle_prompt(payload, root):
         cwd = Path(payload.get('cwd') or root).absolute()
         if not cwd.is_relative_to(root):
             cwd = root
-        refs = references(prompt, cwd)
+        refs = references(prompt, cwd, root)
         if not refs:
             return {}
         # Session/turn values and source URLs are never interpolated into a path or context.

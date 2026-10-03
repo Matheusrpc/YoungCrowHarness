@@ -1,0 +1,380 @@
+{
+  "date": "2026-10-02",
+  "timezone": "America/Sao_Paulo",
+  "base_commit": "577c2bad3c462d0528e93c99bf002a5162aa295c",
+  "client": "Claude Code 2.1.220",
+  "scope": "Synthetic Windows sessions on the installed base; hook fix tested separately after observation",
+  "budget": {
+    "sessions": 3,
+    "seconds_per_session": 300,
+    "tool_calls_per_session": 24,
+    "subscription": "Claude Max",
+    "additional_api_contracts": 0
+  },
+  "sessions": [
+    {
+      "phase": "write",
+      "seconds": 184.505,
+      "model": "claude-opus-5[1m]",
+      "num_turns_reported": 23,
+      "tool_calls_observed": 22,
+      "native_permission_mode": "dontAsk",
+      "queries": [
+        {
+          "state": "ready",
+          "index_state": "ready",
+          "provider": "graphify",
+          "warnings": [],
+          "references": 5
+        }
+      ],
+      "source_revisions": {
+        "vault/local/demo/api.md": {
+          "id": "462b5027-8cfc-5951-86a7-2f33035957b8",
+          "revision": "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67"
+        },
+        "vault/local/demo/portal.md": {
+          "id": "6162cb13-db91-5b98-aec6-8d15072ecc12",
+          "revision": "a2f2d32044fbb3843fe169d7f7d285d3177018c7961ee4e46005409e9b4d4f58"
+        },
+        "vault/local/demo/webhook.md": {
+          "id": "9d9518d3-8e8c-5d75-aba3-34c061ab7fb1",
+          "revision": "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b"
+        },
+        "vault/local/demo/fila.md": {
+          "id": "126080e8-6165-5a89-aa2e-252975904cf9",
+          "revision": "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387"
+        },
+        "vault/local/demo/release.md": {
+          "id": "1245bb23-765d-5020-b78e-bd2ba145f4b9",
+          "revision": "0742090d8b97e0b24c9d99abc4e89ddc2d4e1bed9771884052f8025768236723"
+        }
+      },
+      "changed_vault_files": [
+        "vault/local/index.md",
+        "vault/local/runs/claude-current.md",
+        "vault/local/sources/index.md",
+        "vault/local/sources/b3da6ea9-9046-4e3a-8265-4d6fc8273d37/index.md",
+        "vault/local/sources/f6346acd-400d-4cda-82ef-8954f9cccfef/index.md"
+      ],
+      "removed_vault_files": [],
+      "derived_unchanged": true,
+      "mcp_read_calls": 1,
+      "mcp_write_calls": 0,
+      "native_tool_errors": [
+        {
+          "tool": "mcp__yc__yc_write",
+          "native_permission_denial": true
+        },
+        {
+          "tool": "Bash",
+          "native_permission_denial": true
+        }
+      ],
+      "usage_reported": {
+        "input_tokens": 46,
+        "cache_creation_input_tokens": 46783,
+        "cache_read_input_tokens": 449018,
+        "output_tokens": 9144,
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 46783,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [],
+        "speed": "standard"
+      },
+      "client_cost_estimate_usd": 0.9211689999999999,
+      "events_sha256": "54bed6dbe52b6b0cd5b51220c2af6269a74d83fe32f21af9040b391c7d8c2db5"
+    },
+    {
+      "phase": "resume",
+      "seconds": 153.824,
+      "model": "claude-opus-5[1m]",
+      "num_turns_reported": 22,
+      "tool_calls_observed": 21,
+      "native_permission_mode": "dontAsk",
+      "queries": [
+        {
+          "state": "fallback",
+          "index_state": "stale",
+          "provider": "markdown",
+          "warnings": [],
+          "references": 5
+        }
+      ],
+      "source_revisions": {
+        "vault/local/demo/release.md": {
+          "id": "1245bb23-765d-5020-b78e-bd2ba145f4b9",
+          "revision": "0742090d8b97e0b24c9d99abc4e89ddc2d4e1bed9771884052f8025768236723"
+        },
+        "vault/local/demo/api.md": {
+          "id": "462b5027-8cfc-5951-86a7-2f33035957b8",
+          "revision": "094a652efd3e04b70585aa7cca19e7f9950a29b855d7ae52e0455b52fce56dde"
+        },
+        "vault/local/demo/fila.md": {
+          "id": "126080e8-6165-5a89-aa2e-252975904cf9",
+          "revision": "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387"
+        },
+        "vault/local/demo/portal.md": {
+          "id": "6162cb13-db91-5b98-aec6-8d15072ecc12",
+          "revision": "a2f2d32044fbb3843fe169d7f7d285d3177018c7961ee4e46005409e9b4d4f58"
+        },
+        "vault/local/demo/webhook.md": {
+          "id": "9d9518d3-8e8c-5d75-aba3-34c061ab7fb1",
+          "revision": "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b"
+        }
+      },
+      "changed_vault_files": [],
+      "removed_vault_files": [],
+      "derived_unchanged": true,
+      "mcp_read_calls": 0,
+      "mcp_write_calls": 0,
+      "native_tool_errors": [
+        {
+          "tool": "Bash",
+          "native_permission_denial": true
+        },
+        {
+          "tool": "Bash",
+          "native_permission_denial": true
+        },
+        {
+          "tool": "Bash",
+          "native_permission_denial": true
+        }
+      ],
+      "usage_reported": {
+        "input_tokens": 18,
+        "cache_creation_input_tokens": 41312,
+        "cache_read_input_tokens": 174359,
+        "output_tokens": 8624,
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 41312,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [],
+        "speed": "standard"
+      },
+      "client_cost_estimate_usd": 0.7159895000000001,
+      "events_sha256": "64baf1c5ee250e9d99305a46e5135cb4b8cdae0ef9a09a10cfea57a6b86edd9b"
+    },
+    {
+      "phase": "restore",
+      "seconds": 99.002,
+      "model": "claude-opus-5[1m]",
+      "num_turns_reported": 18,
+      "tool_calls_observed": 17,
+      "native_permission_mode": "dontAsk",
+      "queries": [
+        {
+          "state": "ready",
+          "index_state": "ready",
+          "provider": "graphify",
+          "warnings": [],
+          "references": 5
+        }
+      ],
+      "source_revisions": {
+        "vault/local/demo/api.md": {
+          "id": "462b5027-8cfc-5951-86a7-2f33035957b8",
+          "revision": "094a652efd3e04b70585aa7cca19e7f9950a29b855d7ae52e0455b52fce56dde"
+        },
+        "vault/local/demo/portal.md": {
+          "id": "6162cb13-db91-5b98-aec6-8d15072ecc12",
+          "revision": "a2f2d32044fbb3843fe169d7f7d285d3177018c7961ee4e46005409e9b4d4f58"
+        },
+        "vault/local/demo/webhook.md": {
+          "id": "9d9518d3-8e8c-5d75-aba3-34c061ab7fb1",
+          "revision": "9de74e5512e92d9b1028d9e1d882963d99be48a6571990a7bf85e0de3da3138b"
+        },
+        "vault/local/demo/fila.md": {
+          "id": "126080e8-6165-5a89-aa2e-252975904cf9",
+          "revision": "4ce3b5295bac32dd7ef4cc6ee468822206e93b639f5226d1f0b57a4476d67387"
+        },
+        "vault/local/demo/release.md": {
+          "id": "1245bb23-765d-5020-b78e-bd2ba145f4b9",
+          "revision": "0742090d8b97e0b24c9d99abc4e89ddc2d4e1bed9771884052f8025768236723"
+        }
+      },
+      "changed_vault_files": [],
+      "removed_vault_files": [],
+      "derived_unchanged": true,
+      "mcp_read_calls": 1,
+      "mcp_write_calls": 0,
+      "native_tool_errors": [],
+      "usage_reported": {
+        "input_tokens": 12,
+        "cache_creation_input_tokens": 28373,
+        "cache_read_input_tokens": 91340,
+        "output_tokens": 5290,
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 28373,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "not_available",
+        "iterations": [],
+        "speed": "standard"
+      },
+      "client_cost_estimate_usd": 0.46170999999999995,
+      "events_sha256": "0be7f7af23eeb2971612ad06278edac2a630ab936da78f8e76896dae287c97bc"
+    }
+  ],
+  "source_change": {
+    "path": "vault/local/demo/api.md",
+    "before_sha256": "cb78b68f79f591926fb58c8462bde835c6235bd98389f0e647522119d0cb7e67",
+    "after_sha256": "094a652efd3e04b70585aa7cca19e7f9950a29b855d7ae52e0455b52fce56dde",
+    "state": {
+      "state": "stale",
+      "project_id": "9865926d-6293-4c63-a8ff-c8441674a043",
+      "fingerprint": "3fd103982009e9050b03bdbd4e7ee0336b88fe6128e647582d21c57448621f09",
+      "notes": 5,
+      "warnings": []
+    }
+  },
+  "installation": {
+    "commit": "577c2bad3c462d0528e93c99bf002a5162aa295c",
+    "files": [
+      {
+        "path": ".agents/skills/retrieve-memory/SKILL.md",
+        "sha256": "bd7775dff0d58b225b9ee74af3531d3c55a714b71d0a0ab9dae5d8165d7540cc"
+      },
+      {
+        "path": ".claude/skills/retrieve-memory/SKILL.md",
+        "sha256": "bd7775dff0d58b225b9ee74af3531d3c55a714b71d0a0ab9dae5d8165d7540cc"
+      },
+      {
+        "path": "requirements/graphify.txt",
+        "sha256": "9ca6b61e6a2ea461025c5b4d79e3a83e4af1f09a45d0f630e90b44867ab30dc5"
+      },
+      {
+        "path": "scripts/adoption.py",
+        "sha256": "97404f21b495f55c8ad3e2d53b096d4e8045fe9e9c033741c0b5d9c9d5042a4f"
+      },
+      {
+        "path": "scripts/adoption_acl.ps1",
+        "sha256": "9b3e0662d381da8547d94a9976854070f71029c945b3c64deca99704f6f2c748"
+      },
+      {
+        "path": "scripts/adoption_fs.py",
+        "sha256": "b5504f826193bf0653e01f99124ba17621e4298ffb63170e241ce1e41827be65"
+      },
+      {
+        "path": "scripts/capabilities.py",
+        "sha256": "59e7747e3c735e750a9ecc34edbea646625d067e80b203301ee2feee3a371198"
+      },
+      {
+        "path": "scripts/docling_worker.py",
+        "sha256": "ef0eb631a81abaed2bf162cdd6811045bddff8b81220a260cbd1471ea2393bdb"
+      },
+      {
+        "path": "scripts/document_store.py",
+        "sha256": "b57e4f497cb79e88f05af374f77976057f65868f425c0b49844d0c7cbd637436"
+      },
+      {
+        "path": "scripts/documents.py",
+        "sha256": "a42de542f39d967f44d4b72aba1a85ae2b6fb69d1b18dfa79797f3c882200a62"
+      },
+      {
+        "path": "scripts/graphify_worker.py",
+        "sha256": "7aca3e62997107af91291de09fa66890054045fb73ba0a41aef1587fa63ba745"
+      },
+      {
+        "path": "scripts/integrations.py",
+        "sha256": "29fc50039e714e37ea5050aa7b624c1d3381c646f0751987354385e06f23153b"
+      },
+      {
+        "path": "scripts/memory.py",
+        "sha256": "14e451605babd26d277ecbfdb603363c0b0e9a699dc604593992f0dc5b516142"
+      },
+      {
+        "path": "scripts/personalize.py",
+        "sha256": "2a306f2359541e52bde40f0cf9530b013f6842eecf146a3bb454b15971eab494"
+      },
+      {
+        "path": "scripts/source_fetch.py",
+        "sha256": "56748271b864566b034150563f9498a0e2a2d795564292e6f9979dc318e166b1"
+      },
+      {
+        "path": "scripts/source_prompt.py",
+        "sha256": "c9107da1b8a37165750738f1d26f9b093b1983f04d1d5b1c0e3fe99f0b4be781"
+      },
+      {
+        "path": "scripts/vault.py",
+        "sha256": "33a77336048d67169902e6a92759dee0ab8dde0f10449092de20e70e658e159c"
+      },
+      {
+        "path": "skills/govern-capabilities/SKILL.md",
+        "sha256": "b48134c0aba09173127c99f5f65b27a6d18d07353aa071f44a116cb2c7d9f647"
+      },
+      {
+        "path": "skills/ingest-source/SKILL.md",
+        "sha256": "197d51ac7b812f20b8634561a8784bf552a4523d229ae85bb69b192172292d62"
+      },
+      {
+        "path": "skills/integrate-from-docs/SKILL.md",
+        "sha256": "d93e6f9ba89e873a0d4e628a40d0eaf2d5a295e5f102df6f15a4a555a3151db8"
+      },
+      {
+        "path": "skills/integrate-from-docs/references/memory.md",
+        "sha256": "fa61fbfa2aaa9722db04dee10b9b854c16902d5070ad4ee1826863c53e27a67c"
+      },
+      {
+        "path": "skills/personalizer/SKILL.md",
+        "sha256": "3cf1e852dab2fbe972dda1496523ab79fc6b31c4b0700a02d56d1104ec812213"
+      },
+      {
+        "path": "skills/personalizer/references/interview.md",
+        "sha256": "27acb827c5daf39b039f9d6ff5a43ae41c412fcdf1bda3777dfc9c65929ec5c2"
+      },
+      {
+        "path": "skills/retrieve-memory/SKILL.md",
+        "sha256": "f11e8d6480e6f151b78c0f79ce451812d59bf9d28fe97b665c7b8b87014b01f9"
+      }
+    ],
+    "checked": 24,
+    "mismatches": []
+  },
+  "handoff": {
+    "id": "4c1f8e3a-7b26-4d59-9f0a-2e84c5b6d137",
+    "revision": "1bf446b262205171a8103a940c5285740afc530bd4b174f1151ed576196b3886",
+    "recovered_through_indices": true,
+    "distinct_sessions": true,
+    "changed_source_recognized": true,
+    "new_next_action": "test webhook replay",
+    "api_production": "not published",
+    "portal_production": "synthetic demo-1 only"
+  },
+  "capability_proof": {
+    "allowed": true,
+    "denied_before_server": true,
+    "revoked_native_entry_absent": true,
+    "restored": true,
+    "revocation_scope": "server removed from strict per-session MCP configuration; no provider credential revocation"
+  },
+  "limitations": [
+    "Model sessions used base 577c2ba; the subsequent source_prompt.py correction has separate regression and native-hook replay evidence.",
+    "Writer hook registered two unintended sources: a shell glob command and the handoff destination. Five vault files changed, although the model reported only its two Write/Edit targets.",
+    "Writer reported 19 tool calls; stream evidence contains 22.",
+    "No OS sandbox or provider integration security claim; MCP is a local synthetic witness and dontAsk controls client tool approval.",
+    "Capability CLI audit was refused by the restricted session profile; no native catalog-digest audit claim.",
+    "Client cost is an estimate, not an invoice or evidence of additional spending.",
+    "No new live Docling ingestion proof or second-project homonym test; those remain separately scoped."
+  ]
+}

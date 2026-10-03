@@ -5,7 +5,7 @@ foi executado, com evidências e limites no [relatório](../../relatorios/2026-1
 e publicação pelo [PR #7](https://github.com/Matheusrpc/YoungCrowHarness/pull/7). M04 permanece parcial.
 Graphify foi instalado apenas no projeto sintético de prova; a instalação em cada projeto consumidor é opcional. Esta frente sucede
 a ingestão com Docling publicada no [PR #6](https://github.com/Matheusrpc/YoungCrowHarness/pull/6).
-A prova de conversa real do Docling no Claude continua pendente de autenticação; não é requisito
+A prova de conversa real do Docling no Claude continua pendente de ensaio; não é requisito
 para comparar fornecedores, mas será necessária para declarar o fluxo completo nos dois clientes.
 
 ## Resultado esperado

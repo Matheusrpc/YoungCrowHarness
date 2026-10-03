@@ -1,0 +1,77 @@
+{
+  "front": "mission-foundation",
+  "date": "2026-10-03",
+  "scope": "offline planning; no product workers",
+  "tests": {
+    "config_backlog_missions": {
+      "tests": 32,
+      "result": "passed",
+      "seconds": 343.372,
+      "revision": "2018d90406302cab195307280010ae0ceacfa477"
+    },
+    "incompatible_helper": "passed",
+    "installer_mission": {
+      "tests": 3,
+      "result": "passed",
+      "seconds": 141.652
+    },
+    "capabilities": {
+      "tests": 22,
+      "skipped": 1,
+      "result": "passed",
+      "seconds": 65.056
+    },
+    "baseline": {
+      "tests": 256,
+      "errors": 8,
+      "skipped": 10,
+      "seconds": 2407.195,
+      "causes": [
+        "six existing installer timeouts",
+        "existing fixture path length",
+        "existing PID fixture read race"
+      ]
+    }
+  },
+  "skills": {
+    "reference_application_probes": 4,
+    "result": "passed after corrections",
+    "native_execution": "not_run"
+  },
+  "visual": {
+    "views": [
+      {
+        "lang": "pt",
+        "width": 900,
+        "textOverflow": 0
+      },
+      {
+        "lang": "pt",
+        "width": 390,
+        "textOverflow": 0
+      },
+      {
+        "lang": "en",
+        "width": 900,
+        "textOverflow": 0
+      },
+      {
+        "lang": "en",
+        "width": 390,
+        "textOverflow": 0
+      }
+    ],
+    "ownBrowserProcessesRemaining": 0,
+    "xml": "valid",
+    "external_resources": 0,
+    "inspection": "desktop PT and mobile EN inspected; full-size link available"
+  },
+  "smoke": {
+    "windows": "running",
+    "linux": "pending CI"
+  },
+  "publication": {
+    "branch": "feat/mission-foundation",
+    "main": "pending"
+  }
+}

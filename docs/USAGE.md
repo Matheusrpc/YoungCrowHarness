@@ -1459,6 +1459,8 @@ requires a positive decimal string in `api_budget_usd`. Deployment defaults to `
 `automatic` records intent. Mission overrides preserve project defaults. This backend does not yet
 enforce runtime limits or deploy products.
 
+<a id="mission-backlog"></a>
+
 ## Contratos do backlog / Backlog contracts
 
 Novos épicos, features e PBIs ficam em `vault/local/product/{epics,features,pbis}/<uuid>/index.md`.
@@ -1504,6 +1506,58 @@ Setup installs four entries: `yc-personalizer` resumes discovery; `yc-config` sa
 in Claude Code, or select the skill/use `$yc-*` in Codex where available. Reopen the session after
 installation. Catalog checks establish file integrity; native discovery and model use need their
 own evidence. `yc-iniciar`, `yc-pausar`, `yc-retomar`, `yc-transferir` and `yc-deploy` are not functional commands yet.
+
+### Primeiro uso em um produto novo
+
+1. Mantenha o checkout do harness separado da pasta do produto. Para experimentar com retorno,
+   siga o [setup trial](#adocao-reversivel-pt) antes da primeira nota; escolha `--client claude`,
+   `codex` ou `both`. Uma instalação normal não cria ponto de retorno.
+2. Abra o produto no cliente escolhido e chame `yc-personalizer`. Ela registra perfil, decisões
+   e perguntas pendentes; documentos recebidos seguem `ingest-source` e ficam locais até revisão.
+3. Em `yc-config`, defina as escolhas de cada agente uma vez. A configuração vale para o projeto;
+   uma missão pode substituir escolhas explicitamente. O instalador não escolhe modelos por você.
+4. Em `yc-missao`, peça ao PM que descreva épico, features, DoR/DoD e aceite. O Tech Lead divide
+   em PBIs verificáveis. Esses papéis atuam na sessão atual. Registre referências e importe as notas.
+5. Selecione uma ou mais features e priorize todos os PBIs selecionados. `yc-status` mostra o
+   que falta ou confirma `prepared`; iniciar execução automática pertence à próxima frente.
+
+### Primeiro uso em um produto existente
+
+Faça o trial a partir do checkout separado antes de adaptar o produto. A personalizer deve
+primeiro registrar o que existe: instruções, testes, design, integrações e notas. Preserve perfil,
+UUIDs e convenções confirmadas. O setup conserva catálogo e skills locais mesmo com `--force`;
+compare e mescle versões conscientemente. `incompatible_helper` pede revisão dos scripts
+preservados antes de qualquer escrita da CLI de missões. Uma instalação antiga sem baseline
+não permite voltar ao estado anterior à adoção original.
+
+O índice geral antigo também é preservado. Durante a adaptação, acrescente apenas os links
+faltantes para seções recém-instaladas, como `integrations/index.md` e `capabilities/index.md`.
+Execute `python3 -B scripts/vault.py check --json` e concilie pendências antes de entregar a navegação.
+
+Retome em `yc-config` e `yc-missao` usando as respostas existentes. Notas antigas podem ser
+importadas no mesmo caminho; ficam em rascunho quando não têm contrato. Crie novos itens no
+vault privado e ligue-os aos índices. O guia de [contratos](#mission-backlog) explica essa estrutura.
+
+### First use: new and existing products
+
+Keep the harness checkout separate from the product. For a reversible trial, capture the baseline
+through trial setup before writing any notes, selecting `claude`, `codex` or `both`. Normal setup
+has no initial return point. Open the product in your client, call `yc-personalizer`, then `yc-config`
+to record each role's choices once. Documents go through `ingest-source` and stay local until review.
+Use `yc-missao` for PM-owned epics/features, DoR/DoD and acceptance; the Tech Lead splits verifiable
+PBIs in the current session. Select one or more features, order all their PBIs and consult `yc-status`.
+
+For an existing product, first audit instructions, tests, design, integrations and notes. Preserve
+confirmed answers, profile and UUIDs. Setup preserves local catalogs and skills even with `--force`;
+compare and merge intentionally. `incompatible_helper` requires reviewing preserved helper versions
+before mission commands can write. An old installation without a baseline cannot restore its original
+pre-adoption state. Import old notes at their existing paths; missing contracts remain drafts. New
+items belong in the private vault with links from their indexes. `prepared` describes complete planning;
+automatic execution is a later delivery.
+
+Setup also preserves the old general index. During adaptation, append missing links to newly installed
+sections such as `integrations/index.md` and `capabilities/index.md`, preserving existing text. Run
+`python3 -B scripts/vault.py check --json` and reconcile navigation issues before handoff.
 
 Depois do setup e da personalizer, use os comandos abaixo na raiz do produto. No Windows,
 `python` pode ser o nome do Python 3. Arquivos de entrada são caminhos relativos ao projeto.

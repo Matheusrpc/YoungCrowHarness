@@ -291,6 +291,10 @@ Missões guardam a configuração e as revisões usadas no preparo. O status apo
 `repair` recupera projeções pendentes e preserva edições humanas. Desenvolvimento, QA e deploy
 automáticos pertencem às próximas entregas. Veja o [passo a passo](docs/USAGE.md#mission-workflow).
 
+![Preparar uma missão: personalizer, configuração dos agentes, backlog, seleção de features, refinamento e consulta. Execução automática ainda indisponível.](assets/process-mission-planning-pt.svg)
+
+[Abrir o processo de preparação em tamanho completo](assets/process-mission-planning-pt.svg)
+
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
 | Arquivo | Para que serve |
@@ -619,6 +623,10 @@ New notes start in `vault/local/product/`; existing features keep their paths an
 Missions freeze their configuration and source revisions. Status reports changed inputs; `repair`
 recovers pending projections while preserving human edits. Automated development, QA and deployment
 belong to later deliveries. See the [walkthrough](docs/USAGE.md#mission-workflow).
+
+![Prepare a mission: personalizer, agent configuration, backlog, feature selection, refinement and status. Automatic execution remains unavailable.](assets/process-mission-planning-en.svg)
+
+[Open the preparation process at full size](assets/process-mission-planning-en.svg)
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 

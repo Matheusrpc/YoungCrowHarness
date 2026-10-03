@@ -14,6 +14,9 @@ Before the first write, establish trial versus normal adoption. A requested tria
 verified baseline before notes. When already confirmed, reuse mode and adoption ID without another
 setup or confirmation. New and existing repositories follow their recorded onboarding mode;
 an existing product also needs evidence of conventions, code/tests, integrations and unknowns.
+Setup preserves old vault indexes. During authorized adaptation, link newly installed sections from
+their declared indexes, appending only missing links and preserving human text. Run the installed
+`python3 -B scripts/vault.py check --json` before handoff and reconcile navigation issues.
 
 Ask the next useful unanswered question. Save answers, sources, uncertainty and next action in the
 existing interview/profile, preserving private-source boundaries. Use `ingest-source` for supplied

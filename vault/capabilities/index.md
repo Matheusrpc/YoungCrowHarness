@@ -3,7 +3,7 @@ id: capabilities-index
 type: index
 title: Capacidades / Capabilities
 origin: youngcrow/template
-updated: 2026-10-02
+updated: 2026-10-03
 index: ../index.md
 ---
 
@@ -21,6 +21,10 @@ index: ../index.md
 | Docling | Conversão local opcional, documentos e mídia em ambientes separados / Optional local conversion in separate runtimes | [Procedimento / Procedure](../../skills/ingest-source/SKILL.md) | 2.132.0 |
 | retrieve-memory | Retomar notas selecionadas e verificar decisões/entregas / Resume selected notes and verify evidence | [Skill](../../skills/retrieve-memory/SKILL.md) | 1 |
 | Graphify | Grafo local opcional de links explícitos / Optional local graph of explicit links | [Procedimento / Procedure](../../skills/retrieve-memory/SKILL.md) | 0.9.73 |
+| yc-personalizer | Start or resume project onboarding and mission discovery | [Skill](../../skills/yc-personalizer/SKILL.md) | 1 |
+| yc-config | Choose or update project agent defaults | [Skill](../../skills/yc-config/SKILL.md) | 1 |
+| yc-missao | Refine backlog and prepare or revise one to N features | [Skill](../../skills/yc-missao/SKILL.md) | 1 |
+| yc-status | Read mission state and pending work | [Skill](../../skills/yc-status/SKILL.md) | 1 |
 
 Entradas nativas, quando instaladas: `.claude/agents/integration-specialist.md` e `.codex/agents/integration-specialist.toml`.
 Native entries depend on the selected client. Availability is not evidence of use: each run records the capabilities actually used.

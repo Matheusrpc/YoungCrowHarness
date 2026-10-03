@@ -3,7 +3,11 @@ import importlib
 import io
 import json
 import os
+from pathlib import Path
+import shutil
 import sqlite3
+import subprocess
+import sys
 import unittest
 import uuid
 from contextlib import closing, redirect_stdout
@@ -260,6 +264,22 @@ class MissionTests(MissionCase):
         before = self.snapshot()
         with self.assertRaisesRegex(ValueError, 'revision_conflict'):
             self.m.import_item(self.root, path, 1, self.op_id, ACTOR)
+        self.assertEqual(self.snapshot(), before)
+
+    def test_incompatible_helper_fails_before_any_write(self):
+        source = Path(__file__).resolve().parents[1] / 'scripts'
+        target = self.root / 'scripts'
+        target.mkdir()
+        for name in ('missions', 'mission_config', 'mission_backlog', 'mission_store', 'mission_vault',
+                     'capabilities', 'document_store', 'integrations', 'vault'):
+            shutil.copyfile(source / (name + '.py'), target / (name + '.py'))
+        (target / 'capabilities.py').write_text('# preserved legacy helper\n', encoding='utf-8')
+        before = self.snapshot()
+        result = subprocess.run([sys.executable, '-B', str(target / 'missions.py'), '--root', str(self.root), '--json', 'status', 'M001'],
+                                capture_output=True, text=True, timeout=20)
+        self.assertIn('"error": "incompatible_helper"', result.stdout, result.stderr)
+        self.assertEqual(result.stderr, '')
+        self.assertEqual(result.returncode, 2)
         self.assertEqual(self.snapshot(), before)
 
     def test_incomplete_criteria_and_external_dependency_stay_draft(self):

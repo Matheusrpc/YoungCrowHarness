@@ -17,6 +17,9 @@ Read only the relevant branch. These are prompts to choose from, not a mandatory
 | Work and cost | Which deadline, budget or operating limit is fixed? Which remains unknown? | profile.md |
 | Quality and operations | Which test/build checks and release/rollback process are verified today? | audit.md and operations index/linked runbook |
 | Responsibilities | Who decides scope, resolves technical conflicts, reviews and authorizes publication? A person can hold several roles. | profile.md |
+| Agent defaults | For each PM, Tech Lead, developer and QA role, which client, exact model and effort do you want? Reuse confirmed choices; authenticated Claude Code/Codex is the default. An API choice records an environment variable name, never its secret value. | interview; yc-config saves youngcrow/agents.json |
+| Mission limits | What are the mission and agent time limits, total agent runs and deployment attempts? Use the approved defaults of 3 active PBIs, 3 parallel agents and 3 correction cycles unless explicitly changed; correction cycles are fixed in this version. What API budget applies if API use was chosen? | interview and yc-config |
+| Mission scope and release | Which one to N features belong to this mission, in which PBI order? Manual release is the default; automatic release is an explicit future intent. Who defines DoR/DoD and observable production evidence? | private backlog and yc-missao |
 
 Before asking, search targeted repository evidence for the answer. If code contradicts documentation, record both and test the narrow claim within authorization. Ask for product choices that files cannot settle.
 

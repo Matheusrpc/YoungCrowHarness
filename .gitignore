@@ -39,3 +39,7 @@ node_modules/
 
 !.agents/skills/retrieve-memory/
 !.agents/skills/govern-capabilities/
+!.agents/skills/yc-personalizer/
+!.agents/skills/yc-config/
+!.agents/skills/yc-missao/
+!.agents/skills/yc-status/

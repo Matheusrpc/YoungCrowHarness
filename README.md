@@ -283,7 +283,8 @@ está aprovado. A primeira base valida configurações de agentes offline em `yo
 três PBIs e três agentes simultâneos por padrão, três ciclos de correção e deploy manual.
 Modelo e esforço ficam pendentes até a escolha do usuário. Veja o
 [contrato de configuração](docs/USAGE.md#mission-config). A CLI `scripts/missions.py` configura,
-importa o backlog, prepara missões e consulta o histórico. As entradas de skill estão em implementação.
+importa o backlog, prepara missões e consulta o histórico. O setup instala `yc-personalizer`, `yc-config`, `yc-missao` e `yc-status` nos clientes selecionados.
+No Claude, use `/yc-*`; no Codex, use o seletor de skills ou `$yc-*`, conforme o cliente.
 O backlog usa contratos Markdown com UUID, DoR, DoD e referências verificadas por hash.
 Novas notas começam em `vault/local/product/`; features existentes mantêm seus caminhos e conteúdo.
 Missões guardam a configuração e as revisões usadas no preparo. O status aponta fontes alteradas;
@@ -611,7 +612,8 @@ and verified production. The design is approved and the
 Offline agent configuration in `youngcrow/agents.json` defaults to three active PBIs, three parallel
 agents, three correction cycles and manual deployment. Model and effort remain pending until chosen.
 See the [configuration contract](docs/USAGE.md#mission-config). `scripts/missions.py` configures agents,
-imports backlog notes, prepares missions and reads history. Skill entries are still being implemented.
+imports backlog notes, prepares missions and reads history. Setup installs `yc-personalizer`, `yc-config`, `yc-missao` and `yc-status` for the selected clients.
+Use `/yc-*` in Claude and the skill selector or `$yc-*` in Codex, as supported by your client.
 Backlog Markdown contracts carry UUIDs, DoR, DoD and references checked by hash.
 New notes start in `vault/local/product/`; existing features keep their paths and content.
 Missions freeze their configuration and source revisions. Status reports changed inputs; `repair`

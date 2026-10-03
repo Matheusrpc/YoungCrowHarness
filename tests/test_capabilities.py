@@ -45,6 +45,21 @@ class CapabilityCase(ProjectCase):
 
 
 class CatalogTests(CapabilityCase):
+    def test_mission_catalog_has_real_offline_contracts(self):
+        names = {'yc-personalizer', 'yc-config', 'yc-missao', 'yc-status'}
+        selected = [cap for cap in caps.load_catalog(ROOT) if cap['id'] in names]
+        self.assertEqual({cap['id'] for cap in selected}, names)
+        for cap in selected:
+            self.assertEqual(cap['permissions']['network'], [])
+            self.assertEqual(cap['permissions']['credential_env'], [])
+            self.assertEqual(cap['expected']['contract_sha256'], caps.contract_digest(cap))
+            for client in ('claude', 'codex'):
+                files = cap['files']['common'] + cap['files'][client]
+                self.assertEqual(cap['expected']['files_sha256'][client], caps.content_digest(ROOT, files))
+                wrapper = (ROOT / cap['files'][client][0]).read_text(encoding='utf-8')
+                self.assertIn('name: ' + cap['id'], wrapper)
+                self.assertIn('../../../skills/' + cap['id'] + '/SKILL.md', wrapper)
+
     def test_contract_wrapper_and_support_change_identity(self):
         cap = self.seed()[0]
         files = cap['files']['common'] + cap['files']['codex']

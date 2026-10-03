@@ -1491,6 +1491,20 @@ historical dates stay unknown.
 
 ## Preparar uma missão / Prepare a mission
 
+O setup instala quatro entradas: `yc-personalizer` retoma a entrevista; `yc-config` salva escolhas
+por agente; `yc-missao` refina o backlog e prepara a missão; `yc-status` consulta sem escrever.
+No Claude Code, chame `/yc-personalizer`, `/yc-config`, `/yc-missao` ou `/yc-status`. No Codex,
+selecione a skill ou use `$yc-personalizer`, `$yc-config`, `$yc-missao` e `$yc-status` onde disponíveis.
+Reabra a sessão após instalar. O catálogo verifica arquivos; a descoberta e o uso pelo cliente
+precisam de evidência própria. `yc-iniciar`, `yc-pausar`, `yc-retomar`, `yc-transferir` e `yc-deploy`
+ainda não são comandos funcionais.
+
+Setup installs four entries: `yc-personalizer` resumes discovery; `yc-config` saves agent choices;
+`yc-missao` refines backlog and prepares a mission; `yc-status` reads without writing. Use `/yc-*`
+in Claude Code, or select the skill/use `$yc-*` in Codex where available. Reopen the session after
+installation. Catalog checks establish file integrity; native discovery and model use need their
+own evidence. `yc-iniciar`, `yc-pausar`, `yc-retomar`, `yc-transferir` and `yc-deploy` are not functional commands yet.
+
 Depois do setup e da personalizer, use os comandos abaixo na raiz do produto. No Windows,
 `python` pode ser o nome do Python 3. Arquivos de entrada são caminhos relativos ao projeto.
 Guarde pedidos e backlog em `vault/local/`; mantenha o mesmo UUID de operação para repetir

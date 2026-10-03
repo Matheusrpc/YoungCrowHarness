@@ -8,13 +8,22 @@ import sys
 import uuid
 
 sys.dont_write_bytecode = True
-import capabilities
-from capabilities import canonical, parse_json, read_inputs, text
-from document_store import safe_path, atomic_write
-from mission_config import CONFIG_PATH, ROLES, OPTIONAL_ROLES, normalize_config, load_config, effective_config, config_digest, config_gaps
-from mission_backlog import identity, project_id, read_item, validate_graph, require
-import mission_store as store
-from mission_vault import project_receipt
+try:
+    import capabilities
+    from capabilities import canonical, parse_json, read_inputs, text
+    from document_store import safe_path, atomic_write
+    from mission_config import CONFIG_PATH, ROLES, OPTIONAL_ROLES, normalize_config, load_config, effective_config, config_digest, config_gaps
+    from mission_backlog import identity, project_id, read_item, validate_graph, require
+    import mission_store as store
+    from mission_vault import project_receipt
+    HELPERS_READY = all(callable(getattr(capabilities, name, None)) for name in ('audit', 'load_catalog', 'contract_digest'))
+except (ImportError, AttributeError, SyntaxError):
+    HELPERS_READY = False
+
+
+def check_helpers():
+    if not HELPERS_READY:
+        raise ValueError('incompatible_helper')
 
 
 def utc_now():
@@ -35,6 +44,7 @@ def config_current(root):
 
 
 def apply_config(root, raw, expected_digest):
+    check_helpers()
     config = normalize_config(raw)
     require(expected_digest is None or (isinstance(expected_digest, str) and len(expected_digest) == 64), 'invalid_digest')
     current = config_current(root)
@@ -68,6 +78,7 @@ def operation(root, request, revision, operation_id, actor):
 
 
 def import_item(root, note_path, expected_revision, operation_id, actor):
+    check_helpers()
     item = read_item(root, note_path)
     store.actor_valid(actor)
     require(actor['role'] == ('tech_lead' if item['kind'] == 'pbi' else 'pm'), 'invalid_actor')
@@ -181,6 +192,7 @@ def build_mission(root, request, defaults):
 
 
 def prepare_mission(root, request, operation_id, actor):
+    check_helpers()
     validate_request(request)
     store.actor_valid(actor)
     require(actor['role'] == 'pm', 'invalid_actor')
@@ -194,6 +206,7 @@ def prepare_mission(root, request, operation_id, actor):
 
 
 def revise_mission(root, mission_id, request, expected_revision, operation_id, actor):
+    check_helpers()
     validate_request(request)
     store.actor_valid(actor)
     require(actor['role'] == 'pm', 'invalid_actor')
@@ -210,6 +223,7 @@ def revise_mission(root, mission_id, request, expected_revision, operation_id, a
 
 
 def mission_status(root, mission_id):
+    check_helpers()
     existing = store.get_record(root, mission_id)
     if existing is None:
         return dict(schema_version=1, state='not_initialized' if not (root / store.DB_PATH).exists() else 'not_found',
@@ -249,6 +263,7 @@ def mission_status(root, mission_id):
 
 
 def repair(root, identifier):
+    check_helpers()
     record = store.get_record(root, identifier)
     require(record is not None, 'unknown_record')
     results = []
@@ -303,6 +318,7 @@ SAFE_ERRORS = CONFLICTS | {'invalid_config', 'invalid_request', 'invalid_argumen
 
 def main(argv=None):
     try:
+        check_helpers()
         args = parser().parse_args(argv)
         root = args.root.resolve(strict=True)
         if args.command == 'config':

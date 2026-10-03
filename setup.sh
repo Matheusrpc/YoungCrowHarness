@@ -57,16 +57,20 @@ FILES+=(scripts/source_prompt.py skills/ingest-source/SKILL.md)
 FILES+=(scripts/memory.py scripts/graphify_worker.py requirements/graphify.txt skills/retrieve-memory/SKILL.md)
 FILES+=(scripts/capabilities.py skills/govern-capabilities/SKILL.md)
 FILES+=(scripts/adoption.py scripts/adoption_fs.py scripts/adoption_acl.ps1)
+FILES+=(scripts/mission_config.py scripts/mission_backlog.py scripts/mission_store.py scripts/mission_vault.py scripts/missions.py)
+FILES+=(skills/yc-personalizer/SKILL.md skills/yc-config/SKILL.md skills/yc-missao/SKILL.md skills/yc-status/SKILL.md)
 SKILL_ROOTS=()
 if [ "$CLIENT" != codex ]; then
   FILES+=(.mcp.json .claude/settings.json .claude/agents/integration-specialist.md
     .claude/skills/integrate-from-docs/SKILL.md .claude/skills/personalizer/SKILL.md .claude/skills/ingest-source/SKILL.md .claude/skills/retrieve-memory/SKILL.md .claude/skills/govern-capabilities/SKILL.md)
   SKILL_ROOTS+=("$HOME/.claude/skills")
+  FILES+=(.claude/skills/yc-personalizer/SKILL.md .claude/skills/yc-config/SKILL.md .claude/skills/yc-missao/SKILL.md .claude/skills/yc-status/SKILL.md)
 fi
 if [ "$CLIENT" != claude ]; then
   FILES+=(.codex/hooks.json .codex/config.toml .codex/agents/integration-specialist.toml
     .agents/skills/integrate-from-docs/SKILL.md .agents/skills/personalizer/SKILL.md .agents/skills/ingest-source/SKILL.md .agents/skills/retrieve-memory/SKILL.md .agents/skills/govern-capabilities/SKILL.md)
   SKILL_ROOTS+=("$TARGET/.agents/skills")
+  FILES+=(.agents/skills/yc-personalizer/SKILL.md .agents/skills/yc-config/SKILL.md .agents/skills/yc-missao/SKILL.md .agents/skills/yc-status/SKILL.md)
 fi
 if [ "$TRIAL" = 1 ]; then SKILL_ROOTS=(); PLUGINS=0; fi
 for ferramenta in python3 git mkdir cp chmod mv mktemp; do
@@ -244,7 +248,7 @@ python3 - "$TARGET/.gitignore" "$CLIENT" <<'PY'
 import pathlib, sys
 p = pathlib.Path(sys.argv[1]); data = p.read_bytes()
 # Final rules override earlier negations; downloaded Git repos must not become gitlinks.
-rules = [b'/.env', b'/.operacao-local/memory/', b'/.operacao-local/capabilities/']
+rules = [b'/.env', b'/vault/local/', b'/.operacao-local/docling/', b'/.operacao-local/memory/', b'/.operacao-local/capabilities/']
 if sys.argv[2] != 'claude':
     rules += [b'/.agents/skills/humanizer/', b'/.agents/skills/humanizer-ptbr/']
 if data.splitlines()[-len(rules):] != rules:

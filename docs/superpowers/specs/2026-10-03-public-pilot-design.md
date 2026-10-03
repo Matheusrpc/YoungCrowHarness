@@ -1,7 +1,9 @@
 # Piloto público: da ideia à publicação
 
 Frente: exemplo reproduzível do YoungCrowHarness. Data: 2026-10-03.
-Estado: proposta para revisão do mantenedor; aplicação e publicação ainda não implementadas.
+Estado: desenho aprovado pelo mantenedor em 2026-10-03 pelas respostas “Próximo” e “Aprovado”.
+Aplicação e publicação ainda não implementadas. O [plano de implementação](../plans/2026-10-03-public-pilot.md)
+detalha as entregas e suas verificações.
 
 ## Objetivo e contexto confirmado
 
@@ -20,9 +22,8 @@ reproduzir o roteiro em uma pasta própria e entender onde a IA precisa de conte
 
 ## Aplicação proposta e alternativas
 
-A proposta de referência é um **quadro de entregas**: página com lista de features, filtro por
-estado e detalhes de aceite e evidências públicas. A escolha está apresentada ao mantenedor;
-até sua resposta, é uma hipótese de desenho, não uma preferência confirmada.
+A aplicação aprovada é um **quadro de entregas**: página com lista de features, filtro por
+estado e detalhes de aceite e evidências públicas. A aprovação do desenho confirma essa opção.
 
 | Opção | O que demonstra | Consequência |
 |---|---|---|
@@ -148,10 +149,9 @@ fica pendente, sem fechar o piloto como entregue. Depois vem o fechamento da pri
 harness: versão, requisitos e roteiro de adoção consolidados. Novas integrações de memória e
 orquestração autônoma não ampliam o escopo deste piloto.
 
-## Decisões que esta revisão deve confirmar
+## Decisões confirmadas
 
-O mantenedor recebe uma proposta concreta: quadro estático em `examples/delivery-board/`, vault
-público do exemplo, consumidores descartáveis para adoção/retorno e GitHub Pages como destino.
-A escolha de aplicação enviada no chat pode substituir o quadro antes do plano de implementação.
-Aprovar este desenho permite detalhar o plano; nenhum código de produto ou recurso de publicação
-foi criado nesta etapa.
+O mantenedor aprovou o quadro estático em `examples/delivery-board/`, o vault público do exemplo,
+consumidores descartáveis para adoção/retorno e GitHub Pages como destino. A execução permanece
+na sessão atual, com um escritor e revisão independente ao final. A aprovação do desenho permite
+detalhar o plano; nenhum código de produto ou recurso de publicação foi criado nesta etapa.

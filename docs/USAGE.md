@@ -11,6 +11,12 @@ detalha decisões, pausas e retomada.
 See the [usage diagrams](../README.md#process-en) for new projects, adoption, daily work, source intake and memory retrieval.
 The [complete process](PROCESS.md#english) includes decisions, pauses and resumption.
 
+O [piloto público em preparação](superpowers/plans/2026-10-03-public-pilot.md) reunirá esses percursos
+em um exemplo com aplicação, vault e publicação verificável. O plano ainda não é uma demonstração disponível.
+
+The [planned public pilot](superpowers/plans/2026-10-03-public-pilot.md) will bring these paths together
+in an example with an application, vault and verifiable publication. The plan is not a live demonstration yet.
+
 Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;
 `python scripts/capabilities.py describe retrieve-memory --json` apresenta o contrato. A leitura
 aceita manifestos 2 e 3, não inicializa o vault e não instala capacidades. Versão declarada e hash

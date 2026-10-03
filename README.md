@@ -227,6 +227,10 @@ uso entre máquinas. Graphify aponta de volta às notas e revisões; claude-mem 
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> Entregas e próximos passos
 
+O próximo marco é o [piloto público](docs/superpowers/plans/2026-10-03-public-pilot.md):
+um quadro de entregas para acompanhar projeto novo, migração, testes, memória e publicação.
+O desenho está aprovado; a aplicação e o site ainda não foram implementados.
+
 A [adoção reversível](docs/USAGE.md#adocao-reversivel-pt) salva o projeto antes do primeiro setup
 com `--trial`. Para sair, revise a prévia e confirme o retorno pelo executor externo. O controlador
 verifica as cópias antes da troca e guarda o trabalho do teste em uma área privada.
@@ -533,6 +537,10 @@ across machines. Graphify points back to source notes and revisions; claude-mem 
 <a id="roadmap-en"></a>
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> Deliveries and next steps
+
+The next milestone is the [public pilot](docs/superpowers/plans/2026-10-03-public-pilot.md):
+a delivery board covering a new project, adoption, tests, memory and publication.
+The design is approved; the application and website have not been implemented yet.
 
 [Reversible adoption](docs/USAGE.md#reversible-adoption-en) saves the project before the first
 setup with `--trial`. To leave, review the preview and confirm restoration through the external runner.

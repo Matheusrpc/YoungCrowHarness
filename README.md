@@ -276,6 +276,9 @@ Consultas e diagnóstico preservam as notas e o `.gitignore`. Se o índice estiv
 a consulta usa o Markdown atual; a reconstrução fica explícita no [guia de uso](docs/USAGE.md#memória-consultar-notas-selecionadas).
 claude-mem, sincronização entre máquinas e orquestração autônoma de papéis continuam na
 [evolução do produto](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
+O [desenho da esteira com agentes de IA](docs/superpowers/specs/2026-10-03-ai-product-pipeline-design.md)
+detalha personalizer, missões, três PBIs simultâneos por padrão, QA e produção verificada.
+Essa esteira está em revisão de especificação; seus comandos ainda não estão implementados.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
@@ -591,6 +594,9 @@ Queries and diagnostics preserve notes and `.gitignore`. If the index is corrupt
 uses current Markdown; rebuilding is explicit in the [usage guide](docs/USAGE.md#memory-query-selected-notes).
 claude-mem, cross-machine synchronization and autonomous role orchestration remain in the
 [product roadmap](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
+The [AI product pipeline design](docs/superpowers/specs/2026-10-03-ai-product-pipeline-design.md),
+written in Portuguese, covers the personalizer, missions, three concurrent PBIs by default, QA
+and verified production. Its specification is under review; its commands are not implemented yet.
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 

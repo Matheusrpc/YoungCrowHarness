@@ -26,9 +26,9 @@ Responsável pela aprovação: mantenedor. Execução: Codex nesta sessão, um e
 | P04: ponto inicial restaurado e trabalho do trial preservado | Pendente para esta aplicação |
 | P05: índices, identidade, links e resumo conciliado | 20 notas, zero problemas no validador |
 | P06: retomada em sessões novas de Claude e Codex | Pendente |
-| P07: pacote permitido e CI | Pendente |
+| P07: pacote permitido e CI | Pacote local: 7 testes passam, 1 skip Windows; job CI preparado |
 | P08: publicação observada e manifesto conferido | Pendente |
 | P09: roteiro PT/EN, README e processos | Documentação em andamento |
 
 Desenvolvimento: página, modelo e dados verificados localmente. Produção: não verificada.
-Próxima ação: construir e validar o pacote público; consultar a execução para o detalhe de cada prova.
+Próxima ação: exercitar consumidores novos e existentes; consultar a execução para o detalhe de cada prova.

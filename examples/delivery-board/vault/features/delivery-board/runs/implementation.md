@@ -26,7 +26,7 @@ humanizer, personalizer, retrieve-memory e integrate-from-docs. Nenhuma conversa
 MCP externo: zero. Graphify e claude-mem: não usados. README e guia acompanham a entrega.
 
 Desenvolvimento: página e modelo verificados localmente. Produção: não verificada.
-Próxima ação: pacote público e CI. O resumo da feature foi conciliado com este registro.
+Próxima ação: consumidores novos e existentes, com retorno. O resumo da feature foi conciliado com este registro.
 
 Task 2: primeiro navegador recebeu HTTP 404 antes da página existir. Depois o ensaio em Edge headless
 verificou 1280px/360px, combinação/vazio/limpeza, Tab/Shift+Tab/Enter/Espaço, foco, HTML literal
@@ -34,3 +34,11 @@ e falhas HTTP/JSON/rede. Capturas inspecionadas; zero processos próprios ao fim
 O servidor de prova usou Node e Playwright já disponível no host. Não se adicionou dependência ao projeto.
 Links externos apontam à main; disponibilidade real será conferida após integração.
 Vault validado: 20 notas, zero problemas. README e guia PT/EN atualizados com humanizer.
+
+Task 3: gerador testado após falha por módulo ausente. Oito testes Node: sete aprovados e um
+skip de symlink de arquivo por falta de privilégio no Windows; Linux precisa exercitar esse caso.
+O ensaio cria arquivos privados sintéticos ao lado da aplicação e confirma que apenas seis arquivos
+e o manifesto chegam ao staging. Destino existente é preservado; hardlinks e dados inválidos são recusados.
+A página recupera uma revisão válida do manifesto e conserva a prévia quando ele é inválido.
+Prova de navegador passou novamente, com processos próprios zerados. Workflow de CI preparado;
+a execução remota ainda não ocorreu. O manifesto não é assinatura nem autorização.

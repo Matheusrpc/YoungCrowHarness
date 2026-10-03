@@ -52,3 +52,14 @@ try {
   results.replaceChildren();
   message.textContent = 'Não foi possível carregar as entregas. Recarregue a página.';
 }
+
+try {
+  const response = await fetch('./manifest.json');
+  if (!response.ok) throw new Error('manifest_unavailable');
+  const manifest = await response.json();
+  if (manifest.schema_version !== 1 || typeof manifest.revision !== 'string' ||
+      !/^[a-f0-9]{40}$/.test(manifest.revision)) throw new Error('invalid_manifest');
+  document.querySelector('#release').textContent = `Revisão publicada: ${manifest.revision.slice(0, 12)}`;
+} catch {
+  document.querySelector('#release').textContent = 'Prévia local; versão publicada não consultada.';
+}

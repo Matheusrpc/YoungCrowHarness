@@ -15,7 +15,7 @@ index: "index.md"
 |---|---|---|---|
 | Dados e memória | Dados válidos, consulta combinada, índices | Tech Lead/executor | 4 testes do modelo passam |
 | Página | Controles nativos, vazio/erro, teclado e tela estreita | Executor | Verificada localmente |
-| Pacote e CI | Lista explícita, hashes e zero arquivos privados | Executor/revisor | Pendente |
+| Pacote e CI | Lista explícita, hashes e zero arquivos privados | Executor/revisor | Pacote local testado, CI/revisão pendentes |
 | Consumidores | Setup real, personalização e restauração exata | Executor | Pendente |
 | Retomada | Duas sessões novas, UUIDs e hashes reais | Clientes e executor | Pendente |
 | Publicação | Main protegida, Pages e observação externa | Mantenedor/executor | Pendente |

@@ -225,7 +225,7 @@ input, select, button { font: inherit; max-width: 100%; }
 
 `PUBLIC_FILES = ['index.html','style.css','app.mjs','model.mjs','data.json','gema-cobalto.svg']`. O resultado contém exatamente esses arquivos e `manifest.json`. O vault público é consultado pelo GitHub e não é enviado ao site. O gerador não copia diretórios recursivamente.
 
-- [ ] Escrever teste com diretório temporário e `node:assert/strict`, antes do gerador. Copiar somente os seis arquivos conhecidos da aplicação para uma fixture, acrescentar `.env`, `vault/local/private.md` e `unexpected.txt` e executar:
+- [x] Escrever teste com diretório temporário e `node:assert/strict`, antes do gerador. Copiar somente os seis arquivos conhecidos da aplicação para uma fixture, acrescentar `.env`, `vault/local/private.md` e `unexpected.txt` e executar:
 
 ```javascript
 const manifest = await build(source, destination, 'a'.repeat(40));
@@ -242,8 +242,8 @@ assert.equal(JSON.parse(await readFile(join(destination, 'manifest.json'), 'utf8
 
 Importar `readdir/readFile` de `node:fs/promises`, `join` de `node:path` e `createHash` de `node:crypto`. O teste importa `build, PUBLIC_FILES` do módulo. Usar `mkdtemp` e limpar apenas a fixture conhecida em `finally`.
 
-- [ ] Acrescentar casos com evidência inválida em `data.json`, revisão que não é SHA de 40 caracteres, arquivo ausente e symlink/hardlink no lugar de um arquivo permitido. Devem falhar antes da publicação. Onde symlink exigir privilégio inexistente no Windows, registrar skip explícito; Linux deve exercitá-lo. Garantir que título não vira HTML na página pela prova da Task 2.
-- [ ] Rodar `node --test examples/delivery-board/tests/package.test.mjs` e observar falha pelo gerador ausente. Implementar usando `lstat`, `readFile`, `mkdir` exclusivo e escrita de bytes. Conferir `isFile`, `!isSymbolicLink`, `nlink === 1` nos seis arquivos; ler/validar tudo antes de criar destino. Validar também a raiz de origem e recusar diretórios/arquivos ligados. Recusar destino dentro da origem e destino existente; não apagar diretório para repetir build.
+- [x] Acrescentar casos com evidência inválida em `data.json`, revisão que não é SHA de 40 caracteres, arquivo ausente e symlink/hardlink no lugar de um arquivo permitido. Devem falhar antes da publicação. Onde symlink exigir privilégio inexistente no Windows, registrar skip explícito; Linux deve exercitá-lo. Garantir que título não vira HTML na página pela prova da Task 2.
+- [x] Rodar `node --test examples/delivery-board/tests/package.test.mjs` e observar falha pelo gerador ausente. Implementar usando `lstat`, `readFile`, `mkdir` exclusivo e escrita de bytes. Conferir `isFile`, `!isSymbolicLink`, `nlink === 1` nos seis arquivos; ler/validar tudo antes de criar destino. Validar também a raiz de origem e recusar diretórios/arquivos ligados. Recusar destino dentro da origem e destino existente; não apagar diretório para repetir build.
 
 ```javascript
 const manifest = {schema_version: 1, revision, files: {}};
@@ -257,8 +257,8 @@ await writeFile(join(destination, 'manifest.json'), JSON.stringify(manifest, nul
 
 `preparedFiles` é o array local `[nome, Buffer][]` resultante da leitura validada. O CLI só chama `build` quando executado diretamente; importar em teste não escreve arquivos. Emitir erro curto, não conteúdos de dados privados. Falha de escrita pode deixar staging incompleto, mas deve retornar código não zero, impedindo upload.
 
-- [ ] Completar a leitura de `./manifest.json` na página. Mostrar a revisão como informação separada dos estados fictícios. Quando não existir no servidor de fontes, mostrar “Prévia local; versão publicada não consultada.”; não alterar os resultados dos filtros.
-- [ ] Acrescentar job `public-pilot` ao workflow de teste existente, com Node 24 e ações fixadas. Ele roda testes Node, valida o vault com `cwd` do exemplo e prepara um pacote sob `$RUNNER_TEMP/public-pilot`. Não instalar Node no job/instalador dos consumidores que não o exigem.
+- [x] Completar a leitura de `./manifest.json` na página. Mostrar a revisão como informação separada dos estados fictícios. Quando não existir no servidor de fontes, mostrar “Prévia local; versão publicada não consultada.”; não alterar os resultados dos filtros.
+- [x] Acrescentar job `public-pilot` ao workflow de teste existente, com Node 24 e ações fixadas. Ele roda testes Node, valida o vault com `cwd` do exemplo e prepara um pacote sob `$RUNNER_TEMP/public-pilot`. Não instalar Node no job/instalador dos consumidores que não o exigem.
 
 ```yaml
   public-pilot:
@@ -274,7 +274,7 @@ await writeFile(join(destination, 'manifest.json'), JSON.stringify(manifest, nul
       - run: node examples/delivery-board/package.mjs "$RUNNER_TEMP/public-pilot" "$GITHUB_SHA"
 ```
 
-- [ ] Conferir os testes Node, o pacote real e a validação do vault. Atualizar o guia com build e limitação do manifesto: atesta conteúdo/revisão, não aprovação ou autenticação. Commit: `feat: validar pacote publico do piloto`.
+- [x] Conferir os testes Node, o pacote real e a validação do vault. Atualizar o guia com build e limitação do manifesto: atesta conteúdo/revisão, não aprovação ou autenticação. Commit: `feat: validar pacote publico do piloto`.
 
 ### Task 4: projeto novo, migração e retorno usando a aplicação
 

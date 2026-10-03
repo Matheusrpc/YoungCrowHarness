@@ -25,5 +25,12 @@ Skills lidas/usadas pelo executor: executing-plans, test-driven-development, kar
 humanizer, personalizer, retrieve-memory e integrate-from-docs. Nenhuma conversa nativa nova nesta etapa.
 MCP externo: zero. Graphify e claude-mem: não usados. README e guia acompanham a entrega.
 
-Desenvolvimento: modelo e dados verificados; página pendente. Produção: não verificada.
-Próxima ação: página e prova de interação. O resumo da feature foi conciliado com este registro.
+Desenvolvimento: página e modelo verificados localmente. Produção: não verificada.
+Próxima ação: pacote público e CI. O resumo da feature foi conciliado com este registro.
+
+Task 2: primeiro navegador recebeu HTTP 404 antes da página existir. Depois o ensaio em Edge headless
+verificou 1280px/360px, combinação/vazio/limpeza, Tab/Shift+Tab/Enter/Espaço, foco, HTML literal
+e falhas HTTP/JSON/rede. Capturas inspecionadas; zero processos próprios ao fim, servidor encerrado.
+O servidor de prova usou Node e Playwright já disponível no host. Não se adicionou dependência ao projeto.
+Links externos apontam à main; disponibilidade real será conferida após integração.
+Vault validado: 20 notas, zero problemas. README e guia PT/EN atualizados com humanizer.

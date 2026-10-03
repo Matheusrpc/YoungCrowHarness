@@ -26,4 +26,4 @@ avalia diff e evidências. Esses são papéis, sem orquestração autônoma. O o
 
 Comando verificado: `node --test tests/model.test.mjs` a partir da pasta do exemplo.
 O aceite completo está na feature. Fontes e recibos privados não acompanham os arquivos públicos.
-Desenvolvimento: modelo e dados testados. Produção: ainda não verificada.
+Desenvolvimento: página, modelo e dados testados. Produção: ainda não verificada.

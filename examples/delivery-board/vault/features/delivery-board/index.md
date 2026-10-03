@@ -20,15 +20,15 @@ Responsável pela aprovação: mantenedor. Execução: Codex nesta sessão, um e
 
 | Aceite | Estado observado |
 |---|---|
-| P01: lista, combinação de filtros, vazio, limpeza e entrada inválida | Modelo: 4 testes passam; página pendente |
-| P02: teclado, tela estreita e processos encerrados | Pendente |
+| P01: lista, combinação de filtros, vazio, limpeza e entrada inválida | 4 testes e percurso de navegador passam |
+| P02: teclado, tela estreita e processos encerrados | Verificado localmente em 1280px e 360px; zero processos próprios |
 | P03: setup novo e migração preservando instruções | Pendente para esta aplicação |
 | P04: ponto inicial restaurado e trabalho do trial preservado | Pendente para esta aplicação |
-| P05: índices, identidade, links e resumo conciliado | Notas preparadas; validação registrada na execução |
+| P05: índices, identidade, links e resumo conciliado | 20 notas, zero problemas no validador |
 | P06: retomada em sessões novas de Claude e Codex | Pendente |
 | P07: pacote permitido e CI | Pendente |
 | P08: publicação observada e manifesto conferido | Pendente |
 | P09: roteiro PT/EN, README e processos | Documentação em andamento |
 
-Desenvolvimento: modelo e dados implementados, página ainda pendente. Produção: não verificada.
-Próxima ação: implementar e verificar a página; consultar a execução para o detalhe de cada prova.
+Desenvolvimento: página, modelo e dados verificados localmente. Produção: não verificada.
+Próxima ação: construir e validar o pacote público; consultar a execução para o detalhe de cada prova.

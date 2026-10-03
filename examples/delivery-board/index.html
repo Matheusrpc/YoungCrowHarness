@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Um exemplo público do YoungCrowHarness: entregas, critérios e memória que podem ser retomados.">
+  <title>Quadro de entregas · YoungCrowHarness</title>
+  <link rel="icon" href="./gema-cobalto.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#quadro">Ir para as entregas</a>
+  <header class="masthead">
+    <a class="brand" href="https://github.com/Matheusrpc/YoungCrowHarness">
+      <img src="./gema-cobalto.svg" width="32" height="32" alt="">
+      <span>YoungCrow<span class="brand-light">Harness</span></span>
+    </a>
+    <a class="repo-link" href="https://github.com/Matheusrpc/YoungCrowHarness/tree/main/examples/delivery-board">Abrir o roteiro <span aria-hidden="true">↗</span></a>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="title">
+      <p class="eyebrow">PILOTO PÚBLICO · QUADRO DE ENTREGAS</p>
+      <h1 id="title">Da ideia<br>à entrega.</h1>
+      <p class="lead">Cada frente guarda seus critérios, decisões e evidências.
+        Retome pelo tema e acompanhe o que falta para publicar.</p>
+      <p class="demo-note"><span class="demo-dot" aria-hidden="true"></span><strong>Dados fictícios para demonstrar o processo.</strong>
+        Os estados abaixo ilustram uma equipe. A publicação real deste exemplo é registrada separadamente.</p>
+    </section>
+    <ol class="process" aria-label="Etapas de uma entrega">
+      <li><span class="step-number">01</span><div><strong>Descobrir</strong><span>Ideia, contexto e limites</span></div></li>
+      <li><span class="step-number">02</span><div><strong>Construir</strong><span>Pequenas entregas e testes</span></div></li>
+      <li><span class="step-number">03</span><div><strong>Verificar</strong><span>Revisão e evidências</span></div></li>
+      <li><span class="step-number">04</span><div><strong>Publicar</strong><span>Observar e registrar</span></div></li>
+    </ol>
+    <section id="quadro" aria-labelledby="board-title">
+      <div class="section-heading"><h2 id="board-title">Frentes de trabalho</h2><span class="section-note">CENÁRIO DE DEMONSTRAÇÃO</span></div>
+      <div class="filters">
+        <div><label for="status">Estado da entrega</label><select id="status" disabled>
+          <option value="all">Todos os estados</option><option value="planned">Planejada</option>
+          <option value="development">Em desenvolvimento</option>
+          <option value="production">Em produção no cenário fictício</option>
+        </select></div>
+        <div><label for="query">Buscar entrega</label><input id="query" type="search" placeholder="Nome ou objetivo da entrega" disabled></div>
+        <button id="clear" type="button" disabled>Limpar filtros</button>
+      </div>
+      <p id="message" role="status" aria-live="polite">Carregando entregas…</p>
+      <ul id="results" role="list"></ul>
+      <noscript><p>Ative JavaScript para consultar os filtros. Os dados e o vault também estão disponíveis no repositório.</p></noscript>
+    </section>
+    <aside class="memory-note">
+      <div><p class="eyebrow">O CONTEXTO CONTINUA</p><h2>Uma próxima sessão<br>começa pelos índices.</h2></div>
+      <div><p>O vault liga a feature à decisão, à execução e ao estado observado em produção.
+        Os registros permitem conferir de onde veio cada conclusão.</p>
+        <a href="https://github.com/Matheusrpc/YoungCrowHarness/blob/main/examples/delivery-board/vault/index.md">Percorrer o vault <span aria-hidden="true">↗</span></a></div>
+    </aside>
+  </main>
+  <footer>
+    <p>YoungCrowHarness · Exemplo aberto</p>
+    <p id="release">Prévia local; versão publicada não consultada.</p>
+  </footer>
+</body>
+</html>

@@ -68,7 +68,7 @@ Antes da Task 1, ler spec e plano, confirmar checkout exclusivo, base e arquivos
 - `Feature = {id: string, title: string, summary: string, status: 'planned'|'development'|'production', acceptance: string[], evidence: string[]}`. O estado pertence ao cenário fictício.
 - `EVIDENCE_URLS` é uma constante com as URLs HTTPS públicas exatas dos três destinos: `vault/features/delivery-board/index.md`, `vault/decisions/static-site.md` e `vault/operations/index.md`, sob `https://github.com/Matheusrpc/YoungCrowHarness/blob/main/examples/delivery-board/`.
 
-- [ ] Criar o teste abaixo antes do módulo. Acrescentar os casos de IDs repetidos, estado desconhecido, chave inesperada, array vazio válido e cada link inválido listado.
+- [x] Criar o teste abaixo antes do módulo. Acrescentar os casos de IDs repetidos, estado desconhecido, chave inesperada, array vazio válido e cada link inválido listado.
 
 ```javascript
 import test from 'node:test';
@@ -101,8 +101,8 @@ test('marcação permanece texto; destino precisa estar revisado', () => {
 });
 ```
 
-- [ ] Rodar `node --test examples/delivery-board/tests/model.test.mjs`; confirmar que falha pela ausência do módulo. Guardar saída privada, sem registrar um número de testes ainda desconhecido.
-- [ ] Implementar validação pequena: array com até 100 features, chaves exatas do contrato, ID não vazio e único, textos não vazios de até 2.000 caracteres, listas de aceite/evidência com 1 a 20 entradas; cada evidência pertence a `EVIDENCE_URLS`. Usar o filtro abaixo após validar os dados na fronteira de carga.
+- [x] Rodar `node --test examples/delivery-board/tests/model.test.mjs`; confirmar que falha pela ausência do módulo. Guardar saída privada, sem registrar um número de testes ainda desconhecido.
+- [x] Implementar validação pequena: array com até 100 features, chaves exatas do contrato, ID não vazio e único, textos não vazios de até 2.000 caracteres, listas de aceite/evidência com 1 a 20 entradas; cada evidência pertence a `EVIDENCE_URLS`. Usar o filtro abaixo após validar os dados na fronteira de carga.
 
 ```javascript
 const BASE = 'https://github.com/Matheusrpc/YoungCrowHarness/blob/main/examples/delivery-board/';
@@ -137,8 +137,8 @@ export function selectFeatures(features, status = 'all', query = '') {
 }
 ```
 
-- [ ] Gravar três itens fictícios em `data.json`: listar entregas (`production`), filtrar entregas (`development`) e exportar relatório (`planned`). Declarar que exportação é um dado do cenário, sem implementação ou botão que prometa essa função. O teste carrega também o JSON real e passa por `validateFeatures`.
-- [ ] Inicializar o vault do exemplo usando os helpers existentes, com o diretório do exemplo como `cwd`. Não instalar o harness dentro da pasta pública do exemplo.
+- [x] Gravar três itens fictícios em `data.json`: listar entregas (`production`), filtrar entregas (`development`) e exportar relatório (`planned`). Declarar que exportação é um dado do cenário, sem implementação ou botão que prometa essa função. O teste carrega também o JSON real e passa por `validateFeatures`.
+- [x] Inicializar o vault do exemplo usando os helpers existentes, com o diretório do exemplo como `cwd`. Não instalar o harness dentro da pasta pública do exemplo.
 
 ```powershell
 Push-Location examples/delivery-board
@@ -149,7 +149,7 @@ try {
 } finally { Pop-Location }
 ```
 
-- [ ] Preencher os registros gerados com o contexto aprovado e os resultados reais. Usar `integrations.note(project_id, path, kind, title, parent, body, now)` para notas manuais e UUID estável por caminho. Gerar uma identidade própria do exemplo, diferente da raiz do harness. Acrescentar `vault/decisions/static-site.md` e `vault/capabilities/index.md`; fazer cada índice apontar de volta às suas notas.
+- [x] Preencher os registros gerados com o contexto aprovado e os resultados reais. Usar `integrations.note(project_id, path, kind, title, parent, body, now)` para notas manuais e UUID estável por caminho. Gerar uma identidade própria do exemplo, diferente da raiz do harness. Acrescentar `vault/decisions/static-site.md` e `vault/capabilities/index.md`; fazer cada índice apontar de volta às suas notas.
 
 | Nota | Conteúdo obrigatório |
 |---|---|
@@ -164,10 +164,10 @@ try {
 | `vault/capabilities/index.md` | Skills necessárias versus lidas/usadas; MCP sem requisito; Graphify opcional e sem prova presumida |
 | `vault/operations/index.md` | Publicação desconhecida até observação externa; procedimento de retorno |
 
-- [ ] Na integração pública, registrar apenas a URL oficial e a decisão própria revisada. A extração Docling já existe no vault privado do harness; conservar sua relação com a frente, sem copiar sua transcrição, caminhos ou recibos para este vault público. Não ingerir novamente sem mudança da fonte ou necessidade demonstrada.
-- [ ] Acrescentar `/examples/delivery-board/vault/local/` ao `.gitignore` antes de qualquer uso local do vault do exemplo. Conferir `git check-ignore -v examples/delivery-board/vault/local/probe.md`; isso verifica a regra sem criar ou publicar uma nota privada. A regra existente `/vault/local/` protege apenas o vault da raiz.
-- [ ] Rodar o teste Node e, com `cwd=examples/delivery-board`, `python ../../scripts/vault.py check --json`. Esperar código 0 e `issues: []`; ler também a nota de feature e conferir seu estado com a execução.
-- [ ] Documentar que listagem/filtro de dados têm prova local e que a página/produção ainda estão pendentes. Revisar a prosa com humanizer. Fazer commit por caminhos explícitos: `feat: definir dados e memoria do piloto publico`.
+- [x] Na integração pública, registrar apenas a URL oficial e a decisão própria revisada. A extração Docling já existe no vault privado do harness; conservar sua relação com a frente, sem copiar sua transcrição, caminhos ou recibos para este vault público. Não ingerir novamente sem mudança da fonte ou necessidade demonstrada.
+- [x] Acrescentar `/examples/delivery-board/vault/local/` ao `.gitignore` antes de qualquer uso local do vault do exemplo. Conferir `git check-ignore -v examples/delivery-board/vault/local/probe.md`; isso verifica a regra sem criar ou publicar uma nota privada. A regra existente `/vault/local/` protege apenas o vault da raiz.
+- [x] Rodar o teste Node e, com `cwd=examples/delivery-board`, `python ../../scripts/vault.py check --json`. Esperar código 0 e `issues: []`; ler também a nota de feature e conferir seu estado com a execução.
+- [x] Documentar que listagem/filtro de dados têm prova local e que a página/produção ainda estão pendentes. Revisar a prosa com humanizer. Fazer commit por caminhos explícitos: `feat: definir dados e memoria do piloto publico`.
 
 ### Task 2: página acessível e prova do percurso no navegador
 
@@ -175,8 +175,8 @@ try {
 
 **Interfaces:** `app.mjs` importa o contrato da Task 1; carrega `./data.json`; usa `selectFeatures` nos eventos dos controles. Não exportar um framework de componentes. IDs: `status`, `query`, `clear`, `results`, `message`, `release`.
 
-- [ ] Escrever no run o roteiro esperado antes de implementar. Conferir que a ausência da página impede o percurso: abrir, listar três itens, combinar filtros, obter vazio, limpar e abrir a evidência pública. Essa observação é o primeiro teste de UI; não criar um teste que só procure strings no HTML.
-- [ ] Implementar HTML semântico com título, aviso permanente “Dados fictícios para demonstrar o processo”, rótulos de estado e busca, botão Limpar, lista de resultados e detalhe de critérios. Usar `<details><summary>` para os detalhes, controles nativos e região `aria-live="polite"` para contagem/vazio. Marcar o documento `lang="pt-BR"`.
+- [x] Escrever no run o roteiro esperado antes de implementar. Conferir que a ausência da página impede o percurso: abrir, listar três itens, combinar filtros, obter vazio, limpar e abrir a evidência pública. Essa observação é o primeiro teste de UI; não criar um teste que só procure strings no HTML.
+- [x] Implementar HTML semântico com título, aviso permanente “Dados fictícios para demonstrar o processo”, rótulos de estado e busca, botão Limpar, lista de resultados e detalhe de critérios. Usar `<details><summary>` para os detalhes, controles nativos e região `aria-live="polite"` para contagem/vazio. Marcar o documento `lang="pt-BR"`.
 
 ```html
 <label for="status">Estado da entrega</label>
@@ -192,7 +192,7 @@ try {
 <p id="release">Revisão da demonstração ainda não consultada.</p>
 ```
 
-- [ ] Renderizar por `createElement`, `textContent` e `replaceChildren`. Criar links somente após `validateFeatures`; mantê-los na mesma aba. HTTP não-2xx, JSON inválido e falha de rede devem mostrar “Não foi possível carregar as entregas. Recarregue a página.” e limpar a lista. Vazio deve dizer “Nenhuma entrega corresponde aos filtros.”, preservando os controles. Manter falha no manifesto separada da carga de dados.
+- [x] Renderizar por `createElement`, `textContent` e `replaceChildren`. Criar links somente após `validateFeatures`; mantê-los na mesma aba. HTTP não-2xx, JSON inválido e falha de rede devem mostrar “Não foi possível carregar as entregas. Recarregue a página.” e limpar a lista. Vazio deve dizer “Nenhuma entrega corresponde aos filtros.”, preservando os controles. Manter falha no manifesto separada da carga de dados.
 
 ```javascript
 const response = await fetch('./data.json');
@@ -203,7 +203,7 @@ const title = document.createElement('h2');
 title.textContent = item.title;
 ```
 
-- [ ] Aplicar fundo `#17130f`, texto `#F3E7C6`, gema local, títulos serifados, corpo legível, largura máxima de leitura, bordas discretas e foco contrastante. Usar grid/flex com quebra em tela estreita; evitar altura fixa e estado transmitido apenas por cor. Sem biblioteca de UI, fonte externa ou rastreamento.
+- [x] Aplicar fundo `#17130f`, texto `#F3E7C6`, gema local, títulos serifados, corpo legível, largura máxima de leitura, bordas discretas e foco contrastante. Usar grid/flex com quebra em tela estreita; evitar altura fixa e estado transmitido apenas por cor. Sem biblioteca de UI, fonte externa ou rastreamento.
 
 ```css
 :root { color-scheme: dark; background: #17130f; color: #F3E7C6; }
@@ -213,9 +213,9 @@ input, select, button { font: inherit; max-width: 100%; }
 :focus-visible { outline: 3px solid #F3E7C6; outline-offset: 4px; }
 #results { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1rem; padding: 0; list-style: none; }
 ```
-- [ ] Servir localmente por `python -m http.server 8765 --bind 127.0.0.1 --directory examples/delivery-board`, anotando PID próprio. No navegador verificar 1280px e 360px, Tab/Shift+Tab/Enter/Espaço, foco, detalhe, filtros e limpeza. Usar dados de ensaio privados para testar título com HTML literal e a resposta de erro; restaurar os bytes revisados antes do commit. Capturas locais devem distinguir prova visual de teste automatizado.
-- [ ] Encerrar servidor e navegador próprios em `finally`, medir zero processos próprios remanescentes, rodar teste Node e validação do vault. Não abrir navegador durante chamadas nativas de modelo.
-- [ ] Atualizar estado e instruções locais PT/EN; gravar comando/viewport/resultado no run sem chamar produção de verificada. Commit: `feat: demonstrar entregas e filtros no piloto`.
+- [x] Servir localmente por `python -m http.server 8765 --bind 127.0.0.1 --directory examples/delivery-board`, anotando PID próprio. No navegador verificar 1280px e 360px, Tab/Shift+Tab/Enter/Espaço, foco, detalhe, filtros e limpeza. Usar dados de ensaio privados para testar título com HTML literal e a resposta de erro; restaurar os bytes revisados antes do commit. Capturas locais devem distinguir prova visual de teste automatizado.
+- [x] Encerrar servidor e navegador próprios em `finally`, medir zero processos próprios remanescentes, rodar teste Node e validação do vault. Não abrir navegador durante chamadas nativas de modelo.
+- [x] Atualizar estado e instruções locais PT/EN; gravar comando/viewport/resultado no run sem chamar produção de verificada. Commit: `feat: demonstrar entregas e filtros no piloto`.
 
 ### Task 3: pacote público verificável e CI
 

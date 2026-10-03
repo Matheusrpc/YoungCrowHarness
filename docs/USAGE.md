@@ -12,10 +12,10 @@ See the [usage diagrams](../README.md#process-en) for new projects, adoption, da
 The [complete process](PROCESS.md#english) includes decisions, pauses and resumption.
 
 O [piloto público](../examples/delivery-board/README.md) reúne esses percursos em um exemplo com
-vault próprio. Os dados e a consulta por estado/busca têm testes locais; página e publicação estão em implementação.
+vault próprio. A página e os filtros foram verificados localmente, incluindo teclado e tela estreita; publicação e adoção estão em andamento.
 
 The [public pilot](../examples/delivery-board/README.md) brings these paths together in an example
-with its own vault. Data and status/search selection have local tests; the page and publication are being implemented.
+with its own vault. The page and filters were checked locally, including keyboard navigation and a narrow viewport; publication and adoption are in progress.
 
 Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;
 `python scripts/capabilities.py describe retrieve-memory --json` apresenta o contrato. A leitura

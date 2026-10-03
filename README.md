@@ -765,3 +765,13 @@ calls or MCP connections and does not prove third-party plugin execution.
 <p align="center">
   <img src="assets/assinatura.svg" alt="☧ Ora et labora ☧ et coda &lt;/&gt;" width="100%">
 </p>
+
+<!-- mission-client-adapters -->
+
+O [diagnóstico dos clientes](docs/USAGE.md#mission-client-checks) consulta modelos e esforços
+pelo catálogo nativo. `latest` usa a recomendação disponível na conta; nomes explícitos fixam a
+escolha. O adaptador recusa combinações incompatíveis. A inspeção não executa uma missão.
+
+[Client diagnostics](docs/USAGE.md#mission-client-checks) read models and efforts from the native
+catalog. `latest` uses the account's available recommendation; explicit names pin the choice.
+The adapter rejects unsupported combinations. Inspection does not execute a mission.

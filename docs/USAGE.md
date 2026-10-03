@@ -1638,3 +1638,20 @@ journal, `status` can return `invalid_store` without writing. Explicit `repair` 
 before validating the supported schema and projecting notes. Incompatible stores remain rejected.
 Retry a first write that left an empty database. Aggregated projections over 1 MiB use streaming hashes;
 source-note limits remain unchanged.
+
+<a id="mission-client-checks"></a>
+
+## Modelos e diagnóstico / Models and diagnostics
+
+Os adaptadores consultam o catálogo do cliente instalado e os esforços aceitos por modelo.
+`latest` seleciona a recomendação atual desse cliente para a conta autenticada. A recomendação
+pode diferir do lançamento mais recente do fornecedor. Um nome explícito mantém a escolha fixa;
+a execução recusa combinações ausentes no catálogo. `native` permite escolher esforços adicionais
+anunciados pelo cliente. Inspeção não comprova uma chamada ao modelo. O executor de diagnóstico
+está em implementação; a missão permanece com `runnable: false`.
+
+Adapters read the installed client's model and effort catalog. `latest` resolves the client's current
+account recommendation, which may differ from the provider's newest release. Choose an explicit
+model to pin it, and use `native` for additional effort levels advertised by that client. Unsupported
+combinations fail without a fallback. Inspection does not prove model execution. The diagnostic
+executor is being implemented; missions remain `runnable: false`.

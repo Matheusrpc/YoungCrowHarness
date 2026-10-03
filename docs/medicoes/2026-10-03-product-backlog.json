@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "front": "product-backlog-and-runtime-adapter-plan",
+  "observed_at": "2026-10-03T20:39:50.395853+00:00",
+  "base_commit": "979c018605700fe89e99ca2362be66fefd9eead2",
+  "document_paths": [
+    "README.md",
+    "docs/BACKLOG.md",
+    "docs/superpowers/plans/2026-10-03-mission-runtime-adapters.md"
+  ],
+  "sha256": {
+    "README.md": "78cc241da115c7e2ec06e109f1f25e0159537d5a68e52547591cfc8ffdb7663e",
+    "docs/BACKLOG.md": "f6713eb042e57a17eb9a8ac34ca773ed2b91992cd32d46ac32b3757fb52e779c",
+    "docs/superpowers/plans/2026-10-03-mission-runtime-adapters.md": "5f1ad0fb85306697b36a5d2a546d53f150f4329e87ff815882a47201bac375cd"
+  },
+  "local_links_checked": 174,
+  "local_link_issues": [],
+  "mandatory_pending_items": 25,
+  "optional_candidates": 4,
+  "dependency_graph": "acyclic",
+  "next_plan_tasks": 3,
+  "python_examples": "syntax_valid",
+  "assets_changed": false,
+  "implementation_in_this_delivery": false,
+  "native_model_calls": 0,
+  "product_tests_in_this_delivery": "not_run_documentation_only",
+  "plan_state": "awaiting_written_plan_review"
+}

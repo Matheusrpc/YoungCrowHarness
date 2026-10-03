@@ -3,7 +3,9 @@
 Frente: continuidade de memória. Duas sessões independentes do Codex consultaram o Graphify na
 instalação atualizada. A primeira salvou um handoff; a segunda encontrou o registro pelo índice,
 conferiu sua identidade e revisão e recuperou as cinco fontes. Ambas terminaram sem timeout ou
-fallback. M04 permanece parcial porque a prova autenticada no Claude ainda está pendente.
+fallback. A [continuação autenticada no Claude](2026-10-02-claude-memory-capabilities.md) acrescenta
+handoff, revisão alterada e permissões MCP. M04 permanece parcial: falta a prova ao vivo com
+termo idêntico em outro projeto. As medições abaixo preservam esta rodada Codex.
 
 ## Instalação e método
 

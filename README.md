@@ -210,6 +210,7 @@ o aviso de extração parcial. Os formatos, limites e comandos estão no [guia d
 Os vínculos locais registram a revisão usada e um trecho de evidência para relacionar a fonte a features
 ou decisões. Contradições começam como hipóteses; o sentido da relação precisa ser revisado.
 O hook `UserPromptSubmit` registra referências textuais e chama a atenção do agente para `ingest-source`.
+Ele ignora curingas de comandos e notas Markdown do próprio vault para evitar cadastros durante uma retomada.
 Ele não baixa nem converte documentos. A skill recupera fontes anteriores, executa a ingestão e registra
 relações, capacidades usadas e próxima ação. Anexos sem caminho exposto ficam pendentes; invoque a skill
 explicitamente quando o cliente não entregar a referência ao hook. O [contrato de ingestão](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
@@ -241,7 +242,7 @@ registra quatro entregas e sua cobertura:
 1. Verificado: documentos locais, Markdown, origem, revisões e retomada após interrupção, com proteção contra versionamento acidental.
 2. Verificado: vínculos com evidência, cópias para revisão e publicação local sem expor a proveniência privada.
 3. Verificado: URLs diretas, áudio e vídeo, com intervalos de transcrição, quadros, limites e falhas registrados.
-4. Codex: ingestão e retomada verificadas em duas sessões reais. Claude Code: descoberta verificada; conversa real pendente de login. Veja a [matriz e os limites](docs/relatorios/2026-10-02-docling-ingestion.md).
+4. Codex: ingestão e retomada verificadas em duas sessões reais. Claude Code: descoberta verificada; ingestão completa em conversa ainda pendente. Veja a [matriz e os limites](docs/relatorios/2026-10-02-docling-ingestion.md).
 
 A consulta Markdown, o Graphify opcional e a skill compartilhada estão implementados. O
 [plano de memória](docs/superpowers/plans/2026-10-02-memory-discovery.md) mantém a prova de cada
@@ -251,13 +252,15 @@ auxiliar do Graphify que causava timeout no Windows com permissões restritas. O
 consulta sem alterar a geração do índice; a prova nativa passou mantendo o vault protegido.
 Duas [sessões reais com a instalação atual](docs/relatorios/2026-10-02-memory-current-clients.md)
 também passaram: o handoff foi encontrado pelos índices, com UUIDs/revisões conferidos e Graphify
-sem fallback. A retomada preservou as notas e o grafo. Claude Code tem descoberta verificada
-e conversa real pendente de login. M04 permanece parcial.
+sem fallback. A retomada preservou as notas e o grafo. O [ensaio autenticado no Claude](docs/relatorios/2026-10-02-claude-memory-capabilities.md)
+recuperou o handoff do Codex, salvou outro e reconheceu uma revisão alterada: usou Markdown com
+o grafo obsoleto e Graphify após reconstrução explícita. M04 permanece parcial; falta a prova
+ao vivo com termo idêntico em outro projeto.
 O [relatório](docs/relatorios/2026-10-02-memory-discovery.md) registra o estado atual de M01–M04.
 A [governança de skills, agentes e MCPs](docs/superpowers/specs/2026-10-02-capability-governance-design.md)
 entrega catálogo verificável, auditoria offline, pacotes privados e uma skill comum aos dois clientes.
-No ensaio sintético nativo, o Codex permitiu a ferramenta prevista, recusou a proibida e confirmou
-revogação/restauração em sessões novas. A prova equivalente no Claude permanece pendente. Veja a
+Nos ensaios sintéticos nativos, Codex e Claude permitiram a ferramenta prevista, recusaram a
+proibida e confirmaram revogação/restauração em sessões novas. Veja a
 [matriz de evidências](docs/relatorios/2026-10-02-capability-governance.md). O catálogo já pode ser consultado
 com `python scripts/capabilities.py list` e `describe ID`. `audit --client both --json` compara arquivos
 e configurações sem iniciar MCPs. `review --id ID` prepara um pacote privado; `review --check DIGEST`
@@ -517,6 +520,7 @@ partial-extraction warning. See the [usage guide](docs/USAGE.md#docling-en) for 
 Local relations record the source revision and a supporting quote to link it to features or decisions.
 Contradictions start as hypotheses; the meaning of a relationship still needs review.
 The `UserPromptSubmit` hook records textual references and directs the agent to `ingest-source`.
+It skips command globs and Markdown notes inside the project's vault to avoid new source records during recovery.
 It does not download or convert documents. The skill recovers prior sources, performs ingestion and
 records relations, actual capabilities and the next action. Attachments without an exposed path stay
 pending; invoke the skill explicitly when the client does not pass a reference to the hook. The [ingestion contract](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
@@ -548,7 +552,7 @@ records four deliveries and their coverage:
 1. Verified: local documents, Markdown, origin, revisions and resumption after interruption, protected against accidental tracking.
 2. Verified: evidence-backed relations, review copies and local publication without private provenance.
 3. Verified: direct URLs, audio and video, with transcript intervals, frames, limits and failures recorded.
-4. Codex: ingestion and recovery verified in two real sessions. Claude Code: discovery verified; live conversation pending login. See the [matrix and limits](docs/relatorios/2026-10-02-docling-ingestion.md).
+4. Codex: ingestion and recovery verified in two real sessions. Claude Code: discovery verified; full ingestion in a conversation still pending. See the [matrix and limits](docs/relatorios/2026-10-02-docling-ingestion.md).
 
 Markdown retrieval, optional Graphify and the shared skill are implemented. The
 [memory plan](docs/superpowers/plans/2026-10-02-memory-discovery.md) tracks each client separately:
@@ -558,13 +562,15 @@ write that timed out under restricted Windows permissions. The adapter now queri
 the index generation; the native probe passed while keeping the vault protected. Two
 [real sessions on a current installation](docs/relatorios/2026-10-02-memory-current-clients.md)
 also passed: the handoff was found through the indices, UUIDs/revisions were checked and Graphify
-completed without fallback. Recovery preserved the notes and graph. Claude Code discovery is
-verified; model conversation awaits login. M04 remains partial. The
+completed without fallback. Recovery preserved the notes and graph. The [authenticated Claude test](docs/relatorios/2026-10-02-claude-memory-capabilities.md)
+recovered the Codex handoff, saved another and recognized a changed revision: it used Markdown
+with the stale graph and Graphify after an explicit rebuild. M04 remains partial; the live test
+with an identical term in another project is still pending. The
 [report](docs/relatorios/2026-10-02-memory-discovery.md) records current M01–M04 evidence.
 [Skill, agent and MCP governance](docs/superpowers/specs/2026-10-02-capability-governance-design.md)
 provides a verifiable catalog, offline auditing, private review bundles and a shared skill.
-The native synthetic Codex probe allowed the intended tool, rejected the forbidden tool and verified
-revocation/restoration in fresh sessions. Equivalent Claude proof remains pending. See the
+The native synthetic Codex and Claude tests allowed the intended tool, rejected the forbidden tool
+and verified revocation/restoration in fresh sessions. See the
 [evidence matrix](docs/relatorios/2026-10-02-capability-governance.md). The catalog can be queried
 with `python scripts/capabilities.py list` and `describe ID`. `audit --client both --json` compares files
 and configuration without starting MCPs. `review --id ID` prepares a private bundle; `review --check DIGEST`

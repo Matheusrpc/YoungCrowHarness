@@ -3,11 +3,13 @@
 Continuação: a [rodada entre sessões](2026-10-02-memory-continuity.md) registra a correção da
 escrita auxiliar do Graphify e distingue as conversas anteriores do controle nativo após o ajuste.
 A [prova seguinte](2026-10-02-memory-current-clients.md) confirmou duas sessões reais do Codex
-com instalação atualizada, sem timeout ou fallback. As medições abaixo preservam o ensaio original.
+com instalação atualizada, sem timeout ou fallback. A [rodada Claude autenticada](2026-10-02-claude-memory-capabilities.md)
+comprovou handoff, revisão alterada e retorno ao Graphify. A matriz abaixo inclui essas continuações;
+as demais medições preservam o ensaio original.
 
 Frente: memória consultável. O vault Markdown continua sendo o registro principal. A entrega
 acrescenta seleção explícita, consulta com identidade/revisão, Graphify opcional e a skill comum
-`retrieve-memory`. A prova de modelo no Claude Code permanece pendente de login; M04 é parcial.
+`retrieve-memory`. M04 é parcial: falta a prova ao vivo com termo idêntico em outro projeto.
 
 ## Escopo e estados
 
@@ -16,7 +18,7 @@ acrescenta seleção explícita, consulta com identidade/revisão, Graphify opci
 | M01 — seleção e consulta | Corpus sintético; UUID por projeto/nota, revisão SHA-256, limites, links e isolamento | Verificado localmente |
 | M02 — Graphify | Pacote 0.9.73 real, Python 3.12.10 no Windows e 3.12.3 no Ubuntu 24.04, construção/consulta e títulos iguais sem fusão | Verificado no Windows e Linux |
 | M03 — atualização | Reuso sem nova construção, mudança durante build/query, remoção, rename, cache adulterado e retorno ao Markdown | Verificado localmente |
-| M04 — clientes | Descoberta real nos dois clientes; sessões independentes do Codex; Claude sem autenticação | Parcial |
+| M04 — clientes | Descoberta e passagem entre sessões nos dois clientes; revisão alterada e fallback no Claude. Falta termo idêntico em outro projeto em sessão real | Parcial |
 
 O runtime fica em `.operacao-local/memory/runtime/venv`. A instalação fixa `graphifyy==0.9.73`
 sem extras e salva o inventário resolvido localmente. Dependências transitivas são registradas,
@@ -67,7 +69,8 @@ antes da rodada seguinte. O handoff e as notas selecionadas foram preservados.
 A terceira rodada recebeu um grafo atual, mas o worker retornou `invalid_worker_result` no sandbox somente leitura. O cliente declarou o fallback para Markdown e recuperou corretamente os cinco registros. Essa rodada não comprova consulta Graphify dentro do cliente. O worker precisa gravar uma requisição temporária privada; um ensaio futuro deve permitir essa escrita sem autorizar alterações nas notas. Na quarta sessão, uma atualização tornou o índice `stale`: o cliente usou Markdown, conferiu o novo hash e mudou a próxima ação de validar assinatura para testar replay. As quatro sessões terminaram com um turno cada e 8, 6, 6 e 4 chamadas de ferramenta, respectivamente. O limite do ensaio é quatro
 sessões curtas por cliente e oito turnos por sessão. Não há contratação de API adicional.
 Claude Code 2.1.220 retornou `loggedIn: false`; nenhuma conversa de modelo foi tentada depois disso.
-Autenticar o Claude e repetir a passagem entre sessões é a próxima prova necessária para fechar M04.
+A prova autenticada foi feita na continuação vinculada acima; a indisponibilidade de login descreve
+somente este ensaio original.
 
 No teste comportamental independente, a execução sem a nova skill já recuperava os fatos
 corretos e rejeitava um resumo antigo conflitante, mas não registrava projeto/UUIDs/revisões no

@@ -2,7 +2,9 @@
 
 Frente: governança de skills, agentes e MCPs. Base: `16191ec` (PR #7).
 O catálogo, auditor, revisão privada e skill compartilhada estão implementados. A prova nativa
-passou no caminho local do Codex; a equivalente no Claude permanece pendente.
+passou no caminho local do Codex. A [continuação autenticada no Claude](2026-10-02-claude-memory-capabilities.md)
+comprovou leitura permitida, escrita recusada e retirada/restauração do MCP. A matriz inclui essa
+continuação; o ensaio sem modelo e as demais medições abaixo preservam a rodada original.
 
 ## Matriz de aceite
 
@@ -14,11 +16,11 @@ passou no caminho local do Codex; a equivalente no Claude permanece pendente.
 | G04: separação por cliente | Verificado | Parsers JSON/TOML, campos desconhecidos e cobertura não comprovada explícitos. |
 | G05: revisão privada | Verificado | Git real, ignore negado/rastreado, digest, inputs alterados, interrupção e sanitização. |
 | G06: adoção | Verificado | Perfis Claude, Codex e ambos; preservação de manifesto, skills, agentes, configurações e `.env`. |
-| G07: permitir/recusar no cliente | Parcial | Codex passou pelo app-server; Claude sem despacho autenticado verificado. |
+| G07: permitir/recusar no cliente | Verificado nos caminhos sintéticos dos dois clientes | Codex passou pelo app-server; Claude autenticado permitiu leitura e recusou escrita, com contadores do servidor. |
 | G08: orientação e retomada | Verificado no exercício de skill | Novo contexto recuperou ID, escopo, deriva e comandos; documento que se declara aprovado não virou autorização. Não é prova de conversa Claude. |
-| G09: revogar/restaurar | Parcial por cliente | Codex passou em sessões novas com vault intacto; Claude pendente. Documentação PT/EN e diagramas atualizados. |
+| G09: revogar/restaurar | Verificado nos caminhos sintéticos dos dois clientes | Codex e Claude retiraram/restauraram acesso em sessões novas, com vault preservado nas retomadas. Documentação PT/EN e diagramas mantidos. |
 
-## Ensaio nativo
+## Ensaio nativo original, sem modelo
 
 O smoke usa um servidor sintético stdio com duas ferramentas que só incrementam contadores locais.
 O teste isolou diretórios dos clientes e retirou credenciais do ambiente. Nenhum turno de modelo
@@ -74,9 +76,11 @@ servidor no Claude e a contagem real de processos quando a limpeza não termina.
 
 ## Pendências
 
-Claude precisa de prova de chamada permitida, recusa e revogação pelo cliente real. A prova de memória
-M04 e a correção separada da conversão HTML do Docling continuam abertas. Esta entrega não as encerra.
+A continuação Claude encerrou a pendência de permitir, recusar, retirar e restaurar o MCP sintético.
+Essa prova não cobre MCPs de fornecedores nem revogação de suas credenciais. O comando sem modelo
+continua retornando pendência para despacho Claude; a conversa autenticada foi uma rodada separada.
 Novos testes pagos exigem orçamento próprio; o smoke sintético não consome sessões de modelo.
 
 A falha HTML recebeu uma [correção separada](2026-10-02-docling-html.md), com as cinco fontes
-recuperadas. Consulte esse relatório para o estado de publicação; M04 e a prova Claude permanecem pendentes.
+recuperadas. M04 segue parcial pelo ensaio ao vivo com termo idêntico em outro projeto. A ingestão
+completa pelo Docling em conversa Claude também permanece uma prova separada pendente.

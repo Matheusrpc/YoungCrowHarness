@@ -53,6 +53,33 @@ class SourcePromptTests(unittest.TestCase):
         self.assertIn(source['source_id'], (self.root / 'vault/local/sources/index.md').read_text())
         self.assertNotIn('folder with spaces', json.dumps(result))
 
+    def test_memory_paths_and_glob_commands_do_not_create_pending_sources(self):
+        prompts = (
+            'Retome vault/local/runs/previous.md',
+            'Grave o handoff em vault/local/runs/claude-current.md',
+            'Confira `sha256sum vault/local/demo/*.md vault/local/runs/*.md`',
+            'Leia "vault/local/../index.md"',
+            f'Leia "{self.root.as_posix()}/vault/local/runs/previous.md"',
+            'Confira docs/spec?.pdf',
+        )
+        for prompt in prompts:
+            with self.subTest(prompt=prompt):
+                self.assertEqual(self.call(prompt), {})
+                self.assertEqual(list(self.root.iterdir()), [])
+        child = self.root / 'subdir'
+        child.mkdir()
+        self.assertEqual(self.call('../vault/index.md', cwd=str(child)), {})
+        self.assertEqual(list(self.root.iterdir()), [child])
+
+    def test_external_markdown_is_kept_alongside_internal_memory_references(self):
+        self.call('Use "docs/spec with spaces.md" e vault/local/index.md '
+                  'https://example.org/vault/index.md e "vault-copy/spec.md"')
+        self.assertEqual({s['locator'] for s in store.source_records(self.root)}, {
+            (self.root / 'docs/spec with spaces.md').as_uri(),
+            'https://example.org/vault/index.md',
+            (self.root / 'vault-copy/spec.md').as_uri(),
+        })
+
     def test_secrets_and_whole_prompt_never_persist_or_enter_hook_context(self):
         output = self.call('secret=NOT_A_REAL_SECRET https://example.org/file.pdf?token=QUERY_SECRET#FRAGMENT '
                            'https://user:PASSWORD@example.org/hidden.pdf')
@@ -112,6 +139,14 @@ class SourcePromptTests(unittest.TestCase):
                                     cwd=child, capture_output=True, text=True, timeout=10)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn('ingest-source', json.loads(result.stdout)['hookSpecificOutput']['additionalContext'])
+            before = {p.relative_to(self.root): p.read_bytes() for p in self.root.rglob('*') if p.is_file()}
+            result = subprocess.run(args, input=json.dumps(dict(
+                prompt='Retome ../vault/local/runs/latest.md; confira `sha256sum ../vault/local/runs/*.md`',
+                cwd=str(child))), cwd=child, capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(result.stdout), {})
+            self.assertEqual(before, {p.relative_to(self.root): p.read_bytes()
+                                      for p in self.root.rglob('*') if p.is_file()})
 
 
 if __name__ == '__main__':

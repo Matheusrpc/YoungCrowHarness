@@ -275,7 +275,17 @@
           "scripts/vault.py",
           "scripts/adoption.py",
           "scripts/adoption_fs.py",
-          "scripts/adoption_acl.ps1"
+          "scripts/adoption_acl.ps1",
+          "skills/yc-personalizer/SKILL.md",
+          "skills/yc-config/SKILL.md",
+          "skills/yc-missao/SKILL.md",
+          "skills/yc-status/SKILL.md",
+          "scripts/mission_config.py",
+          "scripts/mission_backlog.py",
+          "scripts/mission_store.py",
+          "scripts/mission_vault.py",
+          "scripts/missions.py",
+          "scripts/capabilities.py"
         ],
         "claude": [
           ".claude/skills/personalizer/SKILL.md"
@@ -301,10 +311,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "706792f5bdf2c47a61e53f6c0f45bb141015b75e2128d713031d78ce7fd3cbd7",
+        "contract_sha256": "16f0d34da792cae0a62d4360e2f719c1282d230db9c07863948b2390f7ddf463",
         "files_sha256": {
-          "claude": "5b0b9aa83d2c4593d98bf0e6e62563d69094457683e95270043e8b188ee38b9b",
-          "codex": "809b064f4497e7015cf0c6f1f7f65c0d968794a8ec976a3d446cd244d87c1cf5"
+          "claude": "7b5310c7baf10a9609797a77132bf16262da7bba308ea1047fc4e072b7b3c310",
+          "codex": "e85d60cedb6268a377612ee63cee4beacfeabe9d68d43d715a7e504652c0ae70"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1137,6 +1147,296 @@
         "files_sha256": {
           "claude": "e78d6cdb9b1e15440eab844759dec8fddfb3d6390c9d9036bb91063653c79eca",
           "codex": "e78d6cdb9b1e15440eab844759dec8fddfb3d6390c9d9036bb91063653c79eca"
+        }
+      }
+    },
+    {
+      "id": "yc-personalizer",
+      "kind": "skill",
+      "purpose": {
+        "when": "Start or resume project onboarding and mission discovery",
+        "inputs": "Confirmed answers and selected repository evidence",
+        "outputs": "Project profile, interview and mission handoff",
+        "limits": "Offline preparation only; no autonomous workers or deployment"
+      },
+      "clients": [
+        "claude",
+        "codex"
+      ],
+      "scope": "project",
+      "required": {
+        "claude": true,
+        "codex": true
+      },
+      "origin": {
+        "kind": "repository",
+        "locator": "skills/yc-personalizer",
+        "revision": null
+      },
+      "declared_version": "1",
+      "files": {
+        "common": [
+          "skills/yc-personalizer/SKILL.md",
+          "skills/yc-config/SKILL.md",
+          "skills/yc-missao/SKILL.md",
+          "skills/yc-status/SKILL.md",
+          "scripts/mission_config.py",
+          "scripts/mission_backlog.py",
+          "scripts/mission_store.py",
+          "scripts/mission_vault.py",
+          "scripts/missions.py",
+          "scripts/capabilities.py",
+          "scripts/document_store.py",
+          "scripts/integrations.py",
+          "scripts/vault.py",
+          "skills/personalizer/SKILL.md",
+          "scripts/personalize.py",
+          "skills/personalizer/references/interview.md",
+          "scripts/adoption.py",
+          "scripts/adoption_fs.py",
+          "scripts/adoption_acl.ps1"
+        ],
+        "claude": [
+          ".claude/skills/yc-personalizer/SKILL.md"
+        ],
+        "codex": [
+          ".agents/skills/yc-personalizer/SKILL.md"
+        ]
+      },
+      "permissions": {
+        "read": [
+          "project instructions",
+          "selected vault notes",
+          "project configuration"
+        ],
+        "write": [
+          "authorized project files",
+          "vault/local"
+        ],
+        "network": [],
+        "data": [],
+        "environments": [],
+        "credential_env": []
+      },
+      "native": {},
+      "expected": {
+        "contract_sha256": "ee81cd79d02decaea77124adf82269bf74078353020517d3b399541f3aa75a70",
+        "files_sha256": {
+          "claude": "b365afcb34f6fce5770db868a8982c336f1788ae06b9afadacf495f2dc37f9af",
+          "codex": "03d2f8cf294ea17c948c086ac81928b2e151b048152dc4525378390199abeec8"
+        }
+      }
+    },
+    {
+      "id": "yc-config",
+      "kind": "skill",
+      "purpose": {
+        "when": "Choose or update project agent defaults",
+        "inputs": "Client, model, effort and bounded execution intentions",
+        "outputs": "Validated local agent configuration",
+        "limits": "Offline preparation only; no autonomous workers or deployment"
+      },
+      "clients": [
+        "claude",
+        "codex"
+      ],
+      "scope": "project",
+      "required": {
+        "claude": true,
+        "codex": true
+      },
+      "origin": {
+        "kind": "repository",
+        "locator": "skills/yc-config",
+        "revision": null
+      },
+      "declared_version": "1",
+      "files": {
+        "common": [
+          "skills/yc-personalizer/SKILL.md",
+          "skills/yc-config/SKILL.md",
+          "skills/yc-missao/SKILL.md",
+          "skills/yc-status/SKILL.md",
+          "scripts/mission_config.py",
+          "scripts/mission_backlog.py",
+          "scripts/mission_store.py",
+          "scripts/mission_vault.py",
+          "scripts/missions.py",
+          "scripts/capabilities.py",
+          "scripts/document_store.py",
+          "scripts/integrations.py",
+          "scripts/vault.py",
+          "scripts/adoption_fs.py"
+        ],
+        "claude": [
+          ".claude/skills/yc-config/SKILL.md"
+        ],
+        "codex": [
+          ".agents/skills/yc-config/SKILL.md"
+        ]
+      },
+      "permissions": {
+        "read": [
+          "project instructions",
+          "selected vault notes",
+          "project configuration"
+        ],
+        "write": [
+          "authorized project files",
+          "vault/local"
+        ],
+        "network": [],
+        "data": [],
+        "environments": [],
+        "credential_env": []
+      },
+      "native": {},
+      "expected": {
+        "contract_sha256": "a3865f7680b805a9f78b58f7f0e41074510bb6911153c0405eb39de4dce8201c",
+        "files_sha256": {
+          "claude": "5b4209f37e9e9436c6df6a7bb294edfc9a1d17e1c7788d98bb8b5a0a505509d4",
+          "codex": "2361826fe35aff4605a3c8a876563d9fa1485f7a9844563e36a2cc9196bec401"
+        }
+      }
+    },
+    {
+      "id": "yc-missao",
+      "kind": "skill",
+      "purpose": {
+        "when": "Refine backlog and prepare or revise one to N features",
+        "inputs": "Selected contracts, references and priorities",
+        "outputs": "Private mission snapshot, events and recovery receipt",
+        "limits": "Offline preparation only; no autonomous workers or deployment"
+      },
+      "clients": [
+        "claude",
+        "codex"
+      ],
+      "scope": "project",
+      "required": {
+        "claude": true,
+        "codex": true
+      },
+      "origin": {
+        "kind": "repository",
+        "locator": "skills/yc-missao",
+        "revision": null
+      },
+      "declared_version": "1",
+      "files": {
+        "common": [
+          "skills/yc-personalizer/SKILL.md",
+          "skills/yc-config/SKILL.md",
+          "skills/yc-missao/SKILL.md",
+          "skills/yc-status/SKILL.md",
+          "scripts/mission_config.py",
+          "scripts/mission_backlog.py",
+          "scripts/mission_store.py",
+          "scripts/mission_vault.py",
+          "scripts/missions.py",
+          "scripts/capabilities.py",
+          "scripts/document_store.py",
+          "scripts/integrations.py",
+          "scripts/vault.py",
+          "scripts/adoption_fs.py"
+        ],
+        "claude": [
+          ".claude/skills/yc-missao/SKILL.md"
+        ],
+        "codex": [
+          ".agents/skills/yc-missao/SKILL.md"
+        ]
+      },
+      "permissions": {
+        "read": [
+          "project instructions",
+          "selected vault notes",
+          "project configuration"
+        ],
+        "write": [
+          "authorized project files",
+          "vault/local"
+        ],
+        "network": [],
+        "data": [],
+        "environments": [],
+        "credential_env": []
+      },
+      "native": {},
+      "expected": {
+        "contract_sha256": "25620a509777b6916efaa487d020d9af3b9e39bf2641d0a75c55ac68ecba2f8b",
+        "files_sha256": {
+          "claude": "eacaed8cedb17cb0414e9f670fb2e9978fc3c363323aa7bc2b626f60e98e5d65",
+          "codex": "ed955ab64faadd93980989972b1b42e17143e9a69e3fa281e7cad756d63c036b"
+        }
+      }
+    },
+    {
+      "id": "yc-status",
+      "kind": "skill",
+      "purpose": {
+        "when": "Read mission state and pending work",
+        "inputs": "Mission UUID or code",
+        "outputs": "Read-only history, freshness and planning gaps",
+        "limits": "Offline preparation only; no autonomous workers or deployment"
+      },
+      "clients": [
+        "claude",
+        "codex"
+      ],
+      "scope": "project",
+      "required": {
+        "claude": true,
+        "codex": true
+      },
+      "origin": {
+        "kind": "repository",
+        "locator": "skills/yc-status",
+        "revision": null
+      },
+      "declared_version": "1",
+      "files": {
+        "common": [
+          "skills/yc-personalizer/SKILL.md",
+          "skills/yc-config/SKILL.md",
+          "skills/yc-missao/SKILL.md",
+          "skills/yc-status/SKILL.md",
+          "scripts/mission_config.py",
+          "scripts/mission_backlog.py",
+          "scripts/mission_store.py",
+          "scripts/mission_vault.py",
+          "scripts/missions.py",
+          "scripts/capabilities.py",
+          "scripts/document_store.py",
+          "scripts/integrations.py",
+          "scripts/vault.py",
+          "scripts/adoption_fs.py"
+        ],
+        "claude": [
+          ".claude/skills/yc-status/SKILL.md"
+        ],
+        "codex": [
+          ".agents/skills/yc-status/SKILL.md"
+        ]
+      },
+      "permissions": {
+        "read": [
+          "project instructions",
+          "selected vault notes",
+          "project configuration"
+        ],
+        "write": [],
+        "network": [],
+        "data": [],
+        "environments": [],
+        "credential_env": []
+      },
+      "native": {},
+      "expected": {
+        "contract_sha256": "091549c3d66e68267b57113ccde1826c449fb52c8ac9c39bb9f7b157b862cbef",
+        "files_sha256": {
+          "claude": "9bb7dbba2a524df26bbff830bc225d723abc1a96d2b826d180cd6180c7fa3f4a",
+          "codex": "db4ab42c433949a997f4a1c5c9f146604f2acab3682586bd43e404c2ee8bcc54"
         }
       }
     }

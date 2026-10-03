@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1470" width="760" height="1470" role="img" aria-labelledby="title desc" font-family="Georgia, serif">
+<title id="title">08 · Prepare a mission</title><desc id="desc">Personalizer. Configure agents. Refine the backlog. Prepare the mission. Mission prepared. Automatic execution. is not available yet</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#F3E7C6"/></marker></defs>
+<rect width="760" height="1470" fill="#17130f"/><rect x="12" y="12" width="736" height="1446" rx="10" fill="none" stroke="#725a35" stroke-width="2"/>
+<text x="35" y="53" font-size="28" fill="#F3E7C6" text-anchor="start" data-max-width="690">
+<tspan x="35" dy="0">08 · Prepare a mission</tspan>
+</text>
+<text x="35" y="93" font-size="20" fill="#d6c8a8" text-anchor="start" data-max-width="690">
+<tspan x="35" dy="0">Claude Code and Codex · roles in the current session</tspan>
+</text>
+<circle cx="292.5" cy="131" r="13" fill="#1F7A4D" stroke="#F3E7C6" stroke-width="2"/>
+<path d="M292.5 144V170" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="65" y="170" width="455" height="104" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="292.5" y="207" font-size="23" fill="#17130f" text-anchor="middle" data-max-width="430">
+<tspan x="292.5" dy="0">Personalizer</tspan>
+<tspan x="292.5" dy="30">Resume idea, profile and decisions</tspan>
+</text>
+<path d="M292.5 274V315" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="65" y="315" width="455" height="104" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="292.5" y="352" font-size="23" fill="#17130f" text-anchor="middle" data-max-width="430">
+<tspan x="292.5" dy="0">Configure agents</tspan>
+<tspan x="292.5" dy="30">Client, model, effort and limits</tspan>
+</text>
+<path d="M292.5 419V460" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="65" y="460" width="455" height="104" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="292.5" y="489" font-size="23" fill="#17130f" text-anchor="middle" data-max-width="430">
+<tspan x="292.5" dy="0">Refine the backlog</tspan>
+<tspan x="292.5" dy="30">PM: epics/features and DoR/DoD</tspan>
+<tspan x="292.5" dy="30">Tech Lead: PBIs and dependencies</tspan>
+</text>
+<path d="M292.5 564V605" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="65" y="605" width="455" height="104" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="292.5" y="634" font-size="23" fill="#17130f" text-anchor="middle" data-max-width="430">
+<tspan x="292.5" dy="0">Prepare the mission</tspan>
+<tspan x="292.5" dy="30">Select 1 to N features</tspan>
+<tspan x="292.5" dy="30">Freeze choices and references</tspan>
+</text>
+<path d="M292.5 709V750" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M292.5 750L402.5 830L292.5 910L182.5 830Z" fill="#E8A317" stroke="#F3E7C6" stroke-width="2"/>
+<text x="292.5" y="822" font-size="22" fill="#17130f" text-anchor="middle" data-max-width="145">
+<tspan x="292.5" dy="0">Criteria</tspan>
+<tspan x="292.5" dy="30">complete?</tspan>
+</text>
+<path d="M402.5 830H628V512H523" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="628" y="891" font-size="21" fill="#F3E7C6" text-anchor="middle" data-max-width="194">
+<tspan x="628" dy="0">No: refine</tspan>
+<tspan x="628" dy="30">open items</tspan>
+</text>
+<path d="M292.5 910V980" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="321" y="950" font-size="20" fill="#F3E7C6" text-anchor="start" data-max-width="90">
+<tspan x="321" dy="0">Yes</tspan>
+</text>
+<rect x="65" y="980" width="455" height="104" rx="9" fill="#F3E7C6" stroke="#1F4FA3" stroke-width="4"/>
+<text x="292.5" y="1009" font-size="23" fill="#17130f" text-anchor="middle" data-max-width="430">
+<tspan x="292.5" dy="0">Read status</tspan>
+<tspan x="292.5" dy="30">yc-status: history and sources</tspan>
+<tspan x="292.5" dy="30">Read-only</tspan>
+</text>
+<path d="M292.5 1084V1125" fill="none" stroke="#F3E7C6" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="65" y="1125" width="455" height="130" rx="30" fill="#1F7A4D" stroke="#F3E7C6" stroke-width="3"/>
+<text x="292.5" y="1160" font-size="24" fill="#F3E7C6" text-anchor="middle" data-max-width="430">
+<tspan x="292.5" dy="0">Mission prepared</tspan>
+<tspan x="292.5" dy="30">Automatic execution</tspan>
+<tspan x="292.5" dy="30">is not available yet</tspan>
+</text>
+<text x="35" y="1335" font-size="20" fill="#d6c8a8" text-anchor="start" data-max-width="690">
+<tspan x="35" dy="0">New notes and events stay in the private vault.</tspan>
+<tspan x="35" dy="30">Three active PBIs by default; the total can be larger.</tspan>
+<tspan x="35" dy="30">Trial: capture the baseline before the first write.</tspan>
+</text>
+</svg>

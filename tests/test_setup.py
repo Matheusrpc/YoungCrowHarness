@@ -33,6 +33,10 @@ FILES += ('scripts/source_prompt.py', 'skills/ingest-source/SKILL.md',
 FILES += ('scripts/capabilities.py', 'skills/govern-capabilities/SKILL.md',
           '.claude/skills/govern-capabilities/SKILL.md', '.agents/skills/govern-capabilities/SKILL.md')
 FILES += ('scripts/adoption.py', 'scripts/adoption_fs.py', 'scripts/adoption_acl.ps1')
+FILES += tuple(f'scripts/{name}.py' for name in
+               ('mission_config', 'mission_backlog', 'mission_store', 'mission_vault', 'missions'))
+FILES += tuple(f'{base}/{name}/SKILL.md' for base in ('skills', '.claude/skills', '.agents/skills')
+               for name in ('yc-personalizer', 'yc-config', 'yc-missao', 'yc-status'))
 
 
 def shell_path(path):
@@ -63,6 +67,60 @@ def fake_git(args):
 
 
 class SetupTests(unittest.TestCase):
+    def test_mission_commands_follow_client_selection(self):
+        names = ('yc-personalizer', 'yc-config', 'yc-missao', 'yc-status')
+        for client in ('claude', 'codex', 'both'):
+            with self.subTest(client=client):
+                self.target = self.base / ('mission-' + client)
+                self.target.mkdir()
+                result = self.run_setup('--client', client, '--no-plugins')
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                for name in names:
+                    self.assertTrue((self.target / f'skills/{name}/SKILL.md').is_file())
+                    for folder, selected in (('.claude', client in ('claude', 'both')), ('.agents', client in ('codex', 'both'))):
+                        self.assertEqual((self.target / f'{folder}/skills/{name}/SKILL.md').is_file(), selected)
+                for script in ('mission_config', 'mission_backlog', 'mission_store', 'mission_vault', 'missions'):
+                    self.assertTrue((self.target / f'scripts/{script}.py').is_file())
+                self.assertFalse((self.target / 'youngcrow/agents.json').exists())
+                self.assertIn('/vault/local/', (self.target / '.gitignore').read_text())
+                audit = subprocess.run([sys.executable, '-B', str(self.target / 'scripts/capabilities.py'),
+                                        '--root', str(self.target), 'audit', '--client', client, '--json'],
+                                       capture_output=True, text=True, timeout=30)
+                observations = [o for o in json.loads(audit.stdout)['observations'] if o['id'] in names]
+                self.assertEqual(len(observations), len(names) * (2 if client == 'both' else 1))
+                self.assertTrue(all(o['state'] == 'matched' for o in observations), observations)
+
+    def test_mission_setup_preserves_existing_contracts(self):
+        originals = {'youngcrow/agents.json': 'custom config', 'skills-lock.json': 'custom catalog',
+                     'vault/local/product/feature.md': 'human UUID and text',
+                     'skills/yc-config/SKILL.md': 'custom skill',
+                     '.agents/skills/yc-config/SKILL.md': 'custom entry',
+                     'scripts/capabilities.py': '# legacy helper preserved\n'}
+        for name, content in originals.items():
+            write(self.target / name, content)
+        result = self.run_setup('--client', 'both', '--no-plugins')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for name, content in originals.items():
+            self.assertEqual((self.target / name).read_text(), content)
+        backend = self.target / 'scripts/missions.py'
+        self.assertTrue(backend.exists())
+        probe = subprocess.run([sys.executable, '-B', str(backend), '--root', str(self.target), '--json', 'status', 'M001'],
+                               capture_output=True, text=True, timeout=20)
+        self.assertEqual(json.loads(probe.stdout)['error'], 'incompatible_helper')
+        preserved = {name: content for name, content in originals.items() if not name.startswith('scripts/')}
+        result = self.run_setup('--client', 'both', '--no-plugins', '--force')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for name, content in preserved.items():
+            self.assertEqual((self.target / name).read_text(), content)
+
+    def test_mission_setup_rejects_missing_dependency(self):
+        helper = self.source / 'scripts/mission_store.py'
+        helper.unlink(missing_ok=True)
+        before = snapshot_bytes(self.target)
+        result = self.run_setup('--client', 'both', '--no-plugins')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(snapshot_bytes(self.target), before)
+
     def adoption_status(self):
         result = subprocess.run([sys.executable, '-B', str(self.source / 'scripts/adoption.py'),
                                  '--root', str(self.target), '--backup-root', str(self.base / 'backups'),

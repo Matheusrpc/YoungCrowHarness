@@ -1425,3 +1425,216 @@ In the harness checkout, the optional probe is `python3 tests/smoke_capabilities
 --executable /absolute/path/codex --root /new/disposable/path` (one line). The directory must not
 exist. The probe creates an isolated environment and synthetic MCP with no model turn. On Windows,
 select the actual `.exe`, not a `.ps1` or `.cmd` launcher. Pending exits with 2; failed proof exits with 1.
+
+<a id="mission-config"></a>
+
+## Configuração de agentes / Agent configuration
+
+`youngcrow/agents.json` usa `schema_version: 1` e exige objetos para `pm`, `tech_lead`, `developer`
+e `qa`; `integration_specialist` é opcional. Cada papel declara `client` (`claude` ou `codex`),
+`model`, `effort`, `connection`, `credential_env` e IDs de `capabilities`.
+Omitir cliente, modelo ou esforço deixa uma pendência. `effort.level` aceita `low`, `medium`,
+`high` ou `native`; só `native` exige `native_value`. A compatibilidade real depende de prova no cliente.
+
+`connection` começa em `authenticated`. Para API, escolha `api` e forneça somente o nome da
+variável em `credential_env`, nunca seu valor. A validação não lê credenciais nem chama modelos.
+Os padrões de `limits` são `max_active_pbis: 3`, `max_parallel_agents: 3` e
+`max_correction_cycles: 3` (fixo nesta versão). Defina `mission_active_seconds`, `agent_seconds`,
+`max_agent_runs` e `max_deploy_attempts` como inteiros positivos. API exige também `api_budget_usd`
+como string decimal positiva. `deploy_mode` começa em `manual`; `automatic` registra uma intenção.
+Substituições de missão alteram só os campos declarados e preservam os padrões do projeto.
+O backend desta etapa ainda não executa os limites nem faz deploy.
+
+`youngcrow/agents.json` requires `schema_version: 1` and objects for `pm`, `tech_lead`, `developer`
+and `qa`; `integration_specialist` is optional. Each role declares `client` (`claude` or `codex`),
+`model`, `effort`, `connection`, `credential_env` and capability IDs. Missing client, model or effort
+remains pending. Effort accepts `low`, `medium`, `high` or `native`; only `native` requires
+`native_value`. Schema validation does not verify client compatibility.
+
+Connections default to `authenticated`. API access is explicit and accepts an environment variable
+name only. Validation never reads its value or calls a model. Limits default to three active PBIs,
+three parallel agents and three correction cycles (fixed in this version). Set positive integers for
+`mission_active_seconds`, `agent_seconds`, `max_agent_runs` and `max_deploy_attempts`. API use also
+requires a positive decimal string in `api_budget_usd`. Deployment defaults to `manual`;
+`automatic` records intent. Mission overrides preserve project defaults. This backend does not yet
+enforce runtime limits or deploy products.
+
+<a id="mission-backlog"></a>
+
+## Contratos do backlog / Backlog contracts
+
+Novos épicos, features e PBIs ficam em `vault/local/product/{epics,features,pbis}/<uuid>/index.md`.
+Cada nota conserva seu UUID e declara o microíndice em `index`. O bloco entre
+`<!-- youngcrow:contract:start -->` e `<!-- youngcrow:contract:end -->` contém um único bloco
+JSON com `schema_version`, `project_id`, `parent_id`, `owner`, `objective`, `acceptance`, `dor`,
+`dod`, `validation`, `dependencies` e `references`. Veja o
+[contrato completo](superpowers/plans/2026-10-03-mission-foundation.md#notas-do-backlog-e-leitura-de-contratos).
+O PM define objetivo, aceite, DoR e DoD; o Tech Lead detalha PBIs, dependências e validação.
+Dependências são UUIDs de PBIs; referências usam `{note_id, path}` e apontam para notas locais.
+Acrescente links legíveis na prosa para navegar entre elas.
+
+Uma feature antiga sem contrato continua legível, com a pendência `missing_contract`.
+A leitura não reescreve notas, move arquivos nem executa comandos mencionados nos critérios.
+Contratos malformados, referências de outro projeto e links públicos para notas privadas são recusados.
+Critérios vazios deixam o item em rascunho. Datas históricas desconhecidas continuam desconhecidas.
+
+New epics, features and PBIs live in `vault/local/product/{epics,features,pbis}/<uuid>/index.md`.
+Each note keeps its UUID and names its micro-index in `index`. The marked contract contains one
+JSON block with the fields above. PM defines objectives, acceptance, DoR and DoD; Tech Lead details
+PBIs, dependencies and validation. Dependencies are PBI UUIDs; references use `{note_id, path}`
+and point to local notes. Add readable Markdown links for navigation.
+
+Legacy features without a contract remain readable with `missing_contract`. Reading never rewrites
+notes, moves files or executes commands mentioned in criteria. Malformed contracts, foreign project
+references and public links to private notes are rejected. Empty criteria remain draft; unknown
+historical dates stay unknown.
+
+<a id="mission-workflow"></a>
+
+## Preparar uma missão / Prepare a mission
+
+O setup instala quatro entradas: `yc-personalizer` retoma a entrevista; `yc-config` salva escolhas
+por agente; `yc-missao` refina o backlog e prepara a missão; `yc-status` consulta sem escrever.
+No Claude Code, chame `/yc-personalizer`, `/yc-config`, `/yc-missao` ou `/yc-status`. No Codex,
+selecione a skill ou use `$yc-personalizer`, `$yc-config`, `$yc-missao` e `$yc-status` onde disponíveis.
+Reabra a sessão após instalar. O catálogo verifica arquivos; a descoberta e o uso pelo cliente
+precisam de evidência própria. `yc-iniciar`, `yc-pausar`, `yc-retomar`, `yc-transferir` e `yc-deploy`
+ainda não são comandos funcionais.
+
+Setup installs four entries: `yc-personalizer` resumes discovery; `yc-config` saves agent choices;
+`yc-missao` refines backlog and prepares a mission; `yc-status` reads without writing. Use `/yc-*`
+in Claude Code, or select the skill/use `$yc-*` in Codex where available. Reopen the session after
+installation. Catalog checks establish file integrity; native discovery and model use need their
+own evidence. `yc-iniciar`, `yc-pausar`, `yc-retomar`, `yc-transferir` and `yc-deploy` are not functional commands yet.
+
+### Primeiro uso em um produto novo
+
+1. Mantenha o checkout do harness separado da pasta do produto. Para experimentar com retorno,
+   siga o [setup trial](#adocao-reversivel-pt) antes da primeira nota; escolha `--client claude`,
+   `codex` ou `both`. Uma instalação normal não cria ponto de retorno.
+2. Abra o produto no cliente escolhido e chame `yc-personalizer`. Ela registra perfil, decisões
+   e perguntas pendentes; documentos recebidos seguem `ingest-source` e ficam locais até revisão.
+3. Em `yc-config`, defina as escolhas de cada agente uma vez. A configuração vale para o projeto;
+   uma missão pode substituir escolhas explicitamente. O instalador não escolhe modelos por você.
+4. Em `yc-missao`, peça ao PM que descreva épico, features, DoR/DoD e aceite. O Tech Lead divide
+   em PBIs verificáveis. Esses papéis atuam na sessão atual. Registre referências e importe as notas.
+5. Selecione uma ou mais features e priorize todos os PBIs selecionados. `yc-status` mostra o
+   que falta ou confirma `prepared`; iniciar execução automática pertence à próxima frente.
+
+### Primeiro uso em um produto existente
+
+Faça o trial a partir do checkout separado antes de adaptar o produto. A personalizer deve
+primeiro registrar o que existe: instruções, testes, design, integrações e notas. Preserve perfil,
+UUIDs e convenções confirmadas. O setup conserva catálogo e skills locais mesmo com `--force`;
+compare e mescle versões conscientemente. `incompatible_helper` pede revisão dos scripts
+preservados antes de qualquer escrita da CLI de missões. Uma instalação antiga sem baseline
+não permite voltar ao estado anterior à adoção original.
+
+O índice geral antigo também é preservado. Durante a adaptação, acrescente apenas os links
+faltantes para seções recém-instaladas, como `integrations/index.md` e `capabilities/index.md`.
+Execute `python3 -B scripts/vault.py check --json` e concilie pendências antes de entregar a navegação.
+
+Retome em `yc-config` e `yc-missao` usando as respostas existentes. Notas antigas podem ser
+importadas no mesmo caminho; ficam em rascunho quando não têm contrato. Crie novos itens no
+vault privado e ligue-os aos índices. O guia de [contratos](#mission-backlog) explica essa estrutura.
+
+### First use: new and existing products
+
+Keep the harness checkout separate from the product. For a reversible trial, capture the baseline
+through trial setup before writing any notes, selecting `claude`, `codex` or `both`. Normal setup
+has no initial return point. Open the product in your client, call `yc-personalizer`, then `yc-config`
+to record each role's choices once. Documents go through `ingest-source` and stay local until review.
+Use `yc-missao` for PM-owned epics/features, DoR/DoD and acceptance; the Tech Lead splits verifiable
+PBIs in the current session. Select one or more features, order all their PBIs and consult `yc-status`.
+
+For an existing product, first audit instructions, tests, design, integrations and notes. Preserve
+confirmed answers, profile and UUIDs. Setup preserves local catalogs and skills even with `--force`;
+compare and merge intentionally. `incompatible_helper` requires reviewing preserved helper versions
+before mission commands can write. An old installation without a baseline cannot restore its original
+pre-adoption state. Import old notes at their existing paths; missing contracts remain drafts. New
+items belong in the private vault with links from their indexes. `prepared` describes complete planning;
+automatic execution is a later delivery.
+
+Setup also preserves the old general index. During adaptation, append missing links to newly installed
+sections such as `integrations/index.md` and `capabilities/index.md`, preserving existing text. Run
+`python3 -B scripts/vault.py check --json` and reconcile navigation issues before handoff.
+
+Depois do setup e da personalizer, use os comandos abaixo na raiz do produto. No Windows,
+`python` pode ser o nome do Python 3. Arquivos de entrada são caminhos relativos ao projeto.
+Guarde pedidos e backlog em `vault/local/`; mantenha o mesmo UUID de operação para repetir
+um pedido interrompido. Um pedido diferente exige outro UUID.
+
+```bash
+python3 -B scripts/missions.py --json config show
+python3 -B scripts/missions.py --json config validate --input vault/local/agents-draft.json
+python3 -B scripts/missions.py --json config apply --input vault/local/agents-draft.json --expected-digest absent
+python3 -B scripts/missions.py --json backlog import --note vault/local/product/epics/EPIC_UUID/index.md --expected-revision 0 --operation-id OPERATION_UUID --actor-id current-session --actor-role pm
+python3 -B scripts/missions.py --json prepare --input vault/local/mission-request.json --operation-id OPERATION_UUID --actor-id current-session --actor-role pm
+python3 -B scripts/missions.py --json status M001
+python3 -B scripts/missions.py --json repair M001
+```
+
+Substitua os marcadores por UUIDs reais. Importe primeiro o épico, depois features e PBIs;
+para PBIs, use `--actor-role tech_lead`. Cada importação tem seu próprio UUID de operação.
+O papel é uma atribuição declarada, sem autenticação de identidade. Uma nota importada recebe
+código E/F/P e revisão. Importar uma edição exige a revisão atual em `--expected-revision`.
+Para alterar os padrões, substitua `absent` pelo digest retornado por `config show`.
+
+O pedido da missão contém exatamente:
+
+```json
+{
+  "title": "Entrega definida com o PM",
+  "feature_ids": ["FEATURE_UUID"],
+  "priority": ["PBI_UUID_1", "PBI_UUID_2"],
+  "overrides": {},
+  "scope_reference": "Decisão aprovada e registrada no perfil"
+}
+```
+
+`feature_ids` seleciona uma ou mais features; `priority` ordena todos os PBIs importados dessas
+features, sem repetição. Três PBIs ativos é o padrão futuro de execução, não o tamanho total da missão.
+Critérios, dependências ou escolhas ausentes produzem `draft`. `prepared` indica planejamento
+completo; `runtime_available` e `runnable` continuam `false`. O backend não chama modelos nem
+executa as strings em `validation`.
+
+O histórico fica em `vault/local/operations/state.sqlite3`, com notas navegáveis de eventos e
+missões. `status` não cria nem repara arquivos. Se fontes mudarem, ele mostra `stale_inputs`;
+importe as edições e use `revise M001 --input ... --expected-revision N --operation-id UUID
+--actor-id current-session --actor-role pm` para preparar outra revisão. Mudar o padrão global
+não altera missões existentes. `revise` herda a configuração congelada e aplica apenas as
+substituições explícitas. As datas dos eventos registram importação/refinamento, sem inventar
+datas de desenvolvimento, QA ou produção.
+
+Uma falha de projeção mantém o evento confirmado no banco. Repita a mesma operação ou use
+`repair`; conflito com edição humana exige conciliar essa nota, sem apagar seu conteúdo.
+Saída 0 significa pedido válido (inclusive rascunho), 1 conflito ou falha operacional e 2 entrada
+inválida. Não edite o banco diretamente; guarde também esse arquivo em seu backup privado.
+Após uma interrupção com journal SQLite pendente, `status` pode retornar `invalid_store` sem alterar
+arquivos. Um `repair` explícito permite ao SQLite recuperar a transação antes de conferir o esquema
+aceito e projetar as notas. Bancos incompatíveis continuam recusados. Uma primeira gravação abortada
+que deixou arquivo vazio pode ser repetida. Projeções agregadas acima de 1 MiB usam hash contínuo;
+o limite das notas de entrada permanece igual.
+
+After setup and personalization, run the commands above from the product root. Inputs are project-relative
+paths. Keep requests and backlog private. Use real UUIDs and a distinct operation UUID for each request;
+retry an interrupted request with its original UUID. Import epics, features and then PBIs. PBIs use
+`tech_lead`; other items and mission preparation use `pm`. These are declared roles, not authenticated identities.
+Updating an item requires its current revision; changing defaults requires the current configuration digest.
+
+A request selects one or more feature UUIDs and lists every imported PBI in priority order. Empty criteria,
+unresolved dependencies or missing choices produce `draft`; complete planning produces `prepared`.
+Runtime remains unavailable. Three active PBIs is the future execution default, not a mission size limit.
+The backend calls no models and never executes validation strings.
+
+SQLite keeps revisions and events privately, with navigable Markdown projections. `status` is read-only
+and reports changed inputs. Import edits, then use `revise` with the current revision and a new operation
+UUID. Global defaults never rewrite a mission; revision inherits frozen choices plus explicit overrides.
+Event times record import/refinement, without inventing development, QA or production dates.
+Retry or `repair` recovers a failed projection. Human edits are preserved and reported as conflicts.
+Exit 0 includes valid drafts; 1 means conflict or operational failure; 2 means invalid input. Include the
+database in private backups; do not edit it directly. After an interruption with a pending SQLite
+journal, `status` can return `invalid_store` without writing. Explicit `repair` allows SQLite recovery
+before validating the supported schema and projecting notes. Incompatible stores remain rejected.
+Retry a first write that left an empty database. Aggregated projections over 1 MiB use streaming hashes;
+source-note limits remain unchanged.

@@ -31,6 +31,8 @@ jobs:
           for client in claude codex both; do
             python3 -B tests/smoke_adoption.py --root "$RUNNER_TEMP/adoption-$client" --client "$client" || exit "$?"
           done
+      - name: Prepare missions in new and existing consumers
+        run: python3 -B tests/smoke_mission_foundation.py --root "$RUNNER_TEMP/mission-both" --client both
   adoption-windows:
     runs-on: windows-latest
     timeout-minutes: 60
@@ -50,6 +52,8 @@ jobs:
         run: python -B tests/windows_fixture_runner.py -m unittest discover -s tests -p test_setup.py -k trial -v -f
       - name: Exercise return through the external runner
         run: python -B tests/windows_fixture_runner.py tests/smoke_adoption.py --root "$env:RUNNER_TEMP/adoption-both" --client both
+      - name: Prepare missions in new and existing consumers
+        run: python -B tests/windows_fixture_runner.py tests/smoke_mission_foundation.py --root "$env:RUNNER_TEMP/mission-both" --client both
   graphify-smoke:
     runs-on: ubuntu-24.04
     timeout-minutes: 15

@@ -53,7 +53,13 @@ For each needed skill/MCP, use [govern-capabilities](../govern-capabilities/SKIL
 
 ## First feature and handoff
 
-When the next feature has enough context, prepare it:
+For mission planning, continue with [yc-config](../yc-config/SKILL.md) for unanswered agent choices
+and limits, then [yc-missao](../yc-missao/SKILL.md) for structured epics, features and PBIs. Reuse
+confirmed interview answers and the existing adoption baseline. This route replaces the separate
+legacy first-feature step below; it preserves existing feature paths and UUIDs. Roles act in the
+current session. Autonomous workers and deployment are not available in this foundation.
+
+For a standalone legacy feature without mission planning, prepare it when it has enough context:
 
 ```bash
 python3 scripts/personalize.py feature --slug booking --run first-slice

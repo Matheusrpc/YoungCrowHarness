@@ -278,8 +278,9 @@ claude-mem, sincronização entre máquinas e orquestração autônoma de papéi
 [evolução do produto](docs/superpowers/specs/2026-10-01-youngcrow-foundation-design.md).
 O [desenho da esteira com agentes de IA](docs/superpowers/specs/2026-10-03-ai-product-pipeline-design.md)
 detalha personalizer, missões, três PBIs simultâneos por padrão, QA e produção verificada.
-O desenho foi aprovado e o [plano da primeira entrega](docs/superpowers/plans/2026-10-03-mission-foundation.md)
-está aprovado. A primeira base valida configurações de agentes offline em `youngcrow/agents.json`:
+O desenho foi aprovado e a [primeira entrega](docs/superpowers/plans/2026-10-03-mission-foundation.md)
+está publicada na `main` pelo [PR #18](https://github.com/Matheusrpc/YoungCrowHarness/pull/18).
+A base valida configurações de agentes offline em `youngcrow/agents.json`:
 três PBIs e três agentes simultâneos por padrão, três ciclos de correção e deploy manual.
 Modelo e esforço ficam pendentes até a escolha do usuário. Veja o
 [contrato de configuração](docs/USAGE.md#mission-config). A CLI `scripts/missions.py` configura,
@@ -299,6 +300,20 @@ automáticos pertencem às próximas entregas. Veja o [passo a passo](docs/USAGE
 [Provas da entrega](docs/relatorios/2026-10-03-mission-foundation.md): 296 testes no Linux, 36 testes
 de missões no Windows e percurso de adoção/retorno nos dois sistemas. O ensaio usa a CLI instalada;
 não comprova uma conversa nativa com os modelos configurados.
+
+O [backlog completo](docs/BACKLOG.md) reúne as entregas publicadas, 25 itens pendentes, dependências
+e critérios de aceite. A próxima implementação tem [plano escrito em revisão](docs/superpowers/plans/2026-10-03-mission-runtime-adapters.md)
+para três PBIs: compatibilidade dos clientes, execução limitada com recuperação e instalação/provas.
+Os limites de três PBIs e três agentes serão aplicados pela fila da entrega seguinte.
+
+| Próxima entrega | O que falta para a esteira completa |
+|---|---|
+| 2A. Executor e adaptadores | Conferir conexão/modelo/effort, executar uma prova delimitada e guardar o recibo |
+| 2B. Fila e branches | Puxar PBIs por prioridade, aplicar limites e isolar cada desenvolvimento |
+| 2C. Continuidade | Pausar, retomar e transferir entre máquina local e servidor |
+| 3. QA e integração | Revisão independente, Playwright quando aplicável, três correções e validação conjunta |
+| 4. Release e operação | PR protegido, deploy manual/automático, recuperação e produção verificada |
+| Aceite do produto | Provar o percurso nos dois clientes, retomar pela memória e publicar guias/demonstração |
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> O que vem dentro
 
@@ -617,7 +632,8 @@ claude-mem, cross-machine synchronization and autonomous role orchestration rema
 The [AI product pipeline design](docs/superpowers/specs/2026-10-03-ai-product-pipeline-design.md),
 written in Portuguese, covers the personalizer, missions, three concurrent PBIs by default, QA
 and verified production. The design is approved and the
-[first delivery plan](docs/superpowers/plans/2026-10-03-mission-foundation.md) is approved.
+[first delivery](docs/superpowers/plans/2026-10-03-mission-foundation.md) is published on `main`
+through [PR #18](https://github.com/Matheusrpc/YoungCrowHarness/pull/18).
 Offline agent configuration in `youngcrow/agents.json` defaults to three active PBIs, three parallel
 agents, three correction cycles and manual deployment. Model and effort remain pending until chosen.
 See the [configuration contract](docs/USAGE.md#mission-config). `scripts/missions.py` configures agents,
@@ -637,6 +653,20 @@ belong to later deliveries. See the [walkthrough](docs/USAGE.md#mission-workflow
 [Delivery evidence](docs/relatorios/2026-10-03-mission-foundation.md): 296 Linux tests, 36 Windows
 mission tests and adoption/restoration scenarios on both systems. The smoke uses the installed CLI;
 it does not establish a native conversation with the configured models.
+
+The [full backlog](docs/BACKLOG.md#english-overview) lists published capabilities, 25 pending items,
+dependencies and acceptance criteria. The next delivery has a [written plan awaiting review](docs/superpowers/plans/2026-10-03-mission-runtime-adapters.md)
+for three PBIs: client compatibility, bounded execution with recovery, and installation/proofs.
+The following queue delivery will enforce the separate limits of three PBIs and three agents.
+
+| Next delivery | Remaining work for the complete pipeline |
+|---|---|
+| 2A. Executor and adapters | Check connection/model/effort, run a bounded proof and preserve its receipt |
+| 2B. Queue and branches | Pull PBIs by priority, enforce limits and isolate each development workspace |
+| 2C. Continuity | Pause, resume and transfer between a local machine and a server |
+| 3. QA and integration | Independent review, Playwright where applicable, three corrections and joint validation |
+| 4. Release and operations | Protected PR, manual/automatic deployment, recovery and verified production |
+| Product acceptance | Prove the flow in both clients, recover context from memory and publish guides/demo |
 
 ## <img src="assets/gema-ambar.svg" height="24" alt=""> What is inside
 

@@ -58,8 +58,9 @@ permitir verificar o executor antes de lhe dar uma fila de desenvolvimento e tra
 | 4 | Release e operação | PR protegido, deploy manual/automático e produção verificada | Planejada; depende de 3 e 2C |
 | Aceite | Produto completo | Percurso real nas combinações anunciadas, documentação e pacote público | Planejado; depende das frentes anteriores |
 
-Os próximos três itens de implementação são `YC-201`, `YC-202` e `YC-203`. As provas pendentes
-da base podem ocorrer quando houver acesso e limites explícitos; não autorizam chamadas por si só.
+A implementação de `YC-201` e `YC-202` está entregue no incremento 2A parcial. O próximo aceite
+é concluir `YC-203`, comprovando os perfis nativos antes de habilitar a fila. As provas pendentes
+da base exigem acesso e limites explícitos; o backlog não autoriza chamadas por si só.
 
 ## Pendências de prova da base
 

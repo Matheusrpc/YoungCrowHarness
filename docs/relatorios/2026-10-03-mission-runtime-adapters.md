@@ -55,7 +55,9 @@ adiado nem uma segunda revisão por outro agente.
 O primeiro CI expôs dois problemas adicionais da preparação das provas: a fixture
 Linux passava o link do Python em vez do executável resolvido, e cinco hashes do
 catálogo usavam a identidade legada sem normalização. As fixtures e o lock foram
-corrigidos; o contrato normalizado ganhou regressão própria. A primeira prova de
+corrigidos; o contrato normalizado ganhou regressão própria. O CI também detectou
+um arquivo local com CRLF cujo hash mudava no checkout Linux: o arquivo foi alinhado
+ao LF já exigido por `.gitattributes`, e os hashes foram recalculados. A primeira prova de
 retorno Windows recusou um caminho longo. A fixture agora usa uma raiz curta,
 preservando a proteção de adoção.
 
@@ -162,8 +164,10 @@ Pontos que o revisor deixou para julgamento do executor:
   custo: progresso parcial não representa conclusão da esteira.
 - Fontes externas: usar documentação oficial conferida pelo executor e extração privada Docling;
   custo: o parecer do revisor não recertifica a documentação do fornecedor.
-- Conservar os artefatos privados desta prova para auditoria, após a recusa anterior da limpeza
-  automática; custo: uso de disco local. Eles continuam ignorados pelo Git.
+- Conservar os artefatos privados desta prova para auditoria; custo: uso de disco local.
+  Eles continuam ignorados pelo Git.
+- Explicitar consumidor e executável no exemplo da prova nativa; custo: esses caminhos precisam
+  ser informados pelo operador, sem escolher instalação ou conta implicitamente.
 
 ## Fontes consultadas
 

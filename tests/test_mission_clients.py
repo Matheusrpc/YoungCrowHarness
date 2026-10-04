@@ -120,6 +120,21 @@ class ClientTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'stale_observation'):
             self.module.build_check(self.agent(), observation, self.manifest)
 
+    def test_hardlinked_client_can_be_inspected_but_alias_changes_invalidate_it(self):
+        alias = self.root / 'installer-link'
+        os.link(self.executable, alias)
+        observation = self.observation('claude')
+        self.assertEqual(self.module.build_check(self.agent('claude'), observation, self.manifest)
+                         ['executable_sha256'], observation['executable_sha256'])
+        with alias.open('ab') as stream:
+            stream.write(b'installer update')
+        with self.assertRaisesRegex(ValueError, '^stale_observation$'):
+            self.module.build_check(self.agent('claude'), observation, self.manifest)
+        # Snapshot/adoption storage must retain its stricter no-alias contract.
+        from adoption_fs import hash_file
+        with self.assertRaisesRegex(ValueError, '^unsupported_entry$'):
+            hash_file(alias)
+
     def test_managed_policy_gap_blocks_check(self):
         observation = self.observation()
         observation['gaps'] = ['managed_policy_unverified']
@@ -216,7 +231,7 @@ class ClientTests(unittest.TestCase):
 
     def test_loopback_tools_empty_does_not_certify_managed_policy(self):
         observed_hash = 'af5bf1f1b2aadffc768eccd787084c6fdf9ba81624cbe96c1c6d9ac1a1550231'
-        with patch.object(self.module, 'hash_file', return_value=observed_hash), \
+        with patch.object(self.module, 'hash_executable', return_value=observed_hash), \
              patch.object(self.module, 'discover', return_value=dict(version='2.1.220', models=catalog('claude'), controls=True)):
             observation = self.module.inspect_client(self.root, 'claude', self.executable)
         self.assertIn('native_profile_unverified', observation['gaps'])

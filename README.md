@@ -313,6 +313,9 @@ O [backlog completo](docs/BACKLOG.md) acompanha dependências e critérios de ac
 [2A: executor e adaptadores](docs/relatorios/2026-10-03-mission-runtime-adapters.md) está parcial:
 o mecanismo existe, mas os perfis de permissões de Codex e Claude ainda bloqueiam chamadas reais.
 Descobrir um modelo não comprova sua execução. API permanece indisponível nesta etapa.
+Na [verificação nativa](docs/relatorios/2026-10-03-native-client-verification.md), a inspeção do
+Claude passou a aceitar o executável com hard link usado pelo instalador. A prova local do Codex
+reproduziu acesso a uma imagem fora da pasta de trabalho; o diagnóstico real continua bloqueado.
 Os limites de três PBIs e três agentes serão aplicados pela fila da entrega seguinte.
 
 | Próxima entrega | O que falta para a esteira completa |
@@ -675,6 +678,9 @@ The [full backlog](docs/BACKLOG.md#english-overview) tracks dependencies and acc
 [2A: executor and adapters](docs/relatorios/2026-10-03-mission-runtime-adapters.md) is partial:
 the mechanism exists, but Codex and Claude permission profiles still block live calls.
 Discovering a model does not verify execution. API connections remain unavailable in this stage.
+The [native verification](docs/relatorios/2026-10-03-native-client-verification.md) confirmed Claude
+inspection with its installer's hard-linked executable. The local Codex probe reproduced image
+access outside the working directory; live diagnostics remain blocked.
 The following queue delivery will enforce the separate limits of three PBIs and three agents.
 
 | Next delivery | Remaining work for the complete pipeline |

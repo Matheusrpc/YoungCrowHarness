@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-03",
+  "front": "2A",
+  "item": "YC-203",
+  "state": "partial",
+  "native_profiles_enabled": 0,
+  "live_model_calls": 0,
+  "baseline_commit": "605b9f1fb233138f4b4dba80864b52e9811bdd94",
+  "windows": {
+    "python": "3.14.4",
+    "client_contracts": {
+      "tests": 19,
+      "seconds": 4.968,
+      "result": "passed"
+    },
+    "claude_inspection": {
+      "version": "2.1.220",
+      "executable_sha256": "af5bf1f1b2aadffc768eccd787084c6fdf9ba81624cbe96c1c6d9ac1a1550231",
+      "auth_kind": "authenticated",
+      "gaps": [
+        "native_profile_unverified"
+      ],
+      "model_compatibility": "not_verified",
+      "catalog_source": "native_client"
+    },
+    "codex_loopback": {
+      "0.146.0": {
+        "profile": "failed",
+        "executable_sha256": "bc343ba420dc2e2e9f59e6fc5e5bf0aae1cd8c771fc319665241fc9c0271fddb",
+        "strict_config": false,
+        "model_calls": 0,
+        "reason": "completed",
+        "exit_code": 1,
+        "tree_reaped": true,
+        "requests": 2,
+        "tools": [
+          "update_plan",
+          "request_user_input",
+          "view_image"
+        ],
+        "image_sent": true,
+        "unknown_view_image_setting": false
+      },
+      "0.146.0-strict": {
+        "profile": "not_proven",
+        "executable_sha256": "bc343ba420dc2e2e9f59e6fc5e5bf0aae1cd8c771fc319665241fc9c0271fddb",
+        "strict_config": true,
+        "model_calls": 0,
+        "reason": "completed",
+        "exit_code": 1,
+        "tree_reaped": true,
+        "requests": 0,
+        "tools": null,
+        "image_sent": false,
+        "unknown_view_image_setting": true
+      },
+      "0.160.0": {
+        "profile": "failed",
+        "executable_sha256": "37762753b554982eef1c109303d1be652b6397f1479e844794353a85650199c6",
+        "strict_config": false,
+        "model_calls": 0,
+        "reason": "completed",
+        "exit_code": 1,
+        "tree_reaped": true,
+        "requests": 2,
+        "tools": [
+          "request_user_input",
+          "view_image"
+        ],
+        "image_sent": true,
+        "unknown_view_image_setting": true
+      }
+    }
+  },
+  "native_probe": "tests/probe_codex_image_boundary.py",
+  "raw_output": "private_only",
+  "remaining": [
+    "native_codex_isolation",
+    "native_claude_managed_policy",
+    "bounded_authenticated_proofs"
+  ]
+}

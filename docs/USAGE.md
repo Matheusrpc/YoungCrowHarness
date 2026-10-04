@@ -1699,8 +1699,10 @@ não baixa clientes nem garante o lançamento global mais recente. A inspeção 
 metadados e status de autenticação oficiais, sem enviar um turno de modelo. Não cria banco ou
 recibos do harness. Cada processo de inspeção e seus descendentes usam o mesmo supervisor,
 com prazo de 30 segundos e saída limitada. O próprio cliente pode manter caches locais.
-O executável precisa ser um arquivo regular, sem link simbólico ou hard link; o diagnóstico
-recusa entradas compartilhadas em vez de alterar a instalação do cliente.
+O executável precisa ser um arquivo regular, sem link simbólico ou reparse point no caminho.
+Hard links usados por instaladores são aceitos para leitura; o hash é conferido novamente antes
+da chamada. A inspeção não altera o binário. Backups e arquivos de adoção continuam recusando
+hard links. Um catálogo legível pode retornar `native_profile_unverified` e manter a execução bloqueada.
 
 Crie `vault/local/client-check.json` com os UUIDs e a revisão reais. `authorization_ref` registra a
 autorização que você concedeu; o texto do modelo não pode concedê-la. Este exemplo usa até 120
@@ -1741,13 +1743,23 @@ catalog and resolves `latest`; it neither upgrades clients nor guarantees the ne
 release. Inspection sends no model turn and creates no harness database or receipts; the
 native client may maintain its own caches.
 Each metadata process and its descendants use the supervisor with a 30-second deadline and
-bounded output. The executable must be a regular file without symbolic or hard links; inspection
-rejects shared entries without changing the client installation.
+bounded output. The executable must be a regular file without symbolic links or reparse points
+in its path. Installer hard links are accepted for reading, with the hash rechecked before launch.
+Inspection never modifies the binary. Adoption and backup files still reject hard links. A readable
+catalog can report `native_profile_unverified` and keep execution blocked.
 
 The check only asks for its JSON nonce back. Arbitrary prompts, URLs, shell and additional
 capabilities are rejected. Requested, resolved and observed model values remain separate.
 Missing effort or cost stays null. Client-reported cost does not confirm a bill. Subscription
 authentication never silently changes to an API connection.
+
+Para reproduzir a recusa de isolamento encontrada no Codex, consulte a
+[prova local](relatorios/2026-10-03-native-client-verification.md). Ela usa uma imagem fictícia
+e um fornecedor simulado em loopback, sem conta ou modelo real. Esse teste não libera um perfil.
+
+See the [local probe](relatorios/2026-10-03-native-client-verification.md) to reproduce the Codex
+isolation failure with a synthetic image and a loopback provider, without an account or live model.
+This test never enables a profile.
 
 ### Interrupção e recuperação / Interruption and recovery
 

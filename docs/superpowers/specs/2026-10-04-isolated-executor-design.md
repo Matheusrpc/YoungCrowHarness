@@ -7,7 +7,8 @@ O mantenedor aprovou o caminho de ambiente separado depois das
 Este documento detalha esse caminho. A aprovação anterior permite preparar o desenho;
 não comprova o funcionamento das dependências escolhidas aqui.
 
-Registro de integração: [Docker Sandboxes no vault](../../../vault/integrations/docker/sandboxes/index.md).
+As fontes oficiais estão ligadas nas seções abaixo. Extrações e registros desta pesquisa ficam
+no vault local do mantenedor, separados do template instalado nos projetos consumidores.
 
 ## Resultado esperado
 

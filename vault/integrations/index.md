@@ -19,5 +19,3 @@ Na raiz do projeto / from the project root:
 ```bash
 python3 scripts/integrations.py init --provider example --service payments --run first-contract
 ```
-
-- [docker](docker/index.md)

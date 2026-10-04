@@ -1,6 +1,6 @@
 # Backlog do YoungCrowHarness
 
-Frente: produto completo e sequência de entrega. Atualizado em 2026-10-03.
+Frente: produto completo e sequência de entrega. Atualizado em 2026-10-04.
 
 Este é o índice público do trabalho necessário para entregar a esteira definida na
 [especificação aprovada](superpowers/specs/2026-10-03-ai-product-pipeline-design.md).
@@ -87,9 +87,11 @@ Até ela existir, esses ritos são conduzidos nas sessões autorizadas.
 | YC-208 | 2C: pacote privado e troca de responsável | YC-207 | Transferir Git, estado, notas e evidências com hashes; excluir credenciais; importar pausado. Origem perde direito de retomar a geração entregue | Planejado |
 | YC-209 | 2C: prova local/servidor nos dois sentidos | YC-208 | Transferência interrompida, repetida e confirmação perdida preservam um único responsável; contadores sobrevivem e sessão nova localiza o histórico | Planejado |
 
-A próxima decisão de YC-203 é a [fronteira de execução](relatorios/2026-10-04-native-permission-controls.md#decisão-de-arquitetura-pendente).
-Os controles complementares não certificaram os perfis locais. Um ambiente isolado está proposto,
-sem implementação ou mudança de aceite; o início de 2B continua dependente dessa prova.
+O mantenedor escolheu o ambiente separado após os [controles complementares](relatorios/2026-10-04-native-permission-controls.md).
+O [desenho detalhado](superpowers/specs/2026-10-04-isolated-executor-design.md) está em revisão.
+Seus três PBIs refinam YC-203: ambiente/prova sem modelo (2A-R1), adaptador/recuperação (2A-R2)
+e prova autenticada/adoção nos dois clientes (2A-R3). Não criam novos itens na contagem principal.
+Nenhum foi implementado. O início de 2B continua dependente da prova de execução.
 
 Aceite da frente 2: `yc-iniciar`, `yc-pausar`, `yc-retomar` e `yc-transferir` instalados e
 verificados nas combinações anunciadas. A etapa 2A isolada fornece o mecanismo de execução e
@@ -158,8 +160,10 @@ dos modelos continuam finitos; as extensões devem melhorar recuperação e nave
 
 The foundation and mission preparation are published. Delivery 2A implements client preflight,
 bounded execution and durable receipts, with [native isolation proofs still open](relatorios/2026-10-03-mission-runtime-adapters.md).
-Both native profiles stay blocked. The [execution boundary proposal](relatorios/2026-10-04-native-permission-controls.md#english-overview)
-awaits a decision after the additional controls; it is not implemented. Next come the priority queue and isolated workspaces (2B), pause/resume/transfer
+Both native profiles stay blocked. A separate environment was selected, with the
+[detailed design](superpowers/specs/2026-10-04-isolated-executor-design.md) under review. Its three
+PBIs refine YC-203: environment and unpaid proof, adapter/recovery, then authenticated adoption
+with both clients. None is implemented. Next come the priority queue and isolated workspaces (2B), pause/resume/transfer
 (2C), independent QA and integration (3), and protected release with verified production (4).
 
 The 25 core backlog items include the implemented 2A mechanism, outstanding native proofs and

@@ -316,6 +316,9 @@ Descobrir um modelo não comprova sua execução. API permanece indisponível ne
 Na [verificação nativa](docs/relatorios/2026-10-03-native-client-verification.md), a inspeção do
 Claude passou a aceitar o executável com hard link usado pelo instalador. A prova local do Codex
 reproduziu acesso a uma imagem fora da pasta de trabalho; o diagnóstico real continua bloqueado.
+Os [controles complementares](docs/relatorios/2026-10-04-native-permission-controls.md) confirmaram
+que as flags atuais não isolam o estado interno dos clientes. A proposta de executor em ambiente
+isolado está documentada para decisão; ela ainda não foi implementada.
 Os limites de três PBIs e três agentes serão aplicados pela fila da entrega seguinte.
 
 | Próxima entrega | O que falta para a esteira completa |
@@ -681,6 +684,9 @@ Discovering a model does not verify execution. API connections remain unavailabl
 The [native verification](docs/relatorios/2026-10-03-native-client-verification.md) confirmed Claude
 inspection with its installer's hard-linked executable. The local Codex probe reproduced image
 access outside the working directory; live diagnostics remain blocked.
+The [additional controls](docs/relatorios/2026-10-04-native-permission-controls.md#english-overview)
+confirmed that the current flags do not isolate client runtime state. A separately isolated
+executor is documented as a proposal awaiting a decision; it has not been implemented.
 The following queue delivery will enforce the separate limits of three PBIs and three agents.
 
 | Next delivery | Remaining work for the complete pipeline |

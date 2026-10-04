@@ -1761,6 +1761,16 @@ See the [local probe](relatorios/2026-10-03-native-client-verification.md) to re
 isolation failure with a synthetic image and a loopback provider, without an account or live model.
 This test never enables a profile.
 
+Os [controles de permissões](relatorios/2026-10-04-native-permission-controls.md) também testaram
+resposta permitida, leitura recusada e gravações internas dos clientes. Um JSON correto ou um
+processo com código zero não prova isolamento. Os perfis continuam bloqueados; a proposta de
+ambiente separado ainda não tem setup disponível. Não altere a lista de perfis para forçar a execução.
+
+The [permission controls](relatorios/2026-10-04-native-permission-controls.md#english-overview)
+also checked an allowed response, denied reads and internal client writes. A correct JSON response
+or zero exit code does not prove isolation. Profiles remain blocked; the proposed separate
+environment has no setup command yet. Do not edit the profile allowlist to force execution.
+
 ### Interrupção e recuperação / Interruption and recovery
 
 `client runs` e `status` só leem. Não migram o banco, não corrigem notas nem iniciam processos.

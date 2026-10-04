@@ -7,6 +7,8 @@ O mantenedor aprovou o caminho de ambiente separado depois das
 Este documento detalha esse caminho. A aprovação anterior permite preparar o desenho;
 não comprova o funcionamento das dependências escolhidas aqui.
 
+Registro de integração: [Docker Sandboxes no vault](../../../vault/integrations/docker/sandboxes/index.md).
+
 ## Resultado esperado
 
 O desenvolvedor prepara o ambiente uma vez, autentica seus clientes e escolhe modelo e esforço.
@@ -41,9 +43,10 @@ Comparação que sustenta a escolha:
 | VM montada e mantida pelo YoungCrow | Evitar construir distribuição, hipervisor ou gerenciador de credenciais próprio |
 
 No host inspecionado, Windows 11 x64 tem hipervisor ativo, mas `sbx` não está instalado e o
-recurso Windows Hypervisor Platform está ausente. WSL também está ausente; não é requisito
+recurso Windows Hypervisor Platform está desabilitado (`InstallState: 2`). WSL também está ausente; não é requisito
 automático deste desenho. Ativar o recurso do Windows exige administração e pode exigir reinício.
 Essa mudança deve ser feita em uma janela escolhida pelo operador; o harness não reinicia a máquina.
+O estado foi interpretado pela [referência do Windows](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-optionalfeature).
 
 ## Fronteiras
 
@@ -183,6 +186,32 @@ prova e operação. Os comandos slash atuais orientam esse fluxo. Este increment
 `yc-iniciar` nem anuncia a fila. O perfil nativo no host continua bloqueado e não vira fallback.
 
 ## Como o desenvolvedor usará
+
+Fluxo proposto. As caixas descrevem o desenho, não comandos já disponíveis.
+
+```mermaid
+flowchart TD
+    A([Início]) --> B[Conferir ambiente e setup]
+    B --> C[Autenticar e configurar agentes]
+    C --> D[Provar isolamento e prazo sem modelo]
+    D --> E{Perfil aprovado?}
+    E -- Não --> X[Registrar pendência no vault]
+    E -- Sim --> F[Reservar operação e preparar pacote]
+    F --> G[Executar cliente dentro do limite]
+    G --> H[Confirmar término e parar sandbox]
+    H --> I{Efeito e parada confirmados?}
+    I -- Não --> J[Manter incerto e bloquear repetição]
+    I -- Sim --> K[Validar resposta e registrar recibo]
+    X --> L([Fim da tentativa])
+    J --> L
+    K --> L
+    classDef activity fill:#F3E7C6,stroke:#1F4FA3,color:#17130f
+    classDef decision fill:#F3E7C6,stroke:#725a35,color:#17130f
+    classDef boundary fill:#1F7A4D,stroke:#F3E7C6,color:#ffffff
+    class B,C,D,F,G,H,J,K,X activity
+    class E,I decision
+    class A,L boundary
+```
 
 1. Executar o diagnóstico do ambiente. Ele informa pré-requisitos ausentes, sem instalar nada,
    ler valores de credenciais, criar missão ou chamar modelo.

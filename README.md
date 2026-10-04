@@ -317,8 +317,10 @@ Na [verificação nativa](docs/relatorios/2026-10-03-native-client-verification.
 Claude passou a aceitar o executável com hard link usado pelo instalador. A prova local do Codex
 reproduziu acesso a uma imagem fora da pasta de trabalho; o diagnóstico real continua bloqueado.
 Os [controles complementares](docs/relatorios/2026-10-04-native-permission-controls.md) confirmaram
-que as flags atuais não isolam o estado interno dos clientes. A proposta de executor em ambiente
-isolado está documentada para decisão; ela ainda não foi implementada.
+que as flags atuais não isolam o estado interno dos clientes. O caminho de ambiente separado
+foi escolhido. O [desenho do executor isolado](docs/superpowers/specs/2026-10-04-isolated-executor-design.md)
+propõe Docker Sandboxes local, cópia sanitizada e controle de duração independente do coordenador.
+O desenho detalhado está em revisão; instalação e execução ainda não estão implementadas.
 Os limites de três PBIs e três agentes serão aplicados pela fila da entrega seguinte.
 
 | Próxima entrega | O que falta para a esteira completa |
@@ -685,8 +687,10 @@ The [native verification](docs/relatorios/2026-10-03-native-client-verification.
 inspection with its installer's hard-linked executable. The local Codex probe reproduced image
 access outside the working directory; live diagnostics remain blocked.
 The [additional controls](docs/relatorios/2026-10-04-native-permission-controls.md#english-overview)
-confirmed that the current flags do not isolate client runtime state. A separately isolated
-executor is documented as a proposal awaiting a decision; it has not been implemented.
+confirmed that the current flags do not isolate client runtime state. A separate environment
+was selected. The [isolated executor design](docs/superpowers/specs/2026-10-04-isolated-executor-design.md)
+proposes local Docker Sandboxes, sanitized input and a deadline independent of the coordinator.
+The detailed design is under review; setup and execution have not been implemented.
 The following queue delivery will enforce the separate limits of three PBIs and three agents.
 
 | Next delivery | Remaining work for the complete pipeline |

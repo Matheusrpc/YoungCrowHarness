@@ -1766,10 +1766,25 @@ resposta permitida, leitura recusada e gravações internas dos clientes. Um JSO
 processo com código zero não prova isolamento. Os perfis continuam bloqueados; a proposta de
 ambiente separado ainda não tem setup disponível. Não altere a lista de perfis para forçar a execução.
 
+O [desenho em revisão](superpowers/specs/2026-10-04-isolated-executor-design.md) prevê preparação
+única do Docker Sandboxes local e login separado. O runtime exige conta Docker; o uso local é
+gratuito conforme a documentação consultada, com o consumo dos modelos tratado pela conta escolhida.
+No Windows, será necessário Windows 11 x64 e Windows Hypervisor Platform habilitado. A preparação
+nunca reinicia o computador automaticamente. O rollback do trial restaura os arquivos do projeto;
+runtime do sistema e logins terão um procedimento de remoção separado. Não há comando YoungCrow
+de instalação desse executor disponível nesta versão.
+
 The [permission controls](relatorios/2026-10-04-native-permission-controls.md#english-overview)
 also checked an allowed response, denied reads and internal client writes. A correct JSON response
 or zero exit code does not prove isolation. Profiles remain blocked; the proposed separate
 environment has no setup command yet. Do not edit the profile allowlist to force execution.
+
+The [design under review](superpowers/specs/2026-10-04-isolated-executor-design.md) proposes one-time
+local Docker Sandboxes preparation and separate sign-in. It requires a Docker account; the cited
+vendor documentation states local runtime use is free, with model usage handled by the chosen account.
+Windows requires Windows 11 x64 and Windows Hypervisor Platform. Setup will not restart the host
+automatically. Trial rollback restores project files; system runtime and logins will have a separate
+removal procedure. This version has no YoungCrow command for installing that executor.
 
 ### Interrupção e recuperação / Interruption and recovery
 

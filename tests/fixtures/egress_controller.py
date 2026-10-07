@@ -7,6 +7,7 @@ import subprocess
 import sys
 import threading
 import time
+from urllib.parse import parse_qs, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]/'scripts'))
 import mission_egress as egress
@@ -18,7 +19,7 @@ if sys.argv[1:2] == ['--dns']:
     print('x'*17000 if sys.argv[2] == 'oversized' else '["8.8.8.8"]', flush=True)
     raise SystemExit()
 
-if sys.argv[1:] == ['--guard-local']:
+if sys.argv[1:] in (['--guard-local'],['--guard-echo'],['--guard-echo-no-injection']):
     config = json.loads(sys.stdin.buffer.readline(16385))
     def connect(*args, **kwargs):
         upstream, peer = socket.socketpair()
@@ -27,10 +28,27 @@ if sys.argv[1:] == ['--guard-local']:
         def echo():
             with peer:
                 received = peer.recv(1024)
+                if sys.argv[1] != '--guard-local':
+                    while received and b'\r\n\r\n' not in received:
+                        part=peer.recv(1024)
+                        if not part: break
+                        received+=part
                 count.write_text(str(len(received)))
                 if not received:
                     return
-                peer.sendall(b'local-response')
+                response=b'local-response'
+                if sys.argv[1] != '--guard-local':
+                    target=received.split(b' ',2)[1].decode('ascii')
+                    marker=next(line.split(b': ',1)[1].decode('ascii') for line in received.split(b'\r\n')
+                                if line.startswith(b'X-Youngcrow-Probe: '))
+                    assert marker.startswith('youngcrow-probe-')
+                    injected=marker if sys.argv[1]=='--guard-echo-no-injection' else 'disposable-test-injection'
+                    args={k:v[0] for k,v in parse_qs(urlsplit(target).query).items()}
+                    body=json.dumps(dict(args=args,headers={'x-youngcrow-probe':injected},
+                                         url='https://postman-echo.com'+target)).encode()
+                    response=(b'HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: '
+                              +str(len(body)).encode()+b'\r\n\r\n'+body)
+                peer.sendall(response)
                 peer.shutdown(socket.SHUT_WR)
         threading.Thread(target=echo).start()
         return upstream, dict(host=egress.HOST,port=443,resolved=['8.8.8.8'],selected_ip='8.8.8.8',

@@ -1,5 +1,6 @@
 """Exercise controller code in real inherited containment, with a local launcher."""
 import importlib
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -23,10 +24,27 @@ class ControllerTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
 
-    def manifest(self, phase='A'):
+    def manifest(self, phase='A', *, injection=False):
+        extra = dict(injection_sha256=hashlib.sha256(b'disposable-test-injection').hexdigest()) if injection else {}
         return self.controller.phase_manifest(operation_id=str(uuid.uuid4()), nonce=uuid.uuid4().hex,
             deadline_ms=int(time.time()*1000)+5000, phase=phase, proxy_ipv4='172.17.0.1',
-            ca_sha256='d'*64, placeholder='youngcrow-probe-'+uuid.uuid4().hex)
+            ca_sha256='d'*64, placeholder='youngcrow-probe-'+uuid.uuid4().hex, **extra)
+
+    def test_v4_binds_injection_receipt_without_accepting_native_proof(self):
+        manifest=self.manifest(injection=True)
+        result=self.run_controller(manifest)
+        self.assertEqual(manifest['schema_version'],4)
+        self.assertEqual(result['state'],'observed',result)
+        self.assertEqual(result['fixture']['injected_value_sha256'],manifest['relay']['injection_sha256'])
+        self.assertNotIn('echo_matches',result['fixture'])
+        self.assertFalse(result['proof_accepted'])
+
+    def test_v4_refuses_legacy_result_or_response_supplied_hash(self):
+        for mode in ('legacy_echo','wrong_injection_hash'):
+            with self.subTest(mode=mode),tempfile.TemporaryDirectory() as temporary:
+                self.root=Path(temporary)
+                result=self.run_controller(self.manifest(injection=True),mode)
+                self.assertEqual(result['reason'],'fixture_result_invalid')
 
     def run_controller(self, manifest, mode='success'):
         plan = dict(argv=[sys.executable, '-I', '-B', str(HELPER.resolve()), '--controller', mode],

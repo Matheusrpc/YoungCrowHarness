@@ -182,7 +182,7 @@ def validate_event(record, phase, kind, payload):
 
 
 def append(registry, record, phase, kind, payload):
-    require(record['state'] != 'recovered' and record['schema_version'] == 3, 'effect_consumed')
+    require(record['state'] != 'recovered' and record['schema_version'] in (3, 4), 'effect_consumed')
     if phase != 'recovery':
         require(not record['recovery'] and time.time()*1000 < record['plan']['deadline_ms'], 'execution_deadline')
     validate_event(record, phase, kind, payload)

@@ -52,14 +52,16 @@ Veja o [registro da publicação](docs/relatorios/2026-10-07-cloud-publication.m
 missão, sem consultar clientes ou Docker. Veja o [contrato e seus limites](docs/USAGE.md#synthetic-admission)
 e a [continuidade na cloud](docs/relatorios/2026-10-07-synthetic-admission.md).
 
-O coordenador interno integra o guard de saída ao plano v3 e ao diário A/B/A2.
-Os testes usam sockets locais reais: A e A2 reutilizam a porta, B observa sua ausência,
-e a recuperação restaura as configurações sandbox após encerrar os processos.
-**203.6 permanece parcial:** falta comprovar a identidade da credencial fictícia no
-`sbx` para removê-la com segurança, ligar o adaptador nativo e concluir os aceites.
-Políticas e credenciais permanecem inalteradas; B ainda exige atribuição nativa.
-Validação local: 574 testes aprovados e 20 pulados.
-Veja [entrega, testes e próximo passo](docs/relatorios/2026-10-07-network-integration.md).
+O plano v4 exige que a resposta contenha um valor fictício diferente do placeholder,
+com o hash esperado fixado antes da execução. A prova interna usa fixture, relay e
+guard com processos e sockets locais; também recusa o percurso sem substituição.
+A/B/A2 compartilham a configuração e mantêm identidades próprias. Planos v2/v3
+continuam legíveis para recuperação, sem transformar eco antigo em prova de injeção.
+**203.6 permanece parcial:** a API Cloud documenta remoção condicionada à versão da
+credencial, mas falta comprovar esse contrato no `sbx` local 0.46.0. O adaptador e
+os perfis nativos seguem bloqueados; B ainda exige atribuição nativa.
+Validação local: 587 testes aprovados e 20 pulados.
+Veja [entrega, testes e próximo passo](docs/relatorios/2026-10-07-injection-proof.md).
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
@@ -384,8 +386,9 @@ exclusiva e a prova integrada de rede ainda são necessárias para executar clie
 O relay restrito já está ligado ao guardian e ao launcher em desenvolvimento.
 Ele reconstrói o destino autorizado, preserva respostas em streaming e encerra a
 conexão no prazo da operação. Passaram 43 testes locais, com revisão independente.
-A configuração v3 aceita apenas eco com credencial fictícia; Docker integrado e
-Claude/Codex autenticados ainda precisam de prova. Consulte o [estado do relay](docs/relatorios/2026-10-07-executor-consolidation.md#relay-restrito-no-guardian).
+O contrato v4 acrescenta verificação por hash de um valor diferente do placeholder.
+Docker integrado e Claude/Codex autenticados ainda precisam de prova. Consulte a
+[prova interna atual](docs/relatorios/2026-10-07-injection-proof.md).
 O diagnóstico também mostra `execution_reservation`, compartilhada pelos projetos
 da mesma conta. A reserva persiste após queda do coordenador; recibo ausente ou
 corrompido mantém o bloqueio. O filtro de saída já confere DNS e IP antes de conectar,
@@ -562,14 +565,16 @@ See the [publication record](docs/relatorios/2026-10-07-cloud-publication.md).
 and its UUID without querying clients or Docker. See the [contract and limits](docs/USAGE.md#synthetic-admission)
 and the [cloud continuation report](docs/relatorios/2026-10-07-synthetic-admission.md).
 
-The internal coordinator integrates the egress guard with the v3 plan and A/B/A2
-journal. Tests use real local sockets: A and A2 reuse the port, B observes its absence,
-and recovery restores sandbox settings after process termination.
-**203.6 remains partial:** safe removal needs a proven identity for the dummy credential
-in `sbx`, followed by the native adapter and acceptance tests. Policies and credentials
-remain unchanged; B still requires native attribution.
-Local validation: 574 tests passed and 20 were skipped.
-See [delivery, tests and next step](docs/relatorios/2026-10-07-network-integration.md).
+The v4 plan requires a dummy value different from the placeholder, checked against
+a hash fixed before execution. The internal proof uses the fixture, relay and guard
+with real local processes and sockets; the path without substitution is rejected.
+A/B/A2 share configuration with distinct identities. V2/v3 plans remain readable for
+recovery without turning historical echo results into injection proof.
+**203.6 remains partial:** the Cloud API documents version-conditional credential
+deletion, but that contract is unproven for local `sbx` 0.46.0. The native adapter and
+profiles remain blocked; B still requires native attribution.
+Local validation: 587 tests passed and 20 were skipped.
+See [delivery, tests and next step](docs/relatorios/2026-10-07-injection-proof.md#english-overview).
 
 Audit fixes recover interrupted mission/backlog notes even after another
 revision, preserving human edits. Malformed catalogs and Git failures during the
@@ -895,8 +900,9 @@ and the integrated network proof are still required before running clients.
 The restricted relay is connected to guardian and launcher in development.
 It reconstructs the authorized destination, preserves streaming responses and closes
 connections within the operation deadline. All 43 local tests passed, with independent
-review. Configuration v3 permits only dummy-credential echo; integrated Docker and
-authenticated Claude/Codex still need proof. See the [relay status](docs/relatorios/2026-10-07-executor-consolidation.md#relay-restrito-no-guardian).
+review. The v4 contract adds hash verification of a value distinct from the placeholder.
+Integrated Docker and authenticated Claude/Codex still need proof. See the
+[current internal proof](docs/relatorios/2026-10-07-injection-proof.md#english-overview).
 The diagnostic also reports `execution_reservation`, shared across projects using
 the same account. Reservations survive coordinator loss; missing or corrupt records
 keep execution blocked. The destination guard checks DNS and IPs before connecting,

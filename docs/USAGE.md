@@ -1851,12 +1851,13 @@ restoration integration in 203.6, followed by native proof. Native profiles rema
 Confere identidade e namespace, registra intenção e autorização antes de cada efeito
 e espera `ready` após a inicialização. Aceita somente o comando fixo da fixture e
 metadados limitados. A fixture `runtime/sbx/fixture.py` inicializa sem rede e faz uma
-GET ao relay local, com eco fictício verificado. Está incluída no contexto de build
+GET ao relay local. O contrato v4 confere o hash esperado de um valor fictício distinto
+do placeholder; v3 preserva somente a semântica histórica de eco. Está incluída no contexto de build
 da imagem; o instalador distribui o controlador e preserva cópias locais existentes.
 
 São componentes internos, sem novo comando público de execução. O `client check`
 continua retornando o bloqueio descrito acima. `mission_transaction.py` vincula a
-missão ao plano v2 ou v3 no mesmo ledger global. Guarda baseline completo, três identidades
+missão ao plano v2, v3 ou v4 no mesmo ledger global. Guarda baseline completo, três identidades
 distintas, digests e diário anterior aos efeitos. As fases compartilham até 120 segundos,
 limitados pelo orçamento admitido. A execução pública aguarda o contrato de credenciais, adaptador e prova nativa. O controlador retorna sempre
 `proof_accepted=false` e `workload_reaped=false`; `observed` indica apenas que o
@@ -1867,12 +1868,13 @@ uma resposta permitida vira `unexpected_allow`.
 supervisor. It checks identity and namespace, records intent and authorization before
 each effect, and waits for `ready` after initialization. Commands are fixed to the
 fixture and results are bounded metadata. `runtime/sbx/fixture.py` initializes without
-network and makes one GET through the loopback relay, validating a fake echo. The
+network and makes one GET through the loopback relay. V4 checks the expected hash of
+a dummy value distinct from the placeholder; v3 keeps its historical echo semantics. The
 image build context includes it; setup distributes the controller while preserving
 existing local copies.
 
 These are internal components with no new public execution command. `client check`
-still returns the block above. `mission_transaction.py` binds the mission to a v2 or v3
+still returns the block above. `mission_transaction.py` binds the mission to a v2, v3 or v4
 plan in the same global ledger, storing baseline values, three distinct identities,
 digests and a journal before effects. Phases share up to 120 seconds, bounded by
 the admitted budget. Public execution awaits the credential contract, native adapter and proof. Controller results always keep `proof_accepted=false` and
@@ -1886,19 +1888,44 @@ Somente `proxy.sandbox` e `no_proxy.sandbox` podem mudar. A recuperação exige 
 paradas, proprietário e porta ausentes, preserva mudanças externas e observa respostas
 perdidas sem repetir mutações. Registros v1/v2 conservam seus contratos.
 
-Os testes ligam essas etapas com sbx e destino remoto simulados, processos e sockets
-locais reais. O adaptador nativo recusa set/restart: a identidade verificável de uma
-credencial customizada ainda não está documentada. Não há prova de injeção, Docker TLS,
-MCP ou recusa nativa atribuída; perfis seguem vazios. [Escopo e provas](relatorios/2026-10-07-network-integration.md).
+O plano e os manifestos v4 acrescentam `relay.injection_sha256`, recebido pelo
+`build_plan(..., injection_sha256=...)` interno junto à configuração de rede.
+Placeholder, hash esperado, proxy e CA são iguais em A/B/A2; UUIDs e nonces são
+distintos, com prazo compartilhado. Manifesto, argv e recibos contêm apenas o hash do
+valor fictício. Não passar credenciais reais a essa interface sintética.
+
+A fixture exige um único header de texto, diferente do placeholder, cujo SHA-256
+coincida com o hash imutável. Retorna `schema_version=2`, `injection_matches=true`
+e `injected_value_sha256`; não retorna o valor nem o corpo. Hash do próprio placeholder,
+comandos alterados ou resposta legada são recusados. O resultado schema 1 de eco
+continua válido somente no contrato antigo e não certifica injeção.
+
+Os testes ligam fixture, relay e guard com processos e sockets locais reais; sbx,
+TLS e substituição no upstream são simulados. O adaptador nativo recusa set/restart.
+A API Cloud documenta `uid`, `etag` e remoção com `If-Match`; ainda falta comprovar
+endpoint, armazenamento e operação atômica compatíveis no sbx local 0.46.0. Docker TLS,
+MCP e recusa nativa atribuída continuam sem prova; perfis seguem vazios.
+[Escopo, fontes e provas](relatorios/2026-10-07-injection-proof.md).
 
 The v3 plan adds `mission_network.py`, guard/Python hashes, the system resolver and
 forbidden IPs. Configuration follows the durable helper PID receipt; destination
 metadata must be acknowledged before forwarding bytes. Only the two sandbox proxy
 settings may change. Recovery requires stopped workloads/VM and absent owner/port,
 preserves external changes and observes lost replies without repeating mutations.
-Legacy v1/v2 contracts remain intact. Tests use simulated sbx/upstream boundaries
-with real local processes and sockets. Native set/restart stays blocked pending a
-verifiable custom-credential identity. Injection, Docker TLS, MCP and attributable
+Legacy v1/v2 contracts remain intact. V4 adds `relay.injection_sha256`, supplied to
+internal `build_plan(..., injection_sha256=...)` together with network configuration.
+A/B/A2 share placeholder, expected hash, proxy, CA and deadline, keeping separate identities.
+Only the hash of the dummy value enters manifests, argv and receipts. This synthetic
+interface must not receive real credentials.
+
+The fixture requires exactly one string header, distinct from the placeholder and
+matching the immutable hash. Result schema 2 reports `injection_matches=true` and
+`injected_value_sha256`, never the value or body. The placeholder's hash, changed
+commands and legacy responses are rejected. Schema 1 echo results remain historical.
+Tests connect the fixture, relay and guard with real local processes and sockets;
+sbx, TLS and upstream substitution are simulated. Native set/restart remains blocked.
+The Cloud API documents `uid`, `etag` and `If-Match` deletion, but its endpoint/store
+and atomic semantics are unproven for local sbx 0.46.0. Docker TLS, MCP and attributable
 native refusal remain unproven; profiles stay empty.
 
 Testes locais / Local tests:

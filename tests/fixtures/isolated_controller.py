@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 import time
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/'scripts'))
@@ -14,6 +15,43 @@ sys.path.insert(0, str(ROOT/'scripts'))
 
 def encoded(value):
     return json.dumps(value, sort_keys=True, separators=(',', ':')).encode()
+
+
+def injection_exchange(manifest, port):
+    """Real fixture -> relay -> SOCKS guard; only TLS/upstream injection is simulated."""
+    sys.path.insert(0,str(ROOT/'runtime/sbx'))
+    import fixture
+    import relay
+    connect=socket.create_connection
+    def upstream(proxy,host,timeout,register,context):
+        sock=connect(('127.0.0.1',port),timeout=timeout)
+        register(sock)
+        sock.sendall(b'\x05\x01\x00');assert sock.recv(2)==b'\x05\x00'
+        name=host.encode('ascii')
+        sock.sendall(b'\x05\x01\x00\x03'+bytes([len(name)])+name+b'\x01\xbb')
+        assert sock.recv(10)[:2]==b'\x05\x00'
+        return sock
+    policy=manifest['relay']
+    with patch.object(relay,'PORT',0):
+        bridge=relay.Relay(deadline_ms=manifest['deadline_ms'],proxy_ipv4=manifest['network']['proxy_ipv4'],
+            policy=relay.echo_policy(manifest['nonce'],policy['phase'],policy['placeholder']),claim=lambda:None,context=None)
+    endpoint=bridge.port;bridge.port=62143  # Separate native namespaces share this fixed logical port.
+    def namespace(address,timeout):
+        assert address==('127.0.0.1',62143)
+        return connect(('127.0.0.1',endpoint),timeout=timeout)
+    try:
+        with patch.object(relay,'open_upstream',side_effect=upstream),patch.object(fixture.socket,'create_connection',side_effect=namespace):
+            bridge.start()
+            try:
+                result=fixture.request(manifest['nonce'],policy['phase'],policy['placeholder'],
+                    manifest['deadline_ms'],injection_sha256=policy['injection_sha256'])
+                code=0
+            except (ValueError,OSError):
+                result=dict(kind='fixture_refused',reason='request_failed');code=126
+            assert bridge.done.wait(2)
+    finally:
+        stopped=bridge.stop()
+    return result,dict(bridge.result(),stopped=stopped),code
 
 
 class Launcher:
@@ -105,7 +143,7 @@ def launch(mode):
                 stream.write(b'1\n')
             blocked = mode == 'unattributed_block'
             network_path = root/'loopback-network.json'
-            if network_path.exists():
+            if network_path.exists() and manifest['schema_version'] != 4:
                 network = json.loads(network_path.read_bytes())
                 if blocked:
                     try:
@@ -128,16 +166,26 @@ def launch(mode):
                      dict(schema_version=1, fixture_id='isolated-egress-v1', stage=phase,
                           nonce=manifest['nonce'], phase=manifest['relay']['phase'], http_status=200,
                           echo_matches=True, response_sha256='b'*64, network_requests=1, model_calls=0))
+            if manifest['schema_version'] == 4 and not blocked and mode != 'legacy_echo':
+                value.pop('echo_matches')
+                value.update(schema_version=2,injection_matches=True,
+                    injected_value_sha256='0'*64 if mode=='wrong_injection_hash' else manifest['relay']['injection_sha256'])
             if mode == 'bad_echo':
                 value['nonce'] = '0'*32
+            relay_result=dict(state='refused' if blocked else 'succeeded',
+                reason='proxy_connect_refused' if blocked else None,requests=1,
+                bytes_forwarded=0 if blocked else 300,stopped=True)
+            code=126 if blocked else 0
+            if manifest['schema_version']==4 and network_path.exists():
+                network=json.loads(network_path.read_bytes())
+                value,relay_result,code=injection_exchange(manifest,network['port'])
+                (root/'injection-result.json').write_bytes(encoded(value))
             output(phase, value)
-            emit(dict(kind='relay_finished', state='refused' if blocked else 'succeeded',
-                      reason='proxy_connect_refused' if blocked else None, requests=1,
-                      bytes_forwarded=0 if blocked else 300, stopped=True))
-            emit(dict(kind='finished', phase=phase, exit_code=126 if blocked else 0))
+            emit(dict(kind='relay_finished',**relay_result))
+            emit(dict(kind='finished', phase=phase, exit_code=code))
             if mode == 'extra_event':
                 emit(dict(kind='ready'))
-            return 126 if blocked else 0
+            return code
 
 
 def control(mode):

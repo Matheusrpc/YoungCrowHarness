@@ -19,7 +19,7 @@ git clone --branch feat/isolated-executor https://github.com/Matheusrpc/YoungCro
 cd YoungCrowHarness
 ```
 
-O próximo passo de 203.6 é comprovar a identidade da credencial fictícia para remoção segura; depois, ligar o adaptador nativo e provar a injeção com valor distinto do placeholder. Não reiniciar a investigação do zero, não produzir outro roteiro experimental de PowerShell e não repetir operações históricas consumidas.
+O próximo passo de 203.6 é comprovar identidade, versão e remoção atômica condicionada da credencial fictícia no sbx local 0.46.0. A API Cloud documenta esse contrato, mas usa recursos separados. O contrato v4 de injeção distinta do placeholder já tem prova local; faltam adaptador, pacote e aceite nativos. Não reiniciar a investigação do zero, não produzir outro roteiro experimental de PowerShell e não repetir operações históricas consumidas.
 
 ### Continuidade na cloud em 7/out
 
@@ -78,7 +78,7 @@ sem atribuição nativa. [Relatório e medição desse incremento](relatorios/20
 Os dois revisores confirmaram as correções de CID, histórico, daemon e prazo com regressões.
 Nenhum Docker ou modelo foi executado; o contador permanece em **2/3** ciclos nativos.
 
-### Incremento atual: integração de rede
+### Incremento anterior: integração de rede
 
 Publicado no PR #24 em `7d1031c`; branch e ref do PR conferidas.
 
@@ -89,20 +89,43 @@ A/A2 usam a mesma porta; B exige ausência. Recuperação restaura somente setti
 que continuam iguais aos valores da operação, depois de cargas/VM paradas e proprietário
 /porta ausentes. Intenções consumidas nunca são repetidas. V1/v2 permanecem legíveis.
 
-**203.5 e 203.6 seguem parciais.** Políticas e credenciais são imutáveis. A documentação
-oficial do sbx não fornece schema/fingerprint da credencial customizada que permita
-identificar substituição externa do valor; remoção por placeholder não prova propriedade.
-O adaptador nativo recusa set/restart. Falta também trocar a prova de eco por verificação
-de valor fictício distinto do placeholder. Não promover os testes locais a prova Docker
+**203.5 e 203.6 seguem parciais.** Políticas e credenciais são imutáveis.
+Naquele incremento, a documentação CLI consultada não fechava a identidade/remoção
+da credencial. A pesquisa da API e a correção do eco constam no incremento abaixo.
+O adaptador nativo recusa set/restart. Não promover testes locais a prova Docker
 TLS, MCP, bypass do host, assinatura ou atribuição de B. Contador nativo **2/3**.
 Suíte pública: 574 aprovados e 20 pulados, zero falhas/erros.
-[Relatório e medição atuais](relatorios/2026-10-07-network-integration.md).
+[Relatório e medição desse incremento](relatorios/2026-10-07-network-integration.md).
+
+### Incremento atual: prova interna de injeção
+
+Plano/registro e manifestos v4 fixam `relay.injection_sha256`. A resposta precisa
+conter um único valor diferente do placeholder e com esse hash. Resultado schema 2
+contém somente metadados; o eco schema 1 não satisfaz v4. A/B/A2 compartilham
+placeholder, hash esperado, proxy e CA. Guardian confere argv completos; launcher
+revalida o contrato antes de consultar Docker. V2/v3 continuam legíveis para recuperação.
+
+O teste percorre fixture, relay e guard reais com processos e sockets locais, observa
+A/A2 e B sem saída e recupera o registro. Sem substituição, A falha e B não é despachado.
+Docker, TLS e injeção no upstream são fronteiras simuladas. Não houve Docker, login,
+modelo ou novo ciclo nativo; permanecem **2/3**, perfis vazios e `proof_accepted=false`.
+Suíte pública: 607 testes, 587 aprovados e 20 pulados, zero falhas/erros em 250.427 s.
+[Relatório, fontes e medição atuais](relatorios/2026-10-07-injection-proof.md).
+
+Pesquisa oficial: a API Cloud define `uid`/nome imutáveis, `etag` forte e DELETE com
+`If-Match`, recusando versão obsoleta. A documentação separa os recursos local/cloud;
+a referência genérica a Unix socket não comprova endpoint nem armazenamento do daemon
+local 0.46.0. A proveniência aponta código proprietário sem fonte pública acessível.
+Comparar e depois chamar `secret rm` permite uma alteração externa entre as etapas.
+Próxima evidência: contrato compatível com o armazenamento local e remoção condicionada
+atômica, incluindo rotação e recusa de versão antiga. Não implementar esse adaptador
+com base somente no schema Cloud nem repetir consultas já sem resposta.
 
 Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
-| Executor: 203.6 | Obter contrato verificável da identidade/remoção de credencial fictícia; implementar adaptador nativo e prova de injeção distinta do placeholder |
+| Executor: 203.6 | Comprovar contrato de identidade/versão/remoção atômica no sbx local 0.46.0; implementar adaptador e provar nativamente o contrato v4 já testado localmente |
 | Executor: restante de 203.5 | Comprovar recuperação nativa de settings/serviço/credencial e demais políticas necessárias, preservando alterações externas |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |
 | Fila e agentes | Retomar os itens da frente 2 dependentes do aceite YC-203 |
@@ -260,12 +283,12 @@ O mantenedor escolheu **Docker Sandboxes** e depois aprovou manter essa escolha 
 | `mission_sandbox.py` | Metadados e inspeção sem iniciar a VM; exposição da reserva compartilhada | Perfil aprovado e observação nativa suficiente para os novos aceites |
 | `mission_process.py` | Supervisão de árvore de processos, limites e recibos; controlador testado dentro da mesma contenção | Prova nativa de encerramento da carga aninhada |
 | `mission_controller.py` | Canal aberto, identidade, gates e intenção antes do efeito, protocolo limitado e fixture fixa | Adaptador de despacho nativo e aceite do percurso de rede |
-| `runtime/sbx/guardian.py` | Processo supervisor, privilégios limitados, prazo, repetição recusada e gates de rede | Prova integrada do candidato v3 atual |
+| `runtime/sbx/guardian.py` | Processo supervisor, privilégios limitados, prazo, repetição recusada, gates de rede e comandos v4 completos | Prova integrada do candidato v4 atual |
 | `runtime/sbx/launcher.py` | Preparação única, identidade, rede por fase, recibos e recuperação por CID, incluindo resposta de create perdida | Prova nativa dos novos comandos `observe/stop` e pacote exato |
 | `runtime/sbx/relay.py` | Relay restrito no guardian: destino fixo, CA vinculada por hash, parser limitado, JSON/streaming e fechamento | Docker TLS real e clientes autenticados nesse percurso |
 | `runtime/sbx/fixture.py` | Inicialização sem rede e uma GET ao relay; eco fictício e metadados limitados, teste com relay local | Imagem reconstruída e prova A/B/A2 do candidato |
 | `mission_execution.py` | Reserva privada compartilhada por conta, lock, ledger atômico, intenção antes do retorno e recusa de repetição | Restauração nativa pendente; registros v1 consumidos permanecem bloqueados |
-| `mission_transaction.py` | Planos v2/v3, vínculo missão/reserva, diário A/B/A2 e recuperação de cargas/VM/configuração com prova local | Recuperação e aceite nativos |
+| `mission_transaction.py` | Planos v2/v3/v4, vínculo missão/reserva, diário A/B/A2 e recuperação de cargas/VM/configuração com prova local | Recuperação e aceite nativos |
 | `mission_network.py` | Guard A/A2, ausência em B, settings sandbox e recuperação com intenção durável | Contrato de credencial, adaptador e prova nativa |
 | `mission_egress.py` | Filtro após o proxy, DNS herdado, dial numérico único, peer conferido, helper com PID/recibos duráveis | Provar percurso Docker TLS e recusas nativas |
 | `mission_runs.py` | Recibos, admissão sintética bloqueada, vínculo interno global e projeção após recuperação | Habilitação pública após contrato de credenciais e aceites nativos |
@@ -286,7 +309,7 @@ flowchart LR
   F -.-> E[Origem autorizada]
 ```
 
-O manifesto v3 atual permite somente eco com credencial fictícia. O cliente UID1000 deve alcançar apenas o relay em loopback; UID0 deve alcançar apenas o IPv4 observado do proxy na porta 3128. IPv6 e encaminhamento permanecem negados. As regras, namespace e ausência de remapeamento de UID/GID precisam ser conferidos em cada fase.
+O manifesto v4 exige hash de um valor fictício distinto do placeholder; v3 conserva o eco histórico. O cliente UID1000 deve alcançar apenas o relay em loopback; UID0 deve alcançar apenas o IPv4 observado do proxy na porta 3128. IPv6 e encaminhamento permanecem negados. As regras, namespace e ausência de remapeamento de UID/GID precisam ser conferidos em cada fase.
 
 O snapshot da CA fica no controle privado e é vinculado por hash ao manifesto. Os testes locais não certificam seu handshake real com o Docker. O gateway MCP pode existir no gerenciador, conforme decisão aprovada, desde que a inacessibilidade pelo cliente seja demonstrada mesmo com a saída necessária liberada.
 
@@ -305,7 +328,7 @@ Os números abaixo são checkpoints diferentes, com sobreposição. Não somá-l
 | Prova/checkpoint | Resultado | Limite da conclusão |
 |---|---|---|
 | Reserva/recuperação cloud de 7/out | 567 testes: 547 aprovados, 20 pulados; depois 23 transacionais passaram após ajuste de fixture | Fontes de produto idênticas às da suíte; fronteira Docker simulada, Windows nativo e 203.6 pendentes |
-| Guardian/launcher de candidatos anteriores | Conclusão, prazo, transporte perdido, PID final zero e repetição recusada em cenários sintéticos/nativos | Pertencem às versões/digests registrados, não aprovam automaticamente o v3 atual |
+| Guardian/launcher de candidatos anteriores | Conclusão, prazo, transporte perdido, PID final zero e repetição recusada em cenários sintéticos/nativos | Pertencem às versões/digests registrados, não aprovam automaticamente o v4 atual |
 | Reserva antecipada de encerramento | Nove cenários nativos da candidata passaram; reinício ativo posterior terminou antes do prazo | Suspensão completa do host e candidato atual ainda exigem seus aceites |
 | Launcher v2 com rede | Oito cenários nativos passaram, incluindo ausência de gates, regras alteradas e perda do transporte | Não inclui autenticação de modelo |
 | Transporte de provedores no launcher v2 | TLS verificado em cliente e filho; HTTP 421 OpenAI e 404 Anthropic; 40 tentativas negativas recusadas | Resposta TLS não é prova de inferência nem de login |
@@ -313,7 +336,8 @@ Os números abaixo são checkpoints diferentes, com sobreposição. Não somá-l
 | Setup local/dedicado | Oito combinações novo/migrado × Claude/Codex × local/dedicado preservaram escolha e retorno | `dedicated` validou configuração local, sem execução real em servidor |
 | Diagnóstico local básico em 7/out | 11 consultas passaram, incluindo inventário de credenciais Docker | Inventário vazio não significa que as CLIs no host estejam deslogadas; login Docker não autentica provedores |
 | Preflight de candidato em 7/out | 29 consultas passaram: 27 Docker e duas de identidade de processo Windows; baseline repetido estável | Somente leitura; `effects_allowed=false` |
-| Relay atual | 43 testes: guardian 17, launcher 15, relay 11 | Sockets locais/upstream fictício e contratos Linux/TLS controlados; sem aprovação nativa v3 |
+| Relay anterior | 43 testes: guardian 17, launcher 15, relay 11 | Sockets locais/upstream fictício e contratos Linux/TLS controlados; sem aprovação nativa |
+| Contrato de injeção v4 | Hash esperado, ausência de substituição recusada, A/B/A2 e recuperação em sockets/processos locais | Docker, TLS e substituição simulados; [medição atual](medicoes/2026-10-07-injection-proof.json) |
 | Último incremento conjunto | **74 testes passaram, zero falhas e zero skips**, em 65,004 s | Reserva 13, filtro 8, adaptador 29, inspeção 22 e setup 2; não certifica toda a aplicação |
 | Armazenamento da reserva | Um dos 13 testes usa permissões reais do Windows em fixture privada e reabre o registro | Não criou reserva no armazenamento real da conta nem alterou Docker |
 | Vault no fim do incremento | 407 notas, zero problemas no verificador | Comprova estrutura/vínculos verificados, não a veracidade de todo texto |
@@ -446,7 +470,7 @@ Sequência por fase: preparar → aguardar `listening` → aplicar/conferir gate
 
 ### 10.4 Completar recuperação antes de habilitar efeitos
 
-A recuperação v2 cobre cargas identificadas, VM e configuração inalterada com testes locais. V3 acrescenta guard e restauração dos settings sandbox com prova local. Antes da habilitação, completar contrato de credenciais, adaptador e recuperação nativa de 203.6/203.5. A reserva v1 consumida continua bloqueada.
+A recuperação v2 cobre cargas identificadas, VM e configuração inalterada com testes locais. V3 acrescenta guard e restauração dos settings sandbox; v4 conserva essa recuperação com o contrato de injeção. Antes da habilitação, completar contrato local de credenciais, adaptador e recuperação nativa de 203.6/203.5. A reserva v1 consumida continua bloqueada.
 
 - Observar contêiner/carga enquanto a VM já estiver legitimamente ativa, quando necessário.
 - Depois de queda, não usar `sbx exec` para “consultar” uma VM parada: ele pode iniciá-la.
@@ -465,7 +489,7 @@ Fixture implementada em `runtime/sbx/fixture.py` e incluída no Dockerfile e na
 allowlist do contexto. O teste com relay real usa apenas sockets locais e upstream
 fictício. Reconstrução da imagem e provas nativas abaixo permanecem pendentes.
 
-Fixture fixa, executada sem privilégios: inicialização sem rede, uma GET ao relay local no caminho exato, validação do resultado com marcador fictício e emissão de metadados limitados. Não aceitar URL/código/comando livre.
+Fixture fixa, executada sem privilégios: inicialização sem rede, uma GET ao relay local no caminho exato, validação v4 pelo hash esperado de um valor distinto do placeholder e emissão de metadados limitados. Não aceitar URL/código/comando livre.
 
 Reconstruir a imagem que inclui guardian, launcher, relay e fixture; registrar digest e versões. Um pacote antigo que passou em parte das provas não aprova este novo pacote.
 
@@ -613,7 +637,7 @@ O núcleo documentado usa Python 3.11+, Bash e Git; no Windows, Git Bash e helpe
 3. Conferir os hashes e a medição atual; divergência de fonte não herda automaticamente a aprovação antiga.
 4. Ler o microíndice e a nota de consolidação se as notas privadas tiverem sido transferidas; usar este documento e os relatórios sanitizados quando não estiverem disponíveis.
 5. Registrar o novo ambiente e quais evidências podem ser reproduzidas nele. Começar com contratos determinísticos; não rodar antigos scripts nativos.
-6. Continuar em 203.6 pelo contrato verificável de credencial customizada e remoção segura. Depois implementar adaptador nativo e prova de injeção distinta do placeholder, usando o coordenador v3 já integrado localmente.
+6. Continuar em 203.6 pelo contrato local 0.46.0 de identidade/versão/remoção atômica da credencial customizada. Depois implementar adaptador nativo e provar o candidato v4; o coordenador e a recusa de eco sem substituição já têm teste integrado local.
 7. Revalidar a preparação no contexto real antes da nova prova Docker. Respeitar dois ciclos já consumidos e o teto aprovado.
 8. Só então testar A/B/A2, ambos os clientes por assinatura e adoção. Manter o perfil bloqueado enquanto faltar qualquer aceite obrigatório.
 

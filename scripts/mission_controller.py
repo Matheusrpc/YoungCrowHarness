@@ -36,18 +36,21 @@ def encoded(value):
     return json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()
 
 
-def phase_manifest(*, operation_id, nonce, deadline_ms, phase, proxy_ipv4, ca_sha256, placeholder):
+def phase_manifest(*, operation_id, nonce, deadline_ms, phase, proxy_ipv4, ca_sha256, placeholder, injection_sha256=None):
     require(type(deadline_ms) is int and 1000 < deadline_ms-time.time()*1000 <= 120000, 'invalid_manifest')
     return _manifest(operation_id=operation_id, nonce=nonce, deadline_ms=deadline_ms, phase=phase,
-                     proxy_ipv4=proxy_ipv4, ca_sha256=ca_sha256, placeholder=placeholder)
+                     proxy_ipv4=proxy_ipv4, ca_sha256=ca_sha256, placeholder=placeholder, injection_sha256=injection_sha256)
 
 
-def _manifest(*, operation_id, nonce, deadline_ms, phase, proxy_ipv4, ca_sha256, placeholder):
+def _manifest(*, operation_id, nonce, deadline_ms, phase, proxy_ipv4, ca_sha256, placeholder, injection_sha256=None):
     try:
         require(type(operation_id) is str and str(uuid.UUID(operation_id)) == operation_id)
         require(type(nonce) is str and re.fullmatch('[0-9a-f]{32}', nonce))
         require(type(ca_sha256) is str and re.fullmatch('[0-9a-f]{64}', ca_sha256))
         require(type(placeholder) is str and re.fullmatch('youngcrow-probe-[0-9a-f]{32}', placeholder))
+        require(injection_sha256 is None or (type(injection_sha256) is str
+                and re.fullmatch('[0-9a-f]{64}', injection_sha256)
+                and injection_sha256 != hashlib.sha256(placeholder.encode()).hexdigest()))
         require(type(deadline_ms) is int and deadline_ms > 0)
         require(phase in ('A', 'B', 'A2') and type(proxy_ipv4) is str)
         address = ipaddress.IPv4Address(proxy_ipv4)
@@ -55,11 +58,16 @@ def _manifest(*, operation_id, nonce, deadline_ms, phase, proxy_ipv4, ca_sha256,
                 for cidr in ('10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16')))
     except (Refused, ValueError, TypeError, AttributeError):
         raise Refused('invalid_manifest') from None
-    return dict(schema_version=3, operation_id=operation_id, nonce=nonce, deadline_ms=deadline_ms,
+    manifest = dict(schema_version=3, operation_id=operation_id, nonce=nonce, deadline_ms=deadline_ms,
                 init_argv=FIXTURE_ARGV+['initialize'],
                 dispatch_prefix=FIXTURE_ARGV+['request', nonce, phase, placeholder, str(deadline_ms)],
                 network=dict(proxy_ipv4=proxy_ipv4),
                 relay=dict(kind='echo', phase=phase, placeholder=placeholder, ca_sha256=ca_sha256))
+    if injection_sha256 is not None:
+        manifest['schema_version'] = 4
+        manifest['relay']['injection_sha256'] = injection_sha256
+        manifest['dispatch_prefix'].append(injection_sha256)
+    return manifest
 
 
 def validate_manifest(manifest):
@@ -68,7 +76,7 @@ def validate_manifest(manifest):
         expected = _manifest(operation_id=manifest['operation_id'], nonce=manifest['nonce'],
             deadline_ms=manifest['deadline_ms'], phase=manifest['relay']['phase'],
             proxy_ipv4=manifest['network']['proxy_ipv4'], ca_sha256=manifest['relay']['ca_sha256'],
-            placeholder=manifest['relay']['placeholder'])
+            placeholder=manifest['relay']['placeholder'], injection_sha256=manifest['relay'].get('injection_sha256'))
         require(encoded(manifest) == encoded(expected), 'invalid_manifest')
     except (KeyError, TypeError, ValueError, Refused):
         raise ValueError('invalid_manifest') from None
@@ -237,7 +245,7 @@ def run_phase(launcher, manifest, image, persist):
         expected = phase_manifest(operation_id=manifest['operation_id'], nonce=manifest['nonce'],
             deadline_ms=manifest['deadline_ms'], phase=manifest['relay']['phase'],
             proxy_ipv4=manifest['network']['proxy_ipv4'], ca_sha256=manifest['relay']['ca_sha256'],
-            placeholder=manifest['relay']['placeholder'])
+            placeholder=manifest['relay']['placeholder'], injection_sha256=manifest['relay'].get('injection_sha256'))
         require(encoded(manifest) == encoded(expected), 'invalid_manifest')
         manifest = expected  # Private copy; later caller mutations cannot change commands.
         require(type(image) is str and re.fullmatch('sha256:[0-9a-f]{64}', image), 'invalid_manifest')
@@ -299,6 +307,10 @@ def run_phase(launcher, manifest, image, persist):
             expected = dict(schema_version=1, fixture_id='isolated-egress-v1', stage='dispatch',
                             nonce=manifest['nonce'], phase=manifest['relay']['phase'], http_status=200,
                             echo_matches=True, response_sha256=value['response_sha256'], network_requests=1, model_calls=0)
+            if manifest['schema_version'] == 4:
+                expected.pop('echo_matches')
+                expected.update(schema_version=2, injection_matches=True,
+                                injected_value_sha256=manifest['relay']['injection_sha256'])
             require(encoded(value) == encoded(expected), 'fixture_result_invalid')
             result.update(state='unexpected_allow' if manifest['relay']['phase'] == 'B' else 'observed',
                           reason='phase_observed', fixture=value)

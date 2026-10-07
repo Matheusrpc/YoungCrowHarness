@@ -68,7 +68,9 @@ def docker(*args):
 
 
 def verify(directory, record, manifest, *, running=False, networks=None, recovering=False):
-    if manifest['schema_version'] == 3:
+    if manifest.get('schema_version') == 4 and not guardian.valid_relay(manifest):
+        raise guardian.Refused('invalid_manifest')
+    if manifest['schema_version'] in (3, 4):
         try:
             guardian.relay.read_ca(directory/'control/relay-ca.pem', manifest['relay']['ca_sha256'])
         except (guardian.relay.Refused, OSError, ValueError) as error:
@@ -95,7 +97,7 @@ def verify(directory, record, manifest, *, running=False, networks=None, recover
                          LogConfig={'Type': 'none', 'Config': {}}, PublishAllPorts=False, AutoRemove=False)
     if manifest['schema_version'] == 2:
         expected_host['ExtraHosts'] = [manifest['network']['host']+':'+manifest['network']['ipv4']]
-    elif manifest['schema_version'] == 3 and host.get('ExtraHosts') not in (None, []):
+    elif manifest['schema_version'] in (3, 4) and host.get('ExtraHosts') not in (None, []):
         raise guardian.Refused('unsafe_container')
     def matches(observed, expected):
         return all(guardian.encode(observed.get(key)) == guardian.encode(item) for key, item in expected.items())
@@ -206,7 +208,7 @@ def prepare(root, image, manifest):
         control.mkdir(mode=0o700)
         guardian.sync_directory(directory)
         save(control, 'launch.json', manifest)
-        if manifest['schema_version'] == 3:
+        if manifest['schema_version'] in (3, 4):
             snapshot_ca(control, manifest['relay']['ca_sha256'])
         intent = dict(schema_version=1, image=image, **protocol.identity, nonce=manifest['nonce'])
         save(directory, 'create-intent.json', intent)
@@ -312,7 +314,7 @@ def configure_network(root, operation_id, nonce, phase):
         digest = hashlib.sha256(guardian.encode(manifest)).hexdigest()
         version = manifest.get('schema_version')
         valid = ((version == 2 and guardian.valid_network(manifest.get('network')))
-                 or (version == 3 and guardian.valid_relay(manifest)))
+                 or (version in (3, 4) and guardian.valid_relay(manifest)))
         if (not valid
                 or manifest.get('operation_id') != operation_id or record.get('operation_id') != operation_id
                 or manifest.get('nonce') != nonce or record.get('nonce') != nonce
@@ -326,7 +328,7 @@ def configure_network(root, operation_id, nonce, phase):
         value = verify(directory, record, manifest, running=True, networks=expected_networks)
         pid = value['State']['Pid']
         cid = record['container_id']
-        if version == 3:
+        if version in (3, 4):
             guardian.require_unmapped(pid)
         with network_handle(pid) as (descriptor, namespace):
             if verify(directory, record, manifest, running=True, networks=expected_networks)['State']['Pid'] != pid:
@@ -350,7 +352,7 @@ def configure_network(root, operation_id, nonce, phase):
             final = verify(directory, record, manifest, running=True, networks=['bridge'])
             if final['State']['Pid'] != pid:
                 raise guardian.Refused('network_identity_changed')
-            if version == 3:
+            if version in (3, 4):
                 guardian.require_unmapped(pid)
             with network_handle(pid) as (_, current):
                 if current != namespace:

@@ -1,6 +1,7 @@
 """Network coordination uses the real ledger; only sbx effects are simulated."""
 import copy
 import importlib.util
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -86,6 +87,32 @@ class NetworkTests(unittest.TestCase):
         tx.validate_plan(legacy)
         tx.reserve(self.registry,legacy)
         self.assertEqual(self.registry.records()[0]['schema_version'],2)
+
+    def test_v4_binds_one_injection_contract_across_all_phases(self):
+        plan=tx.build_plan(**self.args,network=dict(resolver='system',forbidden_ips=[]),
+                          injection_sha256=hashlib.sha256(b'disposable-test-injection').hexdigest())
+        self.assertEqual(plan['schema_version'],4)
+        self.assertEqual({p['schema_version'] for p in plan['phases']},{4})
+        self.assertEqual(len({p['relay']['placeholder'] for p in plan['phases']}),1)
+        self.assertNotIn('disposable-test-injection',json.dumps(plan))
+        for field in ('placeholder','ca_sha256','injection_sha256','proxy_ipv4','version'):
+            changed=copy.deepcopy(plan);phase=changed['phases'][1]
+            values=dict(operation_id=phase['operation_id'],nonce=phase['nonce'],deadline_ms=phase['deadline_ms'],
+                phase='B',proxy_ipv4=phase['network']['proxy_ipv4'],ca_sha256=phase['relay']['ca_sha256'],
+                placeholder=phase['relay']['placeholder'],injection_sha256=phase['relay']['injection_sha256'])
+            if field=='placeholder':values[field]='youngcrow-probe-'+'f'*32
+            elif field=='proxy_ipv4':values[field]='172.17.0.2'
+            elif field=='version':values.pop('injection_sha256')
+            else:values[field]='0'*64
+            changed['phases'][1]=tx.controller.phase_manifest(**values)
+            with self.subTest(field=field),self.assertRaises(ValueError):tx.validate_plan(changed)
+        tx.reserve(self.registry,plan)
+        backend=SettingsFixture(plan,self.registry)
+        result=tx.recover(self.registry,plan['manifest']['operation_id'],backend)
+        self.assertEqual(result['state'],'recovered',result)
+
+    def test_injection_hash_requires_network_coordinator(self):
+        with self.assertRaises(ValueError):tx.build_plan(**self.args,injection_sha256='a'*64)
 
     def test_unknown_network_or_inherited_exclusions_fail_before_reservation(self):
         for change in ('resolver','host','exclusion'):
@@ -233,14 +260,15 @@ class NetworkTests(unittest.TestCase):
 
 
 class NetworkBindingTests(RuntimeCase):
-    def run_network(self, mode='success'):
+    def run_network(self, mode='success', *, injection=False):
         import mission_backlog
         import mission_process
         args=inputs()
         args['manifest']=dict(self.make_manifest(),fixture_id='isolated-egress-v1')
         args['project_id']=mission_backlog.project_id(self.root)
         args['project_sha256']=tx.sha(str(self.root.resolve()))
-        plan=tx.build_plan(**args,network=dict(resolver='system',forbidden_ips=['172.17.0.1']))
+        extra=dict(injection_sha256=hashlib.sha256(b'disposable-test-injection').hexdigest()) if injection else {}
+        plan=tx.build_plan(**args,network=dict(resolver='system',forbidden_ips=['172.17.0.1']),**extra)
         temporary=tempfile.TemporaryDirectory();self.addCleanup(temporary.cleanup)
         registry=execution.Registry(Path(temporary.name)/'execution')
         self.enterContext(registry_storage(registry.base))
@@ -288,6 +316,27 @@ class NetworkBindingTests(RuntimeCase):
         _,registry,result,_=self.run_network('drift')
         self.assertEqual(result['result']['state'],'blocked',result)
         self.assertFalse((self.root/'.runtime/network-A/dispatches').exists())
+        self.assertEqual(registry.records()[0]['state'],'consumed')
+
+    def test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection(self):
+        plan,registry,result,_=self.run_network(injection=True)
+        self.assertEqual(result['result']['state'],'observed',result)
+        self.assertEqual([p['state'] for p in result['result']['phases']],['observed','blocked_unattributed','observed'])
+        for phase in ('A','A2'):
+            actual=json.loads((self.root/'.runtime'/('network-'+phase)/'injection-result.json').read_bytes())
+            self.assertEqual(actual['schema_version'],2)
+            self.assertEqual(actual['injected_value_sha256'],plan['phases'][0]['relay']['injection_sha256'])
+        self.assertNotIn('disposable-test-injection',json.dumps(registry.records()))
+        backend=SettingsFixture(plan,registry);backend.current=result['current'];backend.active=True
+        backend.workload_running=False
+        self.assertEqual(tx.reconcile(self.root,registry,plan['manifest']['operation_id'],backend)['state'],'recovered')
+
+    def test_v4_literal_placeholder_cannot_pass_integrated_positive_phase(self):
+        _,registry,result,_=self.run_network('no_injection',injection=True)
+        self.assertEqual(result['result']['state'],'blocked',result)
+        self.assertEqual(len(result['result']['phases']),1)
+        self.assertEqual(result['result']['phases'][0]['reason'],'dispatch_failed')
+        self.assertFalse((self.root/'.runtime/network-B/dispatches').exists())
         self.assertEqual(registry.records()[0]['state'],'consumed')
 
 

@@ -1,5 +1,6 @@
 """Fixed loopback fixture: fake responses, no external network or model."""
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import socket
@@ -22,13 +23,15 @@ class IsolatedFixtureTests(unittest.TestCase):
         self.nonce, self.placeholder = uuid.uuid4().hex, 'youngcrow-probe-'+uuid.uuid4().hex
         self.phase = 'A'
         self.deadline = int(time.time()*1000)+4000
+        self.injected = 'disposable-probe-'+uuid.uuid4().hex
+        self.injection_sha256 = hashlib.sha256(self.injected.encode()).hexdigest()
 
     def body(self):
         return dict(args={'youngcrow': self.nonce+'-'+self.phase},
                     headers={'x-youngcrow-probe': self.placeholder},
                     url='https://postman-echo.com/get?youngcrow='+self.nonce+'-'+self.phase)
 
-    def exchange(self, body=None, *, response=None):
+    def exchange(self, body=None, *, response=None, injection_sha256=None):
         left, right = socket.socketpair()
         self.addCleanup(left.close)
         self.addCleanup(right.close)
@@ -40,7 +43,9 @@ class IsolatedFixtureTests(unittest.TestCase):
             right.settimeout(2)
             raw = b''
             while b'\r\n\r\n' not in raw:
-                raw += right.recv(1)
+                chunk = right.recv(1)
+                if not chunk: return
+                raw += chunk
             seen.append(raw)
             for start in range(0, len(wire), 29):
                 try:
@@ -57,7 +62,8 @@ class IsolatedFixtureTests(unittest.TestCase):
             return left
         try:
             with patch.object(self.fixture.socket, 'create_connection', side_effect=connect):
-                value = self.fixture.request(self.nonce, self.phase, self.placeholder, self.deadline)
+                args = {} if injection_sha256 is None else dict(injection_sha256=injection_sha256)
+                value = self.fixture.request(self.nonce, self.phase, self.placeholder, self.deadline, **args)
             self.assertEqual(calls, [('127.0.0.1', 62143)])
             self.assertEqual(len(seen), 1)
             self.assertEqual(seen[0], (
@@ -92,6 +98,28 @@ class IsolatedFixtureTests(unittest.TestCase):
                            ('url', 'https://example.invalid')):
             with self.subTest(key=key), self.assertRaisesRegex(ValueError, 'echo_mismatch'):
                 self.exchange(dict(self.body(), **{key: value}))
+
+    def test_injection_requires_distinct_value_and_returns_only_its_bound_hash(self):
+        body=dict(self.body(),headers={'x-youngcrow-probe':self.injected})
+        value=self.exchange(body,injection_sha256=self.injection_sha256)
+        self.assertEqual(value['schema_version'],2)
+        self.assertTrue(value['injection_matches'])
+        self.assertEqual(value['injected_value_sha256'],self.injection_sha256)
+        self.assertNotIn('echo_matches',value)
+        self.assertNotIn(self.injected,json.dumps(value))
+
+    def test_placeholder_wrong_value_duplicate_and_nonstring_never_prove_injection(self):
+        for headers in ({'x-youngcrow-probe':self.placeholder},{'x-youngcrow-probe':'wrong'},
+                        {'x-youngcrow-probe':self.injected,'X-Youngcrow-Probe':self.injected},
+                        {'x-youngcrow-probe':[self.injected]}):
+            with self.subTest(headers=headers),self.assertRaisesRegex(ValueError,'injection_mismatch'):
+                self.exchange(dict(self.body(),headers=headers),injection_sha256=self.injection_sha256)
+
+    def test_invalid_or_placeholder_hash_refuses_before_network(self):
+        for digest in (True,'A'*64,'bad',hashlib.sha256(self.placeholder.encode()).hexdigest()):
+            with self.subTest(digest=digest),patch.object(self.fixture.socket,'create_connection',side_effect=AssertionError('network')):
+                with self.assertRaisesRegex(ValueError,'invalid_fixture_request'):
+                    self.fixture.request(self.nonce,self.phase,self.placeholder,self.deadline,injection_sha256=digest)
 
     def test_redirect_invalid_json_and_oversized_response_refuse(self):
         for response in (b'HTTP/1.1 302 Found\r\nLocation: https://example.invalid\r\n\r\n',

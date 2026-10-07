@@ -106,15 +106,27 @@ def network_namespace():
 
 def valid_relay(config):
     network, policy = config.get('network'), config.get('relay')
+    fields = {'kind', 'phase', 'placeholder', 'ca_sha256'}
+    if config.get('schema_version') == 4:
+        fields.add('injection_sha256')
     if (type(network) is not dict or set(network) != {'proxy_ipv4'}
             or type(network['proxy_ipv4']) is not str or type(policy) is not dict
-            or set(policy) != {'kind', 'phase', 'placeholder', 'ca_sha256'}
+            or set(policy) != fields
             or policy['kind'] != 'echo' or type(policy['ca_sha256']) is not str
             or not re.fullmatch('[0-9a-f]{64}', policy['ca_sha256'])):
         return False
     try:
         address = ipaddress.IPv4Address(network['proxy_ipv4'])
         relay.echo_policy(config['nonce'], policy['phase'], policy['placeholder'])
+        if config.get('schema_version') == 4:
+            digest = policy['injection_sha256']
+            argv = ['/usr/bin/python3.14', '-I', '-B', '/opt/youngcrow/fixture.py']
+            if (type(digest) is not str or not re.fullmatch('[0-9a-f]{64}', digest)
+                    or digest == hashlib.sha256(policy['placeholder'].encode()).hexdigest()
+                    or config.get('init_argv') != argv+['initialize']
+                    or config.get('dispatch_prefix') != argv+['request', config['nonce'], policy['phase'],
+                        policy['placeholder'], str(config['deadline_ms']), digest]):
+                return False
         return str(address) == network['proxy_ipv4'] and any(address in ipaddress.IPv4Network(cidr)
                    for cidr in ('10.0.0.0/8','172.16.0.0/12','192.168.0.0/16'))
     except (ValueError, TypeError, KeyError, relay.Refused):
@@ -136,14 +148,14 @@ def protected_network_gate(info):
 class Protocol:
     def __init__(self, directory, config):
         keys = {'schema_version', 'operation_id', 'nonce', 'deadline_ms', 'init_argv', 'dispatch_prefix'}
-        if type(config) is dict and config.get('schema_version') in (2, 3):
+        if type(config) is dict and config.get('schema_version') in (2, 3, 4):
             keys.add('network')
-            if config['schema_version'] == 3:
+            if config['schema_version'] in (3, 4):
                 keys.add('relay')
         if (type(config) is not dict or set(config) != keys
-                or type(config['schema_version']) is not int or config['schema_version'] not in (1, 2, 3)
+                or type(config['schema_version']) is not int or config['schema_version'] not in (1, 2, 3, 4)
                 or (config['schema_version'] == 2 and not valid_network(config['network']))
-                or (config['schema_version'] == 3 and not valid_relay(config))
+                or (config['schema_version'] in (3, 4) and not valid_relay(config))
                 or type(config['deadline_ms']) is not int
                 or type(config['operation_id']) is not str
                 or type(config['nonce']) is not str
@@ -191,11 +203,12 @@ class Protocol:
             elif action == 'dispatch' and self.state == 'ready':
                 argv = message['argv']
                 prefix = self.config['dispatch_prefix']
-                if not valid_argv(argv) or argv[:len(prefix)] != prefix:
+                if (not valid_argv(argv) or argv[:len(prefix)] != prefix
+                        or (self.config['schema_version'] == 4 and argv != prefix)):
                     raise Refused('invalid_command')
             else:
                 raise Refused('invalid_transition')
-            if self.config['schema_version'] in (2, 3):
+            if self.config['schema_version'] in (2, 3, 4):
                 self.require_network(action)
             self.state = action
             claim(self.directory, action + '.json', dict(self.identity, action=action))
@@ -311,7 +324,7 @@ def supervise_loop(protocol, bridges):
                     argv = protocol.accept(line + b'\n')
                     phase = protocol.state
                     bridge = None
-                    if phase == 'dispatch' and protocol.config['schema_version'] == 3:
+                    if phase == 'dispatch' and protocol.config['schema_version'] in (3, 4):
                         bridge = prepare_relay(protocol)
                         bridges.append(bridge)
                     child = spawn_child(argv, bridge)

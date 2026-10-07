@@ -18,7 +18,10 @@ import mission_transaction as tx
 
 class LocalGuard(egress.Guard):
     def command(self):
-        return [sys.executable,'-I','-B',str(Path(__file__).with_name('egress_controller.py')),'--guard-local']
+        mode='--guard-local'
+        if record['schema_version']==4:
+            mode='--guard-echo-no-injection' if request.get('mode')=='no_injection' else '--guard-echo'
+        return [sys.executable,'-I','-B',str(Path(__file__).with_name('egress_controller.py')),mode]
 
 
 class LocalNetwork(network.Network):

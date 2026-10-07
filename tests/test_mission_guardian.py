@@ -1,6 +1,7 @@
 """At-most-once protocol. Windows exercises logic, not Linux durability/permissions."""
 from concurrent.futures import ThreadPoolExecutor
 import importlib.util
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -38,6 +39,26 @@ class GuardianProtocolTests(unittest.TestCase):
             value['argv'] = ['/client', 'check', '--model', 'synthetic']
         value.update(changes)
         return json.dumps(value).encode() + b'\n'
+
+    def injection_manifest(self):
+        sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
+        import mission_controller
+        return mission_controller.phase_manifest(operation_id=self.config['operation_id'],nonce=self.config['nonce'],
+            deadline_ms=self.config['deadline_ms'],phase='A',proxy_ipv4='172.17.0.1',ca_sha256='b'*64,
+            placeholder='youngcrow-probe-'+'c'*32,injection_sha256=hashlib.sha256(b'fake-value').hexdigest())
+
+    def test_v4_checks_complete_fixture_commands_and_refuses_dispatch_suffix(self):
+        self.config=self.injection_manifest()
+        self.assertTrue(self.g.valid_relay(self.config))
+        protocol=self.g.Protocol(self.control,self.config)
+        with patch.object(protocol,'require_network'):
+            protocol.accept(self.message('initialize'));protocol.finished(0)
+            with self.assertRaisesRegex(self.g.Refused,'invalid_command'):
+                protocol.accept(self.message('dispatch',argv=self.config['dispatch_prefix']+['extra']))
+        self.assertFalse((self.control/'dispatch.json').exists())
+        for key in ('init_argv','dispatch_prefix'):
+            changed=dict(self.config,**{key:self.config[key]+['extra']})
+            self.assertFalse(self.g.valid_relay(changed))
 
     def ready(self):
         protocol = self.g.Protocol(self.control, self.config)

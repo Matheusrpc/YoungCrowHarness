@@ -7,26 +7,32 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
-Publicado no PR #24 em `7d1031c`; branch e ref do PR conferidas.
-Published to PR #24 at `7d1031c`; branch and PR refs verified.
+Última publicação anterior: PR #24 em `ef88edc`; branch e ref do PR conferidas.
+Previous publication: PR #24 at `ef88edc`; branch and PR refs verified.
 
-A integração interna de 203.6 usa plano v3, guard no mesmo grupo/job e diário anterior
+A integração interna de 203.6 usa plano v4, guard no mesmo grupo/job e diário anterior
 aos efeitos. A/A2 reutilizam a porta; B exige ausência. Recuperação observa proprietário
 e porta ausentes e restaura apenas settings sandbox ainda iguais aos valores da operação.
 **203.4 interna; 203.5 e 203.6 parciais.** Políticas e credenciais permanecem imutáveis.
-[Entrega e provas](relatorios/2026-10-07-network-integration.md).
+[Entrega e provas atuais](relatorios/2026-10-07-injection-proof.md).
 
-O próximo passo é fechar o contrato nativo de identidade da credencial fictícia e sua
-remoção segura. A documentação atual não fornece schema/fingerprint suficiente;
-placeholder, host e sandbox iguais não detectam substituição externa do valor.
-Depois: adaptador nativo, prova da injeção com valor distinto do placeholder e aceite.
+O contrato v4 já exige hash de um valor distinto do placeholder, fixado no plano;
+A/B/A2 usam o mesmo placeholder/hash/proxy/CA. O percurso local recusa ausência de
+substituição e conserva os contratos antigos para recuperação.
+O próximo passo é comprovar, no sbx local 0.46.0, identidade, versão e remoção atômica
+condicionada da credencial fictícia. A API Cloud documenta `uid`/`etag`/`If-Match`,
+mas seus recursos são separados dos locais. Comparar e depois remover por placeholder
+permite uma alteração externa entre as operações. Depois: adaptador, pacote e aceite nativo.
 
-The internal 203.6 integration uses a v3 plan, inherited guard containment and a journal
+The internal 203.6 integration uses a v4 plan, inherited guard containment and a journal
 before effects. A/A2 reuse the port; B requires absence. Recovery observes owner and
 port absence and restores only sandbox settings still matching this operation.
 **203.4 is internal; 203.5 and 203.6 remain partial.** Policies and credentials are immutable.
-Next: establish native dummy-credential ownership and safe removal, then the native
-adapter, injection proof with a distinct value, and acceptance tests.
+V4 fixes an expected hash for a value distinct from the placeholder and shares the
+placeholder/hash/proxy/CA across A/B/A2. Local tests reject missing substitution;
+historical recovery remains supported. Next: establish identity, version and atomic
+conditional deletion for local sbx 0.46.0. The Cloud API documents these semantics,
+but uses a separate store. Then implement the native adapter and acceptance tests.
 
 A entrada pública `client check` continua em `failed/controller_pending`, com zero
 chamadas de modelo. Perfis nativos seguem bloqueados. A sequência é **203.6 e restante

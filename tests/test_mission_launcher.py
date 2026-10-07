@@ -277,13 +277,39 @@ class LauncherTests(unittest.TestCase):
             self.assert_network_installation(3)
             self.assertGreaterEqual(check.call_count,3)
 
+    def test_v4_keeps_ca_uid_and_firewall_gates(self):
+        with patch.object(self.module.guardian.relay,'read_ca',return_value=(b'public-test-ca',None)), \
+             patch.object(self.module.guardian,'require_unmapped') as check:
+            self.assert_network_installation(4)
+            self.assertGreaterEqual(check.call_count,3)
+
+    def injection_manifest(self):
+        sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
+        import mission_controller
+        return mission_controller.phase_manifest(operation_id=self.manifest['operation_id'],nonce=self.manifest['nonce'],
+            deadline_ms=self.manifest['deadline_ms'],phase='A',proxy_ipv4='192.168.65.1',
+            ca_sha256=hashlib.sha256(b'public-test-ca').hexdigest(),placeholder='youngcrow-probe-'+'a'*32,
+            injection_sha256=hashlib.sha256(b'fake-value').hexdigest())
+
+    def test_v4_changed_command_refuses_before_docker_observation(self):
+        self.manifest=self.injection_manifest()
+        self.manifest['dispatch_prefix'].append('extra')
+        with patch.object(self.module,'docker',side_effect=AssertionError('must not query')), \
+             patch.object(self.module.guardian.relay,'read_ca',return_value=(b'public-test-ca',None)):
+            with self.assertRaises(self.module.guardian.Refused):
+                self.module.verify(self.root,dict(container_id=self.cid),self.manifest)
+            with self.assertRaises(self.module.guardian.Refused):
+                self.module.prepare(self.root,self.image,self.manifest)
+
     def assert_network_installation(self, version):
         self.assertTrue(hasattr(self.module,'configure_network'),'network launcher not implemented')
         self.manifest.update(schema_version=2,network={'host':'api.openai.com','ipv4':'1.1.1.1'})
-        if version == 3:
+        if version in (3, 4):
             self.manifest.update(schema_version=3, network={'proxy_ipv4':'192.168.65.1'},
                                  relay=dict(kind='echo',phase='A',placeholder='youngcrow-probe-'+'a'*32,
                                             ca_sha256=hashlib.sha256(b'public-test-ca').hexdigest()))
+        if version == 4:
+            self.manifest=self.injection_manifest()
         self.create()
         with patch.object(self.module,'docker',side_effect=self.docker):
             self.module.start_command(self.root,self.manifest['operation_id'],self.manifest['nonce'])

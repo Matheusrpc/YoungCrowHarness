@@ -18,6 +18,31 @@ import missions
 
 
 class StorageDiagnosticsTests(unittest.TestCase):
+    def test_first_and_existing_storage_git_failures_are_sanitized_readonly(self):
+        for existing in (False, True):
+            for error, reason in ((subprocess.TimeoutExpired(['git', 'private-path-canary'], 30), 'git_query_timeout'),
+                                  (OSError('private-path-canary'), 'inspection_failed'),
+                                  (subprocess.CalledProcessError(1, ['git', 'private-path-canary']), 'inspection_failed')):
+                with self.subTest(existing=existing, reason=reason), tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    if existing:
+                        (root/environment.AREA).mkdir(parents=True, mode=0o700)
+                    before = {str(p.relative_to(root)): p.read_bytes() if p.is_file() else None for p in root.rglob('*')}
+                    output, stderr = io.StringIO(), io.StringIO()
+                    with patch.object(environment.fs, 'git_read', side_effect=error), \
+                         patch('mission_process.supervise') as process, \
+                         contextlib.redirect_stdout(output), contextlib.redirect_stderr(stderr):
+                        code = missions.main(['--root', str(root), 'environment', 'show', '--json'])
+                    self.assertEqual(code, 2)
+                    result = json.loads(output.getvalue())
+                    self.assertEqual(result['error'], 'execution_storage_unprotected')
+                    self.assertEqual(result['diagnostic'], {'phase': 'git_boundary', 'reason': reason})
+                    self.assertTrue(result['guidance'])
+                    self.assertEqual(stderr.getvalue(), '')
+                    self.assertNotIn('private-path-canary', output.getvalue())
+                    self.assertEqual(before, {str(p.relative_to(root)): p.read_bytes() if p.is_file() else None for p in root.rglob('*')})
+                    process.assert_not_called()
+
     def setUp(self):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)

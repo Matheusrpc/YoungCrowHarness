@@ -1616,6 +1616,12 @@ datas de desenvolvimento, QA ou produção.
 
 Uma falha de projeção mantém o evento confirmado no banco. Repita a mesma operação ou use
 `repair`; conflito com edição humana exige conciliar essa nota, sem apagar seu conteúdo.
+Se a nota de missão ou item foi gravada antes da interrupção e houve outra revisão,
+o reparo reconhece os bytes exatos da escrita não confirmada pelo histórico durável.
+Ele mantém a revisão mais recente, sem criar eventos ou repetir execuções. Alterações
+humanas e restauração manual de uma revisão antiga já confirmada continuam em conflito.
+Essa recuperação histórica cobre notas agregadas de missão/backlog; não as notas de
+execução de clientes, cujo histórico guarda outro formato.
 Saída 0 significa pedido válido (inclusive rascunho), 1 conflito ou falha operacional e 2 entrada
 inválida. Não edite o banco diretamente; guarde também esse arquivo em seu backup privado.
 Após uma interrupção com journal SQLite pendente, `status` pode retornar `invalid_store` sem alterar
@@ -1640,6 +1646,11 @@ and reports changed inputs. Import edits, then use `revise` with the current rev
 UUID. Global defaults never rewrite a mission; revision inherits frozen choices plus explicit overrides.
 Event times record import/refinement, without inventing development, QA or production dates.
 Retry or `repair` recovers a failed projection. Human edits are preserved and reported as conflicts.
+If a mission or item note was written before interruption and another revision followed,
+repair recognizes the exact unconfirmed bytes from durable history. It keeps the latest
+revision without adding events or repeating execution. Human edits and manual restoration
+of an older confirmed revision still conflict. This historical recovery covers aggregated
+mission/backlog notes; client-run notes use a different history format and are outside its scope.
 Exit 0 includes valid drafts; 1 means conflict or operational failure; 2 means invalid input. Include the
 database in private backups; do not edit it directly. After an interruption with a pending SQLite
 journal, `status` can return `invalid_store` without writing. Explicit `repair` allows SQLite recovery
@@ -1712,6 +1723,22 @@ Hard links usados por instaladores são aceitos para leitura; o hash é conferid
 da chamada. A inspeção não altera o binário. Backups e arquivos de adoção continuam recusando
 hard links. Um catálogo legível pode retornar `native_profile_unverified` e manter a execução bloqueada.
 
+Objetos de resposta e listas de esforços malformados retornam `client_protocol_error`
+em JSON, com código 2, sem traceback ou conteúdo bruto do cliente. Confira a versão
+e a resposta de descoberta do cliente antes de tentar novamente; campos opcionais
+de esforço ausentes continuam representados por lista vazia. `environment show --json`
+também classifica falhas de Git na primeira consulta: um timeout retorna
+`execution_storage_unprotected`, fase `git_boundary`, motivo `git_query_timeout`.
+A consulta conserva o projeto e indica a causa para corrigir o acesso ao Git.
+
+Malformed response objects and effort lists return JSON `client_protocol_error`,
+exit code 2, without a traceback or raw client output. Check the installed client
+version and discovery response before retrying; missing optional effort fields still
+produce an empty list. `environment show --json` also classifies Git failures on the
+first query: a timeout returns `execution_storage_unprotected`, phase `git_boundary`,
+reason `git_query_timeout`. The query preserves the project and identifies the Git
+access failure.
+
 Crie `vault/local/client-check.json` com os UUIDs e a revisão reais. `authorization_ref` registra a
 autorização que você concedeu; o texto do modelo não pode concedê-la. Este exemplo usa até 120
 segundos, desde que a configuração congelada tenha esse limite. Cada execução nova precisa de
@@ -1760,6 +1787,100 @@ The check only asks for its JSON nonce back. Arbitrary prompts, URLs, shell and 
 capabilities are rejected. Requested, resolved and observed model values remain separate.
 Missing effort or cost stays null. Client-reported cost does not confirm a bill. Subscription
 authentication never silently changes to an API connection.
+
+<a id="synthetic-admission"></a>
+
+### Admissão sintética / Synthetic admission
+
+O mesmo `client check` aceita `fixture_id: "isolated-egress-v1"` no manifesto acima.
+Todos os demais campos continuam obrigatórios; `api_budget_usd` deve ser `null` e
+`max_runs` deve ser `1`. Missão preparada, revisão, autorização, papel e limites são
+conferidos antes da gravação. Essa variante entra antes da inspeção de Claude/Codex.
+
+Nesta versão, o resultado é sempre um recibo `purpose: "isolated_egress_check"`,
+`state: "failed"`, `reason: "controller_pending"`, `model_calls: 0` e
+`effects_allowed: false`. O comando retorna código `1`. Não consulta o executável
+informado em `--executable`, que continua obrigatório na sintaxe compartilhada,
+nem inicia processos ou reserva o Docker. O recibo não contém observações de modelo,
+autenticação, baseline ou candidato.
+
+A tentativa fica em `client runs` e no vault local. Ela consome uma entrada de
+`max_agent_runs` e reserva os segundos declarados no orçamento acumulado da missão,
+mesmo bloqueada. Repetir o manifesto inteiro devolve o mesmo recibo, sem novo consumo;
+alterar seu conteúdo com o mesmo UUID causa `operation_conflict`. Uma versão futura
+do controlador não poderá reativar esse UUID.
+
+A admissão não executa A/B/A2. O passo seguinte exige o plano das fases com identidades
+e baseline observados, reserva global antes dos efeitos, controlador de canal aberto
+e recuperação comprovada. Os perfis nativos continuam bloqueados. Consulte o
+[handoff](HANDOFF-CLOUD-2026-10-07.md#102-integrar-uma-variante-sintética-em-client-check).
+
+The same `client check` accepts `fixture_id: "isolated-egress-v1"` in the manifest
+above. All other fields remain required; `api_budget_usd` must be `null` and
+`max_runs` must be `1`. Admission checks the prepared mission, revision, authorization,
+role and limits before writing, and branches before Claude/Codex inspection.
+
+This version always returns a receipt with `purpose: "isolated_egress_check"`,
+`state: "failed"`, `reason: "controller_pending"`, `model_calls: 0` and
+`effects_allowed: false`, with exit code `1`. It does not inspect the executable
+passed through the still-required shared `--executable` option, start processes or
+reserve Docker. The receipt contains no model, authentication, baseline or candidate
+observations.
+
+The attempt appears in `client runs` and the local vault. It consumes one
+`max_agent_runs` entry and its declared seconds in the mission's cumulative budget,
+even though blocked. Replaying the entire manifest returns the same receipt without
+further consumption; changing its contents with the same UUID raises
+`operation_conflict`. A future controller cannot reactivate that UUID.
+
+Admission does not execute A/B/A2. The next step requires a phase plan with observed
+identities and baseline, global reservation before effects, an open-channel controller
+and verified recovery. Native profiles remain blocked.
+
+<a id="internal-controller"></a>
+
+### Controlador e fixture internos / Internal controller and fixture
+
+`scripts/mission_controller.py` mantém o canal do launcher sob o supervisor existente.
+Confere identidade e namespace, registra intenção e autorização antes de cada efeito
+e espera `ready` após a inicialização. Aceita somente o comando fixo da fixture e
+metadados limitados. A fixture `runtime/sbx/fixture.py` inicializa sem rede e faz uma
+GET ao relay local, com eco fictício verificado. Está incluída no contexto de build
+da imagem; o instalador distribui o controlador e preserva cópias locais existentes.
+
+São componentes internos, sem novo comando público de execução. O `client check`
+continua retornando o bloqueio descrito acima. O coordenador ainda precisa vincular
+missão, candidato, baseline, plano A/B/A2 e reserva global, implementar o adaptador
+nativo de comandos fechados e comprovar recuperação. O controlador retorna sempre
+`proof_accepted=false` e `workload_reaped=false`; `observed` indica apenas que o
+protocolo da fase foi concluído. Em B, saída 126 continua `blocked_unattributed`;
+uma resposta permitida vira `unexpected_allow`.
+
+`scripts/mission_controller.py` keeps the launcher pipe open inside the existing
+supervisor. It checks identity and namespace, records intent and authorization before
+each effect, and waits for `ready` after initialization. Commands are fixed to the
+fixture and results are bounded metadata. `runtime/sbx/fixture.py` initializes without
+network and makes one GET through the loopback relay, validating a fake echo. The
+image build context includes it; setup distributes the controller while preserving
+existing local copies.
+
+These are internal components with no new public execution command. `client check`
+still returns the block above. The coordinator must still bind mission, candidate,
+baseline, A/B/A2 plan and global reservation, implement fixed native commands and
+verify recovery. Controller results always keep `proof_accepted=false` and
+`workload_reaped=false`; `observed` only confirms a completed phase protocol. In B,
+exit 126 stays `blocked_unattributed`; a successful response becomes `unexpected_allow`.
+
+Testes locais / Local tests:
+
+```bash
+python3 -B -m unittest discover -s tests -p 'test_mission_controller.py' -v
+python3 -B -m unittest discover -s tests -p 'test_isolated_fixture.py' -v
+python3 -B -m unittest discover -s tests -p 'test_mission_relay.py' -v
+```
+
+Esses testes não usam Docker, fornecedor externo ou modelo. / These tests use no
+Docker, external provider or model. [Evidência / Evidence](relatorios/2026-10-07-controller-channel.md).
 
 Para reproduzir a recusa de isolamento encontrada no Codex, consulte a
 [prova local](relatorios/2026-10-03-native-client-verification.md). Ela usa uma imagem fictícia

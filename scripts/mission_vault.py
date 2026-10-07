@@ -43,6 +43,19 @@ def projection_hash(root, path):
     return hash_file(safe_path(root, path))
 
 
+def render_record(project_id, record, event, path):
+    title = record['snapshot'].get('title', record['code'])
+    parent = '../index.md'
+    body = (f"# {record['code']} · {escape(title)}\n\n[Index]({parent})\n\n"
+            f"Revision: {record['revision']}. Event: {event['sequence']}.\n\n"
+            'Runtime available: false. Production: not verified.\n\n'
+            + '```json\n' + json.dumps(record['snapshot'], ensure_ascii=False, indent=2) + '\n```\n')
+    # Keep source identity exclusively on the editable backlog note.
+    projection_id = str(uuid.uuid5(uuid.UUID(project_id), path))
+    return markdown(projection_id, 'mission' if record['kind'] == 'mission' else 'receipt',
+                    title, parent, body, event['created_at']).encode()
+
+
 def project_receipt(root, receipt, record):
     from mission_store import transaction, event_dict, record_dict
     with transaction(root) as conn:
@@ -60,16 +73,7 @@ def project_receipt(root, receipt, record):
         }
         for path in [*paths, *indices, 'vault/local/index.md']:
             safe_path(root, path)
-        title = record['snapshot'].get('title', record['code'])
-        parent = '../index.md'
-        body = (f"# {record['code']} · {escape(title)}\n\n[Index]({parent})\n\n"
-                f"Revision: {record['revision']}. Event: {current_event['sequence']}.\n\n"
-                'Runtime available: false. Production: not verified.\n\n'
-                + '```json\n' + json.dumps(record['snapshot'], ensure_ascii=False, indent=2) + '\n```\n')
-        # Keep source identity exclusively on the editable backlog note.
-        projection_id = str(uuid.uuid5(uuid.UUID(receipt['project_id']), paths[0]))
-        current = markdown(projection_id, 'mission' if record['kind'] == 'mission' else 'receipt',
-                           title, parent, body, current_event['created_at']).encode()
+        current = render_record(receipt['project_id'], record, current_event, paths[0])
         event_body = (f"# Event {event['sequence']}\n\n[Events](index.md)\n\n"
                       + '```json\n' + json.dumps({k: v for k, v in event.items() if k not in ('projection_state', 'request_hash')}, ensure_ascii=False, indent=2) + '\n```\n')
         history = markdown(event['event_id'], 'event', f"Event {event['sequence']}", 'index.md', event_body, event['created_at']).encode()
@@ -78,10 +82,23 @@ def project_receipt(root, receipt, record):
         for path, data, _ in outputs:
             if (root / path).exists():
                 observed = projection_hash(root, path)
-                saved = conn.execute('SELECT sha256 FROM projections WHERE path=?', (path,)).fetchone()
+                saved = conn.execute('SELECT sha256,sequence FROM projections WHERE path=?', (path,)).fetchone()
                 if observed != hashlib.sha256(data).hexdigest() and (saved is None or observed != saved[0]):
-                    conn.execute("UPDATE events SET projection_state='conflict' WHERE seq=?", (event['sequence'],))
-                    return dict(state='conflict', paths=paths)
+                    recoverable = False
+                    if path == paths[0]:
+                        # A previous write may have reached Markdown before its digest committed.
+                        # Only newer-than-confirmed projections of this record can be adopted;
+                        # a human rollback to an older confirmed revision remains a conflict.
+                        for row in conn.execute('SELECT * FROM events WHERE record_id=? AND seq>? AND seq<? ORDER BY seq DESC',
+                                                (record['id'], saved[1] if saved else 0, current_event['sequence'])):
+                            previous = event_dict(row)
+                            prior = render_record(receipt['project_id'], previous['record'], previous, path)
+                            if observed == hashlib.sha256(prior).hexdigest():
+                                recoverable = True
+                                break
+                    if not recoverable:
+                        conn.execute("UPDATE events SET projection_state='conflict' WHERE seq=?", (event['sequence'],))
+                        return dict(state='conflict', paths=paths)
         for path, (index, label) in indices.items():
             if not (root / path).exists():
                 note_id = str(uuid.uuid5(uuid.UUID(receipt['project_id']), path))

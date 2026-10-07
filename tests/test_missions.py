@@ -21,7 +21,136 @@ TL = dict(id='fixture-tl', role='tech_lead')
 DB = 'vault/local/operations/state.sqlite3'
 
 
+class ProjectionCrash(BaseException):
+    """Stop the entire repair loop, as losing the coordinator would."""
+
+
 class MissionTests(MissionCase):
+    def interrupt_note_write(self, *, path=None, hard=False):
+        import mission_vault
+        real_write = mission_vault.atomic_write
+        written = []
+        def write(root, relative, content):
+            real_write(root, relative, content)
+            parts = Path(relative).parts
+            target = relative == path if path else parts[:3] == ('vault', 'local', 'missions') and len(parts) == 5
+            if target and not written:
+                written.append(relative)
+                raise ProjectionCrash() if hard else OSError('interrupted after note write')
+        return patch.object(mission_vault, 'atomic_write', side_effect=write), written
+
+    def test_unconfirmed_projection_recovers_after_new_revision_and_replay(self):
+        request, actor = self.prepared_fixture()
+        interrupted, written = self.interrupt_note_write()
+        with interrupted:
+            first = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        self.assertEqual(first['projection_state'], 'pending')
+        self.assertEqual(len(written), 1)
+        newer = self.m.revise_mission(self.root, first['record_id'], dict(request, title='Revision two'),
+                                     1, str(uuid.uuid4()), actor)
+        self.assertEqual(newer['projection_state'], 'current')
+        self.assertEqual(self.m.repair(self.root, first['record_id'])['projection_state'], 'current')
+        replay = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        self.assertEqual(replay['event_id'], first['event_id'])
+        self.assertEqual(replay['projection_state'], 'current')
+        status = self.m.mission_status(self.root, first['record_id'])
+        self.assertEqual((status['revision'], len(status['events']), status['projection_state']), (2, 2, 'current'))
+        self.assertIn('Revision: 2.', (self.root/written[0]).read_text())
+        self.assertIn('Revision two', (self.root/written[0]).read_text())
+
+    def test_unconfirmed_newer_projection_recovers_with_regressing_clock(self):
+        request, actor = self.prepared_fixture()
+        first = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        interrupted, _ = self.interrupt_note_write()
+        with interrupted, patch('missions.utc_now', return_value='2026-10-03T12:00:00+00:00'):
+            second = self.m.revise_mission(self.root, first['record_id'], dict(request, title='Second'),
+                                          1, str(uuid.uuid4()), actor)
+        self.assertEqual(second['projection_state'], 'pending')
+        with patch('missions.utc_now', return_value='2026-10-03T11:00:00+00:00'):
+            third = self.m.revise_mission(self.root, first['record_id'], dict(request, title='Third'),
+                                         2, str(uuid.uuid4()), actor)
+        self.assertEqual(third['projection_state'], 'current')
+        self.assertEqual(self.m.repair(self.root, first['record_id'])['projection_state'], 'current')
+        self.assertIn('Third', (self.root/first['paths'][0]).read_text())
+        self.assertEqual(len(self.db.events(self.root, first['record_id'])), 3)
+
+    def test_legacy_conflict_after_interrupted_write_can_be_repaired(self):
+        request, actor = self.prepared_fixture()
+        interrupted, _ = self.interrupt_note_write()
+        with interrupted:
+            first = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        # Reproduce the durable state left by the former false-conflict path.
+        with patch('missions.project_receipt', return_value=dict(state='conflict', paths=[])):
+            self.m.revise_mission(self.root, first['record_id'], dict(request, title='Second'),
+                                  1, str(uuid.uuid4()), actor)
+        with self.db.transaction(self.root) as conn:
+            conn.execute("UPDATE events SET projection_state='conflict' WHERE record_id=?", (first['record_id'],))
+        self.assertEqual(self.m.mission_status(self.root, first['record_id'])['projection_state'], 'conflict')
+        self.assertEqual(self.m.repair(self.root, first['record_id'])['projection_state'], 'current')
+        status = self.m.mission_status(self.root, first['record_id'])
+        self.assertEqual((status['revision'], len(status['events']), status['projection_state']), (2, 2, 'current'))
+
+    def test_crash_during_repair_recovers_without_new_event(self):
+        request, actor = self.prepared_fixture()
+        first = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        with patch('missions.project_receipt', side_effect=OSError('before note write')):
+            self.m.revise_mission(self.root, first['record_id'], dict(request, title='Second'),
+                                  1, str(uuid.uuid4()), actor)
+        interrupted, written = self.interrupt_note_write(hard=True)
+        with interrupted, self.assertRaises(ProjectionCrash):
+            self.m.repair(self.root, first['record_id'])
+        self.assertEqual(len(written), 1)
+        # A later revision must also recover a write interrupted inside repair.
+        newer = self.m.revise_mission(self.root, first['record_id'], dict(request, title='Third'),
+                                     2, str(uuid.uuid4()), actor)
+        self.assertEqual(newer['projection_state'], 'current')
+        self.assertEqual(self.m.repair(self.root, first['record_id'])['projection_state'], 'current')
+        before = self.snapshot()
+        self.assertEqual(self.m.repair(self.root, first['record_id'])['projection_state'], 'current')
+        self.assertEqual(before, self.snapshot())
+        self.assertEqual(len(self.db.events(self.root, first['record_id'])), 3)
+
+    def test_human_change_after_interrupted_projection_remains_conflict(self):
+        request, actor = self.prepared_fixture()
+        interrupted, written = self.interrupt_note_write()
+        with interrupted:
+            first = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        path = self.root/written[0]
+        human = path.read_bytes()+b'\nHuman addition after interruption.\n'
+        path.write_bytes(human)
+        newer = self.m.revise_mission(self.root, first['record_id'], dict(request, title='Second'),
+                                     1, str(uuid.uuid4()), actor)
+        self.assertEqual(newer['projection_state'], 'conflict')
+        self.assertEqual(self.m.repair(self.root, first['record_id'])['projection_state'], 'conflict')
+        self.assertEqual(path.read_bytes(), human)
+
+    def test_human_restore_of_confirmed_old_projection_is_not_adopted(self):
+        request, actor = self.prepared_fixture()
+        first = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        path = self.root/first['paths'][0]
+        historical = path.read_bytes()
+        self.m.revise_mission(self.root, first['record_id'], dict(request, title='Second'),
+                              1, str(uuid.uuid4()), actor)
+        path.write_bytes(historical)
+        self.assertEqual(self.m.repair(self.root, first['record_id'])['projection_state'], 'conflict')
+        self.assertEqual(path.read_bytes(), historical)
+
+    def test_unconfirmed_import_projection_recovers_without_changing_source(self):
+        path = self.write_item('epic')
+        note = f'vault/local/operations/items/{self.item_id(path)}/index.md'
+        interrupted, written = self.interrupt_note_write(path=note)
+        with interrupted:
+            first = self.m.import_item(self.root, path, 0, self.op_id, ACTOR)
+        self.assertEqual(first['projection_state'], 'pending')
+        self.assertEqual(written, [note])
+        self.contract(path, objective='Revised objective')
+        source = (self.root/path).read_bytes()
+        second = self.m.import_item(self.root, path, 1, str(uuid.uuid4()), ACTOR)
+        self.assertEqual(second['projection_state'], 'current')
+        self.assertEqual(self.m.repair(self.root, first['record_id'])['projection_state'], 'current')
+        self.assertEqual((self.root/path).read_bytes(), source)
+        self.assertEqual(len(self.db.events(self.root, first['record_id'])), 2)
+
     def test_client_runs_is_readonly_on_fresh_project(self):
         before = self.snapshot()
         output = io.StringIO()

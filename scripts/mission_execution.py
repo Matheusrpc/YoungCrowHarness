@@ -101,7 +101,8 @@ class Registry:
     def create_empty(self, name):
         path = safe_path(self.base,name)
         try:
-            with path.open('xb') as stream:
+            # POSIX protection inspects existing modes; create privately even under umask 022.
+            with os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), 'wb') as stream:
                 fs.protect_for_storage(path)  # Only this newly created, still empty file.
                 check_private(path)
                 stream.flush()

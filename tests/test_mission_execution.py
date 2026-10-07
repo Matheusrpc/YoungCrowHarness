@@ -149,6 +149,53 @@ class ReservationTests(unittest.TestCase):
         self.assertNotIn('private-canary',str(result))
 
 
+@unittest.skipUnless(os.name == 'posix', 'POSIX private creation modes')
+class PosixReservationTests(unittest.TestCase):
+    def test_new_reservation_is_private_independently_of_umask(self):
+        import mission_execution as execution
+        import stat
+        with tempfile.TemporaryDirectory() as temporary:
+            for mask in (0o000, 0o022, 0o077):
+                with self.subTest(umask=oct(mask)):
+                    base = Path(temporary) / str(mask)
+                    registry = execution.Registry(base)
+                    request = dict(schema_version=1, operation_id=str(uuid.uuid4()),
+                                   mission_id=str(uuid.uuid4()), project_id=str(uuid.uuid4()),
+                                   project_sha256='a'*64, manifest_sha256='b'*64,
+                                   baseline_sha256='c'*64, executable_sha256='d'*64,
+                                   candidate_digest='sha256:'+'e'*64, authorization_sha256='f'*64,
+                                   deadline_ms=int(time.time()*1000)+120000)
+                    previous = os.umask(mask)
+                    try:
+                        try:
+                            first = registry.reserve(request)
+                        except ValueError as error:
+                            self.fail(f'new private reservation refused under {oct(mask)}: {error}')
+                    finally:
+                        os.umask(previous)
+                    self.assertTrue(first['new'])
+                    self.assertEqual(stat.S_IMODE((base/'reclaim.lock').stat().st_mode), 0o600)
+                    self.assertEqual(stat.S_IMODE((base/'registry.json').stat().st_mode), 0o600)
+                    self.assertEqual(execution.Registry(base).status()['operation_id'], request['operation_id'])
+                    self.assertFalse(execution.Registry(base).reserve(request)['new'])
+
+    def test_existing_unprotected_lock_is_preserved_and_refused(self):
+        import mission_execution as execution
+        import stat
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary) / 'shared'
+            base.mkdir(mode=0o700)
+            lock = base / 'reclaim.lock'
+            lock.write_bytes(b'existing evidence')
+            lock.chmod(0o644)
+            with self.assertRaisesRegex(ValueError, 'execution_storage_unprotected'):
+                with execution.Registry(base).locked():
+                    self.fail('unprotected storage accepted')
+            self.assertEqual(lock.read_bytes(), b'existing evidence')
+            self.assertEqual(stat.S_IMODE(lock.stat().st_mode), 0o644)
+            self.assertFalse((base/'registry.json').exists())
+
+
 @unittest.skipUnless(os.name == 'nt' and os.environ.get('YC_NATIVE_RESERVATION') == '1',
                      'native ACL fixture is explicitly selected through windows_fixture_runner')
 class NativeReservationTests(unittest.TestCase):

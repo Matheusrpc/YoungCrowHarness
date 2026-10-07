@@ -37,7 +37,7 @@ FILES += ('scripts/adoption.py', 'scripts/adoption_fs.py', 'scripts/adoption_acl
 FILES += tuple(f'scripts/{name}.py' for name in
                ('mission_config', 'mission_backlog', 'mission_store', 'mission_vault', 'missions',
                 'mission_clients', 'mission_process', 'mission_runs', 'mission_sandbox', 'mission_environment', 'mission_sbx',
-                'mission_execution','mission_egress'))
+                'mission_execution','mission_egress', 'mission_controller'))
 FILES += tuple(f'{base}/{name}/SKILL.md' for base in ('skills', '.claude/skills', '.agents/skills')
                for name in ('yc-personalizer', 'yc-config', 'yc-missao', 'yc-status'))
 
@@ -140,7 +140,7 @@ class SetupTests(unittest.TestCase):
         result = self.run_setup('--client', 'both', '--no-plugins')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertTrue((self.target / 'scripts/mission_sandbox.py').is_file())
-        for name in ('mission_execution','mission_egress'):
+        for name in ('mission_execution','mission_egress', 'mission_controller'):
             self.assertTrue((self.target / f'scripts/{name}.py').is_file())
         before = snapshot_bytes(self.target)
         probe = subprocess.run([sys.executable, '-B', str(self.target / 'scripts/missions.py'),
@@ -157,12 +157,14 @@ class SetupTests(unittest.TestCase):
         write(self.target / 'scripts/mission_sandbox.py', '# human environment probe\n')
         write(self.target / 'scripts/mission_execution.py', '# human reservation\n')
         write(self.target / 'scripts/mission_egress.py', '# human egress\n')
+        write(self.target / 'scripts/mission_controller.py', '# human controller\n')
         result = self.run_setup('--client', 'both', '--no-plugins', '--force', timeout=180)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual((self.target / 'scripts/mission_runs.py').read_text(), '# human adapter\n')
         self.assertEqual((self.target / 'scripts/mission_sandbox.py').read_text(), '# human environment probe\n')
         self.assertEqual((self.target / 'scripts/mission_execution.py').read_text(), '# human reservation\n')
         self.assertEqual((self.target / 'scripts/mission_egress.py').read_text(), '# human egress\n')
+        self.assertEqual((self.target / 'scripts/mission_controller.py').read_text(), '# human controller\n')
         for name in ('mission_clients', 'mission_process'):
             self.assertTrue((self.target / f'scripts/{name}.py').is_file())
         self.assertFalse((self.target / 'vault/local/operations/state.sqlite3').exists())

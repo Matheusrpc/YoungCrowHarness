@@ -1,6 +1,8 @@
 """Breaks caught: implicit billing, stale policy, unsupported effort and false success."""
 import copy
+from contextlib import redirect_stdout, redirect_stderr
 import importlib
+import io
 import json
 import os
 from pathlib import Path
@@ -40,6 +42,59 @@ def native_events(client, nonce):
 
 
 class ClientTests(unittest.TestCase):
+    def assert_inspection_protocol_error(self, client):
+        import missions
+        before = self.snapshot()
+        output, errors = io.StringIO(), io.StringIO()
+        with patch.object(self.module, 'build_check') as dispatch, \
+             redirect_stdout(output), redirect_stderr(errors):
+            code = missions.main(['--root', str(self.root), 'client', 'inspect',
+                                  '--client', client, '--executable', str(self.executable), '--json'])
+        self.assertEqual(code, 2)
+        self.assertEqual(json.loads(output.getvalue())['error'], 'client_protocol_error')
+        self.assertNotIn('private-canary', output.getvalue())
+        self.assertEqual(errors.getvalue(), '')
+        self.assertEqual(before, self.snapshot())
+        dispatch.assert_not_called()
+
+    def test_malformed_effort_catalog_returns_json_without_dispatch(self):
+        bad_values = [None, {}, 'private-canary', 1, [None], [0], ['private-canary'],
+                      [{}], [{'reasoningEffort': None}], [{'reasoningEffort': []}]]
+        for value in bad_values:
+            with self.subTest(value=value):
+                models = catalog('codex')
+                models[0]['supportedReasoningEfforts'] = value
+                metadata = dict(version='0.146.0', models=models, controls=True, auth_kind='authenticated')
+                with patch.object(self.module, 'discover', return_value=metadata):
+                    self.assert_inspection_protocol_error('codex')
+        for value in (None, {}, 'private-canary', [None], [[]]):
+            with self.subTest(client='claude', value=value):
+                models = catalog('claude')
+                models[0]['supportedEffortLevels'] = value
+                metadata = dict(version='2.1.220', models=models, controls=True, auth_kind='authenticated')
+                with patch.object(self.module, 'discover', return_value=metadata):
+                    self.assert_inspection_protocol_error('claude')
+
+    def test_malformed_discovery_envelopes_return_json(self):
+        cases = [('codex', {'result': value}) for value in (None, [], 'private-canary', {})]
+        cases += [('claude', {'response': value}) for value in (None, [], 'private-canary')]
+        cases += [('claude', {'response': {'subtype': 'success', 'response': value}})
+                  for value in (None, [], 'private-canary', {})]
+        for client, response in cases:
+            with self.subTest(client=client, response=response):
+                with patch.object(self.module, '_exchange', side_effect=['1.2.3', '', [response]]) as exchange:
+                    self.assert_inspection_protocol_error(client)
+                self.assertEqual(exchange.call_count, 3)
+
+    def test_missing_optional_effort_lists_preserve_client_default(self):
+        for client, field in (('codex', 'supportedReasoningEfforts'), ('claude', 'supportedEffortLevels')):
+            models = catalog(client)
+            del models[0][field]
+            result = self.module.model_catalog(client, models)
+            self.assertEqual(result[0]['efforts'], [])
+            self.assertIsNone(result[0]['default_effort'])
+            self.assertEqual(result[1]['efforts'], ['low'])
+
     def test_discovery_observation_survives_timeout_without_private_output(self):
         observation = {}
         with patch.object(self.module, 'DISCOVERY_SECONDS', .4):

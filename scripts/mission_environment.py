@@ -111,7 +111,10 @@ def read_selection(root: Path) -> dict:
             if (root / AREA).exists():
                 _storage(root)
             elif root.exists():
-                _git_boundary(root)
+                try:
+                    _git_boundary(root)
+                except (OSError, ValueError, subprocess.SubprocessError) as error:
+                    raise storage_error(error, 'git_boundary') from None
             return default
         _storage(root)
         if path.stat().st_size > LIMIT:

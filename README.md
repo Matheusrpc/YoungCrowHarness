@@ -42,6 +42,21 @@ testes e relatórios revisados para continuar em outro ambiente. Comece pelo
 [verificação deste checkpoint](docs/relatorios/2026-10-07-cloud-checkpoint.md).
 O executor ainda depende de prova integrada de rede e dos dois clientes autenticados; seus perfis permanecem bloqueados.
 
+`client check` reconhece o manifesto `isolated-egress-v1` e registra um bloqueio
+`controller_pending`, com `model_calls=0`. A tentativa conserva os limites e o UUID da
+missão, sem consultar clientes ou Docker. Veja o [contrato e seus limites](docs/USAGE.md#synthetic-admission)
+e a [continuidade na cloud](docs/relatorios/2026-10-07-synthetic-admission.md).
+
+O controlador interno de canal e a fixture fixa já têm testes com processos e relay
+locais. A fixture está incluída no contexto de build; a imagem ainda precisa ser
+reconstruída e provada. O próximo passo é ligar o plano A/B/A2 à reserva global e à
+recuperação antes de habilitar o despacho. Veja a [entrega e a sequência das frentes](docs/relatorios/2026-10-07-controller-channel.md).
+
+As correções locais da auditoria recuperam notas de missão/backlog interrompidas
+mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
+de Git na primeira consulta de ambiente retornam JSON sanitizado.
+Veja [correções e regressões](docs/relatorios/2026-10-07-audit-fixes.md).
+
 <a id="arquitetura-pt"></a>
 
 ## <img src="assets/gema-turquesa.svg" height="24" alt=""> Arquitetura e estado atual
@@ -527,6 +542,21 @@ reviewed reports for continuing in another environment. Start with the
 [full context](docs/HANDOFF-CLOUD-2026-10-07.md) and the
 [checkpoint verification](docs/relatorios/2026-10-07-cloud-checkpoint.md).
 Integrated network proof and both authenticated clients are still pending; execution profiles remain blocked.
+
+`client check` recognizes `isolated-egress-v1` manifests and records a
+`controller_pending` block with `model_calls=0`. The attempt preserves mission limits
+and its UUID without querying clients or Docker. See the [contract and limits](docs/USAGE.md#synthetic-admission)
+and the [cloud continuation report](docs/relatorios/2026-10-07-synthetic-admission.md).
+
+The internal channel controller and fixed fixture have local process and relay tests.
+The fixture is included in the build context; rebuilding and proving the image are
+still pending. Next, bind the A/B/A2 plan to global reservation and recovery before
+enabling dispatch. See the [increment and delivery sequence](docs/relatorios/2026-10-07-controller-channel.md).
+
+Local audit fixes recover interrupted mission/backlog notes even after another
+revision, preserving human edits. Malformed catalogs and Git failures during the
+first environment query return sanitized JSON.
+See [fixes and regressions](docs/relatorios/2026-10-07-audit-fixes.md).
 
 <a id="architecture-en"></a>
 

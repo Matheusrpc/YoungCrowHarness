@@ -17,6 +17,38 @@ import missions
 
 
 class RunTests(RuntimeCase):
+    def test_mission_projection_recovery_preserves_consumed_run_reservation(self):
+        import mission_vault
+        manifest = self.make_manifest()
+        observation = self.observe()
+        run = self.runs.reserve_check(self.root, manifest, observation)
+        def rows():
+            with mission_store.reader(self.root) as conn:
+                return tuple(conn.execute('SELECT * FROM '+table+' ORDER BY rowid').fetchall()
+                             for table in ('agent_runs', 'agent_run_events', 'agent_run_projections'))
+        before = rows()
+        saved = mission_store.get_record(self.root, manifest['mission_id'])['snapshot']
+        request = {key: saved[key] for key in ('title', 'feature_ids', 'priority', 'overrides', 'scope_reference')}
+        request['title'] = 'Second'
+        real_write = mission_vault.atomic_write
+        def interrupt(root, path, content):
+            real_write(root, path, content)
+            if path == self.mission['paths'][0]:
+                raise OSError('after note write')
+        actor = dict(id='fixture', role='pm')
+        with patch.object(mission_vault, 'atomic_write', side_effect=interrupt):
+            second = missions.revise_mission(self.root, manifest['mission_id'], request, 1, str(uuid.uuid4()), actor)
+        self.assertEqual(second['projection_state'], 'pending')
+        third = missions.revise_mission(self.root, manifest['mission_id'], dict(request, title='Third'),
+                                        2, str(uuid.uuid4()), actor)
+        self.assertEqual(third['projection_state'], 'current')
+        self.assertEqual(missions.repair(self.root, manifest['mission_id'])['projection_state'], 'current')
+        repeated = self.runs.reserve_check(self.root, manifest, observation)
+        self.assertEqual(repeated, run)
+        self.assertEqual(repeated['state'], 'reserved')
+        self.assertEqual(repeated['reserved_seconds'], manifest['agent_seconds'])
+        self.assertEqual(rows(), before)
+
     def setUp(self):
         super().setUp()
         self.assertIsNotNone(importlib.util.find_spec('mission_runs'), 'runs not implemented')

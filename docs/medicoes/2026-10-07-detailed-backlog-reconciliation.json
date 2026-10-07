@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-07T17:13:38.784969+00:00",
+  "scope": "source reading and reconciliation; no code implementation or new test-suite run",
+  "source": {
+    "name": "BACKLOG-DETALHADO-2026-10-07.md",
+    "sha256": "62442e85ea9b52e042946e4ea07bc10be53785dcd6127574a475ef589d8842e8",
+    "bytes": 50978,
+    "lines": 760,
+    "method": "direct Markdown",
+    "docling_state": "unsupported",
+    "docling_revision": null
+  },
+  "reviewed_base": "b801bec963e8af4af921b8c5473d3884ee5a7a03",
+  "previous_increment_source_hashes_preserved": 20,
+  "states": {
+    "AUD_01": "reproduced; correction pending",
+    "AUD_02": "reproduced; correction pending",
+    "PR24_F1": "fixed locally",
+    "PR24_F2": "reproduced; correction pending",
+    "YC_203_2": "admission implemented; dispatch blocked",
+    "YC_203_3": "internal controller tested; native integration pending",
+    "YC_203_4": "global immutable plan integration pending",
+    "YC_203_5": "verified recovery pending",
+    "YC_203_7": "source package includes fixture; image build and native proof pending"
+  },
+  "ci": {
+    "state": "reported passed by supplied document; not independently verified here",
+    "runs": [
+      "37584603053",
+      "37584633952"
+    ],
+    "covers_local_increment": false
+  },
+  "native_attempts": 0,
+  "model_calls": 0,
+  "changes_published": false,
+  "independent_review": {
+    "agent": "compare_detailed_backlog",
+    "new_scope_conflicts": 0
+  },
+  "checks": {
+    "vault": {
+      "schema_version": 1,
+      "notes_checked": 7,
+      "issues": []
+    },
+    "diff_check": "passed",
+    "source_copy": "byte-identical"
+  },
+  "report": {
+    "path": "docs/relatorios/2026-10-07-detailed-backlog-reconciliation.md",
+    "sha256": "2be3e88e77e11c85a9cc2a3247fd4794ce77b56b25e512d478c1feb071821fbb"
+  },
+  "next_action": "permanent regressions and fixes for three confirmed defects; then integrate 203.4/203.5"
+}

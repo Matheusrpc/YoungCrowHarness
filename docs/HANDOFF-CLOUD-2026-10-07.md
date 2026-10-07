@@ -21,6 +21,53 @@ cd YoungCrowHarness
 
 O próximo trabalho de código é a integração do controlador de execução e recuperação. Não reiniciar a investigação do zero, não produzir outro roteiro experimental de PowerShell e não repetir operações históricas consumidas.
 
+### Continuidade na cloud em 7/out
+
+O checkout recebeu o PR #24 em `b801bec`. A consulta às refs confirmou esse SHA na
+branch e no PR; a API do GitHub recusou a consulta ao CI, cujo resultado permanece
+desconhecido nesta sessão. O incremento local acrescenta a admissão sintética
+bloqueada em `client check` e corrige a criação privada do lock POSIX. Veja o
+[relatório e a medição](relatorios/2026-10-07-synthetic-admission.md).
+
+O §10.2 continua parcial: a entrada e o recibo existem; candidato/baseline, plano
+A/B/A2 e reserva global ainda precisam ser integrados ao controlador e à recuperação.
+Nenhuma nova tentativa Docker ou chamada de modelo ocorreu. O contador histórico
+permanece em dois ciclos usados de três. Os hashes da seção 14 identificam o
+checkpoint anterior; a medição do incremento registra as fontes alteradas.
+
+### Incremento atual: controlador e fixture
+
+O controlador interno (`mission_controller.py`) e a fixture fixa (`runtime/sbx/fixture.py`)
+estão implementados. Os testes exercitam canal aberto, gates, contenção de processos,
+replay após falha de gravação e fixture com relay real local. O setup distribui o
+controlador; o contexto de build inclui a fixture. Nenhuma imagem foi reconstruída
+nem perfil liberado. Veja [escopo e provas](relatorios/2026-10-07-controller-channel.md).
+
+As correções seguintes trataram AUD-01 (projeção interrompida seguida de revisão),
+AUD-02 (catálogo malformado) e PR24-F2 (falha Git na primeira leitura do ambiente).
+Passaram nas regressões locais e na revisão independente; nenhuma migração de banco
+foi necessária. PR24-F1 já estava corrigido. Use o [relatório das correções](relatorios/2026-10-07-audit-fixes.md)
+como estado mais recente desses achados; os relatórios anteriores preservam o histórico.
+A recuperação histórica adicionada cobre missão/backlog; não generalizá-la a
+`project_run`, cujos eventos guardam deltas e não os retratos completos anteriores.
+
+Para continuar, seguir esta ordem sem reabrir decisões anteriores:
+
+| Etapa | Próxima entrega verificável |
+|---|---|
+| Executor: integração | Persistir plano A/B/A2 e baseline observado com seus valores; vincular missão à reserva global antes de efeitos. Integrar controlador, comandos nativos fechados e recuperação no mesmo fluxo |
+| Executor: recuperação | Testar interrupções em cada fronteira; restaurar somente alterações ainda próprias; conferir parada e restauração antes de fechar a reserva |
+| Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |
+| Fila e agentes | Retomar os itens da frente 2 dependentes do aceite YC-203 |
+| QA e publicação | Frentes 3 e 4, depois da execução e continuidade comprovadas |
+
+A reserva v1 consumida não pode ser reaberta ou ter arquivos soltos acrescentados.
+O plano precisa conservar valores de baseline para recuperação sem depender do
+checkout, além dos hashes; o histórico de identidade deve permanecer separado da
+comparação de configuração após reinício legítimo. Não encadear outro `supervise`
+dentro do controlador: os filhos devem herdar o mesmo grupo/job. O resolvedor de
+egress ainda usa supervisão própria e precisa ser adaptado ao ser integrado.
+
 ### Estado Git antes do checkpoint de publicação
 
 | Campo | Valor |
@@ -165,13 +212,15 @@ O mantenedor escolheu **Docker Sandboxes** e depois aprovou manter essa escolha 
 | `mission_sbx.py` | Adaptador compartilhado de consultas permitidas, hash/versão, prazo, captura privada, classificação e preflight completo | Caminho de mutações restrito e ligado às intenções da transação |
 | `mission_environment.py` | Seleção privada local/dedicado, preservação, diagnóstico de armazenamento | Validação real no ambiente cloud escolhido |
 | `mission_sandbox.py` | Metadados e inspeção sem iniciar a VM; exposição da reserva compartilhada | Perfil aprovado e observação nativa suficiente para os novos aceites |
-| `mission_process.py` | Supervisão de árvore de processos, limites e recibos; stdout/stderr separados e limitados | Controlador interno que mantenha o canal do launcher aberto |
+| `mission_process.py` | Supervisão de árvore de processos, limites e recibos; controlador testado dentro da mesma contenção | Prova nativa de encerramento da carga aninhada |
+| `mission_controller.py` | Canal aberto, identidade, gates e intenção antes do efeito, protocolo limitado e fixture fixa | Coordenador persistente, adaptador nativo fechado e recuperação integrados |
 | `runtime/sbx/guardian.py` | Processo supervisor, privilégios limitados, prazo, repetição recusada e gates de rede | Prova integrada do candidato v3 atual |
 | `runtime/sbx/launcher.py` | Preparação única, identidade, rede por fase, recibos e verificação de estado | Ponte host/produto e recuperação integrada |
 | `runtime/sbx/relay.py` | Relay restrito no guardian: destino fixo, CA vinculada por hash, parser limitado, JSON/streaming e fechamento | Docker TLS real e clientes autenticados nesse percurso |
+| `runtime/sbx/fixture.py` | Inicialização sem rede e uma GET ao relay; eco fictício e metadados limitados, teste com relay local | Imagem reconstruída e prova A/B/A2 do candidato |
 | `mission_execution.py` | Reserva privada compartilhada por conta, lock, ledger atômico, intenção antes do retorno e recusa de repetição | Fechar/reconciliar reserva consumida após provar parada e restauração |
 | `mission_egress.py` | Filtro após o proxy, DNS público completo, dial numérico único, conferência do peer, tempo/bytes limitados | Ligar ao helper supervisionado, às intenções e à prova A/B/A2 |
-| `mission_runs.py` | Recibos de missão e mecanismo de check/reconciliação do processo host | Variante sintética explícita e integração de estado da VM/Docker |
+| `mission_runs.py` | Recibos, reconciliação host e admissão sintética bloqueada | Vínculo da reserva global e integração de estado da VM/Docker |
 
 `REVIEWED_PROFILES` e o registro de perfis nativos continuam vazios. Não preenchê-los com uma flag `verified=true`, arquivo fornecido pelo chamador ou conclusão de testes simulados.
 
@@ -311,13 +360,23 @@ Conferir quais arquivos atuais chegaram à cloud. Verificar branch, commit, modi
 
 ### 10.2 Integrar uma variante sintética em `client check`
 
-Usar o comando existente, com manifesto explicitamente sintético e resultado separado de inferência. Uma proposta técnica já identificada é `fixture_id=isolated-egress-v1`; esse nome ainda não é interface implementada.
+Usar o comando existente, com manifesto explicitamente sintético e resultado separado
+de inferência. `fixture_id=isolated-egress-v1` agora tem admissão implementada:
+valida missão/revisão/autorização/limites e grava `failed/controller_pending`,
+`model_calls=0`, antes de qualquer inspeção de cliente. A tentativa consome os limites
+da missão uma vez; replay conserva o bloqueio e seu UUID. O ramo ainda não consulta
+Docker nem cria reserva global. O [guia](USAGE.md#synthetic-admission) detalha o contrato.
 
 O ramo sintético precisa ocorrer antes de `inspect_client/build_check`, que dependem de perfil, autenticação e modelo reais. Preservar missão, revisão, autorização e limites. Registrar `model_calls=0`; não produzir uma observação fictícia de Claude/Codex para contornar os perfis vazios.
 
 Reservar a operação global antes do primeiro efeito. Vincular manifesto, baseline, executável, imagem externa/interna, hashes de código, autorização e IDs/manifestos de A/B/A2. Cada fase precisa de UUID e nonce próprios, persistidos antes de começar. Uma transação com três fases HTTP não equivale a três chamadas de IA.
 
 ### 10.3 Implementar o controlador de canal aberto
+
+Componente interno implementado em `scripts/mission_controller.py`, testado com
+processos locais sob `mission_process`. A integração nativa ainda depende do §10.2
+e §10.4; não há novo comando público ou liberação de `client check`. O retorno de
+fase nunca certifica recuperação, parada da VM ou aceite nativo.
 
 O `mission_process.supervise` atual escreve o stdin e fecha. O protocolo do launcher precisa manter o canal aberto e receber duas autorizações externas de rede. O modo existente de `exchange_requests` espera JSON-RPC e não corresponde aos eventos `kind` do guardian.
 
@@ -350,6 +409,10 @@ A reserva atual só abandona operações sem intenções. Antes da primeira muta
 O `client reconcile` atual trata o processo host e arquivos de evidência; não certifica a carga aninhada nem restaura Docker. `observe_stop` mantém explicitamente `workload_reaped=false` quando a prova não existe.
 
 ### 10.5 Empacotar fixture e provar o candidato atual
+
+Fixture implementada em `runtime/sbx/fixture.py` e incluída no Dockerfile e na
+allowlist do contexto. O teste com relay real usa apenas sockets locais e upstream
+fictício. Reconstrução da imagem e provas nativas abaixo permanecem pendentes.
 
 Fixture fixa, executada sem privilégios: inicialização sem rede, uma GET ao relay local no caminho exato, validação do resultado com marcador fictício e emissão de metadados limitados. Não aceitar URL/código/comando livre.
 

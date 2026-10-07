@@ -1,0 +1,157 @@
+{
+  "front": "Audit of recent published mission changes and cloud handoff completeness",
+  "date": "2026-10-07",
+  "repository": "Matheusrpc/YoungCrowHarness",
+  "head": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+  "local_branch": "work",
+  "remote_main_sha": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+  "remote_isolated_executor_branch_present": false,
+  "source_sha256": "bcd5835ffabca4e8aacfc3f1885618d5bbcc75d463c0e9064613dea0d33d046f",
+  "source_hash_checks": [
+    {
+      "path": "scripts/mission_execution.py",
+      "expected_sha256": "7663eb7c1f4156e66d9c97277fc9a62a7d0b6de2c95da1f108e56ed126975ffd",
+      "actual_sha256": null,
+      "status": "missing"
+    },
+    {
+      "path": "scripts/mission_egress.py",
+      "expected_sha256": "20b27afc0186a2f9c2a610afdb7b4c1ce58a7253eaa6f2e23a475795a9f27928",
+      "actual_sha256": null,
+      "status": "missing"
+    },
+    {
+      "path": "scripts/mission_sbx.py",
+      "expected_sha256": "e425f06c75ddc7b20d9bd374443adbde0caf3f2d02e1bfe6e996c258cd9bc83e",
+      "actual_sha256": null,
+      "status": "missing"
+    },
+    {
+      "path": "scripts/mission_sandbox.py",
+      "expected_sha256": "44756ecbf3c3806159962743bd8e1d3f7b37560d72f99c98c1af3376d3ba3858",
+      "actual_sha256": null,
+      "status": "missing"
+    },
+    {
+      "path": "runtime/sbx/guardian.py",
+      "expected_sha256": "136b00f154508180707e2353251796d0af142900c3bc5cb647c9416e36d5c2e1",
+      "actual_sha256": null,
+      "status": "missing"
+    },
+    {
+      "path": "runtime/sbx/launcher.py",
+      "expected_sha256": "8ece607c94eb30940afbfaebccc7516e49a5a8313cd19c3e154f5d4f3b650906",
+      "actual_sha256": null,
+      "status": "missing"
+    },
+    {
+      "path": "runtime/sbx/relay.py",
+      "expected_sha256": "c0bf304c53ed0b60014cf0dccee30283cc93c7f237efe04b670d1c258aa08316",
+      "actual_sha256": null,
+      "status": "missing"
+    },
+    {
+      "path": "runtime/sbx/youngcrow.dockerfile",
+      "expected_sha256": "e2043b3bc9e8c8cf54ded5ddc0c916b32b3558c0ce05443f64f3ddf6d23cb7f9",
+      "actual_sha256": null,
+      "status": "missing"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-07-executor-consolidation.md",
+      "expected_sha256": "d3b7c787dd339661b09a81c77e66c8167c0625358c328630a603d66b0df3028e",
+      "actual_sha256": null,
+      "status": "missing"
+    }
+  ],
+  "additional_references": [
+    {
+      "path": "scripts/mission_environment.py",
+      "present": false
+    },
+    {
+      "path": "tests/test_mission_execution.py",
+      "present": false
+    },
+    {
+      "path": "tests/test_mission_egress.py",
+      "present": false
+    },
+    {
+      "path": "tests/test_mission_sbx.py",
+      "present": false
+    },
+    {
+      "path": "tests/test_mission_sandbox.py",
+      "present": false
+    },
+    {
+      "path": "docs/relatorios/2026-10-07-executor-consolidation.md",
+      "present": false
+    },
+    {
+      "path": "docs/medicoes/executor-consolidation.json",
+      "present": false
+    },
+    {
+      "path": "vault/local/integrations/docker/sandboxes/runs/2026-10-07-consolidation.md",
+      "present": false
+    }
+  ],
+  "tests": {
+    "command": "PYTHONPATH=tests python3 -B -m unittest test_mission_config test_mission_backlog test_missions test_mission_runs test_mission_clients test_mission_process -v",
+    "discovered": 82,
+    "passed": 80,
+    "skipped": 2,
+    "failed": 0,
+    "seconds": 52.832
+  },
+  "vault": {
+    "notes_checked": 3,
+    "issues": []
+  },
+  "reproductions": {
+    "projection_after_interruption": {
+      "first": "pending",
+      "after_revision": "conflict",
+      "repair": "conflict",
+      "replay": "conflict",
+      "database_revision": 2,
+      "old_note_unchanged": true
+    },
+    "repair_before_revision_control": {
+      "first": "pending",
+      "after_revision": "current",
+      "repair": "current",
+      "replay": "current",
+      "database_revision": 2,
+      "old_note_unchanged": false
+    },
+    "malformed_catalog": {
+      "exception": "AttributeError",
+      "cli_output": "",
+      "input": "supportedReasoningEfforts: [null]"
+    },
+    "model_calls": 0
+  },
+  "reproduction_script": ".runtime/audit-20261007/reproduce_findings.py",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "P2",
+      "path": "scripts/mission_vault.py",
+      "line": 82,
+      "reproduced": true
+    },
+    {
+      "id": "F2",
+      "severity": "P2",
+      "path": "scripts/mission_clients.py",
+      "line": 149,
+      "reproduced": true
+    }
+  ],
+  "native_models_called": 0,
+  "docker_operations": 0,
+  "source_code_modified": false,
+  "scope_limit": "Uncommitted isolated-executor code and native proof artifacts were not transferred; their claimed results were not verified."
+}

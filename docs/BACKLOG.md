@@ -7,6 +7,38 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
+Na continuidade cloud, `client check` recebeu a admissão `isolated-egress-v1`, que
+grava `failed/controller_pending` com zero chamadas de modelo e conserva limites e
+replay. Controlador, reserva global, plano A/B/A2 e recuperação ainda precisam de
+integração. [Incremento e provas](relatorios/2026-10-07-synthetic-admission.md).
+
+Cloud continuation adds `isolated-egress-v1` admission to `client check`, recording
+`failed/controller_pending` with zero model calls and preserving limits and replay.
+Controller, global reservation, A/B/A2 plan and recovery still need integration.
+
+Incremento seguinte: controlador de canal aberto e fixture fixa implementados e
+testados localmente. O pacote da imagem inclui a fixture; ainda falta reconstruir
+e provar o candidato. A sequência agora é **reserva/recuperação integradas → A/B/A2
+→ clientes autenticados e adoção → fila/agentes → QA → release/operação**. YC-203
+continua parcial e `client check` bloqueado. [Entrega e provas](relatorios/2026-10-07-controller-channel.md).
+
+Next increment: the open-channel controller and fixed fixture are implemented and
+tested locally. The image package includes the fixture; candidate rebuild and proof
+remain pending. Order: **integrated reservation/recovery → A/B/A2 → authenticated
+clients and adoption → queue/agents → QA → release/operations**. YC-203 remains partial
+and `client check` remains blocked.
+
+Correções locais da auditoria: **AUD-01, AUD-02 e PR24-F2** corrigidos com regressões
+e revisão independente. O reparo das notas preserva edições humanas e reservas; os
+diagnósticos devolvem erros estruturados. PR24-F1 já havia sido corrigido. O próximo
+núcleo é **203.4/203.5**, plano A/B/A2, reserva e recuperação integrados.
+[Escopo e evidências](relatorios/2026-10-07-audit-fixes.md).
+
+Local audit fixes: **AUD-01, AUD-02 and PR24-F2** have regression tests and independent
+review. Note repair preserves human edits and reservations; diagnostics return structured
+errors. PR24-F1 was already fixed. Next: integrate **203.4/203.5**, the A/B/A2 plan,
+reservation and recovery. Native acceptance remains pending.
+
 Este é o índice público do trabalho necessário para entregar a esteira definida na
 [especificação aprovada](superpowers/specs/2026-10-03-ai-product-pipeline-design.md).
 A base está publicada; a preparação de missões entrou na `main` pelo

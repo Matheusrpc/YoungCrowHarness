@@ -1,6 +1,7 @@
 """Real local sockets, fake upstream bytes. No Docker, credentials or model calls."""
 import importlib.util
 import hashlib
+import json
 import os
 import socket
 import sys
@@ -17,6 +18,36 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'runtime/sbx'))
 
 
 class RelayTests(unittest.TestCase):
+    def test_fixed_fixture_and_real_relay_complete_one_echo(self):
+        import fixture
+        nonce, marker = 'a'*32, 'youngcrow-probe-'+'b'*32
+        target = '/get?youngcrow='+nonce+'-A'
+        self.policy = self.r.Policy('postman-echo.com', 'GET', target,
+                                   (('X-Youngcrow-Probe', marker),))
+        body = json.dumps(dict(args={'youngcrow': nonce+'-A'},
+                               headers={'x-youngcrow-probe': marker},
+                               url='https://postman-echo.com'+target)).encode()
+        self.response = (b'HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: '
+                         +str(len(body)).encode()+b'\r\n\r\n'+body)
+        deadline = int(time.time()*1000)+5000
+        server = self.r.Relay(deadline_ms=deadline, proxy_ipv4='192.0.2.1', policy=self.policy,
+                              claim=lambda: self.claims.append('consumed'), context=None)
+        self.addCleanup(server.stop)
+        with patch.object(self.r, 'open_upstream', side_effect=self.upstream):
+            server.start()
+            result = fixture.request(nonce, 'A', marker, deadline)
+            self.assertTrue(server.done.wait(1))
+            self.assertTrue(server.stop())
+        self.assertTrue(result['echo_matches'])
+        self.assertEqual(result['model_calls'], 0)
+        self.assertEqual(result['response_sha256'], hashlib.sha256(body).hexdigest())
+        self.assertEqual(server.result()['state'], 'succeeded')
+        self.assertEqual(server.result()['requests'], 1)
+        self.assertEqual(server.result()['bytes_forwarded'], len(body))
+        self.assertEqual(len(self.upstream_requests), 1)
+        self.assertTrue(self.upstream_requests[0].startswith(('GET '+target+' HTTP/1.1\r\n').encode()))
+        self.assertIn(('X-Youngcrow-Probe: '+marker+'\r\n').encode(), self.upstream_requests[0])
+
     def setUp(self):
         self.assertIsNotNone(importlib.util.find_spec('relay'), 'restricted relay not implemented')
         import relay

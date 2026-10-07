@@ -125,6 +125,8 @@ com base somente no schema Cloud nem repetir consultas já sem resposta.
 
 ### Incremento atual: settings condicionais
 
+Publicado no PR #24 em `2f4e47a`; branch e ref do PR conferidas.
+
 A revisão reproduziu perda de uma alteração externa entre a consulta e a escrita,
 na ativação e na recuperação. `backend.setting(key, target, *, expected)` agora
 recebe o estado completo esperado e exige comparação/escrita indivisíveis. A fixture

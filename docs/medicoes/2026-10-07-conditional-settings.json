@@ -3,7 +3,7 @@
   "measured_at": "2026-10-07T23:30:17.114471+00:00",
   "base_head": "bdcf766d718b0d36ff0b4129c271cf1423f020ed",
   "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
-  "changes_published": false,
+  "changes_published": true,
   "scope": {
     "203.5": "partial_conditional_setting_restoration_internal",
     "203.6": "partial_native_local_credential_and_settings_contracts_blocked"
@@ -200,7 +200,14 @@
   "publication": {
     "branch": "feat/isolated-executor",
     "main_before": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
-    "state": "pending"
+    "state": "published_to_draft_pr",
+    "code_commit": "2f4e47a12ba9879aa4448c53b571de282e6fc934",
+    "verified_at": "2026-10-07T23:31:14.681216+00:00",
+    "refs": {
+      "refs/heads/feat/isolated-executor": "2f4e47a12ba9879aa4448c53b571de282e6fc934",
+      "refs/heads/main": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+      "refs/pull/24/head": "2f4e47a12ba9879aa4448c53b571de282e6fc934"
+    }
   },
   "full_suite": {
     "command": "python3 -B -m unittest discover -s tests -v",

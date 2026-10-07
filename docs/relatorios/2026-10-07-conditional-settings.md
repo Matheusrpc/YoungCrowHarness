@@ -71,6 +71,7 @@ demonstra impossibilidade do sbx, apenas insuficiência da evidência disponíve
 
 ## Publicação e retorno
 
+Código publicado em `2f4e47a12ba9879aa4448c53b571de282e6fc934`; branch e ref do PR conferidas.
 Destino autorizado: `feat/isolated-executor`, [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 Base: `bdcf766`; main permanece em `932b775`. A medição registra a publicação observada.
 CI continua não verificado nesta sessão. Recibos e fontes brutas ficam fora do Git.
@@ -90,4 +91,4 @@ effects because local atomic support is unproven. Additional official sources di
 connect the Cloud API contract to local sbx 0.46.0. An applicable vendor contract is
 required before native implementation. No Docker, models or native cycles were run.
 
-ATRASO: main 1 frente sem aceite | PR #24 1 incremento pendente de publicação | aceite nativo pendente.
+ATRASO: main 1 frente sem aceite | PR #24 0 incrementos pendentes de publicação | aceite nativo pendente.

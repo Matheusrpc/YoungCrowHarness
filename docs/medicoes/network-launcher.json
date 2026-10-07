@@ -1,0 +1,542 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-05T02:33:16.304763+00:00",
+  "front": "2A-R1",
+  "status": "network_launcher_partial_not_released",
+  "runtime": {
+    "sbx_version": "0.46.0",
+    "platform": "Windows AMD64",
+    "executable_sha256": "a2c8d68f3a16851a65e1d43f7330ae6860c5a2f07df8f22fab5dae7a4a232780"
+  },
+  "model_calls": 0,
+  "mcp_rpc_calls": 0,
+  "manifest_versions": {
+    "1": "network none",
+    "2": "one fixed public IPv4 and hostname; private receipt per phase"
+  },
+  "source_sha256": {
+    "runtime/sbx/guardian.py": "5b26f23f407a1e1f589e222b7f7ad04cd54e36567c11a761825d9af765d60add",
+    "runtime/sbx/launcher.py": "dcd1198c097dcc0e19dda958f5a9aaf1962cec163003948da52648e494885afe",
+    "tests/test_mission_guardian.py": "13867dd1d8d257f32260056f8c61f0e54a1e630b46a97d65f0fe63bb4dfb0340",
+    "tests/test_mission_launcher.py": "db0f1e498976d0d2949541f91a1bc1367189ea9a52081164bcae334fe4c40f20",
+    "tests/fixtures/guardian_network_attack.py": "0c7dd36db8953e9642b9e8a0868ca8f405748410ecc3e5b1f21ad3438c9c1bdc",
+    "tests/smoke_mission_network.py": "fe5297ccb4f9a53c8247860f347e96aa9f37c0c5caee2b5f40c50a65aeeca16b"
+  },
+  "native_image": "sha256:936b26cbb8cba6400efa081695ebf9c283d61e0f4cb129a6f3206fbd245c9d5e",
+  "native_cases": [
+    {
+      "mode": "complete",
+      "assertions_passed": true,
+      "deadline_margin_ms": "13767.4815000",
+      "final_container": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-05T02:24:27.2410423Z",
+        "FinishedAt": "2026-10-05T02:24:28.0385185Z"
+      }
+    },
+    {
+      "mode": "missing-initialize",
+      "assertions_passed": true,
+      "deadline_margin_ms": "14529.5479000",
+      "final_container": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 125,
+        "Error": "",
+        "StartedAt": "2026-10-05T02:24:28.4468529Z",
+        "FinishedAt": "2026-10-05T02:24:28.7154521Z"
+      }
+    },
+    {
+      "mode": "missing-dispatch",
+      "assertions_passed": true,
+      "deadline_margin_ms": "14263.6511000",
+      "final_container": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 125,
+        "Error": "",
+        "StartedAt": "2026-10-05T02:24:29.0800181Z",
+        "FinishedAt": "2026-10-05T02:24:29.6203489Z"
+      }
+    },
+    {
+      "mode": "setup-crash",
+      "assertions_passed": true,
+      "deadline_margin_ms": "14575.2232000",
+      "final_container": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 125,
+        "Error": "",
+        "StartedAt": "2026-10-05T02:24:29.9483928Z",
+        "FinishedAt": "2026-10-05T02:24:30.2227768Z"
+      }
+    },
+    {
+      "mode": "tamper",
+      "assertions_passed": true,
+      "deadline_margin_ms": "14238.8076000",
+      "final_container": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 125,
+        "Error": "",
+        "StartedAt": "2026-10-05T02:24:30.489272Z",
+        "FinishedAt": "2026-10-05T02:24:31.1001924Z"
+      }
+    },
+    {
+      "mode": "replay",
+      "assertions_passed": true,
+      "deadline_margin_ms": "14060.8887000",
+      "final_container": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-05T02:24:31.4153212Z",
+        "FinishedAt": "2026-10-05T02:24:32.2131113Z"
+      }
+    },
+    {
+      "mode": "transport-loss",
+      "assertions_passed": true,
+      "deadline_margin_ms": "14055.8058000",
+      "final_container": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 125,
+        "Error": "",
+        "StartedAt": "2026-10-05T02:24:32.687374Z",
+        "FinishedAt": "2026-10-05T02:24:33.4661942Z"
+      }
+    },
+    {
+      "mode": "deadline",
+      "assertions_passed": true,
+      "deadline_margin_ms": "993.053000",
+      "final_container": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 124,
+        "Error": "",
+        "StartedAt": "2026-10-05T02:24:33.767765Z",
+        "FinishedAt": "2026-10-05T02:24:47.628947Z"
+      }
+    }
+  ],
+  "provider_proofs": [
+    {
+      "provider": "api.openai.com",
+      "status": "synthetic_transport_passed",
+      "http_status": 421,
+      "processes_checked": 2,
+      "negative_network_attempts": 20,
+      "tls_hostname_verified": true,
+      "inner_bridge_sentinel_connections": 0,
+      "deadline_margin_ms": "31044.773000",
+      "replay_exit": 125,
+      "image": "sha256:22c66d7b609052a2a81197d7584754a88a9ed883f182183ff0c8a30a9aaf0664",
+      "source_sha256": "f0af746e87ecca8f7d93d746ac4a352ed46647b08712861bdbae5308056e8708",
+      "final_vm_state": "stopped",
+      "scoped_policy_equivalent": true,
+      "global_and_other_policies_unchanged": true
+    },
+    {
+      "provider": "api.anthropic.com",
+      "status": "synthetic_transport_passed",
+      "http_status": 404,
+      "processes_checked": 2,
+      "negative_network_attempts": 20,
+      "tls_hostname_verified": true,
+      "inner_bridge_sentinel_connections": 0,
+      "deadline_margin_ms": "34483.7598000",
+      "replay_exit": 125,
+      "image": "sha256:269acd379ae88ce19ba99cf9c3270173a6afe69d270f8cd95539f82143f38fce",
+      "source_sha256": "17d43ca773a3d33917088ce7c084c2231ecec375acf06c304b7bee4973ddb0e0",
+      "final_vm_state": "stopped",
+      "scoped_policy_equivalent": true,
+      "global_and_other_policies_unchanged": true
+    }
+  ],
+  "focused_tests": {
+    "guardian": 14,
+    "launcher": 11,
+    "failures": 0,
+    "errors": 0
+  },
+  "full_suite": {
+    "status": "passed",
+    "command": "RUNNER_TEMP=C:/Users/rmfon; python -X utf8 -B tests/windows_fixture_runner.py -m unittest discover -s tests -v",
+    "log": ".superpowers/sdd/2026-10-04-isolated-executor/network-launcher-suite.log",
+    "tests": 390,
+    "passed": 379,
+    "skipped": 11,
+    "failures": 0,
+    "errors": 0,
+    "elapsed_seconds": 1920.927,
+    "exit_code": 0,
+    "skipped_tests": [
+      "test_posix_secondary_groups_survive_return (test_adoption.RestoreTests.test_posix_secondary_groups_survive_return) ... skipped 'POSIX secondary group permissions'",
+      "test_fifo_and_extended_attributes_are_rejected (test_adoption_storage.StorageTests.test_fifo_and_extended_attributes_are_rejected) ... skipped 'POSIX FIFO and mode proof'",
+      "test_symlink_is_not_followed (test_capabilities.CatalogTests.test_symlink_is_not_followed) ... skipped 'Host does not allow creating a symlink'",
+      "test_linked_vault_is_rejected (test_integrations.IntegrationTests.test_linked_vault_is_rejected) ... skipped 'Windows symlink privilege unavailable; exercised in Linux CI'",
+      "test_clear_refuses_unknown_files_or_linked_generation_before_removing (test_memory.MemoryTests.test_clear_refuses_unknown_files_or_linked_generation_before_removing) ... skipped 'Symlink privilege unavailable; unexpected-file preflight was checked.'",
+      "test_hardlink_and_symlink_are_rejected (test_memory.MemoryTests.test_hardlink_and_symlink_are_rejected) ... skipped 'Host cannot create symlinks; hardlink boundary was checked.'",
+      "test_child_cannot_escape_process_group (test_mission_process.ProcessTests.test_child_cannot_escape_process_group) ... skipped 'Linux seccomp boundary'",
+      "test_linked_feature_parent_is_rejected (test_personalize.PersonalizeTests.test_linked_feature_parent_is_rejected) ... skipped 'Windows symlink privilege unavailable; exercised in Linux CI'",
+      "test_dangling_env_link_is_rejected (test_setup.SetupTests.test_dangling_env_link_is_rejected) ... skipped 'Windows needs Developer Mode or symlink privilege; Linux CI must run this case.'",
+      "test_directory_link_cannot_write_outside_project (test_setup.SetupTests.test_directory_link_cannot_write_outside_project) ... skipped 'Windows needs Developer Mode or symlink privilege; Linux CI must run this case.'",
+      "test_symlink_directory_is_not_followed (test_vault.VaultTests.test_symlink_directory_is_not_followed) ... skipped 'Windows symlink privilege unavailable; exercised in Linux CI'"
+    ],
+    "log_sha256": "cce221929921b3ed47dc66311de2045ae2235b95ce80fbb3ed8b6f4acecc825a",
+    "finished_at": "2026-10-05T02:58:05.627943+00:00"
+  },
+  "active_daemon_restart": {
+    "status": "executed_failed_measurement_reconciled",
+    "operator_script": ".superpowers/sdd/2026-10-04-isolated-executor/run-active-network-daemon-proof.ps1",
+    "workload_seconds": 15,
+    "model_calls": 0,
+    "provider_requests": 0,
+    "preflight": "passed_read_only",
+    "powershell_syntax": "passed",
+    "embedded_linux_programs_parse": 2,
+    "original_proof_accepted": false,
+    "operation_id": "fe44483b-3556-4c1e-b762-da2c8a67585b",
+    "deadline_ms": 1791171809597,
+    "recorded_finish_minus_deadline_ms": "3962.503",
+    "exit_code": 255,
+    "pid": 0,
+    "repeat_exit": 125,
+    "repeat_refused": true,
+    "diagnosis": "Host shutdown before deadline; inspection booted VM again; recovered finish timestamp is insufficient.",
+    "host_log_times_utc": {
+      "partition_deleted": "03:43:23.065",
+      "ancestor_not_running": "03:43:24.2712445",
+      "deadline": "03:43:29.597",
+      "new_boot": "03:43:32.2321766",
+      "recovered_finish": "03:43:33.559503"
+    },
+    "policy_reconciliation": {
+      "exact_equal": false,
+      "permissions_equal": true,
+      "changed_rule": "kit:sbx-kit-builder",
+      "old_identity": {
+        "id": "cba4e27f-2e38-429e-8628-1c292363570d",
+        "policy_id": "d9d8cb70-0f1c-4658-a169-8d0f6ae3437b"
+      },
+      "new_identity": {
+        "id": "3752ac4e-b415-4b51-aa41-133b77e0b85c",
+        "policy_id": "89bf5469-3f17-4943-982d-f005152b64ff"
+      },
+      "all_other_rules_exact": true
+    },
+    "replacement_proof": {
+      "state": "observed",
+      "operator_script": ".superpowers\\sdd\\2026-10-04-isolated-executor\\run-active-network-observed-daemon-proof.ps1",
+      "read_only_preflight": "passed",
+      "tests": 2,
+      "embedded_programs_parse": 2,
+      "recorded_at": "2026-10-05T03:58:05.819412+00:00",
+      "status": "observed_manager_stopped_before_deadline",
+      "operation_id": "c7795168-37cc-4192-b10d-41ecdd625a1b",
+      "nonce": "9ff865c999a041628e74d006c7953f2f",
+      "image": "sha256:936b26cbb8cba6400efa081695ebf9c283d61e0f4cb129a6f3206fbd245c9d5e",
+      "manifest_sha256": "1134c4898bcbfca2357c02635d8e55656b0e4237baf8a2c04c93167152ff0384",
+      "termination_evidence": "manager_state_sample_before_exec",
+      "deadline_ms": 1791172613808,
+      "sample_started_ms": 1791172609501,
+      "sample_finished_ms": 1791172610052,
+      "margin_ms": 3756,
+      "pid": 0,
+      "replay_exit": 125,
+      "unchanged_after_replay": true,
+      "policy_exact_equal": false,
+      "policy_permissions_equal": true,
+      "cleanup_errors": [],
+      "all_vms_stopped": 5,
+      "model_calls": 0,
+      "provider_requests": 0
+    }
+  },
+  "profile_ids": [],
+  "remaining": [
+    "gateway_address_variants",
+    "physical_host_sentinel",
+    "dns_changes_and_redirects",
+    "transparent_proxy_resolution",
+    "corrected_package_rebuild",
+    "whole_host_suspend",
+    "authenticated_native_clients",
+    "Ubuntu"
+  ],
+  "receipts": [
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/network-launcher-native.json",
+      "sha256": "2ca0a16c7b325bd8d8c611963b6f7f1f466ee95ef40df7fc3885b3366d1ec23c"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/network-launcher-provider-api.openai.com.json",
+      "sha256": "6ef143f00a2eea2f48da54ca3347e4a5e027eaaa9f5c825e53356d3ff12d8efb"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/network-launcher-provider-api.anthropic.com.json",
+      "sha256": "232283738d953aab80f946a0f89ed09dcd9fb4a99b355d3025b8ec597dc7c241"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/network-gate-red.log",
+      "sha256": "52f3b40b71418cc02c065eedcb5361d5ae3b1a60c3170936d1697cb2c46b57a3"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/network-gate-green.log",
+      "sha256": "0fdf0f2080a7226f2da3b0fd6872bebeec4563742caf93e29cbee76e8e2d032c"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/network-launcher-red.log",
+      "sha256": "7c60dfda8d76cf81fd8d59b9aa9378014f4a4b36fa25811856de228dcb8deccb"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/network-launcher-green.log",
+      "sha256": "f73fe760eb68d41e21c6d96659781b7d1711323bbf0a321dea549cc5c4e55efd"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/network-hosts-red.log",
+      "sha256": "295332bc6649ad8a0bdefc8c91c080e83074e2ef51ad70ecc9368372053ff3ef"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/network-hosts-green.log",
+      "sha256": "c8d09f25f9acf8167f37e8087c03697afb9c61ee624941c8209ea6dc63780626"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/active-network-preflight.json",
+      "sha256": "864fc3c16f946db4b2e4d63c549144de865f0174e6934160f5421423b4d092cd"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/network-launcher-preflight.json",
+      "sha256": "3a0bda8a33b1422951ec866df11c9b10f1d52b3505f39177f0ea3a5e93f938e4"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/active-network-daemon-proof.json",
+      "sha256": "4ffdffe69a6b753c45c884b8dbcd1eefed3ba00c6176b89ba95f7bd328eff082"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/active-network-restart-daemon-window.jsonl",
+      "sha256": "f592d9dcc0f3d6290c9c3400bbe2fb9886b30580b36fc40158b925b592c622a5"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/active-network-restart-timeline.json",
+      "sha256": "5c1ade4101c9d5f62404b10df4233c7f85618b609c1fecd54d23a1b052f48f47"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/active-network-reconciled-state.json",
+      "sha256": "100fb25129445184a59b55ac15a5a7ca867709d4a1748b3c09645d5a1b9a7afd"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/prove-active-network-daemon.py",
+      "sha256": "72afe0669ef4d2f0394c1b7870dff5736c86c777801ae879d0202809a98c4a42"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/prove-active-network-observed-daemon.py",
+      "sha256": "8b4ad571e2003623561b63c0cfe4dc6d2259bc850694fe408f5e64310a3f2f4d"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/restart_observation.py",
+      "sha256": "100b916b5a9d874f24dff174f65b025011b25e02c16d3f7a33f1d748d409b9aa"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/test_restart_observation.py",
+      "sha256": "362bf22d5755494cdf95f08ac5e5478048c78c519e8a3d60af4d0d6074e953fd"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/restart-observation-green.log",
+      "sha256": "0f2cf2833b3fcb19f1b1b39ce52fdc4b5c0cfa3b377bbc4e254ce6f2bd273ad0"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/active-network-reconciliation.json",
+      "sha256": "94375d9abd844203b3de15009646d7ecdf9ffb1624c6a1d7e8acdb6755a48203"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/active-network-observed-daemon-proof.json",
+      "sha256": "c8f1525a98410a66db6082673ce0a8e7fe6a451309ee8b71e05a8b946cf0b4a8"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/active-network-observed-daemon-proof.events.jsonl",
+      "sha256": "a906bd9713cf7f6f8b1d2bacd958ea762e501052064a4336f753e426e141110f"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/run-active-network-observed-daemon-proof.ps1",
+      "sha256": "bfb80cf58504e774a1b9094a1cd6b1705e8fad53c095db05db0ac6431ce43c07"
+    },
+    {
+      "path": ".superpowers/sdd/2026-10-04-isolated-executor/active-network-observed-reconciliation.json",
+      "sha256": "76134a974b68f863b2b6a59e0d1c76757a5ece763d0ee090f67f7fa585549268"
+    }
+  ],
+  "sources": [
+    {
+      "label": "policy",
+      "source_id": "3d59a57e-e8b7-4ef6-89de-e7c9472cfabb",
+      "revision": "11fee80ff04b8acd6dcdd34607fcb965152d68fb5e150bd1704e1e5f5558e165",
+      "note_path": "vault/local/sources/3d59a57e-e8b7-4ef6-89de-e7c9472cfabb/content-11fee80ff04b8acd6dcdd34607fcb965152d68fb5e150bd1704e1e5f5558e165.md",
+      "note_sha256": "00b2487a258d7a6708045950da426a21680b79ad32f6dc8febab88ca0f1172b5",
+      "evidence": "Changes take effect immediately."
+    },
+    {
+      "label": "isolation",
+      "source_id": "8b953de1-e29a-48a2-bdaf-81e198593451",
+      "revision": "f9fc3fd80e25a952c10e3942717552a7e29335d8ed2b041470184b81dc5f71ee",
+      "note_path": "vault/local/sources/8b953de1-e29a-48a2-bdaf-81e198593451/content-f9fc3fd80e25a952c10e3942717552a7e29335d8ed2b041470184b81dc5f71ee.md",
+      "note_sha256": "a0f217d2e82def375cb271864782f803bf71feb64dea0617cca78ce12c75494e",
+      "evidence": "The sandbox routes traffic through either a forward proxy or a transparent proxy"
+    },
+    {
+      "label": "mcp",
+      "source_id": "2e3cb536-6ca9-4797-b6e3-413995a45ead",
+      "revision": "9279ac623ce246d4fcc87e6b1546d96ebc0c6ebfd1c48e73f8a6a60bffd2a323",
+      "note_path": "vault/local/sources/2e3cb536-6ca9-4797-b6e3-413995a45ead/content-9279ac623ce246d4fcc87e6b1546d96ebc0c6ebfd1c48e73f8a6a60bffd2a323.md",
+      "note_sha256": "b98619713387416bfd4e5eb5bbfb778b5fa520383c9c9b1c8cb04b15df545fc4",
+      "evidence": "Every sandbox starts an MCP gateway."
+    },
+    {
+      "label": "iptables",
+      "source_id": "492ed38d-90ac-40c0-abd4-12ac9690ba29",
+      "revision": "2e32e339a8f0f32cf5d6f9c1b814675de492c5e5594f0fd7ede5125b8ab4a437",
+      "note_path": "vault/local/sources/492ed38d-90ac-40c0-abd4-12ac9690ba29/content-2e32e339a8f0f32cf5d6f9c1b814675de492c5e5594f0fd7ede5125b8ab4a437.md",
+      "note_sha256": "6c5fccf17184c829075b83bd100a3fbbfb875bbf80d516fcc1eff7bab0d64037",
+      "evidence": "Docker creates iptables rules in the host's network namespace for bridge networks."
+    },
+    {
+      "label": "nsenter",
+      "source_id": "0d84d35a-b885-494b-aaa1-aa7f630c77f8",
+      "revision": "94617777d7269bdd3beb75b45100810050c68991af1b41fb75d7de724152125e",
+      "note_path": "vault/local/sources/0d84d35a-b885-494b-aaa1-aa7f630c77f8/content-94617777d7269bdd3beb75b45100810050c68991af1b41fb75d7de724152125e.md",
+      "note_sha256": "685a0d0358752559df0f6d40e4a5ee813a7bef6617076d8f7f2a29aa9d15cb77",
+      "evidence": "Enter the network namespace. If no argument is specified,"
+    },
+    {
+      "source_id": "5d975ec2-4e3b-426c-9ca9-7953534d4bca",
+      "revision": "6a93730eb9cc1bb2fff922209dc73589db3d44cbffc4a04b793875f43247d960",
+      "note_path": "vault/local/sources/5d975ec2-4e3b-426c-9ca9-7953534d4bca/content-6a93730eb9cc1bb2fff922209dc73589db3d44cbffc4a04b793875f43247d960.md",
+      "note_sha256": "305df6765840246fadc3f83668dbf7243faa3bc5211ba66e94c679da64e7f613",
+      "evidence": "Prova incompleta. Preserve a saida; nao execute novamente antes da reconciliacao."
+    },
+    {
+      "source_id": "1e02a651-7cd7-46cf-9ff6-88df6a63214a",
+      "revision": "55383f5e813404a17f6ec74463f19c242a6855ac47d035af1da16646cc6d05c2",
+      "note_path": "vault/local/sources/1e02a651-7cd7-46cf-9ff6-88df6a63214a/content-55383f5e813404a17f6ec74463f19c242a6855ac47d035af1da16646cc6d05c2.md",
+      "note_sha256": "b7546fce4f12eb0134a4489002f3992811e010847d5dfa3da9c196d5b79d60b5",
+      "evidence": "ces.ExitCode = 255"
+    },
+    {
+      "source_id": "0a5a9722-7961-43a6-b19d-3c06332d0a30",
+      "revision": "a8f172f75b19af2a11b647c2a038b462d43e9ffe5eef412e644d6b4fe2be4ed7",
+      "note_path": "vault/local/sources/0a5a9722-7961-43a6-b19d-3c06332d0a30/content-a8f172f75b19af2a11b647c2a038b462d43e9ffe5eef412e644d6b4fe2be4ed7.md",
+      "note_sha256": "e4d654ccda90fb4b6539df028795eb22adfc47d83f16a221a3d7464f813aeb7f",
+      "evidence": "s.FinishedAt = time.Now().UTC()"
+    }
+  ],
+  "memory": {
+    "project_id": "9865926d-6293-4c63-a8ff-c8441674a043",
+    "run_id": "815f23df-53b8-4205-8c0e-9a712a8e271f",
+    "run_previous_sha256": "818bc93de996d2ea0deee57caba729608f47322594e02e671d4882ade46c6b4a",
+    "selection": "missing",
+    "graphify": "unchanged",
+    "claude_mem": "not_connected"
+  },
+  "preflight_gaps": [
+    "authentication_unverified",
+    "inner_runtime_unverified",
+    "mcp_isolation_unverified",
+    "network_policy_unverified",
+    "runtime_profile_unverified",
+    "runtime_resources_unverified",
+    "sharing_controls_unverified"
+  ],
+  "verification": {
+    "checked_at": "2026-10-05T02:58:05.627943+00:00",
+    "source_hashes": 6,
+    "receipt_hashes": 11,
+    "source_note_hashes": 5,
+    "public_local_links": 278,
+    "vault_notes": 293,
+    "vault_issues": 0,
+    "diff_check": "clean",
+    "final_policy_verified": true,
+    "all_owned_vms_stopped": 5,
+    "readme_image_references_preserved": 52,
+    "assets_unchanged": true,
+    "head": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+    "branch": "feat/isolated-executor"
+  },
+  "reconciliation": {
+    "recorded_at": "2026-10-05T03:55:43.944429+00:00",
+    "product_code_unchanged": true,
+    "full_suite_rerun": false,
+    "all_owned_vms_stopped": 5,
+    "private_observation_tests": 2,
+    "source_count": 3,
+    "original_receipt_preserved": true,
+    "production": "not_published",
+    "verification": {
+      "checked_at": "2026-10-05T03:59:36.022802+00:00",
+      "product_source_hashes": 6,
+      "receipt_hashes": 25,
+      "source_note_hashes": 8,
+      "public_local_links": 280,
+      "vault_notes": 304,
+      "vault_issues": 0,
+      "private_regression_tests": 2,
+      "readme_image_references": 52,
+      "assets_unchanged": true,
+      "diff_check": "clean",
+      "replacement_proof": "verified_manager_stopped_3756ms_before_deadline",
+      "profile_ids": []
+    },
+    "replacement_proof": "passed_manager_observed_stopped",
+    "replacement_verified_at": "2026-10-05T03:58:05.819412+00:00"
+  }
+}

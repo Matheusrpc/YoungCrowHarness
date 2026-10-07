@@ -59,14 +59,26 @@ def hash_executable(path):
     return digest.hexdigest()
 
 
-def _exchange(executable, args, cwd, requests=None, *, merge_stderr=False):
+DISCOVERY_OBSERVATION_VERSION = 1
+
+
+def _exchange(executable, args, cwd, requests=None, *, merge_stderr=False, system_probe=False, observation=None):
     """Bounded local metadata, owned by the same supervisor as diagnostics."""
     from mission_process import supervise
     result = supervise(dict(argv=[str(executable), *args], cwd=str(cwd), stdin=b'', exchange_requests=requests,
                             timeout_seconds=DISCOVERY_SECONDS, output_limit_bytes=OUTPUT_LIMIT,
                             connection='authenticated', client='metadata', credential_env=None,
-                            merge_stderr=merge_stderr),
+                            merge_stderr=merge_stderr, system_probe=system_probe),
                        on_started=lambda _: None, stop_requested=lambda: False)
+    if observation is not None:
+        reason = result['reason'] if result['reason'] in ('completed', 'timeout', 'output_limit', 'spawn_failed', 'cancelled') else 'observation_failed'
+        if not result['tree_reaped']:
+            reason = 'unsupported_containment'
+        elif reason == 'completed' and result['exit_code'] != 0:
+            reason = 'client_discovery_failed'
+        observation.update(started_at=result['started_at'], ended_at=result['ended_at'],
+                           elapsed_seconds=result['elapsed_seconds'], timeout_seconds=DISCOVERY_SECONDS,
+                           output_limit_bytes=OUTPUT_LIMIT, reason=reason)
     require(result['tree_reaped'], 'unsupported_containment')
     require(result['reason'] != 'timeout', 'client_discovery_timeout')
     require(result['reason'] != 'output_limit', 'client_output_limit')

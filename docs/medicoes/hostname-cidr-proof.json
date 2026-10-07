@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "front": "2A-R1 isolated executor",
+  "state": "native_cidr_candidate_rejected",
+  "checked_at": "2026-10-05T11:04:21.434571+00:00",
+  "authorization": "Operator approved the written revision and bounded A/B/A probe.",
+  "cli_version": "sbx version: v0.46.0 991967dc90ce0d9a440cd1df1bdf3e395c5a2693",
+  "native_connect_attempts": 3,
+  "native_tls_success": 3,
+  "echo_http_success": 3,
+  "model_calls": 0,
+  "real_credentials_used": false,
+  "native_profiles": [],
+  "production_published": false,
+  "elapsed_probe_seconds": 19.738,
+  "phase_results": [
+    {
+      "phase": "A",
+      "result": {
+        "phase": "A",
+        "application_request_attempted": true,
+        "connect_status": "HTTP/1.1 200 OK",
+        "tls_verified": true,
+        "issuer": [
+          [
+            [
+              "countryName",
+              "US"
+            ]
+          ],
+          [
+            [
+              "stateOrProvinceName",
+              ""
+            ]
+          ],
+          [
+            [
+              "localityName",
+              ""
+            ]
+          ],
+          [
+            [
+              "streetAddress",
+              ""
+            ]
+          ],
+          [
+            [
+              "postalCode",
+              ""
+            ]
+          ],
+          [
+            [
+              "organizationName",
+              "Docker Sandboxes"
+            ]
+          ],
+          [
+            [
+              "commonName",
+              "Docker Sandboxes Proxy CA"
+            ]
+          ]
+        ],
+        "certificate_sha256": "ff48a9f8aacda446118ccba97360134e22a622a11ca4b36ad939f9f271aad016",
+        "http_status": 200,
+        "injected_dummy_digest_matches": true,
+        "host_matches": true
+      },
+      "policy_checks": {
+        "postman-echo.com:443": {
+          "action": "net:connect:tcp",
+          "allowed": true,
+          "context": "sandbox:yc-package-471e336723f7",
+          "governance": {
+            "active": false
+          },
+          "resource_type": "net:domain",
+          "resource_value": "postman-echo.com:443",
+          "target": "postman-echo.com:443",
+          "type": "network"
+        },
+        "203.0.113.1:443": {
+          "action": "net:connect:tcp",
+          "allowed": false,
+          "context": "sandbox:yc-package-471e336723f7",
+          "deny_kind": "implicit",
+          "governance": {
+            "active": false
+          },
+          "reason": "No matching allow rule (default deny)",
+          "resource_type": "net:domain",
+          "resource_value": "203.0.113.1:443",
+          "target": "203.0.113.1:443",
+          "type": "network"
+        },
+        "[2001:db8::1]:443": {
+          "action": "net:connect:tcp",
+          "allowed": false,
+          "context": "sandbox:yc-package-471e336723f7",
+          "deny_kind": "implicit",
+          "governance": {
+            "active": false
+          },
+          "reason": "No matching allow rule (default deny)",
+          "resource_type": "net:domain",
+          "resource_value": "2001:db8::1:443",
+          "target": "[2001:db8::1]:443",
+          "type": "network"
+        }
+      },
+      "vm_source_sha256": "75e38c52cc85a2e42db914068642b035ee53d7727ae24dc2e6c524928bf14d96"
+    },
+    {
+      "phase": "B",
+      "result": {
+        "phase": "B",
+        "application_request_attempted": true,
+        "connect_status": "HTTP/1.1 200 OK",
+        "tls_verified": true,
+        "issuer": [
+          [
+            [
+              "countryName",
+              "US"
+            ]
+          ],
+          [
+            [
+              "stateOrProvinceName",
+              ""
+            ]
+          ],
+          [
+            [
+              "localityName",
+              ""
+            ]
+          ],
+          [
+            [
+              "streetAddress",
+              ""
+            ]
+          ],
+          [
+            [
+              "postalCode",
+              ""
+            ]
+          ],
+          [
+            [
+              "organizationName",
+              "Docker Sandboxes"
+            ]
+          ],
+          [
+            [
+              "commonName",
+              "Docker Sandboxes Proxy CA"
+            ]
+          ]
+        ],
+        "certificate_sha256": "ff48a9f8aacda446118ccba97360134e22a622a11ca4b36ad939f9f271aad016",
+        "http_status": 200,
+        "injected_dummy_digest_matches": true,
+        "host_matches": true
+      },
+      "policy_checks": {
+        "postman-echo.com:443": {
+          "action": "net:connect:tcp",
+          "allowed": true,
+          "context": "sandbox:yc-package-471e336723f7",
+          "governance": {
+            "active": false
+          },
+          "resource_type": "net:domain",
+          "resource_value": "postman-echo.com:443",
+          "target": "postman-echo.com:443",
+          "type": "network"
+        },
+        "203.0.113.1:443": {
+          "action": "net:connect:tcp",
+          "allowed": false,
+          "context": "sandbox:yc-package-471e336723f7",
+          "deny_kind": "explicit",
+          "governance": {
+            "active": false
+          },
+          "origin": "local",
+          "reason": "Denied by local rule",
+          "resource_type": "net:cidr",
+          "resource_value": "203.0.113.1",
+          "rule": "local:222cbd07-b71a-4bd9-b973-d2445a218315",
+          "target": "203.0.113.1:443",
+          "type": "network"
+        },
+        "[2001:db8::1]:443": {
+          "action": "net:connect:tcp",
+          "allowed": false,
+          "context": "sandbox:yc-package-471e336723f7",
+          "deny_kind": "explicit",
+          "governance": {
+            "active": false
+          },
+          "origin": "local",
+          "reason": "Denied by local rule",
+          "resource_type": "net:cidr",
+          "resource_value": "2001:db8::1",
+          "rule": "local:f137ab39-43f2-4035-906b-da3b7f3841e7",
+          "target": "[2001:db8::1]:443",
+          "type": "network"
+        }
+      },
+      "vm_source_sha256": "051e5d46b1ae6e9476e2ff5cd55451b3c397ca8a345196fc7ec2566471cae473"
+    },
+    {
+      "phase": "A2",
+      "result": {
+        "phase": "A2",
+        "application_request_attempted": true,
+        "connect_status": "HTTP/1.1 200 OK",
+        "tls_verified": true,
+        "issuer": [
+          [
+            [
+              "countryName",
+              "US"
+            ]
+          ],
+          [
+            [
+              "stateOrProvinceName",
+              ""
+            ]
+          ],
+          [
+            [
+              "localityName",
+              ""
+            ]
+          ],
+          [
+            [
+              "streetAddress",
+              ""
+            ]
+          ],
+          [
+            [
+              "postalCode",
+              ""
+            ]
+          ],
+          [
+            [
+              "organizationName",
+              "Docker Sandboxes"
+            ]
+          ],
+          [
+            [
+              "commonName",
+              "Docker Sandboxes Proxy CA"
+            ]
+          ]
+        ],
+        "certificate_sha256": "ff48a9f8aacda446118ccba97360134e22a622a11ca4b36ad939f9f271aad016",
+        "http_status": 200,
+        "injected_dummy_digest_matches": true,
+        "host_matches": true
+      },
+      "policy_checks": {
+        "postman-echo.com:443": {
+          "action": "net:connect:tcp",
+          "allowed": true,
+          "context": "sandbox:yc-package-471e336723f7",
+          "governance": {
+            "active": false
+          },
+          "resource_type": "net:domain",
+          "resource_value": "postman-echo.com:443",
+          "target": "postman-echo.com:443",
+          "type": "network"
+        },
+        "203.0.113.1:443": {
+          "action": "net:connect:tcp",
+          "allowed": false,
+          "context": "sandbox:yc-package-471e336723f7",
+          "deny_kind": "implicit",
+          "governance": {
+            "active": false
+          },
+          "reason": "No matching allow rule (default deny)",
+          "resource_type": "net:domain",
+          "resource_value": "203.0.113.1:443",
+          "target": "203.0.113.1:443",
+          "type": "network"
+        },
+        "[2001:db8::1]:443": {
+          "action": "net:connect:tcp",
+          "allowed": false,
+          "context": "sandbox:yc-package-471e336723f7",
+          "deny_kind": "implicit",
+          "governance": {
+            "active": false
+          },
+          "reason": "No matching allow rule (default deny)",
+          "resource_type": "net:domain",
+          "resource_value": "2001:db8::1:443",
+          "target": "[2001:db8::1]:443",
+          "type": "network"
+        }
+      },
+      "vm_source_sha256": "395f2a5a570ed3c779b5875565fb66ae4f4dec87fbd200657edaecaaf74a53f5"
+    }
+  ],
+  "b_universal_denies": [
+    {
+      "id": "222cbd07-b71a-4bd9-b973-d2445a218315",
+      "scope": "sandbox:yc-package-471e336723f7",
+      "decision": "deny",
+      "resources": [
+        "0.0.0.0/0"
+      ],
+      "actions": [
+        "net:connect:tcp",
+        "net:connect:udp"
+      ]
+    },
+    {
+      "id": "f137ab39-43f2-4035-906b-da3b7f3841e7",
+      "scope": "sandbox:yc-package-471e336723f7",
+      "decision": "deny",
+      "resources": [
+        "::/0"
+      ],
+      "actions": [
+        "net:connect:tcp",
+        "net:connect:udp"
+      ]
+    }
+  ],
+  "phase_a_policy_equals_a2": true,
+  "temporary_rules_created_and_removed": 13,
+  "dummy_credentials_created_and_removed": 1,
+  "cleanup_errors": [],
+  "credential_inventory_restored": true,
+  "policy_restored": true,
+  "global_and_other_policies_unchanged": true,
+  "all_five_vms_stopped": true,
+  "private_receipt_sha256": {
+    "hostname-cidr-proof.json": "cb186832145f5edb9d324aabcfbdf3308b2febe4f30635d8c2c19682c4bf03cc",
+    "guardian-hostname-cidr-a-3391a5c2.json": "d8b71ac7a9a8d535d06e2d62706f5e4e24dd42fb440794ab0eb0e45fc98dd1f9",
+    "guardian-hostname-cidr-a2-21a6d92a.json": "6b836ded8cd903be32c40537c1a3322749f08588cf922df714ac928cd922e024",
+    "guardian-hostname-cidr-b-3c111764.json": "71ad397260a48a098261d9e7829e316ea21b5cf49a321337d6dc296ee0afa374"
+  },
+  "private_script_sha256": {
+    "prove-hostname-cidr.py": "42c930ac706460129ed6a709edf3c0090365a07f8bbf75f8f43d3ca6f20b887a",
+    "hostname-cidr-client.py": "fdb2547601477e33d34b0f0e5568b400431a378b0aa9bce3cd233eeb613c3981",
+    "test_hostname_cidr.py": "cd5cc281e2d2560a4b4af9af84efa7e93cddd71e80781db1f75d4c4f05242191"
+  },
+  "local_help_sha256": "47b37e0819cae27964182fe0232b10b29aa31fbd7e203cb7b00a89237cccbace",
+  "unchanged_runtime_sha256": {
+    "runtime/sbx/guardian.py": "5b26f23f407a1e1f589e222b7f7ad04cd54e36567c11a761825d9af765d60add",
+    "runtime/sbx/launcher.py": "dcd1198c097dcc0e19dda958f5a9aaf1962cec163003948da52648e494885afe"
+  },
+  "sources": [
+    {
+      "source_id": "8158ee96-94fb-4c92-ae30-dfe35b171173",
+      "revision": "dedb235a3ea9b0a245027b68e805ecfef93a1539f6354e005e5ce82500099e0d",
+      "note_path": "vault/local/sources/8158ee96-94fb-4c92-ae30-dfe35b171173/content-dedb235a3ea9b0a245027b68e805ecfef93a1539f6354e005e5ce82500099e0d.md",
+      "note_id": "46bcbca2-742b-5275-8c44-c0db9d05a5d7",
+      "note_sha256": "f6d560d8a667d072caf2a7a1a141b5ae292312505fbd3f296594e94ca733a15d",
+      "evidence": "An allowed hostname isn't checked against CIDR rules for its resolved IP address.",
+      "relation_id": "968de61d-04d1-55f5-91c0-688bbcb6f1da",
+      "state": "ready",
+      "converter": "Docling 2.132.0"
+    },
+    {
+      "source_id": "220218b0-a22d-43c3-870a-9471c5eeeb30",
+      "revision": "536d11129e7fe3f513504cacd21e2e22e04464ee0a50d5de3b0805bdf00042a9",
+      "note_path": "vault/local/sources/220218b0-a22d-43c3-870a-9471c5eeeb30/content-536d11129e7fe3f513504cacd21e2e22e04464ee0a50d5de3b0805bdf00042a9.md",
+      "note_id": "c2f696be-7443-500f-a3c5-045f2a1c67ea",
+      "note_sha256": "3fc169af70ac2593f1e55cc5c2d7ea760fc4c228685e9032ce5eb617430a7acd",
+      "evidence": "Upstream proxy support is experimental.",
+      "relation_id": "e585a8ea-5f6f-5541-9aec-03bf4820755c",
+      "state": "ready",
+      "converter": "Docling 2.132.0"
+    }
+  ],
+  "classifier_check": {
+    "tests": 1,
+    "cases": 6,
+    "red_observed": true,
+    "green_observed": true
+  },
+  "limitations": [
+    "Final remote IP and address family were not measured.",
+    "No private endpoint, MCP RPC, DNS change, redirect or adversarial client was exercised.",
+    "Dummy echo substitution does not establish OAuth or real-client compatibility.",
+    "Upstream proxy was documented only, not configured or tested."
+  ],
+  "next_action": "Decide enforcement at the final connection point; native hostname plus CIDR hypothesis is closed."
+}

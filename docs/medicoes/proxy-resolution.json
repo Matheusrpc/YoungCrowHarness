@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "front": "2A-R1 isolated executor",
+  "state": "incomplete",
+  "created_at": "2026-10-05T04:26:08.874406+00:00",
+  "checked_at": "2026-10-05T04:35:10.663458+00:00",
+  "model_calls": 0,
+  "mcp_tool_calls": 0,
+  "production_published": false,
+  "native_profiles": [],
+  "operation_id": "e31b6a69-5829-408d-9fba-145c8c3637fb",
+  "workload_image": "sha256:4cdc6b931eed21941c9420d0a8f234d5c107e2114aa6b241f28b9b26a73ace73",
+  "unchanged_runtime_sha256": {
+    "runtime/sbx/guardian.py": "5b26f23f407a1e1f589e222b7f7ad04cd54e36567c11a761825d9af765d60add",
+    "runtime/sbx/launcher.py": "dcd1198c097dcc0e19dda958f5a9aaf1962cec163003948da52648e494885afe"
+  },
+  "private_receipt_sha256": {
+    "transparent-resolution.json": "305b63c523801ef8b55e8ee2d79fabdac3ed44acafc4ac645ac33e1cc00ff2bb",
+    "transparent-resolution-runtime-api.anthropic.com.json": "a91927788293bab027f6eabbeda5d2a7a4b881fbd490c4f9c05ea64b79e3c6b7",
+    "transparent-resolution-v2.json": "6f7d4581a1702fdad1110b1e9ee46c924243a1bf54405f294e1517528cbdbb11",
+    "transparent-resolution-v2-runtime-api.anthropic.com.json": "dbed6b0bd5159c4ac04e88d21163db8ab618f8819cf6b601a8edba1e9f063b4f",
+    "guardian-transparent-resolution-v2-runtime-api.anthropic.com-7453dd09.json": "bcd2f2246f13fc5681ce6cb5e01e8e0f64b7455de213fb53ad493f0682f9a04b",
+    "transparent-host-baseline.json": "20d90b3332b691803384d5fcbf31576c159fa334517bf95dfc24d0587cadf78f",
+    "transparent-settings-inventory.json": "38611865f49b1faf38b1501f07a100ee2f24f5e8d49745bff06eaeb36be75818"
+  },
+  "private_script_sha256": {
+    "prove-transparent-resolution.py": "958fd9862500bf4267699075673eb9c997ac47d0a4b77dba1138509bbf8ce595",
+    "transparent-resolution-client.py": "2f88a6955d403a0ae8364bfc05f70b30646dafce0752d9a4dd9f97fcb2679ab7",
+    "prove-transparent-resolution-v2.py": "231f203f13b61344ec65a3636866bc0c663f005357ef64300aff06b5e178d3c1",
+    "transparent-resolution-v2-client.py": "2f88a6955d403a0ae8364bfc05f70b30646dafce0752d9a4dd9f97fcb2679ab7",
+    "transparent-resolution-v2-runner.py": "b6ff14096ba7af92177018ddcf1776d34a7f929b533ab38e9a4f79d1b72400e4",
+    "transparent-resolution-v2-vm-template.py": "56425564725aa09c34dcd542cfa328b5bce9a21e907ce88fce73adbc16bca7a3",
+    "verify-transparent-checkpoint.py": "97ff7e5c05b2262c7a0da8ca76a6be52e96c41c90bceb90546772dfc39abf6d5"
+  },
+  "sources": [
+    {
+      "source_id": "8b953de1-e29a-48a2-bdaf-81e198593451",
+      "revision": "f9fc3fd80e25a952c10e3942717552a7e29335d8ed2b041470184b81dc5f71ee",
+      "note_id": "d1cc1596-f445-5dcc-8ef6-1a6009d8414c",
+      "note_path": "vault/local/sources/8b953de1-e29a-48a2-bdaf-81e198593451/content-f9fc3fd80e25a952c10e3942717552a7e29335d8ed2b041470184b81dc5f71ee.md",
+      "note_sha256": "a0f217d2e82def375cb271864782f803bf71feb64dea0617cca78ce12c75494e",
+      "evidence": "Only the forward proxy",
+      "converter": "Docling 2.132.0",
+      "relation_id": "1cc80d9c-9106-5292-aba3-7876d872bec8"
+    },
+    {
+      "source_id": "03db5b0d-6cee-4d62-a376-5e3f17d3b4b8",
+      "revision": "29355521cdd4c7d0b47e17f98bbcdebcc988c1444c12f4d74b58b2b9aaee9f64",
+      "note_id": "97fa4cc6-dec4-594d-b7ef-5dbb9c101eb1",
+      "note_path": "vault/local/sources/03db5b0d-6cee-4d62-a376-5e3f17d3b4b8/content-29355521cdd4c7d0b47e17f98bbcdebcc988c1444c12f4d74b58b2b9aaee9f64.md",
+      "note_sha256": "340be8b21b3a7de884c966be70660afebe0680c3ed8c6d636aa099ce4a558992",
+      "evidence": "OAuth",
+      "converter": "Docling 2.132.0",
+      "relation_id": "5fff670f-6df4-557c-8ebd-fc7dec0e26f9"
+    }
+  ],
+  "observations": {
+    "dns_positive_answers": 1,
+    "client_and_child": {
+      "uid": 1000,
+      "pinned_address": "1.1.1.1",
+      "resolved_name": "1.1.1.1",
+      "dns": {
+        "udp": {
+          "error": "PermissionError",
+          "errno": 1
+        },
+        "tcp": {
+          "error": "TimeoutError",
+          "errno": null
+        }
+      },
+      "tls": {
+        "api.anthropic.com": {
+          "status": 404,
+          "tls_verified": true,
+          "local_peer": [
+            "1.1.1.1",
+            443
+          ]
+        },
+        "api.openai.com": {
+          "error": "SSLEOFError",
+          "errno": 8
+        },
+        "mcp-gateway.docker.internal": {
+          "error": "SSLEOFError",
+          "errno": 8
+        },
+        "host.docker.internal": {
+          "error": "SSLEOFError",
+          "errno": 8
+        },
+        "localhost": {
+          "error": "SSLEOFError",
+          "errno": 8
+        }
+      },
+      "protected_files": {
+        "/etc/hosts": "PermissionError",
+        "/etc/resolv.conf": "PermissionError"
+      },
+      "descendant_exit": 0,
+      "descendant": {
+        "uid": 1000,
+        "pinned_address": "1.1.1.1",
+        "resolved_name": "1.1.1.1",
+        "dns": {
+          "udp": {
+            "error": "PermissionError",
+            "errno": 1
+          },
+          "tcp": {
+            "error": "TimeoutError",
+            "errno": null
+          }
+        },
+        "tls": {
+          "api.anthropic.com": {
+            "status": 404,
+            "tls_verified": true,
+            "local_peer": [
+              "1.1.1.1",
+              443
+            ]
+          },
+          "api.openai.com": {
+            "error": "SSLEOFError",
+            "errno": 8
+          },
+          "mcp-gateway.docker.internal": {
+            "error": "SSLEOFError",
+            "errno": 8
+          },
+          "host.docker.internal": {
+            "error": "SSLEOFError",
+            "errno": 8
+          },
+          "localhost": {
+            "error": "SSLEOFError",
+            "errno": 8
+          }
+        },
+        "protected_files": {
+          "/etc/hosts": "PermissionError",
+          "/etc/resolv.conf": "PermissionError"
+        }
+      }
+    },
+    "windows_sentinel": {
+      "address": "127.0.0.1",
+      "port": 443,
+      "positive_controls": 2,
+      "unexpected_connections": 0,
+      "closed": true
+    },
+    "bridge_sentinel_connections": 0,
+    "final_container": {
+      "Status": "exited",
+      "Running": false,
+      "Paused": false,
+      "Restarting": false,
+      "OOMKilled": false,
+      "Dead": false,
+      "Pid": 0,
+      "ExitCode": 0,
+      "Error": "",
+      "StartedAt": "2026-10-05T04:26:23.190091Z",
+      "FinishedAt": "2026-10-05T04:26:28.7888867Z"
+    },
+    "deadline_ms": 1791174427945,
+    "finished_ms": "1791174388788.8867000",
+    "margin_ms": "39156.1133000",
+    "replay_exit": 125,
+    "host_baseline": {
+      "state": "observed",
+      "created_at": "2026-10-05T04:28:23.875189+00:00",
+      "target": "1.1.1.1:443",
+      "sni": "api.anthropic.com",
+      "model_calls": 0,
+      "http_requests": 0,
+      "tls_verified": true
+    },
+    "mcp_policy_check_allowed": false,
+    "mcp_runtime_log_category": "allowed_hosts",
+    "mcp_runtime_rule": "<dial failed>",
+    "mcp_runtime_count_delta": 2
+  },
+  "interpretation": {
+    "final_upstream_address_verified": false,
+    "attribution_to_docker": false,
+    "mcp_inaccessibility_certified": false,
+    "controlled_dns_change_tested": false,
+    "controlled_redirect_tested": false,
+    "authentication_tested": false,
+    "documented_credential_injection": "forward proxy only",
+    "current_direct_path_satisfies_host_held_authentication": false
+  },
+  "preparation_failure": {
+    "receipt_preserved": true,
+    "client_executed": false,
+    "cause": "collector treated policy-denied exit 1 as command failure",
+    "cleanup_verified": true
+  },
+  "verification": {
+    "all_five_vms_stopped": true,
+    "final_policy_matches_receipt": true,
+    "global_and_other_policies_unchanged": true,
+    "loopback_test_listener_count": 0,
+    "unchanged_runtime_hashes": 2,
+    "source_note_hashes": 2
+  },
+  "pending": [
+    "joint network/authentication feasibility decision",
+    "controlled DNS and redirects",
+    "updated package",
+    "whole-host suspension",
+    "native authentication",
+    "R2",
+    "R3"
+  ]
+}

@@ -40,6 +40,21 @@ def native_events(client, nonce):
 
 
 class ClientTests(unittest.TestCase):
+    def test_discovery_observation_survives_timeout_without_private_output(self):
+        observation = {}
+        with patch.object(self.module, 'DISCOVERY_SECONDS', .4):
+            with self.assertRaisesRegex(ValueError, '^client_discovery_timeout$'):
+                self.module._exchange(Path(sys.executable), ['-I', '-S', '-c',
+                    "import sys,time; print('secret-canary',file=sys.stderr,flush=True); time.sleep(10)"],
+                    self.root, merge_stderr=True, observation=observation)
+        self.assertEqual(observation['reason'], 'timeout')
+        self.assertEqual(observation['timeout_seconds'], .4)
+        self.assertEqual(observation['output_limit_bytes'], 8388608)
+        self.assertIsNotNone(observation['started_at'])
+        self.assertIsNotNone(observation['ended_at'])
+        self.assertNotIn('secret-canary', json.dumps(observation))
+        self.assertNotIn('stdout', observation)
+
     def setUp(self):
         self.assertIsNotNone(importlib.util.find_spec('mission_clients'), 'mission_clients not implemented')
         self.module = importlib.import_module('mission_clients')

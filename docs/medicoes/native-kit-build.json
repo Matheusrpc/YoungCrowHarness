@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-04T22:23:19.729021+00:00",
+  "status": "partial_R1",
+  "production": "not_published",
+  "sbx_version": "0.46.0",
+  "host": "Windows 11 AMD64",
+  "engine_version": "29.8.1",
+  "buildx_version": "0.37.1",
+  "build_platform": "linux/amd64",
+  "model_calls": 0,
+  "native_profiles": [],
+  "source_sha256": {
+    "runtime/sbx/youngcrow.yaml": "b3c36ff6a3401ceb66d4f5f1bdb0b664b4aae70345c866dd5dc8453987a5d997",
+    "runtime/sbx/youngcrow.dockerfile": "075c5b56c4404c5f03a33eee7161ca3a00f6c689954cf87c9eb1b9a3d8a35656",
+    "runtime/sbx/.dockerignore": "2aa65063da3b58f9ae5c4c7a3e1beae67f783ed4a6a16125a3adde8d2db40d89",
+    "runtime/sbx/guardian.py": "a2dd03e7e379f77292c9ea79040b63c50bcd7c2c767f3273715332c1d0d651a3",
+    "runtime/sbx/launcher.py": "d58ca1a32557d0e04c5bf69e43b79066e7cc024d2501dc45ba3dcf18f9b74b7d"
+  },
+  "build": {
+    "exit_code": 0,
+    "driver": "docker",
+    "snapshotter": "io.containerd.snapshotter.v1",
+    "archive_bytes": 599219712,
+    "archive_sha256": "b188746044acf545464c89a8f9da4c1b7a40d570483ab0480c5847ace14461b5",
+    "manifest_digest": "sha256:3e6a380a46840656b9e724694ef2964e2d13471bc3dd0fe92ae66492217dfe2f",
+    "config_digest": "sha256:fb661e51a73467d2c16483c629a6887f72535d36bed4b9312eeea47d6dc41cd0",
+    "frontend": {
+      "name": "docker/sandbox-kit",
+      "version": "3.0.0-m.8",
+      "revision": "129be2ff45e8f9463450eb3cf04ddcb52c2b76e5"
+    },
+    "descriptor": {
+      "schemaVersion": "3",
+      "kind": "workload",
+      "capabilities": [
+        {
+          "type": "com.docker.sandbox/sbx@1"
+        },
+        {
+          "type": "com.docker.sandbox/resources@1",
+          "config": {
+            "cpu": 2,
+            "memory": "4g"
+          }
+        }
+      ],
+      "provides_count": 412
+    },
+    "source_files_unchanged": true,
+    "blob_digests_verified": true,
+    "bitwise_reproducibility": "not_proven_mutable_frontend_tag"
+  },
+  "import_result": {
+    "exit_code": 0,
+    "listed": true,
+    "creates_sandbox": false
+  },
+  "consumption": {
+    "loaded_tag_exit_code": 1,
+    "loaded_tag_result": "resolver_remote_manifest_401",
+    "http_with_approved_source_exit_code": 1,
+    "http_with_approved_source_result": "HTTPS_required_HTTP_response",
+    "manager_created": true,
+    "effective_descriptor_resources": "observed_2_cpus_4096_mib_no_host_mounts"
+  },
+  "tls": {
+    "explicit_certificate_manifest_verified": true,
+    "default_trust_rejected": true,
+    "windows_trust_modified": false,
+    "certificate_sha256": "c6b2a8614a34ad4f83f4f9a5ad3328d28df1e715b63eca3dbfb5c3dc91c883a7",
+    "first_configuration_failure": "nested readonly environment option; registry exited 2",
+    "corrected_configuration": "YAML; readonly registry and mounts; HTTPS passed",
+    "measurement_stage": "before_operator_confirmation; see operator_attempt for subsequent installation/removal"
+  },
+  "cleanup": {
+    "original_source_setting_restored": true,
+    "original_policy_restored": true,
+    "temporary_download_rules_removed": 4,
+    "remaining_published_ports": 0,
+    "registry_containers_stopped": true,
+    "owned_vms_stopped": 4
+  },
+  "pending": [
+    "provider networking, denied sentinels and MCP inaccessibility",
+    "active daemon restart and whole-host suspension",
+    "R2 reservation/reconciliation",
+    "R3 authenticated Claude/Codex diagnostics and adoption"
+  ],
+  "private_receipt_sha256": {
+    "native-build-result.json": "c833c20e29005e2ff616318125a73d1b6e1385d0b545c7a967d7bd059a8def9b",
+    "native-build-transfer.json": "1421826a653b32a7b426bef0ee01dfcf59e6ac2ebbde65ad8ec517aa51978d26",
+    "native-manager-via-registry-approved.json": "b3c43211ccaa536cb58fb31a741dc075c2aa52c70b547339c4696a211022563c",
+    "native-registry-tls-check-2.json": "07b962e0d2cc17208669f039d3c10f5da7d4102e7955fe7ab0a7e0258af1049c",
+    "native-build-cleanup.json": "de715e55f41acc08b8b8957eabfbd4cf882f3aee9719d028695be712a46578f3",
+    "native-manager-via-tls-operator.json": "0c04e42c271235b72acaf3298f2e1d4e831b5724241ab0e299c331182cab53d5",
+    "certificate-removal-reconciliation.json": "dc40dc0fc422dd63ee58f8aae1fb1a6ba65fb87197ce5045b3cb01653824174c",
+    "native-exact-reference-import.json": "58a2be738300c82fb4c8bf9153c41a8057d599dfb53c84412b63caebf757b3a1",
+    "operator-2-checks.json": "87b118cdf8ac3282f9dc14ef488912dd19c15b8074b52651cb30520718693ef7"
+  },
+  "full_repository_suite": "not_repeated_no_product_code_changes",
+  "verification": {
+    "vault_notes": 265,
+    "vault_issues": 0,
+    "public_links": 258,
+    "source_hashes": 5,
+    "receipt_hashes": 5,
+    "previous_source_hashes": 7,
+    "diff_check": "clean",
+    "product_code_changed_this_checkpoint": false,
+    "measurement_stage": "previous checkpoint; fresh verification recorded separately"
+  },
+  "tls_authorized_attempts": {
+    "checked_at": "2026-10-04T23:03:02.148432+00:00",
+    "authorized": true,
+    "preparations": [
+      {
+        "receipt": "native-manager-via-tls-approved.json",
+        "sha256": "b1477e271372158d16b336bd54f881b9df2ec904a988dff1b0c207de17416bb0",
+        "state": "certificate_add_intent",
+        "failure_type": "TimeoutExpired",
+        "failure_stderr": null,
+        "cleanup_errors": []
+      },
+      {
+        "receipt": "native-manager-via-tls-approved-2.json",
+        "sha256": "360367fa3406fb9261f43d313cbd7f622ba649741804dc8df4975f5a21afbc54",
+        "state": "certificate_add_intent",
+        "failure_type": "TimeoutExpired",
+        "failure_stderr": null,
+        "cleanup_errors": []
+      },
+      {
+        "receipt": "native-manager-via-tls-approved-3.json",
+        "sha256": "bfd0d61c6bd37817941e1e535ea0a19324f7dd02a1cbe4fa2363a8f419886a5e",
+        "state": "loopback_publish_intent",
+        "failure_type": "CalledProcessError",
+        "failure_stderr": null,
+        "cleanup_errors": []
+      },
+      {
+        "receipt": "native-manager-via-tls-approved-4.json",
+        "sha256": "a2ab8090becdc94636e0990ef0c096890fa4b733853bd558c8482de3164ce1dd",
+        "state": "certificate_add_intent",
+        "failure_type": "CalledProcessError",
+        "failure_stderr": "Import-Certificate : NÃƒÆ’Ã‚Â£o ÃƒÆ’Ã‚Â© possÃƒÆ’Ã‚Â­vel localizar a unidade. NÃƒÆ’Ã‚Â£o existe uma unidade com o nome 'Cert'.\r\nNo C:\\Users\\rmfon\\YoungCrowHarness-review-20261001\\.superpowers\\sdd\\2026-10-04-isolated-executor\\local-registry-certifi\r\ncate-import.ps1:18 caractere:9\r\n+         Import-Certificate -FilePath $CertificateFile -CertStoreLocat ...\r\n+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : ObjectNotFound: (Cert:String) [Import-Certificate], DriveNotFoundException\r\n    + FullyQualifiedErrorId : DriveNotFound,Microsoft.CertificateServices.Commands.ImportCertificateCommand\r\n \r\n",
+        "cleanup_errors": []
+      },
+      {
+        "receipt": "native-manager-via-tls-approved-5.json",
+        "sha256": "d3c1fb5708e4975fa185024bd2c5cfd916667d40e38725f4fed8520dcbbeacfa",
+        "state": "certificate_add_intent",
+        "failure_type": "CalledProcessError",
+        "failure_stderr": "Import-Certificate : Interface do usuÃƒÆ’Ã‚Â¡rio nÃƒÆ’Ã‚Â£o permitida nesta operaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o.\r\nNo C:\\Users\\rmfon\\YoungCrowHarness-review-20261001\\.superpowers\\sdd\\2026-10-04-isolated-executor\\local-registry-certifi\r\ncate-import-provider.ps1:19 caractere:9\r\n+         Import-Certificate -FilePath $CertificateFile -CertStoreLocat ...\r\n+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : InvalidArgument: (:) [Import-Certificate], ArgumentException\r\n    + FullyQualifiedErrorId : InvalidDestinationPath,Microsoft.CertificateServices.Commands.ImportCertificateCommand\r\n \r\n",
+        "cleanup_errors": []
+      }
+    ],
+    "create_commands_issued": 0,
+    "native_ui_error": "Interface do usuÃƒÆ’Ã‚Â¡rio nÃƒÆ’Ã‚Â£o permitida nesta operaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o.",
+    "certificate_absent": true,
+    "inventory_restored": true,
+    "source_setting_restored": true,
+    "policy_unchanged": true,
+    "remaining_ports": 0,
+    "owned_vms_stopped": 4,
+    "owned_certutil_processes": 0,
+    "operator_script_sha256": "bc5aa88a13a6f5de15e8d7a54793ebfa6a949e6b4845d54e932918ef443f11a9",
+    "operator_script_status": "prepared_syntax_and_read_only_preconditions_checked_not_executed"
+  },
+  "operator_checkpoint_at": "2026-10-04T23:46:10.443198+00:00",
+  "operator_attempt": {
+    "create_commands_issued": 1,
+    "certificate_added": true,
+    "descriptor_resolved": true,
+    "resolved_cpus": 2,
+    "resolved_memory_gib": 4,
+    "effective_resources_proven": false,
+    "exit_code": 1,
+    "elapsed_seconds": 0.877,
+    "result": "exact_image_reference_not_cached_pull_never",
+    "manager_created": false,
+    "automatic_certificate_removal": "timeout_15_seconds_left_certificate_installed",
+    "subsequent_reconciliation": {
+      "method": "certutil -user -f -Silent -delstore Root exact-thumbprint",
+      "exit_code": 0,
+      "certificate_absent": true,
+      "original_inventory_restored": true
+    }
+  },
+  "cache_reference_experiment": {
+    "load_exit_code": 0,
+    "archive_sha256": "634e16a0a9ccb0963f5d115720c3ba4f260fe0701f71d5d7750a54f2a512327c",
+    "unchanged_blobs": 21,
+    "manifest_digest": "sha256:3e6a380a46840656b9e724694ef2964e2d13471bc3dd0fe92ae66492217dfe2f",
+    "exact_alias_proven": false,
+    "result": "listing_still_shows_original_tag"
+  },
+  "next_operator_attempt": {
+    "pull_policy": "missing",
+    "same_local_digest": true,
+    "create_limit_seconds": 120,
+    "native_confirmation_limit_seconds": 90,
+    "certificate_removal_limit_seconds": 10,
+    "executed": true,
+    "script_sha256": "c60865af4ffc7404449c6007d987c8e38a6ad868492396a1193b13004455e09f",
+    "inventory_helper_sha256": "7ff1feebd74a9bfc316659a1870788fb706a48b0ce231c851fcf500e9e00c8cd",
+    "result": "created_and_observed_cleanup_passed",
+    "receipt_sha256": "a2eb236275610ad6cbc8d813f7f2b7f8f888274035e6b3774773d80d5d41620e"
+  },
+  "operator_2_checks": {
+    "cleanup_cases_passed": 4,
+    "certificate_absent": true,
+    "inventory_restored": true,
+    "owned_vms_stopped": 4,
+    "manager_created": false,
+    "source_restored": true,
+    "policy_restored": true,
+    "ports_remaining": 0,
+    "model_calls": 0,
+    "operator_attempt_2_executed": false
+  },
+  "operator_checkpoint_verification": {
+    "checked_at": "2026-10-04T23:46:42.793396+00:00",
+    "vault_notes": 272,
+    "vault_issues": 0,
+    "public_local_links": 258,
+    "source_hashes": 5,
+    "receipt_hashes": 9,
+    "cleanup_scenarios": 4,
+    "powershell_parse": "passed",
+    "diff_check": "clean",
+    "scope": "diagnostic preparation; full operator attempt 2 not executed"
+  },
+  "subsequent_package_evidence": "docs/medicoes/native-package-proof.json"
+}

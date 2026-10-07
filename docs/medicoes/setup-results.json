@@ -1,0 +1,47 @@
+{
+  "clean_setup": {
+    "exit": 0,
+    "env_created": true
+  },
+  "existing_project": {
+    "exit": 0,
+    "env_ignored": false,
+    "env_untracked_visible": true,
+    "existing_guide_modified_without_force": true
+  },
+  "failed_plugins": {
+    "exit": 0,
+    "ends_ready": true,
+    "calls": [
+      "claude plugin marketplace add addyosmani/agent-skills",
+      "claude plugin install agent-skills@addy-agent-skills",
+      "claude plugin marketplace add n8n-io/skills",
+      "claude plugin install n8n-skills@n8n-io",
+      "claude plugin marketplace add DietrichGebert/ponytail",
+      "claude plugin install ponytail@ponytail",
+      "claude plugin marketplace add obra/superpowers-marketplace",
+      "claude plugin install superpowers@superpowers-marketplace",
+      "claude plugin marketplace add leonxlnx/taste-skill",
+      "claude plugin install taste-skill@taste-skill"
+    ]
+  },
+  "failed_skill_checkout": {
+    "first_exit": 0,
+    "retry_exit": 0,
+    "partial_directory_left": true,
+    "retry_made_no_git_calls": true,
+    "calls": [
+      "git clone -q https://github.com/blader/humanizer /c/Users/rmfon/YoungCrowHarness-review-20261001/docs/medicoes/setup-audit-sxa0j2lf/failed-skill-checkout/fake-home/.claude/skills/humanizer",
+      "git -C /c/Users/rmfon/YoungCrowHarness-review-20261001/docs/medicoes/setup-audit-sxa0j2lf/failed-skill-checkout/fake-home/.claude/skills/humanizer checkout -q 9862685f575c65a8247f90369951df1b3416e3d6"
+    ]
+  },
+  "syntax": {
+    "exit": 0
+  },
+  "json_parse": {
+    "files_valid": 4,
+    "note": "Syntax only, not host schema validation"
+  },
+  "run_directory": "C:\\Users\\rmfon\\YoungCrowHarness-review-20261001\\docs\\medicoes\\setup-audit-sxa0j2lf",
+  "source_commit": "ceb2274b8f0a1162b9f1b2319d8974bf2c142c2a"
+}

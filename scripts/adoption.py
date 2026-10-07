@@ -324,7 +324,14 @@ def prepare(root, base):
     root = fs.checked_path(root)
     tree = fs.inspect_tree(root)
     git_preflight(root, tree)
-    policy = fs.inspect_permissions(root, role='project')
+    existing_store = store_for(root, fs.checked_path(base))
+    existing = (existing_store / 'state.json').exists()
+    if existing:
+        prior = read_state(existing_store)
+        verify_binding(root, prior)
+        if prior['state'] != 'capturing':
+            verify_baseline(existing_store, prior)
+    policy = fs.inspect_permissions(root, role='installed' if existing and prior['state'] != 'capturing' else 'project')
     base = fs.validate_storage(root, base, create=True)
     store = store_for(root, base)
     if not (store / 'state.json').exists() and all((root / name).is_file() for name in
@@ -418,8 +425,12 @@ def run_install(root, base, source, options):
             raise ValueError('adoption_not_ready')
         if state['state'] == 'ready' and fs.tree_digest(fs.inspect_tree(root)) != state['baseline_digest']:
             raise ValueError('source_changed')
-        if fs.inspect_permissions(root, role='project') != state['parent_policy']:
+        if fs.inspect_permissions(root, role='installed') != state['parent_policy']:
             raise ValueError('parent_permissions_changed')
+        # Keep the immutable recovery runner; old permission contracts cannot restore this install.
+        for name in ('adoption.py', 'adoption_fs.py', 'adoption_acl.ps1'):
+            if hashlib.sha256((source / 'scripts' / name).read_bytes()).hexdigest() != state['runner_hashes'][name]:
+                raise ValueError('incompatible_recovery_runner')
         state = create_and_bind_root_if_absent(root, store, state)
         state = write_state(store, state, state='installing')
         bash = shutil.which('bash')
@@ -460,7 +471,7 @@ def proposal_for(root, store, state):
     if not current['exists']:
         raise ValueError('missing_trial_root')
     git_preflight(root, current)
-    policy = fs.inspect_permissions(root, role='project')
+    policy = fs.inspect_permissions(root, role='installed')
     if policy != state['parent_policy']:
         raise ValueError('parent_permissions_changed')
     old = {entry['path']: entry for entry in baseline['entries']}
@@ -580,12 +591,12 @@ def resume_transaction(root, store, state, transaction, journal):
         if fs.tree_digest(observed) != journal['trial_digest']:
             if os.name == 'nt' and journal['phase'] != 'prepared':
                 fs.inspect_permissions(root, role='transition')
-                fs.restore_permissions(root, observed, state['parent_policy'])
+                fs.restore_permissions(root, observed, state['parent_policy'], installed=True)
             write_journal(transaction, journal, 'invalidated')
             write_state(store, state, state=journal['previous_state'], transaction_id=None)
             raise ValueError('stale_preview')
         git_preflight(root, observed)
-        role = 'project' if journal['phase'] == 'prepared' else 'transition'
+        role = 'installed' if journal['phase'] == 'prepared' else 'transition'
         if fs.inspect_permissions(root, role=role) != state['parent_policy']:
             raise ValueError('parent_permissions_changed')
         if (fs.identity(install) != journal['install_identity'] or
@@ -599,7 +610,7 @@ def resume_transaction(root, store, state, transaction, journal):
             raise ValueError('root_identity_changed')
         observed = fs.inspect_tree(root)
         if fs.tree_digest(observed) != journal['trial_digest']:
-            fs.restore_permissions(root, observed, state['parent_policy'])
+            fs.restore_permissions(root, observed, state['parent_policy'], installed=True)
             write_journal(transaction, journal, 'invalidated')
             write_state(store, state, state=journal['previous_state'], transaction_id=None)
             raise ValueError('stale_preview')
@@ -710,6 +721,7 @@ def main(argv=None):
             command.add_argument('--client', choices=('claude', 'codex', 'both'), default='both')
             command.add_argument('--name')
             command.add_argument('--force', action='store_true')
+            command.add_argument('--execution-location', choices=('local', 'dedicated'))
     args = parser.parse_args(argv)
     try:
         root = fs.checked_path(args.root)
@@ -720,6 +732,8 @@ def main(argv=None):
                 options += ['--name', args.name]
             if args.force:
                 options += ['--force']
+            if args.execution_location:
+                options += ['--execution-location', args.execution_location]
             return run_install(root, base, args.source, options)
         if args.command == 'verify-child':
             print(json.dumps(verify_child(root, base)))

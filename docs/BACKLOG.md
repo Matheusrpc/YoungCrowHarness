@@ -1,6 +1,11 @@
 # Backlog do YoungCrowHarness
 
-Frente: produto completo e sequência de entrega. Atualizado em 2026-10-04.
+Frente: produto completo e sequência de entrega. Atualizado em 2026-10-07.
+
+Checkpoint para continuidade na cloud: `feat/isolated-executor`.
+[Contexto e próximos passos](HANDOFF-CLOUD-2026-10-07.md) ·
+[verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
+YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
 Este é o índice público do trabalho necessário para entregar a esteira definida na
 [especificação aprovada](superpowers/specs/2026-10-03-ai-product-pipeline-design.md).
@@ -88,10 +93,137 @@ Até ela existir, esses ritos são conduzidos nas sessões autorizadas.
 | YC-209 | 2C: prova local/servidor nos dois sentidos | YC-208 | Transferência interrompida, repetida e confirmação perdida preservam um único responsável; contadores sobrevivem e sessão nova localiza o histórico | Planejado |
 
 O mantenedor escolheu o ambiente separado após os [controles complementares](relatorios/2026-10-04-native-permission-controls.md).
-O [desenho detalhado](superpowers/specs/2026-10-04-isolated-executor-design.md) está em revisão.
+O [desenho detalhado](superpowers/specs/2026-10-04-isolated-executor-design.md) foi aprovado.
+O [plano de implementação](superpowers/plans/2026-10-04-isolated-executor.md) foi aprovado; R1 está em andamento.
 Seus três PBIs refinam YC-203: ambiente/prova sem modelo (2A-R1), adaptador/recuperação (2A-R2)
 e prova autenticada/adoção nos dois clientes (2A-R3). Não criam novos itens na contagem principal.
-Nenhum foi implementado. O início de 2B continua dependente da prova de execução.
+Nenhum foi concluído. O início de 2B continua dependente da prova de execução.
+Em 7 de outubro, o mantenedor aprovou a [consolidação em três PBIs](superpowers/plans/2026-10-07-executor-consolidation.md).
+O diagnóstico compartilhado está em implementação, com evidência privada e 11 consultas
+nativas de leitura aprovadas no terminal local. A nova captura remota identificou
+conjunto de credenciais indisponível na sessão Windows. A prova integrada e os dois clientes autenticados continuam pendentes;
+o inventário Docker observado não tinha credenciais de provedores cadastradas.
+O primeiro ciclo de correção trata a recusa `execution_storage_unprotected` no celular:
+o diagnóstico confirmou `temporary_evidence` / `owner_mismatch`. O segundo ciclo
+protege somente o novo temporário vazio; a confirmação remota passou e registrou a
+falha de credenciais. A próxima prova requer uma sessão com acesso ao conjunto de
+credenciais. Não há nova prova de rede agendada para a sessão remota que falhou.
+O mantenedor retomou o PowerShell local e confirmou as 11 consultas com sucesso,
+incluindo credenciais. O contexto local pode seguir para integração; o perfil continua bloqueado.
+O preflight de candidato está implementado na mesma entrada `client environment`:
+29 consultas locais passaram, cobrindo identidade do processo, políticas e baseline
+repetido. O relay restrito está ligado ao guardian/launcher em desenvolvimento,
+com 43 testes locais aprovados. Reserva compartilhada entre projetos e filtro do
+destino já têm implementação e testes locais; `client environment` consulta a reserva.
+Ligação ao despacho, empacotamento do candidato, A/B/A2 pelo cliente isolado e recuperação integrada continuam pendentes; YC-203
+permanece aberto. O manifesto v3 aceita somente eco fictício, sem clientes autenticados.
+On October 7, the maintainer approved consolidation: shared diagnostics are being
+implemented, with 11 native read queries passing locally. Integrated isolation and
+both authenticated clients remain pending; no execution profile was enabled.
+The first correction cycle addresses the phone session's storage refusal by retaining
+its stage and reason. It confirmed a temporary-file owner mismatch; the second cycle
+protects only that new empty file. Remote confirmation passed and captured an
+unavailable Windows credential set. The next proof requires a session with access
+to that credential set; no network trial is scheduled in the failing remote session.
+The maintainer then verified all 11 queries in local PowerShell, including credentials.
+That local context can proceed to integration; the runtime profile remains blocked.
+Candidate preflight is implemented through the same `client environment` entry:
+29 local queries passed, covering process identity, policies and repeated baseline
+reads. The restricted relay is connected to guardian/launcher in development,
+with 43 local tests passing. Shared reservation and destination filtering now have
+implementations and local tests; `client environment` reads the reservation.
+Dispatch wiring, candidate packaging, A/B/A2 through the isolated client and integrated recovery remain pending; YC-203 stays
+open. Manifest v3 accepts only dummy echo, with no authenticated clients.
+R1 já tem o diagnóstico de ambiente e sua distribuição em desenvolvimento;
+consulte as [provas e pendências](relatorios/2026-10-04-isolated-executor.md).
+O host já reiniciou e o login Docker foi concluído. A [prova do supervisor interno](relatorios/2026-10-04-supervisor-spike.md)
+passou nos casos sintéticos de privilégios, prazo, descendentes, limites e perda do coordenador.
+O [protocolo de despacho único](relatorios/2026-10-04-guardian-protocol.md) passou em seis cenários
+sintéticos na microVM, com marcadores duráveis e capabilities do cliente zeradas.
+O [launcher](relatorios/2026-10-04-launcher-boundary.md) passou em conclusão, prazo e perda
+do transporte, incluindo queda do coordenador e do `sbx` no Windows. O [pacote v3](relatorios/2026-10-04-native-kit-build.md)
+foi construído e [criou a sandbox esperada](relatorios/2026-10-04-native-package-proof.md),
+com digest, recursos e proteção dos arquivos conferidos. Os três casos do launcher passaram
+nessa VM; certificado e exceções foram retirados. O [reinício ativo](relatorios/2026-10-04-shutdown-reserve.md)
+falhou na verificação estrita do prazo: 3,8935 ms de atraso. A candidata reserva um segundo
+para encerramento e passou em nove cenários sintéticos. Um novo reinício passou com
+993,6312 ms de sobra e repetição recusada. O [ensaio de rede](relatorios/2026-10-04-network-boundary.md)
+encontrou uma rota MCP pelo proxy; a alternativa com saída direta restrita passou nos casos
+testados para OpenAI/Anthropic, com cliente e filho. São provas de transporte, sem autenticação.
+A [integração ao launcher](relatorios/2026-10-04-network-launcher.md) passou em oito cenários
+nativos e nos dois ensaios de provedor. Cada fase exige recibo privado; falha na preparação
+ou regras alteradas impedem o despacho. O reinício v2 falhou na medição; logs mostram
+desligamento antes do prazo e novo boot na consulta. A nova prova observou a VM parada
+3,756s antes do deadline e recusou repetição após boot; recibo anterior preservado.
+Os [endereços observados do gateway e as sentinelas Windows](relatorios/2026-10-05-gateway-endpoints.md)
+passaram nos cenários testados: 124 tentativas TCP sem conexão e zero acessos às sentinelas,
+com TLS dos provedores acessível. A [investigação de DNS/proxy](relatorios/2026-10-05-proxy-resolution.md)
+mediu a proteção do resolvedor, mas deixou o destino final sem comprovação e identificou
+a dependência do proxy explícito para injeção de credenciais. A [prova conjunta](relatorios/2026-10-05-auth-egress-spike.md)
+encerrou três ciclos; o candidato de origem fixa passou em simulação. A [prova nativa](relatorios/2026-10-05-native-proxy-compatibility.md)
+confirmou substituição de credencial por domínio, mas o Docker recusou os túneis por IP
+para os serviços de eco. A [prova por domínio/CIDR](relatorios/2026-10-05-hostname-cidr-proof.md)
+foi executada: três HTTP 200, inclusive sob negação universal de IP, com substituição
+fictícia correta. Combinação reprovada. A [instalação local exclusiva](superpowers/specs/2026-10-05-exclusive-egress-decision.md)
+foi aprovada para controlar a saída após a injeção de credenciais. O
+[plano aprovado](superpowers/plans/2026-10-05-exclusive-egress-proof.md) tem protótipo
+e 60 testes locais passando. O [ensaio nativo](relatorios/2026-10-05-exclusive-egress-proof.md)
+parou antes de tráfego por uma origem de setting modelada incorretamente. Código corrigido
+e recuperação concluída, incluindo a conferência dos IDs regenerados de uma regra automática.
+V2 executada: timeout antes do recibo e de efeitos no Docker; inventários conferidos,
+sem recuperação pendente. Ciclo encerrado como inconclusivo e roteiro bloqueado.
+Decisão de produto: [execução local por padrão e runner dedicado opcional](superpowers/specs/2026-10-05-local-and-dedicated-execution.md),
+com a mesma esteira para Claude Code e Codex. YC-203 mantém as provas por perfil;
+YC-208/209 já cobrem transferência e responsável único. O [desenho de setup](superpowers/specs/2026-10-05-execution-setup-design.md)
+foi aprovado, incluindo Remote SSH. O [plano](superpowers/plans/2026-10-05-execution-setup.md)
+divide a preparação em três PBIs: seleção privada, diagnóstico por etapa e adoção nos
+dois destinos. [Setup validado nesta branch](relatorios/2026-10-05-execution-setup.md):
+seleção, diagnóstico e guia instalados; oito combinações de adoção/restauração passaram.
+Resultados finais: 403 testes aprovados e 11 skips de ambiente, após as correções registradas.
+Entrega local, ainda sem publicação na main.
+Na [continuação com observação por comando](superpowers/plans/2026-10-06-observed-egress-proof.md),
+o ensaio parou antes das GETs por exigir `override` ao gravar um valor padrão. A correção
+passou em 75 testes locais; a restauração foi confirmada por leitura, sem limpeza pendente.
+A operação está consumida. O timeout histórico permanece sem causa comprovada; essa falha
+nova foi uma comparação incorreta no roteiro. Nenhum perfil ou PBI adicional foi concluído.
+A [entrada corrigida](relatorios/2026-10-06-corrected-egress-proof.md) foi executada:
+A passou, B inconclusiva, A2 não executada; limpeza confirmada, sem recuperação pendente.
+Os 80 testes da preparação não substituem o aceite nativo. Diagnóstico posterior:
+recusa ao guard registrada no daemon; o coletor não reconheceu a evidência. O
+[candidato separado](relatorios/2026-10-06-captured-egress-evidence.md) passou em onze testes
+offline. Sua [integração com o controlador](relatorios/2026-10-06-integrated-egress-controller.md)
+também foi validada offline, com recuperação sem repetição. A entrada está preparada;
+113 testes locais passaram. A tentativa nativa foi consumida sem efeitos no Docker:
+proprietário dos arquivos incompatível na sessão remota. O ajuste foi comprovado
+nessa sessão. A entrada separada passou pela verificação de proprietário, mas parou
+com `JSONDecodeError` no primeiro status do Docker. Sem efeitos ou limpeza pendentes;
+a resposta original não foi guardada. A captura remota passou e coincide com a local;
+as cinco consultas iniciais passaram daqui. A entrada separada já captura as respostas
+de status antes da interpretação e passou em uma suíte de 129 testes. A execução seguinte
+guardou quatro respostas válidas, mas parou na comparação literal de um identificador
+recriado pela limpeza anterior (`policy_baseline_changed`). Foram 24 consultas, sem
+efeitos ou limpeza pendente. A correção foi integrada à captura e ao controlador:
+12 testes da sequência inicial completa e 83 do controlador/comparação/fases passaram,
+com respostas externas simuladas. A entrada nativa foi executada e parou na consulta
+`sbx secret ls --json` (código 1), depois de validar as políticas. Foram 25 consultas,
+sem alteração ou limpeza pendente. Duas consultas locais passaram; a causa remota
+continua desconhecida porque o stderr não foi retido. Próximo: obter o erro dessa
+consulta no contexto remoto, somente leitura, antes de outro ensaio completo.
+O [guia](USAGE.md#entrada-do-ensaio-integrado-somente-mantenedor) marca a operação como
+consumida; não repetir nem reconciliar. A/B/A2 continua pendente.
+[Panorama](relatorios/2026-10-06-panorama-executor.md).
+Não iniciar uma v3
+automaticamente. R1 continua parcial, sem integração do relay; os dois destinos não estão certificados.
+OAuth, isolamento do intermediário,
+DNS/redirecionamentos reais, reconstrução do pacote e suspensão continuam pendentes.
+O gateway MCP externo exige prova de
+inacessibilidade pelo cliente mesmo com a rede do fornecedor liberada.
+A prova real de isolamento continua obrigatória para habilitar o executor; R2/R3 não começaram.
+QA da rodada: raiz temporária curta e publicação completa do PID passaram nos 17 testes
+focados. A nova suíte geral executou 384 testes, sem falhas ou erros, com 11 skips.
+O [relatório de QA](relatorios/2026-10-04-qa-fixtures.md)
+preserva a rodada anterior com 6 falhas e 2 erros. O launcher v2 passou na suíte de
+390 testes, com 11 skips e sem falhas/erros; o aceite de isolamento continua pendente.
 
 Aceite da frente 2: `yc-iniciar`, `yc-pausar`, `yc-retomar` e `yc-transferir` instalados e
 verificados nas combinações anunciadas. A etapa 2A isolada fornece o mecanismo de execução e
@@ -161,10 +293,81 @@ dos modelos continuam finitos; as extensões devem melhorar recuperação e nave
 The foundation and mission preparation are published. Delivery 2A implements client preflight,
 bounded execution and durable receipts, with [native isolation proofs still open](relatorios/2026-10-03-mission-runtime-adapters.md).
 Both native profiles stay blocked. A separate environment was selected, with the
-[detailed design](superpowers/specs/2026-10-04-isolated-executor-design.md) under review. Its three
+[detailed design](superpowers/specs/2026-10-04-isolated-executor-design.md) approved and the
+[implementation plan](superpowers/plans/2026-10-04-isolated-executor.md) approved; R1 is in progress. Its three
 PBIs refine YC-203: environment and unpaid proof, adapter/recovery, then authenticated adoption
-with both clients. None is implemented. Next come the priority queue and isolated workspaces (2B), pause/resume/transfer
+with both clients. None is complete. Host restart and Docker sign-in are confirmed.
+The [nested supervisor probe](relatorios/2026-10-04-supervisor-spike.md#english-overview) passed synthetic
+privilege, deadline, descendant, resource-limit and coordinator-loss cases. The [single-dispatch
+protocol](relatorios/2026-10-04-guardian-protocol.md#english-overview) passed six synthetic microVM
+scenarios with durable markers and zero client capabilities. The [launcher](relatorios/2026-10-04-launcher-boundary.md#english-overview)
+passed completion, deadline and transport-loss cases, including Windows coordinator and
+`sbx` loss. The [v3 package](relatorios/2026-10-04-native-kit-build.md#english-overview) was built
+with native Buildx and [created the expected sandbox](relatorios/2026-10-04-native-package-proof.md#english-overview).
+Digest, resources and file protections were verified; three launcher cases passed in that VM.
+Certificate and exceptions were removed. The [active restart](relatorios/2026-10-04-shutdown-reserve.md#english-overview)
+failed the strict deadline check by 3.8935 ms. A candidate with one second reserved for shutdown
+passed nine synthetic scenarios and a new active restart, finishing 993.6312 ms early and
+refusing replay. The [network probe](relatorios/2026-10-04-network-boundary.md#english-overview)
+found an MCP route through Docker's proxy; restricted direct egress passed the tested
+OpenAI/Anthropic cases for client and descendant. The [launcher integration](relatorios/2026-10-04-network-launcher.md#english-overview)
+passed eight native cases and both provider probes. Each phase requires a private receipt;
+interrupted setup or changed rules prevent dispatch. The v2 restart failed its
+measurement; logs show shutdown before the deadline and another boot on inspection.
+The replacement observed the VM stopped 3.756s early and refused replay after boot;
+the failed receipt remains. The [observed gateway addresses and Windows sentinels](relatorios/2026-10-05-gateway-endpoints.md#english-overview)
+passed the tested cases: 124 unsuccessful TCP attempts, no unexpected sentinel
+connections and provider TLS reachable. The [DNS/proxy investigation](relatorios/2026-10-05-proxy-resolution.md#english-overview)
+tested resolver protection, left the final destination unverified and identified the
+forward-proxy dependency for credential injection. The [joint probe](relatorios/2026-10-05-auth-egress-spike.md#english-overview)
+finished three cycles; the fixed-origin candidate passed in simulation. The [native probe](relatorios/2026-10-05-native-proxy-compatibility.md#english-overview)
+confirmed hostname-based credential substitution, while Docker rejected IP tunnels for
+the echo services. The [hostname/CIDR probe](relatorios/2026-10-05-hostname-cidr-proof.md#english-overview)
+completed: three HTTP 200 responses, including under universal IP denial, with correct
+dummy substitution. Candidate rejected. An [exclusive local installation](superpowers/specs/2026-10-05-exclusive-egress-decision.md#english-overview)
+is approved for enforcement after credential injection. The [approved plan](superpowers/plans/2026-10-05-exclusive-egress-proof.md)
+has a prototype and 60 passing local tests. The [native attempt](relatorios/2026-10-05-exclusive-egress-proof.md#english-overview)
+stopped before traffic because the setting source was modeled incorrectly. Code is corrected
+and recovery is complete, including verification of regenerated IDs in an automatic rule.
+V2 ran and timed out before receipt creation or Docker effects; inventories were verified,
+with no recovery pending. The cycle is closed as inconclusive and its entry point is blocked.
+Next: decide the executor approach before another proof; do not start v3 automatically.
+Subsequently, local/dedicated setup was validated. The
+[observed proof proposal](superpowers/plans/2026-10-06-observed-egress-proof.md#english-overview)
+preserved the closed cycle and recorded the new operation. It stopped before any GET
+because the script expected an override for a default value. The correction passed
+75 local tests; read-only checks confirmed restoration with no cleanup pending. This
+operation is consumed; its local tests do not enable a profile.
+The [corrected entry](relatorios/2026-10-06-corrected-egress-proof.md#english-overview)
+ran: A passed, B was inconclusive and A2 did not run. Cleanup was verified. Its 80 local
+tests do not replace native acceptance. Later analysis found guard-port refusal in the
+daemon log. A separate collector passed eleven offline tests. Controller integration was
+also validated offline, including recovery without replay. The native entry is prepared;
+113 local tests passed. The native attempt was consumed without Docker changes due to
+incompatible file ownership. The owner adjustment passed remotely; a separate entry
+passed its owner check but failed parsing the first Docker status reply. No Docker
+changes or cleanup occurred; the original reply was not retained. Remote capture later
+passed and matched the local output; all five preflight queries also passed locally.
+The captured entry passed 129 tests. Its native run retained four valid status replies
+but stopped on a literal rule-ID mismatch after earlier cleanup, with 24 queries and
+no side effects or pending cleanup. The correction is now integrated with capture and
+the controller: 12 complete initial-sequence tests and 83 controller/comparison/phase
+tests passed with simulated external replies. The corrected native entry was consumed:
+`sbx secret ls --json` exited 1 after policy checks passed. All 25 commands were reads,
+with no changes or pending cleanup. Two local queries passed; the remote cause remains
+unknown because stderr was not retained. Next: capture only that query's error in
+the remote context before another full probe. Do not replay or reconcile this attempt.
+Native A/B/A2 acceptance remains pending.
+R1 remains partial, without relay integration.
+OAuth, relay isolation, real DNS/redirects, package rebuilding
+and whole-host suspension remain pending.
+The outer MCP gateway requires proof that the client cannot reach it even with provider networking enabled.
+R2/R3 have not started. Next come the priority queue and isolated workspaces (2B), pause/resume/transfer
 (2C), independent QA and integration (3), and protected release with verified production (4).
+The short temporary root and complete PID publication passed 17 focused tests; the new full
+suite ran 384 tests without failures or errors, with 11 skips. The [QA report](relatorios/2026-10-04-qa-fixtures.md#english-overview) preserves
+the earlier 6 failures and 2 errors. Launcher v2 passed the 390-test suite with 11 skips
+and no failures/errors. Isolation acceptance remains pending.
 
 The 25 core backlog items include the implemented 2A mechanism, outstanding native proofs and
 four final acceptance/public release items. Item counts are not effort estimates or completion percentages.

@@ -1,0 +1,228 @@
+{
+  "checked_at": "2026-10-07T00:58:17.679082+00:00",
+  "status": "native_attempt_consumed_inconclusive_secret_inventory",
+  "scope": "Maintainer-only native bootstrap; no product profile enabled",
+  "state_directory": "policy-mobile-egress-proof",
+  "source_files_sha256": {
+    "native_policy_egress.py": "b592cc910d00e14592ade7d27c3359454bb16de4b903c20f0ddfb41a5f28f325",
+    "run-policy-egress-proof.ps1": "2c9491f60c8013e622bb18c56688c9e7ffea9606b22bcae5d0b5731fe9734e0b",
+    "test_native_policy_egress.py": "1c0b943574c00c323761f68190581885cc26358ab54f66bc542e1eca459d8f7b",
+    "policy_egress_entry.py": "f34dfa5057fb2d3a980eb771d2b9fc081575d3c2944e471bb00b37861f728a8d",
+    "integrated_policy_egress.py": "051a5b9d634d253c2208182251430e3afca21dec46a4e9552a737407cedc839b",
+    "exclusive_egress_policy_candidate.py": "1aa2247f7f8bf2fb64dd58ff3d4b47e6617e959f488362e71896ce7f68246135",
+    "native-policy-final-suite.log": "39d5f223c328e9f496ff95fcea5fa9942d0cbc444c03d9f4f653b12ec1216873",
+    "native-policy-cli-checks.json": "b9d32dab01dc461daa0a38d560c7ec59b55da23f520e905b0c6d73308e6c1638",
+    "native-policy-entry-review.md": "6daa3abaee676fc6a867abb7ef71528fdf0dcc0bed1df25ef6f6318fba0e48ac"
+  },
+  "tests": {
+    "run": 102,
+    "passed": 102,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 84.227,
+    "new_cases": 7,
+    "includes_prior_95": true,
+    "red": [
+      "six failures: native entry absent",
+      "Windows PowerShell hash check regression: Get-FileHash unavailable"
+    ],
+    "routing": "real owner runner and fixture_check to actual initial controller functions; native subprocess replies and inner ACL checks simulated; stop before guard",
+    "downstream": "corrected controller aliases used for 15 integrated, 5 policy and 63 controller tests"
+  },
+  "cli": {
+    "checks": [
+      {
+        "case": "powershell_no_action",
+        "exit_code": 1,
+        "expected_refusal": "Escolha exatamente",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "90b1b1aecb730a6381501519ff831db0b2ebc869d8910bd72f8c471e4415c5de"
+      },
+      {
+        "case": "powershell_both_actions",
+        "exit_code": 1,
+        "expected_refusal": "Escolha exatamente",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "90b1b1aecb730a6381501519ff831db0b2ebc869d8910bd72f8c471e4415c5de"
+      },
+      {
+        "case": "powershell_changed_entry",
+        "exit_code": 1,
+        "expected_refusal": "Entrada mudou",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "6e86093a56e7a5de83675b5869ad40306c9f20d7b722d289141a758c51109259"
+      },
+      {
+        "case": "python_no_action",
+        "exit_code": 1,
+        "expected_refusal": "explicit_action_required",
+        "stdout_sha256": "3ae1e7a1f1eafca4d8180a2d8335efe82943066834d17c189833c4cfd99e38b5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "parse_errors": 0,
+    "new_operation_absent": true,
+    "native_docker_commands": 0
+  },
+  "powershell_fix": {
+    "observed": "Get-FileHash unavailable in Windows PowerShell under inherited PSModulePath; Join-Path/Write-Host and SHA256Managed available",
+    "change": "local .NET SHA-256 function; no module install or global setting change",
+    "verification": "regression RED/GREEN; changed entry refused after real Python hash matched"
+  },
+  "review": {
+    "agent": "native_policy_entry_review",
+    "model": "gpt-6-astra",
+    "effort": "high",
+    "read_only": true,
+    "actionable_findings": 0,
+    "scope_limit": "review preceded .NET hash compatibility fix; regression and full suite verify that fix; no second review"
+  },
+  "limits": {
+    "get_attempts": 3,
+    "daemon_restarts": 2,
+    "preflight_queries": 5,
+    "query_seconds": 15,
+    "preparation_seconds": 180,
+    "probe_seconds": 120,
+    "get_seconds": 10,
+    "cleanup_seconds": 180,
+    "owner_acl_helper_timeout_seconds": 120
+  },
+  "preserved_artifacts_sha256": {
+    "exclusive_egress.py": "16fcc9bde6719b7b765b3a8805c045d8fac1362a2c2b3d706a9e4b3169f01af0",
+    "captured_mobile_egress.py": "aa221f8fe17b19bd67b8a692c0edf9e283dfdb4699d88550104fb09384b9342a",
+    "run-captured-mobile-egress-proof.ps1": "80085bc79bb466c6a431f56cae49c7946d4d58e48ee6446303cd0945ddad1a86",
+    "captured-mobile-egress-proof/control.json": "e0985d305999480ae78bb3c0ed6354fd8573f76c963332b3f0a3af3c1b1968d8",
+    "captured-mobile-egress-proof/attempt.json": "b02bddde9eeb2199f89092d25bb85da23809b452f38ef5cf3e2b637b2c23c8bf",
+    "captured-mobile-egress-proof/commands.jsonl": "6cf7daa74d0d587536b7608756c76f80a91555cb8dfa3833ecab76d7ec00e14e"
+  },
+  "next_step": "Obtain the error of the single read-only credential-inventory query in the remote context before preparing another full probe; no operator command prepared this round.",
+  "preparation_checked_at": "2026-10-06T18:58:24.047580+00:00",
+  "preparation_effects": {
+    "native_operation_created": false,
+    "docker_commands": 0,
+    "daemon_restarts": 0,
+    "external_requests": 0,
+    "executor_model_calls": 0,
+    "product_profiles_enabled": false
+  },
+  "preparation_final_checks": {
+    "vault_notes": 366,
+    "vault_issues": 0,
+    "preserved_readme_visuals": 52,
+    "local_links_checked": 592,
+    "broken_links": 0,
+    "source_and_preservation_hashes_checked": 15,
+    "native_operation_absent": true,
+    "document_diff_check": "passed; line ending warning only"
+  },
+  "effects": {
+    "native_operation_created": true,
+    "read_only_commands": 25,
+    "daemon_restarts": 0,
+    "external_probe_requests": 0,
+    "executor_model_calls": 0,
+    "docker_mutations": 0,
+    "product_profiles_enabled": false
+  },
+  "native_attempt": {
+    "local_date_time": "2026-10-06T21:50:19-03:00",
+    "operation_id": "3fbce84a-0ca5-45cd-be12-df905a269526",
+    "state": "stopped",
+    "interpretation": "inconclusive",
+    "reason": "sbx_command_failed",
+    "failed_command": "sbx secret ls --json",
+    "command_id": "b26411e6-ed90-4230-ac38-9342894a8f27",
+    "exit_code": 1,
+    "elapsed_seconds": 0.146877,
+    "timeout_seconds": 15,
+    "passed_queries": 24,
+    "failed_queries": 1,
+    "cleanup": {
+      "restored": true,
+      "errors": []
+    },
+    "effects_started": false,
+    "phases_started": 0,
+    "root_cause": "unknown; original stderr not retained",
+    "replay_allowed": false,
+    "reconciliation_needed": false
+  },
+  "local_diagnosis": {
+    "queries": [
+      {
+        "command": "sbx secret ls --json",
+        "exit_code": 0,
+        "stdout_bytes": 94,
+        "stdout_sha256": "f98149184ab683867330a62a7bad098ab4f260f5123608369ecb2e22b7465926",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "native_mutations": 0,
+        "external_requests": 0,
+        "model_calls": 0
+      },
+      {
+        "command": "sbx secret ls --json",
+        "context": "local_existing_windows_owner_fixture",
+        "exit_code": 0,
+        "valid_json": true,
+        "stdout_bytes": 94,
+        "stdout_sha256": "f98149184ab683867330a62a7bad098ab4f260f5123608369ecb2e22b7465926",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "docker_mutations": 0,
+        "external_probe_requests": 0,
+        "executor_model_calls": 0
+      }
+    ],
+    "note": "Local success does not establish remote root cause; owner adjusted=False locally and True remotely. Inventory contents not retained. One CLI help lookup also ran."
+  },
+  "consumed_artifacts_sha256": {
+    "native_policy_egress.py": "b592cc910d00e14592ade7d27c3359454bb16de4b903c20f0ddfb41a5f28f325",
+    "run-policy-egress-proof.ps1": "2c9491f60c8013e622bb18c56688c9e7ffea9606b22bcae5d0b5731fe9734e0b",
+    "test_native_policy_egress.py": "1c0b943574c00c323761f68190581885cc26358ab54f66bc542e1eca459d8f7b",
+    "policy_egress_entry.py": "f34dfa5057fb2d3a980eb771d2b9fc081575d3c2944e471bb00b37861f728a8d",
+    "integrated_policy_egress.py": "051a5b9d634d253c2208182251430e3afca21dec46a4e9552a737407cedc839b",
+    "exclusive_egress_policy_candidate.py": "1aa2247f7f8bf2fb64dd58ff3d4b47e6617e959f488362e71896ce7f68246135",
+    "native-policy-final-suite.log": "39d5f223c328e9f496ff95fcea5fa9942d0cbc444c03d9f4f653b12ec1216873",
+    "native-policy-cli-checks.json": "b9d32dab01dc461daa0a38d560c7ec59b55da23f520e905b0c6d73308e6c1638",
+    "native-policy-entry-review.md": "6daa3abaee676fc6a867abb7ef71528fdf0dcc0bed1df25ef6f6318fba0e48ac",
+    "exclusive_egress.py": "16fcc9bde6719b7b765b3a8805c045d8fac1362a2c2b3d706a9e4b3169f01af0",
+    "captured_mobile_egress.py": "aa221f8fe17b19bd67b8a692c0edf9e283dfdb4699d88550104fb09384b9342a",
+    "run-captured-mobile-egress-proof.ps1": "80085bc79bb466c6a431f56cae49c7946d4d58e48ee6446303cd0945ddad1a86",
+    "captured-mobile-egress-proof/control.json": "e0985d305999480ae78bb3c0ed6354fd8573f76c963332b3f0a3af3c1b1968d8",
+    "captured-mobile-egress-proof/attempt.json": "b02bddde9eeb2199f89092d25bb85da23809b452f38ef5cf3e2b637b2c23c8bf",
+    "captured-mobile-egress-proof/commands.jsonl": "6cf7daa74d0d587536b7608756c76f80a91555cb8dfa3833ecab76d7ec00e14e",
+    "policy-mobile-egress-proof/attempt.json": "d286b9662887a382b1e5ff1888a400eb3fe300f56a6c22879093f54f075af675",
+    "policy-mobile-egress-proof/commands.jsonl": "996da0340715e7810ab10a7676bed46963fb25340172d39d7a461c62130fece6",
+    "policy-mobile-egress-proof/control.json": "144ec4517cc46e18208a08aa73d8be7245483c1dc4627a4f44a70be3746e8917",
+    "policy-mobile-egress-proof/reclaim.lock": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+    "policy-mobile-egress-proof/status-responses/0aad49e6-338a-49a1-a683-e80d67a1d942.json": "021342759dc3eb1983199569f528b5f08b22b5af4cf5f24b9f331fd7c60872ef",
+    "policy-mobile-egress-proof/status-responses/0aad49e6-338a-49a1-a683-e80d67a1d942.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "policy-mobile-egress-proof/status-responses/0aad49e6-338a-49a1-a683-e80d67a1d942.stdout": "98bc7f9424f75f146a54f62215dba3d9713162650efa75949ea0caa3c434f6df",
+    "policy-mobile-egress-proof/status-responses/5d4ba3b5-a78c-446a-bc6b-da7ae435fa8e.json": "5205492be575c1dd9ed046b3cece211b060db41523e40681e87a8766616aa50c",
+    "policy-mobile-egress-proof/status-responses/5d4ba3b5-a78c-446a-bc6b-da7ae435fa8e.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "policy-mobile-egress-proof/status-responses/5d4ba3b5-a78c-446a-bc6b-da7ae435fa8e.stdout": "98bc7f9424f75f146a54f62215dba3d9713162650efa75949ea0caa3c434f6df",
+    "policy-mobile-egress-proof/status-responses/5fad08a8-7b6b-4964-ba35-1f49e26e20a5.json": "ad1ef54d306c91e7d578030a6299f86bc405327f8a6bf67d09e2d7e62c054b9d",
+    "policy-mobile-egress-proof/status-responses/5fad08a8-7b6b-4964-ba35-1f49e26e20a5.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "policy-mobile-egress-proof/status-responses/5fad08a8-7b6b-4964-ba35-1f49e26e20a5.stdout": "98bc7f9424f75f146a54f62215dba3d9713162650efa75949ea0caa3c434f6df",
+    "policy-mobile-egress-proof/status-responses/8b7dcba3-dfeb-47d8-bf2c-e5211b7cdbf6.json": "456392b7def05c9da2537426c3d27b5a7f6a9a226662d6359aaca98c94d4acbe",
+    "policy-mobile-egress-proof/status-responses/8b7dcba3-dfeb-47d8-bf2c-e5211b7cdbf6.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "policy-mobile-egress-proof/status-responses/8b7dcba3-dfeb-47d8-bf2c-e5211b7cdbf6.stdout": "98bc7f9424f75f146a54f62215dba3d9713162650efa75949ea0caa3c434f6df"
+  },
+  "final_checks": {
+    "frozen_hashes_preserved": 31,
+    "readme_visuals_preserved": 52,
+    "local_prose_links_checked": 598,
+    "broken_links": 0,
+    "native_queries": 25,
+    "failed_queries": 1,
+    "cleanup_verified": true,
+    "receipt_for_settings_absent": true,
+    "vault_notes_checked": 369,
+    "vault_issues": 0,
+    "tracked_document_diff_check": "passed; line-ending warning only",
+    "historical_tests_not_rerun": true
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "checked_at": "2026-10-06T18:41:50.425599+00:00",
+  "status": "integrated_offline_native_pending",
+  "scope": "Private import-only maintainer entry, not a product execution profile",
+  "source_files_sha256": {
+    "policy_egress_entry.py": "f34dfa5057fb2d3a980eb771d2b9fc081575d3c2944e471bb00b37861f728a8d",
+    "integrated_policy_egress.py": "051a5b9d634d253c2208182251430e3afca21dec46a4e9552a737407cedc839b",
+    "exclusive_egress_policy_candidate.py": "1aa2247f7f8bf2fb64dd58ff3d4b47e6617e959f488362e71896ce7f68246135",
+    "test_policy_egress_entry.py": "bd450956de45556446bf4fa1067e2d60433af7a1f4a5d70ca089bd9ad10970ae",
+    "policy-entry-red.log": "c7f2bc0cc593636265f1a33e420632b1e3855fec1ebe383e1535c5d721730884",
+    "policy-entry-green.log": "5e53ccf0c5bda05d57f47d8c53b4b5696ac53e201a1f2bca494ad8ee97a0167d",
+    "policy-entry-downstream-suite.log": "19e366de6e737bc2a5171be80925fffcf84af00f3cdde7f6f4eddd5d8df0200e",
+    "policy-entry-review.md": "c4310fbb015cdf64249e87466344b73844cbd6bf1526574ee940cf8119ca3f55"
+  },
+  "tests": {
+    "entry": {
+      "run": 12,
+      "passed": 12,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "seconds": 31.723,
+      "red": "12 failures: policy entry missing"
+    },
+    "downstream": {
+      "run": 83,
+      "passed": 83,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "seconds": 61.656,
+      "suites": {
+        "test_integrated_egress": 15,
+        "test_policy_baseline_candidate": 5,
+        "test_exclusive_egress": 63
+      },
+      "routing": "integrated_egress alias points to integrated_policy_egress; original test reference and exclusive_egress alias point to exclusive_egress_policy_candidate"
+    },
+    "total_this_step": 95,
+    "not_additive_to_historical_suites": true
+  },
+  "initial_flow": {
+    "functions": "actual preflight, settings reader, parsers, VM and policy checks, secret inventory digest, observer and recovery",
+    "external_replies": "strict simulated subprocess.run; no native calls",
+    "policy_fixture": "saved current and historical policy receipts",
+    "credentials": "empty synthetic inventory only",
+    "owner_and_acl": "mocked in new tests; unchanged native helper not rerun",
+    "stop_boundary": "start_guard(A), before config/process creation or any native mutation",
+    "status_captures": 4,
+    "settings_keys_checked": 7,
+    "replay_refused": true,
+    "recovery_scope": "pre-mutation and pre-control cases only"
+  },
+  "review": {
+    "agent": "policy_entry_review",
+    "model": "gpt-6-astra",
+    "effort": "high",
+    "read_only": true,
+    "actionable_findings": 0,
+    "historical_receipt_pins_checked": 17,
+    "historical_receipt_pin_mismatches": 0,
+    "second_review": false
+  },
+  "effects": {
+    "native_docker_commands": 0,
+    "external_gets": 0,
+    "daemon_restarts": 0,
+    "executor_model_calls": 0,
+    "new_native_operation_created": false,
+    "product_profiles_enabled": false
+  },
+  "pending": [
+    "Native operator entry pinned to integrated files",
+    "Real A/B/A2 acceptance and restoration after mutations",
+    "Native owner/bootstrap through future operator entry",
+    "Multi-coordinator/reentrant routing unsupported (single writer contract)"
+  ],
+  "next_step": "Prepare the pinned native operator entry; no command for the user in this step. Preserve consumed operations without replay.",
+  "preserved_previous_artifacts": {
+    "exclusive_egress.py": "16fcc9bde6719b7b765b3a8805c045d8fac1362a2c2b3d706a9e4b3169f01af0",
+    "captured_mobile_egress.py": "aa221f8fe17b19bd67b8a692c0edf9e283dfdb4699d88550104fb09384b9342a",
+    "run-captured-mobile-egress-proof.ps1": "80085bc79bb466c6a431f56cae49c7946d4d58e48ee6446303cd0945ddad1a86",
+    "captured-mobile-egress-proof/control.json": "e0985d305999480ae78bb3c0ed6354fd8573f76c963332b3f0a3af3c1b1968d8",
+    "captured-mobile-egress-proof/attempt.json": "b02bddde9eeb2199f89092d25bb85da23809b452f38ef5cf3e2b637b2c23c8bf",
+    "captured-mobile-egress-proof/commands.jsonl": "6cf7daa74d0d587536b7608756c76f80a91555cb8dfa3833ecab76d7ec00e14e"
+  },
+  "final_checks": {
+    "vault_notes": 366,
+    "vault_issues": 0,
+    "readme_visual_embeds_preserved": 52,
+    "local_links_checked": 585,
+    "broken_links": 0,
+    "source_and_preservation_hashes_checked": 14,
+    "native_operation_absent": true,
+    "document_diff_check": "passed; LF/CRLF warning only"
+  }
+}

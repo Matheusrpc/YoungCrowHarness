@@ -11,6 +11,14 @@ detalha decisões, pausas e retomada.
 See the [usage diagrams](../README.md#process-en) for new projects, adoption, daily work, source intake and memory retrieval.
 The [complete process](PROCESS.md#english) includes decisions, pauses and resumption.
 
+Para continuar o desenvolvimento do executor na cloud, use a branch `feat/isolated-executor`
+e leia o [contexto de transição](HANDOFF-CLOUD-2026-10-07.md). Credenciais e estado operacional
+não acompanham o clone. Os perfis de execução continuam bloqueados até as provas pendentes.
+
+To continue executor development in the cloud, use branch `feat/isolated-executor` and read the
+[handoff](HANDOFF-CLOUD-2026-10-07.md). Credentials and operational state are not part of the clone.
+Execution profiles remain blocked until the pending proofs pass.
+
 [Abra a demonstração](https://matheusrpc.github.io/YoungCrowHarness/) ou siga o [roteiro do piloto](../examples/delivery-board/README.md), que reúne esses percursos em um exemplo com
 vault próprio. A página e os filtros foram verificados localmente, incluindo teclado e tela estreita.
 O roteiro explica início do zero, migração e saída; os dois consumidores passaram pela prova de retorno no Windows e no Linux.
@@ -1766,27 +1774,728 @@ resposta permitida, leitura recusada e gravações internas dos clientes. Um JSO
 processo com código zero não prova isolamento. Os perfis continuam bloqueados; a proposta de
 ambiente separado ainda não tem setup disponível. Não altere a lista de perfis para forçar a execução.
 
-O [desenho em revisão](superpowers/specs/2026-10-04-isolated-executor-design.md) prevê preparação
+O [desenho aprovado](superpowers/specs/2026-10-04-isolated-executor-design.md) prevê preparação
 única do Docker Sandboxes local e login separado. O runtime exige conta Docker; o uso local é
 gratuito conforme a documentação consultada, com o consumo dos modelos tratado pela conta escolhida.
 No Windows, será necessário Windows 11 x64 e Windows Hypervisor Platform habilitado. A preparação
 nunca reinicia o computador automaticamente. O rollback do trial restaura os arquivos do projeto;
 runtime do sistema e logins terão um procedimento de remoção separado. Não há comando YoungCrow
 de instalação desse executor disponível nesta versão.
+O [plano de implementação](superpowers/plans/2026-10-04-isolated-executor.md) organiza a prova
+de ambiente, a recuperação e os dois diagnósticos autenticados; foi aprovado e está em execução.
 
 The [permission controls](relatorios/2026-10-04-native-permission-controls.md#english-overview)
 also checked an allowed response, denied reads and internal client writes. A correct JSON response
 or zero exit code does not prove isolation. Profiles remain blocked; the proposed separate
 environment has no setup command yet. Do not edit the profile allowlist to force execution.
 
-The [design under review](superpowers/specs/2026-10-04-isolated-executor-design.md) proposes one-time
+The [approved design](superpowers/specs/2026-10-04-isolated-executor-design.md) proposes one-time
 local Docker Sandboxes preparation and separate sign-in. It requires a Docker account; the cited
 vendor documentation states local runtime use is free, with model usage handled by the chosen account.
 Windows requires Windows 11 x64 and Windows Hypervisor Platform. Setup will not restart the host
 automatically. Trial rollback restores project files; system runtime and logins will have a separate
 removal procedure. This version has no YoungCrow command for installing that executor.
+The [implementation plan](superpowers/plans/2026-10-04-isolated-executor.md) covers environment
+proof, recovery and both authenticated diagnostics; it is approved and implementation has started.
+
+<a id="sandbox-environment"></a>
+### Diagnóstico do ambiente / Environment diagnostic
+
+Para investigar consultas do Docker, acrescente `--preflight` ao comando abaixo.
+Essa opção salva evidência sensível em `.operacao-local/execution/sbx-UUID.json`,
+com permissões privadas verificadas antes das consultas. Não publique esse arquivo:
+ele pode conter valores ou fragmentos de credenciais. O JSON exibido contém apenas
+metadados, hashes e categorias de erro; `evidence_path` aponta para a cópia privada.
+
+Cada consulta tem prazo de 15 segundos e limite conjunto de saída de 64 KiB.
+O comando para na primeira falha, sem repetir a consulta. `ready: true` significa
+que as consultas preparatórias responderam; `effects_allowed: false` mantém o
+bloqueio de execução. Se o daemon estiver parado, o preflight para antes das consultas
+dependentes. Nenhum comando de criação, reinício, escrita de configuração ou modelo
+é emitido. A verificação de permissões do arquivo é separada e pode levar até 120s.
+
+`permission_denied` indica mensagem explícita de permissão; `credential_store_error`
+indica referência ao armazenamento de credenciais. `command_failed` exige examinar
+a evidência privada antes de concluir a causa. `empty_output`, `invalid_json`,
+`contract_incompatible` e `timeout` distinguem os demais casos. Os roteiros antigos
+permanecem como evidência e não devem ser reexecutados.
+
+`credential_session_unavailable` reconhece a mensagem de conjunto de credenciais
+indisponível na sessão Windows, capturada em `secret ls --json`. O inventário permanece
+desconhecido. Execute o mesmo diagnóstico na sessão de desktop do seu usuário quando
+ela estiver disponível; confirme o preflight antes de qualquer alteração Docker.
+Abrir outro shell dentro do Termius mantém a sessão SSH; a VPN fornece conectividade,
+mas não muda o conjunto de credenciais disponível. O tipo de logon observado não foi medido.
+O Docker usa o [Gerenciador de Credenciais do Windows](https://docs.docker.com/ai/sandboxes/configuration/credentials/),
+cujo conjunto depende da [sessão de logon do token atual](https://learn.microsoft.com/en-us/windows/win32/api/wincred/nf-wincred-credenumeratea).
+
+Se o servidor já aceitar senha, outra possibilidade é criar uma conexão separada no
+Termius com o mesmo host e usuário, usando a senha do Windows e sem selecionar a chave
+nessa cópia. Preserve a conexão original. Digite a senha apenas no Termius. Se conectar,
+execute somente o preflight; se o login for recusado, pare sem reconfigurar o servidor.
+Essa alternativa ainda precisa de prova: o [OpenSSH distingue os contextos de senha e chave](https://github.com/PowerShell/Win32-OpenSSH/wiki/SSH-remote-sessions-on-Windows),
+mas essa documentação não garante acesso ao Docker nesse host.
+
+Na prova seguinte, executada diretamente no PowerShell do mantenedor em 7 de outubro,
+as 11 consultas passaram: `ready: true`, `effects_allowed: false`, inventário Docker
+vazio. Somente `runtime_profile_unverified` permaneceu. Esse resultado resolve o acesso
+às consultas naquele contexto; não comprova autenticação Claude/Codex ou isolamento.
+
+Para conferir uma sandbox existente antes da integração, use as duas opções juntas:
+
+```bash
+python scripts/missions.py client environment --executable CAMINHO_SBX --preflight --sandbox NOME --json
+```
+
+No Windows, esse modo observa PID e criação do daemon, inventário completo de credenciais,
+VMs paradas, configurações, políticas e log de política. Confere novamente os dados para
+detectar alterações durante a leitura. Saídas brutas ficam no recibo privado. `scope:
+candidate_metadata` e `ready: true` confirmam a coleta; `pending` enumera o que ainda
+falta para executar. O campo `effects_allowed` continua falso.
+
+`daemon_identity_changed` indica troca do processo; `configuration_changed`, diferença
+nos dados comparados. O tempo de atividade do daemon é preservado no recibo, mas não
+entra na comparação da inspeção. Campos desconhecidos continuam sendo comparados.
+`active_consumer` impede prosseguir com VM em uso. Credenciais personalizadas e fontes
+de ambiente também contam no inventário: `secrets: []` sozinho não comprova ausência.
+Esse modo passou em 29 consultas locais: 27 do Docker e duas do Windows. A identificação
+do processo no runner Linux ainda precisa ser implementada e validada.
+
+O relay de desenvolvimento está ligado ao guardian/launcher e permite um único eco
+por operação. Seu manifesto v3 fixa a origem e vincula por hash uma cópia pública
+da CA do proxy, guardada no controle privado. A intenção é permitir ao cliente
+somente a porta local do relay; o supervisor acessa o endereço exato do proxy.
+Os contratos e sockets locais passaram nos testes. Aplicação do firewall Linux,
+TLS real e A/B/A2 ainda precisam de prova no novo pacote. `client check` permanece
+bloqueado: não há comando adicional de operação nem perfil liberado por esse incremento.
+
+`client environment` também lê `execution_reservation`, sem criar a reserva ou
+liberar efeitos. `available` indica ausência de operação pendente nesse registro;
+`reserved` ou `consumed` acrescenta `execution_reserved` às lacunas. `unknown`
+acrescenta `execution_reservation_unknown`; consulte `reason` e preserve o registro.
+O armazenamento é comum aos projetos da conta: `YoungCrowExecution` na pasta local
+de dados do Windows obtida pelo sistema, ou na pasta pessoal da conta POSIX.
+Não há opção de trocar esse caminho por projeto. Apagar o registro ou alterar suas
+permissões não é um procedimento de recuperação.
+
+A reserva e o filtro do destino foram testados separadamente, incluindo permissões
+reais do Windows. A integração ao despacho ainda está em desenvolvimento. Uma reserva
+sem qualquer intenção pode ser encerrada internamente se o baseline permanecer
+idêntico. Depois de uma intenção, ela continua bloqueada; a recuperação nativa deve
+comprovar parada e restauração antes de liberá-la. Nenhum prazo vencido libera a reserva.
+
+Se aparecer `execution_storage_unprotected`, consulte `diagnostic.phase` e
+`diagnostic.reason`. `temporary_evidence` identifica a verificação do temporário
+antes de gravar saídas sensíveis; `existing_storage` identifica a área existente.
+`owner_mismatch` aponta proprietário diferente do usuário; `acl_not_private`, acesso
+incompatível; `git_exclusion_missing`, exclusão Git ausente. Timeouts distinguem Git
+de permissões. Preserve os recibos e informe esses campos; não aplique mudanças
+recursivas de proprietário ou permissões para contornar a recusa.
+
+No Windows, o comando define proprietário e ACL privada somente no novo temporário
+vazio que ele próprio criou. Confere sua identidade, o diretório e as permissões
+antes de gravar dados. Recibos anteriores e o proprietário padrão da sessão são
+preservados. Se essa proteção falhar, a operação para sem tentar novamente.
+
+Add `--preflight` to investigate Docker queries. It saves sensitive output under
+`.operacao-local/execution/` after checking private permissions; never publish that
+file. Displayed results contain metadata, hashes and error categories. Queries have
+a 15-second deadline and a combined 64 KiB output limit, stop at the first failure,
+and are not retried. File permission checks have a separate 120-second limit.
+`ready` describes readable metadata; `effects_allowed: false` keeps execution blocked.
+No lifecycle, configuration-write or model command is issued. Preserve historical
+proof scripts and receipts instead of rerunning them.
+
+`credential_session_unavailable` identifies the Windows credential-set error captured
+from `secret ls --json`. The inventory remains unknown. Run the same diagnostic from
+your signed-in Windows desktop session when available; confirm preflight before
+changing Docker. Opening another shell in Termius retains the SSH session. VPN
+connectivity does not change its available credential set; the logon type was not measured.
+Docker uses [Windows Credential Manager](https://docs.docker.com/ai/sandboxes/configuration/credentials/);
+its credential set depends on the [current token's logon session](https://learn.microsoft.com/en-us/windows/win32/api/wincred/nf-wincred-credenumeratea).
+
+If the server already accepts password authentication, another option is a separate
+Termius connection to the same host and user, using the Windows password without a
+key selected in that copy. Preserve the original connection and enter the password
+only in Termius. If login succeeds, run only preflight; if refused, stop without
+reconfiguring the server. This option still needs validation: [OpenSSH documents different credential contexts](https://github.com/PowerShell/Win32-OpenSSH/wiki/SSH-remote-sessions-on-Windows),
+but does not guarantee Docker access on this host.
+
+The maintainer's subsequent local PowerShell run on October 7 passed all 11 queries:
+`ready: true`, `effects_allowed: false`, empty Docker credential inventory. Only
+`runtime_profile_unverified` remained. This confirms query access in that context;
+Claude/Codex authentication and isolation acceptance remain pending.
+
+Use `--preflight --sandbox NAME` together to inspect a candidate before integration.
+On Windows, this adds daemon PID/creation time, complete credential metadata, stopped-VM
+inventory, settings, policies and policy-log access. It reads the baseline again to
+detect drift. The first local run passed 27 Docker and two Windows queries.
+`scope: candidate_metadata` and `ready: true` describe collection only; `pending` lists
+the remaining execution gates and `effects_allowed` stays false. Raw output remains
+private. Only the observed `daemon_uptime` field is excluded from inspection comparison;
+unknown fields still participate. Custom credentials and environment sources count,
+so `secrets: []` alone does not establish an empty inventory. Linux daemon identity
+still needs implementation and native validation.
+
+The development relay is connected to guardian/launcher and permits one echo per
+operation. Its v3 manifest fixes the origin and binds a public proxy-CA snapshot
+by hash inside private control storage. The intended boundary permits the client
+only the local relay port and the supervisor only the exact proxy address.
+Contract and local-socket tests passed. Linux firewall enforcement, real TLS and
+A/B/A2 still need proof in the new package. `client check` remains blocked; this
+increment adds no operator command and enables no execution profile.
+
+`client environment` also reads `execution_reservation` without creating a reservation
+or authorizing effects. `available` means this ledger has no pending operation;
+`reserved` or `consumed` adds `execution_reserved` to the gaps. `unknown` adds
+`execution_reservation_unknown`; inspect `reason` and preserve the ledger.
+Storage is shared across the account's projects: `YoungCrowExecution` under the
+Windows local application-data folder resolved by the OS, or the POSIX account's
+home directory. Projects cannot override that location. Deleting the ledger or
+changing its permissions is not a recovery procedure.
+
+Reservation and destination filtering passed separate tests, including real Windows
+permissions. Dispatch integration remains in development. An unused reservation can
+close internally only when its baseline is unchanged. Once an effect is intended,
+it remains blocked until native recovery establishes termination and restoration.
+An expired deadline never releases ownership.
+
+For `execution_storage_unprotected`, inspect `diagnostic.phase` and `diagnostic.reason`.
+`temporary_evidence` identifies the temporary-file check before sensitive output is
+written; `existing_storage` identifies the existing area. Reasons distinguish owner
+mismatch, non-private ACLs, missing Git exclusions and Git or permission timeouts.
+Preserve receipts and report those fields. Do not recursively change ownership or
+permissions to bypass the refusal.
+
+On Windows, the command sets private ownership and ACLs only on its newly created,
+empty temporary file. Identity, directory and permissions are checked before data
+is written. Existing receipts and the session's default owner remain unchanged.
+A protection failure stops the operation without an automatic retry.
+
+Na raiz do projeto, indique o caminho absoluto do `sbx` instalado:
+
+```bash
+python3 -B scripts/missions.py client environment --executable /caminho/absoluto/sbx --json
+```
+
+No Windows, use `python` e o caminho do `sbx.exe`, entre aspas se houver espaços.
+O comando consulta a versão e o hash do executável e os pré-requisitos do sistema.
+Não instala componentes, altera configurações, cria VM, faz login ou chama modelos.
+O resultado inclui `gaps` com as pendências e retorna código 1 enquanto houver alguma.
+`runtime_missing` indica binário ausente; `whp_disabled` indica o recurso do Windows
+desabilitado. `whp_unknown` indica que a consulta não confirmou seu estado.
+Se a ativação do recurso retornar `RestartNeeded: True`, salve o trabalho e reinicie
+o Windows antes da prova real, mesmo que `whp_state` já seja 1.
+Esse campo confirma a configuração do recurso, não uma VM em funcionamento.
+`runtime_profile_unverified` permanece em todos os ambientes nesta etapa: versão
+detectada e pré-requisitos presentes não comprovam isolamento ou prazo de execução.
+Completar `sbx login` também não remove essa pendência. A [prova sintética do supervisor](relatorios/2026-10-04-supervisor-spike.md)
+usou uma microVM sem workspace e um contêiner interno, com prazo de cinco segundos.
+Ela confirmou parte dos controles; ainda não habilita `client check` com modelos reais.
+O ensaio foi preparação manual de desenvolvimento, fora do setup dos projetos consumidores.
+O [protocolo do guardian](relatorios/2026-10-04-guardian-protocol.md) já tem prova sintética
+em Python: descoberta e diagnóstico compartilham o mesmo prazo, com consumo persistido antes
+de cada fase. Uma operação consumida não deve ser reaberta apagando seus marcadores.
+Não há novo comando de produção nesta etapa. No checkout de desenvolvimento do harness,
+verifique a lógica sem Docker ou modelo:
+
+```bash
+python -B -m unittest discover -s tests -p test_mission_guardian.py -v
+```
+
+No Windows, esse teste não comprova permissões ou sincronização de diretórios Linux.
+O relatório descreve a prova separada na microVM e os controles ainda pendentes.
+Para inspecionar uma sandbox existente sem iniciá-la, acrescente `--sandbox NOME`:
+
+```bash
+python3 -B scripts/missions.py client environment --executable /caminho/absoluto/sbx --sandbox NOME --json
+```
+
+A versão observada usa `ls/inspect/ls` para conferir UUID, nome, imagem e executável.
+`mcp_isolation_unverified` significa que ainda falta provar a inacessibilidade do gateway
+pelo cliente, inclusive com rede de fornecedor permitida. Nenhum perfil é liberado por
+esse comando. A [prova do launcher](relatorios/2026-10-04-launcher-boundary.md) registra
+três cenários dentro da VM e duas provas de queda no Windows: coordenador e transporte
+`sbx`. O [build nativo](relatorios/2026-10-04-native-kit-build.md) produziu e importou a
+imagem sem depender do builder gerenciado que falhou. O resolvedor ainda exige um registry
+HTTPS confiável para criar a sandbox; importar o arquivo não basta, mesmo com `--pull never`.
+O ensaio com `--pull missing` [criou a sandbox pelo digest esperado](relatorios/2026-10-04-native-package-proof.md),
+com 2 CPUs/4 GiB e sem montagem do projeto. O certificado temporário foi retirado e o
+inventário original restaurado; origem e portas também voltaram ao estado anterior.
+Arquivos protegidos, recusa sem coordenador e três casos do launcher foram comprovados
+nessa VM. O [reinício durante trabalho sintético](relatorios/2026-10-04-shutdown-reserve.md)
+terminou 3,8935 ms após o limite e permanece reprovado. A candidata reserva um segundo do
+prazo para encerramento; recusa criação, início e despacho quando resta apenas essa janela.
+O prazo original e o teto de 120 segundos permanecem. Nove cenários sintéticos passaram;
+um novo reinício com a candidata terminou 993,6312 ms antes do limite e recusou outro início.
+O [ensaio de rede](relatorios/2026-10-04-network-boundary.md) encontrou uma rota MCP pelo
+proxy do Docker. A alternativa com saída direta restrita ao IP público do provedor passou
+nos casos testados para OpenAI e Anthropic, incluindo processos filhos. Isso comprova
+transporte TLS, sem autenticação ou chamada de modelo. A [integração no launcher](relatorios/2026-10-04-network-launcher.md)
+passou em oito cenários nativos e nos dois ensaios de provedor. O reinício ativo v2
+foi executado e a verificação de prazo falhou. A reconciliação encontrou desligamento
+da VM antes do limite e novo boot durante a consulta. A nova prova deve registrar
+`ls`/`inspect` com identidade, imagem e horário antes de qualquer `exec`, que pode
+iniciar uma VM parada. Um `FinishedAt` recuperado com saída 255 não comprova sozinho
+quando a tarefa terminou. O recibo anterior permanece reprovado. O novo ensaio
+observou a VM parada 3,756s antes do deadline, conferiu PID0 e recusou repetição após
+a retomada. Ambos estão consumidos; não repita nem apague seus recibos. Rotas restantes,
+pacote e suspensão continuam pendentes.
+O perfil continua bloqueado; não substitua esse gate por uma liberação manual de rede.
+Recibos consumidos não devem ser apagados nem reexecutados. As duas provas de
+reinício estão preservadas; a candidata usa código separado do pacote anterior.
+As exceções de confiança usadas no diagnóstico ficam fora do setup consumidor. A receita em `runtime/sbx/`
+continua restrita ao desenvolvimento do harness; não está no setup dos projetos consumidores.
+No Windows avaliado, iniciar o serviço pelo PowerShell normal permitiu criar as VMs após
+falhas nos sockets quando o serviço partia pelo terminal do agente. Essa comparação não
+prova recuperação automática. Não repita login, instalação ou reinício do Windows para
+resolver `runtime_profile_unverified`: consulte as pendências do relatório.
+Ao migrar, o setup preserva um `mission_sandbox.py` existente, inclusive com `--force`.
+Se aparecer `incompatible_helper`, compare os helpers preservados com a versão do harness
+e mescle as alterações antes de repetir o diagnóstico.
+A CLI verifica o contrato de observação do helper de sandbox antes de consultar o host,
+inclusive quando o helper anterior ainda fornece uma função de diagnóstico utilizável.
+
+From the project root, pass the absolute path to the installed `sbx` executable.
+On Windows, use `python` and the path to `sbx.exe`, quoted if it contains spaces.
+The command reads the executable version and hash and checks system prerequisites.
+It does not install components, change settings, create a VM, sign in or call models.
+The result lists pending checks in `gaps` and exits with code 1 while any remain.
+`runtime_missing` means the binary is absent; `whp_disabled` means the Windows feature
+is disabled; `whp_unknown` means its state could not be confirmed.
+If enabling the feature returns `RestartNeeded: True`, save your work and restart
+Windows before the real proof, even when `whp_state` already reports 1.
+That field confirms feature configuration, not a working VM.
+Every environment currently reports `runtime_profile_unverified`: discovering a version
+and prerequisites does not prove isolation or enforcement of the execution deadline.
+Completing `sbx login` does not clear that gap either. The [synthetic supervisor probe](relatorios/2026-10-04-supervisor-spike.md#english-overview)
+used a mountless microVM and a nested container with a five-second deadline.
+It confirmed some controls; it does not enable `client check` with real models.
+This was manual development preparation, separate from consumer-project setup.
+The [guardian protocol](relatorios/2026-10-04-guardian-protocol.md#english-overview) now has a
+synthetic Python proof: discovery and diagnostics share one deadline, with consumption persisted
+before each phase. Do not reopen a consumed operation by deleting its markers.
+There is no new production command at this stage. Run the unit-test command above from the
+harness development checkout, without Docker or model calls. On Windows, it does not prove Linux permissions
+or directory synchronization; the report records the separate microVM proof and remaining checks.
+Add `--sandbox NAME`, as shown above, to inspect an existing sandbox without starting it.
+The observed runtime uses `ls/inspect/ls` to check UUID, name, image and executable.
+`mcp_isolation_unverified` means client access to the gateway still needs to be ruled out,
+including with provider networking enabled. This command never enables a profile.
+The [launcher proof](relatorios/2026-10-04-launcher-boundary.md#english-overview) records three
+in-VM scenarios and two Windows crash cases: coordinator and `sbx` transport loss.
+The [native build](relatorios/2026-10-04-native-kit-build.md#english-overview) produced and imported
+the image without the failing managed builder. Sandbox creation still requires a trusted HTTPS
+registry; loading the archive is insufficient, even with `--pull never`. Using `--pull missing`
+[created the sandbox from the expected digest](relatorios/2026-10-04-native-package-proof.md#english-overview),
+with 2 CPUs/4 GiB and no project mount. Certificate inventory, source settings and ports were
+restored. Protected files, refusal without the coordinator and three launcher cases passed
+in that VM. The [active restart test](relatorios/2026-10-04-shutdown-reserve.md#english-overview)
+recorded termination 3.8935 ms past the deadline and remains failed. The candidate reserves
+one second within that deadline for shutdown and refuses creation, start or dispatch when
+only this window remains. The original deadline and 120-second ceiling stay unchanged.
+Nine synthetic scenarios passed. During a new restart, the candidate finished 993.6312 ms
+early and refused another start. The [network probe](relatorios/2026-10-04-network-boundary.md#english-overview)
+found an MCP route through Docker's proxy. Restricted direct egress passed the tested
+OpenAI and Anthropic cases, including child processes. This proves TLS transport without
+authentication or model calls. The [launcher integration](relatorios/2026-10-04-network-launcher.md#english-overview)
+passed eight native cases and both provider probes. Its active restart failed the
+deadline check. Host logs show shutdown before the limit and another boot during
+inspection. The replacement proof must capture `ls`/`inspect`, identity, image and
+time before any `exec`, which may start a stopped VM. Recovered exit 255 and
+`FinishedAt` alone cannot establish the task termination time. Preserve the failed
+receipt. The replacement observed the VM stopped 3.756s before the deadline, verified
+PID0 and refused replay after boot. Both scripts are consumed; do not replay or erase
+their receipts. Remaining routes, package rebuilding and suspension still need proof. The profile stays blocked; do not replace
+this gate with a manual network allowance. Keep all consumed receipts; the candidate uses
+code separate from the earlier package. Global trust changes are outside consumer setup.
+The recipe under `runtime/sbx/`
+remains limited to harness development and is not installed in consumer projects.
+On the tested Windows host, starting the daemon from ordinary PowerShell allowed VM
+creation after socket failures when the daemon was launched by the agent terminal.
+That comparison does not prove automatic recovery. Do not repeat sign-in, installation
+or a Windows reboot to resolve `runtime_profile_unverified`; consult the report's remaining checks.
+During migration, setup preserves an existing `mission_sandbox.py`, including with `--force`.
+If `incompatible_helper` appears, compare preserved helpers with the harness version
+and merge the changes before repeating the diagnostic.
+The CLI checks the sandbox helper's observation contract before querying the host,
+including when the older helper still exports a working diagnostic function.
+
+### Rede do launcher em desenvolvimento / Development launcher networking
+
+O manifesto v1 usa `network none`. No v2, `network` contém um único `host` e `ipv4`
+público fixados por operação. O controlador confiável prepara e inicia o contêiner,
+executa `launcher.py network OPERATION_ID NONCE initialize` e só então envia a mensagem
+`initialize`. Antes de enviar `dispatch`, executa o mesmo comando com a fase `dispatch`.
+Esse segundo passo confere as regras existentes; não as repara.
+
+Ambos os comandos exigem root na VM e gravam um claim antes do efeito. O guardian
+recusa iniciar o cliente sem recibo privado correspondente à identidade, fase e namespace.
+Uma tentativa interrompida fica consumida: preserve os registros para reconciliação.
+Esses comandos pertencem ao teste do runtime, sem liberação de perfil ou instalação
+no projeto consumidor. Não reutilize IPs de relatórios como configuração permanente.
+
+No checkout do harness, `python3 -m unittest discover -s tests -p 'test_mission_launcher.py' -v`
+verifica o contrato sem Docker ou chamadas de modelo. `tests/smoke_mission_network.py`
+exige Linux, root, imagem e launcher previamente preparados numa VM própria; seus oito
+casos não alteram a política `sbx` nem chamam provedores. A medição registra as provas
+externas separadamente. Testes unitários no Windows não certificam permissões Linux.
+
+A [prova com sentinelas Windows](relatorios/2026-10-05-gateway-endpoints.md) cobriu os
+endereços observados do gateway/host com os provedores acessíveis. Foram 124 tentativas
+TCP sem conexão e zero acessos às sentinelas; as portas temporárias foram fechadas e
+as políticas restauradas. Falha de DNS e erro genérico IPv6 não certificam filtragem.
+Esses recibos estão consumidos. A [investigação seguinte](relatorios/2026-10-05-proxy-resolution.md)
+mediu DNS direto e proteção dos arquivos de resolução, mas não comprovou o destino final.
+O caminho atual também não usa a injeção de credenciais do proxy explícito. Autenticação
+e bloqueio de MCP precisam ser resolvidos juntos; perfis continuam bloqueados. A [prova conjunta](relatorios/2026-10-05-auth-egress-spike.md)
+passou somente em simulação, com credenciais falsas e destinos locais. Na [prova com o proxy real](relatorios/2026-10-05-native-proxy-compatibility.md),
+a substituição funcionou por domínio; o caminho por IP foi recusado em dois serviços de eco.
+O candidato ainda não pode ser integrado. A [prova A/B/A](relatorios/2026-10-05-hostname-cidr-proof.md)
+recebeu HTTP 200 com credencial fictícia nas três etapas, inclusive com negação de
+todos os IPs. O Docker documenta essa separação entre domínio e CIDR. Regras CIDR
+não suprem o controle do endereço resolvido nesse caminho. O [desenho do modo exclusivo](superpowers/specs/2026-10-05-exclusive-egress-decision.md)
+documenta ativação e retorno para uma instalação do Docker Sandboxes reservada ao
+YoungCrow; quem precisar compartilhá-la usaria um runner dedicado. O modo local foi
+aprovado, assim como o [plano da prova](superpowers/plans/2026-10-05-exclusive-egress-proof.md).
+O [ensaio nativo](relatorios/2026-10-05-exclusive-egress-proof.md) parou na ativação, antes de
+GETs ou partidas de VM: a origem real do setting é `override`, enquanto o código esperava `user`.
+A suíte passou em 60 testes. A recuperação foi concluída após um reinício pelo mantenedor
+e uma conferência final somente leitura: configurações restauradas, cinco VMs paradas,
+guard ausente e permissões preservadas. Dois IDs de uma regra automática do kit mudaram
+no reinício; essa diferença está registrada. Não há outro comando de recuperação pendente.
+`run-exclusive-egress-proof.ps1 -Reconcile` recupera somente a operação existente, sem GET;
+seu sucesso não aprova a prova de rede. O recibo permanece consumido. Uma nova prova precisa
+de operação e autorização próprias; não há comando de ativação no produto. OAuth, DNS final
+e isolamento seguem pendentes.
+O operador executou v2; houve `TimeoutExpired` antes da criação do recibo e das alterações
+no Docker. A consulta exata que excedeu o prazo não ficou registrada. A conferência posterior
+encontrou o mesmo daemon, cinco VMs paradas e configurações, políticas e credenciais preservadas.
+Não há recibo v2 para `-Reconcile` recuperar. O roteiro `run-exclusive-egress-v2.ps1` e sua
+entrada Python estão bloqueados pelo encerramento do ciclo; nenhum modo inicia uma nova prova.
+Não execute outro comando desse ensaio. O resultado de rede permanece inconclusivo.
+Não repita os scripts consumidos nem use a fixture como executor.
+
+A [prova observada](relatorios/2026-10-06-observed-egress-proof.md) foi executada e parou
+antes das GETs em `settings_readback_failed`. O roteiro exigia `override` ao gravar o
+valor padrão de `no_proxy.sandbox`; o Docker remove o override nesse caso. A correção
+passou em 75 testes locais. Configurações, regras, inventário de credenciais e porta
+temporária foram conferidos após a restauração. Não há limpeza pendente: não repita
+`-RunApprovedProbe` nem execute `-Reconcile` para essa saída. Os recibos e a fonte executada
+foram preservados. Os hashes do roteiro consumido não foram atualizados; uma operação
+futura precisa de escopo e autorização próprios. A prova de rede permanece pendente.
+
+A [continuação corrigida](relatorios/2026-10-06-corrected-egress-proof.md) foi executada.
+A passou com HTTP 200 e credencial fictícia correspondente. B recebeu `RemoteDisconnected`,
+sem evidência suficiente da recusa do upstream; A2 não foi executada. Limpeza confirmada
+por leitura independente. Preserve `corrected-egress-proof/`; não repita o roteiro nem use
+`-Reconcile` para essa saída. Não há limpeza pendente. A análise posterior encontrou a recusa na porta do guard no
+log do daemon, com sandbox e horário correspondentes. O coletor não reconheceu essa
+evidência; A2 continua não executada. Um [coletor separado](relatorios/2026-10-06-captured-egress-evidence.md)
+passou em onze testes offline, com snapshots completos e a mensagem real do daemon.
+A [ligação com o controlador](relatorios/2026-10-06-integrated-egress-controller.md) foi
+validada offline: o fluxo grava B, condiciona A2 ao aceite e recupera sem repetir trabalho.
+A entrada da nova prova está preparada, com hashes conferidos e 113 testes locais
+aprovados. O resultado nativo continua pendente. Não execute os roteiros consumidos.
+[Panorama consolidado](relatorios/2026-10-06-panorama-executor.md).
+
+#### Entrada do ensaio integrado: somente mantenedor
+
+A tentativa `integrated-egress-proof/` está consumida. As cinco consultas iniciais
+passaram, mas `unsupported_permissions` interrompeu a execução antes de criar
+`control.json` ou alterar o Docker. A pasta tinha o usuário como proprietário;
+os três arquivos criados pela sessão remota tinham o grupo Administradores.
+A validação exige o usuário também nos arquivos. Não repita o roteiro, não altere
+as permissões dos recibos e não execute `-Reconcile`: não há restauração do Docker
+pendente para essa tentativa.
+
+O contexto pelo terminal remoto foi conferido com o comando abaixo. Não é necessário repeti-lo:
+
+```cmd
+C:\Python314\python.exe -I -B "C:\Users\rmfon\YoungCrowHarness-review-20261001\.superpowers\sdd\2026-10-04-isolated-executor\check_mobile_owner.py" --check
+```
+
+Esse diagnóstico privado reutiliza `tests/windows_fixture_runner.py`. O auxiliar
+ajusta o proprietário padrão do processo para o usuário atual e restaura esse valor
+no `finally`. Cria um arquivo temporário, exige as mesmas validações de permissão e
+remove o arquivo e sua pasta vazia. Os hashes dos auxiliares e dos três registros
+anteriores são conferidos antes e depois. Não há comando Docker, requisição externa,
+reinício ou chamada de IA; as ACLs existentes e a política do Windows são preservadas.
+
+O operador confirmou `owner_context_verified` com `adjusted: true` na sessão do
+celular. A verificação local também passou, com `adjusted: false`. Esse resultado
+comprova a criação de arquivos privados nesse contexto; a prova de rede continua pendente.
+
+A entrada `run-mobile-egress-proof.ps1` passou pela verificação de proprietário, mas a
+tentativa `mobile-egress-proof/` foi consumida por `JSONDecodeError` na primeira consulta
+`sbx daemon status --json`. O comando retornou zero; o registro não guardou sua resposta.
+Não existem `control.json` ou `receipt.json`; a falha ocorreu antes de alterar o Docker.
+Não repita essa entrada nem execute `-Reconcile`: não há limpeza pendente nessa tentativa.
+
+O diagnóstico concluído consultou somente esse status, uma vez, com prazo de 15 segundos.
+Reutiliza o contexto de proprietário, salva stdout/stderr originais em uma pasta privada
+e registra o resultado da interpretação. Não inicia a prova A/B/A2, não faz GETs nem
+reinicia o serviço. A consulta passou localmente com e sem o auxiliar. O operador também
+confirmou a captura no terminal remoto: 180 bytes, JSON válido, daemon em execução e
+stderr vazio. Os bytes são idênticos aos locais. Comando já executado, sem necessidade de repetir:
+
+```cmd
+C:\Python314\python.exe -I -B "C:\Users\rmfon\YoungCrowHarness-review-20261001\.superpowers\sdd\2026-10-04-isolated-executor\check_mobile_status.py" --check
+```
+
+O JSON final informa `evidence_dir`, onde ficam `status.stdout`, `status.stderr` e
+`status-observation.json`. São registros privados de diagnóstico; preserve a saída.
+O auxiliar de proprietário mantém suas verificações de ACL com timeout de 120 segundos.
+A etapa inicial original, com seu registrador de comandos, passou depois nas cinco
+consultas somente leitura executadas daqui. Todas as sandboxes estavam paradas.
+A falha anterior não foi reproduzida; sua resposta original não pode ser recuperada
+desses recibos. A nova entrada `captured_mobile_egress.py` integra a captura ao ensaio:
+guarda stdout/stderr do comando exato de status antes de devolvê-los ao interpretador.
+Cada resposta fica vinculada ao identificador do comando em `status-responses/`.
+Os arquivos ficam privados. Comandos de credenciais e outros comandos continuam sem
+argumentos ou conteúdo das respostas no registro. JSON inválido e timeout continuam
+recusados, sem repetição automática. Respostas maiores que 64 KiB por fluxo deixam
+prefixo e hash registrados e interrompem a execução.
+
+A preparação passou em 129 testes, incluindo nove novos. A revisão daquela entrada
+não encontrou defeitos acionáveis, mas não cobriu a divergência de identificador no
+controlador. **A operação `captured-mobile-egress-proof/` já foi consumida. Não repita
+o roteiro.** Suas 24 consultas terminaram antes de qualquer GET, reinício ou alteração
+no Docker. Quatro respostas de status foram guardadas e interpretadas corretamente.
+O resultado `policy_baseline_changed` veio da comparação literal de um identificador
+recriado pela limpeza anterior; as permissões da regra continuavam iguais.
+`cleanup.restored=true`, sem erros: não há recuperação por `-Reconcile` pendente.
+
+A correção está ligada à captura e ao controlador por `policy_egress_entry.py`, uma
+entrada usada por importação nos testes, com execução direta bloqueada. A sequência
+inicial completa passou por status, sete configurações, identidade da VM, políticas e
+inventário fictício de credenciais até a primeira ação com efeito externo. As respostas
+externas foram simuladas; nenhum comando Docker foi executado. Passaram 12 testes dessa
+entrada e 83 do controlador, comparação e fases seguintes. A entrada nativa abaixo
+liga essa integração ao adaptador Windows. O aceite real A/B/A2 continua pendente.
+O [relatório](relatorios/2026-10-06-integrated-egress-controller.md#comparação-da-política-falha-do-controlador)
+separa a causa confirmada do aceite A/B/A2 que continua pendente.
+
+**Entrada consumida em 06/10, às 21h50:** `run-policy-egress-proof.ps1`
+chegou ao inventário de credenciais e parou porque `sbx secret ls --json` retornou 1.
+A operação `policy-mobile-egress-proof/` registrou 25 consultas e nenhuma alteração,
+GET externo, reinício ou chamada de IA. Proprietário, configurações e comparação de
+políticas passaram. `cleanup.restored=true`, sem erros: não há limpeza pendente.
+Preserve os arquivos; não execute novamente nem use `-Reconcile` nessa operação.
+
+A consulta isolada passou duas vezes no terminal local, uma delas pelo mesmo auxiliar
+Windows e diretório temporário privado. Isso não reproduz a sessão remota: o auxiliar
+registrou `adjusted=False` aqui e `adjusted=True` no celular. O roteiro não guardou
+o stderr da consulta de credenciais; os registros existentes não explicam a causa.
+O próximo diagnóstico deve capturar somente o erro dessa consulta no contexto
+remoto, sem rodar A/B/A2 ou alterar o Docker. Não há novo comando de ensaio preparado.
+
+Os 102 testes anteriores continuam como evidência da preparação com respostas
+simuladas. O aceite nativo e a habilitação do executor permanecem pendentes.
+[Diagnóstico](relatorios/2026-10-06-integrated-egress-controller.md#consulta-de-credenciais-falhou-na-sessão-remota) ·
+[Medição atualizada](medicoes/native-policy-egress-entry.json).
+
+Os limites da operação consumida eram: até três GETs para `postman-echo.com`, com
+credencial fictícia, e até dois reinícios do serviço Docker Sandboxes, com VMs paradas.
+O preflight faz até cinco consultas de 15 segundos. Preparação e limpeza têm 180
+segundos cada; o ensaio tem 120 segundos, com até 10 por GET. Antes disso, o auxiliar
+verifica o contexto Windows; suas verificações de ACL têm timeout próprio de 120 segundos.
+Não há chamada de IA, certificado novo ou reinício do Windows.
+
+Só `viable_within_probe` aceita um ensaio nativo; esse aceite não libera o executor do
+produto. Esta operação não recebeu esse aceite e já confirmou sua restauração.
+Preserve a saída e a pasta; não repita o roteiro nem use `-Reconcile` neste caso.
+O auxiliar restaura o proprietário padrão do processo ao sair; a pasta privada de
+arquivos temporários permanece como artefato local. O roteiro não integra o setup distribuído.
+
+Manifest v1 uses `network none`. Version 2 binds one public IPv4 and hostname to the
+operation. After preparing and starting the container, the trusted controller runs
+`launcher.py network OPERATION_ID NONCE initialize` before sending `initialize`.
+It runs the same command with phase `dispatch` before dispatching; that phase verifies
+existing rules without repairing them. Both root-only commands consume a durable claim
+before effects, and the guardian requires the matching private receipt. Interrupted
+attempts stay consumed. These are development commands, with no profile activation
+or consumer installation. Never reuse report IPs as permanent configuration.
+
+The unit command above runs without Docker or models. The native smoke requires a
+prepared owned Linux VM and image; it neither changes `sbx` policy nor calls providers.
+The [report](relatorios/2026-10-04-network-launcher.md#english-overview) distinguishes
+unit tests, native cases, external transport checks and remaining proof.
+
+The [Windows sentinel proof](relatorios/2026-10-05-gateway-endpoints.md#english-overview)
+covered observed gateway/host addresses while provider TLS remained reachable:
+124 TCP attempts did not connect and no unexpected connection reached a sentinel.
+Temporary listeners closed and policies were restored. DNS failure and generic IPv6
+errors do not prove filtering. These receipts are consumed. The [next investigation](relatorios/2026-10-05-proxy-resolution.md#english-overview)
+tested direct DNS and resolver-file protection but did not establish the final destination.
+The current path also lacks forward-proxy credential injection. Authentication and MCP
+isolation need a joint solution; native profiles remain blocked. The [joint probe](relatorios/2026-10-05-auth-egress-spike.md#english-overview)
+passed only in simulation with fake credentials and local destinations. In the [real-proxy probe](relatorios/2026-10-05-native-proxy-compatibility.md#english-overview),
+substitution worked through hostname CONNECT, while the IP path was rejected on two echo
+services. The candidate is not ready for integration. The [A/B/A probe](relatorios/2026-10-05-hostname-cidr-proof.md#english-overview)
+returned HTTP 200 with the dummy credential in all three phases, including under
+universal IP denial. Docker documents this separation between hostname and CIDR.
+CIDR rules do not enforce the resolved address on this path. The [exclusive-mode design](superpowers/specs/2026-10-05-exclusive-egress-decision.md#english-overview)
+describes activation and teardown for a Docker Sandboxes installation reserved for
+YoungCrow; shared local use would require a dedicated runner. Exclusive local scope
+and the [proof plan](superpowers/plans/2026-10-05-exclusive-egress-proof.md) are approved.
+The [native attempt](relatorios/2026-10-05-exclusive-egress-proof.md#english-overview) stopped during
+activation, before GETs or VM starts: Docker reports `override`, while the code expected `user`.
+The suite passed 60 tests. Recovery completed after one maintainer-initiated restart and
+final read-only verification: settings restored, five VMs stopped, guard absent and permissions
+preserved. Two IDs in an automatic kit rule changed during restart; that difference is recorded.
+No recovery command remains pending. `run-exclusive-egress-proof.ps1 -Reconcile` only recovers
+the existing operation, without a GET; its success does not approve the network proof. The receipt
+remains consumed. A new proof needs its own operation and authorization; no product activation
+command is available. OAuth, final DNS and isolation remain unverified. Do not repeat consumed
+scripts or use the fixture as an executor.
+The operator ran v2; `TimeoutExpired` occurred before receipt creation or Docker changes.
+The exact timed-out query was not recorded. Follow-up observation found the same daemon,
+five stopped VMs and unchanged settings, policies and credentials. No v2 receipt needs
+`-Reconcile`. Both `run-exclusive-egress-v2.ps1` and its Python entry point are blocked by
+cycle closure; no mode starts another proof. No further command is required. Network results
+remain inconclusive; the closed probe must not be replayed.
+
+The [observed proof](relatorios/2026-10-06-observed-egress-proof.md#english-overview) ran
+and stopped before any GET with `settings_readback_failed`. The script expected an
+override when assigning the default `no_proxy.sandbox` value; Docker removes the override.
+The correction passed 75 local tests. Settings, rules, credential inventory and the
+temporary port were checked after restoration. No cleanup remains: do not repeat
+`-RunApprovedProbe` or run `-Reconcile` for this result. Receipts and executed source were
+preserved; the consumed wrapper was not repinned. A future operation needs its own scope
+and authorization. Network enforcement remains unverified.
+
+The [corrected continuation](relatorios/2026-10-06-corrected-egress-proof.md#english-overview)
+ran once. A passed with HTTP 200 and the matching dummy credential. B received
+RemoteDisconnected without enough evidence of upstream refusal; A2 did not run. Cleanup
+was independently verified. Preserve `corrected-egress-proof/`; do not repeat the script
+or run `-Reconcile` for this result. No cleanup remains. Later daemon-log analysis attributed the disconnect to guard-port
+refusal in the same sandbox and time window. A2 did not run. A [separate collector](relatorios/2026-10-06-captured-egress-evidence.md#english-overview)
+passed eleven offline tests with full snapshots and the real daemon event.
+[Controller integration](relatorios/2026-10-06-integrated-egress-controller.md#english-overview)
+was validated offline, including persistent B evidence, conditional A2 and recovery without
+replay. Its 113 local tests passed, but the native attempt stopped after five metadata
+queries because its files were owned by Administrators rather than the current user.
+No control record, GET, Docker restart or settings change occurred. Preserve the consumed
+attempt; no Docker reconciliation is needed. The earlier `check_mobile_owner.py` diagnostic
+checked current-user file creation through the existing process-owner fixture adapter,
+without Docker or network calls. It retained permission checks and restored the process
+token's default owner on exit. Local verification passed with `adjusted: false`; the operator
+confirmed `adjusted: true` in the remote session. The separate native entry reused this
+adapter, verifies a private file before reservation and keeps existing controller and
+cleanup behavior. It records a new single-use `mobile-egress-proof/` operation. Bounds:
+three dummy GETs, two service restarts with stopped VMs, five initial queries of 15 seconds,
+180 seconds each for preparation and cleanup, and 120 seconds for the probe with 10 per
+GET. The preceding owner adapter retains its own 120-second ACL helper timeouts.
+Preserve output and receipts; reconcile only pending cleanup. Native acceptance remains
+pending and product profiles stay disabled. The subsequent mobile attempt passed the
+owner check but failed while parsing the first daemon-status reply, despite exit code
+zero. The raw reply was not retained. No control record, Docker changes or cleanup
+occurred. Do not repeat that attempt or reconcile it. The current command above captures
+one read-only status reply, with a 15-second timeout, under the owner adapter. Both local
+status queries passed. The remote capture then passed too: 180 bytes, valid JSON,
+running daemon and empty stderr, matching the local output byte for byte. All five
+original preflight queries also passed locally through the command recorder, with
+every sandbox stopped. No replay of the diagnostic is needed. The historical failure
+remains unexplained. The separate captured entry now retains exact daemon-status replies
+before parsing, correlated by command ID under private `status-responses/`. Other command
+payloads remain unrecorded. Timeout and JSON failures still refuse; there are no automatic
+retries. A 64 KiB limit per stream preserves a prefix/hash and refuses oversized replies.
+The preparation suite passed 129 tests, including nine new cases. That entry's review
+did not cover the controller's rule-ID mismatch. The operation has now been consumed:
+24 queries, four valid captured status replies, no GET, restart or Docker changes.
+It stopped on `policy_baseline_changed` because earlier cleanup regenerated a rule ID
+without changing its permissions. Cleanup is verified; no replay or reconciliation
+is needed. The correction is now connected to capture and recovery through an import-only
+entry; its direct CLI remains disabled. Twelve tests exercise the full initial sequence
+through seven settings, VM identity, policies and a synthetic credential inventory,
+stopping at the first external-effect boundary. Another 83 controller/comparison/phase
+tests passed. External replies were simulated; no Docker command was executed. The new
+`run-policy-egress-proof.ps1` entry now connects this integration to the Windows owner
+adapter and the separate `policy-mobile-egress-proof/` operation. It pins Python, sources
+and prior receipts; SHA-256 uses .NET rather than requiring `Get-FileHash`. The actual
+owner adapter reached the full initial sequence in tests with simulated Docker replies.
+The operator has now consumed this entry. It stopped when `sbx secret ls --json`
+exited 1 after ownership, settings and policy checks passed. All 25 commands were
+read-only, with no external GET, restart or Docker mutation. Cleanup is verified;
+do not replay or reconcile this operation. Two local queries passed, one through
+the existing owner helper, but the local owner required no adjustment whereas the
+remote owner did. The controller did not retain the failed query's stderr, so its
+cause remains unknown. The next diagnostic must obtain only that query's error in
+the remote context before another full probe is prepared. No new probe command is available.
+Native A/B/A2 acceptance is still pending.
+[Consolidated overview](relatorios/2026-10-06-panorama-executor.md#english-overview).
+
+### Destinos de execução previstos / Planned execution locations
+
+O [escopo aprovado](superpowers/specs/2026-10-05-local-and-dedicated-execution.md) mantém
+duas opções: execução local como padrão para quem abre o projeto no VS Code e runner
+dedicado opcional, em outra máquina ou servidor. A mesma esteira deve atender Claude Code
+e Codex em ambos. O setup aceita `--execution-location local|dedicated`; omitir a flag
+preserva uma escolha anterior e usa local apenas quando não há registro.
+O [desenho aprovado](superpowers/specs/2026-10-05-execution-setup-design.md) usa o VS Code
+Remote SSH para abrir o projeto do runner e executar o harness naquele host. O
+[plano](superpowers/plans/2026-10-05-execution-setup.md) foi implementado nesta branch.
+As oito combinações de adoção/restauração passaram; consulte o
+[relatório e os limites da prova](relatorios/2026-10-05-execution-setup.md). O
+[guia instalado PT/EN](../skills/personalizer/references/execution.md) cobre projeto novo,
+migração, troca autorizada por digest e diagnóstico com limites por etapa.
+
+O destino local depende da disponibilidade da máquina do desenvolvedor. O runner exige
+ambiente e autenticação próprios; a transferência prevista em YC-208/209 conserva um
+único responsável e exclui credenciais. Dev Container será uma opção de padronização de
+dependências, sem substituir as provas de isolamento. Nenhum perfil autônomo foi liberado.
+
+The [approved scope](superpowers/specs/2026-10-05-local-and-dedicated-execution.md#english-overview)
+retains two locations: local execution by default for VS Code users, and an optional
+dedicated machine or server. The same pipeline must support Claude Code and Codex in both.
+Setup accepts `--execution-location local|dedicated`. Omitting it preserves an existing
+choice and defaults to local only when no record exists.
+The [approved design](superpowers/specs/2026-10-05-execution-setup-design.md#english-overview)
+uses VS Code Remote SSH to open the runner's workspace and run the harness on that host.
+The [plan](superpowers/plans/2026-10-05-execution-setup.md) is implemented on this branch.
+All eight adoption/restore combinations passed; see the
+[evidence and limitations](relatorios/2026-10-05-execution-setup.md#english-overview). The
+[installed guide](../skills/personalizer/references/execution.md#english) covers new/existing
+projects, authorized digest-based changes and bounded phase diagnostics.
+
+Local execution requires the developer's machine to remain available. A runner needs its
+own environment and authentication. Planned YC-208/209 transfer preserves a single owner
+and excludes credentials. An optional Dev Container can standardize dependencies without
+replacing isolation evidence. No autonomous execution profile has been enabled.
 
 ### Interrupção e recuperação / Interruption and recovery
+
+Consulte primeiro a seleção e o diagnóstico / Read selection and diagnostics first:
+
+```bash
+python3 -B scripts/missions.py environment show --json
+python3 -B scripts/missions.py environment configure --location dedicated --expected-digest DIGEST --json
+python3 -B scripts/missions.py client environment --executable /path/to/sbx --json
+```
+
+Use o digest de `show`; `none` vale só para arquivo ausente. Consulta não cria arquivo,
+banco ou nota. Mudança de preferência não transfere missões. Um lock ocupado exige nova
+consulta, sem apagar estado. Use the current digest; `none` applies only to an absent
+record. Read-only queries create no state. Selection changes do not transfer missions.
+
+Exemplo abreviado de fixture sintética / Abbreviated synthetic fixture example:
+
+```json
+{"id":"virtualization","started_at":"2026-10-05T00:00:00+00:00","ended_at":"2026-10-05T00:00:30+00:00","elapsed_seconds":30.01,"timeout_seconds":30,"output_limit_bytes":8388608,"state":"timeout","reason":"timeout"}
+```
+
+A consulta de versão ainda pode passar; `runtime_profile_unverified` mantém o bloqueio.
+Essa saída não comprova falha de rede nem execução em runner real. As fases não incluem
+stdout, ambiente ou credenciais. Helpers preservados incompatíveis exigem comparação e
+mesclagem. Um trial com restaurador antigo incompatível deve ser encerrado pelo runner
+original antes de uma nova adoção, sem substituir seus arquivos.
+
+The independent version query can still pass; `runtime_profile_unverified` keeps execution
+blocked. This fixture proves neither network failure nor a real runner. Phases omit raw
+stdout, environment and credentials. Preserved incompatible helpers need comparison and
+merging. Exit an incompatible older trial using its original restore runner before adopting
+again; keep its files unchanged.
 
 `client runs` e `status` só leem. Não migram o banco, não corrigem notas nem iniciam processos.
 O primeiro diagnóstico autorizado migra o esquema 1 para 2 numa transação aditiva. Uma falha
@@ -1862,3 +2571,44 @@ failed or uncertain runs and projection conflicts; reconciliation to `interrupte
 Exit 2 means rejected input/combination. Always read the JSON. Profiles bind the client, OS, version
 and executable hash; a client update can require a new isolation proof. API, macOS and unverified
 architectures remain blocked. See the [delivery matrix](relatorios/2026-10-03-mission-runtime-adapters.md).
+
+<a id="tests-windows"></a>
+
+### Testes do harness no Windows / Harness tests on Windows
+
+No checkout de desenvolvimento, use o runner de testes para conferir proprietário e permissões
+das fixtures. Python, Git e Git Bash precisam estar instalados. Escolha um diretório curto,
+gravável e fora de qualquer repositório Git para `RUNNER_TEMP`; o runner cria uma subpasta privada
+exclusiva e imprime o caminho. Não use a raiz do projeto como pasta temporária.
+
+In the development checkout, use the test runner to verify fixture ownership and permissions.
+Install Python, Git and Git Bash. Set `RUNNER_TEMP` to a short writable directory outside Git;
+the runner creates a unique private child and prints its path. Do not use the project root.
+
+```powershell
+# Exemplo / Example: perfil curto, fora de Git / short profile path, outside Git.
+$previousTestTemp = $env:RUNNER_TEMP
+try {
+    $env:RUNNER_TEMP = $env:USERPROFILE
+    python -X utf8 -B tests/windows_fixture_runner.py -m unittest discover -s tests -v
+    if ($LASTEXITCODE -ne 0) { throw 'Harness tests failed' }
+} finally {
+    $env:RUNNER_TEMP = $previousTestTemp
+}
+```
+
+Se o perfil também tiver caminho longo, escolha outro diretório existente com permissão de escrita.
+No host avaliado, a reserva de trial projetava 256 unidades UTF-16 usando o TEMP padrão e 237
+com a raiz curta; a adoção exige menos de 248. O runner mantém a validação de ACL e o produto
+continua recusando caminhos excessivos antes da escrita. Nenhuma política global do Windows é alterada.
+
+A fixture MCP publica o PID depois de fechar sua gravação, sem substituir registro existente.
+Se houver publicação pendente, a limpeza fica incompleta. Esses testes são sintéticos e não
+chamam modelos. Resultados e limites: [relatório de QA](relatorios/2026-10-04-qa-fixtures.md).
+
+If the profile path is also long, choose another existing writable directory. On the evaluated
+host, the projected trial path measured 256 UTF-16 units under the default TEMP and 237 under
+the short root; adoption requires fewer than 248. ACL checks and path refusal before writes
+remain active. No global Windows policy changes. The synthetic MCP fixture publishes its PID
+after closing the write, without replacing an existing record. Pending publication means
+incomplete cleanup. These tests make no model calls. See the [QA evidence](relatorios/2026-10-04-qa-fixtures.md#english-overview).

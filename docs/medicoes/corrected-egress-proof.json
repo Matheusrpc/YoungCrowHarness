@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-06T03:46:18.012614+00:00",
+  "state": "native_inconclusive_negative_control_unproven_restored",
+  "native_operation_exists": true,
+  "tests": {
+    "total": 80,
+    "passed": 80,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0,
+    "new_entry_tests": 5
+  },
+  "entry_checks": [
+    {
+      "case": "powershell_default",
+      "exit_code": 1,
+      "refused_before_operation": true
+    },
+    {
+      "case": "powershell_conflicting_flags",
+      "exit_code": 1,
+      "refused_before_operation": true
+    },
+    {
+      "case": "python_default",
+      "exit_code": 1,
+      "refused_before_operation": true
+    }
+  ],
+  "read_only_preflight": {
+    "checked_at": "2026-10-06T03:24:50.678605+00:00",
+    "stopped_vms": 5,
+    "settings_observed": false
+  },
+  "native_model_calls": 0,
+  "native_restarts": 2,
+  "native_settings_mutations": 3,
+  "review": {
+    "independent": true,
+    "fresh_context": true,
+    "agent": "corrected_egress_review",
+    "findings": 0,
+    "native_behavior_judged": false
+  },
+  "product_profiles_enabled": false,
+  "production_published": false,
+  "previous_receipts_preserved": true,
+  "source_sha256": {
+    ".superpowers/sdd/2026-10-04-isolated-executor/exclusive_egress.py": "16fcc9bde6719b7b765b3a8805c045d8fac1362a2c2b3d706a9e4b3169f01af0",
+    ".superpowers/sdd/2026-10-04-isolated-executor/egress_guard.py": "7092626e4214f50848a64b95716d692b9b8b0d11dabf979a7fd098f0d5fcb777",
+    ".superpowers/sdd/2026-10-04-isolated-executor/guardian_vm.py": "a2e82785634c3dcfcdd0c83d147318478cbfd34b23b604907470c83328111f71",
+    ".superpowers/sdd/2026-10-04-isolated-executor/exclusive-egress-v2-closed.json": "87da06c23e8a0cfa8db2d36d80edccbab93f0615e75f1ecdf50ec67f612973e1",
+    ".superpowers/sdd/2026-10-04-isolated-executor/exclusive-egress-proof/recovery-complete.json": "77fb0fb16a6b6e149c2652af1a0ca73b7bdf7dba310a00ecf48dddb557c83453",
+    ".superpowers/sdd/2026-10-04-isolated-executor/observed_egress.py": "691fa96999f0d8b4baf7c0a0a8c4c14d2340f359db249d38d538effcf8fe586f",
+    ".superpowers/sdd/2026-10-04-isolated-executor/observed-egress-proof/restoration-verified.json": "f038bb7e717ffef2302081ed7cc15125910ae0ff91004b2618a7cec4d53f0ef4",
+    ".superpowers/sdd/2026-10-04-isolated-executor/observed-egress-proof/attempt.json": "37fe17bcb2d380ecee44ff1f015ca1f85d4fb768ed5767e2e5e7c8f05258f150",
+    ".superpowers/sdd/2026-10-04-isolated-executor/observed-egress-proof/control.json": "d2847626c2e03232cf3c5d43db7a9fd4bad1727cb350c3dd8c22a92ab03c19b0",
+    ".superpowers/sdd/2026-10-04-isolated-executor/observed-egress-proof/receipt.json": "cc07ac00447420eb375d2f95650d698cc86467d5b652e9e066d69f63b0e6e847",
+    ".superpowers/sdd/2026-10-04-isolated-executor/observed-egress-proof/commands.jsonl": "536700781cb3751827381111e79a5977b6c3d71e0823095d94381c04d5153a8e",
+    ".superpowers/sdd/2026-10-04-isolated-executor/corrected_egress.py": "14003ceb662f72cdc96ed94f319222743c7766703536d2e8619fa1388aa17ec8",
+    ".superpowers/sdd/2026-10-04-isolated-executor/test_corrected_egress.py": "2cf19b6bb6512a68a00bb75823ebb23266b54a4b3e54b55f4bf7143267f5283a",
+    ".superpowers/sdd/2026-10-04-isolated-executor/run-corrected-egress-proof.ps1": "b48bbe7916e9da15d4abae0ba045ac838c54629d578e5b521a0ece42644c9a3b",
+    ".superpowers/sdd/2026-10-04-isolated-executor/corrected-egress-green.log": "16cf8158c1f62fc4585d5becf4b32af3b67f97d31a03d66c8a8abae8342da9e3",
+    ".superpowers/sdd/2026-10-04-isolated-executor/corrected-egress-red.log": "b8cfcacb6bd2852192d768401f7e5de2b17d34cb307b1f48729227b1da8e86b2",
+    ".superpowers/sdd/2026-10-04-isolated-executor/corrected-egress-review.md": "f89ab80b820746f043183ffa772f06fedb3424a1a09deee3e68fff20129abda5",
+    ".superpowers/sdd/2026-10-04-isolated-executor/corrected-egress-preflight.json": "8ce48807ec4129f5c685f8016a688d88bf2889e570ef9da37d7546d03cf2034a",
+    ".superpowers/sdd/2026-10-04-isolated-executor/corrected-egress-entry-checks.json": "8ec3112480ef02d9d1b4fffc2ef838b0f4a654e7b1c859bcd4cd21503a5c43db",
+    ".superpowers/sdd/2026-10-04-isolated-executor/corrected-egress-vault-check.json": "4ed714c468171f8019928ac0dceafadee9a3788c1481760a03a83c7909698956"
+  },
+  "readme_visual_elements": 52,
+  "readme_visual_elements_unchanged": true,
+  "next_action": "Correct evidence capture in a separate candidate and validate offline; no new native operation",
+  "vault": {
+    "notes_checked": 351,
+    "issues": 0
+  },
+  "preparation_checked_at": "2026-10-06T03:29:02.168401+00:00",
+  "native_commands": 190,
+  "native_command_failures": 0,
+  "native_http_200_responses": 1,
+  "native_phases": [
+    {
+      "phase": "A",
+      "state": "passed_within_probe",
+      "tls_verified": true,
+      "http_status": 200,
+      "injected_dummy_digest_matches": true,
+      "peer_validated": true
+    },
+    {
+      "phase": "B",
+      "state": "inconclusive",
+      "guard_absent": true,
+      "error_type": "RemoteDisconnected",
+      "upstream_refused": false
+    },
+    {
+      "phase": "A2",
+      "state": "not_run"
+    }
+  ],
+  "restoration": {
+    "state": "restoration_verified_read_only",
+    "checked_at": "2026-10-06T03:34:25.096050+00:00",
+    "settings_restored": true,
+    "global_settings_preserved": true,
+    "policy_semantically_preserved": true,
+    "credential_inventory_preserved": true,
+    "stopped_vms": 5,
+    "guard_listener_absent": true,
+    "daemon_matches_cleanup": true,
+    "phase_a_positive": true,
+    "phase_b_upstream_refused": false,
+    "phase_b_error": "RemoteDisconnected",
+    "phase_a2_executed": false,
+    "new_echo_requests": 0,
+    "new_model_calls": 0,
+    "new_restarts": 0,
+    "new_settings_mutations": 0,
+    "receipt_sha256": {
+      "attempt.json": "9a1b0b147044fa1abb122603287a67a99986d97c69c4a21455256b717378d1e4",
+      "control.json": "c6c016ed0a1e5c02e7bb5cadbfe0ecb2a41e470e256f3c7e9f18cbcb3680b159",
+      "receipt.json": "9e586cd2560282ab5610e38ad0f89c779eef9c395e90b03628629ee2d3049ecc",
+      "commands.jsonl": "5d07ec9e04021a66e9a63badb0f927fe6f6ce950ea8a879e1bda942c17ef32fd"
+    }
+  },
+  "cleanup_pending": false,
+  "preparation_measurement_sha256": "3e9bdd23e0a70b5693a28a3dcba0372f800b50ee383163ad9f57a1c77bb9b7c0",
+  "native_echo_request_attempts": 2,
+  "settings_correction_passed_native_activation": true,
+  "public_source_sha256": {
+    "README.md": "cfec4dd5205a0e48662f6dbec6f28d8fcd9923d910b87e4344927e1a4e18ba62",
+    "docs/USAGE.md": "d086a7c84078698e08cf1ab2991afafa35be630e52efe74dfa61d3f5b0f7e3a1",
+    "docs/BACKLOG.md": "9c0b95b258937277f9f8a2da3a6143763d8ef9125ea1cdf39aff461a10d9326a",
+    "docs/superpowers/plans/2026-10-04-isolated-executor.md": "a3b9ee8321c058c1f07daf6b01e82c4c4eca580b98547555fd78881ef2ec5c52",
+    "docs/superpowers/plans/2026-10-06-observed-egress-proof.md": "56c95c543aa7ca6d6e26f0d2ae57f448d35a025b1a45e0f6e2438c6ad5d477fd",
+    "docs/relatorios/2026-10-06-corrected-egress-proof.md": "8b0a50772e002c7df82cd89079bdf12615da6ee314e0ef666a5bbd7a3ae073bc",
+    "docs/relatorios/2026-10-06-panorama-executor.md": "b7f14586b7c49cd8c79249afd57ed5f0c4efc486d43a86fe7cbc330ab90f6751"
+  },
+  "public_local_links_verified": 369,
+  "post_run_diagnosis": {
+    "checked_at": "2026-10-06T03:44:21.443183+00:00",
+    "state": "upstream_refusal_attributed_from_preserved_daemon_event",
+    "event_time": "2026-10-06T00:31:10.2511069-03:00",
+    "transport_started": "2026-10-06T03:31:09.876902+00:00",
+    "transport_ended": "2026-10-06T03:31:10.292592+00:00",
+    "same_sandbox": true,
+    "same_guard_endpoint": true,
+    "exact_operation_receipts_preserved": true,
+    "guard_absence_previously_observed": true,
+    "collector_source": "policy_log_blocked_hosts",
+    "actual_evidence_source": "daemon_http_proxy_logger",
+    "wording_matches_current_predicate": false,
+    "endpoint_mentions": 3,
+    "original_policy_snapshots_preserved": false,
+    "exact_original_predicate_replay_possible": false,
+    "native_verdict_unchanged": "inconclusive",
+    "phase_a2_executed": false,
+    "automatic_acceptance_changed": false,
+    "new_model_calls": 0,
+    "new_network_requests": 0,
+    "new_restarts": 0,
+    "new_settings_mutations": 0
+  },
+  "diagnostic_source_sha256": {
+    ".superpowers/sdd/2026-10-04-isolated-executor/diagnose-phase-b.py": "1967bd88a781268578df2c9e3e32b15020de1074fa6b516287e0e0dcd562ac17",
+    ".superpowers/sdd/2026-10-04-isolated-executor/corrected-egress-proof/B-daemon-refusal.jsonl": "e16a55e82f8105b22dee598cd4d5efbd0b7dabf05d5f880d5236d5e17433cb46",
+    ".superpowers/sdd/2026-10-04-isolated-executor/corrected-egress-proof/B-daemon-refusal-source.json": "154d5f3270309f91c1e863c893325fa2207de04a68f861b8438d4a3afa06c6b6",
+    ".superpowers/sdd/2026-10-04-isolated-executor/guardian-exclusive-egress-b-710b939d.json": "8a146a843876476588052fabdbf6f3cf9090540bcecaa82e32a7af7967e750a6",
+    ".superpowers/sdd/2026-10-04-isolated-executor/corrected-egress-proof/control.json": "c6c016ed0a1e5c02e7bb5cadbfe0ecb2a41e470e256f3c7e9f18cbcb3680b159",
+    ".superpowers/sdd/2026-10-04-isolated-executor/corrected-egress-proof/commands.jsonl": "5d07ec9e04021a66e9a63badb0f927fe6f6ce950ea8a879e1bda942c17ef32fd",
+    ".superpowers/sdd/2026-10-04-isolated-executor/corrected-egress-proof/B-diagnosis.json": "dcdc8a18561961bbb52bb1f4ce0810c7f94ee33f69aa1e8a54f73fcaa6b39917",
+    ".superpowers/sdd/2026-10-04-isolated-executor/corrected-egress-proof/policy-log-later.json": "299fdf8a0753c04053aafeb7bff075f036dc93c2efa6e8276cff4bb17776fbfc"
+  }
+}

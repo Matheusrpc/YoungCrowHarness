@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-04T18:23:26+00:00",
+  "scope": "local CLI observations and upstream contract review; no VM proof",
+  "runtime": {
+    "version": "sbx version: v0.46.0 991967dc90ce0d9a440cd1df1bdf3e395c5a2693",
+    "executable_sha256": "a2c8d68f3a16851a65e1d43f7330ae6860c5a2f07df8f22fab5dae7a4a232780"
+  },
+  "docker_login": "operator completed; authenticated listing succeeded",
+  "sandbox_count": 0,
+  "initial_network_policy": "uninitialized",
+  "global_settings_changed": false,
+  "settings": {
+    "ssh.agentForwardingEnabled": {
+      "source": "default",
+      "value": true
+    },
+    "ssh.autoCreate": {
+      "source": "default",
+      "value": false
+    },
+    "clipboard.imagePaste": {
+      "source": "default",
+      "value": false
+    },
+    "skills.defaultMode": {
+      "source": "default",
+      "value": "readonly"
+    }
+  },
+  "descriptor_validation": [
+    {
+      "case": "cpu-memory",
+      "exit_code": 1,
+      "valid": false,
+      "reason": "v3 source kit; validation load path has no kit builder configured",
+      "descriptor_sha256": "b3ecb61a4acdddd7a0246ec080140aed655e339bf508c08e5299206a5ed39862"
+    },
+    {
+      "case": "pids-limit",
+      "exit_code": 1,
+      "valid": false,
+      "reason": "v3 source kit; validation load path has no kit builder configured",
+      "descriptor_sha256": "7772bbc7386e936dd54cd36a83fa68d55207c199377cf9163957e80911dfbd33"
+    }
+  ],
+  "assessment": {
+    "entrypoint_pid_one": "contradicted by upstream sbx@1 launch contract; not tested in VM",
+    "nested_container": "not evaluated; no alternative authorized or implemented by this result",
+    "process_limit": "not tested; descriptor validation ended before field validation",
+    "runtime_profile": "unverified",
+    "r1": "incomplete",
+    "r2": "not started",
+    "r3": "not started"
+  },
+  "vm_created": false,
+  "model_calls": 0,
+  "sources": [
+    "https://docs.docker.com/ai/sandboxes/customize/author/base-images/#declare-the-agent-launch-contract",
+    "https://github.com/docker/sandbox-kit-spec/blob/main/docs/spec/capabilities/com.docker.sandbox/sbx%401.md"
+  ],
+  "local_implementation": {
+    "base_revision": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+    "committed": false,
+    "file_sha256": {
+      "scripts/mission_sandbox.py": "5dff80c75c324b7038595e531647b3f8c3a8c8bd482e91f3a010ed8cf784db61",
+      "scripts/mission_clients.py": "3b317b1674272f86025a71b90580c201c43a81ee7d50d4ff027ff338d8c23d7b",
+      "scripts/mission_process.py": "5a6f41b3655996913c78ee1bd2e654c581e937728ba1616f09a0e614f856017c",
+      "scripts/missions.py": "4f8b8d27da5e1661609596a8b28f3c1feb944dad9025a5dccf3d132cf572692f",
+      "setup.sh": "1ae1919192968539900454c9eaef220f450effa3f34578bc5855defa10755ebd",
+      "skills-lock.json": "237afb4afb7d68bf3337326dd99936b42c7cc73e2fa03c5835c7c8012212848d",
+      "tests/test_mission_sandbox.py": "efc47b6f2c9a4091dc44169e1021b3f64eb36c53fa43a5d4bbfa544adc77e93b",
+      "tests/smoke_mission_runtime.py": "7dbfe5589ef7c73e31901685be19b9b5f8becd4fdfb68cd401f9b35b7efccdc9"
+    }
+  },
+  "independent_verification": {
+    "platform": "Windows",
+    "python": "3.14.4",
+    "client_contracts": {
+      "passed": 19
+    },
+    "process_contracts": {
+      "passed": 9,
+      "skipped_linux_only": 1
+    },
+    "environment_contracts": {
+      "passed": 9
+    },
+    "installed_adoption": {
+      "client": "both",
+      "cases": [
+        {
+          "case": "absent",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        },
+        {
+          "case": "dirty-git",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        }
+      ],
+      "diagnostics": [
+        {
+          "mode": "absent",
+          "diagnostic": "succeeded",
+          "replay": "same_run",
+          "dispatches": 1,
+          "read_only": true,
+          "timeout": "uncertain",
+          "crash": "uncertain",
+          "reconciliation": "interrupted",
+          "runtime_available": false,
+          "environment": "read_only_unverified"
+        },
+        {
+          "mode": "dirty-git",
+          "diagnostic": "succeeded",
+          "replay": "same_run",
+          "dispatches": 1,
+          "read_only": true,
+          "timeout": "uncertain",
+          "crash": "uncertain",
+          "reconciliation": "interrupted",
+          "runtime_available": false,
+          "environment": "read_only_unverified"
+        }
+      ],
+      "model_calls": 0,
+      "native_execution": "not_run"
+    }
+  }
+}

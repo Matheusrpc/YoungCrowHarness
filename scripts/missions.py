@@ -306,6 +306,12 @@ def parser():
     p.add_argument('--root', type=Path, default=Path.cwd())
     p.add_argument('--json', action='store_true')
     subs = p.add_subparsers(dest='command', required=True)
+    selection = subs.add_parser('environment').add_subparsers(dest='action', required=True)
+    selection.add_parser('show').add_argument('--json', action='store_true')
+    configure = selection.add_parser('configure')
+    configure.add_argument('--location', choices=('local', 'dedicated'), required=True)
+    configure.add_argument('--expected-digest', required=True)
+    configure.add_argument('--json', action='store_true')
     config = subs.add_parser('config').add_subparsers(dest='action', required=True)
     config.add_parser('show')
     for name in ('validate', 'apply'):
@@ -329,6 +335,10 @@ def parser():
     for name in ('status', 'repair'):
         subs.add_parser(name).add_argument('identifier')
     client = subs.add_parser('client').add_subparsers(dest='action', required=True)
+    environment = client.add_parser('environment')
+    environment.add_argument('--executable', type=Path, required=True)
+    environment.add_argument('--sandbox', help='Inspect an existing sandbox without starting it')
+    environment.add_argument('--preflight', action='store_true', help='Query sbx prerequisites and save private diagnostic evidence')
     inspect = client.add_parser('inspect')
     inspect.add_argument('--client', choices=('codex', 'claude'), required=True)
     inspect.add_argument('--executable', type=Path, required=True)
@@ -342,7 +352,7 @@ def parser():
     reconcile.add_argument('--evidence', required=True)
     reconcile.add_argument('--expected-revision', type=int, required=True)
     reconcile.add_argument('--operation-id', required=True)
-    for entry in (inspect, check, runs, reconcile):
+    for entry in (environment, inspect, check, runs, reconcile):
         entry.add_argument('--json', action='store_true')
     return p
 
@@ -357,7 +367,8 @@ SAFE_ERRORS = CONFLICTS | {'invalid_config', 'invalid_request', 'invalid_argumen
                          'unsupported_probe_capabilities', 'client_discovery_failed', 'client_discovery_timeout',
                          'client_protocol_error', 'client_output_limit', 'client_catalog_limit', 'unsupported_client',
                          'limit_exceeded', 'mission_not_ready', 'unresolved_run', 'unknown_run', 'insufficient_evidence',
-                         'invalid_transition'}
+                         'invalid_transition', 'invalid_execution_selection', 'execution_selection_conflict',
+                         'execution_location_conflict', 'execution_selection_busy', 'execution_storage_unprotected'}
 
 
 def main(argv=None):
@@ -365,9 +376,59 @@ def main(argv=None):
         check_helpers()
         args = parser().parse_args(argv)
         root = args.root.resolve(strict=True)
-        if args.command == 'client':
+        if args.command == 'environment':
+            try:
+                import mission_environment as environment
+            except (ImportError, SyntaxError):
+                raise ValueError('incompatible_helper') from None
+            require(getattr(environment, 'SELECTION_VERSION', None) == 1 and
+                    all(callable(getattr(environment, name, None)) for name in ('read_selection', 'configure_selection')),
+                    'incompatible_helper')
+            result = (environment.read_selection(root) if args.action == 'show' else
+                      environment.configure_selection(root, args.location,
+                                                      None if args.expected_digest == 'none' else args.expected_digest))
+        elif args.command == 'client':
             clients, runs = runtime_helpers()
-            if args.action == 'inspect':
+            if args.action == 'environment':
+                try:
+                    import mission_sandbox as sandbox
+                except (ImportError, SyntaxError):
+                    raise ValueError('incompatible_helper') from None
+                require(getattr(sandbox, 'ENVIRONMENT_OBSERVATION_VERSION', None) == 1 and
+                        callable(getattr(sandbox, 'inspect_environment', None)), 'incompatible_helper')
+                if args.sandbox:
+                    require(callable(getattr(sandbox, 'inspect_sandbox', None)), 'incompatible_helper')
+                result = sandbox.inspect_environment(root, args.executable)
+                if args.preflight:
+                    try:
+                        import mission_sbx
+                    except (ImportError, SyntaxError):
+                        raise ValueError('incompatible_helper') from None
+                    require(getattr(mission_sbx, 'ADAPTER_VERSION', None) == 1 and
+                            callable(getattr(mission_sbx, 'inspect_preflight', None)), 'incompatible_helper')
+                    if args.sandbox:
+                        require(getattr(mission_sbx, 'CANDIDATE_PREFLIGHT_VERSION', None) == 1,
+                                'incompatible_helper')
+                    if result.get('version') == '0.46.0':
+                        options = {'sandbox': args.sandbox} if args.sandbox else {}
+                        result['preflight'] = mission_sbx.inspect_preflight(root, args.executable, result['version'], **options)
+                        if not result['preflight']['ready']:
+                            result['gaps'].append('sbx_preflight_failed')
+                    else:
+                        result['preflight'] = dict(ready=False, reason='contract_incompatible', commands=[])
+                if args.sandbox and not args.preflight:
+                    if result.get('version') == '0.46.0':
+                        observation = sandbox.inspect_sandbox(root, args.executable, args.sandbox)
+                        result['runtime'] = observation['runtime']
+                        result['gaps'] = sorted(set(result['gaps'] + observation['gaps']))
+                        result['phases'] = [p for p in result.get('phases', [])
+                                            if not p['id'].startswith('sandbox_')] + observation.get('phases', [])
+                    else:
+                        result['gaps'].append('runtime_metadata_unsupported')
+                        for phase in result.get('phases', []):
+                            if phase['id'].startswith('sandbox_'):
+                                phase['reason'] = 'precondition_failed'
+            elif args.action == 'inspect':
                 result = clients.inspect_client(root, args.client, args.executable)
             elif args.action == 'runs':
                 result = dict(schema_version=1, runs=runs.list_runs(root, args.mission), runtime_available=False)
@@ -399,7 +460,12 @@ def main(argv=None):
         return 1 if failed else 0
     except (ValueError, OSError, TypeError, KeyError) as error:
         code = str(error) if str(error) in SAFE_ERRORS else 'invalid_input'
-        print(json.dumps(dict(schema_version=1, error=code, guidance='Review local inputs, durable client receipts and the mission usage guide before retrying.')))
+        failure = dict(schema_version=1, error=code, guidance='Review local inputs, durable client receipts and the mission usage guide before retrying.')
+        if code == 'execution_storage_unprotected':
+            import mission_environment
+            if isinstance(error, getattr(mission_environment, 'StorageError', ())):
+                failure.update(diagnostic=error.diagnostic, guidance=error.guidance)
+        print(json.dumps(failure))
         return 1 if code in CONFLICTS else 2
 
 

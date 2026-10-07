@@ -1,0 +1,358 @@
+{
+  "schema_version": 1,
+  "front": "2A-R1 isolated executor / execution setup",
+  "state": "setup_validated_locally",
+  "checked_at": "2026-10-05T22:37:16+00:00",
+  "revision": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+  "working_tree": true,
+  "production_published": false,
+  "model_calls": 0,
+  "native_execution": "not_run",
+  "remote_execution": "not_run",
+  "reviewed_profiles": [],
+  "native_profiles": [],
+  "adoption": {
+    "schema_version": 1,
+    "matrix": [
+      {
+        "case": "absent",
+        "location": "local",
+        "origin": "configured",
+        "selection_sha256": "07e60937034bedecd0aadd6ad3e1886fffef23dce12f339f16d9b1c40e43e867",
+        "read_only": true,
+        "reinstall_preserved": true,
+        "human_sha256": {},
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true,
+        "client": "claude"
+      },
+      {
+        "case": "dirty-git",
+        "location": "local",
+        "origin": "configured",
+        "selection_sha256": "4a327702659dd1ca1aa295e9546f0a8df741a95a5268c4351959ee6a4a995cf5",
+        "read_only": true,
+        "reinstall_preserved": true,
+        "human_sha256": {
+          "youngcrow/agents.json": "59d75d8f0201de5fbb072e03dcb9503700b66a5699d9069408ab2316da7e4f61",
+          "vault/product/human.md": "50406b5a48a0bf3938170941c747f85e98b0e009843d19a7c668d21b69606a69",
+          "vault/local/operations/human-receipt.json": "cb8daed7b30399a1c3c8b83b3b7bee4b774a30fc389afc1d375e4c23a3cc4ae8"
+        },
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true,
+        "client": "claude"
+      },
+      {
+        "case": "absent",
+        "location": "dedicated",
+        "origin": "configured",
+        "selection_sha256": "815df2c648b091370681fe4615fc43a348a33abfe2fc3689a80dea44e5e37a3b",
+        "read_only": true,
+        "reinstall_preserved": true,
+        "human_sha256": {},
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true,
+        "client": "claude"
+      },
+      {
+        "case": "dirty-git",
+        "location": "dedicated",
+        "origin": "configured",
+        "selection_sha256": "42089c8a7a1c01ec1d44fbde276669d34ee03fc2bb66f563c0dc4f4364f4da3f",
+        "read_only": true,
+        "reinstall_preserved": true,
+        "human_sha256": {
+          "youngcrow/agents.json": "59d75d8f0201de5fbb072e03dcb9503700b66a5699d9069408ab2316da7e4f61",
+          "vault/product/human.md": "50406b5a48a0bf3938170941c747f85e98b0e009843d19a7c668d21b69606a69",
+          "vault/local/operations/human-receipt.json": "cb8daed7b30399a1c3c8b83b3b7bee4b774a30fc389afc1d375e4c23a3cc4ae8"
+        },
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true,
+        "client": "claude"
+      },
+      {
+        "case": "absent",
+        "location": "local",
+        "origin": "configured",
+        "selection_sha256": "8e768fd9799d1424bbd90fe627613216739ffc5b3ad5690d2d7ca0576ecdb167",
+        "read_only": true,
+        "reinstall_preserved": true,
+        "human_sha256": {},
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true,
+        "client": "codex"
+      },
+      {
+        "case": "dirty-git",
+        "location": "local",
+        "origin": "configured",
+        "selection_sha256": "4192a45f733fdcaae5e3b91ce3fcfcb9fc4b4382811be6b5cbfd6bf19f7d5a4d",
+        "read_only": true,
+        "reinstall_preserved": true,
+        "human_sha256": {
+          "youngcrow/agents.json": "59d75d8f0201de5fbb072e03dcb9503700b66a5699d9069408ab2316da7e4f61",
+          "vault/product/human.md": "50406b5a48a0bf3938170941c747f85e98b0e009843d19a7c668d21b69606a69",
+          "vault/local/operations/human-receipt.json": "cb8daed7b30399a1c3c8b83b3b7bee4b774a30fc389afc1d375e4c23a3cc4ae8"
+        },
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true,
+        "client": "codex"
+      },
+      {
+        "case": "absent",
+        "location": "dedicated",
+        "origin": "configured",
+        "selection_sha256": "0442017dd229b23994f4f2d943e55fca05b9422c90e729f1ad6604cabd59661e",
+        "read_only": true,
+        "reinstall_preserved": true,
+        "human_sha256": {},
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true,
+        "client": "codex"
+      },
+      {
+        "case": "dirty-git",
+        "location": "dedicated",
+        "origin": "configured",
+        "selection_sha256": "96830ba60f9168400a3808ebd47d3ffd550bda709db454fc4905df3b9e2961c9",
+        "read_only": true,
+        "reinstall_preserved": true,
+        "human_sha256": {
+          "youngcrow/agents.json": "59d75d8f0201de5fbb072e03dcb9503700b66a5699d9069408ab2316da7e4f61",
+          "vault/product/human.md": "50406b5a48a0bf3938170941c747f85e98b0e009843d19a7c668d21b69606a69",
+          "vault/local/operations/human-receipt.json": "cb8daed7b30399a1c3c8b83b3b7bee4b774a30fc389afc1d375e4c23a3cc4ae8"
+        },
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true,
+        "client": "codex"
+      }
+    ],
+    "model_calls": 0,
+    "native_execution": "not_run",
+    "dedicated_proof": "selection_only",
+    "revision": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95"
+  },
+  "focused_review_fix": {
+    "tests": 22,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 17.154
+  },
+  "full_suite": {
+    "state": "all_final_test_results_passed",
+    "tests": 414,
+    "passed": 403,
+    "skipped": 11,
+    "failures": 0,
+    "errors": 0,
+    "modules": 23,
+    "skipped_tests": {
+      "test_adoption.RestoreTests.test_posix_secondary_groups_survive_return": "skipped 'POSIX secondary group permissions'",
+      "test_adoption_storage.StorageTests.test_fifo_and_extended_attributes_are_rejected": "skipped 'POSIX FIFO and mode proof'",
+      "test_setup.SetupTests.test_dangling_env_link_is_rejected": "skipped 'Windows needs Developer Mode or symlink privilege; Linux CI must run this case.'",
+      "test_setup.SetupTests.test_directory_link_cannot_write_outside_project": "skipped 'Windows needs Developer Mode or symlink privilege; Linux CI must run this case.'",
+      "test_mission_process.ProcessTests.test_child_cannot_escape_process_group": "skipped 'Linux seccomp boundary'",
+      "test_capabilities.CatalogTests.test_symlink_is_not_followed": "skipped 'Host does not allow creating a symlink'",
+      "test_integrations.IntegrationTests.test_linked_vault_is_rejected": "skipped 'Windows symlink privilege unavailable; exercised in Linux CI'",
+      "test_memory.MemoryTests.test_clear_refuses_unknown_files_or_linked_generation_before_removing": "skipped 'Symlink privilege unavailable; unexpected-file preflight was checked.'",
+      "test_memory.MemoryTests.test_hardlink_and_symlink_are_rejected": "skipped 'Host cannot create symlinks; hardlink boundary was checked.'",
+      "test_personalize.PersonalizeTests.test_linked_feature_parent_is_rejected": "skipped 'Windows symlink privilege unavailable; exercised in Linux CI'",
+      "test_vault.VaultTests.test_symlink_directory_is_not_followed": "skipped 'Windows symlink privilege unavailable; exercised in Linux CI'"
+    },
+    "evidence": [
+      {
+        "group": "adoption",
+        "log": "suite-adoption.log",
+        "sha256": "1a21a1c12adbd84ba6ec15b24dc320a94528205d3dcdf00bbbc1e0c804690a58",
+        "tests": 46,
+        "seconds": 921.345,
+        "initial_errors": []
+      },
+      {
+        "group": "setup",
+        "log": "suite-setup.log",
+        "sha256": "af2a23d1a468daae7208299f5d22e3ada60a674e1e316d56068fa8d5c1ff62b3",
+        "tests": 63,
+        "seconds": 1534.418,
+        "initial_errors": []
+      },
+      {
+        "group": "missions",
+        "log": "suite-missions.log",
+        "sha256": "e722ee930bbb79cea5499ff4aa405967af5febe94dc13b7fbdd9803c8e1aa06f",
+        "tests": 141,
+        "seconds": 911.693,
+        "initial_errors": [
+          "test_mission_guardian.GuardianProtocolTests.test_bad_messages_fail_closed_without_dispatch",
+          "test_mission_guardian.GuardianProtocolTests.test_bad_messages_fail_closed_without_dispatch"
+        ]
+      },
+      {
+        "group": "other",
+        "log": "suite-other.log",
+        "sha256": "5e0a16663576597acd9b2be8bd0984a0692c6ac57a84703757c00a40d0bf7e0c",
+        "tests": 164,
+        "seconds": 294.317,
+        "initial_errors": []
+      },
+      {
+        "group": "guardian-fixture-green",
+        "log": "guardian-fixture-green.log",
+        "sha256": "2bda87f910bebad5ef6ea492694a3127edb868f79ceb123b87926d59a3879d2b",
+        "tests": 14,
+        "seconds": 0.275,
+        "initial_errors": []
+      }
+    ],
+    "note": "The first missions partition had two errors in one guardian parsing fixture. Its complete 14-test module passed after a test-only clock correction. All other partition results are retained. Every discovered test ID has exactly one accepted final result."
+  },
+  "source_sha256": {
+    ".gitignore": "1f8d66e5c1517898c1d95669acfb0adf4682e296289b8cd4c932d22dbbd8a0c1",
+    "README.md": "ec728ab5310e0ae6a2a2c3025144a6d2ca4515523577cb949922bf9058cb90e7",
+    "docs/BACKLOG.md": "c2005fe917f4740cc15168f2352aa3c8120b86551203b64f3f493ccb525f296c",
+    "docs/USAGE.md": "18b43d945d653d768cd77ca32c3ecf62eb289c56c947919865519d1068a977e8",
+    "scripts/adoption.py": "0e3c7c9ae87bf01de88f2ae6f005f728875d8949f7580463cd7f4bdfe07d592d",
+    "scripts/adoption_acl.ps1": "c4f7509122ab277a9316d0773bd68d3dd4c0b86abafe50aa04fe0d0f0f842402",
+    "scripts/adoption_fs.py": "4056b20ede60c6d31be64262d6c721339d1669fb550fb1a6ea27bd1889e446b4",
+    "scripts/mission_clients.py": "72b9806b9443f22d502f787cd7bb845b9651e2180b3556c8fed0bd4641075910",
+    "scripts/mission_environment.py": "0e29d03af9e1da03df5cdaaf4da1e4cfa271c1f771c33433148b4c1ea416fd26",
+    "scripts/mission_process.py": "fb2ccdcf49b1d28666f5059db6b2ed0d0094fae1d6ead2660d5551d281452fb8",
+    "scripts/mission_sandbox.py": "61fe54db5527560e5af3d9b57606b15b886553b57014a6847621004950a94bdb",
+    "scripts/missions.py": "86662d550bda1d1febaf2172950420566b2a5de61b2b8074c9ac94076c393238",
+    "setup.sh": "16b5c0fb23b822e144749e9ccf11a78ade92265078d5477c2e875bc6311ba196",
+    "skills-lock.json": "fffc3616352f67faf1f8b74668da20b82aa3c5fe701fefe667ba509eac1e4a10",
+    "skills/personalizer/SKILL.md": "065f124ae576fb84d53f4220373c28d47643621268842fb6a7e48f73cfe487a0",
+    "skills/personalizer/references/execution.md": "d487636fe90beb842bbc879b66797b6e7307d607c92ef6cc1da7361849477803",
+    "skills/personalizer/references/interview.md": "af02f8300913ec77c112a0db52d1c47384f4bafb18bed4a4cbed3137953f88fd",
+    "skills/yc-personalizer/SKILL.md": "89bd1c13500977718065de0b9c540c1e648f8c63ca0ed781902296d5900cd7f5",
+    "tests/fixtures/legacy_mission_sandbox.py": "c6e206bf62f234946a34719a5f8049a2d496aef53df9b269d3d918a8ceab2149",
+    "tests/smoke_adoption.py": "aabb3aab58e6d374c58387d6553f38b7701d248f99731a76374445ce6d5ed7e4",
+    "tests/smoke_execution_setup.py": "d1970f37fd37fe5a546759e64666337840fa4640602cf3c73497cfaed5fe6d65",
+    "tests/test_adoption.py": "45888f8a6e1d0e257838337c46fd5fdd47b31077b2dc774bfc7dcfeb3ae9d797",
+    "tests/test_capabilities.py": "27f8df3f3f94ebfcdca193c450a645e3cab1ac4b0d967e275183cbc03d63e88e",
+    "tests/test_mission_clients.py": "7be169e3f2c3a782978d20c8af50cbe9032f62e92da4e8472d11b99190f965e0",
+    "tests/test_mission_environment.py": "15175babc0d3a9142da743ef2476a10b9530aa5bb1b20cb0f3102ba3eef6f6d0",
+    "tests/test_mission_guardian.py": "18debbec6a31ccc90f75c0681ee6b9f024a572019208dce4589c94cb74e99364",
+    "tests/test_mission_process.py": "5a5134a800c2e6fc066ae7b3e294a02314a51ed888af2da7092f5bbe8ca8739a",
+    "tests/test_mission_sandbox.py": "cc382ef5a673c75431389ac09cf51d28371e8e18f3d09cca59a0b8e5bbe15699",
+    "tests/test_setup.py": "4a473048a63c75f08c22731d01972fa57112771f1a3b5960ecdf3f41c2f6b791"
+  },
+  "evidence_sha256": {
+    "matrix-final.log": "c032fb4c45d93a9b1a3e7c8cb2fd6885edf90c0a4f6c17336b0894052eab542c",
+    "legacy-helper-red.log": "51437e4bb3a178d73ce943dfc1994f67ad5d217bf44991a0ea01f9f05ab65007",
+    "review-fix-green.log": "e7b1f7404d0ae897ad825b3dfbb09e85b9ba9a7f227c957e32b8de7321468240",
+    "guardian-clock-red.log": "a58cc862cf9ea9f3a4d0bcce421a0235c59a8dcf63010b964f04f154589f3cb3",
+    "guardian-clock-green.log": "267c122900397d456fbbc7b22ad171d2a762b04a55daa23231ec814c318f5296",
+    "guardian-fixture-green.log": "2bda87f910bebad5ef6ea492694a3127edb868f79ceb123b87926d59a3879d2b",
+    "catalog-failure.log": "4952c98cb3e59e2790f95f72b07389dfb3cac9f52168f66db30e4405c142b92b",
+    "catalog-files-red.log": "df70fcf506a7fef582bd689980289fc2657a1588198ea5733e47520c3f112e21",
+    "catalog-green.log": "aae1795a2f21d531f875ab8cbb5f28fff0b0cba1e49ae7170602527b2ba597b9",
+    "catalog-audit-selected.json": "f868b215aed37715916ccc705f63ddec95795e4d7396d8ac1dd87d404daf8aae",
+    "suite-result.json": "34327583cb87e20464b288011bd1b7cbfbabad54f09807805eaf606533e6925d",
+    "delivery-check.json": "7a693f2de649f27b0281eccac218fb63ff211a8fbc650d0d006c161f01c80bf3",
+    "vault-final.json": "59ea48d5dba752bc07429e3d73306d4060d9253ac3ed0b73232ffb9ed0341e2b",
+    "diff-check-final.log": "d060d96198ad73db0472dbb62e324bda87025838b472a3dc408ab159f19f07d3",
+    "progress.md": "1a7b4e464d51e68c2ff3bf87b6fee09179a18e03d2cf1ae5d5377dd23e97fbae"
+  },
+  "review": {
+    "findings": 1,
+    "important_fixed": 1,
+    "deferred_minors": 0,
+    "fresh_context": true,
+    "re_review": false,
+    "report_sha256": "f5ad0d185c6601ba67856609de7efa5f7e3a3ac617eb2c0c2238515c6387db2d",
+    "declined_to_judge": [
+      "real remote execution/authentication/isolation",
+      "live LLM skill behavior",
+      "readiness of preceding runtime front",
+      "full suite/matrix not yet finished during review"
+    ],
+    "resolution": "Finding reproduced and fixed. Subsequent regression also corrected catalog identity and two test fixtures; no second independent review."
+  },
+  "commands": {
+    "full_suite": "python -X utf8 -B tests/windows_fixture_runner.py -m unittest discover -s tests -v",
+    "adoption_matrix": "python -X utf8 -B tests/windows_fixture_runner.py tests/smoke_execution_setup.py --root NEW_PRIVATE_DISPOSABLE_ROOT",
+    "focused_review_fix": "python -X utf8 -B tests/windows_fixture_runner.py -m unittest test_mission_sandbox test_adoption.AdoptionTests.test_older_recovery_contract_refuses_install_before_project_writes -v",
+    "vault": "python -X utf8 -B scripts/vault.py check --json",
+    "full_suite_partitions": {
+      "adoption": [
+        "test_adoption",
+        "test_adoption_storage"
+      ],
+      "setup": [
+        "test_setup"
+      ],
+      "missions": [
+        "test_mission_backlog",
+        "test_mission_clients",
+        "test_mission_config",
+        "test_mission_environment",
+        "test_mission_guardian",
+        "test_mission_launcher",
+        "test_mission_process",
+        "test_mission_runs",
+        "test_mission_sandbox",
+        "test_missions"
+      ],
+      "other": [
+        "test_capabilities",
+        "test_capability_proof",
+        "test_documents",
+        "test_graphify",
+        "test_integrations",
+        "test_memory",
+        "test_personalize",
+        "test_source_fetch",
+        "test_source_prompt",
+        "test_vault"
+      ]
+    },
+    "partition_template": "python -X utf8 -B tests/windows_fixture_runner.py -m unittest MODULES -v",
+    "guardian_fixture_rerun": "python -X utf8 -B tests/windows_fixture_runner.py -m unittest test_mission_guardian -v",
+    "full_suite_note": "The discover command was superseded by disjoint module partitions. The failed guardian module was rerun after its fixture-only correction. See the complete test inventory and original errors in evidence."
+  },
+  "matrix_scope_note": "Selection/adoption interfaces were unchanged by the later CLI sandbox compatibility guard. The matrix proves installed setup, not native execution.",
+  "capability_catalog": {
+    "updated": [
+      "personalizer",
+      "yc-personalizer",
+      "yc-config",
+      "yc-missao",
+      "yc-status"
+    ],
+    "permissions_unchanged": true,
+    "before_sha256": "c17d37971242e21417b79076f0db7be56e269eb34c7b11d0ae490bc307f4a324",
+    "after_sha256": "fffc3616352f67faf1f8b74668da20b82aa3c5fe701fefe667ba509eac1e4a10",
+    "matched_observations": 10
+  },
+  "test_inventory_sha256": "a58abd74771308d7ab8ff6de836b484027a4b1cf6f495b1f37c9dc1fafa6a15d",
+  "guardian_fixture": {
+    "tests": 14,
+    "seconds": 0.275,
+    "failures": 0,
+    "errors": 0,
+    "native_code_changed": false
+  },
+  "static_verification": {
+    "executable_sources_unchanged": true,
+    "native_sources_unchanged": true,
+    "profiles_empty": true,
+    "readme_media_preserved": 52,
+    "local_links_checked": 346,
+    "local_link_issues": []
+  },
+  "vault": {
+    "schema_version": 1,
+    "notes_checked": 349,
+    "issues": []
+  },
+  "diff_check_exit": 0
+}

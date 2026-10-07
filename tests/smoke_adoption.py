@@ -32,7 +32,7 @@ def run(args, *, env, cwd, expected=0):
 
 
 def smoke(root, client, *, prepare_existing=None, exercise=None,
-          cases=('absent', 'dirty-git', 'interrupted')):
+          cases=('absent', 'dirty-git', 'interrupted'), setup_options=()):
     root = fs.checked_path(root)
     if root.exists() or not root.parent.is_dir():
         raise ValueError('requires_new_disposable_root')
@@ -91,7 +91,7 @@ def smoke(root, client, *, prepare_existing=None, exercise=None,
         prefix = f'export PATH={shlex.quote(shell_path(shim))}:"$PATH"; exec bash "$@"'
         output = run([bash, '--noprofile', '--norc', '-c', prefix, 'trial-smoke',
                       shell_path(ROOT / 'setup.sh'), shell_path(project), '--trial', '--client', client,
-                      '--backup-root', shell_path(backups)], env=env, cwd=root)
+                      '--backup-root', shell_path(backups), *setup_options], env=env, cwd=root)
         receipt = json.loads(output.decode('utf-8', errors='replace').splitlines()[-1])
         if receipt['state'] != 'installed':
             raise ValueError('installation_not_verified')

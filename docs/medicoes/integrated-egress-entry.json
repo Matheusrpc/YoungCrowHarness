@@ -1,0 +1,138 @@
+{
+  "checked_at": "2026-10-06T11:10:42.310703+00:00",
+  "status": "native_attempt_refused_before_docker_changes",
+  "tests": {
+    "aggregate": 113,
+    "passed": 113,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "entry_cases": 7,
+    "elapsed_seconds": 51.717,
+    "includes_prior_106": true
+  },
+  "real_entry_refusals": [
+    "PowerShell no action",
+    "PowerShell both actions",
+    "Python no action"
+  ],
+  "review": {
+    "important": 1,
+    "resolved_by_regression": 1,
+    "changed_dependency_subcases": 4,
+    "second_review": false
+  },
+  "bootstrap": {
+    "pinned_local_sources": 12,
+    "verified_before_controller_import": true
+  },
+  "preflight": {
+    "state": "timeout",
+    "reason": "TimeoutExpired",
+    "exact_failed_query": "unestablished",
+    "later_status_query": "running",
+    "complete_readiness_proven": false
+  },
+  "effects": {
+    "native_operation_created": false,
+    "external_requests": 0,
+    "daemon_restarts": 0,
+    "settings_changes": 0,
+    "executor_model_calls": 0,
+    "product_profiles_enabled": false
+  },
+  "limits": {
+    "get_attempts": 3,
+    "daemon_restarts": 2,
+    "preflight_queries": 5,
+    "query_timeout_seconds": 15,
+    "preparation_seconds": 180,
+    "probe_seconds": 120,
+    "get_seconds": 10,
+    "cleanup_seconds": 180
+  },
+  "native_result": "pending",
+  "preserves_previous_operations": true,
+  "artifacts_sha256": {
+    "integrated_entry.py": "9be14f018e665e859d29bab0a2b54fe9f5f29e5b84918fc656e940ad9e7dbb32",
+    "run-integrated-egress-proof.ps1": "db44ac2c12db32b8c1f9f817a6471a207e5940eb0db3b2b71d8644d1a6b5da46",
+    "test_integrated_entry_egress.py": "b12aa53e2756359353cfca63b55bc98c70c4eb7c5f6dda1f82a179a31549d800",
+    "integrated-entry-review.md": "440dce13b5d35498543dce19a190dbc9649923f8beacd498d0f7e1ef96c67877",
+    "integrated-entry-review-red.log": "5f640474f866a4f036860c1897f07add4d4b383a5f78acd54860a767a8ddc6a6",
+    "integrated-entry-suite-final.log": "26d55ec0a2ca8264664a20a23884b8378f5e29416cdfbbbc6358e4fc761eb9be",
+    "integrated-entry-refusals.json": "cb5e005d2f1f623e74ba7fa10fbb97b8fae398008a7841f10ebc6b16e02cc1fc",
+    "integrated-entry-preflight.json": "b55b03ca354aed64c269523c65a4c41fb338b5d004c65169ae9fe2008eb7cb7f",
+    "integrated-entry-status-diagnostic.json": "8f37931fcb4344548e852e0ac8fdf693bf472e1a8d9c00da779f86a655b8b559"
+  },
+  "next_step": "Use separate mobile-egress entry; original integrated attempt remains consumed.",
+  "documentation": {
+    "local_file_links": 536,
+    "readme_visuals": 52,
+    "readme_visuals_unchanged": true,
+    "bootstrap_hashes": 12,
+    "controller_hashes": 17,
+    "native_state_absent": true,
+    "vault_notes": 351,
+    "vault_issues": 0,
+    "wrapper_hashes_match": true
+  },
+  "native_attempt": {
+    "observed_at": "2026-10-06T10:27:58-03:00",
+    "result": "inconclusive",
+    "reason": "unsupported_permissions",
+    "metadata_commands_completed": 5,
+    "file_owner": "Administrators",
+    "required_owner": "current user",
+    "control_exists": false,
+    "get_attempts": 0,
+    "daemon_restarts": 0,
+    "settings_changes": 0,
+    "model_calls": 0,
+    "docker_cleanup_required": false,
+    "consumed": true,
+    "receipt_sha256": {
+      "attempt.json": "fb55e8abecfa0b4aadc1d7e2685aa7d4c970a7a0e3d96963a5b297af0c4cca0c",
+      "commands.jsonl": "8159b908a49eb8f4182586388e79a6171e88313c56ce5b168eb88b0689bd4116",
+      "reclaim.lock": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    }
+  },
+  "owner_context_diagnostic": {
+    "local_result": {
+      "state": "owner_context_verified",
+      "adjusted": false,
+      "synthetic_file_checked": true,
+      "old_receipts_preserved": true,
+      "docker_commands": 0,
+      "network_requests": 0,
+      "model_calls": 0,
+      "next_action": "prepare_separate_native_entry"
+    },
+    "remote_result": {
+      "state": "owner_context_verified",
+      "adjusted": true,
+      "synthetic_file_checked": true,
+      "old_receipts_preserved": true,
+      "docker_commands": 0,
+      "network_requests": 0,
+      "model_calls": 0,
+      "next_action": "prepare_separate_native_entry"
+    },
+    "helper": "tests/windows_fixture_runner.py",
+    "review": "no_findings",
+    "no_action_refused": true,
+    "verification": {
+      "source_pins_match": true,
+      "original_receipts_preserved": true,
+      "control_absent": true,
+      "readme_visuals_unchanged": true,
+      "readme_visuals": 52,
+      "local_file_links": 544,
+      "vault_notes": 354,
+      "vault_issues": 0,
+      "review": "no_findings",
+      "local_synthetic_check": "passed_without_adjustment",
+      "remote_adjustment": "pending"
+    },
+    "script_sha256": "07973e0fb99e311c631cb8a9a5e7fca1bc8831f8d6e7107dcbc7cdd8e9d7c5b4"
+  }
+}

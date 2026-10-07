@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-05T01:02:10.699502+00:00",
+  "status": "partial_R1_candidate",
+  "production": "not_published",
+  "model_calls": 0,
+  "native_profiles": [],
+  "original_failure": {
+    "deadline_ms": 1791159871587,
+    "finished_at": "2026-10-05T00:24:31.5908935Z",
+    "overrun_ms": "3.8935000",
+    "exit_code": 124,
+    "pid": 0,
+    "repeated_exit": 125,
+    "unchanged": true,
+    "assessment": "failed_strict_deadline_not_a_client_exit_measurement"
+  },
+  "correction": {
+    "shutdown_reserve_seconds": 1,
+    "deadline_extension_ms": 0,
+    "maximum_total_seconds": 120,
+    "candidate_path": "/opt/youngcrow-candidate-52fbc88f1d1c",
+    "synthetic_image": "sha256:fa4c50ee2ff2f655211557c3439b241865bd9315a0183365da4cae566dcff14c",
+    "old_package_files_unchanged": true,
+    "native_package_rebuilt": false
+  },
+  "unit_tests": {
+    "guardian": 11,
+    "launcher": 8,
+    "new_regressions": 4,
+    "red_observed": true
+  },
+  "native_cases": [
+    {
+      "kind": "launcher_case",
+      "mode": "complete",
+      "exit_code": 0,
+      "pid": 0,
+      "deadline_ms": 1791160309348,
+      "finished_at": "2026-10-05T00:31:45.3708543Z",
+      "deadline_margin_ms": "3977.1457000",
+      "replay_exit": 125
+    },
+    {
+      "kind": "launcher_case",
+      "mode": "deadline",
+      "exit_code": 124,
+      "pid": 0,
+      "deadline_ms": 1791160310536,
+      "finished_at": "2026-10-05T00:31:49.5514045Z",
+      "deadline_margin_ms": "984.5955000",
+      "replay_exit": 125
+    },
+    {
+      "kind": "launcher_case",
+      "mode": "transport-loss",
+      "exit_code": 125,
+      "pid": 0,
+      "deadline_ms": 1791160315020,
+      "finished_at": "2026-10-05T00:31:51.0779198Z",
+      "deadline_margin_ms": "3942.0802000",
+      "replay_exit": 125
+    },
+    {
+      "kind": "guardian_case",
+      "mode": "complete",
+      "exit_code": 0,
+      "pid": 0,
+      "deadline_ms": 1791160316346,
+      "finished_at": "2026-10-05T00:31:52.082535Z",
+      "deadline_margin_ms": "4263.465000",
+      "replay_exit": 125
+    },
+    {
+      "kind": "guardian_case",
+      "mode": "replay",
+      "exit_code": 125,
+      "pid": 0,
+      "deadline_ms": 1791160317556,
+      "finished_at": "2026-10-05T00:31:53.238266Z",
+      "deadline_margin_ms": "4317.734000",
+      "replay_exit": 125
+    },
+    {
+      "kind": "guardian_case",
+      "mode": "bad-identity",
+      "exit_code": 125,
+      "pid": 0,
+      "deadline_ms": 1791160318727,
+      "finished_at": "2026-10-05T00:31:54.3078776Z",
+      "deadline_margin_ms": "4419.1224000",
+      "replay_exit": 125
+    },
+    {
+      "kind": "guardian_case",
+      "mode": "discovery-fails",
+      "exit_code": 126,
+      "pid": 0,
+      "deadline_ms": 1791160319861,
+      "finished_at": "2026-10-05T00:31:55.4268595Z",
+      "deadline_margin_ms": "4434.1405000",
+      "replay_exit": 125
+    },
+    {
+      "kind": "guardian_case",
+      "mode": "deadline",
+      "exit_code": 124,
+      "pid": 0,
+      "deadline_ms": 1791160320944,
+      "finished_at": "2026-10-05T00:31:59.9526264Z",
+      "deadline_margin_ms": "991.3736000",
+      "replay_exit": 125
+    },
+    {
+      "kind": "guardian_case",
+      "mode": "output-limit",
+      "exit_code": 122,
+      "pid": 0,
+      "deadline_ms": 1791160408906,
+      "finished_at": "2026-10-05T00:33:23.6449162Z",
+      "deadline_margin_ms": "5261.0838000",
+      "replay_exit": 125
+    }
+  ],
+  "first_candidate_run": {
+    "status": "8_passed_1_output_limit_hit_deadline_first",
+    "failed_case": "output-limit",
+    "observed_exit": 124,
+    "deadline_budget_seconds": 5
+  },
+  "output_followup": {
+    "deadline_budget_seconds": 10,
+    "observed_exit": 122,
+    "reason": "isolate_output_cap_from_deadline_control",
+    "product_code_unchanged": true
+  },
+  "full_suite": {
+    "status": "failed",
+    "command": "python -B tests/windows_fixture_runner.py -m unittest discover -s tests -v",
+    "tests": 381,
+    "elapsed_seconds": 1836.401,
+    "failures": 6,
+    "errors": 2,
+    "skipped": 11,
+    "details": [
+      {
+        "test": "test_restore_keeps_trial_work_and_returns_dirty_git_state (test_adoption.RestoreTests.test_restore_keeps_trial_work_and_returns_dirty_git_state)",
+        "reason": "unsupported_path_length"
+      },
+      {
+        "test": "test_fixture_cleanup_ends_a_real_server_waiting_on_stdin (test_capability_proof.NativeProofTests.test_fixture_cleanup_ends_a_real_server_waiting_on_stdin)",
+        "reason": "empty_pid_publication_race"
+      },
+      {
+        "test": "test_trial_git_configuration_is_disabled_in_installer_child (test_setup.SetupTests.test_trial_git_configuration_is_disabled_in_installer_child)",
+        "reason": "unsupported_path_length"
+      },
+      {
+        "test": "test_trial_is_project_only_and_reuses_first_baseline (test_setup.SetupTests.test_trial_is_project_only_and_reuses_first_baseline) (client='claude')",
+        "reason": "unsupported_path_length"
+      },
+      {
+        "test": "test_trial_is_project_only_and_reuses_first_baseline (test_setup.SetupTests.test_trial_is_project_only_and_reuses_first_baseline) (client='codex')",
+        "reason": "unsupported_path_length"
+      },
+      {
+        "test": "test_trial_is_project_only_and_reuses_first_baseline (test_setup.SetupTests.test_trial_is_project_only_and_reuses_first_baseline) (client='both')",
+        "reason": "unsupported_path_length"
+      },
+      {
+        "test": "test_trial_missing_target_has_absent_baseline (test_setup.SetupTests.test_trial_missing_target_has_absent_baseline)",
+        "reason": "unsupported_path_length"
+      },
+      {
+        "test": "test_trial_partial_failure_retains_baseline_and_repeats (test_setup.SetupTests.test_trial_partial_failure_retains_baseline_and_repeats)",
+        "reason": "unsupported_path_length"
+      }
+    ],
+    "isolated_reproductions": {
+      "adoption": "same_unsupported_path_length",
+      "capability_cleanup": "passed_in_isolation_race_remains_unfixed"
+    },
+    "guardian_launcher": "19_passed_in_full_suite",
+    "interpretation": "candidate_deadline_proof_passed_full_repository_not_green"
+  },
+  "cleanup": {
+    "candidate_vm_stopped": true,
+    "model_calls": 0,
+    "certificate_changes": 0,
+    "network_changes": 0,
+    "daemon_restarts_by_agent": 0
+  },
+  "next_test": {
+    "kind": "network_MCP_with_provider_access_and_sentinels",
+    "status": "pending"
+  },
+  "pending": [
+    "native_package_rebuild_and_proof",
+    "network_and_MCP_with_provider_access",
+    "host_private_metadata_sentinels",
+    "whole_host_suspension",
+    "R2",
+    "R3",
+    "full_suite_fixture_path_length_and_pid_race"
+  ],
+  "source_sha256": {
+    "runtime/sbx/guardian.py": "819b0abf6a7b92a9019132c12af04b8d212546bd97a483e8edc154c07f38e92f",
+    "runtime/sbx/launcher.py": "0f610599d9153acd43e8b72478ed358989691aee7da0495ddfe829a836061acf",
+    "tests/test_mission_guardian.py": "cdcd32d797d2e65923eda1d4aefba57fad396f01286254f1118c6d23eba652bb",
+    "tests/test_mission_launcher.py": "7210091ea5184a8bac311936181b24ef676b461251510d721f913280caae8343",
+    "tests/smoke_mission_guardian.py": "948ff6a0eda9316b9d7cbf1711067a31ecb6dca47603edcdf2536270bec51d95",
+    "tests/smoke_mission_launcher.py": "47995b6afd354ffb702ea22080717df66e24ccd7ae8f54232fc18e728a80f9f5"
+  },
+  "private_receipt_sha256": {
+    "active-daemon-restart-proof.json": "8365eaee62ae78c1a452dc2ee17dc62612b07b147f62512a4a9996cb513f4147",
+    "guardian-active-restart-observe-9aaf08df.json": "22caf44cd09ae147c85756d6ee88ffb6aed5cfd83865f9e1d9031bdfee496b59",
+    "shutdown-reserve-proof.json": "68bcef011d11dbc94f42bb39e62fed520def9bd09c8622a98a7c6c5f550c6857",
+    "shutdown-reserve-output-proof.json": "0b15152d442ffa0f64cfd147f2037b35031b60d714439f5007335ab739fc5c9f",
+    "active-daemon-restart-reserve-proof.json": "9001b894d6234174cf994dc93311df1291a3cc324c1d9778f21966e3f865f758",
+    "guardian-active-restart-observe-11909e9f.json": "6f09eddfdb4963cc37f2b7e012bf17d9b36ea43e87326d001ebec4896a3347c9",
+    "shutdown-suite-adoption-repro.log": "beb3ed65af6eac6e3ecb4143c9b8e152873209bcf04f3aff3ce13ee809a59c4a",
+    "shutdown-suite-capability-repro.log": "d935225ceeba2b65121cb74d9e4d5cc670c770966ebb3691beb12a1eed69e1c7",
+    "shutdown-reserve-suite.log": "1ee992bdcdf341e721682b9542bac610573c13a935b13955dc82fc1d7ba2bac5",
+    "network-proof-next-preflight.json": "af160f841373283c05b83a9390505bd86e2eadadd2bfa177102ad6a71aa3649c"
+  },
+  "active_restart": {
+    "passed": true,
+    "deadline_ms": 1791160569941,
+    "finished_at": "2026-10-05T00:36:08.9473688Z",
+    "deadline_margin_ms": "993.6312000",
+    "exit_code": 124,
+    "pid": 0,
+    "replay_exit": 125,
+    "unchanged": true,
+    "restart_intent_ms": 1791160568562,
+    "restart_finished_ms": 1791160576700,
+    "cleanup_errors": [],
+    "final_vm_state": "stopped"
+  },
+  "verification": {
+    "vault_notes": 277,
+    "vault_issues": 0,
+    "public_local_links": 276,
+    "source_hashes": 6,
+    "receipt_hashes": 10,
+    "historical_source_hashes": 5,
+    "profiles_empty": true,
+    "diff_check": "clean",
+    "owned_vms_stopped": 5,
+    "published_ports": 0,
+    "diagnostic_certificate_absent": true,
+    "kit_allowed_sources": "default docker.io/"
+  }
+}

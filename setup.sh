@@ -12,7 +12,7 @@ set -euo pipefail
 
 HARNESS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET="${1:-}"; NOME=""; FORCE=0; PLUGINS=1; CLIENT=both
-TRIAL=0; TRIAL_CHILD=0; BACKUP_ROOT=""
+TRIAL=0; TRIAL_CHILD=0; BACKUP_ROOT=""; EXECUTION_LOCATION=""
 shift || true
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -29,6 +29,11 @@ while [ $# -gt 0 ]; do
         echo 'uso / usage: --backup-root exige caminho / requires a path' >&2; exit 2
       fi
       BACKUP_ROOT="$2"; shift 2 ;;
+    --execution-location)
+      if [ $# -lt 2 ] || [[ "$2" != local && "$2" != dedicated ]]; then
+        echo 'uso / usage: --execution-location local|dedicated' >&2; exit 2
+      fi
+      EXECUTION_LOCATION="$2"; shift 2 ;;
     --client)
       if [ $# -lt 2 ] || [[ "$2" != claude && "$2" != codex && "$2" != both ]]; then
         echo 'uso / usage: --client claude|codex|both' >&2; exit 2
@@ -49,6 +54,7 @@ FILES+=(scripts/integrations.py skills/integrate-from-docs/SKILL.md
   skills/integrate-from-docs/references/memory.md
   vault/index.md vault/integrations/index.md vault/capabilities/index.md)
 FILES+=(scripts/personalize.py skills/personalizer/SKILL.md skills/personalizer/references/interview.md)
+FILES+=(skills/personalizer/references/execution.md)
 FILES+=(scripts/vault.py scripts/document_store.py)
 FILES+=(scripts/documents.py scripts/docling_worker.py requirements/docling.txt)
 FILES+=(scripts/source_fetch.py)
@@ -58,7 +64,8 @@ FILES+=(scripts/memory.py scripts/graphify_worker.py requirements/graphify.txt s
 FILES+=(scripts/capabilities.py skills/govern-capabilities/SKILL.md)
 FILES+=(scripts/adoption.py scripts/adoption_fs.py scripts/adoption_acl.ps1)
 FILES+=(scripts/mission_config.py scripts/mission_backlog.py scripts/mission_store.py scripts/mission_vault.py scripts/missions.py)
-FILES+=(scripts/mission_clients.py scripts/mission_process.py scripts/mission_runs.py)
+FILES+=(scripts/mission_clients.py scripts/mission_process.py scripts/mission_runs.py scripts/mission_sandbox.py scripts/mission_environment.py)
+FILES+=(scripts/mission_sbx.py scripts/mission_execution.py scripts/mission_egress.py)
 FILES+=(skills/yc-personalizer/SKILL.md skills/yc-config/SKILL.md skills/yc-missao/SKILL.md skills/yc-status/SKILL.md)
 SKILL_ROOTS=()
 if [ "$CLIENT" != codex ]; then
@@ -196,12 +203,16 @@ for SK in "${SKILL_ROOTS[@]}"; do
     verificar_skill "$SK/humanizer" || falhar "humanizer divergente ou modificado / mismatched or dirty: $SK/humanizer; preservado / preserved"
   fi
 done
+SELECTION_ARGS=(--root "$TARGET")
+[ -z "$EXECUTION_LOCATION" ] || SELECTION_ARGS+=(--location "$EXECUTION_LOCATION")
+python3 -B "$HARNESS_DIR/scripts/mission_environment.py" setup-check "${SELECTION_ARGS[@]}"
 if [ "$TRIAL" = 1 ] && [ "$TRIAL_CHILD" = 0 ]; then
   ARGS=(--root "$REQUESTED_TARGET")
   [ -z "$BACKUP_ROOT" ] || ARGS+=(--backup-root "$BACKUP_ROOT")
   ARGS+=(install --source "$HARNESS_DIR" --client "$CLIENT")
   [ -z "$NOME" ] || ARGS+=(--name "$NOME")
   [ "$FORCE" = 0 ] || ARGS+=(--force)
+  [ -z "$EXECUTION_LOCATION" ] || ARGS+=(--execution-location "$EXECUTION_LOCATION")
   exec python3 -B "$HARNESS_DIR/scripts/adoption.py" "${ARGS[@]}"
 fi
 if [ "$TRIAL" = 1 ]; then
@@ -217,7 +228,7 @@ copiar() {  # copiar <relativo>: nunca sobrescreve sem --force
   # Knowledge is product data, never a replaceable configuration template.
   if [[ "$rel" == vault/* ]] && [ -e "$dst" ]; then echo "  mantido / preserved: $rel (vault)"; return; fi
   case "$rel" in
-    skills-lock.json|skills/*|.claude/skills/*|.agents/skills/*|.claude/agents/*|.codex/agents/*|scripts/mission_clients.py|scripts/mission_runs.py|scripts/mission_process.py)
+    skills-lock.json|skills/*|.claude/skills/*|.agents/skills/*|.claude/agents/*|.codex/agents/*|scripts/mission_clients.py|scripts/mission_runs.py|scripts/mission_process.py|scripts/mission_sandbox.py|scripts/mission_environment.py|scripts/mission_sbx.py|scripts/mission_execution.py|scripts/mission_egress.py)
       if [ -e "$dst" ]; then
         echo "  preservado / preserved: $rel; compare e mescle / compare and merge"; return
       fi ;;
@@ -249,7 +260,7 @@ python3 - "$TARGET/.gitignore" "$CLIENT" <<'PY'
 import pathlib, sys
 p = pathlib.Path(sys.argv[1]); data = p.read_bytes()
 # Final rules override earlier negations; downloaded Git repos must not become gitlinks.
-rules = [b'/.env', b'/vault/local/', b'/.operacao-local/docling/', b'/.operacao-local/memory/', b'/.operacao-local/capabilities/']
+rules = [b'/.env', b'/vault/local/', b'/.operacao-local/docling/', b'/.operacao-local/memory/', b'/.operacao-local/capabilities/', b'/.operacao-local/execution/']
 if sys.argv[2] != 'claude':
     rules += [b'/.agents/skills/humanizer/', b'/.agents/skills/humanizer-ptbr/']
 if data.splitlines()[-len(rules):] != rules:
@@ -257,6 +268,8 @@ if data.splitlines()[-len(rules):] != rules:
         output.write((b'' if not data or data.endswith(b'\n') else b'\n') + b'\n'.join(rules) + b'\n')
     print('  mesclado / merged: .gitignore (env + skills locais / local skills)')
 PY
+python3 -B "$HARNESS_DIR/scripts/mission_environment.py" setup-apply "${SELECTION_ARGS[@]}"
+echo '  destino configurado; execução exige perfil validado / location configured; execution requires a validated profile'
 if [ "$IN_GIT" = 1 ]; then
   git -C "$TARGET" check-ignore --no-index -q -- .env || falhar '.env não protegido / not ignored'
   echo '  .env: proteção Git verificada / Git ignore verified'

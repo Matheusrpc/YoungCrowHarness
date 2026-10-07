@@ -1,0 +1,148 @@
+{
+  "checked_at": "2026-10-06T18:29:46.944967+00:00",
+  "status": "consumed_policy_baseline_changed_offline_correction_verified",
+  "scope": "Private maintainer proof entry; not distributed setup or product profile.",
+  "source_files_sha256": {
+    "captured_mobile_egress.py": "aa221f8fe17b19bd67b8a692c0edf9e283dfdb4699d88550104fb09384b9342a",
+    "run-captured-mobile-egress-proof.ps1": "80085bc79bb466c6a431f56cae49c7946d4d58e48ee6446303cd0945ddad1a86",
+    "test_captured_mobile_egress.py": "2d5f3052ba1a1e0b6c6ef517042d1d9ee9bc9e2d2f79291b880437e3f3261d15",
+    "captured-mobile-review.md": "9f261595b33388b1c9b881f020d381d929784764fb60a6dc11bab9c9e9699c95",
+    "captured-mobile-suite.log": "3ecec62499b27a8f1f1d8220ed85e4d92815a0348f53f636e2e627bc056cbdf8"
+  },
+  "capture": {
+    "exact_command": "pinned sbx daemon status --json",
+    "stream_limit_bytes": 65536,
+    "oversize": "prefix and full digest stored, execution refused",
+    "other_command_payloads": "not recorded",
+    "parse_behavior": "unchanged, strict",
+    "retries": 0
+  },
+  "tests": {
+    "aggregate": 129,
+    "passed": 129,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 76.35,
+    "new_cases": 9,
+    "includes_previous_120": true,
+    "red": "9 failures: entry absent",
+    "native_boundaries": "mocked; real Windows owner helper tested to simulated entry"
+  },
+  "read_only_status": {
+    "checked_at": "2026-10-06T18:13:44.947411+00:00",
+    "state": "status_captured_and_parsed",
+    "status": "running",
+    "docker_commands": 1,
+    "docker_mutations": 0,
+    "model_calls": 0,
+    "native_operation_created": false
+  },
+  "invalid_actions": {
+    "results": [
+      {
+        "case": "powershell_no_action",
+        "exit_code": 1
+      },
+      {
+        "case": "powershell_both_actions",
+        "exit_code": 1
+      },
+      {
+        "case": "python_no_action",
+        "exit_code": 1
+      }
+    ],
+    "native_operation_absent": true
+  },
+  "review": {
+    "agent": "captured_mobile_review",
+    "model": "gpt-6-astra",
+    "effort": "high",
+    "actionable_findings": 0,
+    "verdict": "ready for one operator proof",
+    "limits": [
+      "kernel crash not simulated",
+      "physical disk exhaustion not simulated",
+      "write/flush/fsync propagation statically reviewed; capture failure injected",
+      "real A/B/A2 and native restoration still pending"
+    ]
+  },
+  "limits": {
+    "get_attempts": 3,
+    "daemon_restarts": 2,
+    "preflight_queries": 5,
+    "query_seconds": 15,
+    "preparation_seconds": 180,
+    "probe_seconds": 120,
+    "get_seconds": 10,
+    "cleanup_seconds": 180,
+    "owner_acl_helper_timeout_seconds": 120
+  },
+  "next_step": "Integrate candidate and validate complete initial checks locally; no new operator command, replay or reconciliation.",
+  "prepared_at": "2026-10-06T18:16:01.465466+00:00",
+  "preparation_effects": {
+    "native_operation_created": false,
+    "daemon_restarts": 0,
+    "external_requests": 0,
+    "executor_model_calls": 0,
+    "product_profiles_enabled": false
+  },
+  "native_result": {
+    "operation_id": "5a5d5674-159f-417f-b6f1-8105f17ef177",
+    "state": "stopped",
+    "interpretation": "inconclusive",
+    "reason": "policy_baseline_changed",
+    "started_at": "2026-10-06T18:18:10.946026+00:00",
+    "last_command_finished_at": "2026-10-06T18:18:23.439545+00:00",
+    "read_only_commands": 24,
+    "all_commands_exit_zero": true,
+    "valid_status_captures": 4,
+    "external_gets": 0,
+    "daemon_restarts": 0,
+    "docker_mutations": 0,
+    "executor_model_calls": 0,
+    "cleanup": {
+      "restored": true,
+      "errors": []
+    },
+    "replay_allowed": false,
+    "reconcile_needed": false,
+    "cause": "Only the known sandbox deny-all rule UUID and automatic name changed; earlier proof cleanup recreated it. Literal baseline equality rejected unchanged permissions.",
+    "external_policy_check_passed": true
+  },
+  "offline_correction": {
+    "status": "candidate_only_not_integrated",
+    "direct_cli": "refused_offline_candidate_only",
+    "files_sha256": {
+      "exclusive_egress_policy_candidate.py": "1aa2247f7f8bf2fb64dd58ff3d4b47e6617e959f488362e71896ce7f68246135",
+      "test_policy_baseline_candidate.py": "762280d89797d1524b08fd827e9b0c3ad4388bac8ffc7481f69196ec58e280d0",
+      "policy-baseline-final-suite.log": "e70d2a6160d92a88b2b0df1a3dca145894f8b0a70d5881f53e512996d73e6218"
+    },
+    "tests": {
+      "run": 68,
+      "new": 5,
+      "existing_controller": 63,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "elapsed_seconds": 3.32,
+      "native_boundaries": "mocked",
+      "red": "original controller reproduced policy_baseline_changed against saved native policies"
+    },
+    "review": {
+      "agent": "policy_baseline_review",
+      "mode": "read_only",
+      "important_findings": 1,
+      "finding": "Missing ID/name could match a normalized valid rule.",
+      "resolution": "Retain both fields with a private comparison marker; missing/null regression failed before fix and passed afterward.",
+      "second_review": false
+    },
+    "limits": [
+      "Candidate not connected to captured operator entry",
+      "Complete initial read-only flow not yet validated",
+      "No new native probe",
+      "Full A/B/A2 acceptance pending"
+    ]
+  }
+}

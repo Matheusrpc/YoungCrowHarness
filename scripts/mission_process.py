@@ -1,6 +1,7 @@
 """Own a process tree before releasing the diagnostic client. Stdlib only."""
 import base64
 import ctypes
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
@@ -12,6 +13,9 @@ import sys
 import threading
 import time
 import uuid
+
+SUPERVISOR_OBSERVATION_VERSION = 1
+SUPERVISOR_CAPTURE_VERSION = 1
 
 
 def windows_api():
@@ -208,6 +212,11 @@ def environment(plan):
                'USERPROFILE', 'HOME', 'HOMEDRIVE', 'HOMEPATH', 'APPDATA', 'LOCALAPPDATA',
                'PROGRAMDATA', 'PROGRAMFILES', 'CODEX_HOME', 'CLAUDE_CONFIG_DIR', 'LANG', 'LC_ALL'}
     env = {k: v for k, v in os.environ.items() if k.upper() in allowed}
+    if os.name == 'nt' and plan.get('system_probe'):
+        # Like the ACL helper, prevent PowerShell startup and module caches in the user's profile.
+        env.update(USERPROFILE=os.devnull, HOME=os.devnull, LOCALAPPDATA=os.devnull,
+                   APPDATA=os.devnull, PSModuleAnalysisCachePath=os.devnull,
+                   PSModulePath=str(Path(plan['argv'][0]).parent / 'Modules'))
     if plan['connection'] == 'api':
         value = os.environ.get(plan['credential_env'])
         if not value:
@@ -229,14 +238,18 @@ def peek_exit_code(process):
 def supervise(plan: dict, *, on_started, stop_requested) -> dict:
     if os.name != 'nt' and not (sys.platform == 'linux' and platform.machine().lower() in ('x86_64', 'amd64')):
         raise ValueError('unsupported_containment')
-    result = dict(reason='spawn_failed', exit_code=None, stdout=b'', tree_reaped=True,
-                  effect_started=False, owner=None, elapsed_seconds=0)
+    observed_start = time.monotonic()
+    result = dict(reason='spawn_failed', exit_code=None, stdout=b'', stderr=b'', tree_reaped=True,
+                  effect_started=False, owner=None, elapsed_seconds=0,
+                  started_at=datetime.now(timezone.utc).isoformat(), ended_at=None)
     if not Path(plan['argv'][0]).is_file():
+        result.update(ended_at=datetime.now(timezone.utc).isoformat(),
+                      elapsed_seconds=round(time.monotonic() - observed_start, 6))
         return result
     env = environment(plan)
     process, job, api, assigned = None, None, None, False
     streams, threads, stopped = queue.Queue(maxsize=16), [], threading.Event()
-    started, total, output = time.monotonic(), 0, bytearray()
+    started, total, output, errors = time.monotonic(), 0, bytearray(), bytearray()
     name = ('Local\\YoungCrow-' if os.name == 'nt' else '') + str(uuid.uuid4())
 
     def read(stream, label):
@@ -293,8 +306,11 @@ def supervise(plan: dict, *, on_started, stop_requested) -> dict:
                 done += 1
                 continue
             total += len(chunk)
+            retained = chunk[:max(0, plan['output_limit_bytes'] - len(output) - len(errors))]
             if label == 'out' or plan.get('merge_stderr', False):
-                output.extend(chunk[:max(0, plan['output_limit_bytes'] - len(output))])
+                output.extend(retained)
+            else:
+                errors.extend(retained)
             if total > plan['output_limit_bytes']:
                 result['reason'] = 'output_limit'
                 break
@@ -334,7 +350,8 @@ def supervise(plan: dict, *, on_started, stop_requested) -> dict:
                 if not any(thread.is_alive() for thread in threads):
                     process.stdout.close()
                     process.stderr.close()
-    result.update(stdout=bytes(output), elapsed_seconds=round(time.monotonic() - started, 6))
+    result.update(stdout=bytes(output), stderr=bytes(errors), elapsed_seconds=round(time.monotonic() - observed_start, 6),
+                  ended_at=datetime.now(timezone.utc).isoformat())
     return result
 
 

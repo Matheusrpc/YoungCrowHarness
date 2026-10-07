@@ -1,0 +1,737 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-04T19:22:26.011720+00:00",
+  "status": "partial_feasibility_proof",
+  "r1_complete": false,
+  "platform": "Windows 11 AMD64 build 26200",
+  "sbx_version": "0.46.0",
+  "sbx_sha256": "a2c8d68f3a16851a65e1d43f7330ae6860c5a2f07df8f22fab5dae7a4a232780",
+  "docker_engine_version": "29.8.1",
+  "template": {
+    "reference": "docker.io/docker/sandbox-templates:shell-docker",
+    "index_digest": "sha256:1560168ac5fb9ce23d413c878349334c5845c07e264cd675d7867f0c78ad1761",
+    "image_digest": "sha256:5bbe8539825fe1cace6dda2fb66919ef819324d905bea2795b8516aee0198222",
+    "platform": "linux/amd64",
+    "verified_at": "2026-10-04T19:11:05.390453+00:00"
+  },
+  "probe_build": {
+    "build_exit": 0,
+    "import_exit": 0,
+    "image_id": "sha256:ed62569be506ce6c14e16695e61f853a9dabdb0b29f46478f0b271693cb33b27",
+    "stderr": "",
+    "binary_sha256": "a6dd66211f5cfb25f8c73b1c0d788f86f9ba7555813c329a1ce7ccf11adff117",
+    "source_sha256": "103f013661a0c66ae76ec731a03a57bf169c970ee17e1b664ef13e2c4f378d02"
+  },
+  "vm_id": "87de7aba-e82e-4ad0-b177-e1a7c61fcc3f",
+  "observed_controls": {
+    "name": "yc-guardian-5793e644fa5e",
+    "agent": "shell",
+    "kits": [],
+    "state": "stopped",
+    "image": "docker.io/docker/sandbox-templates@sha256:5bbe8539825fe1cace6dda2fb66919ef819324d905bea2795b8516aee0198222",
+    "image_digest": "sha256:5bbe8539825fe1cace6dda2fb66919ef819324d905bea2795b8516aee0198222",
+    "cpus": 2,
+    "memory": "4g",
+    "network": "yc-guardian-5793e644fa5e",
+    "network_policy": {
+      "scope": "sandbox"
+    },
+    "runtime_mounts": [],
+    "sessions": 0,
+    "daemon_version": "v0.46.0",
+    "mcp_gateway": true,
+    "secret_count": 1,
+    "observed_at": "2026-10-04T19:18:04.869972+00:00"
+  },
+  "cases": {
+    "descendants-v2": {
+      "container_id": "5bf606490a745bc5fae7178103135e31c0d7370dd8dd1c03f937ca2d4c62b68b",
+      "container_exit": "124",
+      "elapsed_seconds": 4.984396500000003,
+      "events": [
+        {
+          "deadline_ms": 1791141302713,
+          "kind": "guardian",
+          "pid": 1,
+          "started_ms": 1791141297899,
+          "uid": 0
+        },
+        {
+          "/coordinator.sqlite_absent": true,
+          "/root/.claude_absent": true,
+          "/root/.codex_absent": true,
+          "/run/host-services_absent": true,
+          "/var/run/docker.sock_absent": true,
+          "CapAmb": "0000000000000000",
+          "CapBnd": "00000000000000c0",
+          "CapEff": "0000000000000000",
+          "CapInh": "0000000000000000",
+          "CapPrm": "0000000000000000",
+          "NoNewPrivs": "1",
+          "cpu.max": "200000 100000",
+          "descendants_started": 2,
+          "gid": 1000,
+          "home_writable": true,
+          "kind": "worker",
+          "memory.max": "4294967296",
+          "pid": 12,
+          "pids.max": "64",
+          "read_guardian_environment_denied": true,
+          "rewrite_binary_denied": true,
+          "rewrite_deadline_denied": true,
+          "signal_guardian_denied": true,
+          "spawn_error": "",
+          "uid": 1000
+        },
+        {
+          "elapsed_ms": 4828,
+          "kind": "deadline"
+        }
+      ],
+      "top_before": "PID                 PPID                COMMAND\n340                 316                 guardian\n359                 340                 guardian\n363                 359                 guardian\n364                 359                 guardian\n",
+      "top_after_exit": 1,
+      "running_owned": []
+    },
+    "process-limit": {
+      "container_id": "2fb9038e81a68f371a5706af658cfef86ddd4dd3de00355588bb04a07b7a85f3",
+      "container_exit": "124",
+      "elapsed_seconds": 4.923598300000002,
+      "events": [
+        {
+          "deadline_ms": 1791141321941,
+          "kind": "guardian",
+          "pid": 1,
+          "started_ms": 1791141317184,
+          "uid": 0
+        },
+        {
+          "/coordinator.sqlite_absent": true,
+          "/root/.claude_absent": true,
+          "/root/.codex_absent": true,
+          "/run/host-services_absent": true,
+          "/var/run/docker.sock_absent": true,
+          "CapAmb": "0000000000000000",
+          "CapBnd": "00000000000000c0",
+          "CapEff": "0000000000000000",
+          "CapInh": "0000000000000000",
+          "CapPrm": "0000000000000000",
+          "NoNewPrivs": "1",
+          "cpu.max": "200000 100000",
+          "descendants_started": 22,
+          "gid": 1000,
+          "home_writable": true,
+          "kind": "worker",
+          "memory.max": "4294967296",
+          "pid": 10,
+          "pids.max": "64",
+          "read_guardian_environment_denied": true,
+          "rewrite_binary_denied": true,
+          "rewrite_deadline_denied": true,
+          "signal_guardian_denied": true,
+          "spawn_error": "fork/exec /guardian: resource temporarily unavailable",
+          "uid": 1000
+        },
+        {
+          "elapsed_ms": 4756,
+          "kind": "deadline"
+        }
+      ],
+      "top_before": "PID                 PPID                COMMAND\n503                 479                 guardian\n518                 503                 guardian\n523                 518                 guardian\n527                 518                 guardian\n528                 518                 guardian\n529                 518                 guardian\n530                 518                 guardian\n539                 518                 guardian\n540                 518                 guardian\n545                 518                 guardian\n546                 518                 guardian\n550                 518                 guardian\n551                 518                 guardian\n552                 518                 guardian\n553                 518                 guardian\n566                 518                 guardian\n568                 518                 guardian\n569                 518                 guardian\n570                 518                 guardian\n578                 518                 guardian\n579                 518                 guardian\n580                 518                 guardian\n581                 518                 guardian\n584                 518                 guardian\n",
+      "top_after_exit": 1,
+      "running_owned": []
+    },
+    "output-limit": {
+      "container_id": "e2c9ae6af9c7118504861468fed250207c3b25b7269a8ccb4cc994c46041a489",
+      "container_exit": "122",
+      "elapsed_seconds": 0.1459881999999979,
+      "events": [
+        {
+          "deadline_ms": 1791141327547,
+          "kind": "guardian",
+          "pid": 1,
+          "started_ms": 1791141322696,
+          "uid": 0
+        },
+        {
+          "/coordinator.sqlite_absent": true,
+          "/root/.claude_absent": true,
+          "/root/.codex_absent": true,
+          "/run/host-services_absent": true,
+          "/var/run/docker.sock_absent": true,
+          "CapAmb": "0000000000000000",
+          "CapBnd": "00000000000000c0",
+          "CapEff": "0000000000000000",
+          "CapInh": "0000000000000000",
+          "CapPrm": "0000000000000000",
+          "NoNewPrivs": "1",
+          "cpu.max": "200000 100000",
+          "gid": 1000,
+          "home_writable": true,
+          "kind": "worker",
+          "memory.max": "4294967296",
+          "pid": 10,
+          "pids.max": "64",
+          "read_guardian_environment_denied": true,
+          "rewrite_binary_denied": true,
+          "rewrite_deadline_denied": true,
+          "signal_guardian_denied": true,
+          "uid": 1000
+        },
+        {
+          "bytes_observed": 8388609,
+          "kind": "output_limit"
+        }
+      ],
+      "top_before": "PID                 PPID                COMMAND\n",
+      "top_after_exit": 1,
+      "running_owned": []
+    },
+    "expired-restart": {
+      "container_id": "5bf606490a745bc5fae7178103135e31c0d7370dd8dd1c03f937ca2d4c62b68b",
+      "exit_code": 125,
+      "new_events": [
+        {
+          "kind": "refused",
+          "reason": "deadline_invalid_or_expired"
+        }
+      ],
+      "final_state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 125,
+        "Error": "",
+        "StartedAt": "2026-10-04T19:15:50.6147196Z",
+        "FinishedAt": "2026-10-04T19:15:50.6774298Z"
+      },
+      "running_owned": []
+    },
+    "transport-loss": {
+      "container_id": "b542e1840ebe4656a72044bc5968ad9d27049d1443792cd497a310b7fabacb43",
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 124,
+        "Error": "",
+        "StartedAt": "2026-10-04T19:16:25.6187706Z",
+        "FinishedAt": "2026-10-04T19:16:30.41379Z"
+      },
+      "events": [
+        {
+          "deadline_ms": 1791141390404,
+          "kind": "guardian",
+          "pid": 1,
+          "started_ms": 1791141385737,
+          "uid": 0
+        },
+        {
+          "/coordinator.sqlite_absent": true,
+          "/root/.claude_absent": true,
+          "/root/.codex_absent": true,
+          "/run/host-services_absent": true,
+          "/var/run/docker.sock_absent": true,
+          "CapAmb": "0000000000000000",
+          "CapBnd": "00000000000000c0",
+          "CapEff": "0000000000000000",
+          "CapInh": "0000000000000000",
+          "CapPrm": "0000000000000000",
+          "NoNewPrivs": "1",
+          "cpu.max": "200000 100000",
+          "descendants_started": 2,
+          "gid": 1000,
+          "home_writable": true,
+          "kind": "worker",
+          "memory.max": "4294967296",
+          "pid": 11,
+          "pids.max": "64",
+          "read_guardian_environment_denied": true,
+          "rewrite_binary_denied": true,
+          "rewrite_deadline_denied": true,
+          "signal_guardian_denied": true,
+          "spawn_error": "",
+          "uid": 1000
+        },
+        {
+          "elapsed_ms": 4669,
+          "kind": "deadline"
+        }
+      ],
+      "top_after_exit": 1,
+      "running_owned": [],
+      "coordinator_pid": 18112,
+      "transport_pid": 11932,
+      "coordinator_exit": 1,
+      "transport_kill_exit": 0
+    },
+    "vm-restart": {
+      "container_id": "a23a2b411bdb2124ada8ad9b5bd281b396463f54a9d6e9f33b1ac62b218877f2",
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 255,
+        "Error": "",
+        "StartedAt": "2026-10-04T19:18:51.7805021Z",
+        "FinishedAt": "2026-10-04T19:18:58.0908973Z"
+      },
+      "events": [
+        {
+          "deadline_ms": 1791141536536,
+          "kind": "guardian",
+          "pid": 1,
+          "started_ms": 1791141531894,
+          "uid": 0
+        },
+        {
+          "/coordinator.sqlite_absent": true,
+          "/root/.claude_absent": true,
+          "/root/.codex_absent": true,
+          "/run/host-services_absent": true,
+          "/var/run/docker.sock_absent": true,
+          "CapAmb": "0000000000000000",
+          "CapBnd": "00000000000000c0",
+          "CapEff": "0000000000000000",
+          "CapInh": "0000000000000000",
+          "CapPrm": "0000000000000000",
+          "NoNewPrivs": "1",
+          "cpu.max": "200000 100000",
+          "descendants_started": 2,
+          "gid": 1000,
+          "home_writable": true,
+          "kind": "worker",
+          "memory.max": "4294967296",
+          "pid": 10,
+          "pids.max": "64",
+          "read_guardian_environment_denied": true,
+          "rewrite_binary_denied": true,
+          "rewrite_deadline_denied": true,
+          "signal_guardian_denied": true,
+          "spawn_error": "",
+          "uid": 1000
+        }
+      ],
+      "running_owned": [],
+      "stop_exit": 0,
+      "stop_requested_at": "2026-10-04T19:18:51.954086+00:00",
+      "stop_returned_at": "2026-10-04T19:18:52.903329+00:00",
+      "stopped_observation": {
+        "name": "yc-guardian-5793e644fa5e",
+        "id": "87de7aba-e82e-4ad0-b177-e1a7c61fcc3f",
+        "agent": "shell",
+        "status": "stopped",
+        "last_used_at": "2026-10-04T19:18:52.8785572Z",
+        "cpus": 2,
+        "memory": "4g",
+        "memory_mib": 4096,
+        "created_at": "2026-10-04T19:11:24Z"
+      }
+    },
+    "daemon-restart": {
+      "containers": [
+        {
+          "id": "a23a2b411bdb2124ada8ad9b5bd281b396463f54a9d6e9f33b1ac62b218877f2",
+          "nonce": "f209d0b2f33d48938fa3d602377cbe73",
+          "state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 255,
+            "Error": "",
+            "StartedAt": "2026-10-04T19:18:51.7805021Z",
+            "FinishedAt": "2026-10-04T19:18:58.0908973Z"
+          },
+          "restart_policy": {
+            "Name": "no",
+            "MaximumRetryCount": 0
+          },
+          "events": [
+            {
+              "deadline_ms": 1791141536536,
+              "kind": "guardian",
+              "pid": 1,
+              "started_ms": 1791141531894,
+              "uid": 0
+            },
+            {
+              "/coordinator.sqlite_absent": true,
+              "/root/.claude_absent": true,
+              "/root/.codex_absent": true,
+              "/run/host-services_absent": true,
+              "/var/run/docker.sock_absent": true,
+              "CapAmb": "0000000000000000",
+              "CapBnd": "00000000000000c0",
+              "CapEff": "0000000000000000",
+              "CapInh": "0000000000000000",
+              "CapPrm": "0000000000000000",
+              "NoNewPrivs": "1",
+              "cpu.max": "200000 100000",
+              "descendants_started": 2,
+              "gid": 1000,
+              "home_writable": true,
+              "kind": "worker",
+              "memory.max": "4294967296",
+              "pid": 10,
+              "pids.max": "64",
+              "read_guardian_environment_denied": true,
+              "rewrite_binary_denied": true,
+              "rewrite_deadline_denied": true,
+              "signal_guardian_denied": true,
+              "spawn_error": "",
+              "uid": 1000
+            }
+          ],
+          "logs_exit": 0
+        },
+        {
+          "id": "b542e1840ebe4656a72044bc5968ad9d27049d1443792cd497a310b7fabacb43",
+          "nonce": "f10aecd25ad648de96e4e58155632a45",
+          "state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 124,
+            "Error": "",
+            "StartedAt": "2026-10-04T19:16:25.6187706Z",
+            "FinishedAt": "2026-10-04T19:16:30.41379Z"
+          },
+          "restart_policy": {
+            "Name": "no",
+            "MaximumRetryCount": 0
+          },
+          "events": [
+            {
+              "deadline_ms": 1791141390404,
+              "kind": "guardian",
+              "pid": 1,
+              "started_ms": 1791141385737,
+              "uid": 0
+            },
+            {
+              "/coordinator.sqlite_absent": true,
+              "/root/.claude_absent": true,
+              "/root/.codex_absent": true,
+              "/run/host-services_absent": true,
+              "/var/run/docker.sock_absent": true,
+              "CapAmb": "0000000000000000",
+              "CapBnd": "00000000000000c0",
+              "CapEff": "0000000000000000",
+              "CapInh": "0000000000000000",
+              "CapPrm": "0000000000000000",
+              "NoNewPrivs": "1",
+              "cpu.max": "200000 100000",
+              "descendants_started": 2,
+              "gid": 1000,
+              "home_writable": true,
+              "kind": "worker",
+              "memory.max": "4294967296",
+              "pid": 11,
+              "pids.max": "64",
+              "read_guardian_environment_denied": true,
+              "rewrite_binary_denied": true,
+              "rewrite_deadline_denied": true,
+              "signal_guardian_denied": true,
+              "spawn_error": "",
+              "uid": 1000
+            },
+            {
+              "elapsed_ms": 4669,
+              "kind": "deadline"
+            }
+          ],
+          "logs_exit": 0
+        },
+        {
+          "id": "e2c9ae6af9c7118504861468fed250207c3b25b7269a8ccb4cc994c46041a489",
+          "nonce": "e68dbbf2340746ea95fd042f0cb42721",
+          "state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 122,
+            "Error": "",
+            "StartedAt": "2026-10-04T19:15:22.6233849Z",
+            "FinishedAt": "2026-10-04T19:15:22.708204Z"
+          },
+          "restart_policy": {
+            "Name": "no",
+            "MaximumRetryCount": 0
+          },
+          "events": [
+            {
+              "deadline_ms": 1791141327547,
+              "kind": "guardian",
+              "pid": 1,
+              "started_ms": 1791141322696,
+              "uid": 0
+            },
+            {
+              "/coordinator.sqlite_absent": true,
+              "/root/.claude_absent": true,
+              "/root/.codex_absent": true,
+              "/run/host-services_absent": true,
+              "/var/run/docker.sock_absent": true,
+              "CapAmb": "0000000000000000",
+              "CapBnd": "00000000000000c0",
+              "CapEff": "0000000000000000",
+              "CapInh": "0000000000000000",
+              "CapPrm": "0000000000000000",
+              "NoNewPrivs": "1",
+              "cpu.max": "200000 100000",
+              "gid": 1000,
+              "home_writable": true,
+              "kind": "worker",
+              "memory.max": "4294967296",
+              "pid": 10,
+              "pids.max": "64",
+              "read_guardian_environment_denied": true,
+              "rewrite_binary_denied": true,
+              "rewrite_deadline_denied": true,
+              "signal_guardian_denied": true,
+              "uid": 1000
+            },
+            {
+              "bytes_observed": 8388609,
+              "kind": "output_limit"
+            }
+          ],
+          "logs_exit": 0
+        },
+        {
+          "id": "2fb9038e81a68f371a5706af658cfef86ddd4dd3de00355588bb04a07b7a85f3",
+          "nonce": "53486bb4062041bcbbe6cbf67248265e",
+          "state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 124,
+            "Error": "",
+            "StartedAt": "2026-10-04T19:15:17.0817128Z",
+            "FinishedAt": "2026-10-04T19:15:21.9475438Z"
+          },
+          "restart_policy": {
+            "Name": "no",
+            "MaximumRetryCount": 0
+          },
+          "events": [
+            {
+              "deadline_ms": 1791141321941,
+              "kind": "guardian",
+              "pid": 1,
+              "started_ms": 1791141317184,
+              "uid": 0
+            },
+            {
+              "/coordinator.sqlite_absent": true,
+              "/root/.claude_absent": true,
+              "/root/.codex_absent": true,
+              "/run/host-services_absent": true,
+              "/var/run/docker.sock_absent": true,
+              "CapAmb": "0000000000000000",
+              "CapBnd": "00000000000000c0",
+              "CapEff": "0000000000000000",
+              "CapInh": "0000000000000000",
+              "CapPrm": "0000000000000000",
+              "NoNewPrivs": "1",
+              "cpu.max": "200000 100000",
+              "descendants_started": 22,
+              "gid": 1000,
+              "home_writable": true,
+              "kind": "worker",
+              "memory.max": "4294967296",
+              "pid": 10,
+              "pids.max": "64",
+              "read_guardian_environment_denied": true,
+              "rewrite_binary_denied": true,
+              "rewrite_deadline_denied": true,
+              "signal_guardian_denied": true,
+              "spawn_error": "fork/exec /guardian: resource temporarily unavailable",
+              "uid": 1000
+            },
+            {
+              "elapsed_ms": 4756,
+              "kind": "deadline"
+            }
+          ],
+          "logs_exit": 0
+        },
+        {
+          "id": "5bf606490a745bc5fae7178103135e31c0d7370dd8dd1c03f937ca2d4c62b68b",
+          "nonce": "b1d91f1ca4b74a47aaeac8e1e854b766",
+          "state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 125,
+            "Error": "",
+            "StartedAt": "2026-10-04T19:15:50.6147196Z",
+            "FinishedAt": "2026-10-04T19:15:50.6774298Z"
+          },
+          "restart_policy": {
+            "Name": "no",
+            "MaximumRetryCount": 0
+          },
+          "events": [
+            {
+              "deadline_ms": 1791141302713,
+              "kind": "guardian",
+              "pid": 1,
+              "started_ms": 1791141297899,
+              "uid": 0
+            },
+            {
+              "/coordinator.sqlite_absent": true,
+              "/root/.claude_absent": true,
+              "/root/.codex_absent": true,
+              "/run/host-services_absent": true,
+              "/var/run/docker.sock_absent": true,
+              "CapAmb": "0000000000000000",
+              "CapBnd": "00000000000000c0",
+              "CapEff": "0000000000000000",
+              "CapInh": "0000000000000000",
+              "CapPrm": "0000000000000000",
+              "NoNewPrivs": "1",
+              "cpu.max": "200000 100000",
+              "descendants_started": 2,
+              "gid": 1000,
+              "home_writable": true,
+              "kind": "worker",
+              "memory.max": "4294967296",
+              "pid": 12,
+              "pids.max": "64",
+              "read_guardian_environment_denied": true,
+              "rewrite_binary_denied": true,
+              "rewrite_deadline_denied": true,
+              "signal_guardian_denied": true,
+              "spawn_error": "",
+              "uid": 1000
+            },
+            {
+              "elapsed_ms": 4828,
+              "kind": "deadline"
+            },
+            {
+              "kind": "refused",
+              "reason": "deadline_invalid_or_expired"
+            }
+          ],
+          "logs_exit": 0
+        },
+        {
+          "id": "ba87b47f32fa7a41ebee0ec079acb7295920b39e98fa79184d7052ae6c00d292",
+          "nonce": "ba2a19ecfaaf44d9bec78ba0ef346eab",
+          "state": {
+            "Status": "created",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 128,
+            "Error": "failed to create task for container: failed to initialize logging driver: compression cannot be enabled when max file count is 1",
+            "StartedAt": "0001-01-01T00:00:00Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+          },
+          "restart_policy": {
+            "Name": "no",
+            "MaximumRetryCount": 0
+          },
+          "events": [],
+          "logs_exit": 1
+        }
+      ]
+    }
+  },
+  "final_sandboxes": [
+    {
+      "name": "yc-envelope-4bf710aa9563",
+      "id": "41e0e250-0655-4110-9997-4bfd08a6c642",
+      "agent": "shell",
+      "status": "stopped",
+      "last_used_at": "2026-10-04T19:11:06.2330313Z",
+      "cpus": 2,
+      "memory": "4g",
+      "memory_mib": 4096,
+      "created_at": "2026-10-04T19:06:36Z"
+    },
+    {
+      "name": "yc-guardian-5793e644fa5e",
+      "id": "87de7aba-e82e-4ad0-b177-e1a7c61fcc3f",
+      "agent": "shell",
+      "status": "stopped",
+      "last_used_at": "2026-10-04T19:22:25.6619582Z",
+      "cpus": 2,
+      "memory": "4g",
+      "memory_mib": 4096,
+      "created_at": "2026-10-04T19:11:24Z"
+    }
+  ],
+  "model_calls": 0,
+  "pending": [
+    "single-dispatch private protocol and persistent consumed marker",
+    "production v3 workload and its actual identity",
+    "network allowlist with permitted fixture and blocked private destinations",
+    "synthetic host sentinel and credential boundary proof",
+    "daemon restart during an active fixture",
+    "full VM/host suspension-expiry semantics",
+    "OAuth and native catalogs inside reviewed boundary"
+  ],
+  "evidence_sha256": {
+    ".superpowers/sdd/2026-10-04-isolated-executor/supervisor_probe.go": "103f013661a0c66ae76ec731a03a57bf169c970ee17e1b664ef13e2c4f378d02",
+    ".superpowers/sdd/2026-10-04-isolated-executor/run_kernel_probe.py": "b3fbae760436215cf7b3c9ac2e2b31155a45b9e724aabd1566d7e77a297cbab0",
+    ".superpowers/sdd/2026-10-04-isolated-executor/probe_transport_loss.py": "3afee1026c9641421431c83b89584d3bbd4bfc33767004acb250f15ba90a0841",
+    ".superpowers/sdd/2026-10-04-isolated-executor/probe_vm_restart.py": "ea2a540f4d21f1a0cbbffe8a0ce914cd1c134c063db0af11424a08029833dd59",
+    ".superpowers/sdd/2026-10-04-isolated-executor/probe-descendants-v2.json": "8c28882040ca4fa9eb811f87f749718a8e29e5ec377d9d4c4f9847906f77d406",
+    ".superpowers/sdd/2026-10-04-isolated-executor/probe-process-limit.json": "75fbb08e4c6440d03f294c0a1d9146be1a516246ff4f863a21ce5e1a9c331346",
+    ".superpowers/sdd/2026-10-04-isolated-executor/probe-output-limit.json": "212bda38de9bea920a2a45e26e909c0718856f01b0f12161871c16d73d7865be",
+    ".superpowers/sdd/2026-10-04-isolated-executor/probe-expired-restart.json": "ecb495075ec0349d94748e5a917aecc72ca02b404bacd9101c6238ff7a45ef99",
+    ".superpowers/sdd/2026-10-04-isolated-executor/probe-transport-loss.json": "9f08e9393b9410c487c392bf47cc0e0d9e235a8b8bc37d6bac5fc0d6d88f8d8f",
+    ".superpowers/sdd/2026-10-04-isolated-executor/probe-vm-restart.json": "6bcb6280c27be50022a04d59c04c410a73d02042bca587349c6c29d86bc90686",
+    ".superpowers/sdd/2026-10-04-isolated-executor/probe-daemon-restart.json": "380dd1094034f98d6beb7ddcac8b673f8068a34e93b19f0044803d13b74aed32",
+    ".superpowers/sdd/2026-10-04-isolated-executor/nested-build.json": "73593022c96c3366b942f8abebda3f8f4fc953f7354c2c69f1c590dc12b2b29c",
+    ".superpowers/sdd/2026-10-04-isolated-executor/nested-docker-policy.json": "01cf017f319043a44b2ad2efe612b7f5202acb2d4adfaeb663ae2d44a08fb573",
+    ".superpowers/sdd/2026-10-04-isolated-executor/nested-safe-inspect.json": "a80acad1c187e7e4a90e5920fedba1d51b3337ed1d999d0f1707a6e370fd3f78"
+  },
+  "limitations": [
+    "throwaway synthetic Go fixture; not an installed executor",
+    "inner container network=none; provider connectivity not tested",
+    "CapEff/CapPrm/CapAmb/CapInh=0, CapBnd retains SETUID/SETGID under no_new_privs",
+    "outer VM has vendor MCP gateway metadata and one mcpgateway placeholder; fixture receives neither socket nor environment",
+    "operator restarted daemon with workloads already stopped; automatic and in-flight restart remain unproved",
+    "original shell template lacked Docker Engine; it remains stopped",
+    "first inner container never started due rejected log-driver options; not counted as a passed fixture"
+  ]
+}

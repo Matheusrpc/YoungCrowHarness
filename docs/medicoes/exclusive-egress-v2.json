@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-05T19:00:23.166358+00:00",
+  "workstream": "isolated-executor/2A-R1",
+  "state": "closed_inconclusive_before_receipt",
+  "authorization": "Maintainer requested proceeding after the backlog and explicit next egress proof were presented.",
+  "native_started_at_observation": false,
+  "native_result_verified": true,
+  "preparation_model_calls": 0,
+  "preparation_external_echo_requests": 0,
+  "preparation_daemon_restarts": 0,
+  "preparation_settings_mutations": 0,
+  "product_profiles_enabled": false,
+  "preflight": {
+    "state": "preflight_metadata_ready",
+    "known_vms": 5,
+    "all_stopped": true,
+    "settings_observed": false,
+    "log_sha256": "06c7e24a68b0008d81662382cd12d23888447b18db15390436cdef5913802319"
+  },
+  "previous_operation": {
+    "state": "recovered_consumed",
+    "recovery_sha256": "77fb0fb16a6b6e149c2652af1a0ca73b7bdf7dba310a00ecf48dddb557c83453",
+    "preserved_test_source": ".superpowers\\sdd\\2026-10-05-exclusive-egress-proof\\test_exclusive_egress-at-recovery.py",
+    "preserved_test_source_sha256": "ba6efbdfc6e7aab6a04b8ec4171817f8958f4fb24a165d0c812f130d08fe3d5e"
+  },
+  "limits": {
+    "preparation_seconds": 180,
+    "probe_seconds": 120,
+    "cleanup_seconds": 180,
+    "attempt_seconds": 10,
+    "max_echo_attempts": 3,
+    "max_service_restarts": 2
+  },
+  "stop_rule": "One round only. Incomplete evidence remains inconclusive and ends this cycle for a decision. Cleanup does not renew request budget.",
+  "preparation_tests": {
+    "total": 59,
+    "passed": 59,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "groups": {
+      "ClientFixtureTests": 2,
+      "GuardTests": 12,
+      "NextOperationTests": 5,
+      "PolicyTests": 4,
+      "RecoveryTests": 12,
+      "TransactionTests": 15,
+      "VerdictTests": 9
+    },
+    "log_sha256": "4a4c73fc07f25f2d34dc75f7de3fa682a578ccc1de87e4fe45d4a5692f93db9c"
+  },
+  "preparation_files": {
+    ".superpowers/sdd/2026-10-04-isolated-executor/exclusive_egress_v2.py": "7407e0b1d8751cf956e754c989261655f24490ede59eb372e70413ede14fef58",
+    ".superpowers/sdd/2026-10-04-isolated-executor/run-exclusive-egress-v2.ps1": "91305aef4b83ee498483431784eed64501961d1e26495b0cf7d7921c2b23a0cf",
+    ".superpowers/sdd/2026-10-04-isolated-executor/exclusive_egress.py": "3edc8f391ea87e4d1ceb22e0d21fd59a619311fb3057c1227c844f37a4203b1d",
+    ".superpowers/sdd/2026-10-04-isolated-executor/egress_guard.py": "7092626e4214f50848a64b95716d692b9b8b0d11dabf979a7fd098f0d5fcb777",
+    ".superpowers/sdd/2026-10-04-isolated-executor/test_exclusive_egress.py": "ce7882e0b7a850f55b5d5051bb6eeb5150fcacb18263f5a284d639aa67eba6f6"
+  },
+  "updated_at": "2026-10-05T19:09:13.932626+00:00",
+  "operator_execution_reported": true,
+  "exact_timed_out_command": null,
+  "network_hypothesis": "unmeasured",
+  "recovery_required": false,
+  "control_receipt_exists": false,
+  "new_attempt_allowed": false,
+  "observed_current_daemon_unchanged": true,
+  "all_vms_stopped": true,
+  "native_model_calls": 0,
+  "native_echo_requests": 0,
+  "native_daemon_restarts": 0,
+  "native_settings_mutations": 0,
+  "tests": {
+    "total": 60,
+    "passed": 60,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "groups": {
+      "ClientFixtureTests": 2,
+      "GuardTests": 12,
+      "NextOperationTests": 6,
+      "PolicyTests": 4,
+      "RecoveryTests": 12,
+      "TransactionTests": 15,
+      "VerdictTests": 9
+    },
+    "log_sha256": "8b25a2a718178f205800dd1d130d9db7a7c6b751172d17f2d784869de001c397"
+  },
+  "closure": {
+    "reason": "operator_reported_TimeoutExpired_before_durable_receipt",
+    "verification_sha256": "8e5c7fc942b93ab52994f9e85bb0c43d50bf10e073000b6c5b7210fedbfba449",
+    "diagnosis_sha256": "ef99f59b87fdc99432b142b148a89090dd4145d955082238e469e73964aef0d6",
+    "marker_sha256": "87da06c23e8a0cfa8db2d36d80edccbab93f0615e75f1ecdf50ec67f612973e1",
+    "files": {
+      ".superpowers/sdd/2026-10-04-isolated-executor/exclusive_egress_v2.py": "7f8cd3cc8e9940aacbfe99f63bf869a8ae746275d05bc2a434a93aec1e8fb9d8",
+      ".superpowers/sdd/2026-10-04-isolated-executor/run-exclusive-egress-v2.ps1": "bb72e7d5bdbba26de2e73842baa9c6009df123a88a69ba5494706abefe403f80",
+      ".superpowers/sdd/2026-10-04-isolated-executor/test_exclusive_egress.py": "9baee3fb8f077256c2e3820f880165a5dbe3e34b55b8c2b3da3533617fbdcc9b"
+    },
+    "red_log_sha256": "916b2053fc65e025b6745df271eab1ea01a23dfef4f31f3dc5d2609be0ab8cf8"
+  },
+  "next_action": "Decide execution approach; clarify Windows-only requirement versus available dedicated runner. No v3, migration or installation authorized."
+}

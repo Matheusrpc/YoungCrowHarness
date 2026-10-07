@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-05T13:06:00.936068+00:00",
+  "workstream": "isolated-executor/2A-R1",
+  "state": "recovered_native_egress_unmeasured",
+  "review": {
+    "status": "five_findings_fixed_with_regressions",
+    "critical": 0,
+    "important": 5,
+    "fixed": 5,
+    "minor": 0,
+    "fresh_rereview": false,
+    "note": "Initial five findings fixed. Native source-label and provisioned-ID contracts corrected afterward with ten additional tests. No new independent review."
+  },
+  "native_executed": true,
+  "product_profiles_enabled": false,
+  "model_calls": 0,
+  "real_credentials_used": false,
+  "external_echo_requests": 0,
+  "settings_mutations": 2,
+  "daemon_restarts": 1,
+  "vm_starts": 0,
+  "certificates_installed": 0,
+  "tests": {
+    "total": 54,
+    "passed": 54,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "log_sha256": "3db4fc7a804dd24cb4b2856a2d458d705a585f3923c5235b25536965170aa0f2",
+    "groups": {
+      "ClientFixtureTests": 2,
+      "GuardTests": 12,
+      "PolicyTests": 4,
+      "RecoveryTests": 12,
+      "TransactionTests": 15,
+      "VerdictTests": 9
+    }
+  },
+  "preflight": {
+    "state": "preflight_metadata_ready",
+    "known_vms": 5,
+    "all_stopped": true,
+    "daemon_running": true,
+    "settings_observed": false
+  },
+  "limits": {
+    "preparation_seconds": 180,
+    "probe_seconds": 120,
+    "cleanup_seconds": 180,
+    "attempt_seconds": 10,
+    "max_echo_attempts": 3,
+    "max_service_restarts": 2
+  },
+  "local_tls": {
+    "redirect_302_not_followed": true,
+    "invalid_identity_no_marker": true,
+    "trust_scope": "fixture_SSLContext_only"
+  },
+  "files": {
+    ".superpowers/sdd/2026-10-04-isolated-executor/egress_guard.py": "7092626e4214f50848a64b95716d692b9b8b0d11dabf979a7fd098f0d5fcb777",
+    ".superpowers/sdd/2026-10-04-isolated-executor/exclusive_egress.py": "3edc8f391ea87e4d1ceb22e0d21fd59a619311fb3057c1227c844f37a4203b1d",
+    ".superpowers/sdd/2026-10-04-isolated-executor/test_exclusive_egress.py": "ba6efbdfc6e7aab6a04b8ec4171817f8958f4fb24a165d0c812f130d08fe3d5e",
+    ".superpowers/sdd/2026-10-04-isolated-executor/run-exclusive-egress-proof.ps1": "dbf497eccf83d7ca4433cb8087ade62200a4ec62cbc96d62431ec094c3b6c433",
+    ".superpowers/sdd/2026-10-04-isolated-executor/hostname-cidr-client.py": "fdb2547601477e33d34b0f0e5568b400431a378b0aa9bce3cd233eeb613c3981",
+    ".superpowers/sdd/2026-10-04-isolated-executor/guardian_vm.py": "a2e82785634c3dcfcdd0c83d147318478cbfd34b23b604907470c83328111f71",
+    "runtime/sbx/guardian.py": "5b26f23f407a1e1f589e222b7f7ad04cd54e36567c11a761825d9af765d60add",
+    "runtime/sbx/launcher.py": "dcd1198c097dcc0e19dda958f5a9aaf1962cec163003948da52648e494885afe"
+  },
+  "remaining": [
+    "new authorized native egress operation using corrected contracts; existing receipt consumed",
+    "hostile client relay isolation",
+    "joint MCP isolation and provider access",
+    "OAuth",
+    "corrected package",
+    "host suspension",
+    "R2",
+    "R3"
+  ],
+  "updated_at": "2026-10-05T18:48:37.872326+00:00",
+  "native_execution_status": "consumed_recovered_inconclusive",
+  "constraints": [
+    "Private trusted-host diagnostic only",
+    "Unknown creation IDs or native refusal evidence cannot produce acceptance",
+    "No second run after an existing receipt"
+  ],
+  "native_attempt": {
+    "operation_id": "7877c402-92d6-435c-9b2b-0de29e1a1b5e",
+    "started_at": "2026-10-05T17:27:18.504648+00:00",
+    "reason": "settings_readback_failed",
+    "initial_interpretation": "cleanup_incomplete",
+    "phases_dispatched": 0,
+    "expected_source_before_fix": "user",
+    "observed_source": "override",
+    "settings_set": [
+      "proxy.sandbox"
+    ],
+    "rules_created": 0,
+    "credentials_created": 0
+  },
+  "recovery": {
+    "observed_at": "2026-10-05T18:48:37.872326+00:00",
+    "persisted_settings_restored": true,
+    "daemon_restart_pending": false,
+    "all_vms_stopped": true,
+    "guard_absent": true,
+    "credentials_unchanged": true,
+    "globals_unchanged": true,
+    "new_requests": 0,
+    "restored": true,
+    "errors": [],
+    "observed_restore_restarts": 1,
+    "final_verification_method": "read_only_native_verification",
+    "new_restarts_during_final_verification": 0,
+    "effective_external_policy_unchanged": true,
+    "raw_global_policy_identical": false,
+    "own_policy_identical": true,
+    "regenerated_fields": [
+      "id",
+      "policy_id"
+    ],
+    "regenerated_rule": "kit:sbx-kit-builder"
+  },
+  "native_evidence_sha256": {
+    "control.json.operator-failure": "2f064192795d799c4e4b9906491185a1a5ad017d56f3eedd98893ab825bc3e80",
+    "receipt.json.operator-failure": "c56729fa2f87755935cf036dda3dd29f0ad45b3ad6cb18b655ef15d92ff3b51b",
+    "readback-diagnosis.json": "01d9af15892010892a6dda38ce0423f187ff7fce10ea16064bd1e1c3c48fe5b2",
+    "settings-recovery.json": "9f0c1a1f347515e50711519d18af80d9c2ed0a4bf0fe1b2a054c37cefc8fe260",
+    "control.json.final-inventory-failure": "899c87f050e718c51112916becba4eac91a1c6d4e826d807c569a47efc6a7c68",
+    "receipt.json.final-inventory-failure": "13d4245afc8c2c5cb9cdbc1d200b6ce6df36fad610c7ffb5e49b2dd1b8b85207",
+    "final-inventory-diagnosis.json": "4cd15f2bbbca8b1eec67ce5e223907066515c1fafc49d3f546acf4476274b36c",
+    "provisioned-policy-delta.json": "20f8ecdbde66abf945bbc742aaa6ae2d909bddf0c6e3aac23b56c91e94effc4c",
+    "recovery-complete.json": "77fb0fb16a6b6e149c2652af1a0ca73b7bdf7dba310a00ecf48dddb557c83453",
+    "control.json": "d72edab8fe25cd4fe1f3ac4fd21933e92767882693cfa7d384b4ce6509f5434b",
+    "receipt.json": "13d4245afc8c2c5cb9cdbc1d200b6ce6df36fad610c7ffb5e49b2dd1b8b85207"
+  },
+  "regression_evidence_sha256": {
+    "provisioned-id-red.log": "3095dc553e871d2d6ead31cdf95ca3265322a2579a6f011ce9092ca318a92ef5",
+    "provisioned-id-green.log": "3db4fc7a804dd24cb4b2856a2d458d705a585f3923c5235b25536965170aa0f2"
+  }
+}

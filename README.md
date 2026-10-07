@@ -36,6 +36,12 @@ O `ingest-source` conduz documentos e mídia até o vault local, com origem, rev
 **Navegue:** [arquitetura](#arquitetura-pt) · [começar ou migrar](#setup-pt) · [processo](#processo-pt) ·
 [memória](#memoria-pt) · [próximas entregas](#evolucao-pt).
 
+**Continuidade do executor:** a branch `feat/isolated-executor` reúne o código em desenvolvimento,
+testes e relatórios revisados para continuar em outro ambiente. Comece pelo
+[contexto completo](docs/HANDOFF-CLOUD-2026-10-07.md) e pela
+[verificação deste checkpoint](docs/relatorios/2026-10-07-cloud-checkpoint.md).
+O executor ainda depende de prova integrada de rede e dos dois clientes autenticados; seus perfis permanecem bloqueados.
+
 <a id="arquitetura-pt"></a>
 
 ## <img src="assets/gema-turquesa.svg" height="24" alt=""> Arquitetura e estado atual
@@ -313,14 +319,125 @@ O [backlog completo](docs/BACKLOG.md) acompanha dependências e critérios de ac
 [2A: executor e adaptadores](docs/relatorios/2026-10-03-mission-runtime-adapters.md) está parcial:
 o mecanismo existe, mas os perfis de permissões de Codex e Claude ainda bloqueiam chamadas reais.
 Descobrir um modelo não comprova sua execução. API permanece indisponível nesta etapa.
-Na [verificação nativa](docs/relatorios/2026-10-03-native-client-verification.md), a inspeção do
-Claude passou a aceitar o executável com hard link usado pelo instalador. A prova local do Codex
-reproduziu acesso a uma imagem fora da pasta de trabalho; o diagnóstico real continua bloqueado.
-Os [controles complementares](docs/relatorios/2026-10-04-native-permission-controls.md) confirmaram
-que as flags atuais não isolam o estado interno dos clientes. O caminho de ambiente separado
-foi escolhido. O [desenho do executor isolado](docs/superpowers/specs/2026-10-04-isolated-executor-design.md)
-propõe Docker Sandboxes local, cópia sanitizada e controle de duração independente do coordenador.
-O desenho detalhado está em revisão; instalação e execução ainda não estão implementadas.
+O [executor isolado](docs/superpowers/specs/2026-10-04-isolated-executor-design.md) usa
+Docker Sandboxes local, uma microVM sem montagem do projeto e um contêiner interno para
+separar o cliente do coordenador. O [plano aprovado](docs/superpowers/plans/2026-10-04-isolated-executor.md)
+tem três PBIs: prova do ambiente, adaptador/recuperação e adoção autenticada nos dois clientes.
+R1 está em desenvolvimento; R2/R3 ainda não começaram.
+
+O guardian grava o consumo antes de iniciar cada fase, recusa repetição e conserva um
+prazo independente do coordenador. O [launcher com rede restrita](docs/relatorios/2026-10-04-network-launcher.md)
+exige recibos privados antes de inicializar ou despachar. Ele instala a negação de rede
+antes de conectar a interface e limita o destino TCP dentro do contêiner ao IP público
+e à porta selecionados. Isso não comprova o destino final depois dos proxies externos.
+O cliente e seus filhos ficam sem privilégios para alterar essa fronteira.
+
+Oito cenários nativos passaram nesta versão, incluindo preparação interrompida, regras
+alteradas, repetição, perda de transporte e prazo. OpenAI e Anthropic responderam aos testes
+TLS, com 40 tentativas negativas de rede no cliente e nos filhos. Foram requisições HEAD,
+sem autenticação ou inferência. A suíte geral executou 390 testes: 379 passaram, 11 foram ignorados por requisitos de ambiente, sem falhas ou erros.
+Consulte as [provas e limitações](docs/relatorios/2026-10-04-network-launcher.md) e o
+[guia de testes Windows](docs/USAGE.md#tests-windows).
+
+O diagnóstico `client environment --executable CAMINHO --json` verifica o binário e os
+pré-requisitos. A opção `--preflight` registra consultas do Docker e preserva suas saídas
+em arquivo privado local, com etapa, prazo e erro classificados. As 11 consultas passaram
+no terminal local em 7 de outubro. No celular, o diagnóstico confirmou que a sessão
+do Windows não disponibilizou seu conjunto de credenciais ao Docker.
+Esse resultado não libera execução de IA. Veja a [consolidação do executor](docs/relatorios/2026-10-07-executor-consolidation.md).
+Uma consulta posterior pelo celular foi recusada na proteção do armazenamento.
+O diagnóstico confirmou proprietário divergente no temporário. No Windows, o comando
+agora protege esse arquivo ainda vazio antes de gravar evidências; arquivos e permissões
+existentes são preservados. A correção passou na sessão remota e permitiu capturar a
+falha de credenciais. `credential_session_unavailable` orienta usar uma sessão do
+Windows com acesso ao Gerenciador de Credenciais; o inventário permanece desconhecido.
+No PowerShell local do mantenedor, as 11 consultas passaram, com o mesmo binário.
+O inventário Docker estava vazio; autenticação e execução isolada continuam pendentes.
+Com `--preflight --sandbox NOME`, o diagnóstico também confere políticas, imagem,
+recursos e a identidade do serviço antes e depois da coleta. A primeira execução
+local passou nas 29 consultas. O resultado descreve metadados estáveis; a reserva
+exclusiva e a prova integrada de rede ainda são necessárias para executar clientes.
+O relay restrito já está ligado ao guardian e ao launcher em desenvolvimento.
+Ele reconstrói o destino autorizado, preserva respostas em streaming e encerra a
+conexão no prazo da operação. Passaram 43 testes locais, com revisão independente.
+A configuração v3 aceita apenas eco com credencial fictícia; Docker integrado e
+Claude/Codex autenticados ainda precisam de prova. Consulte o [estado do relay](docs/relatorios/2026-10-07-executor-consolidation.md#relay-restrito-no-guardian).
+O diagnóstico também mostra `execution_reservation`, compartilhada pelos projetos
+da mesma conta. A reserva persiste após queda do coordenador; recibo ausente ou
+corrompido mantém o bloqueio. O filtro de saída já confere DNS e IP antes de conectar,
+com destino sintético limitado a `postman-echo.com:443`. Esses componentes passaram
+nos testes locais; sua ligação ao despacho e à recuperação do Docker ainda está pendente.
+Veja [reserva e saída](docs/relatorios/2026-10-07-executor-consolidation.md#reserva-compartilhada-e-filtro-de-saída).
+`--sandbox NOME` observa uma VM existente sem iniciá-la. O [passo a passo](docs/USAGE.md#sandbox-environment)
+explica os resultados. O [reinício ativo](docs/relatorios/2026-10-04-network-launcher.md#reinício-ativo-e-reconciliação)
+comprovou a VM parada 3,756 segundos antes do prazo e recusou repetir a operação após
+a retomada para inspeção. O recibo anterior, com falha de medição, foi preservado.
+R1 ainda depende das rotas restantes, pacote, suspensão e autenticação. Os perfis continuam bloqueados.
+Os [ensaios dos endereços do gateway e do Windows](docs/relatorios/2026-10-05-gateway-endpoints.md)
+registraram 124 tentativas TCP sem conexão, com TLS dos provedores acessível e nenhum
+acesso às sentinelas Windows. A [investigação de DNS e proxy](docs/relatorios/2026-10-05-proxy-resolution.md)
+confirmou a proteção dos arquivos de resolução, mas não comprovou o destino final.
+A saída atual também não oferece a injeção de credenciais prevista. A [prova conjunta](docs/relatorios/2026-10-05-auth-egress-spike.md)
+encerrou três ciclos e encontrou um candidato com IP e identidade do fornecedor fixos.
+A [prova nativa](docs/relatorios/2026-10-05-native-proxy-compatibility.md) confirmou TLS nos provedores,
+mas a credencial descartável funcionou somente por domínio; o Docker recusou o caminho por IP
+nos serviços de eco. A [prova de negação CIDR](docs/relatorios/2026-10-05-hostname-cidr-proof.md)
+confirmou que o domínio permitido continua acessível mesmo com todos os IPs negados,
+conforme documentado pelo Docker. Essa combinação foi reprovada para o nosso requisito;
+a [arquitetura aprovada](docs/superpowers/specs/2026-10-05-exclusive-egress-decision.md)
+coloca esse controle após a injeção de credenciais, em uma instalação do Docker Sandboxes
+reservada ao YoungCrow. O [plano da prova](docs/superpowers/plans/2026-10-05-exclusive-egress-proof.md)
+foi aprovado. O protótipo passou em 60 testes locais. O [ciclo nativo](docs/relatorios/2026-10-05-exclusive-egress-proof.md)
+terminou inconclusivo: a primeira operação foi recuperada; a v2 excedeu o prazo antes
+de criar o recibo e alterar o Docker. Configurações e permissões foram conferidas,
+com cinco VMs paradas. Não há recuperação pendente. O roteiro v2 está bloqueado;
+o produto seguirá com [execução local por padrão e runner dedicado opcional](docs/superpowers/specs/2026-10-05-local-and-dedicated-execution.md).
+O setup aceita a própria máquina ou um runner aberto pelo VS Code Remote SSH. A seleção
+é privada e preservada na reinstalação. A saída de rede ainda depende de aceite e os perfis
+de execução seguem bloqueados.
+Na [retomada de R1](docs/relatorios/2026-10-06-observed-egress-proof.md), a prova parou
+antes das GETs: o roteiro esperava `override` ao gravar um valor padrão, mas o Docker
+remove esse override. A correção passou em 75 testes locais. A restauração foi confirmada
+por leitura, sem pendência de limpeza. A operação foi consumida; a rede segue sem aceite.
+A [prova corrigida](docs/relatorios/2026-10-06-corrected-egress-proof.md) passou no acesso
+permitido, mas a falha com o controlador desligado ainda não comprovou o bloqueio esperado.
+O diagnóstico posterior encontrou a recusa no log do daemon; o coletor não a reconheceu.
+A2 não executada, conjunto inconclusivo e limpeza confirmada. Veja o [panorama de resultados](docs/relatorios/2026-10-06-panorama-executor.md).
+Um [coletor separado](docs/relatorios/2026-10-06-captured-egress-evidence.md) passou em onze
+testes offline com a mensagem real. Ele preserva os snapshots completos e verifica
+origem, porta e horário da recusa. A [integração com o controlador](docs/relatorios/2026-10-06-integrated-egress-controller.md)
+também foi validada offline, incluindo A/B/A2 e recuperação sem repetição. A entrada
+nativa passou em uma suíte de 120 testes, incluindo sete da entrada remota. O
+[guia do ensaio](docs/USAGE.md#entrada-do-ensaio-integrado-somente-mantenedor) registra
+a execução pelo mantenedor. A tentativa parou por proprietário incompatível dos
+arquivos, após cinco consultas e antes de alterar o Docker. O ajuste de proprietário
+passou na sessão remota. A entrada separada passou pela verificação de proprietário,
+mas parou ao interpretar o primeiro status do Docker (`JSONDecodeError`). Não houve
+alteração no Docker nem limpeza pendente. A captura posterior passou no celular,
+com resposta idêntica à local; as cinco consultas iniciais também passaram daqui.
+A causa histórica continua sem comprovação. A entrada com captura passou em 129 testes;
+na execução seguinte, guardou quatro respostas válidas e parou por `policy_baseline_changed`.
+O roteiro confundiu um identificador recriado pela limpeza anterior com mudança de
+permissão. Houve 24 consultas, sem GET, reinício ou alteração no Docker. A correção
+agora está integrada a uma entrada local, com captura e recuperação. Passaram 102 testes:
+sete da entrada Windows, 12 da sequência inicial e 83 do controlador, comparação e fases.
+As respostas externas foram simuladas; isso não certifica a rede real.
+A entrada corrigida foi executada e parou na consulta `sbx secret ls --json`, com
+código 1. Foram 25 consultas, sem GET, reinício ou alteração no Docker; a limpeza foi
+confirmada. A mesma consulta passou localmente, inclusive com o auxiliar Windows,
+mas a causa da falha remota continua desconhecida: sua mensagem não foi capturada.
+O [guia registra a tentativa encerrada](docs/USAGE.md#entrada-do-ensaio-integrado-somente-mantenedor).
+Não há novo ensaio completo preparado. O aceite real de A/B/A2 continua pendente.
+O [desenho aprovado de setup](docs/superpowers/specs/2026-10-05-execution-setup-design.md) detalha
+seleção, diagnóstico por etapa e acesso ao runner pelo VS Code Remote SSH. O
+[plano com três PBIs](docs/superpowers/plans/2026-10-05-execution-setup.md) foi implementado nesta branch.
+A [validação do setup](docs/relatorios/2026-10-05-execution-setup.md) cobriu oito combinações
+de adoção/restauração e 414 testes: 403 aprovados e 11 skips por requisitos do ambiente.
+Os resultados finais incluem a repetição do módulo guardian após corrigir sua fixture de relógio.
+Use `--execution-location local|dedicated` no setup e
+`python3 -B scripts/missions.py environment show --json` para consultar a escolha.
+O [guia instalado](skills/personalizer/references/execution.md) explica primeiro uso, migração
+e diagnóstico por etapa. Configurar o destino não habilita agentes autônomos.
 Os limites de três PBIs e três agentes serão aplicados pela fila da entrega seguinte.
 
 | Próxima entrega | O que falta para a esteira completa |
@@ -404,6 +521,12 @@ The `ingest-source` skill brings documents and media into the local vault with s
 
 **Navigate:** [architecture](#architecture-en) · [setup and adoption](#setup-en) · [process](#process-en) ·
 [memory](#memory-en) · [next deliveries](#roadmap-en).
+
+**Executor handoff:** branch `feat/isolated-executor` contains the work in progress, tests and
+reviewed reports for continuing in another environment. Start with the
+[full context](docs/HANDOFF-CLOUD-2026-10-07.md) and the
+[checkpoint verification](docs/relatorios/2026-10-07-cloud-checkpoint.md).
+Integrated network proof and both authenticated clients are still pending; execution profiles remain blocked.
 
 <a id="architecture-en"></a>
 
@@ -683,14 +806,124 @@ The [full backlog](docs/BACKLOG.md#english-overview) tracks dependencies and acc
 [2A: executor and adapters](docs/relatorios/2026-10-03-mission-runtime-adapters.md) is partial:
 the mechanism exists, but Codex and Claude permission profiles still block live calls.
 Discovering a model does not verify execution. API connections remain unavailable in this stage.
-The [native verification](docs/relatorios/2026-10-03-native-client-verification.md) confirmed Claude
-inspection with its installer's hard-linked executable. The local Codex probe reproduced image
-access outside the working directory; live diagnostics remain blocked.
-The [additional controls](docs/relatorios/2026-10-04-native-permission-controls.md#english-overview)
-confirmed that the current flags do not isolate client runtime state. A separate environment
-was selected. The [isolated executor design](docs/superpowers/specs/2026-10-04-isolated-executor-design.md)
-proposes local Docker Sandboxes, sanitized input and a deadline independent of the coordinator.
-The detailed design is under review; setup and execution have not been implemented.
+The [isolated executor](docs/superpowers/specs/2026-10-04-isolated-executor-design.md)
+uses local Docker Sandboxes, a microVM without a project mount and an inner container
+separating the client from its coordinator. The [approved plan](docs/superpowers/plans/2026-10-04-isolated-executor.md)
+has three PBIs: environment proof, adapter/recovery and authenticated adoption with both
+clients. R1 is in development; R2/R3 have not started.
+
+The guardian persists consumption before each phase, refuses replay and keeps a deadline
+independent of the coordinator. The [restricted-network launcher](docs/relatorios/2026-10-04-network-launcher.md#english-overview)
+requires private receipts before initialization or dispatch. It installs deny rules before
+connecting the interface and limits TCP destinations inside the container to the selected
+public IP and port. This does not establish the final destination beyond external proxies.
+The client and its descendants lack privileges to change that boundary.
+
+Eight native cases passed with this version, including interrupted setup, changed rules,
+replay, transport loss and the deadline. OpenAI and Anthropic responded to TLS probes,
+with 40 negative network attempts across client and child processes. These were HEAD
+requests without authentication or inference. The full suite ran 390 tests: 379 passed and 11 were skipped for environment requirements, with no failures or errors.
+See the [evidence and limits](docs/relatorios/2026-10-04-network-launcher.md#english-overview)
+and the [Windows test guide](docs/USAGE.md#tests-windows).
+
+The `client environment --executable PATH --json` diagnostic checks the binary and local
+prerequisites. Adding `--preflight` records Docker queries and preserves their output in a
+private local file, with stage, deadline and classified errors. All 11 queries passed in
+the local terminal on October 7. On the phone, the diagnostic confirmed that the Windows
+logon session did not provide its credential set to Docker.
+This does not enable AI execution. See the [consolidation report](docs/relatorios/2026-10-07-executor-consolidation.md).
+A later query from the phone was refused at the storage protection check.
+The diagnostic confirmed an owner mismatch on the temporary file. On Windows, the
+command now protects that empty file before writing evidence, preserving existing
+files and permissions. The correction passed remotely and captured the credential
+failure. `credential_session_unavailable` directs the operator to a Windows session
+with Credential Manager access; the credential inventory remains unknown.
+All 11 queries then passed in the maintainer's local PowerShell session with the same
+binary. The Docker credential inventory was empty; authentication and isolation acceptance remain pending.
+With `--preflight --sandbox NAME`, the diagnostic also checks policies, image,
+resources and the daemon's process identity before and after collection. The first
+local run passed all 29 queries. This establishes stable metadata; exclusive reservation
+and the integrated network proof are still required before running clients.
+The restricted relay is connected to guardian and launcher in development.
+It reconstructs the authorized destination, preserves streaming responses and closes
+connections within the operation deadline. All 43 local tests passed, with independent
+review. Configuration v3 permits only dummy-credential echo; integrated Docker and
+authenticated Claude/Codex still need proof. See the [relay status](docs/relatorios/2026-10-07-executor-consolidation.md#relay-restrito-no-guardian).
+The diagnostic also reports `execution_reservation`, shared across projects using
+the same account. Reservations survive coordinator loss; missing or corrupt records
+keep execution blocked. The destination guard checks DNS and IPs before connecting,
+currently limited to synthetic `postman-echo.com:443` traffic. These components passed
+local tests; wiring them to Docker dispatch and recovery remains pending.
+See [reservation and egress](docs/relatorios/2026-10-07-executor-consolidation.md#reserva-compartilhada-e-filtro-de-saída).
+`--sandbox NAME` observes an existing VM without starting it. The [walkthrough](docs/USAGE.md#sandbox-environment)
+explains results. The [active restart](docs/relatorios/2026-10-04-network-launcher.md#english-overview)
+confirmed the VM stopped 3.756 seconds before the deadline and refused another run
+after booting for inspection. The earlier measurement failure remains recorded.
+Remaining routes, package rebuilding, suspension and authentication still need
+validation. Native profiles remain blocked.
+The [gateway-address and Windows probes](docs/relatorios/2026-10-05-gateway-endpoints.md#english-overview)
+recorded 124 unsuccessful TCP attempts while provider TLS remained reachable and
+Windows sentinels received no unexpected connections. The [DNS and proxy investigation](docs/relatorios/2026-10-05-proxy-resolution.md#english-overview)
+confirmed resolver-file protection but did not establish the final destination.
+The current egress path also lacks the planned credential-injection mechanism. The [joint probe](docs/relatorios/2026-10-05-auth-egress-spike.md#english-overview)
+finished three cycles and found a candidate with fixed provider IP and identity. The [native probe](docs/relatorios/2026-10-05-native-proxy-compatibility.md#english-overview)
+confirmed provider TLS, but disposable credential injection worked only through hostname
+CONNECT; Docker rejected the IP path on the echo services. The [CIDR-deny probe](docs/relatorios/2026-10-05-hostname-cidr-proof.md#english-overview)
+confirmed that the allowed hostname remains reachable when all IPs are denied, as
+Docker documents. This combination fails our requirement. The [approved design](docs/superpowers/specs/2026-10-05-exclusive-egress-decision.md#english-overview)
+places enforcement after credential injection, in a Docker Sandboxes installation
+reserved for YoungCrow. The [proof plan](docs/superpowers/plans/2026-10-05-exclusive-egress-proof.md)
+is approved. The prototype passed 60 local tests. The [native cycle](docs/relatorios/2026-10-05-exclusive-egress-proof.md#english-overview)
+ended inconclusively: the first operation was recovered; v2 timed out before creating its
+receipt or changing Docker. Settings and permissions were verified, with five VMs stopped.
+No recovery remains pending. The v2 entry point is blocked. The product will offer
+[local execution by default and an optional dedicated runner](docs/superpowers/specs/2026-10-05-local-and-dedicated-execution.md#english-overview).
+VS Code users will be able to run the same pipeline on their own machine or a selected
+machine/server. Setup now records a private selection and preserves it on reinstallation.
+Network egress still requires acceptance and product profiles stay blocked.
+The [R1 continuation](docs/relatorios/2026-10-06-observed-egress-proof.md#english-overview)
+stopped before any GET: the script expected an override when assigning a default value,
+but Docker removes that override. The correction passed 75 local tests. Restoration was
+verified through read-only checks, with no cleanup pending. The operation is consumed;
+network enforcement remains unverified.
+The [corrected proof](docs/relatorios/2026-10-06-corrected-egress-proof.md#english-overview)
+passed its positive control; the disconnect with the guard absent did not establish the
+intended refusal automatically. Later daemon-log analysis attributed the disconnect to
+upstream refusal; A2 did not run. Overall inconclusive, cleanup verified. See the [results overview](docs/relatorios/2026-10-06-panorama-executor.md#english-overview).
+A [separate collector](docs/relatorios/2026-10-06-captured-egress-evidence.md#english-overview)
+passed eleven offline tests using the real event. It preserves full snapshots and checks
+the refusal source, endpoint and time. [Controller integration](docs/relatorios/2026-10-06-integrated-egress-controller.md#english-overview)
+was also validated offline, including A/B/A2 and recovery without replay. The native
+entry passed 120 tests, including seven remote-entry tests. The
+[probe guide](docs/USAGE.md#entrada-do-ensaio-integrado-somente-mantenedor) covers the
+maintainer's execution. The attempt stopped on incompatible file ownership after
+five queries and before Docker changes. The owner adjustment passed in the remote
+session. The separate entry passed its owner check but stopped while parsing the first
+Docker status reply (`JSONDecodeError`). No Docker changes or cleanup were needed.
+The later remote capture matched the local response byte for byte; all five initial
+queries also passed locally. The original failure remains unexplained. The captured
+entry passed 129 tests; its subsequent native run retained four valid status replies
+but stopped on `policy_baseline_changed`. The controller mistook a rule ID regenerated
+by earlier cleanup for a permission change. It made 24 queries, with no GET, restart
+or Docker change. The correction is now integrated into an import-only entry with capture
+and recovery. All 102 tests passed: seven for the Windows entry, 12 for the full initial
+sequence and 83 for the controller, comparison and downstream phases. External replies were simulated;
+this does not certify real networking. The corrected native entry was consumed and
+stopped when `sbx secret ls --json` exited 1. All 25 commands were reads, with no
+external GET, restart or Docker mutation; cleanup was verified. The same query passed
+locally, including through the Windows helper. The remote cause remains unknown
+because its error message was not captured. The [guide records the closed attempt](docs/USAGE.md#entrada-do-ensaio-integrado-somente-mantenedor).
+No new full probe is prepared. Native A/B/A2 acceptance remains pending.
+The [approved setup design](docs/superpowers/specs/2026-10-05-execution-setup-design.md#english-overview)
+details selection, phase-specific diagnostics and VS Code Remote SSH access to the runner.
+Its [three-PBI implementation plan](docs/superpowers/plans/2026-10-05-execution-setup.md)
+is implemented on this branch. [Setup validation](docs/relatorios/2026-10-05-execution-setup.md#english-overview)
+covered eight adoption/restore combinations and 414 tests: 403 passed and 11 were skipped
+for environment requirements. Final results include a guardian-module rerun after its
+test clock was corrected. Use `--execution-location local|dedicated` during setup and
+`python3 -B scripts/missions.py environment show --json` to read the choice.
+The [installed guide](skills/personalizer/references/execution.md#english) covers first use,
+migration and phase diagnostics. Selection does not enable autonomous agents.
 The following queue delivery will enforce the separate limits of three PBIs and three agents.
 
 | Next delivery | Remaining work for the complete pipeline |

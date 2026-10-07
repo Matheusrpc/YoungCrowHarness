@@ -34,8 +34,14 @@ def serve(root, log):
     root, log = root.resolve(strict=True), log.resolve()
     if log.parent != root or log.exists():
         raise ValueError('Fixture log must be a new file directly inside the disposable root')
-    with log.with_suffix('.pid').open('x', encoding='ascii') as pidfile:
+    pending = log.with_suffix('.pid.pending')
+    with pending.open('x', encoding='ascii') as pidfile:
         pidfile.write(str(os.getpid()))
+    try:
+        # Publish complete bytes without replacing another server's ownership marker.
+        os.link(pending, log.with_suffix('.pid'))
+    finally:
+        pending.unlink()
     # The fixture owns this process and can close itself even if a native parent leaves stdin open.
     def await_stop():
         while not log.with_suffix('.stop').exists():
@@ -135,8 +141,9 @@ def count(log, tool):
 def stop_fixture(log):
     log.with_suffix('.stop').touch()
     pidfile = log.with_suffix('.pid')
+    publishing = log.with_suffix('.pid.pending').exists()
     if not pidfile.exists():
-        return 0
+        return int(publishing)  # An unfinished ownership record cannot confirm cleanup.
     pid = int(pidfile.read_text())
     deadline = time.monotonic() + 5
     while process_alive(pid) and time.monotonic() < deadline:

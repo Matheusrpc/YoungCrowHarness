@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "front": "2A-R1 isolated executor",
+  "state": "proposal_pending_review",
+  "checked_at": "2026-10-05T10:36:41.524314+00:00",
+  "native_requests": 0,
+  "model_calls": 0,
+  "real_credentials_accessed": false,
+  "sandbox_started": false,
+  "policy_mutations": 0,
+  "production_published": false,
+  "native_profiles": [],
+  "inspection": {
+    "cli_version": "sbx version: v0.46.0 991967dc90ce0d9a440cd1df1bdf3e395c5a2693",
+    "exe_sha256": "a2c8d68f3a16851a65e1d43f7330ae6860c5a2f07df8f22fab5dae7a4a232780",
+    "policy_queries": 3,
+    "query_targets": [
+      "postman-echo.com:443",
+      "127.0.0.1:443",
+      "[::1]:443"
+    ],
+    "all_queries_explicitly_denied": true,
+    "log_entry_fields": [
+      "count_since",
+      "host",
+      "last_seen",
+      "proxy_type",
+      "reason",
+      "rule",
+      "since",
+      "vm_name"
+    ],
+    "final_address_enforcement": "unverified",
+    "all_five_vms_stopped": true,
+    "scoped_policy_unchanged": true,
+    "global_and_other_scopes_unchanged": true
+  },
+  "unchanged_runtime_sha256": {
+    "runtime/sbx/guardian.py": "5b26f23f407a1e1f589e222b7f7ad04cd54e36567c11a761825d9af765d60add",
+    "runtime/sbx/launcher.py": "dcd1198c097dcc0e19dda958f5a9aaf1962cec163003948da52648e494885afe"
+  },
+  "private_receipt_sha256": {
+    "hostname-contract-inspection.json": "1e2d6ba042c9db31d3f3f131bf7f4b1db0969efc63ddd537b8657c1a204a4e41",
+    "hostname-contract-inspection-attempt1.json": "f40f1b7100c903df3060d7bd7f3537849ff2d851277ef3276dceaf28de7731d9"
+  },
+  "private_script_sha256": {
+    "inspect-hostname-contract.py": "5238341e10a39baa7b052a8f62c04118f2e242a40ef10fc67077f26b7ec1cfb7"
+  },
+  "sources": [
+    {
+      "source_id": "a7420c52-716b-4685-8026-2da9fb632711",
+      "revision": "549d7535a59ef18c75cdc707fa838027e90be013adee688e47d35a69bae9d0c0",
+      "note_path": "vault/local/sources/a7420c52-716b-4685-8026-2da9fb632711/content-549d7535a59ef18c75cdc707fa838027e90be013adee688e47d35a69bae9d0c0.md",
+      "note_id": "8ff361e4-59bc-52c6-a9c9-65aaccfef860",
+      "note_sha256": "6dbf4943fc7f7646df82fba8fa77fcc346f59e65dc099daff41ae9c9da199c76",
+      "evidence": "Both IPv4 and IPv6 notation are supported:",
+      "relation_id": "07e2dd5d-d4d3-5532-bd84-448b08a1e937",
+      "state": "ready",
+      "converter": "Docling 2.132.0"
+    },
+    {
+      "source_id": "277bb1df-8961-41a5-9679-7f68f5f74ea4",
+      "revision": "11fee80ff04b8acd6dcdd34607fcb965152d68fb5e150bd1704e1e5f5558e165",
+      "note_path": "vault/local/sources/277bb1df-8961-41a5-9679-7f68f5f74ea4/content-11fee80ff04b8acd6dcdd34607fcb965152d68fb5e150bd1704e1e5f5558e165.md",
+      "note_id": "5240ce8e-68b0-58b2-9687-817fe194fbfd",
+      "note_sha256": "dfcddaf381f3db2b1957ae0e0ad09cf7ae327de4645235ae64cdefc1a9fde690",
+      "evidence": "Deny rules take precedence over allow rules.",
+      "relation_id": "62b2bfbf-56cd-5327-8e87-f2ca31b0bea0",
+      "state": "ready",
+      "converter": "Docling 2.132.0"
+    },
+    {
+      "source_id": "e175ca4a-b280-4b34-8a74-1cc0a79aa8e8",
+      "revision": "9d935f088d25532629220bd07efb9c14cf193c0a05d0794c379a8df100618e36",
+      "note_path": "vault/local/sources/e175ca4a-b280-4b34-8a74-1cc0a79aa8e8/content-9d935f088d25532629220bd07efb9c14cf193c0a05d0794c379a8df100618e36.md",
+      "note_id": "351c6207-37bd-5572-b600-a911368699b3",
+      "note_sha256": "1f6a017e9e33e40834e32226393b2fad874a277622505bd13653557e4b6e1935",
+      "evidence": "Routed through the forward proxy without credential injection.",
+      "relation_id": "c947941d-fae0-56a9-9033-e47889aca664",
+      "state": "ready",
+      "converter": "Docling 2.132.0"
+    }
+  ],
+  "proposed_probe": {
+    "executed": false,
+    "approval": "pending",
+    "max_requests": 3,
+    "real_credentials": false,
+    "model_calls": 0,
+    "steps": [
+      "hostname allow positive",
+      "same hostname plus deny all IPv4/IPv6",
+      "restore positive"
+    ]
+  },
+  "limitations": [
+    "Read-only CLI observations do not exercise network enforcement.",
+    "Existing policy logs do not include a final remote address or per-connection ID.",
+    "A universal deny probe cannot certify selective destination enforcement.",
+    "No approved product relay implementation or new profile."
+  ],
+  "next_action": "Review the hostname contract and bounded native A/B/A probe before execution."
+}

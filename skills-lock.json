@@ -288,7 +288,13 @@
           "scripts/capabilities.py",
           "scripts/mission_clients.py",
           "scripts/mission_process.py",
-          "scripts/mission_runs.py"
+          "scripts/mission_runs.py",
+          "scripts/mission_sandbox.py",
+          "scripts/mission_environment.py",
+          "skills/personalizer/references/execution.md",
+          "scripts/mission_sbx.py",
+          "scripts/mission_execution.py",
+          "scripts/mission_egress.py"
         ],
         "claude": [
           ".claude/skills/personalizer/SKILL.md"
@@ -314,10 +320,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "9d548412c3761352bf5bf3e0b64d88c8d6c2d8fe54d7886f757df4fcd69cc5d7",
+        "contract_sha256": "73f17917d62f86ed5b836f6df774d2c72127aaa3e16ddd05fe777c2fcf1ec218",
         "files_sha256": {
-          "claude": "a5d92e1c3a579431fa326bb9ec7d6c4f8917211fda0d3d05baa22d40412fd495",
-          "codex": "4cc6192a1dba8b7d6e93230b72faa396009e8b0c172ddc4799a3f144bde1d86b"
+          "claude": "e50ab3ecdea24a6d5e8287595b5f79efd0ad860b41284a9c724f84fcba4f1a33",
+          "codex": "ae1bb6b1d983c0e6fc4ae1af8903377a508a28ae3050de11ef886371aa4b64de"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1200,7 +1206,13 @@
           "scripts/adoption_acl.ps1",
           "scripts/mission_clients.py",
           "scripts/mission_process.py",
-          "scripts/mission_runs.py"
+          "scripts/mission_runs.py",
+          "scripts/mission_sandbox.py",
+          "scripts/mission_environment.py",
+          "skills/personalizer/references/execution.md",
+          "scripts/mission_sbx.py",
+          "scripts/mission_execution.py",
+          "scripts/mission_egress.py"
         ],
         "claude": [
           ".claude/skills/yc-personalizer/SKILL.md"
@@ -1226,10 +1238,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "ec50021c4efaf5fdfdbdc2005c998dedbc92364ed2e9bc48aabfacd48e5a43ca",
+        "contract_sha256": "4b973905efa4066f0ee1b672028c6ea9665a6e9a855359210ce2110707f38971",
         "files_sha256": {
-          "claude": "2da6b521fe500b5417be7c2d8eafb9788057909a26cba3015be829a24ccec0b0",
-          "codex": "b424a43e62c50a0d53e10677c4787e60a705fc120be0ab757eb8d7f5c0e64bda"
+          "claude": "0d052995b03fa9166bf0a722fc673356f0fd018e900b87a71938993e9dc6f8b0",
+          "codex": "bf6df669923230702aa6bcd7fa89f837331e4030555f6b55f22e4cbcdfec9b94"
         }
       }
     },
@@ -1275,7 +1287,15 @@
           "scripts/adoption_fs.py",
           "scripts/mission_clients.py",
           "scripts/mission_process.py",
-          "scripts/mission_runs.py"
+          "scripts/mission_runs.py",
+          "scripts/mission_sandbox.py",
+          "scripts/mission_environment.py",
+          "scripts/adoption.py",
+          "scripts/adoption_acl.ps1",
+          "skills/personalizer/references/execution.md",
+          "scripts/mission_sbx.py",
+          "scripts/mission_execution.py",
+          "scripts/mission_egress.py"
         ],
         "claude": [
           ".claude/skills/yc-config/SKILL.md"
@@ -1305,10 +1325,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "af04e7ed3abf98f4b4bfce3867b6f7fb296c568fd6822fc503c1c5e2665cac17",
+        "contract_sha256": "21324f2689a78cdfada65f88d79d7f7a052a9009a65d332c3a8fb7983be2a0b9",
         "files_sha256": {
-          "claude": "c2c944d9a5bd2620eb1abf3b3840f1a5fb243c274b16a5c189aaf761335f556d",
-          "codex": "d437e28d3ffa2f263e568d110d84adbfbc93de52ff38522cbaf75c63793a4256"
+          "claude": "a2008c90d5411a42ea8c8530a7527af855a3c5974a6625272d7f72e3cb31fb12",
+          "codex": "6ee164c0b4c55b130760afb7cd8250f2ec6a95670aaf52c1f6a177d2496ac90f"
         }
       }
     },
@@ -1354,7 +1374,15 @@
           "scripts/adoption_fs.py",
           "scripts/mission_clients.py",
           "scripts/mission_process.py",
-          "scripts/mission_runs.py"
+          "scripts/mission_runs.py",
+          "scripts/mission_sandbox.py",
+          "scripts/mission_environment.py",
+          "scripts/adoption.py",
+          "scripts/adoption_acl.ps1",
+          "skills/personalizer/references/execution.md",
+          "scripts/mission_sbx.py",
+          "scripts/mission_execution.py",
+          "scripts/mission_egress.py"
         ],
         "claude": [
           ".claude/skills/yc-missao/SKILL.md"
@@ -1380,10 +1408,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "1006c21c1c4f4bec48c28500cc99dc893dacaea46049fc4972cf097d7c9e262a",
+        "contract_sha256": "5cbb4167e0cad2297414be322dd07ab86f31e32fc39059e5d79a8f88c588d4ed",
         "files_sha256": {
-          "claude": "ab307f83b998cbe88cc9fa25023c801fa87b63e3cba2b45481637d2ac3846edf",
-          "codex": "a436774c576f7c720dca4c5e2ff01d1e463aa44b46dd2c6af09657be32f3a770"
+          "claude": "9d3a6f096f2d3c6155f0915215a1dc9583d8940be339f35ec5d2f348a4c79120",
+          "codex": "6eb83972f719a663dc91893fa1a5783824d782699ce89098e7a6062b7d013dfd"
         }
       }
     },
@@ -1429,7 +1457,15 @@
           "scripts/adoption_fs.py",
           "scripts/mission_clients.py",
           "scripts/mission_process.py",
-          "scripts/mission_runs.py"
+          "scripts/mission_runs.py",
+          "scripts/mission_sandbox.py",
+          "scripts/mission_environment.py",
+          "scripts/adoption.py",
+          "scripts/adoption_acl.ps1",
+          "skills/personalizer/references/execution.md",
+          "scripts/mission_sbx.py",
+          "scripts/mission_execution.py",
+          "scripts/mission_egress.py"
         ],
         "claude": [
           ".claude/skills/yc-status/SKILL.md"
@@ -1452,10 +1488,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "1438f51c4862501eacc8d43187a2bbbec0e182293ccd7d282bce0ccec0ee6187",
+        "contract_sha256": "eee2c77b82f3a1d105778bfe2ab183f517074a4715eff08e567e4e51bbd19417",
         "files_sha256": {
-          "claude": "201dd4c6318cb174a534c2252d7995beed8996305b17266ca5a45fed45114284",
-          "codex": "1e8b594e999d500726a0c1826c3ea550f6d3551134a6552bdfbf3a0e03ad5165"
+          "claude": "fd0849d2e4610a998649396c7c8cb1acbac4ba18ccc8535a4f5f8ea3b8de05a0",
+          "codex": "93a36e7aa1e10245e62f15b94c20eec109173a563387eda4d46a4bc94d4910dd"
         }
       }
     }

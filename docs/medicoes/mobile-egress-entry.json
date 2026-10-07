@@ -1,0 +1,152 @@
+{
+  "checked_at": "2026-10-06T17:48:33.297271+00:00",
+  "status": "remote_status_and_local_preflight_passed_native_probe_pending",
+  "remote_owner_diagnostic": {
+    "state": "owner_context_verified",
+    "adjusted": true,
+    "synthetic_file_checked": true,
+    "old_receipts_preserved": true,
+    "docker_commands": 0,
+    "network_requests": 0,
+    "model_calls": 0,
+    "next_action": "prepare_separate_native_entry"
+  },
+  "tests": {
+    "aggregate": 120,
+    "passed": 120,
+    "entry_cases": 7,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 74.181,
+    "includes_previous_113": true,
+    "native_boundary": "mocked; actual Windows owner adapter exercised to dispatch boundary"
+  },
+  "review": {
+    "critical": 0,
+    "important": 0,
+    "minor": 0,
+    "verdict": "no_actionable_findings"
+  },
+  "entry_refusals": {
+    "checks": [
+      {
+        "case": "powershell_no_action",
+        "exit_code": 1
+      },
+      {
+        "case": "powershell_both_actions",
+        "exit_code": 1
+      },
+      {
+        "case": "python_no_action",
+        "exit_code": 1
+      }
+    ],
+    "native_operation_absent": true
+  },
+  "effects": {
+    "native_operation_created": false,
+    "docker_commands": 0,
+    "external_requests": 0,
+    "daemon_restarts": 0,
+    "executor_model_calls": 0,
+    "product_profiles_enabled": false
+  },
+  "limits": {
+    "get_attempts": 3,
+    "daemon_restarts": 2,
+    "preflight_queries": 5,
+    "query_seconds": 15,
+    "native_preparation_seconds": 180,
+    "native_probe_seconds": 120,
+    "get_seconds": 10,
+    "native_cleanup_seconds": 180,
+    "owner_acl_helper_timeout_seconds": 120
+  },
+  "artifacts_sha256": {
+    "mobile_egress.py": "7963d84a062b15905a473c4f1adb199007a848d5e39b8332c0a467bd65e6e85a",
+    "run-mobile-egress-proof.ps1": "5461b700641d33de13bed643e90fbadddbbbc465a1528d10261b292c8d2f5b9c",
+    "test_mobile_entry_egress.py": "a0e913ebfcc93ae031d9c109cc621cac8c83ddbf1e840e05d6ee700845fc2db1",
+    "mobile-entry-red.log": "96b63d67e4b34539f8d83a5eac9786e6c484fedf893b78fbcbd5dc38059784be",
+    "mobile-entry-suite.log": "f11b721738280c2f52b295fc1ed1910fad5841216970650a3759e451d98fa573",
+    "mobile-entry-review.md": "452fda9b79d87dae31f70fe3262e23c27a680d25a63b8980de690cfb5bbea350",
+    "remote-owner-confirmation.json": "5cedfd977c92352e2a66240ebbaff861738927245c015c04d2df713d98267fbb"
+  },
+  "next_step": "Integrate metadata reply capture into the proof entry before another full native probe; do not repeat completed diagnostics.",
+  "final_checks": {
+    "source_pins_match": true,
+    "prior_receipts_unchanged": true,
+    "new_operation_absent": true,
+    "readme_visuals": 52,
+    "readme_visuals_unchanged": true,
+    "local_file_links": 550,
+    "vault_notes": 357,
+    "vault_issues": 0
+  },
+  "preparation_checked_at": "2026-10-06T17:32:24.758363+00:00",
+  "effects_scope": "Entry preparation only; native_attempt below records the later operator run.",
+  "final_checks_scope": "Entry preparation before the native attempt.",
+  "native_attempt": {
+    "operation_id": "9cbb75e3-96a3-415d-b512-6740d3b0848d",
+    "owner_check_passed": true,
+    "failure": "JSONDecodeError",
+    "first_command": "sbx daemon status --json",
+    "first_command_exit_code": 0,
+    "first_command_elapsed_seconds": 0.977022,
+    "raw_reply_retained": false,
+    "root_cause_established": false,
+    "control_record_exists": false,
+    "receipt_exists": false,
+    "docker_mutations": 0,
+    "external_requests": 0,
+    "daemon_restarts": 0,
+    "model_calls": 0,
+    "docker_cleanup_pending": false,
+    "receipts_sha256": {
+      "attempt.json": "18ef7e8b5a98deb60fdb64450d36a03291f393ac10668a7b2ec67c25bba83a2b",
+      "commands.jsonl": "ea74c428e429c5c84bc0b0f6982c6505da8554cfca8222743db7ee97aaa3d3a9",
+      "reclaim.lock": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    }
+  },
+  "status_diagnostic": {
+    "command": "sbx daemon status --json",
+    "timeout_seconds": 15,
+    "local_plain_valid_json": true,
+    "local_owner_fixture_valid_json": true,
+    "local_stdout_bytes": 180,
+    "local_stderr_bytes": 0,
+    "offline_test_methods": 1,
+    "offline_cases": 3,
+    "remote_capture": "passed",
+    "source_sha256": "163414bfd4cb5233e090343343c903525cffa50f262f53a06791e881568402b4",
+    "remote_equals_local": true,
+    "remote_stdout_bytes": 180,
+    "remote_stderr_bytes": 0,
+    "remote_daemon_status": "running"
+  },
+  "traced_preflight": {
+    "state": "passed",
+    "completed_queries": 5,
+    "command_exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "allowed_commands": [
+      "sbx daemon status --json",
+      "sbx ls --json",
+      "powershell Get-CimInstance Win32_Process"
+    ],
+    "all_sandboxes_stopped": true,
+    "daemon_identity_stable": true,
+    "raw_replies_preserved": true,
+    "docker_mutations": 0,
+    "external_requests": 0,
+    "daemon_restarts": 0,
+    "model_calls": 0,
+    "scope": "Local read-only metadata preflight; not the full native probe."
+  }
+}

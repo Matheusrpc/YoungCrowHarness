@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "front": "isolated-executor",
+  "pbi": "2A-R1",
+  "state": "partial",
+  "checked_at": "2026-10-05T04:20:51.843810+00:00",
+  "model_calls": 0,
+  "mcp_calls": 0,
+  "production": "unpublished",
+  "native_profile_ids": [],
+  "proofs": [
+    {
+      "provider": "api.openai.com",
+      "negative_tcp_attempts": 62,
+      "tls_statuses": [
+        421,
+        421
+      ],
+      "windows_listeners": 3,
+      "positive_controls": 6,
+      "unexpected_windows_connections": 0,
+      "bridge_connections": 0,
+      "output_drop_packets": {
+        "iptables-save": 48,
+        "ip6tables-save": 4
+      },
+      "deadline_margin_ms": "29091.5458000",
+      "exit_code": 0,
+      "final_pid": 0,
+      "replay_exit": 125,
+      "policy_restored": true,
+      "unrelated_policies_unchanged": true,
+      "vm_final_state": "stopped"
+    },
+    {
+      "provider": "api.anthropic.com",
+      "negative_tcp_attempts": 62,
+      "tls_statuses": [
+        404,
+        404
+      ],
+      "windows_listeners": 3,
+      "positive_controls": 6,
+      "unexpected_windows_connections": 0,
+      "bridge_connections": 0,
+      "output_drop_packets": {
+        "iptables-save": 48,
+        "ip6tables-save": 4
+      },
+      "deadline_margin_ms": "28993.1659000",
+      "exit_code": 0,
+      "final_pid": 0,
+      "replay_exit": 125,
+      "policy_restored": true,
+      "unrelated_policies_unchanged": true,
+      "vm_final_state": "stopped"
+    }
+  ],
+  "private_receipt_sha256": {
+    "gateway-address-inventory.json": "06884e3f6a8227127ce6bd09430a5da68de443131499ea85813adf52d8a6cf48",
+    "gateway-endpoints-api.anthropic.com.json": "d403401420745648eacd15ca1f2b3f929a2572c86ea8f721ea845a4fe76126a5",
+    "gateway-endpoints-api.openai.com.json": "86657a8aadfb2b9e7fbe7d44976e6497d15db39b264a51c79a2f2dd737610407",
+    "gateway-endpoints-runtime-api.anthropic.com.json": "2f6c5a9582d77c6609952d0619ea695b6887c4bed73c22e34e34da1d3ea3ac6d",
+    "gateway-endpoints-runtime-api.openai.com.json": "b3ece0d10a269de7e77f75161eea14faace9249ee2e31fae6ad8577f1bd6a86e",
+    "guardian-gateway-address-inventory-417cf3be.json": "ae470d3d5488ec0cf5fe5f9079e57b87aad2cf5971368a8ad86c865a80314440",
+    "guardian-gateway-endpoints-runtime-api.anthropic.com-431dc27c.json": "1bd0fe3b93142aa141435f7cf3a331ec2df4f95dbe13feb5e70dbf7770366b6c",
+    "guardian-gateway-endpoints-runtime-api.openai.com-ec24868b.json": "d22599804daf36845a999e9306d734825c61f2c85629b82e957aa008aa80fddd"
+  },
+  "private_script_sha256": {
+    "inspect-gateway-addresses.py": "8ef631fde849e3257c0b2394c9f8fcdd4d4f58cb4595d76729e17ffdaa03f258",
+    "prove-gateway-endpoints.py": "e908a8f82b7c50bdda18f74cec1c6277bfc780536dbbeee596fdc4e6aebce77a",
+    "gateway-endpoints-client.py": "a949b8cf39b50cc4f35d49f9d7d970169711f5d4a9bccf2401ee74c1a30a41b3",
+    "gateway-endpoints-runner.py": "7ef1bb850dc7eb16fd6cbed4d1325e2a7711efe441834958535d592992b59100",
+    "endpoint_evidence.py": "ea1f4a7595ec7df4f81a13421f579283bf60bb1b0699317695f07c283a779479",
+    "test_endpoint_evidence.py": "4f812be28755beaee4413dbe11678eb9eceecd7de5a9c0df7301d9132c6d475e"
+  },
+  "runtime_source_sha256": {
+    "runtime/sbx/guardian.py": "5b26f23f407a1e1f589e222b7f7ad04cd54e36567c11a761825d9af765d60add",
+    "runtime/sbx/launcher.py": "dcd1198c097dcc0e19dda958f5a9aaf1962cec163003948da52648e494885afe"
+  },
+  "verification": {
+    "auxiliary_regression_tests": 1,
+    "regression_log_sha256": "28464b0f48336c29190108f3310e84354bda82d6e6cef7d722199ea46bf22640",
+    "remaining_test_listeners": 0,
+    "all_five_vms_stopped": true,
+    "policies_verified": true
+  },
+  "commands": [
+    "python .superpowers/sdd/2026-10-04-isolated-executor/inspect-gateway-addresses.py",
+    "python .superpowers/sdd/2026-10-04-isolated-executor/test_endpoint_evidence.py",
+    "python .superpowers/sdd/2026-10-04-isolated-executor/prove-gateway-endpoints.py api.openai.com",
+    "python .superpowers/sdd/2026-10-04-isolated-executor/prove-gateway-endpoints.py api.anthropic.com"
+  ],
+  "commands_are_consumed": true,
+  "limitations": [
+    "Gateway/host IPv6 generic errors do not establish filtering cause",
+    "MCP hostname has no direct address; DNS failure is not isolation proof",
+    "Windows sentinel positive controls originate on Windows, not in VM",
+    "No DNS changes, controlled redirects, transparent-proxy resolution, suspension or authenticated clients tested",
+    "Runtime code unchanged; prior 390-test suite not rerun; counts overlap earlier probes"
+  ]
+}

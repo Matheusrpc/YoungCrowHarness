@@ -14,7 +14,12 @@ A integração interna de 203.6 usa plano v4, guard no mesmo grupo/job e diário
 aos efeitos. A/A2 reutilizam a porta; B exige ausência. Recuperação observa proprietário
 e porta ausentes e restaura apenas settings sandbox ainda iguais aos valores da operação.
 **203.4 interna; 203.5 e 203.6 parciais.** Políticas e credenciais permanecem imutáveis.
-[Entrega e provas atuais](relatorios/2026-10-07-injection-proof.md).
+[Prova de injeção](relatorios/2026-10-07-injection-proof.md).
+
+A ativação/restauração interna exige escrita atômica condicionada ao setting completo.
+Os testes preservam alterações externas feitas depois da intenção, sem reiniciar ou
+liberar a reserva na recuperação. O diário continua v3/v4, sem migração.
+[Correção atual e bloqueio nativo](relatorios/2026-10-07-conditional-settings.md).
 
 O contrato v4 já exige hash de um valor distinto do placeholder, fixado no plano;
 A/B/A2 usam o mesmo placeholder/hash/proxy/CA. O percurso local recusa ausência de
@@ -22,7 +27,11 @@ substituição e conserva os contratos antigos para recuperação.
 O próximo passo é comprovar, no sbx local 0.46.0, identidade, versão e remoção atômica
 condicionada da credencial fictícia. A API Cloud documenta `uid`/`etag`/`If-Match`,
 mas seus recursos são separados dos locais. Comparar e depois remover por placeholder
-permite uma alteração externa entre as operações. Depois: adaptador, pacote e aceite nativo.
+permite uma alteração externa entre as operações. A pesquisa adicional de guias API,
+daemon e release 0.46.0 não fechou essa compatibilidade. Também falta comprovar escrita
+condicionada dos settings locais. **Adaptador nativo bloqueado por contrato externo:**
+obter referência aplicável do fornecedor; não repetir as mesmas buscas nem criar
+outro roteiro experimental. Depois: adaptador, pacote e aceite nativo.
 
 The internal 203.6 integration uses a v4 plan, inherited guard containment and a journal
 before effects. A/A2 reuse the port; B requires absence. Recovery observes owner and
@@ -32,7 +41,11 @@ V4 fixes an expected hash for a value distinct from the placeholder and shares t
 placeholder/hash/proxy/CA across A/B/A2. Local tests reject missing substitution;
 historical recovery remains supported. Next: establish identity, version and atomic
 conditional deletion for local sbx 0.46.0. The Cloud API documents these semantics,
-but uses a separate store. Then implement the native adapter and acceptance tests.
+but uses a separate store. Additional API/daemon/release documentation did not establish
+local compatibility. Conditional local setting writes also need proof. The native
+adapter is blocked on an applicable vendor contract. Internal tests now preserve
+changes made after intent persistence using a conditional-write contract, keeping
+recovery reserved. Then implement the native adapter and acceptance tests.
 
 A entrada pública `client check` continua em `failed/controller_pending`, com zero
 chamadas de modelo. Perfis nativos seguem bloqueados. A sequência é **203.6 e restante

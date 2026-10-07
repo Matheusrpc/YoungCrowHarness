@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-07T23:30:17.114471+00:00",
+  "base_head": "bdcf766d718b0d36ff0b4129c271cf1423f020ed",
+  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
+  "changes_published": false,
+  "scope": {
+    "203.5": "partial_conditional_setting_restoration_internal",
+    "203.6": "partial_native_local_credential_and_settings_contracts_blocked"
+  },
+  "tested_public_tree": "d1d509152172b70e68e02ed340970cf93139a681",
+  "product_tests_setup_catalog_match_tested_tree": true,
+  "regression_before": {
+    "total": 28,
+    "passed": 23,
+    "skipped": 0,
+    "failures": 5,
+    "errors": 0,
+    "seconds": 8.337,
+    "log_sha256": "faccd4fd9bda0b4a26104dbff9d66657072afa87519cbaa01bb8775261a8037a",
+    "skips": []
+  },
+  "focused": {
+    "network": {
+      "total": 28,
+      "passed": 28,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 8.758,
+      "log_sha256": "d64b0344c1674b62453dfab3a0a5001607b6bd9a9c9c80f89f93f988c3baed5b",
+      "skips": []
+    },
+    "catalog": {
+      "total": 23,
+      "passed": 23,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.975,
+      "log_sha256": "3603788cb6a8b125937f5adc24f243b923bf0204979ede1f12d90ca129ace4f9",
+      "skips": []
+    }
+  },
+  "catalog": {
+    "content_hashes_updated": 10,
+    "contracts_changed": false,
+    "permissions_changed": false,
+    "observations": [
+      {
+        "id": "personalizer",
+        "client": "claude",
+        "content_state": "matched",
+        "sha256": "0e8e65872f1019c8869cee9a2e0cbaf78a9df530350503e6853973d91471215e"
+      },
+      {
+        "id": "personalizer",
+        "client": "codex",
+        "content_state": "matched",
+        "sha256": "d70dccc5a9b38d7e34662419a7805b9e766fb70ec06ccc3afc08b9f9a37ebab1"
+      },
+      {
+        "id": "yc-personalizer",
+        "client": "claude",
+        "content_state": "matched",
+        "sha256": "f346ba50622147a5663d405d860c441288cb461954bd0a859c33a26e0627f0bf"
+      },
+      {
+        "id": "yc-personalizer",
+        "client": "codex",
+        "content_state": "matched",
+        "sha256": "fc25974938f127e56a323f4ab4855cfc574d133b173398720ea3e85d25aac17c"
+      },
+      {
+        "id": "yc-config",
+        "client": "claude",
+        "content_state": "matched",
+        "sha256": "5093d4eb0a2da44452ebaba78fcbac1129fdf6ced0383476524e417b1c1835f9"
+      },
+      {
+        "id": "yc-config",
+        "client": "codex",
+        "content_state": "matched",
+        "sha256": "fbe138d72b88dcf3900dae9c427be9ecf2048aec9bdd05c5798722c6105f00be"
+      },
+      {
+        "id": "yc-missao",
+        "client": "claude",
+        "content_state": "matched",
+        "sha256": "3fcf266c084cc6fe5d7fd28c5ca4cf79956ec29cf4fdc4fb9dd3d1cb43a871a6"
+      },
+      {
+        "id": "yc-missao",
+        "client": "codex",
+        "content_state": "matched",
+        "sha256": "130dbb821b682eec4e11e26d0da3dd380c7163992c0d2aeea3ccd3f48d4b11cc"
+      },
+      {
+        "id": "yc-status",
+        "client": "claude",
+        "content_state": "matched",
+        "sha256": "f5b852f7684f0d26ebe4f1fceef7ebdc57566504d6e8e34d3571122e0a0bda6a"
+      },
+      {
+        "id": "yc-status",
+        "client": "codex",
+        "content_state": "matched",
+        "sha256": "d28676526685fdc419e310af2c316483c0dbaad20d3618c0e8f40774f1a0a6e0"
+      }
+    ]
+  },
+  "review": {
+    "agents": [
+      "local_credential_contract",
+      "next_executor_scope",
+      "settings_atomic_review"
+    ],
+    "blocking_findings": 0,
+    "independent_focused_tests_passed": 10,
+    "documentation_review": "no blocking findings"
+  },
+  "source_sha256": {
+    "scripts/mission_network.py": "d98a0df50082e6006426242ef27c784bd4b9cfe136f45d590f603645931176fa",
+    "scripts/mission_sbx.py": "4313896ca373a64a4170aa95dead3c11452b29eb42bba9217a87549426743610",
+    "skills-lock.json": "d7ddb359994e71dc6788938318e98c8de154af8f5afde8a864dd0de00696c368",
+    "tests/test_mission_network.py": "762705715df4dff0d9c0ca66593abfa148f02e64effd5490be5a910acd95218f"
+  },
+  "documentation": {
+    "consulted": "2026-10-07",
+    "sources": [
+      {
+        "file": "release.html",
+        "url": "https://github.com/docker/sbx-releases/releases/tag/v0.46.0",
+        "bytes": 202904,
+        "sha256": "750fffc04576f667b792022792d4ba629f600abfe3119e81e886fa289421e693",
+        "status": 200
+      },
+      {
+        "file": "assets.html",
+        "url": "https://github.com/docker/sbx-releases/releases/expanded_assets/v0.46.0",
+        "bytes": 93398,
+        "sha256": "acda44a920288bb6878d59b5dd1c4fd536d0a77272f6a16e19110b93e09a692c",
+        "status": 200
+      },
+      {
+        "file": "api-guide.md",
+        "url": "https://raw.githubusercontent.com/docker/docs/7ba25eeb0c4c594f79e6efadad1af5eaca0500a8/content/manuals/ai/sandboxes-api/_index.md",
+        "bytes": 2554,
+        "sha256": "fb4aafaef81536c4345147162c03312f60d7d1599207367127e84371b0384553",
+        "status": 200
+      },
+      {
+        "file": "api-concepts.md",
+        "url": "https://raw.githubusercontent.com/docker/docs/7ba25eeb0c4c594f79e6efadad1af5eaca0500a8/content/manuals/ai/sandboxes-api/concepts.md",
+        "bytes": 8933,
+        "sha256": "493dc66b9dd6964bc60fcfa4a629767cce7437fcce95afc582723edd99cd6e56",
+        "status": 200
+      },
+      {
+        "file": "daemon-start.yaml",
+        "url": "https://raw.githubusercontent.com/docker/docs/7ba25eeb0c4c594f79e6efadad1af5eaca0500a8/data/sbx_cli/sbx_daemon_start.yaml",
+        "bytes": 811,
+        "sha256": "d66c63275d8e27180c7bdfa1cdc5bc6eef06b847b122d454e40b78fa370fe562",
+        "status": 200
+      },
+      {
+        "file": "daemon-status.yaml",
+        "url": "https://raw.githubusercontent.com/docker/docs/7ba25eeb0c4c594f79e6efadad1af5eaca0500a8/data/sbx_cli/sbx_daemon_status.yaml",
+        "bytes": 667,
+        "sha256": "ab8af0e64580393b7c65d1c3975f04c789b29d89820cdd7b4c5a575c8bcbd8df",
+        "status": 200
+      },
+      {
+        "file": "release-notes.md",
+        "url": "https://raw.githubusercontent.com/docker/docs/7ba25eeb0c4c594f79e6efadad1af5eaca0500a8/content/manuals/ai/sandboxes/release-notes.md",
+        "bytes": 21136,
+        "sha256": "334fdbf53f4e27d374c9122d435e3303f38653c68aff2b0ddf63b23927ff287f",
+        "status": 200
+      }
+    ],
+    "ingestion": "direct text reading; Docling pending/runtime_missing"
+  },
+  "environment": {
+    "native_docker_or_sbx_executed": false,
+    "model_calls": 0,
+    "native_cycles_used": 2,
+    "native_cycle_limit": 3,
+    "configuration_changes": "none_required"
+  },
+  "limitations": [
+    "expected is a required trusted-adapter contract, not proof of native CAS",
+    "local sbx 0.46.0 secret identity/version/atomic deletion and revocation remain unproven",
+    "local sbx conditional setting mutation remains unproven",
+    "B blocked_unattributed; native profiles empty",
+    "Docker TLS, MCP/host/private bypass refusal and authenticated clients unverified"
+  ],
+  "public_client_check": "failed/controller_pending",
+  "native_profiles_empty": true,
+  "ci": "unverified; GitHub API unavailable earlier in session",
+  "publication": {
+    "branch": "feat/isolated-executor",
+    "main_before": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+    "state": "pending"
+  },
+  "full_suite": {
+    "command": "python3 -B -m unittest discover -s tests -v",
+    "scope": "git archive of staged public tree; only documentation updated afterwards",
+    "total": 612,
+    "passed": 592,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 251.364,
+    "log_sha256": "fcddccc91a6648c42e5047dbb08ea2f3409c9c328841c8dc08d5f205ceac715f",
+    "skips": [
+      "test_private_unrelated_directory_still_refuses_reinstall (test_adoption.AdoptionTests.test_private_unrelated_directory_still_refuses_reinstall) ... skipped 'Windows private ACL boundary'",
+      "test_open_file_prevents_exchange_without_losing_trial (test_adoption.RestoreTests.test_open_file_prevents_exchange_without_losing_trial) ... skipped 'real Windows non-share-delete handle'",
+      "test_posix_secondary_groups_survive_return (test_adoption.RestoreTests.test_posix_secondary_groups_survive_return) ... skipped 'requires an existing secondary group; Linux CI must exercise this'",
+      "test_acl_helper_does_not_write_user_profile (test_adoption_storage.StorageTests.test_acl_helper_does_not_write_user_profile) ... skipped 'native Windows profile cache'",
+      "test_alternate_data_stream_is_refused (test_adoption_storage.StorageTests.test_alternate_data_stream_is_refused) ... skipped 'Windows ADS proof'",
+      "test_directory_stream_is_not_silently_omitted (test_adoption_storage.StorageTests.test_directory_stream_is_not_silently_omitted) ... skipped 'Windows directory ADS proof'",
+      "test_not_indexed_attribute_is_preserved (test_adoption_storage.StorageTests.test_not_indexed_attribute_is_preserved) ... skipped 'Windows file attributes'",
+      "test_private_acl_write_refuses_streams_without_changing_permissions (test_adoption_storage.StorageTests.test_private_acl_write_refuses_streams_without_changing_permissions) ... skipped 'Windows streams before native ACL writes'",
+      "test_timeout_still_kills_child_after_parent_exits (test_documents.MediaTests.test_timeout_still_kills_child_after_parent_exits) ... skipped 'Windows process-tree regression'",
+      "test_junction_private_root_is_rejected (test_documents.StorageTests.test_junction_private_root_is_rejected) ... skipped 'Windows junction'",
+      "test_new_empty_temporary_gets_private_acl_before_data (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_new_empty_temporary_gets_private_acl_before_data) ... skipped 'Windows private file creation'",
+      "test_unsafe_temporary_never_changes_permissions (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_unsafe_temporary_never_changes_permissions) ... skipped 'Windows private file creation'",
+      "test_junction_selection_never_reads_or_writes_external_directory (test_mission_environment.ExecutionEnvironmentTests.test_junction_selection_never_reads_or_writes_external_directory) ... skipped 'Windows junction boundary'",
+      "test_private_reservation_survives_reopen_with_native_permissions (test_mission_execution.NativeReservationTests.test_private_reservation_survives_reopen_with_native_permissions) ... skipped 'native ACL fixture is explicitly selected through windows_fixture_runner'",
+      "test_discovery_descendant_cannot_hold_stdout_past_deadline (test_mission_process.ProcessTests.test_discovery_descendant_cannot_hold_stdout_past_deadline) ... skipped 'Discovery regression contained by an outer Windows Job'",
+      "test_failed_job_assignment_reaps_the_unassigned_bootstrap (test_mission_process.ProcessTests.test_failed_job_assignment_reaps_the_unassigned_bootstrap) ... skipped 'Windows Job Object boundary'",
+      "test_real_windows_metadata_does_not_write_profile (test_mission_sandbox.SandboxEnvironmentTests.test_real_windows_metadata_does_not_write_profile) ... skipped 'native Windows metadata and profile cache'",
+      "test_junction_without_python312_helper_blocks_setup (test_setup.SetupTests.test_junction_without_python312_helper_blocks_setup) ... skipped 'Windows junction behavior'",
+      "test_trial_deep_backup_is_refused_before_first_write (test_setup.SetupTests.test_trial_deep_backup_is_refused_before_first_write) ... skipped 'native PowerShell path limit'",
+      "test_junction_root_is_rejected_on_windows (test_vault.VaultTests.test_junction_root_is_rejected_on_windows) ... skipped 'Windows junction behavior'"
+    ]
+  }
+}

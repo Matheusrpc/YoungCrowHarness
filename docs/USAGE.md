@@ -1888,6 +1888,15 @@ Somente `proxy.sandbox` e `no_proxy.sandbox` podem mudar. A recuperação exige 
 paradas, proprietário e porta ausentes, preserva mudanças externas e observa respostas
 perdidas sem repetir mutações. Registros v1/v2 conservam seus contratos.
 
+O adaptador interno deve implementar `setting(key, target, *, expected)` como uma
+comparação e escrita indivisíveis. A ativação fornece o setting original completo;
+a restauração fornece o setting aplicado, incluindo origem, tipo e default. Se o
+estado mudou, a operação deve recusar sem escrita. Uma consulta seguida de `set`
+não satisfaz esse contrato. Não há fallback para adaptadores sem `expected`.
+A intenção permanece consumida após conflito; observar resposta perdida não repete
+a mutação. O suporte atômico do sbx local ainda não foi comprovado, e o adaptador
+nativo continua recusando efeitos. [Correção e evidências](relatorios/2026-10-07-conditional-settings.md).
+
 O plano e os manifestos v4 acrescentam `relay.injection_sha256`, recebido pelo
 `build_plan(..., injection_sha256=...)` interno junto à configuração de rede.
 Placeholder, hash esperado, proxy e CA são iguais em A/B/A2; UUIDs e nonces são
@@ -1912,6 +1921,12 @@ forbidden IPs. Configuration follows the durable helper PID receipt; destination
 metadata must be acknowledged before forwarding bytes. Only the two sandbox proxy
 settings may change. Recovery requires stopped workloads/VM and absent owner/port,
 preserves external changes and observes lost replies without repeating mutations.
+Internal `setting(key, target, *, expected)` must compare the complete setting and
+write the target indivisibly. Activation supplies the original state; restoration
+supplies the applied state, including source, type and default. A mismatch must
+refuse without writing. A read followed by `set` is insufficient; adapters without
+`expected` receive no unconditional fallback. Intent stays consumed after conflict.
+Native atomic support remains unproven, so the native adapter continues to refuse effects.
 Legacy v1/v2 contracts remain intact. V4 adds `relay.injection_sha256`, supplied to
 internal `build_plan(..., injection_sha256=...)` together with network configuration.
 A/B/A2 share placeholder, expected hash, proxy, CA and deadline, keeping separate identities.

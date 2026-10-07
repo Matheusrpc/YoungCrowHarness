@@ -26,9 +26,12 @@ class SettingsFixture(RecoveryFixture):
         self.registry = registry
         self.lost = None
 
-    def setting(self, key, target):
+    def setting(self, key, target, *, expected):
         record = self.registry.records()[0]
         self.assert_intent(record, key)
+        # Models one atomic store operation, not a native read/write sequence.
+        current = self.current['observations']['setting_'+key.replace('.','_')]
+        tx.require(current == expected, 'configuration_changed')
         self.effects.append('setting:'+key)
         self.current['observations']['setting_'+key.replace('.','_')] = copy.deepcopy(target)
         if self.lost == key:
@@ -185,6 +188,71 @@ class NetworkTests(unittest.TestCase):
         self.assertEqual(backend.effects,effects)
         self.assertEqual(backend.current['observations']['setting_proxy_sandbox']['value'],'external')
 
+    def change_after_intent(self, backend, kind, external):
+        save = self.registry.save
+        def concurrent_change(record):
+            save(record)
+            if record['network_events'][-1]['kind'] == kind:
+                backend.current['observations']['setting_proxy_sandbox'] = copy.deepcopy(external)
+        return patch.object(self.registry, 'save', side_effect=concurrent_change)
+
+    def test_setting_changed_after_activation_intent_is_preserved(self):
+        backend = self.ready()
+        external = dict(self.network.setting(backend.current, 'proxy.sandbox'), value='external', source='override')
+        with self.change_after_intent(backend, 'setting_intent', external):
+            try:
+                self.network.activate(self.registry, self.op, backend)
+            except ValueError:
+                pass
+        self.assertEqual(self.network.setting(backend.current, 'proxy.sandbox'), external)
+        self.assertEqual(backend.effects, [])
+        with self.assertRaises(ValueError):
+            self.network.activate(self.registry, self.op, backend)
+        self.assertEqual(backend.effects, [])
+
+    def test_setting_changed_after_restore_intent_keeps_reservation(self):
+        backend = self.ready(); self.network.activate(self.registry, self.op, backend)
+        external = dict(self.network.setting(backend.current, 'proxy.sandbox'), value='external')
+        effects = backend.effects[:]
+        with self.change_after_intent(backend, 'restore_setting_intent', external):
+            result = tx.recover(self.registry, self.op, backend)
+        self.assertEqual(self.network.setting(backend.current, 'proxy.sandbox'), external)
+        self.assertEqual((result['state'], result['reason']), ('blocked', 'configuration_changed'))
+        self.assertEqual(backend.effects, effects)
+        self.assertNotEqual(self.registry.records()[0]['state'], 'recovered')
+
+    def test_setting_metadata_changed_after_restore_intent_is_preserved(self):
+        backend = self.ready(); self.network.activate(self.registry, self.op, backend)
+        external = dict(self.network.setting(backend.current, 'proxy.sandbox'), default='external-default')
+        effects = backend.effects[:]
+        with self.change_after_intent(backend, 'restore_setting_intent', external):
+            result = tx.recover(self.registry, self.op, backend)
+        self.assertEqual(self.network.setting(backend.current, 'proxy.sandbox'), external)
+        self.assertEqual(result['state'], 'blocked')
+        self.assertEqual(backend.effects, effects)
+
+    def test_unconditional_backend_is_not_used_for_activation(self):
+        backend = self.ready()
+        def unconditional(key, target):
+            backend.effects.append('unsafe_write')
+        with patch.object(backend, 'setting', side_effect=unconditional):
+            try:
+                self.network.activate(self.registry, self.op, backend)
+            except (ValueError, TypeError):
+                pass
+        self.assertEqual(backend.effects, [])
+
+    def test_unconditional_backend_is_not_used_for_restore(self):
+        backend = self.ready(); self.network.activate(self.registry, self.op, backend)
+        effects = backend.effects[:]
+        def unconditional(key, target):
+            backend.effects.append('unsafe_write')
+        with patch.object(backend, 'setting', side_effect=unconditional):
+            result = tx.recover(self.registry, self.op, backend)
+        self.assertEqual(result['state'], 'blocked')
+        self.assertEqual(backend.effects, effects)
+        self.assertNotEqual(self.registry.records()[0]['state'], 'recovered')
+
     def test_new_credential_or_policy_blocks_restore(self):
         backend=self.ready();self.network.activate(self.registry,self.op,backend)
         original=copy.deepcopy(backend.current)
@@ -225,7 +293,7 @@ class NetworkTests(unittest.TestCase):
         import mission_sbx
         backend=object.__new__(mission_sbx.Recovery)
         with self.assertRaisesRegex(ValueError,'native_egress_contract_unverified'):
-            backend.setting('proxy.sandbox',{})
+            backend.setting('proxy.sandbox',{},expected={})
         with self.assertRaisesRegex(ValueError,'native_egress_contract_unverified'):
             backend.restart()
 
@@ -241,8 +309,8 @@ class NetworkTests(unittest.TestCase):
     def test_unexpected_daemon_restart_during_restore_blocks_further_effects(self):
         backend=self.ready();self.network.activate(self.registry,self.op,backend)
         setting=backend.setting
-        def external_restart(key,target):
-            setting(key,target)
+        def external_restart(key,target,*,expected):
+            setting(key,target,expected=expected)
             backend.current['daemon_identity']['pid'] += 5
         with patch.object(backend,'setting',side_effect=external_restart):
             result=tx.recover(self.registry,self.op,backend)

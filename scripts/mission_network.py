@@ -1,6 +1,8 @@
 """Private egress journal and restoration of the two sandbox proxy settings.
 
-Native activation stays gated: custom-credential ownership is not documented.
+Native activation stays gated: local credential ownership and atomic setting
+mutations remain unverified. A backend must compare the complete expected setting
+and write the target indivisibly; a separate read followed by a write is insufficient.
 Policy and credential inventories are immutable; this coordinator accepts only
 trusted host adapters, never commands or restoration assertions from a client.
 """
@@ -233,7 +235,7 @@ def activate(registry, operation_id, backend):
                 continue
             append(registry, record, 'A', 'setting_intent', dict(key=key, before=original, after=applied))
             deadline.remaining()
-            backend.setting(key, applied)
+            backend.setting(key, applied, expected=original)
             deadline.remaining()
             matches(record, backend.observe())
             append(registry, record, 'A', 'setting_observed', dict(key=key, value=applied))
@@ -277,7 +279,7 @@ def restore(registry, record, backend, remaining, daemon_identity):
             append(registry, record, 'recovery', 'restore_setting_intent',
                    dict(key=key, before=intent['after'], after=intent['before']))
             remaining()
-            backend.setting(key, intent['before'])
+            backend.setting(key, intent['before'], expected=intent['after'])
             observed = observe()
         remaining()
         matches(record, observed, recovering=True)

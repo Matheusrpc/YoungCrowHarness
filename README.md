@@ -60,8 +60,13 @@ continuam legíveis para recuperação, sem transformar eco antigo em prova de i
 **203.6 permanece parcial:** a API Cloud documenta remoção condicionada à versão da
 credencial, mas falta comprovar esse contrato no `sbx` local 0.46.0. O adaptador e
 os perfis nativos seguem bloqueados; B ainda exige atribuição nativa.
-Validação local: 587 testes aprovados e 20 pulados.
-Veja [entrega, testes e próximo passo](docs/relatorios/2026-10-07-injection-proof.md).
+Veja a [prova de injeção](docs/relatorios/2026-10-07-injection-proof.md).
+
+A ativação e a recuperação agora exigem escrita condicionada ao estado completo do
+setting. Nos testes, uma mudança externa após a intenção é preservada e impede o
+reinício; a recuperação mantém a reserva bloqueada. O contrato atômico do sbx local
+continua sem prova. Validação local: 592 testes aprovados e 20 pulados.
+[Correção e bloqueio nativo](docs/relatorios/2026-10-07-conditional-settings.md).
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
@@ -573,8 +578,13 @@ recovery without turning historical echo results into injection proof.
 **203.6 remains partial:** the Cloud API documents version-conditional credential
 deletion, but that contract is unproven for local `sbx` 0.46.0. The native adapter and
 profiles remain blocked; B still requires native attribution.
-Local validation: 587 tests passed and 20 were skipped.
-See [delivery, tests and next step](docs/relatorios/2026-10-07-injection-proof.md#english-overview).
+See the [injection proof](docs/relatorios/2026-10-07-injection-proof.md#english-overview).
+
+Activation and recovery now require a write conditional on the full setting state.
+Tests preserve an external change made after intent persistence and prevent restart;
+recovery keeps the reservation blocked. The local sbx atomic contract remains unproven.
+Local validation: 592 tests passed and 20 were skipped.
+See the [fix and native blocker](docs/relatorios/2026-10-07-conditional-settings.md#english-overview).
 
 Audit fixes recover interrupted mission/backlog notes even after another
 revision, preserving human edits. Malformed catalogs and Git failures during the

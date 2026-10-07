@@ -97,7 +97,7 @@ TLS, MCP, bypass do host, assinatura ou atribuição de B. Contador nativo **2/3
 Suíte pública: 574 aprovados e 20 pulados, zero falhas/erros.
 [Relatório e medição desse incremento](relatorios/2026-10-07-network-integration.md).
 
-### Incremento atual: prova interna de injeção
+### Incremento anterior: prova interna de injeção
 
 Publicado no PR #24 em `61bdc7b`; branch e ref do PR conferidas.
 
@@ -112,7 +112,7 @@ A/A2 e B sem saída e recupera o registro. Sem substituição, A falha e B não 
 Docker, TLS e injeção no upstream são fronteiras simuladas. Não houve Docker, login,
 modelo ou novo ciclo nativo; permanecem **2/3**, perfis vazios e `proof_accepted=false`.
 Suíte pública: 607 testes, 587 aprovados e 20 pulados, zero falhas/erros em 250.427 s.
-[Relatório, fontes e medição atuais](relatorios/2026-10-07-injection-proof.md).
+[Relatório, fontes e medição desse incremento](relatorios/2026-10-07-injection-proof.md).
 
 Pesquisa oficial: a API Cloud define `uid`/nome imutáveis, `etag` forte e DELETE com
 `If-Match`, recusando versão obsoleta. A documentação separa os recursos local/cloud;
@@ -123,11 +123,31 @@ Próxima evidência: contrato compatível com o armazenamento local e remoção 
 atômica, incluindo rotação e recusa de versão antiga. Não implementar esse adaptador
 com base somente no schema Cloud nem repetir consultas já sem resposta.
 
+### Incremento atual: settings condicionais
+
+A revisão reproduziu perda de uma alteração externa entre a consulta e a escrita,
+na ativação e na recuperação. `backend.setting(key, target, *, expected)` agora
+recebe o estado completo esperado e exige comparação/escrita indivisíveis. A fixture
+modela essa operação; mudança após persistir intenção é preservada, impede reinício
+e mantém a reserva na recuperação. Não há fallback para escrita incondicional.
+Intenções consumidas e respostas perdidas continuam sem replay; schema v3/v4 preservado.
+Suíte pública: 612 testes, 592 aprovados e 20 pulados, sem falhas/erros em 251.364 s.
+[Relatório e medição atuais](relatorios/2026-10-07-conditional-settings.md).
+
+A pesquisa adicional no guia API, conceitos de endpoint, comandos de daemon e release
+0.46.0 não demonstrou o contrato do armazenamento local. A nota do release distingue
+exclusão do store de revogação em sandboxes ativos; excluir não certifica revogação.
+**A implementação nativa está bloqueada por contrato externo**, tanto para identidade/
+remoção da credencial quanto para escrita condicional dos settings. Obter uma
+referência aplicável do fornecedor antes do adaptador. Não repetir as mesmas buscas,
+baixar/executar binário como tentativa de desbloqueio ou consumir novo ciclo sem a
+prova exigida. Docker/modelos continuam sem execução nesta cloud; contador **2/3**.
+
 Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
-| Executor: 203.6 | Comprovar contrato de identidade/versão/remoção atômica no sbx local 0.46.0; implementar adaptador e provar nativamente o contrato v4 já testado localmente |
+| Executor: 203.6 | Bloqueio externo: comprovar identidade/versão/remoção atômica da credencial e escrita condicional dos settings locais 0.46.0; depois adaptador e aceite v4 |
 | Executor: restante de 203.5 | Comprovar recuperação nativa de settings/serviço/credencial e demais políticas necessárias, preservando alterações externas |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |
 | Fila e agentes | Retomar os itens da frente 2 dependentes do aceite YC-203 |
@@ -639,7 +659,7 @@ O núcleo documentado usa Python 3.11+, Bash e Git; no Windows, Git Bash e helpe
 3. Conferir os hashes e a medição atual; divergência de fonte não herda automaticamente a aprovação antiga.
 4. Ler o microíndice e a nota de consolidação se as notas privadas tiverem sido transferidas; usar este documento e os relatórios sanitizados quando não estiverem disponíveis.
 5. Registrar o novo ambiente e quais evidências podem ser reproduzidas nele. Começar com contratos determinísticos; não rodar antigos scripts nativos.
-6. Continuar em 203.6 pelo contrato local 0.46.0 de identidade/versão/remoção atômica da credencial customizada. Depois implementar adaptador nativo e provar o candidato v4; o coordenador e a recusa de eco sem substituição já têm teste integrado local.
+6. Retomar 203.6 somente com nova evidência do contrato local 0.46.0: identidade/versão/remoção atômica da credencial e escrita condicional dos settings. A pesquisa oficial disponível está registrada; não repetir buscas idênticas. Depois implementar adaptador nativo e provar o candidato v4; coordenador, injeção interna e preservação de mudanças após intenção têm testes locais.
 7. Revalidar a preparação no contexto real antes da nova prova Docker. Respeitar dois ciclos já consumidos e o teto aprovado.
 8. Só então testar A/B/A2, ambos os clientes por assinatura e adoção. Manter o perfil bloqueado enquanto faltar qualquer aceite obrigatório.
 

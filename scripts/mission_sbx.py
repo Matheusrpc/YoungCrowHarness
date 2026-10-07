@@ -444,7 +444,8 @@ class Recovery:
         self.until = min(self.until, until)
         self.remaining()
 
-    def setting(self, key, target):
+    def setting(self, key, target, *, expected):
+        # Local sbx has no verified atomic compare-and-write contract yet.
         raise ValueError('native_egress_contract_unverified')
 
     def restart(self):

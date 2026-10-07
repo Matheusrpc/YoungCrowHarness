@@ -7,46 +7,28 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
-Os incrementos da cloud foram publicados no PR #24 em `a06986f`; a branch e a ref
-do PR foram conferidas no GitHub. README PT/EN, guia e handoff acompanham a entrega.
-Próxima task: **203.4/203.5**, integração de plano A/B/A2, reserva global e recuperação.
-[Publicação e validação do pacote](relatorios/2026-10-07-cloud-publication.md).
+O coordenador interno persiste plano A/B/A2, baseline, vínculo da missão e diário na
+reserva global. Testes locais exercitam as três fases e a recuperação das cargas e da
+VM. **203.4 implementada internamente; 203.5 parcial.** O encerramento ainda exige
+configuração global inalterada. A próxima task é **203.6**, filtro de saída, configurações
+globais e recuperação dos seus efeitos, helpers e portas. [Entrega e provas](relatorios/2026-10-07-reservation-recovery.md).
 
-Cloud increments were published to PR #24 at `a06986f`; branch and PR refs were
-verified on GitHub. Next: **203.4/203.5**, integrated A/B/A2 plan, global reservation
-and recovery. CI status remains unverified from this environment.
+The internal coordinator persists the A/B/A2 plan, baseline, mission binding and
+journal in the global reservation. Local tests exercise all three phases and workload/VM
+recovery. **203.4 is implemented internally; 203.5 remains partial.** Closing still
+requires unchanged global configuration. Next is **203.6**, destination filtering,
+global configuration and recovery of its effects, helpers and ports.
 
-Na continuidade cloud, `client check` recebeu a admissão `isolated-egress-v1`, que
-grava `failed/controller_pending` com zero chamadas de modelo e conserva limites e
-replay. Controlador, reserva global, plano A/B/A2 e recuperação ainda precisam de
-integração. [Incremento e provas](relatorios/2026-10-07-synthetic-admission.md).
+A entrada pública `client check` continua em `failed/controller_pending`, com zero
+chamadas de modelo. Perfis nativos seguem bloqueados. A sequência é **203.6 e restante
+da recuperação → pacote e A/B/A2 nativo → clientes autenticados e adoção → fila/agentes
+→ QA → release/operação**. A publicação anterior, com controlador/fixture e correções
+AUD-01, AUD-02 e PR24-F2, está no [checkpoint cloud](relatorios/2026-10-07-cloud-publication.md).
 
-Cloud continuation adds `isolated-egress-v1` admission to `client check`, recording
-`failed/controller_pending` with zero model calls and preserving limits and replay.
-Controller, global reservation, A/B/A2 plan and recovery still need integration.
-
-Incremento seguinte: controlador de canal aberto e fixture fixa implementados e
-testados localmente. O pacote da imagem inclui a fixture; ainda falta reconstruir
-e provar o candidato. A sequência agora é **reserva/recuperação integradas → A/B/A2
-→ clientes autenticados e adoção → fila/agentes → QA → release/operação**. YC-203
-continua parcial e `client check` bloqueado. [Entrega e provas](relatorios/2026-10-07-controller-channel.md).
-
-Next increment: the open-channel controller and fixed fixture are implemented and
-tested locally. The image package includes the fixture; candidate rebuild and proof
-remain pending. Order: **integrated reservation/recovery → A/B/A2 → authenticated
-clients and adoption → queue/agents → QA → release/operations**. YC-203 remains partial
-and `client check` remains blocked.
-
-Correções da auditoria: **AUD-01, AUD-02 e PR24-F2** corrigidos com regressões
-e revisão independente. O reparo das notas preserva edições humanas e reservas; os
-diagnósticos devolvem erros estruturados. PR24-F1 já havia sido corrigido. O próximo
-núcleo é **203.4/203.5**, plano A/B/A2, reserva e recuperação integrados.
-[Escopo e evidências](relatorios/2026-10-07-audit-fixes.md).
-
-Audit fixes: **AUD-01, AUD-02 and PR24-F2** have regression tests and independent
-review. Note repair preserves human edits and reservations; diagnostics return structured
-errors. PR24-F1 was already fixed. Next: integrate **203.4/203.5**, the A/B/A2 plan,
-reservation and recovery. Native acceptance remains pending.
+Public `client check` still returns `failed/controller_pending` with zero model calls;
+native profiles remain blocked. Order: **203.6 and remaining recovery → package and
+native A/B/A2 → authenticated clients and adoption → queue/agents → QA → release/operations**.
+CI status remains unverified from this environment.
 
 Este é o índice público do trabalho necessário para entregar a esteira definida na
 [especificação aprovada](superpowers/specs/2026-10-03-ai-product-pipeline-design.md).
@@ -156,8 +138,8 @@ O preflight de candidato está implementado na mesma entrada `client environment
 repetido. O relay restrito está ligado ao guardian/launcher em desenvolvimento,
 com 43 testes locais aprovados. Reserva compartilhada entre projetos e filtro do
 destino já têm implementação e testes locais; `client environment` consulta a reserva.
-Ligação ao despacho, empacotamento do candidato, A/B/A2 pelo cliente isolado e recuperação integrada continuam pendentes; YC-203
-permanece aberto. O manifesto v3 aceita somente eco fictício, sem clientes autenticados.
+Plano, despacho e diário têm integração local; a recuperação interna cobre cargas e VM.
+Faltam o egress e sua restauração global, o empacotamento e A/B/A2 nativo; YC-203 permanece aberto. O manifesto v3 aceita somente eco fictício, sem clientes autenticados.
 On October 7, the maintainer approved consolidation: shared diagnostics are being
 implemented, with 11 native read queries passing locally. Integrated isolation and
 both authenticated clients remain pending; no execution profile was enabled.
@@ -173,8 +155,8 @@ Candidate preflight is implemented through the same `client environment` entry:
 reads. The restricted relay is connected to guardian/launcher in development,
 with 43 local tests passing. Shared reservation and destination filtering now have
 implementations and local tests; `client environment` reads the reservation.
-Dispatch wiring, candidate packaging, A/B/A2 through the isolated client and integrated recovery remain pending; YC-203 stays
-open. Manifest v3 accepts only dummy echo, with no authenticated clients.
+Plan, dispatch and journal have local integration; internal recovery covers workloads and VM.
+Egress and global restoration, packaging and native A/B/A2 remain pending; YC-203 stays open. Manifest v3 accepts only dummy echo, with no authenticated clients.
 R1 já tem o diagnóstico de ambiente e sua distribuição em desenvolvimento;
 consulte as [provas e pendências](relatorios/2026-10-04-isolated-executor.md).
 O host já reiniciou e o login Docker foi concluído. A [prova do supervisor interno](relatorios/2026-10-04-supervisor-spike.md)

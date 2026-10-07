@@ -132,14 +132,15 @@ def reserve_check(root: Path, manifest: dict, observation: dict) -> dict:
     return _record_check(root, manifest, config, details)
 
 
-def _record_check(root, manifest, config, details):
+def _record_check(root, manifest, config, details, *, run_id=None, with_new=False):
     """Persist one closed check variant with the same mission limits and UUID CAS."""
     with store.transaction(root) as conn:
         migrate(conn)
         row = conn.execute('SELECT request_hash,snapshot FROM agent_runs WHERE operation_id=?', (manifest['operation_id'],)).fetchone()
         if row:
             require(row[0] == digest_manifest(manifest), 'operation_conflict')
-            return json.loads(row[1])
+            result = json.loads(row[1])
+            return (False, result) if with_new else result
         require(not conn.execute("SELECT 1 FROM agent_runs WHERE state IN ('reserved','running','uncertain') LIMIT 1").fetchone(), 'unresolved_run')
         current = conn.execute('SELECT revision FROM records WHERE id=?', (manifest['mission_id'],)).fetchone()
         require(current and current[0] == manifest['mission_revision'], 'revision_conflict')
@@ -150,7 +151,7 @@ def _record_check(root, manifest, config, details):
             used = sum(Decimal(r['manifest']['api_budget_usd'] or '0') for r in previous)
             require(used + Decimal(manifest['api_budget_usd']) <= Decimal(config['limits']['api_budget_usd']), 'limit_exceeded')
         created = now()
-        run = dict(schema_version=1, id=str(uuid.uuid4()), mission_id=manifest['mission_id'],
+        run = dict(schema_version=1, id=run_id or str(uuid.uuid4()), mission_id=manifest['mission_id'],
                    mission_revision=manifest['mission_revision'], operation_id=manifest['operation_id'],
                    manifest=manifest, revision=0,
                    created_at=created, ended_at=created if details['state'] in TERMINAL else None,
@@ -162,7 +163,8 @@ def _record_check(root, manifest, config, details):
         conn.execute('INSERT INTO agent_runs VALUES(?,?,?,?,?,?,?,?)',
                      (run['id'], run['mission_id'], run['mission_revision'], run['operation_id'], digest_manifest(manifest), 0, run['state'], canonical(run).decode()))
         event = dict(kind='reserved') if run['state'] == 'reserved' else dict(kind='blocked', reason=run['reason'])
-        return save_event(conn, run, event, 0, manifest['operation_id'])
+        result = save_event(conn, run, event, 0, manifest['operation_id'])
+        return (True, result) if with_new else result
 
 
 def transition_run(root: Path, run_id: str, event: dict, expected_revision: int, operation_id: str) -> dict:
@@ -269,6 +271,10 @@ def check_client(root: Path, manifest: dict, executable: Path) -> dict:
 
 
 def reconcile_check(root: Path, run_id: str, evidence: dict, expected_revision: int, operation_id: str) -> dict:
+    with store.reader(root) as conn:
+        require(has_runs(conn), 'unknown_run')
+        run = find_run(conn, run_id)
+        require('execution_plan_sha256' not in run, 'integrated_recovery_required')
     require(isinstance(evidence, dict) and set(evidence) == {'authorization_ref', 'termination', 'external_effect'}, 'insufficient_evidence')
     require(text(evidence['authorization_ref'], 1000) and evidence['authorization_ref'].strip(), 'insufficient_evidence')
     # Explicit operator-reviewed files, bound to exact bytes. Never execute their contents.

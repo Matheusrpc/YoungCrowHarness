@@ -67,7 +67,7 @@ def docker(*args):
     return result.stdout
 
 
-def verify(directory, record, manifest, *, running=False, networks=None):
+def verify(directory, record, manifest, *, running=False, networks=None, recovering=False):
     if manifest['schema_version'] == 3:
         try:
             guardian.relay.read_ca(directory/'control/relay-ca.pem', manifest['relay']['ca_sha256'])
@@ -102,6 +102,14 @@ def verify(directory, record, manifest, *, running=False, networks=None):
     labels = config.get('Labels', {})
     mounts = value.get('Mounts')
     expected_state = dict(Status='running', Running=True) if running else dict(Status='created', Running=False, Pid=0)
+    if recovering:
+        active = state.get('Status') == 'running'
+        if (state.get('Status') not in ('created', 'running', 'exited', 'dead')
+                or state.get('Running') is not active or type(state.get('Pid')) is not int
+                or (state['Pid'] <= 0 if active else state['Pid'] != 0)
+                or any(state.get(key) not in (None, False) for key in ('Paused', 'Restarting'))):
+            raise guardian.Refused('unsafe_container')
+        expected_state = {}
     if (value.get('Id') != cid or value.get('Image') != record['image']
             or not matches(state, expected_state)
             or (running and (type(state.get('Pid')) is not int or state['Pid'] <= 0
@@ -115,7 +123,58 @@ def verify(directory, record, manifest, *, running=False, networks=None):
             or not matches(mounts[0], dict(Type='bind', Source=str(directory/'control'),
                                           Destination='/control', RW=True))):
         raise guardian.Refused('unsafe_container')
-    return value if running else hashlib.sha256(guardian.encode(value)).hexdigest()
+    return value if running or recovering else hashlib.sha256(guardian.encode(value)).hexdigest()
+
+
+def observe(root, operation_id, nonce):
+    """Inspect an existing owned container; never create or start it for recovery."""
+    try:
+        directory = root / identity(operation_id)
+        for path in (root, directory, directory/'control'):
+            protected(path, directory=True)
+        manifest = read(directory/'control/launch.json')
+        try:
+            record = read(directory/'created.json')
+        except FileNotFoundError:
+            # A create response may be lost after Docker committed it. Resolve
+            # the fixed name against the protected pre-create identity, then
+            # inspect the full effective configuration by CID below.
+            intent = read(directory/'create-intent.json')
+            values = guardian.decode(docker('inspect', 'yc-'+operation_id))
+            if type(values) is not list or len(values) != 1 or type(values[0]) is not dict:
+                raise guardian.Refused('invalid_inspection')
+            record = dict(intent, container_id=values[0].get('Id'))
+        if (type(record) is not dict or type(manifest) is not dict
+                or record.get('operation_id') != operation_id or manifest.get('operation_id') != operation_id
+                or type(nonce) is not str or not re.fullmatch('[0-9a-f]{32}', nonce)
+                or record.get('nonce') != nonce or manifest.get('nonce') != nonce
+                or hashlib.sha256(guardian.encode(manifest)).hexdigest() != record.get('manifest_sha256')):
+            raise guardian.Refused('changed_operation')
+        value = verify(directory, record, manifest, recovering=True)
+        state = value['State']
+        return dict(record, state={k: state[k] for k in ('Status', 'Running', 'Pid')},
+                    inspection_sha256=hashlib.sha256(guardian.encode(value)).hexdigest(),
+                    workload_reaped=state['Running'] is False and state['Pid'] == 0)
+    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
+        raise guardian.Refused('recovery_observation_failed') from error
+
+
+def stop(root, operation_id, nonce):
+    """One stop attempt; a lost response is resolved by inspection, never replay."""
+    observed = observe(root, operation_id, nonce)
+    if observed['workload_reaped']:
+        return observed
+    directory = root / operation_id
+    try:
+        save(directory, 'stop.json', observed)
+        # Stop is bounded separately from the expired workload's execution deadline.
+        docker('stop', '--time', '1', observed['container_id'])
+        final = observe(root, operation_id, nonce)
+        if not final['workload_reaped']:
+            raise guardian.Refused('workload_stop_unverified')
+        return final
+    except (OSError, ValueError, subprocess.SubprocessError) as error:
+        raise guardian.Refused('stop_failed_or_consumed') from error
 
 
 def snapshot_ca(control, digest):
@@ -149,6 +208,8 @@ def prepare(root, image, manifest):
         save(control, 'launch.json', manifest)
         if manifest['schema_version'] == 3:
             snapshot_ca(control, manifest['relay']['ca_sha256'])
+        intent = dict(schema_version=1, image=image, **protocol.identity, nonce=manifest['nonce'])
+        save(directory, 'create-intent.json', intent)
         host_args = (['--add-host', manifest['network']['host']+':'+manifest['network']['ipv4']]
                      if manifest['schema_version'] == 2 else [])
         cid = docker('create', '--pull', 'never', '-i', '--name', 'yc-'+manifest['operation_id'],
@@ -319,6 +380,11 @@ def main():
             os.execve(command[0], command, {'PATH': '/usr/bin:/bin', 'HOME': '/root'})
         if len(sys.argv) == 5 and sys.argv[1] == 'network':
             result = configure_network(STATE, sys.argv[2], sys.argv[3], sys.argv[4])
+            print(guardian.encode(result).decode(), flush=True)
+            return 0
+        if len(sys.argv) == 4 and sys.argv[1] in ('observe', 'stop'):
+            action = observe if sys.argv[1] == 'observe' else stop
+            result = action(STATE, sys.argv[2], sys.argv[3])
             print(guardian.encode(result).decode(), flush=True)
             return 0
         raise guardian.Refused('invalid_arguments')

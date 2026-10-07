@@ -154,10 +154,16 @@ class Registry:
             self.validate_record(row,row['request'].get('operation_id'))
         if len({r['request']['operation_id'] for r in rows}) != len(rows):
             raise ValueError('execution_reservation_invalid')
-        if sum(r['state'] != 'abandoned' for r in rows) > 1:
+        if sum(r['state'] not in ('abandoned', 'recovered') for r in rows) > 1:
             raise ValueError('execution_reservation_invalid')
 
     def validate_record(self, record, operation_id):
+        if type(record) is dict and 'schema_version' in record:
+            from mission_transaction import validate_record
+            validate_record(record)
+            if record['request']['operation_id'] != operation_id:
+                raise ValueError('execution_reservation_invalid')
+            return
         keys = {'request','state','revision','created_at','updated_at','intents'}
         if (type(record) is not dict or set(record) != keys or record['state'] not in ('reserved','consumed','abandoned')
                 or type(record['revision']) is not int or record['revision'] < 1
@@ -213,7 +219,7 @@ class Registry:
         check_private(self.base)
 
     def status(self):
-        active=next((r for r in self.records() if r['state'] != 'abandoned'),None)
+        active=next((r for r in self.records() if r['state'] not in ('abandoned', 'recovered')),None)
         return dict(state=active['state'] if active else 'available',
                     operation_id=active['request']['operation_id'] if active else None,
                     effects_allowed=False)
@@ -229,9 +235,9 @@ class Registry:
             records=self.records()
             old=next((r for r in records if r['request']['operation_id']==request['operation_id']),None)
             if old:
-                if old['request'] != request: raise ValueError('operation_conflict')
+                if old['request'] != request or 'schema_version' in old: raise ValueError('operation_conflict')
                 return dict(new=False,record=old)
-            if any(r['state'] != 'abandoned' for r in records): raise ValueError('execution_reserved')
+            if any(r['state'] not in ('abandoned', 'recovered') for r in records): raise ValueError('execution_reserved')
             if len(records) >= MAX_OPERATIONS: raise ValueError('execution_history_limit')
             if not 0 < request['deadline_ms']-time.time()*1000 <= 600000: raise ValueError('execution_deadline')
             record=dict(request=request,state='reserved',revision=0,created_at=stamp(),updated_at=stamp(),intents=[])
@@ -245,6 +251,7 @@ class Registry:
         with self.locked():
             record=next((r for r in self.records() if r['request']['operation_id']==operation_id),None)
             if not record or record['state']=='abandoned': raise ValueError('execution_reservation_missing')
+            if 'schema_version' in record: raise ValueError('integrated_recovery_required')
             if any(i['effect']==effect for i in record['intents']): raise ValueError('effect_consumed')
             if record['request']['deadline_ms'] <= time.time()*1000: raise ValueError('execution_deadline')
             record['intents'].append(dict(effect=effect,**change,at=stamp()))
@@ -262,6 +269,7 @@ class Registry:
         with self.locked():
             record=next((r for r in self.records() if r['request']['operation_id']==operation_id),None)
             if not record: raise ValueError('execution_reservation_missing')
+            if 'schema_version' in record: raise ValueError('integrated_recovery_required')
             if record['state']=='abandoned': return record
             if record['intents']: raise ValueError('execution_reconciliation_required')
             if observe_baseline() != record['request']['baseline_sha256']: raise ValueError('configuration_changed')

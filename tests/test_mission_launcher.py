@@ -71,6 +71,76 @@ class LauncherTests(unittest.TestCase):
         with patch.object(self.module, 'docker', side_effect=self.docker):
             return self.module.prepare(self.root,self.image,self.manifest)
 
+    def test_recovery_observes_terminal_workload_after_original_deadline(self):
+        self.create()
+        self.assertTrue(callable(getattr(self.module, 'observe', None)), 'owned observation missing')
+        self.inspection['State'] = dict(Status='exited', Running=False, Pid=0)
+        with patch.object(self.module, 'docker', side_effect=self.docker), \
+             patch.object(self.module.guardian.time, 'time', return_value=time.time()+300):
+            observed = self.module.observe(self.root, self.manifest['operation_id'], self.manifest['nonce'])
+        self.assertEqual(observed['container_id'], self.cid)
+        self.assertEqual(observed['state'], self.inspection['State'])
+        self.assertTrue(observed['workload_reaped'])
+        for field, value in [('Image', 'sha256:'+'f'*64), ('Id', 'f'*64)]:
+            before = self.inspection[field]
+            self.inspection[field] = value
+            with patch.object(self.module, 'docker', side_effect=self.docker), self.assertRaises(self.module.guardian.Refused):
+                self.module.observe(self.root, self.manifest['operation_id'], self.manifest['nonce'])
+            self.inspection[field] = before
+        self.assertFalse(any(c[0] in ('start', 'stop') for c in self.calls))
+
+    def test_recovery_locates_owned_container_when_create_response_was_lost(self):
+        self.create()
+        (self.root/self.manifest['operation_id']/'created.json').unlink()
+        def docker(*args):
+            if args == ('inspect', 'yc-'+self.manifest['operation_id']):
+                return json.dumps([self.inspection]).encode()
+            return self.docker(*args)
+        before = sum(c[0] == 'create' for c in self.calls)
+        with patch.object(self.module, 'docker', side_effect=docker):
+            observed = self.module.observe(self.root, self.manifest['operation_id'], self.manifest['nonce'])
+        self.assertEqual(observed['container_id'], self.cid)
+        self.assertTrue(observed['workload_reaped'])
+        self.assertEqual(sum(c[0] == 'create' for c in self.calls), before)
+
+    def test_recovery_stop_is_consumed_before_effect_and_lost_reply_is_observed(self):
+        self.create()
+        self.assertTrue(callable(getattr(self.module, 'stop', None)), 'owned stop missing')
+        self.inspection['State'] = dict(Status='running', Running=True, Pid=42)
+        stops = []
+        def docker(*args):
+            if args[0] == 'stop':
+                self.assertTrue((self.root/self.manifest['operation_id']/'stop.json').is_file())
+                self.assertEqual(args, ('stop', '--time', '1', self.cid))
+                stops.append(args)
+                self.inspection['State'] = dict(Status='exited', Running=False, Pid=0)
+                raise OSError('lost stop response')
+            return self.docker(*args)
+        with patch.object(self.module, 'docker', side_effect=docker):
+            with self.assertRaises(self.module.guardian.Refused):
+                self.module.stop(self.root, self.manifest['operation_id'], self.manifest['nonce'])
+            observed = self.module.stop(self.root, self.manifest['operation_id'], self.manifest['nonce'])
+        self.assertTrue(observed['workload_reaped'])
+        self.assertEqual(len(stops), 1)
+        self.inspection['State'] = dict(Status='running', Running=True, Pid=43)
+        with patch.object(self.module, 'docker', side_effect=docker), self.assertRaises(self.module.guardian.Refused):
+            self.module.stop(self.root, self.manifest['operation_id'], self.manifest['nonce'])
+        self.assertEqual(len(stops), 1)
+
+    def test_recovery_never_stops_changed_identity_or_restarting_workload(self):
+        self.create()
+        self.assertTrue(callable(getattr(self.module, 'stop', None)), 'owned stop missing')
+        self.inspection['State'] = dict(Status='running', Running=True, Pid=42)
+        for target, key, value in [(self.inspection['Config']['Labels'], 'youngcrow.nonce', '0'*32),
+                                   (self.inspection['HostConfig'], 'RestartPolicy', {'Name':'always'}),
+                                   (self.inspection['State'], 'Status', 'restarting')]:
+            old = target[key]
+            target[key] = value
+            with patch.object(self.module, 'docker', side_effect=self.docker), self.assertRaises(self.module.guardian.Refused):
+                self.module.stop(self.root, self.manifest['operation_id'], self.manifest['nonce'])
+            target[key] = old
+        self.assertFalse((self.root/self.manifest['operation_id']/'stop.json').exists())
+
     def test_prepare_persists_before_create_and_run_is_consumed_before_start(self):
         record=self.create()
         self.assertEqual(record['container_id'],self.cid)

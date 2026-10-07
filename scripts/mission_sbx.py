@@ -1,4 +1,4 @@
-"""Bounded sbx metadata adapter. No lifecycle, credential writes or model calls."""
+"""Bounded sbx metadata and owned recovery. No credential writes or model calls."""
 import base64
 from datetime import datetime, timezone
 import hashlib
@@ -9,6 +9,7 @@ import platform
 import re
 import stat
 import subprocess
+import time
 import uuid
 
 from capabilities import parse_json
@@ -125,6 +126,8 @@ class Sbx:
         self.executable, self.root = Path(executable).absolute(), Path(root).resolve(strict=True)
         self.digest = hash_executable(self.executable)
         self.version, self.records, self.evidence = version, [], []
+        self.baseline = None  # Trusted coordinator only; never included in the public report.
+        self.timeout_seconds = 15
         self.context = context()
         self.evidence_path = evidence_path
 
@@ -199,7 +202,7 @@ class Sbx:
             probe_digest = None
         start = datetime.now(timezone.utc).isoformat()
         record = dict(phase=phase, args=list(args), executable_sha256=self.digest,
-                      version=self.version, context=self.context, timeout_seconds=15,
+                      version=self.version, context=self.context, timeout_seconds=self.timeout_seconds,
                       output_limit_bytes=65536, started_at=start, ended_at=start,
                       elapsed_seconds=0, exit_code=None, reason='pending')
         if system_probe:
@@ -215,7 +218,7 @@ class Sbx:
                 record['reason'] = 'executable_changed'
                 return dict(ok=False, reason=record['reason'])
             result = mission_process.supervise(dict(argv=[str(executable), *args], cwd=str(self.root),
-                stdin=b'', timeout_seconds=15, output_limit_bytes=65536, connection='authenticated',
+                stdin=b'', timeout_seconds=self.timeout_seconds, output_limit_bytes=65536, connection='authenticated',
                 client='metadata', credential_env=None, system_probe=system_probe),
                 on_started=lambda _: None, stop_requested=lambda: False)
         except (OSError, ValueError):
@@ -317,6 +320,7 @@ class Sbx:
 
     def candidate_preflight(self, name):
         """Repeated read-only baseline. Readiness never authorizes a native proof."""
+        self.baseline = None
         report = dict(schema_version=1, scope='candidate_metadata', ready=False,
                       effects_allowed=False, model_calls=0, commands=self.records,
                       credential_inventory_empty=None, failed_phase=None,
@@ -394,10 +398,11 @@ class Sbx:
             require(read('daemon_after', ('daemon', 'status', '--json')) == daemon, 'configuration_changed')
             phase = 'daemon_identity_after'
             require(self.daemon_identity(phase) == identity, 'daemon_identity_changed')
+            self.baseline = dict(executable_sha256=self.digest, version=self.version,
+                                 daemon=daemon, daemon_identity=identity,
+                                 observations={k: _stable(k, v) for k, v in baseline.items()})
             report.update(ready=True, reason='candidate_metadata_observed',
-                          baseline_sha256=_sha(dict(executable_sha256=self.digest, version=self.version,
-                                                   daemon=daemon, daemon_identity=identity,
-                                                   observations={k: _stable(k, v) for k, v in baseline.items()})),
+                          baseline_sha256=_sha(self.baseline),
                           candidate=dict(id=candidate_id, name=name, image_digest=data['image_digest'],
                                          cpus=2, memory_mib=4096, mcp_gateway=data['mcp_gateway']))
         except ValueError as error:
@@ -418,6 +423,102 @@ class Sbx:
             report['guidance'] = guidance.get(str(error),
                 'Inspect the failed phase in the private receipt before making changes. This diagnostic does not authorize effects.')
         return report
+
+
+class Recovery:
+    """Closed host recovery commands, used outside the original process group/job.
+
+    Never pass this adapter into a contained controller: metadata queries use the
+    existing supervisor. It does not configure egress, credentials or policies.
+    """
+    def __init__(self, driver, plan, *, timeout_seconds=60):
+        import mission_transaction as tx
+        tx.validate_plan(plan)
+        tx.require(0 < timeout_seconds <= 60, 'invalid_recovery_deadline')
+        self.driver, self.plan = driver, plan
+        self.until = time.monotonic()+timeout_seconds
+        tx.require(driver.digest == plan['baseline']['executable_sha256']
+                   and driver.version == plan['baseline']['version'], 'executable_changed')
+
+    def bind_deadline(self, until):
+        self.until = min(self.until, until)
+        self.remaining()
+
+    def remaining(self):
+        value = min(15, self.until-time.monotonic())
+        if value <= 0:
+            raise ValueError('recovery_deadline')
+        self.driver.timeout_seconds = value
+        return value
+
+    def query(self, label, args):
+        self.remaining()
+        result = self.driver.query(label, args)
+        self.remaining()
+        if not result['ok']:
+            raise ValueError(result['reason'])
+        return result['data']
+
+    def candidate(self):
+        candidate = self.plan['candidate']
+        first = self.query('recovery_inventory_before', ('ls', '--json'))
+        inspected = self.query('recovery_candidate', ('inspect', candidate['name'], '--json'))
+        after = self.query('recovery_inventory_after', ('ls', '--json'))
+        matches = [row for row in first['sandboxes'] if row.get('name') == candidate['name']]
+        if (first != after or len(matches) != 1 or matches[0].get('id') != candidate['id']
+                or inspected.get('image_digest') != candidate['outer_digest']
+                or inspected.get('state') not in ('running', 'stopped')
+                or matches[0].get('status') != inspected['state']):
+            raise ValueError('candidate_identity_changed')
+        return first, inspected
+
+    def observe(self):
+        first, inspected = self.candidate()
+        observations = dict(sandbox_inventory=first, candidate_inspect=_stable('candidate_inspect', inspected))
+        for key in SETTINGS:
+            observations['setting_'+key.replace('.', '_')] = self.query('recovery_setting', ('settings', 'get', key, '--json'))
+        observations['secret_inventory'] = self.query('recovery_secrets', ('secret', 'ls', '--json'))
+        observations['policy_global'] = self.query('recovery_policy', ('policy', 'ls', '--json'))
+        observations['policy_candidate'] = self.query('recovery_candidate_policy', ('policy', 'ls', self.plan['candidate']['name'], '--json'))
+        daemon = self.query('recovery_daemon', ('daemon', 'status', '--json'))
+        self.remaining()
+        identity = self.driver.daemon_identity('recovery_daemon_identity')
+        final, last = self.candidate()
+        if final != first or _stable('candidate_inspect', last) != observations['candidate_inspect']:
+            raise ValueError('configuration_changed')
+        return dict(executable_sha256=self.driver.digest, version=self.driver.version, daemon=daemon,
+                    daemon_identity=identity, observations=observations)
+
+    def workload(self, phase, stop=False):
+        import mission_transaction as tx
+        _, candidate = self.candidate()
+        if candidate['state'] != 'running':
+            raise ValueError('candidate_not_running')
+        manifest = self.plan['phases'][tx.PHASES.index(phase)]
+        args = ('exec', '-u', 'root', self.plan['candidate']['name'], '/usr/bin/python3.14',
+                '-I', '-B', '/opt/youngcrow/launcher.py', 'stop' if stop else 'observe',
+                manifest['operation_id'], manifest['nonce'])
+        self.remaining()
+        result = self.driver._observe('recovery_workload', args, self.driver.executable, lambda data: type(data) is dict)
+        self.remaining()
+        if not result['ok']:
+            raise ValueError(result['reason'])
+        tx.workload_valid(self.plan, phase, result['data'])
+        return result['data']
+
+    def stop_vm(self):
+        _, candidate = self.candidate()
+        if candidate['state'] != 'running':
+            raise ValueError('candidate_not_running')
+        if hash_executable(self.driver.executable) != self.driver.digest:
+            raise ValueError('executable_changed')
+        result = mission_process.supervise(dict(argv=[str(self.driver.executable), 'stop', self.plan['candidate']['name']],
+            cwd=str(self.driver.root), stdin=b'', timeout_seconds=self.remaining(), output_limit_bytes=65536,
+            connection='authenticated', client='metadata', credential_env=None),
+            on_started=lambda _: None, stop_requested=lambda: False)
+        self.remaining()
+        if not result['tree_reaped'] or result['reason'] != 'completed' or result['exit_code'] != 0:
+            raise ValueError('sandbox_stop_unverified')
 
 
 def inspect_preflight(root, executable, version, *, sandbox=None):

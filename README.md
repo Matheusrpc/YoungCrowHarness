@@ -42,7 +42,7 @@ testes e relatórios revisados para continuar em outro ambiente. Comece pelo
 [verificação deste checkpoint](docs/relatorios/2026-10-07-cloud-checkpoint.md).
 O executor ainda depende de prova integrada de rede e dos dois clientes autenticados; seus perfis permanecem bloqueados.
 
-**Publicado em 7/out:** admissão sintética, controlador/fixture e correções da auditoria
+**Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
 chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 O pacote público passou em 516 testes, com 20 pulados; o CI não pôde ser consultado.
 Veja o [registro da publicação](docs/relatorios/2026-10-07-cloud-publication.md).
@@ -52,10 +52,13 @@ Veja o [registro da publicação](docs/relatorios/2026-10-07-cloud-publication.m
 missão, sem consultar clientes ou Docker. Veja o [contrato e seus limites](docs/USAGE.md#synthetic-admission)
 e a [continuidade na cloud](docs/relatorios/2026-10-07-synthetic-admission.md).
 
-O controlador interno de canal e a fixture fixa já têm testes com processos e relay
-locais. A fixture está incluída no contexto de build; a imagem ainda precisa ser
-reconstruída e provada. O próximo passo é ligar o plano A/B/A2 à reserva global e à
-recuperação antes de habilitar o despacho. Veja a [entrega e a sequência das frentes](docs/relatorios/2026-10-07-controller-channel.md).
+O coordenador interno agora grava o plano A/B/A2, os valores do baseline e seus hashes
+na reserva global, vinculada à missão antes dos efeitos. Testes locais exercitam as
+três fases e a recuperação das cargas identificadas e da VM, inclusive após perda de
+resposta. B ainda exige atribuição nativa. A próxima task é **203.6**: integrar o filtro
+de saída, configurações globais e sua restauração, incluindo helpers e portas.
+Validação local: 547 testes aprovados e 20 pulados.
+Veja [entrega, revisão e limites](docs/relatorios/2026-10-07-reservation-recovery.md).
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
@@ -548,7 +551,7 @@ reviewed reports for continuing in another environment. Start with the
 [checkpoint verification](docs/relatorios/2026-10-07-cloud-checkpoint.md).
 Integrated network proof and both authenticated clients are still pending; execution profiles remain blocked.
 
-**Published on Oct 7:** synthetic admission, controller/fixture and audit fixes
+**Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
 are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 The public package passed 516 tests, with 20 skipped; CI could not be queried.
 See the [publication record](docs/relatorios/2026-10-07-cloud-publication.md).
@@ -558,10 +561,13 @@ See the [publication record](docs/relatorios/2026-10-07-cloud-publication.md).
 and its UUID without querying clients or Docker. See the [contract and limits](docs/USAGE.md#synthetic-admission)
 and the [cloud continuation report](docs/relatorios/2026-10-07-synthetic-admission.md).
 
-The internal channel controller and fixed fixture have local process and relay tests.
-The fixture is included in the build context; rebuilding and proving the image are
-still pending. Next, bind the A/B/A2 plan to global reservation and recovery before
-enabling dispatch. See the [increment and delivery sequence](docs/relatorios/2026-10-07-controller-channel.md).
+The internal coordinator now stores the A/B/A2 plan, baseline values and hashes in
+the global reservation, bound to the mission before effects. Local tests exercise all
+three phases and recovery of identified workloads and the VM, including lost replies.
+B still requires native attribution. Next is **203.6**: integrate the destination
+guard, global configuration and restoration, including helpers and ports.
+Local validation: 547 tests passed and 20 were skipped.
+See [delivery, review and limits](docs/relatorios/2026-10-07-reservation-recovery.md).
 
 Audit fixes recover interrupted mission/backlog notes even after another
 revision, preserving human edits. Malformed catalogs and Git failures during the

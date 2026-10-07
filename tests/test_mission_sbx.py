@@ -293,6 +293,88 @@ class SbxTests(unittest.TestCase):
 
 class CandidatePreflightTests(unittest.TestCase):
     result = SbxTests.result
+    def test_recovery_attempt_deadline_prevents_late_stop(self):
+        import mission_transaction as tx
+        from test_mission_transaction import inputs
+        driver, _ = self.candidate()
+        args = inputs()
+        args.update(baseline=driver.baseline, candidate=dict(id=self.vm_id, name=self.name,
+                    outer_digest=self.inspection['image_digest'], inner_digest='sha256:'+'b'*64))
+        plan = tx.build_plan(**args)
+        self.inspection['state'] = self.listing['sandboxes'][0]['status'] = 'running'
+        clock, queries = [0.0], []
+        def exchange(command, **kwargs):
+            queries.append(command['argv'][1])
+            self.assertNotEqual(command['argv'][1], 'exec')
+            result = self.exchange(command, **kwargs)
+            if len(queries) == 3:
+                clock[0] = 2.0
+            return result
+        with patch('time.monotonic', side_effect=lambda: clock[0]):
+            backend = self.module.Recovery(driver, plan)
+            backend.bind_deadline(1.0)
+            with patch('mission_process.supervise', side_effect=exchange), self.assertRaisesRegex(ValueError, 'recovery_deadline'):
+                backend.workload('A', stop=True)
+        self.assertEqual(queries, ['ls', 'inspect', 'ls'])
+
+    def test_native_recovery_never_executes_launcher_in_stopped_vm(self):
+        import mission_transaction as tx
+        from test_mission_transaction import inputs
+        driver, report = self.candidate()
+        self.assertTrue(callable(getattr(self.module, 'Recovery', None)), 'native recovery adapter missing')
+        args = inputs()
+        args.update(baseline=driver.baseline, candidate=dict(id=self.vm_id, name=self.name,
+                    outer_digest=self.inspection['image_digest'], inner_digest='sha256:'+'b'*64))
+        plan = tx.build_plan(**args)
+        backend = self.module.Recovery(driver, plan)
+        self.counts.clear()
+        with patch('mission_process.supervise', side_effect=self.exchange), \
+             patch.object(driver, 'daemon_identity', return_value=self.identity):
+            self.assertEqual(backend.observe()['observations'], driver.baseline['observations'])
+            with self.assertRaisesRegex(ValueError, 'candidate_not_running'):
+                backend.workload('A', stop=True)
+        self.assertFalse(any(args[0] in ('exec', 'stop') for args in self.counts))
+
+    def test_native_recovery_uses_closed_launcher_arguments_for_owned_phase(self):
+        import mission_transaction as tx
+        from test_mission_transaction import inputs
+        driver, _ = self.candidate()
+        self.assertTrue(callable(getattr(self.module, 'Recovery', None)), 'native recovery adapter missing')
+        args = inputs()
+        args.update(baseline=driver.baseline, candidate=dict(id=self.vm_id, name=self.name,
+                    outer_digest=self.inspection['image_digest'], inner_digest='sha256:'+'b'*64))
+        plan = tx.build_plan(**args)
+        backend = self.module.Recovery(driver, plan)
+        self.inspection['state'] = self.listing['sandboxes'][0]['status'] = 'running'
+        phase = plan['phases'][0]
+        observed = dict(schema_version=1, operation_id=phase['operation_id'], nonce=phase['nonce'],
+            manifest_sha256=tx.sha(phase), image=plan['candidate']['inner_digest'], container_id='a'*64,
+            inspection_sha256='b'*64, state=dict(Status='exited', Running=False, Pid=0), workload_reaped=True)
+        def exchange(command, **kwargs):
+            if command['argv'][1] == 'exec':
+                self.assertEqual(command['argv'][1:], ['exec', '-u', 'root', self.name,
+                    '/usr/bin/python3.14', '-I', '-B', '/opt/youngcrow/launcher.py',
+                    'stop', phase['operation_id'], phase['nonce']])
+                self.assertEqual(command['stdin'], b'')
+                return self.result(stdout=json.dumps(observed).encode())
+            return self.exchange(command, **kwargs)
+        with patch('mission_process.supervise', side_effect=exchange), \
+             patch.object(driver, 'daemon_identity', return_value=self.identity):
+            self.assertEqual(backend.workload('A', stop=True), observed)
+        self.inspection['image_digest'] = 'sha256:'+'f'*64
+        with patch('mission_process.supervise', side_effect=exchange), self.assertRaisesRegex(ValueError, 'candidate_identity_changed'):
+            backend.workload('A', stop=True)
+    def test_candidate_baseline_values_are_private_and_discarded_after_failed_refresh(self):
+        driver, report = self.candidate()
+        self.assertTrue(report['ready'])
+        self.assertIsNotNone(getattr(driver, 'baseline', None), 'private restorable baseline missing')
+        self.assertEqual(self.module._sha(driver.baseline), report['baseline_sha256'])
+        self.assertEqual(driver.baseline['observations']['setting_proxy_sandbox']['source'], 'default')
+        self.assertEqual(driver.baseline['daemon_identity'], self.identity)
+        self.assertNotIn('baseline', report)
+        with patch.object(driver, 'query', return_value=dict(ok=False, reason='fixture_failed')):
+            driver.candidate_preflight(self.name)
+        self.assertIsNone(driver.baseline)
     # Keep this fixture independent of a local Docker installation or any secret store.
     def setUp(self):
         SbxTests.setUp(self)

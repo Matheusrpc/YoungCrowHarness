@@ -15,13 +15,15 @@ Para continuar o desenvolvimento do executor na cloud, use a branch `feat/isolat
 e leia o [contexto de transição](HANDOFF-CLOUD-2026-10-07.md). Credenciais e estado operacional
 não acompanham o clone. Os perfis de execução continuam bloqueados até as provas pendentes.
 O [registro da publicação cloud](relatorios/2026-10-07-cloud-publication.md) identifica
-o código enviado ao PR #24, seus testes e a próxima task 203.4/203.5.
+o checkpoint anterior enviado ao PR #24. O [incremento de reserva e recuperação](relatorios/2026-10-07-reservation-recovery.md)
+registra o estado atual e a próxima task 203.6.
 
 To continue executor development in the cloud, use branch `feat/isolated-executor` and read the
 [handoff](HANDOFF-CLOUD-2026-10-07.md). Credentials and operational state are not part of the clone.
 Execution profiles remain blocked until the pending proofs pass.
 The [cloud publication record](relatorios/2026-10-07-cloud-publication.md) identifies
-the code pushed to PR #24, its tests and the next task, 203.4/203.5.
+the previous checkpoint pushed to PR #24. The [reservation/recovery increment](relatorios/2026-10-07-reservation-recovery.md)
+records current scope and the next task, 203.6.
 
 [Abra a demonstração](https://matheusrpc.github.io/YoungCrowHarness/) ou siga o [roteiro do piloto](../examples/delivery-board/README.md), que reúne esses percursos em um exemplo com
 vault próprio. A página e os filtros foram verificados localmente, incluindo teclado e tela estreita.
@@ -1814,9 +1816,9 @@ mesmo bloqueada. Repetir o manifesto inteiro devolve o mesmo recibo, sem novo co
 alterar seu conteúdo com o mesmo UUID causa `operation_conflict`. Uma versão futura
 do controlador não poderá reativar esse UUID.
 
-A admissão não executa A/B/A2. O passo seguinte exige o plano das fases com identidades
-e baseline observados, reserva global antes dos efeitos, controlador de canal aberto
-e recuperação comprovada. Os perfis nativos continuam bloqueados. Consulte o
+A admissão não executa A/B/A2. O coordenador interno já persiste esse plano e o baseline
+na reserva global. A entrada pública aguarda integração do egress e da restauração
+global em 203.6, seguida de prova nativa. Os perfis nativos continuam bloqueados. Consulte o
 [handoff](HANDOFF-CLOUD-2026-10-07.md#102-integrar-uma-variante-sintética-em-client-check).
 
 The same `client check` accepts `fixture_id: "isolated-egress-v1"` in the manifest
@@ -1837,9 +1839,9 @@ even though blocked. Replaying the entire manifest returns the same receipt with
 further consumption; changing its contents with the same UUID raises
 `operation_conflict`. A future controller cannot reactivate that UUID.
 
-Admission does not execute A/B/A2. The next step requires a phase plan with observed
-identities and baseline, global reservation before effects, an open-channel controller
-and verified recovery. Native profiles remain blocked.
+Admission does not execute A/B/A2. The internal coordinator persists this plan and
+baseline in the global reservation. Public execution awaits egress and global
+restoration integration in 203.6, followed by native proof. Native profiles remain blocked.
 
 <a id="internal-controller"></a>
 
@@ -1853,9 +1855,10 @@ GET ao relay local, com eco fictício verificado. Está incluída no contexto de
 da imagem; o instalador distribui o controlador e preserva cópias locais existentes.
 
 São componentes internos, sem novo comando público de execução. O `client check`
-continua retornando o bloqueio descrito acima. O coordenador ainda precisa vincular
-missão, candidato, baseline, plano A/B/A2 e reserva global, implementar o adaptador
-nativo de comandos fechados e comprovar recuperação. O controlador retorna sempre
+continua retornando o bloqueio descrito acima. `mission_transaction.py` vincula a
+missão ao plano v2 no mesmo ledger global. Guarda baseline completo, três identidades
+distintas, digests e diário anterior aos efeitos. As fases compartilham até 120 segundos,
+limitados pelo orçamento admitido. A execução pública aguarda egress e prova nativa. O controlador retorna sempre
 `proof_accepted=false` e `workload_reaped=false`; `observed` indica apenas que o
 protocolo da fase foi concluído. Em B, saída 126 continua `blocked_unattributed`;
 uma resposta permitida vira `unexpected_allow`.
@@ -1869,9 +1872,10 @@ image build context includes it; setup distributes the controller while preservi
 existing local copies.
 
 These are internal components with no new public execution command. `client check`
-still returns the block above. The coordinator must still bind mission, candidate,
-baseline, A/B/A2 plan and global reservation, implement fixed native commands and
-verify recovery. Controller results always keep `proof_accepted=false` and
+still returns the block above. `mission_transaction.py` binds the mission to a v2
+plan in the same global ledger, storing baseline values, three distinct identities,
+digests and a journal before effects. Phases share up to 120 seconds, bounded by
+the admitted budget. Public execution awaits egress integration and native proof. Controller results always keep `proof_accepted=false` and
 `workload_reaped=false`; `observed` only confirms a completed phase protocol. In B,
 exit 126 stays `blocked_unattributed`; a successful response becomes `unexpected_allow`.
 
@@ -1879,6 +1883,7 @@ Testes locais / Local tests:
 
 ```bash
 python3 -B -m unittest discover -s tests -p 'test_mission_controller.py' -v
+python3 -B -m unittest discover -s tests -p 'test_mission_transaction.py' -v
 python3 -B -m unittest discover -s tests -p 'test_isolated_fixture.py' -v
 python3 -B -m unittest discover -s tests -p 'test_mission_relay.py' -v
 ```
@@ -2003,11 +2008,14 @@ de dados do Windows obtida pelo sistema, ou na pasta pessoal da conta POSIX.
 Não há opção de trocar esse caminho por projeto. Apagar o registro ou alterar suas
 permissões não é um procedimento de recuperação.
 
-A reserva e o filtro do destino foram testados separadamente, incluindo permissões
-reais do Windows. A integração ao despacho ainda está em desenvolvimento. Uma reserva
-sem qualquer intenção pode ser encerrada internamente se o baseline permanecer
-idêntico. Depois de uma intenção, ela continua bloqueada; a recuperação nativa deve
-comprovar parada e restauração antes de liberá-la. Nenhum prazo vencido libera a reserva.
+A reserva v1 consumida permanece bloqueada. O coordenador interno v2 pode recuperar
+cargas identificadas e parar a VM, com prazo próprio de até 60 segundos. Observa o
+estado após resposta perdida, conserva intenções consumidas e nunca inicia uma VM
+parada para inspecioná-la. Uma VM parada sem recibo terminal da carga mantém a reserva.
+A recuperação compara configurações e exige identidade do daemon estável durante a
+tentativa, aceitando reinício legítimo anterior. Divergência global permanece intacta
+e bloqueia encerramento; sua restauração e os helpers/portas entram em 203.6.
+Nenhum prazo vencido libera a reserva. [Escopo e provas](relatorios/2026-10-07-reservation-recovery.md).
 
 Se aparecer `execution_storage_unprotected`, consulte `diagnostic.phase` e
 `diagnostic.reason`. `temporary_evidence` identifica a verificação do temporário
@@ -2079,10 +2087,13 @@ Windows local application-data folder resolved by the OS, or the POSIX account's
 home directory. Projects cannot override that location. Deleting the ledger or
 changing its permissions is not a recovery procedure.
 
-Reservation and destination filtering passed separate tests, including real Windows
-permissions. Dispatch integration remains in development. An unused reservation can
-close internally only when its baseline is unchanged. Once an effect is intended,
-it remains blocked until native recovery establishes termination and restoration.
+A consumed v1 reservation remains blocked. The internal v2 coordinator can recover
+identified workloads and stop the VM within a separate deadline of up to 60 seconds.
+It observes state after lost replies, preserves consumed intents and never starts a
+stopped VM to inspect it. A stopped VM without a terminal workload receipt retains
+the reservation. Recovery compares configuration and requires a stable daemon identity
+during the attempt while accepting a legitimate earlier restart. Global drift remains
+untouched and blocks closure; restoration and helper/port recovery belong to 203.6.
 An expired deadline never releases ownership.
 
 For `execution_storage_unprotected`, inspect `diagnostic.phase` and `diagnostic.reason`.
@@ -2647,10 +2658,16 @@ use `.txt` para evidência em texto simples.
 python3 -B scripts/missions.py client reconcile --run UUID_DO_RUN --evidence vault/local/client-evidence.json --expected-revision REVISAO_ATUAL --operation-id UUID_DA_RECONCILIACAO --json
 ```
 
+Runs ligadas ao plano global v2 recusam esse comando com `integrated_recovery_required`;
+seu encerramento exige observação interna e preserva os limites reservados.
+
 Hash prova a identidade do arquivo, não a veracidade do relato. A reconciliação exige também
 que o processo registrado esteja encerrado; nunca mata um PID fornecido pelo operador. O
 resultado é `interrupted`, conservando tentativa, reserva de tempo e custo desconhecido.
 Os limites contam reservas anteriores, inclusive falhas. Criar outro UUID não renova o orçamento.
+
+Runs bound to a global v2 plan reject this command with `integrated_recovery_required`;
+closure requires internal observations and preserves reserved limits.
 
 `client runs` and `status` only read: no migration, repair or process launch. The first authorized
 check migrates schema 1 to 2 atomically. Repeating a manifest repairs a pending projection without

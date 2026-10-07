@@ -10,7 +10,7 @@ Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor a
 
 O YoungCrow já tem base de instalação, personalização, documentação, memória, governança, adoção reversível e preparação de missões. **A esteira autônoma completa ainda não está entregue.** Estamos concluindo a execução isolada que permitirá habilitá-la.
 
-O diagnóstico local do Docker passou. Guardian, launcher, relay, reserva compartilhada e filtro de saída têm implementações e provas com escopos definidos. Falta conectá-los em um fluxo de despacho e recuperação, provar A/B/A2 no mesmo candidato e executar Claude Code e Codex autenticados por assinatura. Os perfis de execução continuam bloqueados.
+O diagnóstico local do Docker passou. Guardian, launcher, relay, reserva compartilhada e filtro de saída têm implementações e provas com escopos definidos. Plano, reserva, controlador e recuperação de cargas/VM têm integração local. Falta integrar egress e restauração global, provar A/B/A2 no mesmo candidato e executar Claude Code e Codex autenticados por assinatura. Os perfis de execução continuam bloqueados.
 
 **Para continuar esta frente, clone a branch `feat/isolated-executor`.** O checkpoint reúne código, testes e relatórios revisados que estavam somente no checkout local. A `main` permanece na base anterior. VMs, logins e estado operacional continuam fora do Git. Veja a [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 
@@ -19,28 +19,28 @@ git clone --branch feat/isolated-executor https://github.com/Matheusrpc/YoungCro
 cd YoungCrowHarness
 ```
 
-O próximo trabalho de código é a integração do controlador de execução e recuperação. Não reiniciar a investigação do zero, não produzir outro roteiro experimental de PowerShell e não repetir operações históricas consumidas.
+O próximo trabalho de código é 203.6: integrar egress, configurações globais e a recuperação dos seus efeitos, helpers e portas. Não reiniciar a investigação do zero, não produzir outro roteiro experimental de PowerShell e não repetir operações históricas consumidas.
 
 ### Continuidade na cloud em 7/out
 
-**Atualização publicada:** os incrementos abaixo chegaram ao PR #24 no commit
+**Checkpoint anterior publicado:** os incrementos de admissão, controlador e auditoria chegaram ao PR #24 no commit
 `a06986f58aaab503438685b1e0c5e3f2d79bd886`. A branch e a ref do PR foram conferidas
 no remoto; a `main` permanece em `932b775`. O pacote público exato passou em 516
 testes, com 20 pulados. O CI continua sem consulta por `Forbidden` da API.
-Veja o [registro atual de publicação](relatorios/2026-10-07-cloud-publication.md).
+Veja o [registro desse checkpoint de publicação](relatorios/2026-10-07-cloud-publication.md).
 Os relatórios anteriores conservam o estado local observado na data de cada medição.
 
 O checkout recebeu originalmente o PR #24 em `b801bec`. O incremento acrescenta a admissão sintética
 bloqueada em `client check` e corrige a criação privada do lock POSIX. Veja o
 [relatório e a medição](relatorios/2026-10-07-synthetic-admission.md).
 
-O §10.2 continua parcial: a entrada e o recibo existem; candidato/baseline, plano
-A/B/A2 e reserva global ainda precisam ser integrados ao controlador e à recuperação.
+O §10.2 continua parcial: a entrada pública permanece bloqueada. A integração interna
+de plano A/B/A2, baseline, missão e reserva global está implementada no incremento abaixo.
 Nenhuma nova tentativa Docker ou chamada de modelo ocorreu. O contador histórico
 permanece em dois ciclos usados de três. Os hashes da seção 14 identificam o
 checkpoint anterior; a medição do incremento registra as fontes alteradas.
 
-### Incremento atual: controlador e fixture
+### Controlador, fixture e correções anteriores
 
 O controlador interno (`mission_controller.py`) e a fixture fixa (`runtime/sbx/fixture.py`)
 estão implementados. Os testes exercitam canal aberto, gates, contenção de processos,
@@ -56,20 +56,39 @@ como estado mais recente desses achados; os relatórios anteriores preservam o h
 A recuperação histórica adicionada cobre missão/backlog; não generalizá-la a
 `project_run`, cujos eventos guardam deltas e não os retratos completos anteriores.
 
+### Incremento atual: reserva e recuperação
+
+`mission_transaction.py` grava o plano imutável v2, valores/hashes de baseline, digests,
+três UUIDs/nonces, revisão/autorização e vínculo bilateral com a missão. O diário é
+persistido antes de cada efeito; as três fases compartilham até 120 segundos dentro
+do orçamento admitido. Testes locais executam A/B/A2 sob o supervisor existente.
+
+A recuperação interna observa e para somente cargas identificadas, confere a VM e
+as configurações e projeta o encerramento na missão sem devolver limites. Tem prazo
+próprio de até 60 segundos. Recusa troca de CID, deriva e identidade do daemon instável
+durante a tentativa. Resposta perdida exige observação, não repetição da mutação.
+VM parada sem recibo terminal da carga mantém a reserva.
+
+**203.4 implementada internamente; 203.5 parcial.** Resta integrar 203.6 e comprovar
+restauração global, helpers e portas. Nenhum perfil nativo foi liberado; B continua
+sem atribuição nativa. [Relatório e medição atuais](relatorios/2026-10-07-reservation-recovery.md).
+Os dois revisores confirmaram as correções de CID, histórico, daemon e prazo com regressões.
+Nenhum Docker ou modelo foi executado; o contador permanece em **2/3** ciclos nativos.
+
 Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
-| Executor: integração | Persistir plano A/B/A2 e baseline observado com seus valores; vincular missão à reserva global antes de efeitos. Integrar controlador, comandos nativos fechados e recuperação no mesmo fluxo |
-| Executor: recuperação | Testar interrupções em cada fronteira; restaurar somente alterações ainda próprias; conferir parada e restauração antes de fechar a reserva |
+| Executor: 203.6 | Integrar filtro de saída e configuração global ao plano e diário existentes; adaptar DNS à contenção atual, registrar helpers/portas e mutações antes de efeitos |
+| Executor: restante de 203.5 | Ampliar recuperação às alterações globais ainda próprias e aos helpers/portas de 203.6; testar interrupções em cada fronteira antes de habilitar execução pública |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |
 | Fila e agentes | Retomar os itens da frente 2 dependentes do aceite YC-203 |
 | QA e publicação | Frentes 3 e 4, depois da execução e continuidade comprovadas |
 
 A reserva v1 consumida não pode ser reaberta ou ter arquivos soltos acrescentados.
-O plano precisa conservar valores de baseline para recuperação sem depender do
-checkout, além dos hashes; o histórico de identidade deve permanecer separado da
-comparação de configuração após reinício legítimo. Não encadear outro `supervise`
+O plano v2 conserva valores de baseline para recuperação sem depender do checkout,
+além dos hashes; a identidade histórica permanece separada da comparação de
+configuração após reinício legítimo. Não encadear outro `supervise`
 dentro do controlador: os filhos devem herdar o mesmo grupo/job. O resolvedor de
 egress ainda usa supervisão própria e precisa ser adaptado ao ser integrado.
 
@@ -214,18 +233,19 @@ O mantenedor escolheu **Docker Sandboxes** e depois aprovou manter essa escolha 
 
 | Componente | Implementado e comprovado | Falta |
 |---|---|---|
-| `mission_sbx.py` | Adaptador compartilhado de consultas permitidas, hash/versão, prazo, captura privada, classificação e preflight completo | Caminho de mutações restrito e ligado às intenções da transação |
+| `mission_sbx.py` | Adaptador compartilhado de consultas permitidas, hash/versão, prazo, captura privada, classificação, preflight e adaptador de recuperação com comandos fechados | Prova nativa dos comandos de recuperação e integração de mutações globais |
 | `mission_environment.py` | Seleção privada local/dedicado, preservação, diagnóstico de armazenamento | Validação real no ambiente cloud escolhido |
 | `mission_sandbox.py` | Metadados e inspeção sem iniciar a VM; exposição da reserva compartilhada | Perfil aprovado e observação nativa suficiente para os novos aceites |
 | `mission_process.py` | Supervisão de árvore de processos, limites e recibos; controlador testado dentro da mesma contenção | Prova nativa de encerramento da carga aninhada |
-| `mission_controller.py` | Canal aberto, identidade, gates e intenção antes do efeito, protocolo limitado e fixture fixa | Coordenador persistente, adaptador nativo fechado e recuperação integrados |
+| `mission_controller.py` | Canal aberto, identidade, gates e intenção antes do efeito, protocolo limitado e fixture fixa | Adaptador de despacho nativo e egress integrado |
 | `runtime/sbx/guardian.py` | Processo supervisor, privilégios limitados, prazo, repetição recusada e gates de rede | Prova integrada do candidato v3 atual |
-| `runtime/sbx/launcher.py` | Preparação única, identidade, rede por fase, recibos e verificação de estado | Ponte host/produto e recuperação integrada |
+| `runtime/sbx/launcher.py` | Preparação única, identidade, rede por fase, recibos e recuperação por CID, incluindo resposta de create perdida | Prova nativa dos novos comandos `observe/stop` e pacote exato |
 | `runtime/sbx/relay.py` | Relay restrito no guardian: destino fixo, CA vinculada por hash, parser limitado, JSON/streaming e fechamento | Docker TLS real e clientes autenticados nesse percurso |
 | `runtime/sbx/fixture.py` | Inicialização sem rede e uma GET ao relay; eco fictício e metadados limitados, teste com relay local | Imagem reconstruída e prova A/B/A2 do candidato |
-| `mission_execution.py` | Reserva privada compartilhada por conta, lock, ledger atômico, intenção antes do retorno e recusa de repetição | Fechar/reconciliar reserva consumida após provar parada e restauração |
+| `mission_execution.py` | Reserva privada compartilhada por conta, lock, ledger atômico, intenção antes do retorno e recusa de repetição | Restauração global ligada a 203.6; registros v1 consumidos permanecem bloqueados |
+| `mission_transaction.py` | Plano v2, vínculo missão/reserva, diário A/B/A2 e recuperação de cargas/VM com prova local | Egress e restauração global, helpers/portas e prova nativa |
 | `mission_egress.py` | Filtro após o proxy, DNS público completo, dial numérico único, conferência do peer, tempo/bytes limitados | Ligar ao helper supervisionado, às intenções e à prova A/B/A2 |
-| `mission_runs.py` | Recibos, reconciliação host e admissão sintética bloqueada | Vínculo da reserva global e integração de estado da VM/Docker |
+| `mission_runs.py` | Recibos, admissão sintética bloqueada, vínculo interno global e projeção após recuperação | Habilitação pública após egress e aceites nativos |
 
 `REVIEWED_PROFILES` e o registro de perfis nativos continuam vazios. Não preenchê-los com uma flag `verified=true`, arquivo fornecido pelo chamador ou conclusão de testes simulados.
 
@@ -234,7 +254,7 @@ O mantenedor escolheu **Docker Sandboxes** e depois aprovou manter essa escolha 
 ```mermaid
 flowchart LR
   C[Coordenador YoungCrow] --> R[Reserva global e diário durável]
-  R -. integração pendente .-> L[Launcher confiável]
+  R -->|integração local| L[Launcher confiável]
   L --> G[Guardian da operação]
   U[Cliente sem privilégios] --> Q[Relay restrito no guardian]
   G --> U
@@ -253,7 +273,7 @@ O banco de missão por projeto não impedia dois repositórios de disputar o mes
 
 Ela usa um único `registry.json` com lock do sistema operacional. Falta/corrupção do ledger em armazenamento existente bloqueia o uso. Intenções são persistidas antes de devolver controle ao futuro dispatcher. Repetição do ID retorna o registro existente, sem autorizar outro efeito. Perda do coordenador e expiração do prazo não liberam a reserva.
 
-O abandono implementado atende somente uma reserva sem intenções, após observar baseline idêntico. **A liberação após efeitos ainda não está implementada.** O prazo atual cobre a transação inteira, até dez minutos; recuperação tardia precisará de prazo próprio sem estender ou repetir o trabalho original.
+O abandono v1 atende somente uma reserva sem intenções, após observar baseline idêntico. O plano v2 pode encerrar a reserva após comprovar carga terminal, VM parada, proprietário ausente e configurações inalteradas. Divergência mantém bloqueio. As fases v2 compartilham até 120 segundos; recuperação usa até 60 segundos próprios, sem estender ou repetir o despacho. Restauração de alterações globais fica para 203.6.
 
 ## 7. O que os testes já demonstraram
 
@@ -261,6 +281,7 @@ Os números abaixo são checkpoints diferentes, com sobreposição. Não somá-l
 
 | Prova/checkpoint | Resultado | Limite da conclusão |
 |---|---|---|
+| Reserva/recuperação cloud de 7/out | 567 testes: 547 aprovados, 20 pulados; depois 23 transacionais passaram após ajuste de fixture | Fontes de produto idênticas às da suíte; fronteira Docker simulada, Windows nativo e 203.6 pendentes |
 | Guardian/launcher de candidatos anteriores | Conclusão, prazo, transporte perdido, PID final zero e repetição recusada em cenários sintéticos/nativos | Pertencem às versões/digests registrados, não aprovam automaticamente o v3 atual |
 | Reserva antecipada de encerramento | Nove cenários nativos da candidata passaram; reinício ativo posterior terminou antes do prazo | Suspensão completa do host e candidato atual ainda exigem seus aceites |
 | Launcher v2 com rede | Oito cenários nativos passaram, incluindo ausência de gates, regras alteradas e perda do transporte | Não inclui autenticação de modelo |
@@ -341,7 +362,7 @@ Consolidar consultas no adaptador comum, registrar fase/argumentos sanitizados/c
 
 Reutilizar guardian, launcher, reservas e recibos; intenção durável antes do efeito; identidade antes do despacho; credenciais reais fora da VM de trabalho; MCP/host/arquivos privados inacessíveis. Primeiro usar fixture sintética. Configuração global Docker exige uso exclusivo, baseline e restauração comprovada.
 
-**Estado:** componentes implementados e testados; controlador integrado, recuperação de efeitos e pacote atual ainda pendentes. O aceite exige isolamento, prazo, não repetição, bloqueio e restauração juntos, no mesmo candidato.
+**Estado:** plano, controlador e recuperação de cargas/VM integrados em testes locais; egress, restauração global e pacote atual ainda pendentes. O aceite exige isolamento, prazo, não repetição, bloqueio e restauração juntos, no mesmo candidato.
 
 ### PBI 3 — Ambos os clientes e adoção
 
@@ -374,7 +395,7 @@ Docker nem cria reserva global. O [guia](USAGE.md#synthetic-admission) detalha o
 
 O ramo sintético precisa ocorrer antes de `inspect_client/build_check`, que dependem de perfil, autenticação e modelo reais. Preservar missão, revisão, autorização e limites. Registrar `model_calls=0`; não produzir uma observação fictícia de Claude/Codex para contornar os perfis vazios.
 
-Reservar a operação global antes do primeiro efeito. Vincular manifesto, baseline, executável, imagem externa/interna, hashes de código, autorização e IDs/manifestos de A/B/A2. Cada fase precisa de UUID e nonce próprios, persistidos antes de começar. Uma transação com três fases HTTP não equivale a três chamadas de IA.
+O coordenador interno já reserva antes dos efeitos e vincula manifesto, baseline, executável, imagem externa/interna, hashes de código, autorização e IDs/manifestos de A/B/A2. Cada fase tem UUID e nonce próprios, persistidos antes de começar. Preservar esse contrato ao ligar egress e a entrada pública. Uma transação com três fases HTTP não equivale a três chamadas de IA.
 
 ### 10.3 Implementar o controlador de canal aberto
 
@@ -394,13 +415,15 @@ launcher.py prepare sha256:<imagem-interna>
 launcher.py run <uuid-fase> <nonce>
 launcher.py network <uuid-fase> <nonce> initialize
 launcher.py network <uuid-fase> <nonce> dispatch
+launcher.py observe <uuid-fase> <nonce>
+launcher.py stop <uuid-fase> <nonce>
 ```
 
 Sequência por fase: preparar → aguardar `listening` → aplicar/conferir gate de initialize → autorizar initialize → aguardar `ready` → conferir gate de dispatch → autorizar fixture fixa → consumir eventos limitados → conferir encerramento. Comandos nativos devem ter formato fechado e identidade verificada, sem uma função genérica de execução arbitrária.
 
 ### 10.4 Completar recuperação antes de habilitar efeitos
 
-A reserva atual só abandona operações sem intenções. Antes da primeira mutação nativa, implementar o fechamento que comprove identidade, parada, ausência de helpers e restauração do baseline.
+A recuperação v2 cobre cargas identificadas, VM e configuração inalterada com testes locais. Antes da habilitação nativa, completar 203.6 e o restante de 203.5: restauração de alterações globais próprias e ausência de helpers/portas. A reserva v1 consumida continua bloqueada.
 
 - Observar contêiner/carga enquanto a VM já estiver legitimamente ativa, quando necessário.
 - Depois de queda, não usar `sbx exec` para “consultar” uma VM parada: ele pode iniciá-la.
@@ -411,7 +434,7 @@ A reserva atual só abandona operações sem intenções. Antes da primeira muta
 - Vincular os hashes dessas observações ao encerramento da reserva.
 - `new:false`, timeout ou PID desaparecido não autorizam replay.
 
-O `client reconcile` atual trata o processo host e arquivos de evidência; não certifica a carga aninhada nem restaura Docker. `observe_stop` mantém explicitamente `workload_reaped=false` quando a prova não existe.
+O `client reconcile` por arquivos de evidência recusa runs integradas com `integrated_recovery_required`. A API interna projeta a missão somente após fechamento observado da reserva global; ainda não restaura configurações globais. `observe_stop` mantém explicitamente `workload_reaped=false` quando a prova não existe.
 
 ### 10.5 Empacotar fixture e provar o candidato atual
 
@@ -567,7 +590,7 @@ O núcleo documentado usa Python 3.11+, Bash e Git; no Windows, Git Bash e helpe
 3. Conferir os hashes e a medição atual; divergência de fonte não herda automaticamente a aprovação antiga.
 4. Ler o microíndice e a nota de consolidação se as notas privadas tiverem sido transferidas; usar este documento e os relatórios sanitizados quando não estiverem disponíveis.
 5. Registrar o novo ambiente e quais evidências podem ser reproduzidas nele. Começar com contratos determinísticos; não rodar antigos scripts nativos.
-6. Implementar controlador, diário de fases e recuperação descritos na seção 10. Não iniciar mutação enquanto a liberação/restauração ainda depender de uma flag manual.
+6. Continuar em 203.6 sobre o controlador, plano e diário existentes. Integrar egress, configurações globais e recuperação de helpers/portas antes da habilitação pública.
 7. Revalidar a preparação no contexto real antes da nova prova Docker. Respeitar dois ciclos já consumidos e o teto aprovado.
 8. Só então testar A/B/A2, ambos os clientes por assinatura e adoção. Manter o perfil bloqueado enquanto faltar qualquer aceite obrigatório.
 

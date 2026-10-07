@@ -290,6 +290,7 @@
           "scripts/mission_process.py",
           "scripts/mission_runs.py",
           "scripts/mission_controller.py",
+          "scripts/mission_transaction.py",
           "scripts/mission_sandbox.py",
           "scripts/mission_environment.py",
           "skills/personalizer/references/execution.md",
@@ -321,10 +322,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "a5c9db20569aca623aad7fa1d573b2b1ae710bd33e8a087da6e4a9c7e53755bd",
+        "contract_sha256": "0181aed01d70d49f5d2b286a0b518957f6851666b0d1f2b63b4e71476a23659c",
         "files_sha256": {
-          "claude": "6057bf19aaa983fa5be54242e739738b5ecf1de598d945211d5fb8e0f9a96afc",
-          "codex": "f427f1acf9bdcde44e43d67a0d4cdd466275d9daeaf1c3c9f6a068234fdc765a"
+          "claude": "43e2ef5b305b351b38bf9356f3c4c4b0a102d2b2e45a1c8b1c1ee0a4f6e80044",
+          "codex": "4d11084313e381453e12670030a003e8a3e094660358b75aba689dd60977e2e1"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1209,6 +1210,7 @@
           "scripts/mission_process.py",
           "scripts/mission_runs.py",
           "scripts/mission_controller.py",
+          "scripts/mission_transaction.py",
           "scripts/mission_sandbox.py",
           "scripts/mission_environment.py",
           "skills/personalizer/references/execution.md",
@@ -1240,10 +1242,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "2bdbd745aa988d47833a85062e791ace654a67c296907ecc85bce68c266354ff",
+        "contract_sha256": "5a05046f31cb2c98357e8dac707d6e0007b95f9d885c2bd420b7020d5ca15f15",
         "files_sha256": {
-          "claude": "08a8860d09e0fb4f9c41d2bfa2c83d4c978b599083fcbd56180c51e11224961f",
-          "codex": "94e43eb975b02e84f8affabe6051479001fa03dd3e6006c62a0e44d297c8b97c"
+          "claude": "3b4a9e2458d1d4e2e85ab7a7062d0f063fefc34db6b2eca4b8707fb103386d52",
+          "codex": "987c496ba3cf7ec22ed1d32f0af42012cb183b64f3a25bc71ea1b476961089d5"
         }
       }
     },
@@ -1291,6 +1293,7 @@
           "scripts/mission_process.py",
           "scripts/mission_runs.py",
           "scripts/mission_controller.py",
+          "scripts/mission_transaction.py",
           "scripts/mission_sandbox.py",
           "scripts/mission_environment.py",
           "scripts/adoption.py",
@@ -1328,10 +1331,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "4cd078fb34e49002e7142e0c5f3dd060d0df64be986861acd37be7928c333820",
+        "contract_sha256": "2594a509b066f40af7a9ac3f75d1d79f7b4874ac6e137646466dc0ee4a61afa4",
         "files_sha256": {
-          "claude": "b0ab33278e45860a38c0f414a367a1f64c73e0a1b070223b3ab897a58fc01a58",
-          "codex": "091ddcad64b4e00adb928fa128841748be5930a1d30f3172d14d352f02fece31"
+          "claude": "e40f3093f4216afd87f6c3c6ff502dc6641fb8cabc9e9d2fc91757e259566fd0",
+          "codex": "90251f7796ef67769561640dc2d992a49712b3bad3b12e6e2dc99c33342814ea"
         }
       }
     },
@@ -1379,6 +1382,7 @@
           "scripts/mission_process.py",
           "scripts/mission_runs.py",
           "scripts/mission_controller.py",
+          "scripts/mission_transaction.py",
           "scripts/mission_sandbox.py",
           "scripts/mission_environment.py",
           "scripts/adoption.py",
@@ -1412,10 +1416,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "9e646a456be99aa1d5f7d8e4eecf39b55314b89a52e327bce53a1198ab9f3087",
+        "contract_sha256": "1ace81f8d63213de58576abcbb4ad209d9bfcbcdb19a42b191a12f80feaa7a54",
         "files_sha256": {
-          "claude": "a278bf72df0a9f6eb4ce02ec91dabf139ead3fe9647c8ea09b58d4bdddf94906",
-          "codex": "00ed9b38d20acbe1cfc34b1226955b789cbe4ff50b02f0e004fbe6c198231121"
+          "claude": "4fa8e1973cce1704d7185c854b6ac85b4b7e6454950378146e93046964a4e3bd",
+          "codex": "c6b833429193827cf4e75bc70a271844cc9ecfeb06625936df2c9638dbe153db"
         }
       }
     },
@@ -1463,6 +1467,7 @@
           "scripts/mission_process.py",
           "scripts/mission_runs.py",
           "scripts/mission_controller.py",
+          "scripts/mission_transaction.py",
           "scripts/mission_sandbox.py",
           "scripts/mission_environment.py",
           "scripts/adoption.py",
@@ -1493,10 +1498,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "34281cf5583e2301b016bdfabe5957f47b55299f48485e838e423ba827b2e59b",
+        "contract_sha256": "bea875e98a95d39ec7d51253b5946f0ec78d544f4c6769cd411f00517aca7fc3",
         "files_sha256": {
-          "claude": "7736efef0e59dbcbc632cac5258794f699dbd79a6a8bf13d22a804b3ee75249e",
-          "codex": "39eee753fe6d1f541a41108fae8806f941dced956933f101442257e56308f05a"
+          "claude": "4aedc53568cdb71c37b2b9a2e240eef55a307a887e7503c90ce45bb0264bbcc1",
+          "codex": "1cd2d26b8f13a8e1e4b0341d607ea439429870d9eea5bcdff21bb8157c0177d1"
         }
       }
     }

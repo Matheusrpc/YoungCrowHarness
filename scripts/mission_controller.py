@@ -37,12 +37,18 @@ def encoded(value):
 
 
 def phase_manifest(*, operation_id, nonce, deadline_ms, phase, proxy_ipv4, ca_sha256, placeholder):
+    require(type(deadline_ms) is int and 1000 < deadline_ms-time.time()*1000 <= 120000, 'invalid_manifest')
+    return _manifest(operation_id=operation_id, nonce=nonce, deadline_ms=deadline_ms, phase=phase,
+                     proxy_ipv4=proxy_ipv4, ca_sha256=ca_sha256, placeholder=placeholder)
+
+
+def _manifest(*, operation_id, nonce, deadline_ms, phase, proxy_ipv4, ca_sha256, placeholder):
     try:
         require(type(operation_id) is str and str(uuid.UUID(operation_id)) == operation_id)
         require(type(nonce) is str and re.fullmatch('[0-9a-f]{32}', nonce))
         require(type(ca_sha256) is str and re.fullmatch('[0-9a-f]{64}', ca_sha256))
         require(type(placeholder) is str and re.fullmatch('youngcrow-probe-[0-9a-f]{32}', placeholder))
-        require(type(deadline_ms) is int and 1000 < deadline_ms-time.time()*1000 <= 120000)
+        require(type(deadline_ms) is int and deadline_ms > 0)
         require(phase in ('A', 'B', 'A2') and type(proxy_ipv4) is str)
         address = ipaddress.IPv4Address(proxy_ipv4)
         require(str(address) == proxy_ipv4 and any(address in ipaddress.IPv4Network(cidr)
@@ -54,6 +60,18 @@ def phase_manifest(*, operation_id, nonce, deadline_ms, phase, proxy_ipv4, ca_sh
                 dispatch_prefix=FIXTURE_ARGV+['request', nonce, phase, placeholder, str(deadline_ms)],
                 network=dict(proxy_ipv4=proxy_ipv4),
                 relay=dict(kind='echo', phase=phase, placeholder=placeholder, ca_sha256=ca_sha256))
+
+
+def validate_manifest(manifest):
+    """Structural validation also works on expired durable recovery plans."""
+    try:
+        expected = _manifest(operation_id=manifest['operation_id'], nonce=manifest['nonce'],
+            deadline_ms=manifest['deadline_ms'], phase=manifest['relay']['phase'],
+            proxy_ipv4=manifest['network']['proxy_ipv4'], ca_sha256=manifest['relay']['ca_sha256'],
+            placeholder=manifest['relay']['placeholder'])
+        require(encoded(manifest) == encoded(expected), 'invalid_manifest')
+    except (KeyError, TypeError, ValueError, Refused):
+        raise ValueError('invalid_manifest') from None
 
 
 class Deadline:

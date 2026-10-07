@@ -58,6 +58,10 @@ A recuperação histórica adicionada cobre missão/backlog; não generalizá-la
 
 ### Incremento atual: reserva e recuperação
 
+Publicado no PR #24 em `ea2ff60`; branch e ref do PR conferidas no GitHub.
+Suíte: 547 aprovados e 20 pulados; 23 transacionais passaram novamente após ajuste
+de fixture. CI continua não verificado; main preservada.
+
 `mission_transaction.py` grava o plano imutável v2, valores/hashes de baseline, digests,
 três UUIDs/nonces, revisão/autorização e vínculo bilateral com a missão. O diário é
 persistido antes de cada efeito; as três fases compartilham até 120 segundos dentro

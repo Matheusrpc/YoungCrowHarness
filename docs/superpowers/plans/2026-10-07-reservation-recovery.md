@@ -50,6 +50,6 @@ Interfaces: comandos fechados `observe UUID NONCE` e `stop UUID NONCE`; recupera
 
 - [x] Atualizar dependências/hashes do catálogo e instalação, README PT/EN, guia, backlog, handoff e memória.
 - [x] Revisão independente e suíte completa; corrigir achados com regressões.
-- [ ] Commit por caminhos explícitos e push para `feat/isolated-executor`; conferir refs do PR #24.
+- [x] Commit por caminhos explícitos e push para `feat/isolated-executor`; conferir refs do PR #24.
 
 Validação: `python3 -B -m unittest discover -s tests -v`, sintaxe do setup, hashes de capacidades e `git diff --check`. Resultado esperado: zero falhas/erros; skips discriminados.

@@ -51,8 +51,17 @@ três. A sintaxe de `sbx exec` e `sbx stop` foi consultada em `docker/docs`, com
 [sbx_exec.yaml](https://github.com/docker/docs/blob/7ba25eeb0c4c594f79e6efadad1af5eaca0500a8/data/sbx_cli/sbx_exec.yaml)
 e [sbx_stop.yaml](https://github.com/docker/docs/blob/7ba25eeb0c4c594f79e6efadad1af5eaca0500a8/data/sbx_cli/sbx_stop.yaml). Essa fonte documenta argumentos; não comprova execução em sbx 0.46.0.
 
-README PT/EN, guia, backlog e handoff acompanham o incremento. Publicação e consulta
-final das refs estão pendentes. O último acesso à API do GitHub retornou `Forbidden`;
-o resultado do CI permanece não verificado. Não houve merge, deploy ou mudança na main.
+Os 22 arquivos do incremento foram publicados no commit
+[`ea2ff60`](https://github.com/Matheusrpc/YoungCrowHarness/commit/ea2ff60a863ef294322b3247c5c5ffe59bd9748f),
+por push sem force para `feat/isolated-executor`. A branch e `refs/pull/24/head`
+foram conferidas nesse SHA; a main permanece em `932b775`. README PT/EN, guia,
+backlog e handoff acompanham a entrega. O vault passou com nove notas e zero problemas.
+Recibos, logs privados e identidade local ficaram fora do commit.
 
-ATRASO: main 1 frente sem aceite | PR #24 1 incremento pendente de publicação | aceite nativo pendente.
+O último acesso à API do GitHub retornou `Forbidden`; o CI permanece não verificado.
+Título, descrição e estado de rascunho do PR não foram alterados pela sessão. Não
+houve merge ou deploy. Para retornar o código, criar um revert do incremento;
+preservar os registros privados e recuperar reservas v2 com uma versão compatível
+antes de retirar o coordenador.
+
+ATRASO: main 1 frente sem aceite | PR #24 0 incrementos pendentes de publicação | aceite nativo pendente.

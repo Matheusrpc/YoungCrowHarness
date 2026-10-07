@@ -3,7 +3,7 @@
   "measured_at": "2026-10-07T21:21:37.251638+00:00",
   "base_head": "8754b943f4d91d1bc8bdd35a77c884538da24ecc",
   "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
-  "changes_published": false,
+  "changes_published": true,
   "scope": {
     "203.4": "implemented_internal",
     "203.5": "partial_workload_and_vm_recovery",
@@ -124,5 +124,24 @@
     "vault/project.json",
     ".superpowers/"
   ],
-  "next_task": "203.6: integrate destination guard, global configuration, helper/port ownership and restore only operation-owned changes to complete203.5"
+  "next_task": "203.6: integrate destination guard, global configuration, helper/port ownership and restore only operation-owned changes to complete203.5",
+  "published_code_commit": "ea2ff60a863ef294322b3247c5c5ffe59bd9748f",
+  "publication_verified_at": "2026-10-07T21:23:31.302286+00:00",
+  "remote_refs_after_code_push": {
+    "refs/heads/feat/isolated-executor": "ea2ff60a863ef294322b3247c5c5ffe59bd9748f",
+    "refs/heads/main": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+    "refs/pull/24/head": "ea2ff60a863ef294322b3247c5c5ffe59bd9748f"
+  },
+  "publication_method": "fast-forward push to existing feat/isolated-executor branch",
+  "published_increment_file_count": 22,
+  "vault": {
+    "notes_checked": 9,
+    "issues": 0
+  },
+  "pr_metadata": {
+    "last_reported_draft": true,
+    "draft_changed_by_session": false,
+    "current_draft_api_verified": false,
+    "title_body_updated": false
+  }
 }

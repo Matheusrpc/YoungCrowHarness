@@ -52,13 +52,14 @@ Veja o [registro da publicação](docs/relatorios/2026-10-07-cloud-publication.m
 missão, sem consultar clientes ou Docker. Veja o [contrato e seus limites](docs/USAGE.md#synthetic-admission)
 e a [continuidade na cloud](docs/relatorios/2026-10-07-synthetic-admission.md).
 
-O coordenador interno agora grava o plano A/B/A2, os valores do baseline e seus hashes
-na reserva global, vinculada à missão antes dos efeitos. Testes locais exercitam as
-três fases e a recuperação das cargas identificadas e da VM, inclusive após perda de
-resposta. B ainda exige atribuição nativa. A próxima task é **203.6**: integrar o filtro
-de saída, configurações globais e sua restauração, incluindo helpers e portas.
-Validação local: 547 testes aprovados e 20 pulados.
-Veja [entrega, revisão e limites](docs/relatorios/2026-10-07-reservation-recovery.md).
+O coordenador interno integra o guard de saída ao plano v3 e ao diário A/B/A2.
+Os testes usam sockets locais reais: A e A2 reutilizam a porta, B observa sua ausência,
+e a recuperação restaura as configurações sandbox após encerrar os processos.
+**203.6 permanece parcial:** falta comprovar a identidade da credencial fictícia no
+`sbx` para removê-la com segurança, ligar o adaptador nativo e concluir os aceites.
+Políticas e credenciais permanecem inalteradas; B ainda exige atribuição nativa.
+Validação local: 574 testes aprovados e 20 pulados.
+Veja [entrega, testes e próximo passo](docs/relatorios/2026-10-07-network-integration.md).
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
@@ -561,13 +562,14 @@ See the [publication record](docs/relatorios/2026-10-07-cloud-publication.md).
 and its UUID without querying clients or Docker. See the [contract and limits](docs/USAGE.md#synthetic-admission)
 and the [cloud continuation report](docs/relatorios/2026-10-07-synthetic-admission.md).
 
-The internal coordinator now stores the A/B/A2 plan, baseline values and hashes in
-the global reservation, bound to the mission before effects. Local tests exercise all
-three phases and recovery of identified workloads and the VM, including lost replies.
-B still requires native attribution. Next is **203.6**: integrate the destination
-guard, global configuration and restoration, including helpers and ports.
-Local validation: 547 tests passed and 20 were skipped.
-See [delivery, review and limits](docs/relatorios/2026-10-07-reservation-recovery.md).
+The internal coordinator integrates the egress guard with the v3 plan and A/B/A2
+journal. Tests use real local sockets: A and A2 reuse the port, B observes its absence,
+and recovery restores sandbox settings after process termination.
+**203.6 remains partial:** safe removal needs a proven identity for the dummy credential
+in `sbx`, followed by the native adapter and acceptance tests. Policies and credentials
+remain unchanged; B still requires native attribution.
+Local validation: 574 tests passed and 20 were skipped.
+See [delivery, tests and next step](docs/relatorios/2026-10-07-network-integration.md).
 
 Audit fixes recover interrupted mission/backlog notes even after another
 revision, preserving human edits. Malformed catalogs and Git failures during the

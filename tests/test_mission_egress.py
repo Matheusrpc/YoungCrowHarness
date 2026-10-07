@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import socket
 import sys
+import tempfile
 import threading
 import time
 import unittest
@@ -60,13 +61,78 @@ class EgressTests(unittest.TestCase):
                                    resolve=lambda *_:('8.8.8.8',),socket_factory=factory)
         sock.close.assert_called_once()
 
-    def test_resolver_requires_complete_bounded_process_and_valid_output(self):
+    def inherited(self, mode, *, exit_code=0):
         import mission_process
-        for result in (dict(tree_reaped=False,exit_code=0,stdout=b'["8.8.8.8"]',reason='completed'),
-                       dict(tree_reaped=True,exit_code=0,stdout=b'[]',reason='timeout'),
-                       dict(tree_reaped=True,exit_code=0,stdout=b'not-json',reason='completed')):
-            with patch.object(mission_process,'supervise',return_value=result), self.assertRaises((ValueError,TimeoutError)):
-                self.m.resolve_addresses('postman-echo.com',1)
+        with tempfile.TemporaryDirectory() as temporary:
+            config = dict(self.config, deadline_ms=int(time.time()*1000)+5000)
+            result = mission_process.supervise(dict(argv=[sys.executable,'-I','-B',
+                str(Path(__file__).parent/'fixtures/egress_controller.py')], cwd=temporary,
+                stdin=json.dumps(dict(mode=mode,config=config)).encode(), timeout_seconds=6,
+                output_limit_bytes=16384, client='metadata', connection='native'),
+                on_started=lambda _:None, stop_requested=lambda:False)
+        self.assertEqual((result['reason'],result['exit_code']),('completed',exit_code),result)
+        self.assertTrue(result['tree_reaped'])
+        if exit_code:
+            self.assertTrue(mission_process.owner_gone(result['owner']))
+            return result
+        return json.loads(result['stdout'])
+
+    def test_dns_inherits_existing_containment_without_starting_nested_supervisor(self):
+        result = self.inherited('dns_success')
+        self.assertEqual(result.get('addresses'), ['8.8.8.8'],result)
+        self.assertEqual(result['children'],1)
+        self.assertTrue(result['collected'])
+
+    def test_inherited_dns_timeout_and_oversized_reply_reap_child(self):
+        for mode in ('dns_hang','dns_oversized'):
+            with self.subTest(mode=mode):
+                result = self.inherited(mode)
+                self.assertIn('error',result)
+                self.assertEqual(result['children'],1)
+                self.assertTrue(result['collected'])
+
+    def test_guard_records_identity_before_ready_and_observes_process_exit(self):
+        self.assertTrue(callable(getattr(self.m,'Guard',None)), 'owned guard missing')
+        result = self.inherited('guard')
+        self.assertEqual(result['exit_code'],125)
+        self.assertTrue(result['port_free'])
+        kinds = [row['kind'] for row in result['events']]
+        self.assertEqual(kinds[:3], ['guard_intent','guard_started','guard_ready'])
+        self.assertEqual(kinds[-1], 'guard_reaped')
+        self.assertTrue(any(row['payload'].get('reason')=='socks_request' for row in result['events']))
+
+    def test_failed_guard_identity_persistence_never_releases_config(self):
+        self.assertTrue(callable(getattr(self.m,'Guard',None)), 'owned guard missing')
+        result = self.inherited('persist_failure')
+        self.assertEqual([row['kind'] for row in result['events']],['guard_intent','guard_started'])
+        self.assertIn('error',result)
+
+    def test_guard_persists_destination_while_controller_waits_for_client(self):
+        result = self.inherited('guard_domain')
+        self.assertEqual(result.get('exit_code'),0,result)
+        self.assertTrue(result['port_free'])
+        self.assertEqual([row['kind'] for row in result['events']],
+            ['guard_intent','guard_started','guard_ready','guard_request','guard_destination',
+             'guard_finished','guard_closed','guard_reaped'])
+
+    def test_upstream_closes_first_without_blocking_port_reuse(self):
+        result = self.inherited('guard_domain_upstream_first')
+        self.assertEqual(result.get('exit_code'),0,result)
+        self.assertTrue(result['port_free'])
+
+    def test_failed_destination_receipt_forwards_zero_upstream_bytes(self):
+        result = self.inherited('guard_domain_persistfail')
+        self.assertEqual(result['upstream_bytes'],0,result)
+        self.assertNotIn('guard_finished',[r['kind'] for r in result['events']])
+
+    def test_abrupt_controller_exit_before_config_reaps_the_waiting_guard(self):
+        self.inherited('kill_before_config',exit_code=71)
+
+    def test_port_probe_refuses_an_existing_listener_even_with_reuseaddr(self):
+        with socket.socket() as listener:
+            listener.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+            listener.bind(('127.0.0.1',0));listener.listen(1)
+            self.assertFalse(self.m.port_available(listener.getsockname()[1]))
 
     def launch_client(self, port, payload, body=b''):
         def run():

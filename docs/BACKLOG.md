@@ -7,20 +7,23 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
-Incremento publicado no PR #24 em `ea2ff60`; branch e ref do PR conferidas.
-Published to PR #24 at `ea2ff60`; branch and PR refs verified.
+A integração interna de 203.6 usa plano v3, guard no mesmo grupo/job e diário anterior
+aos efeitos. A/A2 reutilizam a porta; B exige ausência. Recuperação observa proprietário
+e porta ausentes e restaura apenas settings sandbox ainda iguais aos valores da operação.
+**203.4 interna; 203.5 e 203.6 parciais.** Políticas e credenciais permanecem imutáveis.
+[Entrega e provas](relatorios/2026-10-07-network-integration.md).
 
-O coordenador interno persiste plano A/B/A2, baseline, vínculo da missão e diário na
-reserva global. Testes locais exercitam as três fases e a recuperação das cargas e da
-VM. **203.4 implementada internamente; 203.5 parcial.** O encerramento ainda exige
-configuração global inalterada. A próxima task é **203.6**, filtro de saída, configurações
-globais e recuperação dos seus efeitos, helpers e portas. [Entrega e provas](relatorios/2026-10-07-reservation-recovery.md).
+O próximo passo é fechar o contrato nativo de identidade da credencial fictícia e sua
+remoção segura. A documentação atual não fornece schema/fingerprint suficiente;
+placeholder, host e sandbox iguais não detectam substituição externa do valor.
+Depois: adaptador nativo, prova da injeção com valor distinto do placeholder e aceite.
 
-The internal coordinator persists the A/B/A2 plan, baseline, mission binding and
-journal in the global reservation. Local tests exercise all three phases and workload/VM
-recovery. **203.4 is implemented internally; 203.5 remains partial.** Closing still
-requires unchanged global configuration. Next is **203.6**, destination filtering,
-global configuration and recovery of its effects, helpers and ports.
+The internal 203.6 integration uses a v3 plan, inherited guard containment and a journal
+before effects. A/A2 reuse the port; B requires absence. Recovery observes owner and
+port absence and restores only sandbox settings still matching this operation.
+**203.4 is internal; 203.5 and 203.6 remain partial.** Policies and credentials are immutable.
+Next: establish native dummy-credential ownership and safe removal, then the native
+adapter, injection proof with a distinct value, and acceptance tests.
 
 A entrada pública `client check` continua em `failed/controller_pending`, com zero
 chamadas de modelo. Perfis nativos seguem bloqueados. A sequência é **203.6 e restante

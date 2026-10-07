@@ -1856,9 +1856,9 @@ da imagem; o instalador distribui o controlador e preserva cópias locais existe
 
 São componentes internos, sem novo comando público de execução. O `client check`
 continua retornando o bloqueio descrito acima. `mission_transaction.py` vincula a
-missão ao plano v2 no mesmo ledger global. Guarda baseline completo, três identidades
+missão ao plano v2 ou v3 no mesmo ledger global. Guarda baseline completo, três identidades
 distintas, digests e diário anterior aos efeitos. As fases compartilham até 120 segundos,
-limitados pelo orçamento admitido. A execução pública aguarda egress e prova nativa. O controlador retorna sempre
+limitados pelo orçamento admitido. A execução pública aguarda o contrato de credenciais, adaptador e prova nativa. O controlador retorna sempre
 `proof_accepted=false` e `workload_reaped=false`; `observed` indica apenas que o
 protocolo da fase foi concluído. Em B, saída 126 continua `blocked_unattributed`;
 uma resposta permitida vira `unexpected_allow`.
@@ -1872,18 +1872,42 @@ image build context includes it; setup distributes the controller while preservi
 existing local copies.
 
 These are internal components with no new public execution command. `client check`
-still returns the block above. `mission_transaction.py` binds the mission to a v2
+still returns the block above. `mission_transaction.py` binds the mission to a v2 or v3
 plan in the same global ledger, storing baseline values, three distinct identities,
 digests and a journal before effects. Phases share up to 120 seconds, bounded by
-the admitted budget. Public execution awaits egress integration and native proof. Controller results always keep `proof_accepted=false` and
+the admitted budget. Public execution awaits the credential contract, native adapter and proof. Controller results always keep `proof_accepted=false` and
 `workload_reaped=false`; `observed` only confirms a completed phase protocol. In B,
 exit 126 stays `blocked_unattributed`; a successful response becomes `unexpected_allow`.
+
+O plano v3 acrescenta `mission_network.py`, hash do guard e do Python, resolvedor do
+sistema e IPs proibidos. O helper recebe configuração somente após persistir seu PID;
+os recibos de destino precisam de confirmação durável antes de encaminhar bytes.
+Somente `proxy.sandbox` e `no_proxy.sandbox` podem mudar. A recuperação exige cargas/VM
+paradas, proprietário e porta ausentes, preserva mudanças externas e observa respostas
+perdidas sem repetir mutações. Registros v1/v2 conservam seus contratos.
+
+Os testes ligam essas etapas com sbx e destino remoto simulados, processos e sockets
+locais reais. O adaptador nativo recusa set/restart: a identidade verificável de uma
+credencial customizada ainda não está documentada. Não há prova de injeção, Docker TLS,
+MCP ou recusa nativa atribuída; perfis seguem vazios. [Escopo e provas](relatorios/2026-10-07-network-integration.md).
+
+The v3 plan adds `mission_network.py`, guard/Python hashes, the system resolver and
+forbidden IPs. Configuration follows the durable helper PID receipt; destination
+metadata must be acknowledged before forwarding bytes. Only the two sandbox proxy
+settings may change. Recovery requires stopped workloads/VM and absent owner/port,
+preserves external changes and observes lost replies without repeating mutations.
+Legacy v1/v2 contracts remain intact. Tests use simulated sbx/upstream boundaries
+with real local processes and sockets. Native set/restart stays blocked pending a
+verifiable custom-credential identity. Injection, Docker TLS, MCP and attributable
+native refusal remain unproven; profiles stay empty.
 
 Testes locais / Local tests:
 
 ```bash
 python3 -B -m unittest discover -s tests -p 'test_mission_controller.py' -v
 python3 -B -m unittest discover -s tests -p 'test_mission_transaction.py' -v
+python3 -B -m unittest discover -s tests -p 'test_mission_network.py' -v
+python3 -B -m unittest discover -s tests -p 'test_mission_egress.py' -v
 python3 -B -m unittest discover -s tests -p 'test_isolated_fixture.py' -v
 python3 -B -m unittest discover -s tests -p 'test_mission_relay.py' -v
 ```

@@ -132,6 +132,7 @@ class Channel:
 
     def receive(self):
         while True:
+            require(not self.stop.is_set(), 'transport_closed')
             self.deadline.remaining()
             if b'\n' in self.buffer:
                 line, _, rest = self.buffer.partition(b'\n')

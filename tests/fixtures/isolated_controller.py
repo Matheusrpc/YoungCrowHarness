@@ -2,6 +2,7 @@
 import base64
 import hashlib
 import json
+import socket
 from pathlib import Path
 import subprocess
 import sys
@@ -103,6 +104,26 @@ def launch(mode):
             with (root/'dispatches').open('ab') as stream:
                 stream.write(b'1\n')
             blocked = mode == 'unattributed_block'
+            network_path = root/'loopback-network.json'
+            if network_path.exists():
+                network = json.loads(network_path.read_bytes())
+                if blocked:
+                    try:
+                        with socket.create_connection(('127.0.0.1',network['port']),timeout=1):
+                            raise AssertionError('B unexpectedly connected')
+                    except ConnectionRefusedError:
+                        pass
+                else:
+                    with socket.create_connection(('127.0.0.1',network['port']),timeout=1) as sock:
+                        sock.sendall(b'\x05\x01\x00')
+                        assert sock.recv(2) == b'\x05\x00'
+                        host = b'postman-echo.com'
+                        sock.sendall(b'\x05\x01\x00\x03'+bytes([len(host)])+host+b'\x01\xbb')
+                        assert sock.recv(10)[:2] == b'\x05\x00'
+                        sock.sendall(b'local-request')
+                        assert sock.recv(64) == b'local-response'
+                        assert sock.recv(64) == b''  # Upstream closes first, exercising TIME_WAIT.
+                (root/'loopback-result.json').write_bytes(encoded(dict(network, blocked=blocked)))
             value = (dict(kind='fixture_refused', reason='request_failed') if blocked else
                      dict(schema_version=1, fixture_id='isolated-egress-v1', stage=phase,
                           nonce=manifest['nonce'], phase=manifest['relay']['phase'], http_status=200,

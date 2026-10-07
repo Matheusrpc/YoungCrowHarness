@@ -38,13 +38,14 @@ def require(value, reason='invalid_execution_plan'):
         raise ValueError(reason)
 
 
-def code_hashes():
+def code_hashes(version=2):
+    names = SOURCES + (('mission_egress.py', 'mission_network.py') if version == 3 else ())
     return {name: hashlib.sha256(fs.checked_path(Path(__file__).parent/name).read_bytes()).hexdigest()
-            for name in SOURCES}
+            for name in names}
 
 
 def build_plan(*, manifest, project_id, project_sha256, candidate, baseline, code_sha256,
-               proxy_ipv4, ca_sha256):
+               proxy_ipv4, ca_sha256, network=None):
     created = int(time.time()*1000)
     deadline = created + min(manifest['agent_seconds'], 120)*1000
     phases = [controller.phase_manifest(operation_id=str(uuid.uuid4()), nonce=uuid.uuid4().hex,
@@ -53,13 +54,18 @@ def build_plan(*, manifest, project_id, project_sha256, candidate, baseline, cod
     plan = copy.deepcopy(dict(schema_version=2, manifest=manifest, run_id=str(uuid.uuid4()),
         project_id=project_id, project_sha256=project_sha256, candidate=candidate, baseline=baseline,
         code_sha256=code_sha256, created_ms=created, deadline_ms=deadline, phases=phases))
+    if network is not None:
+        import mission_network
+        plan.update(schema_version=3, network=mission_network.plan_config(network))
+        plan['code_sha256'].update({k:v for k,v in code_hashes(3).items() if k not in SOURCES})
     validate_plan(plan)
     return plan
 
 
 def validate_plan(plan):
-    require(type(plan) is dict and set(plan) == PLAN_FIELDS and type(plan['schema_version']) is int
-            and plan['schema_version'] == 2)
+    require(type(plan) is dict and type(plan.get('schema_version')) is int
+            and plan['schema_version'] in (2, 3))
+    require(set(plan) == PLAN_FIELDS | ({'network'} if plan['schema_version'] == 3 else set()))
     runs.manifest_valid(plan['manifest'])
     require(plan['manifest']['fixture_id'] == 'isolated-egress-v1')
     for key in ('run_id', 'project_id'):
@@ -94,7 +100,8 @@ def validate_plan(plan):
     require(inspected.get('state') == 'stopped' and type(inspected.get('sessions')) is int and inspected['sessions'] == 0
             and inspected.get('image_digest') == candidate['outer_digest'] and inspected.get('cpus') == 2
             and inspected.get('memory') in ('4g', '4096m') and inspected.get('runtime_mounts') == [])
-    require(type(plan['code_sha256']) is dict and set(plan['code_sha256']) == set(SOURCES)
+    names = SOURCES + (('mission_egress.py', 'mission_network.py') if plan['schema_version'] == 3 else ())
+    require(type(plan['code_sha256']) is dict and set(plan['code_sha256']) == set(names)
             and all(execution.digest(v) for v in plan['code_sha256'].values()))
     phases = plan['phases']
     require(type(phases) is list and len(phases) == 3)
@@ -103,6 +110,9 @@ def validate_plan(plan):
         require(manifest['relay']['phase'] == phase and manifest['deadline_ms'] == plan['deadline_ms'])
     require(len({m['operation_id'] for m in phases} | {plan['manifest']['operation_id']}) == 4
             and len({m['nonce'] for m in phases}) == 3)
+    if plan['schema_version'] == 3:
+        import mission_network
+        mission_network.validate_plan(plan)
     require(len(controller.encoded(plan)) <= 32768, 'execution_record_limit')
 
 
@@ -117,14 +127,16 @@ def request(plan):
 
 def validate_record(record):
     require(set(record) == {'schema_version', 'request', 'plan', 'plan_sha256', 'state', 'revision',
-                           'created_at', 'updated_at', 'journal', 'recovery', 'owner'}, 'execution_reservation_invalid')
-    require(type(record['schema_version']) is int and record['schema_version'] == 2
+                           'created_at', 'updated_at', 'journal', 'recovery', 'owner'} |
+                           ({'network_events'} if record.get('schema_version') == 3 else set()), 'execution_reservation_invalid')
+    require(type(record['schema_version']) is int and record['schema_version'] in (2, 3)
             and record['state'] in ('reserved', 'consumed', 'recovered')
             and type(record['revision']) is int and record['revision'] > 0
             and all(type(record[k]) is str for k in ('created_at', 'updated_at')),
             'execution_reservation_invalid')
     validate_plan(record['plan'])
-    require(record['plan_sha256'] == sha(record['plan']) and record['request'] == request(record['plan']),
+    require(record['schema_version'] == record['plan']['schema_version']
+            and record['plan_sha256'] == sha(record['plan']) and record['request'] == request(record['plan']),
             'execution_reservation_invalid')
     journal = record['journal']
     require(type(journal) is list and len(journal) <= 30 and type(record['recovery']) is list,
@@ -136,6 +148,10 @@ def validate_record(record):
                 and type(event['at']) is str, 'execution_reservation_invalid')
         validate_event(record['plan'], phase, event['kind'], event['payload'])
     require(record['state'] != 'reserved' or not journal, 'execution_reservation_invalid')
+    if record['schema_version'] == 3:
+        import mission_network
+        mission_network.validate_events(record)
+        require(record['state'] != 'reserved' or not record['network_events'], 'execution_reservation_invalid')
     if record['owner'] is not None:
         validate_owner(record['owner'])
     recovery = record['recovery']
@@ -157,12 +173,14 @@ def reserve(registry, plan):
         rows = registry.records()
         old = next((r for r in rows if r['request']['operation_id'] == plan['manifest']['operation_id']), None)
         if old:
-            require(old.get('schema_version') == 2 and old['plan'] == plan, 'operation_conflict')
+            require(old.get('schema_version') == plan['schema_version'] and old['plan'] == plan, 'operation_conflict')
             return dict(new=False, record=old)
         require(not any(r['state'] not in ('abandoned', 'recovered') for r in rows), 'execution_reserved')
         require(0 < plan['deadline_ms']-time.time()*1000 <= 120000, 'execution_deadline')
-        record = dict(schema_version=2, request=request(plan), plan=plan, plan_sha256=sha(plan), state='reserved',
+        record = dict(schema_version=plan['schema_version'], request=request(plan), plan=plan, plan_sha256=sha(plan), state='reserved',
                       revision=0, created_at=execution.stamp(), updated_at=execution.stamp(), journal=[], recovery=[], owner=None)
+        if plan['schema_version'] == 3:
+            record['network_events'] = []
         registry.save(record)
         return dict(new=True, record=record)
 
@@ -170,7 +188,7 @@ def reserve(registry, plan):
 def load(registry, operation_id):
     execution.identity(operation_id)
     record = next((r for r in registry.records() if r['request']['operation_id'] == operation_id), None)
-    require(record is not None and record.get('schema_version') == 2, 'integrated_reservation_missing')
+    require(record is not None and record.get('schema_version') in (2, 3), 'integrated_reservation_missing')
     return record
 
 
@@ -315,12 +333,20 @@ def configuration_matches(plan, observed, *, active=False, recovering=False):
 
 
 def validate_closure(record, payload):
-    require(set(payload) == {'observation', 'observation_sha256', 'owner', 'owner_absent', 'daemon_identity_before'}
+    require(set(payload) == {'observation', 'observation_sha256', 'owner', 'owner_absent', 'daemon_identity_before'} |
+            ({'ports_absent'} if record['schema_version'] == 3 else set())
             and payload['observation_sha256'] == sha(payload['observation'])
             and payload['daemon_identity_before'] == payload['observation']['daemon_identity']
             and payload['owner'] == record['owner'] and payload['owner_absent'] is True,
             'recovery_unverified')
     configuration_matches(record['plan'], payload['observation'], recovering=True)
+    if record['schema_version'] == 3:
+        import mission_network as network
+        ports = sorted({e['payload']['port'] for e in record['network_events'] if e['kind'] == 'guard_ready'})
+        require(payload['ports_absent'] == ports, 'recovery_unverified')
+        if network.entry(record, 'setting_intent', key='proxy.sandbox'):
+            restarted = network.entry(record, 'restore_restarted', 'recovery')
+            require(restarted and restarted['after'] == payload['observation']['daemon_identity'], 'recovery_unverified')
     for phase in {event['phase'] for event in record['journal']}:
         receipts = [entry['payload']['observation'] for entry in record['recovery']
                     if entry['kind'] == 'workload' and entry['payload'].get('phase') == phase]
@@ -331,8 +357,8 @@ def recover(registry, operation_id, backend, *, timeout_seconds=60):
     """Trusted host observer, never caller-supplied cleanup evidence or commands.
 
     The backend issues closed metadata/stop operations and returns native values.
-    Global settings/credential mutations belong to the subsequent egress increment;
-    any such drift here is preserved and keeps the installation reserved.
+    V3 restores only its two recorded sandbox settings. Credentials and policy
+    remain immutable; drift is preserved and keeps the installation reserved.
     """
     require(type(timeout_seconds) in (int, float) and 0 < timeout_seconds <= 60, 'invalid_recovery_deadline')
     until = time.monotonic()+timeout_seconds
@@ -364,7 +390,12 @@ def recover(registry, operation_id, backend, *, timeout_seconds=60):
             observed = backend.observe()
             remaining()
             active = observed['observations']['candidate_inspect']['state'] == 'running'
-            configuration_matches(record['plan'], observed, active=active, recovering=True)
+            if record['schema_version'] == 3:
+                import mission_network as network
+                network.ports_absent(record)
+                network.matches(record, observed, recovering=True)
+            else:
+                configuration_matches(record['plan'], observed, active=active, recovering=True)
             daemon_identity_before = copy.deepcopy(observed['daemon_identity'])
             phases = [phase for phase in PHASES if any(e['phase'] == phase for e in record['journal'])]
             for phase in phases:
@@ -388,12 +419,16 @@ def recover(registry, operation_id, backend, *, timeout_seconds=60):
                 save('stop_vm_intent', candidate=record['plan']['candidate'])
                 backend.stop_vm()
                 remaining()
+            if record['schema_version'] == 3:
+                daemon_identity_before = network.restore(registry, record, backend, remaining, daemon_identity_before)
             observed = backend.observe()
             remaining()
             configuration_matches(record['plan'], observed, recovering=True)
             require(record['owner'] is None or processes.owner_gone(record['owner']), 'owner_still_present')
             payload = dict(observation=observed, observation_sha256=sha(observed), owner=record['owner'],
                            owner_absent=True, daemon_identity_before=daemon_identity_before)
+            if record['schema_version'] == 3:
+                payload['ports_absent'] = network.ports_absent(record)
             validate_closure(record, payload)
             record['state'] = 'recovered'
             save('closed', **payload)
@@ -404,7 +439,7 @@ def recover(registry, operation_id, backend, *, timeout_seconds=60):
             return result('blocked', str(error) if str(error) in known else 'recovery_unverified')
 
 
-def run_reserved(root, registry, operation_id, launcher_factory, observe_identity):
+def run_reserved(root, registry, operation_id, launcher_factory, observe_identity, *, network=None):
     """Run inside the existing supervisor; dependencies are trusted closed adapters.
 
     No public native entry point is enabled until egress and recovery of its global
@@ -421,26 +456,41 @@ def run_reserved(root, registry, operation_id, launcher_factory, observe_identit
         if owner['kind'] == 'linux-group':
             require(os.getpgrp() == owner['pid'], 'containment_required')
         plan = record['plan']
+        require((plan['schema_version'] == 3) == (network is not None), 'network_coordinator_required')
         run = bound_run(root, record)
         require(run['state'] == 'running' and run['owner'] == owner, 'mission_binding_changed')
         for phase, manifest in zip(PHASES, plan['phases']):
+            require(code_hashes(plan['schema_version']) == plan['code_sha256'], 'code_changed')
+            if network is not None:
+                network.before_phase(phase)
             def persist(kind, payload):
                 if kind in ('prepare_intent', 'dispatch_authorization'):
                     current = load(registry, operation_id)
                     linked = bound_run(root, current)
                     require(linked['state'] == 'running' and linked['owner'] == owner, 'mission_binding_changed')
                     runs.mission_agent(root, plan['manifest'])
-                    require(code_hashes() == plan['code_sha256'], 'code_changed')
-                    configuration_matches(plan, observe_identity(), active=True)
-                phase_event(registry, operation_id, phase, kind, payload)
+                    require(code_hashes(plan['schema_version']) == plan['code_sha256'], 'code_changed')
+                    if network is not None:
+                        network.verify(phase)
+                    else:
+                        configuration_matches(plan, observe_identity(), active=True)
+                if network is not None:
+                    network.phase_event(phase, kind, payload)
+                else:
+                    phase_event(registry, operation_id, phase, kind, payload)
             observed = controller.run_phase(launcher_factory(phase), manifest,
                                              plan['candidate']['inner_digest'], persist)
             result['phases'].append(observed)
             if observed['state'] != ('blocked_unattributed' if phase == 'B' else 'observed'):
                 return result
+            if network is not None:
+                network.after_phase(phase)
         result.update(state='observed', reason='native_attribution_and_recovery_required')
-    except (ValueError, OSError, TypeError, KeyError):
+    except (ValueError, OSError, TypeError, KeyError, controller.Refused):
         result['reason'] = 'preflight_changed'
+    finally:
+        if network is not None:
+            network.close()
     return result
 
 

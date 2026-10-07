@@ -11,7 +11,9 @@ from pathlib import Path
 import re
 import select
 import socket
+import subprocess
 import sys
+import threading
 import time
 import uuid
 
@@ -52,20 +54,114 @@ def left(until):
 
 
 def resolve_addresses(host, timeout):
-    import mission_process
     if host != HOST: raise ValueError('origin_forbidden')
-    # Stdlib DNS can block; the existing process supervisor owns and bounds it.
-    result = mission_process.supervise(dict(
-        argv=[sys.executable,'-I','-B',str(Path(__file__).resolve()),'--resolve',HOST],
-        cwd=str(Path(__file__).resolve().parent),stdin=b'',connection='native',
-        timeout_seconds=min(timeout,5),output_limit_bytes=16384),
-        on_started=lambda _:None,stop_requested=lambda:False)
-    if not result['tree_reaped'] or result['reason'] != 'completed' or result['exit_code'] != 0:
-        raise TimeoutError('resolver_incomplete')
-    value = json.loads(result['stdout'])
+    if timeout <= 0: raise TimeoutError('resolver_incomplete')
+    # Fixed child, bounded output below, inheriting the controller's group/job.
+    # A second supervisor would attempt to escape that already-established group.
+    process = subprocess.Popen([sys.executable,'-I','-B',str(Path(__file__).resolve()),'--resolve',HOST],
+        stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, close_fds=True)
+    try:
+        output,_ = process.communicate(timeout=min(timeout,5))
+        if process.returncode or len(output) > 16384:
+            raise ValueError('dns_invalid')
+    except subprocess.TimeoutExpired:
+        raise TimeoutError('resolver_incomplete') from None
+    finally:
+        if process.poll() is None:
+            process.kill()
+        process.wait()
+        process.stdout.close()
+    value = json.loads(output)
     if type(value) is not list or not 1 <= len(value) <= 64 or any(type(v) is not str for v in value):
         raise ValueError('dns_invalid')
     return tuple(value)
+
+
+def port_available(port):
+    if type(port) is not int or not 1 <= port <= 65535:
+        raise ValueError('invalid_port')
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        if os.name == 'nt': probe.setsockopt(socket.SOL_SOCKET,socket.SO_EXCLUSIVEADDRUSE,1)
+        else: probe.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+        try:
+            probe.bind(('127.0.0.1',port))
+            probe.listen(1)
+        except OSError:
+            return False
+    return True
+
+
+class Guard:
+    """Fixed private helper. Config is released only after its PID is persisted."""
+    def __init__(self, config, persist, *, cwd):
+        import mission_controller as controller
+        self.config = json.loads(controller.encoded(config))
+        self.persist, self.channel, self.port = persist, None, None
+        self.reader, self.error, self.result = None, None, None
+        self.events = []
+        try:
+            persist('guard_intent', dict(config=self.config))
+            self.channel = controller.Channel(self.command(), cwd=cwd, deadline_ms=config['deadline_ms'])
+            persist('guard_started', dict(pid=self.channel.process.pid))
+            self.channel.send(config)
+            event = self.receive()
+            controller.require(event['event'] == 'ready' and event['pid'] == self.channel.process.pid
+                and type(event['port']) is int and 1 <= event['port'] <= 65535
+                and config['listen_port'] in (0,event['port'])
+                and event['deadline_ms'] == config['deadline_ms'], 'guard_identity_changed')
+            self.port = event['port']
+            self.reader = threading.Thread(target=self.drain, daemon=True)
+            self.reader.start()
+        except BaseException:
+            self.close()
+            raise
+
+    def command(self):
+        return [sys.executable,'-I','-B',str(Path(__file__).resolve()),'--guard']
+
+    def receive(self):
+        import mission_controller as controller
+        event = self.channel.receive()
+        if event is None:
+            return None
+        controller.require(event.get('kind') == 'egress' and event.get('event') in
+            ('ready','request','destination','finished','refused','closed') and
+            all(event.get(k) == self.config[k] for k in ('operation_id','phase','nonce')), 'guard_identity_changed')
+        self.persist('guard_'+event['event'], {k:v for k,v in event.items() if k not in ('kind','event')})
+        self.events.append(event)
+        self.channel.send(dict(event=event['event']))
+        return event
+
+    def drain(self):
+        import mission_controller as controller
+        try:
+            while self.receive() is not None:
+                pass
+            code = self.channel.exit_code()
+            controller.require(self.events[-1]['event'] == 'closed' and code in (0,125), 'guard_exit_unverified')
+            result = dict(pid=self.channel.process.pid, port=self.port, exit_code=code)
+            controller.require(port_available(self.port), 'guard_port_occupied')
+            self.persist('guard_reaped', result)
+            self.result = result
+        except BaseException as error:
+            self.error = error
+        finally:
+            self.channel.close()
+
+    def finish(self):
+        self.reader.join(self.channel.deadline.remaining())
+        if self.reader.is_alive():
+            self.close()
+            raise ValueError('guard_exit_unverified')
+        if self.error:
+            raise self.error
+        return dict(self.result)
+
+    def close(self):
+        if self.channel is not None:
+            self.channel.close()
+        if self.reader is not None and self.reader.ident is not None and self.reader is not threading.current_thread():
+            self.reader.join(.3)
 
 
 def connect_checked(host, port, deadline_ms, forbidden, *, resolve=resolve_addresses,
@@ -160,6 +256,7 @@ def serve(config, emit):
     try:
         listener = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         if os.name == 'nt': listener.setsockopt(socket.SOL_SOCKET,socket.SO_EXCLUSIVEADDRUSE,1)
+        else: listener.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
         listener.bind(('127.0.0.1',config['listen_port']));listener.listen(1)
         listener.settimeout(left(until))
         event('ready',port=listener.getsockname()[1],pid=os.getpid(),deadline_ms=config['deadline_ms'])
@@ -193,6 +290,18 @@ def serve(config, emit):
 
 
 if __name__ == '__main__':
-    if sys.argv[1:] != ['--resolve',HOST]: raise SystemExit('resolver invocation required')
-    rows = socket.getaddrinfo(HOST,443,socket.AF_UNSPEC,socket.SOCK_STREAM)
-    print(json.dumps(list(dict.fromkeys(r[4][0] for r in rows))))
+    if sys.argv[1:] == ['--resolve',HOST]:
+        rows = socket.getaddrinfo(HOST,443,socket.AF_UNSPEC,socket.SOCK_STREAM)
+        values = list(dict.fromkeys(r[4][0] for r in rows))
+        if not 1 <= len(values) <= 64 or any(len(value) > 128 for value in values):
+            raise SystemExit(125)
+        print(json.dumps(values))
+    elif sys.argv[1:] == ['--guard']:
+        config = json.loads(sys.stdin.buffer.readline(16385))
+        def emit(kind, **row):
+            print(json.dumps(dict(kind='egress',event=kind,**row)),flush=True)
+            if json.loads(sys.stdin.buffer.readline(1025)) != dict(event=kind):
+                raise ValueError('guard_ack_invalid')
+        raise SystemExit(serve(config,emit))
+    else:
+        raise SystemExit('private guard or resolver invocation required')

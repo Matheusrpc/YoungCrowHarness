@@ -444,6 +444,12 @@ class Recovery:
         self.until = min(self.until, until)
         self.remaining()
 
+    def setting(self, key, target):
+        raise ValueError('native_egress_contract_unverified')
+
+    def restart(self):
+        raise ValueError('native_egress_contract_unverified')
+
     def remaining(self):
         value = min(15, self.until-time.monotonic())
         if value <= 0:

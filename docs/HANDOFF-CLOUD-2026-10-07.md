@@ -10,7 +10,7 @@ Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor a
 
 O YoungCrow já tem base de instalação, personalização, documentação, memória, governança, adoção reversível e preparação de missões. **A esteira autônoma completa ainda não está entregue.** Estamos concluindo a execução isolada que permitirá habilitá-la.
 
-O diagnóstico local do Docker passou. Guardian, launcher, relay, reserva compartilhada e filtro de saída têm implementações e provas com escopos definidos. Plano, reserva, controlador e recuperação de cargas/VM têm integração local. Falta integrar egress e restauração global, provar A/B/A2 no mesmo candidato e executar Claude Code e Codex autenticados por assinatura. Os perfis de execução continuam bloqueados.
+O diagnóstico local do Docker passou. Guardian, launcher, relay, reserva compartilhada e filtro de saída têm implementações e provas com escopos definidos. Plano, reserva, controlador e recuperação de cargas/VM têm integração local. Egress e restauração dos settings sandbox têm integração local. Falta fechar o contrato de credenciais e o adaptador nativo, provar A/B/A2 no mesmo candidato e executar Claude Code e Codex autenticados por assinatura. Os perfis de execução continuam bloqueados.
 
 **Para continuar esta frente, clone a branch `feat/isolated-executor`.** O checkpoint reúne código, testes e relatórios revisados que estavam somente no checkout local. A `main` permanece na base anterior. VMs, logins e estado operacional continuam fora do Git. Veja a [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 
@@ -19,7 +19,7 @@ git clone --branch feat/isolated-executor https://github.com/Matheusrpc/YoungCro
 cd YoungCrowHarness
 ```
 
-O próximo trabalho de código é 203.6: integrar egress, configurações globais e a recuperação dos seus efeitos, helpers e portas. Não reiniciar a investigação do zero, não produzir outro roteiro experimental de PowerShell e não repetir operações históricas consumidas.
+O próximo passo de 203.6 é comprovar a identidade da credencial fictícia para remoção segura; depois, ligar o adaptador nativo e provar a injeção com valor distinto do placeholder. Não reiniciar a investigação do zero, não produzir outro roteiro experimental de PowerShell e não repetir operações históricas consumidas.
 
 ### Continuidade na cloud em 7/out
 
@@ -56,7 +56,7 @@ como estado mais recente desses achados; os relatórios anteriores preservam o h
 A recuperação histórica adicionada cobre missão/backlog; não generalizá-la a
 `project_run`, cujos eventos guardam deltas e não os retratos completos anteriores.
 
-### Incremento atual: reserva e recuperação
+### Incremento anterior: reserva e recuperação
 
 Publicado no PR #24 em `ea2ff60`; branch e ref do PR conferidas no GitHub.
 Suíte: 547 aprovados e 20 pulados; 23 transacionais passaram novamente após ajuste
@@ -73,18 +73,35 @@ próprio de até 60 segundos. Recusa troca de CID, deriva e identidade do daemon
 durante a tentativa. Resposta perdida exige observação, não repetição da mutação.
 VM parada sem recibo terminal da carga mantém a reserva.
 
-**203.4 implementada internamente; 203.5 parcial.** Resta integrar 203.6 e comprovar
-restauração global, helpers e portas. Nenhum perfil nativo foi liberado; B continua
-sem atribuição nativa. [Relatório e medição atuais](relatorios/2026-10-07-reservation-recovery.md).
+**203.4 implementada internamente; 203.5 parcial.** O incremento seguinte integra settings sandbox, helpers e portas localmente; o aceite nativo permanece pendente. Nenhum perfil nativo foi liberado; B continua
+sem atribuição nativa. [Relatório e medição desse incremento](relatorios/2026-10-07-reservation-recovery.md).
 Os dois revisores confirmaram as correções de CID, histórico, daemon e prazo com regressões.
 Nenhum Docker ou modelo foi executado; o contador permanece em **2/3** ciclos nativos.
+
+### Incremento atual: integração de rede
+
+Plano/registro v3 adiciona guard, hashes de código/Python, resolvedor do sistema e IPs
+proibidos. DNS e helper herdam a contenção existente. PID precede configuração; destino
+precede bytes por confirmação durável. Um escritor serializa os recibos do pipe e da fase.
+A/A2 usam a mesma porta; B exige ausência. Recuperação restaura somente settings sandbox
+que continuam iguais aos valores da operação, depois de cargas/VM paradas e proprietário
+/porta ausentes. Intenções consumidas nunca são repetidas. V1/v2 permanecem legíveis.
+
+**203.5 e 203.6 seguem parciais.** Políticas e credenciais são imutáveis. A documentação
+oficial do sbx não fornece schema/fingerprint da credencial customizada que permita
+identificar substituição externa do valor; remoção por placeholder não prova propriedade.
+O adaptador nativo recusa set/restart. Falta também trocar a prova de eco por verificação
+de valor fictício distinto do placeholder. Não promover os testes locais a prova Docker
+TLS, MCP, bypass do host, assinatura ou atribuição de B. Contador nativo **2/3**.
+Suíte pública: 574 aprovados e 20 pulados, zero falhas/erros.
+[Relatório e medição atuais](relatorios/2026-10-07-network-integration.md).
 
 Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
-| Executor: 203.6 | Integrar filtro de saída e configuração global ao plano e diário existentes; adaptar DNS à contenção atual, registrar helpers/portas e mutações antes de efeitos |
-| Executor: restante de 203.5 | Ampliar recuperação às alterações globais ainda próprias e aos helpers/portas de 203.6; testar interrupções em cada fronteira antes de habilitar execução pública |
+| Executor: 203.6 | Obter contrato verificável da identidade/remoção de credencial fictícia; implementar adaptador nativo e prova de injeção distinta do placeholder |
+| Executor: restante de 203.5 | Comprovar recuperação nativa de settings/serviço/credencial e demais políticas necessárias, preservando alterações externas |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |
 | Fila e agentes | Retomar os itens da frente 2 dependentes do aceite YC-203 |
 | QA e publicação | Frentes 3 e 4, depois da execução e continuidade comprovadas |
@@ -93,8 +110,7 @@ A reserva v1 consumida não pode ser reaberta ou ter arquivos soltos acrescentad
 O plano v2 conserva valores de baseline para recuperação sem depender do checkout,
 além dos hashes; a identidade histórica permanece separada da comparação de
 configuração após reinício legítimo. Não encadear outro `supervise`
-dentro do controlador: os filhos devem herdar o mesmo grupo/job. O resolvedor de
-egress ainda usa supervisão própria e precisa ser adaptado ao ser integrado.
+dentro do controlador: os filhos devem herdar o mesmo grupo/job. O resolvedor de egress usa filho direto, herdando a contenção do controlador.
 
 ### Estado Git antes do checkpoint de publicação
 
@@ -241,15 +257,16 @@ O mantenedor escolheu **Docker Sandboxes** e depois aprovou manter essa escolha 
 | `mission_environment.py` | Seleção privada local/dedicado, preservação, diagnóstico de armazenamento | Validação real no ambiente cloud escolhido |
 | `mission_sandbox.py` | Metadados e inspeção sem iniciar a VM; exposição da reserva compartilhada | Perfil aprovado e observação nativa suficiente para os novos aceites |
 | `mission_process.py` | Supervisão de árvore de processos, limites e recibos; controlador testado dentro da mesma contenção | Prova nativa de encerramento da carga aninhada |
-| `mission_controller.py` | Canal aberto, identidade, gates e intenção antes do efeito, protocolo limitado e fixture fixa | Adaptador de despacho nativo e egress integrado |
+| `mission_controller.py` | Canal aberto, identidade, gates e intenção antes do efeito, protocolo limitado e fixture fixa | Adaptador de despacho nativo e aceite do percurso de rede |
 | `runtime/sbx/guardian.py` | Processo supervisor, privilégios limitados, prazo, repetição recusada e gates de rede | Prova integrada do candidato v3 atual |
 | `runtime/sbx/launcher.py` | Preparação única, identidade, rede por fase, recibos e recuperação por CID, incluindo resposta de create perdida | Prova nativa dos novos comandos `observe/stop` e pacote exato |
 | `runtime/sbx/relay.py` | Relay restrito no guardian: destino fixo, CA vinculada por hash, parser limitado, JSON/streaming e fechamento | Docker TLS real e clientes autenticados nesse percurso |
 | `runtime/sbx/fixture.py` | Inicialização sem rede e uma GET ao relay; eco fictício e metadados limitados, teste com relay local | Imagem reconstruída e prova A/B/A2 do candidato |
-| `mission_execution.py` | Reserva privada compartilhada por conta, lock, ledger atômico, intenção antes do retorno e recusa de repetição | Restauração global ligada a 203.6; registros v1 consumidos permanecem bloqueados |
-| `mission_transaction.py` | Plano v2, vínculo missão/reserva, diário A/B/A2 e recuperação de cargas/VM com prova local | Egress e restauração global, helpers/portas e prova nativa |
-| `mission_egress.py` | Filtro após o proxy, DNS público completo, dial numérico único, conferência do peer, tempo/bytes limitados | Ligar ao helper supervisionado, às intenções e à prova A/B/A2 |
-| `mission_runs.py` | Recibos, admissão sintética bloqueada, vínculo interno global e projeção após recuperação | Habilitação pública após egress e aceites nativos |
+| `mission_execution.py` | Reserva privada compartilhada por conta, lock, ledger atômico, intenção antes do retorno e recusa de repetição | Restauração nativa pendente; registros v1 consumidos permanecem bloqueados |
+| `mission_transaction.py` | Planos v2/v3, vínculo missão/reserva, diário A/B/A2 e recuperação de cargas/VM/configuração com prova local | Recuperação e aceite nativos |
+| `mission_network.py` | Guard A/A2, ausência em B, settings sandbox e recuperação com intenção durável | Contrato de credencial, adaptador e prova nativa |
+| `mission_egress.py` | Filtro após o proxy, DNS herdado, dial numérico único, peer conferido, helper com PID/recibos duráveis | Provar percurso Docker TLS e recusas nativas |
+| `mission_runs.py` | Recibos, admissão sintética bloqueada, vínculo interno global e projeção após recuperação | Habilitação pública após contrato de credenciais e aceites nativos |
 
 `REVIEWED_PROFILES` e o registro de perfis nativos continuam vazios. Não preenchê-los com uma flag `verified=true`, arquivo fornecido pelo chamador ou conclusão de testes simulados.
 
@@ -277,7 +294,7 @@ O banco de missão por projeto não impedia dois repositórios de disputar o mes
 
 Ela usa um único `registry.json` com lock do sistema operacional. Falta/corrupção do ledger em armazenamento existente bloqueia o uso. Intenções são persistidas antes de devolver controle ao futuro dispatcher. Repetição do ID retorna o registro existente, sem autorizar outro efeito. Perda do coordenador e expiração do prazo não liberam a reserva.
 
-O abandono v1 atende somente uma reserva sem intenções, após observar baseline idêntico. O plano v2 pode encerrar a reserva após comprovar carga terminal, VM parada, proprietário ausente e configurações inalteradas. Divergência mantém bloqueio. As fases v2 compartilham até 120 segundos; recuperação usa até 60 segundos próprios, sem estender ou repetir o despacho. Restauração de alterações globais fica para 203.6.
+O abandono v1 atende somente uma reserva sem intenções, após observar baseline idêntico. O plano v2 pode encerrar a reserva após comprovar carga terminal, VM parada, proprietário ausente e configurações inalteradas. Divergência mantém bloqueio. As fases v2 compartilham até 120 segundos; recuperação usa até 60 segundos próprios, sem estender ou repetir o despacho. V3 acrescenta restauração local dos settings sandbox; credenciais/políticas e aceite nativo continuam pendentes.
 
 ## 7. O que os testes já demonstraram
 
@@ -427,7 +444,7 @@ Sequência por fase: preparar → aguardar `listening` → aplicar/conferir gate
 
 ### 10.4 Completar recuperação antes de habilitar efeitos
 
-A recuperação v2 cobre cargas identificadas, VM e configuração inalterada com testes locais. Antes da habilitação nativa, completar 203.6 e o restante de 203.5: restauração de alterações globais próprias e ausência de helpers/portas. A reserva v1 consumida continua bloqueada.
+A recuperação v2 cobre cargas identificadas, VM e configuração inalterada com testes locais. V3 acrescenta guard e restauração dos settings sandbox com prova local. Antes da habilitação, completar contrato de credenciais, adaptador e recuperação nativa de 203.6/203.5. A reserva v1 consumida continua bloqueada.
 
 - Observar contêiner/carga enquanto a VM já estiver legitimamente ativa, quando necessário.
 - Depois de queda, não usar `sbx exec` para “consultar” uma VM parada: ele pode iniciá-la.
@@ -594,7 +611,7 @@ O núcleo documentado usa Python 3.11+, Bash e Git; no Windows, Git Bash e helpe
 3. Conferir os hashes e a medição atual; divergência de fonte não herda automaticamente a aprovação antiga.
 4. Ler o microíndice e a nota de consolidação se as notas privadas tiverem sido transferidas; usar este documento e os relatórios sanitizados quando não estiverem disponíveis.
 5. Registrar o novo ambiente e quais evidências podem ser reproduzidas nele. Começar com contratos determinísticos; não rodar antigos scripts nativos.
-6. Continuar em 203.6 sobre o controlador, plano e diário existentes. Integrar egress, configurações globais e recuperação de helpers/portas antes da habilitação pública.
+6. Continuar em 203.6 pelo contrato verificável de credencial customizada e remoção segura. Depois implementar adaptador nativo e prova de injeção distinta do placeholder, usando o coordenador v3 já integrado localmente.
 7. Revalidar a preparação no contexto real antes da nova prova Docker. Respeitar dois ciclos já consumidos e o teto aprovado.
 8. Só então testar A/B/A2, ambos os clientes por assinatura e adoção. Manter o perfil bloqueado enquanto faltar qualquer aceite obrigatório.
 

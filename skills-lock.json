@@ -296,7 +296,8 @@
           "skills/personalizer/references/execution.md",
           "scripts/mission_sbx.py",
           "scripts/mission_execution.py",
-          "scripts/mission_egress.py"
+          "scripts/mission_egress.py",
+          "scripts/mission_network.py"
         ],
         "claude": [
           ".claude/skills/personalizer/SKILL.md"
@@ -322,10 +323,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "0181aed01d70d49f5d2b286a0b518957f6851666b0d1f2b63b4e71476a23659c",
+        "contract_sha256": "c38d18cc94d776206e5430e29966ef9af88c434a61638a562b70980c3255312f",
         "files_sha256": {
-          "claude": "43e2ef5b305b351b38bf9356f3c4c4b0a102d2b2e45a1c8b1c1ee0a4f6e80044",
-          "codex": "4d11084313e381453e12670030a003e8a3e094660358b75aba689dd60977e2e1"
+          "claude": "5df54d1feae7c55f6de9ea25ad826a0e64bfc0aab84e88fee2d2810521346594",
+          "codex": "2ef1c86f0c567f553082e16d1e3ee17bbca6c24c1f1e2faff6b8198d4a625862"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1216,7 +1217,8 @@
           "skills/personalizer/references/execution.md",
           "scripts/mission_sbx.py",
           "scripts/mission_execution.py",
-          "scripts/mission_egress.py"
+          "scripts/mission_egress.py",
+          "scripts/mission_network.py"
         ],
         "claude": [
           ".claude/skills/yc-personalizer/SKILL.md"
@@ -1242,10 +1244,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "5a05046f31cb2c98357e8dac707d6e0007b95f9d885c2bd420b7020d5ca15f15",
+        "contract_sha256": "b1f7ca3947ff0dc2643eabb3945a2e33d857d4b0f7b3ea6ae9663c680a71849c",
         "files_sha256": {
-          "claude": "3b4a9e2458d1d4e2e85ab7a7062d0f063fefc34db6b2eca4b8707fb103386d52",
-          "codex": "987c496ba3cf7ec22ed1d32f0af42012cb183b64f3a25bc71ea1b476961089d5"
+          "claude": "1be4dbc9b33389a175ed8bf71956a2b98fcc6563f66754c9d21e5c9332ea693b",
+          "codex": "e1d66a46906bb9b986e20dce99e08fd44e144ff32294a199c41ba1cddf4816d1"
         }
       }
     },
@@ -1301,7 +1303,8 @@
           "skills/personalizer/references/execution.md",
           "scripts/mission_sbx.py",
           "scripts/mission_execution.py",
-          "scripts/mission_egress.py"
+          "scripts/mission_egress.py",
+          "scripts/mission_network.py"
         ],
         "claude": [
           ".claude/skills/yc-config/SKILL.md"
@@ -1331,10 +1334,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "2594a509b066f40af7a9ac3f75d1d79f7b4874ac6e137646466dc0ee4a61afa4",
+        "contract_sha256": "7e0637e85ae775ff8b498cb375c1cf924ace04f6e7f72db059d16c855097b14c",
         "files_sha256": {
-          "claude": "e40f3093f4216afd87f6c3c6ff502dc6641fb8cabc9e9d2fc91757e259566fd0",
-          "codex": "90251f7796ef67769561640dc2d992a49712b3bad3b12e6e2dc99c33342814ea"
+          "claude": "ad98ce3d0f475b463f240d2f8a282be79e8d863f0012ba6f7ebc22f2c735359d",
+          "codex": "fc21bc0cd6072680f744a86f5927eaf2a3d1d0ac252c5839141acaf8b9f7f91b"
         }
       }
     },
@@ -1390,7 +1393,8 @@
           "skills/personalizer/references/execution.md",
           "scripts/mission_sbx.py",
           "scripts/mission_execution.py",
-          "scripts/mission_egress.py"
+          "scripts/mission_egress.py",
+          "scripts/mission_network.py"
         ],
         "claude": [
           ".claude/skills/yc-missao/SKILL.md"
@@ -1416,10 +1420,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "1ace81f8d63213de58576abcbb4ad209d9bfcbcdb19a42b191a12f80feaa7a54",
+        "contract_sha256": "f0e59eb0bbb8c9c0ec5864ccfa6cdc21efdc7a7df54193f999c96e7c5a3a6c8f",
         "files_sha256": {
-          "claude": "4fa8e1973cce1704d7185c854b6ac85b4b7e6454950378146e93046964a4e3bd",
-          "codex": "c6b833429193827cf4e75bc70a271844cc9ecfeb06625936df2c9638dbe153db"
+          "claude": "f62889f723a09055d9c5d7c1780620ee3ce7384c40f086ebff65fac9f875352b",
+          "codex": "3c2744c5c1f146e8d9eacef7edf7e165d3f4cbb62cb03ffe31cbcf3261278c03"
         }
       }
     },
@@ -1475,7 +1479,8 @@
           "skills/personalizer/references/execution.md",
           "scripts/mission_sbx.py",
           "scripts/mission_execution.py",
-          "scripts/mission_egress.py"
+          "scripts/mission_egress.py",
+          "scripts/mission_network.py"
         ],
         "claude": [
           ".claude/skills/yc-status/SKILL.md"
@@ -1498,10 +1503,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "bea875e98a95d39ec7d51253b5946f0ec78d544f4c6769cd411f00517aca7fc3",
+        "contract_sha256": "2e0ff0e535052f51ec48054875a14ec611978775bc783272de20311c116829ba",
         "files_sha256": {
-          "claude": "4aedc53568cdb71c37b2b9a2e240eef55a307a887e7503c90ce45bb0264bbcc1",
-          "codex": "1cd2d26b8f13a8e1e4b0341d607ea439429870d9eea5bcdff21bb8157c0177d1"
+          "claude": "991e2b876b9382e08115b1be8ef86dae3830b68ddbe5774c6449c3e010deecbc",
+          "codex": "d3b3cceddfe0ed6de0df8ecd16626abdf6bb2baa673753f17355bc85872c6db6"
         }
       }
     }

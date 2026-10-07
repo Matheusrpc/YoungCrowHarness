@@ -3,7 +3,7 @@
   "measured_at": "2026-10-07T23:09:33.184379+00:00",
   "base_head": "ef88edcd243d0846b0e5b650827139c27b076112",
   "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
-  "changes_published": false,
+  "changes_published": true,
   "scope": {
     "203.6": "partial_internal_injection_proof_native_local_credential_contract_blocked"
   },
@@ -283,6 +283,13 @@
   "publication": {
     "branch": "feat/isolated-executor",
     "main_before": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
-    "state": "pending"
+    "state": "published_to_draft_pr",
+    "code_commit": "61bdc7bf8f15ffddaea686e1b30817d627374c8b",
+    "verified_at": "2026-10-07T23:10:06.268049+00:00",
+    "refs": {
+      "refs/heads/feat/isolated-executor": "61bdc7bf8f15ffddaea686e1b30817d627374c8b",
+      "refs/heads/main": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+      "refs/pull/24/head": "61bdc7bf8f15ffddaea686e1b30817d627374c8b"
+    }
   }
 }

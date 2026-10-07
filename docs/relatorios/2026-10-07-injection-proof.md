@@ -87,6 +87,7 @@ por `runtime_missing`, com recibo privado.
 
 ## Publicação e retorno
 
+Código publicado em `61bdc7bf8f15ffddaea686e1b30817d627374c8b`; branch e ref do PR conferidas.
 Destino: branch `feat/isolated-executor`, [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 Base deste incremento: `ef88edc`; main preservada em `932b775`. A medição registra a
 publicação observada. CI permanece não verificado; acesso Git não comprova resultado do CI.
@@ -110,4 +111,4 @@ remains unproven. This is the next required contract before implementing the nat
 adapter. Native profiles remain blocked, no models or Docker were run, and the cycle
 counter remains 2/3. Measurement details and publication evidence are linked above.
 
-ATRASO: main 1 frente sem aceite | PR #24 1 incremento pendente de publicação | aceite nativo pendente.
+ATRASO: main 1 frente sem aceite | PR #24 0 incrementos pendentes de publicação | aceite nativo pendente.

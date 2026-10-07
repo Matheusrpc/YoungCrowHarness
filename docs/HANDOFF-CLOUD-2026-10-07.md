@@ -99,6 +99,8 @@ Suíte pública: 574 aprovados e 20 pulados, zero falhas/erros.
 
 ### Incremento atual: prova interna de injeção
 
+Publicado no PR #24 em `61bdc7b`; branch e ref do PR conferidas.
+
 Plano/registro e manifestos v4 fixam `relay.injection_sha256`. A resposta precisa
 conter um único valor diferente do placeholder e com esse hash. Resultado schema 2
 contém somente metadados; o eco schema 1 não satisfaz v4. A/B/A2 compartilham

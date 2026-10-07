@@ -30,7 +30,7 @@ Não executar Docker, modelo, login, reconstrução ou novo ciclo nativo (2/3 pr
 - [x] Plano/registro v4 vincula a mesma configuração A/B/A2; rejeitar deriva de fase.
 - [x] Exercitar o controlador e diário reais sob contenção; negativo sem injeção.
 - [x] Revisão independente e testes apropriados; atualizar hashes de catálogo.
-- [ ] Atualizar README PT/EN, USAGE, backlog, handoff, relatório/medição e memória;
+- [x] Atualizar README PT/EN, USAGE, backlog, handoff, relatório/medição e memória;
   publicar no PR #24 e conferir refs sem alterar main.
 
 ## Review Focus

@@ -14,10 +14,14 @@ The [complete process](PROCESS.md#english) includes decisions, pauses and resump
 Para continuar o desenvolvimento do executor na cloud, use a branch `feat/isolated-executor`
 e leia o [contexto de transição](HANDOFF-CLOUD-2026-10-07.md). Credenciais e estado operacional
 não acompanham o clone. Os perfis de execução continuam bloqueados até as provas pendentes.
+O [registro da publicação cloud](relatorios/2026-10-07-cloud-publication.md) identifica
+o código enviado ao PR #24, seus testes e a próxima task 203.4/203.5.
 
 To continue executor development in the cloud, use branch `feat/isolated-executor` and read the
 [handoff](HANDOFF-CLOUD-2026-10-07.md). Credentials and operational state are not part of the clone.
 Execution profiles remain blocked until the pending proofs pass.
+The [cloud publication record](relatorios/2026-10-07-cloud-publication.md) identifies
+the code pushed to PR #24, its tests and the next task, 203.4/203.5.
 
 [Abra a demonstração](https://matheusrpc.github.io/YoungCrowHarness/) ou siga o [roteiro do piloto](../examples/delivery-board/README.md), que reúne esses percursos em um exemplo com
 vault próprio. A página e os filtros foram verificados localmente, incluindo teclado e tela estreita.

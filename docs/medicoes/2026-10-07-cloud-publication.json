@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-07T18:00:32.105490+00:00",
+  "base_head": "b801bec963e8af4af921b8c5473d3884ee5a7a03",
+  "published_code_commit": "a06986f58aaab503438685b1e0c5e3f2d79bd886",
+  "tested_public_tree": "264808e9cfe5a45c61feb69e0c10430981d7f54e",
+  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
+  "changes_published": true,
+  "publication_method": "fast-forward push to existing feat/isolated-executor branch",
+  "published_code_checkpoint_file_count": 39,
+  "remote_refs_after_code_push": {
+    "refs/heads/feat/isolated-executor": "a06986f58aaab503438685b1e0c5e3f2d79bd886",
+    "refs/heads/main": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+    "refs/pull/24/head": "a06986f58aaab503438685b1e0c5e3f2d79bd886"
+  },
+  "full_suite": {
+    "command": "python3 -B -m unittest discover -s tests -v",
+    "scope": "git archive of exact staged public tree",
+    "total": 536,
+    "passed": 516,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 226.831,
+    "log_sha256": "cdfa6987702ee95cb98b16c1c3c9887b8423936d796fed601e5eb08d904c5a77"
+  },
+  "review": {
+    "independent_publication_review": "no blockers",
+    "contract_hashes_verified": 14,
+    "content_hashes_verified": 24,
+    "diff_check": "passed",
+    "common_credential_pattern_matches": 0,
+    "credential_scan_limit": "bounded format scan plus manual review, not a universal secret-free guarantee"
+  },
+  "excluded_paths": [
+    ".runtime/",
+    ".operacao-local/",
+    "vault/local/",
+    "vault/project.json",
+    ".superpowers/"
+  ],
+  "ci": {
+    "status": "unverified",
+    "query": "gh pr view 24 --repo Matheusrpc/YoungCrowHarness --json number,title,body,isDraft,headRefName,headRefOid,url,statusCheckRollup",
+    "result": "Post https://api.github.com/graphql: Forbidden"
+  },
+  "pr_metadata": {
+    "last_reported_draft": true,
+    "draft_changed_by_session": false,
+    "current_draft_api_verified": false,
+    "title_body_updated": false
+  },
+  "limits": {
+    "main_changed": false,
+    "merged": false,
+    "deployed": false,
+    "native_executor_accepted": false,
+    "model_calls": 0,
+    "native_correction_cycles_used": 2,
+    "native_correction_cycles_limit": 3
+  },
+  "next_task": "203.4/203.5: immutable A/B/A2 plan and restorable baseline bound to mission/global reservation, controller and verified recovery before effects",
+  "historical_measurements": "Earlier changes_published=false records retain their original measurement-time state."
+}

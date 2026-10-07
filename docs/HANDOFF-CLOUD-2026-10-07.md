@@ -23,9 +23,14 @@ O próximo trabalho de código é a integração do controlador de execução e 
 
 ### Continuidade na cloud em 7/out
 
-O checkout recebeu o PR #24 em `b801bec`. A consulta às refs confirmou esse SHA na
-branch e no PR; a API do GitHub recusou a consulta ao CI, cujo resultado permanece
-desconhecido nesta sessão. O incremento local acrescenta a admissão sintética
+**Atualização publicada:** os incrementos abaixo chegaram ao PR #24 no commit
+`a06986f58aaab503438685b1e0c5e3f2d79bd886`. A branch e a ref do PR foram conferidas
+no remoto; a `main` permanece em `932b775`. O pacote público exato passou em 516
+testes, com 20 pulados. O CI continua sem consulta por `Forbidden` da API.
+Veja o [registro atual de publicação](relatorios/2026-10-07-cloud-publication.md).
+Os relatórios anteriores conservam o estado local observado na data de cada medição.
+
+O checkout recebeu originalmente o PR #24 em `b801bec`. O incremento acrescenta a admissão sintética
 bloqueada em `client check` e corrige a criação privada do lock POSIX. Veja o
 [relatório e a medição](relatorios/2026-10-07-synthetic-admission.md).
 

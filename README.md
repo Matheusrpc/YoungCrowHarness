@@ -42,6 +42,11 @@ testes e relatórios revisados para continuar em outro ambiente. Comece pelo
 [verificação deste checkpoint](docs/relatorios/2026-10-07-cloud-checkpoint.md).
 O executor ainda depende de prova integrada de rede e dos dois clientes autenticados; seus perfis permanecem bloqueados.
 
+**Publicado em 7/out:** admissão sintética, controlador/fixture e correções da auditoria
+chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
+O pacote público passou em 516 testes, com 20 pulados; o CI não pôde ser consultado.
+Veja o [registro da publicação](docs/relatorios/2026-10-07-cloud-publication.md).
+
 `client check` reconhece o manifesto `isolated-egress-v1` e registra um bloqueio
 `controller_pending`, com `model_calls=0`. A tentativa conserva os limites e o UUID da
 missão, sem consultar clientes ou Docker. Veja o [contrato e seus limites](docs/USAGE.md#synthetic-admission)
@@ -52,7 +57,7 @@ locais. A fixture está incluída no contexto de build; a imagem ainda precisa s
 reconstruída e provada. O próximo passo é ligar o plano A/B/A2 à reserva global e à
 recuperação antes de habilitar o despacho. Veja a [entrega e a sequência das frentes](docs/relatorios/2026-10-07-controller-channel.md).
 
-As correções locais da auditoria recuperam notas de missão/backlog interrompidas
+As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
 de Git na primeira consulta de ambiente retornam JSON sanitizado.
 Veja [correções e regressões](docs/relatorios/2026-10-07-audit-fixes.md).
@@ -543,6 +548,11 @@ reviewed reports for continuing in another environment. Start with the
 [checkpoint verification](docs/relatorios/2026-10-07-cloud-checkpoint.md).
 Integrated network proof and both authenticated clients are still pending; execution profiles remain blocked.
 
+**Published on Oct 7:** synthetic admission, controller/fixture and audit fixes
+are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
+The public package passed 516 tests, with 20 skipped; CI could not be queried.
+See the [publication record](docs/relatorios/2026-10-07-cloud-publication.md).
+
 `client check` recognizes `isolated-egress-v1` manifests and records a
 `controller_pending` block with `model_calls=0`. The attempt preserves mission limits
 and its UUID without querying clients or Docker. See the [contract and limits](docs/USAGE.md#synthetic-admission)
@@ -553,7 +563,7 @@ The fixture is included in the build context; rebuilding and proving the image a
 still pending. Next, bind the A/B/A2 plan to global reservation and recovery before
 enabling dispatch. See the [increment and delivery sequence](docs/relatorios/2026-10-07-controller-channel.md).
 
-Local audit fixes recover interrupted mission/backlog notes even after another
+Audit fixes recover interrupted mission/backlog notes even after another
 revision, preserving human edits. Malformed catalogs and Git failures during the
 first environment query return sanitized JSON.
 See [fixes and regressions](docs/relatorios/2026-10-07-audit-fixes.md).

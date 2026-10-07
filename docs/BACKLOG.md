@@ -7,6 +7,15 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
+Os incrementos da cloud foram publicados no PR #24 em `a06986f`; a branch e a ref
+do PR foram conferidas no GitHub. README PT/EN, guia e handoff acompanham a entrega.
+Próxima task: **203.4/203.5**, integração de plano A/B/A2, reserva global e recuperação.
+[Publicação e validação do pacote](relatorios/2026-10-07-cloud-publication.md).
+
+Cloud increments were published to PR #24 at `a06986f`; branch and PR refs were
+verified on GitHub. Next: **203.4/203.5**, integrated A/B/A2 plan, global reservation
+and recovery. CI status remains unverified from this environment.
+
 Na continuidade cloud, `client check` recebeu a admissão `isolated-egress-v1`, que
 grava `failed/controller_pending` com zero chamadas de modelo e conserva limites e
 replay. Controlador, reserva global, plano A/B/A2 e recuperação ainda precisam de
@@ -28,13 +37,13 @@ remain pending. Order: **integrated reservation/recovery → A/B/A2 → authenti
 clients and adoption → queue/agents → QA → release/operations**. YC-203 remains partial
 and `client check` remains blocked.
 
-Correções locais da auditoria: **AUD-01, AUD-02 e PR24-F2** corrigidos com regressões
+Correções da auditoria: **AUD-01, AUD-02 e PR24-F2** corrigidos com regressões
 e revisão independente. O reparo das notas preserva edições humanas e reservas; os
 diagnósticos devolvem erros estruturados. PR24-F1 já havia sido corrigido. O próximo
 núcleo é **203.4/203.5**, plano A/B/A2, reserva e recuperação integrados.
 [Escopo e evidências](relatorios/2026-10-07-audit-fixes.md).
 
-Local audit fixes: **AUD-01, AUD-02 and PR24-F2** have regression tests and independent
+Audit fixes: **AUD-01, AUD-02 and PR24-F2** have regression tests and independent
 review. Note repair preserves human edits and reservations; diagnostics return structured
 errors. PR24-F1 was already fixed. Next: integrate **203.4/203.5**, the A/B/A2 plan,
 reservation and recovery. Native acceptance remains pending.

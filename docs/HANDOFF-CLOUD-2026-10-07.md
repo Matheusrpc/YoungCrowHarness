@@ -80,6 +80,8 @@ Nenhum Docker ou modelo foi executado; o contador permanece em **2/3** ciclos na
 
 ### Incremento atual: integração de rede
 
+Publicado no PR #24 em `7d1031c`; branch e ref do PR conferidas.
+
 Plano/registro v3 adiciona guard, hashes de código/Python, resolvedor do sistema e IPs
 proibidos. DNS e helper herdam a contenção existente. PID precede configuração; destino
 precede bytes por confirmação durável. Um escritor serializa os recibos do pipe e da fase.

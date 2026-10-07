@@ -93,6 +93,7 @@ desenvolvimento/testes locais; este incremento não exige novo serviço ou insta
 
 ## Publicação e retorno
 
+Código publicado em `7d1031c99c326ea7ca8afde2d1daacefe985a5ef`; branch e ref do PR conferidas no GitHub.
 Destino autorizado: branch `feat/isolated-executor`, [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 Main permanece na base `932b775`. CI continua não verificado por indisponibilidade da
 API nesta sessão; acesso Git é uma prova distinta. Recibos privados ficam fora do Git.
@@ -101,4 +102,4 @@ Retorno do código: revert do commit deste incremento na branch, após observar 
 recuperar qualquer registro v3 existente. Código v2 não interpreta v3; não apagar o
 ledger nem reabrir operações consumidas para contornar essa incompatibilidade.
 
-ATRASO: main 1 frente sem aceite | PR #24 publicação em validação | aceite nativo pendente.
+ATRASO: main 1 frente sem aceite | PR #24 0 incrementos pendentes de publicação | aceite nativo pendente.

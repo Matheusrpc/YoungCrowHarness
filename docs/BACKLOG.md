@@ -7,6 +7,9 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
+Publicado no PR #24 em `7d1031c`; branch e ref do PR conferidas.
+Published to PR #24 at `7d1031c`; branch and PR refs verified.
+
 A integração interna de 203.6 usa plano v3, guard no mesmo grupo/job e diário anterior
 aos efeitos. A/A2 reutilizam a porta; B exige ausência. Recuperação observa proprietário
 e porta ausentes e restaura apenas settings sandbox ainda iguais aos valores da operação.

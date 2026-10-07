@@ -53,7 +53,7 @@ Interfaces: `run_reserved(..., network=...)` usa guard pronto em A/A2 e porta au
 - [x] Distribuir dependências, preservar arquivos locais, atualizar hashes do catálogo.
 - [x] Revisão independente, regressões dos achados e suíte pública; comandos e resultados na medição.
 - [x] Atualizar README PT/EN, USAGE, BACKLOG, HANDOFF e memória; explicitar lacuna nativa de credenciais e próximo passo.
-- [ ] Commit/push por caminhos explícitos no PR #24 e verificar refs. CI permanece desconhecido se API recusada.
+- [x] Commit/push por caminhos explícitos no PR #24 e verificar refs. CI permanece desconhecido se API recusada.
 
 ## Decisões de execução
 

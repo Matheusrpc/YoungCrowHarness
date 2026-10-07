@@ -3,7 +3,7 @@
   "measured_at": "2026-10-07T22:13:39.045258+00:00",
   "base_head": "12361498ef0b660d2cfd19bb260e9d5f95cd3f82",
   "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
-  "changes_published": false,
+  "changes_published": true,
   "scope": {
     "203.4": "implemented_internal",
     "203.5": "partial_local_settings_workload_vm_recovery",
@@ -275,6 +275,13 @@
   "publication": {
     "branch": "feat/isolated-executor",
     "main_before": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
-    "state": "pending_push"
+    "state": "published_to_draft_pr",
+    "code_commit": "7d1031c99c326ea7ca8afde2d1daacefe985a5ef",
+    "verified_at": "2026-10-07T22:14:22.560001+00:00",
+    "refs": {
+      "refs/heads/feat/isolated-executor": "7d1031c99c326ea7ca8afde2d1daacefe985a5ef",
+      "refs/heads/main": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+      "refs/pull/24/head": "7d1031c99c326ea7ca8afde2d1daacefe985a5ef"
+    }
   }
 }

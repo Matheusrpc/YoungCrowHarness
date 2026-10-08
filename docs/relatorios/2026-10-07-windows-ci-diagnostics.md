@@ -83,6 +83,23 @@ desse arquivo passaram na versão final. A rodada focal passou nos cinco casos e
 emitiu as quatro notices de rede. Seis testes validam o runner e a projeção de estados.
 Não houve reprodução Windows local nem correção de produto nesta rodada.
 
+## Localização da falha de B
+
+Em `90f6bb9`, a rodada focal de Windows executou cinco casos nos runs de
+[push 37720278703](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37720278703)
+e [PR 37720283494](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37720283494).
+Somente o percurso positivo v3 falhou. V4 chegou a `observed`, completou as três fases
+e recuperou; o encerramento abrupto completou com código 71 e árvore recolhida.
+As etapas Windows seguintes ficaram puladas por causa do focal falho.
+
+No v3, o supervisor completou com código 0 em 9,453 s e 9,515 s. A foi observada,
+mas B recusou com `protocol_failed`; o journal parou em 19 eventos, e a rede em 13.
+Esses contadores incluem o encerramento do guard de A e a barreira de ausência da
+porta de B. O timeout externo e a hipótese inicial de TIME_WAIT não explicam essa
+falha registrada. A sonda B pode sair com exceção antes de emitir os eventos finais;
+passa a registrar somente a classe da exceção inesperada, preservando o `raise`.
+A classe ainda precisa ser medida no Windows; não há correção de produto nesta etapa.
+
 ## Dependências preservadas
 
 A avaliação de 203.8 confirmou outra pendência: o coletor de B e sua evidência original

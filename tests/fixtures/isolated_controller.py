@@ -151,6 +151,9 @@ def launch(mode):
                             raise AssertionError('B unexpectedly connected')
                     except ConnectionRefusedError:
                         pass
+                    except (OSError, AssertionError) as error:
+                        (root/'loopback-failure.json').write_bytes(encoded(dict(failure=type(error).__name__)))
+                        raise
                 else:
                     with socket.create_connection(('127.0.0.1',network['port']),timeout=1) as sock:
                         sock.sendall(b'\x05\x01\x00')

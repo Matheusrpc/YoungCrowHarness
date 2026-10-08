@@ -29,6 +29,8 @@ def annotate_case(identifier, reports):
         'guard_port_occupied', 'guard_exit_unverified',
         'Refused:guard_port_occupied', 'Refused:guard_exit_unverified',
         'ValueError:execution_deadline', 'TimeoutError:deadline',
+        'TimeoutError', 'ConnectionRefusedError', 'ConnectionResetError',
+        'ConnectionError', 'PermissionError', 'OSError', 'AssertionError',
     }
     output = {}
     for stage in ('supervisor', 'transaction', 'A', 'B', 'A2', 'recovery', 'replay'):

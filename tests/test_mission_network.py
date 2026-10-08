@@ -361,6 +361,9 @@ class NetworkBindingTests(RuntimeCase):
             self.diagnostics['transaction'] = dict(envelope['result'], failure=envelope.get('failure'))
             for phase, observed in zip(('A','B','A2'), envelope['result']['phases']):
                 self.diagnostics[phase] = observed
+                failure = self.root/'.runtime'/('network-'+phase)/'loopback-failure.json'
+                if failure.is_file():
+                    self.diagnostics[phase] = dict(observed, **json.loads(failure.read_bytes()))
             record = registry.records()[0]
             self.diagnostics['transaction'].update(journal_events=len(record['journal']),
                 network_events=len(record['network_events']), recovery_events=len(record['recovery']))

@@ -72,7 +72,8 @@ O CI de `da28f00` falhou em `adoption-windows`, na suíte de missões, tanto no 
 quanto no PR. Os outros três jobs passaram. O runner dessa etapa agora publica
 identificadores e estados permitidos dos testes nas anotações do GitHub, preservando
 a saída e o resultado do unittest. O CI identificou dois percursos de rede e um caso
-de encerramento do controlador; a causa ainda precisa de diagnóstico.
+de encerramento do controlador. A rodada focal localizou o erro atual no protocolo
+da fase B do percurso v3; a exceção da sonda está em diagnóstico.
 [Estado do CI e próxima ação](docs/relatorios/2026-10-07-windows-ci-diagnostics.md).
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
@@ -597,7 +598,8 @@ CI for `da28f00` failed in `adoption-windows`, during mission tests, on both pus
 and PR runs. The other three jobs passed. That step's runner now publishes
 test identifiers and allowlisted fixture states in GitHub annotations, preserving
 unittest output and status. CI identified two network flows and one controller
-shutdown case; the cause still needs diagnosis.
+shutdown case. Focused execution located the current error in the v3 B-phase
+protocol; the probe exception is under diagnosis.
 [CI evidence and next action](docs/relatorios/2026-10-07-windows-ci-diagnostics.md#english-overview).
 
 Audit fixes recover interrupted mission/backlog notes even after another

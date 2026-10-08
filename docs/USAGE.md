@@ -2867,3 +2867,11 @@ are excluded; unknown codes become `other`. The notice runs after fixture enviro
 restoration. The workflow first runs the four NetworkBinding cases and the abrupt
 shutdown case, retaining the full suite afterwards. A focused failure skips later
 steps and keeps the job failed; focused execution is not full Windows coverage.
+
+
+A sonda local de B registra apenas a classe de uma exceção inesperada em arquivo da
+fixture e a propaga. A anotação aceita nomes de uma lista fixa; não inclui mensagem,
+endereço ou conteúdo de processo. Uma exceção continua falhando o teste.
+The local B probe records only an unexpected exception class in its fixture and
+re-raises it. Annotations allow only fixed class names, excluding messages, addresses
+and process content. The exception still fails the test.

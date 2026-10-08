@@ -206,7 +206,7 @@
     "original B collector and fixture not transferred"
   ],
   "state_diagnostics": {
-    "state": "ready_to_publish",
+    "state": "published",
     "production_code_changed": false,
     "assertions_changed": false,
     "deadlines_changed": false,
@@ -266,6 +266,37 @@
       "tests/test_ci_unittest.py": "00fe5498e68cdf310ba23240b9c7fbeb35226aca61daa0f5c3dd6b18f4bcb944",
       "tests/test_mission_network.py": "50d9e3371d5d48e6c18d37ac3da3fc3e5ed81aa1f7f95d8ed2c7b5942773a7af",
       "tests/test_mission_egress.py": "ed87a38b480009f5b98458990390e1a10be5583c8fbe3d50af09dfced4a3e4ad"
+    },
+    "code_commit": "90f6bb96a298b59c7488e1301bb8822ca3a1bfec",
+    "windows_focused": {
+      "push_run": 37720278703,
+      "pull_request_run": 37720283494,
+      "total_each": 5,
+      "failed_each": 1,
+      "failure": "test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit",
+      "phase_B_reason": "protocol_failed",
+      "journal_events": 19,
+      "network_events": 13,
+      "supervisor_elapsed_seconds": [
+        9.453,
+        9.515
+      ],
+      "v4_recovered": true,
+      "abrupt_exit_code": 71,
+      "later_windows_steps": "skipped"
     }
+  },
+  "B_probe_diagnostic": {
+    "state": "ready_to_publish",
+    "exception_message_included": false,
+    "original_exception_reraised": true,
+    "focused_log_sha256": "28b51baddc801dc51a858e9c43f7f40992950e963eaa0b8ee3bfe532bb1d12aa",
+    "runner_log_sha256": "032b52bdaf19567c9692e33303e3831516b3230a6ac44b6700dae5185c6ca453",
+    "source_sha256": {
+      "tests/fixtures/isolated_controller.py": "ef35fd3c1a1eb98226104dc954efb2cf45afc2c26960686a51e46540d77ae495",
+      "tests/test_mission_network.py": "55f9d3b1121edb6f5306ea08bb47b54634d26b183aa533737196569cbc5ee31e",
+      "tests/ci_unittest.py": "65f01d71517c7f3ce350172c8ec8fbaee60814900e9d57320b7ea754de4c20bd"
+    },
+    "full_suite_basis": "618-test state diagnostic suite; only unexpected B probe exception metadata added afterwards; five affected cases and six runner tests rechecked"
   }
 }

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>YoungCrow · Da ideia à primeira missão</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#090b12;color:#f3e7c6;font:14px system-ui,sans-serif;height:100dvh;display:grid;grid-template-rows:1fr auto}main{min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}canvas{display:block;max-width:100%;max-height:100%;object-fit:contain}footer{display:flex;align-items:center;gap:18px;padding:14px 24px;background:#0f1118;border-top:1px solid #b9915144}button,select{font:inherit;color:inherit;border:1px solid #b9915177;background:#171b25;padding:9px 14px;border-radius:4px;cursor:pointer}button:hover{border-color:#e8a317}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #e8a317;outline-offset:4px}input{flex:1;min-width:50px;accent-color:#d7b16e}.stamp{font-variant-numeric:tabular-nums;font-size:12px}.caption{max-width:260px;font-size:12px;color:#b5b5bc}body.export footer{display:none}body.export{grid-template-rows:1fr}@media(max-width:650px){footer{padding:10px;gap:8px}.caption{display:none}button,select{padding:8px}.stamp{font-size:11px}}
+</style>
+<main><canvas id="film" aria-label="Tutorial do YoungCrow e demonstração encenada de uma agenda médica. A transcrição acompanha os arquivos." role="img"></canvas></main>
+<footer aria-label="Controles da apresentação">
+<button id="play" aria-label="Reproduzir apresentação">Reproduzir</button>
+<input id="scrub" type="range" min="0" max="118" value="0" step="0.1" aria-label="Tempo da apresentação">
+<span id="time" class="stamp">0:00 / 1:58</span>
+<select id="format" aria-label="Formato da apresentação"><option value="landscape">16:9</option><option value="portrait">9:16</option></select>
+<span class="caption">Espaço: reproduzir · Setas: trocar cena<br>Prévia de desenvolvimento · 08 out 2026</span>
+</footer>
+<script src="vendor/three.min.js"></script>
+<script src="demo.js"></script>
+<script src="film.js"></script>
+</html>

@@ -89,6 +89,11 @@ Hashes verify bytes, not human approval. Applying changes follows the operator's
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Antes de começar
 
+O [tutorial animado](media/youngcrow-guide/README.md) preserva o percurso de 118 segundos
+da instalação à missão preparada e acrescenta três minutos de um agente de atendimento de clínica fictício,
+com features, vault e troca manual Codex/Claude. Há layouts horizontal e vertical e uma
+transcrição com comandos. As telas encenadas não substituem as condições e verificações deste guia.
+
 <a id="adocao-reversivel-pt"></a>
 
 Use `--trial` no primeiro setup para guardar um ponto anterior à adoção. O perfil inicial cobre arquivos comuns, diretórios vazios
@@ -791,6 +796,11 @@ passe o `.exe`, não o lançador `.ps1` ou `.cmd`. Resultado pendente retorna 2;
 <a id="english"></a>
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Before you start
+
+The [animated tutorial](media/youngcrow-guide/README.md) preserves the 118-second introduction
+and adds a three-minute fictional clinic reception agent example, including features, the vault and a manual
+Codex/Claude handoff. It is in Portuguese, with landscape and portrait layouts and copyable
+commands. The staged screens do not replace the conditions and checks in this guide.
 
 <a id="reversible-adoption-en"></a>
 

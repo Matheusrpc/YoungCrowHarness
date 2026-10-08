@@ -1,0 +1,242 @@
+{
+  "measured_at": "2026-10-08T05:44:02.891101+00:00",
+  "scope": "Audiovisual guide and staged clinic reception agent walkthrough; not native executor acceptance or a functioning clinical application",
+  "base_commit": "bb9eb4823923e1fcc5b582129aaf94460fef6570",
+  "source_sha256": {
+    "docs/media/youngcrow-guide/README.md": "fa754f9c5ab0d3b506901c38fa164fb8b4001b1f1c4654ec1b70a8c69ca9f4bb",
+    "docs/media/youngcrow-guide/demo.js": "a78b84857f72e6c05fe6d4244b5b40bd4b82b6b0b786bbc62645db7c37c65302",
+    "docs/media/youngcrow-guide/film.js": "a59a07391e7806e6a0d546f8367b08c90d1ea67150f37eb922c1b86f92766510",
+    "docs/media/youngcrow-guide/index.html": "0a34ec581f2f935ef4ee38eaaeec8adcc36f1997ae545450e10851a7373d6267",
+    "docs/media/youngcrow-guide/preview-16x9.jpg": "712fcc6f81d835000fe85c97ff38fd8c49e6800a09d50c7bccefee7f0ac7e2b7",
+    "docs/media/youngcrow-guide/render.py": "1f2e0db75d7177bba7205c5350643b31abf5922c7ad639be71d5fb2b390b02ef",
+    "docs/media/youngcrow-guide/vendor/CINZEL-OFL.txt": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3",
+    "docs/media/youngcrow-guide/vendor/MANROPE-OFL.txt": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3",
+    "docs/media/youngcrow-guide/vendor/README.md": "7a5dfd159824fe791073a13808f2128050f4f1db8de3342ed664fa3508f7e08e",
+    "docs/media/youngcrow-guide/vendor/THREE-LICENSE.txt": "852e0e8699169bf9f6fdc6bda3e682d078dcbc738b5d33e74df594721bff271d",
+    "docs/media/youngcrow-guide/vendor/cinzel-latin.woff2": "adb7eb67cafe1baa1f7d53355582466e8f3776c1c95abe8b0420cf45d0b53c36",
+    "docs/media/youngcrow-guide/vendor/manrope-bold.woff2": "d2a12c85a831e4b5db341767d0347fa3d1361d22a1fcb3e361a16b6c90080f71",
+    "docs/media/youngcrow-guide/vendor/manrope-latin.woff2": "849290ef12a2eeb9af5c11924120d11aa4ae8b435ed3347d7fc8bc240c293ca3",
+    "docs/media/youngcrow-guide/vendor/three.min.js": "3b3a1c97de3ce65ec5b28c28d9f2805a738e9651622691ba771aa95c79d41d51",
+    "assets/vitral.png": "5d65a9ee410e8e0efa78244142e2888a2c163e1388496e3fbf70cb8dbe2069c7"
+  },
+  "chapters": [
+    {
+      "start": 0,
+      "seconds": 118,
+      "scenes": 11,
+      "preserved": true
+    },
+    {
+      "start": 118,
+      "seconds": 180,
+      "scenes": 14,
+      "staged": true
+    }
+  ],
+  "videos": [
+    {
+      "file": "YoungCrow-completo-16x9.mp4",
+      "bytes": 90346540,
+      "sha256": "72fbebfa2fc100272de4e2dba3af07d08318af30f9ac0ce064bf13c7b9568d13",
+      "width": 1920,
+      "height": 1080,
+      "duration_seconds": 298.023031,
+      "video_seconds": 298.0,
+      "frames": 7152,
+      "fps": 24,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "full_decode_exit": 0,
+      "first_2832_video_packets_identical": true,
+      "audio_join": "Original WAV scores concatenated and encoded once to AAC; video copied unchanged",
+      "original_file_sha256": "d41de4b9ba71fa024af1e502f7081dd886d820834a7d88f85725305740cb7063",
+      "demo_sha256": "74c9c79847e5cfec55ab48e27ceea83a515e64e711c1e1561f98d4e325b6b38a",
+      "demo_layout_overflows": 0,
+      "demo_javascript_errors": 0,
+      "demo_scene_count": 14,
+      "original_scene_count": 11
+    },
+    {
+      "file": "YoungCrow-completo-9x16.mp4",
+      "bytes": 120208616,
+      "sha256": "b97af28e6303cb7a6376d19b1d307e1d849ded24ccef6cd6a219b048346be706",
+      "width": 1080,
+      "height": 1920,
+      "duration_seconds": 298.023031,
+      "video_seconds": 298.0,
+      "frames": 7152,
+      "fps": 24,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "full_decode_exit": 0,
+      "first_2832_video_packets_identical": true,
+      "audio_join": "Original WAV scores concatenated and encoded once to AAC; video copied unchanged",
+      "original_file_sha256": "16f237d8f71793f6ed7a406929f894e04d99e685974dfc3d30e6e24b6298831b",
+      "demo_sha256": "87a97dd2a82ca4d0a863ee9f45be3fbb2899f5ed6fb7824003c7a6c33cf9e8d7",
+      "demo_layout_overflows": 0,
+      "demo_javascript_errors": 0,
+      "demo_scene_count": 14,
+      "original_scene_count": 11
+    }
+  ],
+  "original_previews": [
+    {
+      "file": "landscape-00.png",
+      "sha256": "3292eaf80fb8e20d0b1135972514fd4a5635f80d0d1c5b41fa260031fdf9a3b7",
+      "identical": true
+    },
+    {
+      "file": "landscape-01.png",
+      "sha256": "46a585e04fe6a1ca3f88b96d05839b069c1555a8c3d073c748d08f7b28c733da",
+      "identical": true
+    },
+    {
+      "file": "landscape-02.png",
+      "sha256": "af76e5cc0780b29a62f5842943f6a2507915ba1e9d1defc7f4d325e107c5103d",
+      "identical": true
+    },
+    {
+      "file": "landscape-03.png",
+      "sha256": "c7797330895be1fc9739652af43d9568bb0f99fadb064703dd33a4e5adb71d01",
+      "identical": true
+    },
+    {
+      "file": "landscape-04.png",
+      "sha256": "2029e1cbc841cf88c1dcba17ad5c3e04d801c35274345bf21237edc30bac4e53",
+      "identical": true
+    },
+    {
+      "file": "landscape-05.png",
+      "sha256": "c84bbac4197dab0225a19d40b30f41903d6d19756926c2b79fd9f461c314be9b",
+      "identical": true
+    },
+    {
+      "file": "landscape-06.png",
+      "sha256": "46c5169d6536ea1a771078a037100e184ab2aa7183b378a89d0af3f840433917",
+      "identical": true
+    },
+    {
+      "file": "landscape-07.png",
+      "sha256": "44dbcf0a15fd991f774c0c14f9bd51fc2e03730f55025f8f5524459be090dd1b",
+      "identical": true
+    },
+    {
+      "file": "landscape-08.png",
+      "sha256": "af848b1951a017e394e1da6273dfd13ae47d281baf00a8043b19f5d600706091",
+      "identical": true
+    },
+    {
+      "file": "landscape-09.png",
+      "sha256": "0f1627547248ebbefb2372d2c88ee3908a3ed4e03ca9d91f7dab6b37c816c08d",
+      "identical": true
+    },
+    {
+      "file": "landscape-10.png",
+      "sha256": "b3ae7aadceba96b81728cd2e29c1904332fc459900a65141bb43654f729ede3c",
+      "identical": true
+    },
+    {
+      "file": "portrait-00.png",
+      "sha256": "e6bf31657a2700a391937e7a14121698d33e26109bf2a020bec0e95781238c05",
+      "identical": true
+    },
+    {
+      "file": "portrait-01.png",
+      "sha256": "7544d631aebee6914e098b4fc253843f69f6216abd73333d1db036a99e750983",
+      "identical": true
+    },
+    {
+      "file": "portrait-02.png",
+      "sha256": "463ff057f697c8684701dbef97c4caab349659276be24dd7f14658d3ef10179b",
+      "identical": true
+    },
+    {
+      "file": "portrait-03.png",
+      "sha256": "fbdea661cc00dfbc5ecda9f18df02fd365c4dc9121ff3c1ee177feadf37a94be",
+      "identical": true
+    },
+    {
+      "file": "portrait-04.png",
+      "sha256": "4ac4eb27ff56025eb9fd2ff6857fbd8c26c4cf72cb423e46a3b3bd36a15a5b1b",
+      "identical": true
+    },
+    {
+      "file": "portrait-05.png",
+      "sha256": "164745e410253361623c359b4740388b4302433444007cf2cbe16bddee6e6700",
+      "identical": true
+    },
+    {
+      "file": "portrait-06.png",
+      "sha256": "d66c0ef12a846b5ab05343c40adf03269f1f7dd8a9b8bc6f0f302f6c34029f8b",
+      "identical": true
+    },
+    {
+      "file": "portrait-07.png",
+      "sha256": "e5439e277988277259f5feb429d0174da3bce010581289fb8b64d9114847771e",
+      "identical": true
+    },
+    {
+      "file": "portrait-08.png",
+      "sha256": "e232f763460fc8e2dde646902b3c7d8a8823d297b9f010b552108ba56216f868",
+      "identical": true
+    },
+    {
+      "file": "portrait-09.png",
+      "sha256": "c6f73395e851cb4f78b055c21ed11a2f17e5d112ec856ae315bcd0c69749ea9d",
+      "identical": true
+    },
+    {
+      "file": "portrait-10.png",
+      "sha256": "bb0e0f3518eac0dbbc6614826ec93dada4dc3f6211e8170d33253fd4193aee26",
+      "identical": true
+    }
+  ],
+  "interactive": {
+    "self_contained_html_via_loopback": true,
+    "file_protocol": "not_validated_environment_policy_blocks_file_navigation",
+    "external_requests": [],
+    "errors": [],
+    "seek_to_mission": true,
+    "seek_across_chapters": true,
+    "seek_to_claude_recovery": true,
+    "duration_298": true,
+    "format_cache_invalidated": true,
+    "portrait_selector": true,
+    "play_pause": true,
+    "keyboard_next_chapter": true,
+    "mobile_viewport": {
+      "x": 0,
+      "y": 45.328125,
+      "width": 390,
+      "height": 693.328125
+    }
+  },
+  "artifacts": {
+    "YoungCrow-completo-16x9.mp4": {
+      "bytes": 90346540,
+      "sha256": "72fbebfa2fc100272de4e2dba3af07d08318af30f9ac0ce064bf13c7b9568d13"
+    },
+    "YoungCrow-completo-9x16.mp4": {
+      "bytes": 120208616,
+      "sha256": "b97af28e6303cb7a6376d19b1d307e1d849ded24ccef6cd6a219b048346be706"
+    },
+    "YoungCrow-apresentacao.html": {
+      "bytes": 3113706,
+      "sha256": "42167716104b581c519eb08abfd6703c09aebc6ed254e3cb19bc04f2296866bc"
+    },
+    "YoungCrow-completo-apresentacao-e-fontes.zip": {
+      "bytes": 4037427,
+      "sha256": "83aaa503e9e9bf82cbe83cd916f7dd742cab44751c5c35b34021ccd1a0d17022"
+    }
+  },
+  "browser_processes_after_close": [],
+  "review": "Independent read-only review of content and representative frames; opening title, prompt bounds and reservation sequence corrected before final rendering.",
+  "not_executed": [
+    "Magnific (unavailable)",
+    "Codex or Claude client/model calls",
+    "YoungCrow commands shown in the film",
+    "native executor cycle",
+    "clinical application implementation or deployment"
+  ],
+  "render_note": "Decorative background in chapter 2 is cached at 6 Hz; foreground lettering, pointer and UI are rendered at 24 fps. Chapter 1 uses the original stream."
+}

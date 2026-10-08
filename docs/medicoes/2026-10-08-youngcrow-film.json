@@ -1,0 +1,78 @@
+{
+  "measured_at": "2026-10-08T05:01:42.741264+00:00",
+  "scope": "YoungCrow audiovisual tutorial; development preview, not native executor acceptance",
+  "base_commit": "bb9eb4823923e1fcc5b582129aaf94460fef6570",
+  "source_sha256": {
+    "docs/media/youngcrow-guide/README.md": "0dfa6f717093417f85df353f6de39386e9bb2d0a45db6edfe69f3a0862c2677e",
+    "docs/media/youngcrow-guide/film.js": "eec23b785c3cd051340e8346e8e068880fa468331b2aca84728ab2dc65fbfe88",
+    "docs/media/youngcrow-guide/index.html": "f4c17aa03ebb17f9564eea7e6c46d790e8a8a79df3b5c5f49bc5c44d56a47755",
+    "docs/media/youngcrow-guide/render.py": "086cfae1c2e0e127694694dca4365ba142adc70f2a2e5018bf98685426afbda9",
+    "docs/media/youngcrow-guide/vendor/CINZEL-OFL.txt": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3",
+    "docs/media/youngcrow-guide/vendor/MANROPE-OFL.txt": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3",
+    "docs/media/youngcrow-guide/vendor/README.md": "7a5dfd159824fe791073a13808f2128050f4f1db8de3342ed664fa3508f7e08e",
+    "docs/media/youngcrow-guide/vendor/THREE-LICENSE.txt": "852e0e8699169bf9f6fdc6bda3e682d078dcbc738b5d33e74df594721bff271d",
+    "docs/media/youngcrow-guide/vendor/cinzel-latin.woff2": "adb7eb67cafe1baa1f7d53355582466e8f3776c1c95abe8b0420cf45d0b53c36",
+    "docs/media/youngcrow-guide/vendor/manrope-bold.woff2": "d2a12c85a831e4b5db341767d0347fa3d1361d22a1fcb3e361a16b6c90080f71",
+    "docs/media/youngcrow-guide/vendor/manrope-latin.woff2": "849290ef12a2eeb9af5c11924120d11aa4ae8b435ed3347d7fc8bc240c293ca3",
+    "docs/media/youngcrow-guide/vendor/three.min.js": "3b3a1c97de3ce65ec5b28c28d9f2805a738e9651622691ba771aa95c79d41d51",
+    "assets/vitral.png": "5d65a9ee410e8e0efa78244142e2888a2c163e1388496e3fbf70cb8dbe2069c7"
+  },
+  "scenes_per_format": 11,
+  "videos": [
+    {
+      "file": "YoungCrow-16x9.mp4",
+      "width": 1920,
+      "height": 1080,
+      "seconds": 118,
+      "frames": 2832,
+      "fps": 24,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "bytes": 48984615,
+      "sha256": "d41de4b9ba71fa024af1e502f7081dd886d820834a7d88f85725305740cb7063",
+      "full_decode_exit": 0,
+      "preview_frame_mean_channel_error": 1.6068,
+      "layout_overflows": 0,
+      "javascript_errors": 0
+    },
+    {
+      "file": "YoungCrow-9x16.mp4",
+      "width": 1080,
+      "height": 1920,
+      "seconds": 118,
+      "frames": 2832,
+      "fps": 24,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "bytes": 65533110,
+      "sha256": "16f237d8f71793f6ed7a406929f894e04d99e685974dfc3d30e6e24b6298831b",
+      "full_decode_exit": 0,
+      "preview_frame_mean_channel_error": 1.7406,
+      "layout_overflows": 0,
+      "javascript_errors": 0
+    }
+  ],
+  "interactive": {
+    "self_contained_html_via_loopback": true,
+    "file_protocol": "not_validated_environment_policy_blocks_file_navigation",
+    "external_requests": [],
+    "errors": [],
+    "seek_to_mission": true,
+    "portrait_selector": true,
+    "play_pause": true,
+    "keyboard_next_chapter": true,
+    "mobile_viewport": {
+      "x": 0,
+      "y": 45.328125,
+      "width": 390,
+      "height": 693.328125
+    }
+  },
+  "browser_processes_after_close": [],
+  "magnific_used": false,
+  "art_source": "assets/vitral.png",
+  "external_music_samples": false,
+  "model_calls": 0,
+  "native_cycles_consumed": 0,
+  "source_hash_scope": "Snapshot of the first 118-second deliverable, measured before the appended clinic chapter; these hashes are not the current combined source revision."
+}

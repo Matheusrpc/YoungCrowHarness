@@ -136,6 +136,12 @@ bash YoungCrowHarness/setup.sh meu-projeto --trial --client both --nome "Meu Pro
 
 **Passo a passo:** [repo do zero](docs/USAGE.md#zero-pt) · [migrar repo existente](docs/USAGE.md#migrar-pt) · [como operar](docs/USAGE.md#operar-pt).
 
+[Tutorial animado em PT-BR](docs/media/youngcrow-guide/README.md): dois capítulos com o visual
+de vitrais, lettering e movimentos em Three.js. Inclui layouts 16:9 e 9:16, apresentação
+interativa e exportação local de MP4. O tutorial é seguido por um agente de atendimento de clínica fictício:
+features, vault, Codex, checkpoint e retomada no Claude. As telas são encenadas e a coordenação
+das sessões é manual; a execução autônoma segue em desenvolvimento.
+
 Requer Bash, Git e `python3` funcionando no mesmo terminal. No Windows, use Git Bash.
 Para experimentar, use `--trial`: ele guarda um ponto privado antes da primeira escrita,
 fora de qualquer repo Git, no mesmo volume. Instala arquivos e skills próprios do projeto e pula
@@ -677,6 +683,13 @@ bash YoungCrowHarness/setup.sh my-project --trial --client both --name "My Proje
 ```
 
 **Step by step:** [new repository](docs/USAGE.md#new-en) · [adopt an existing repo](docs/USAGE.md#migrate-en) · [daily operation](docs/USAGE.md#operate-en).
+
+[Animated tutorial in Brazilian Portuguese](docs/media/youngcrow-guide/README.md): two
+chapters with stained glass artwork, animated lettering and Three.js motion. Includes 16:9
+and 9:16 layouts, interactive playback and local MP4 export. It covers current preparation;
+the appended fictional clinic reception agent example shows features, the vault, Codex, a checkpoint and
+continuation in Claude. Screens are staged and sessions are manually coordinated;
+autonomous execution remains under development.
 
 Requires Bash, Git and a working `python3` in the same terminal. On Windows, use Git Bash.
 For a first try, use `--trial`: it saves a private baseline before the first write, outside every

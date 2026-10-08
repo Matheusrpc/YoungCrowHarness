@@ -2963,6 +2963,10 @@ Nos testes de rede, o observador fica no controlador. A recusa recebe um payload
 antecipado e precisa comprovar zero bytes até EOF, após encerrar o guard e coletar
 a thread. O controle positivo exige 13 bytes. Essa prova usa sockets locais e não
 substitui o aceite nativo do executor. [Relatório](relatorios/2026-10-08-mission-read-stability.md).
+Uma observação incompleta continua reprovando o teste. No CI, a anotação expõe
+somente os booleanos `accepted`, `eof`, `complete`, a contagem limitada de bytes
+e um código de erro permitido. O negativo faz oito tentativas independentes para
+exercitar o encerramento concorrente do helper.
 
 For an existing mission, `missions.py status` reads the database three times: mission, item revisions/events/
 projections, and client runs. Adjacent SQL queries share a connection; each read
@@ -2974,3 +2978,7 @@ Network tests keep the observer in the controller. Refusal receives an early
 payload and must establish zero bytes through EOF after guard shutdown and thread
 collection. The positive control requires 13 bytes. This local socket proof does
 not replace native executor acceptance. [Report](relatorios/2026-10-08-mission-read-stability.md#english-overview).
+Incomplete observations still fail the test. CI annotations expose only the
+`accepted`, `eof`, `complete` booleans, a bounded byte count and an allowed error
+code. The negative case performs eight independent attempts to exercise concurrent
+helper shutdown.

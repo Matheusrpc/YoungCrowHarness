@@ -33,7 +33,7 @@ def annotate_case(identifier, reports):
         'ConnectionError', 'PermissionError', 'OSError', 'AssertionError',
     }
     output = {}
-    for stage in ('supervisor', 'transaction', 'A', 'B', 'A2', 'recovery', 'replay'):
+    for stage in ('supervisor', 'transaction', 'A', 'B', 'A2', 'recovery', 'replay', 'egress'):
         if stage not in reports:
             continue
         result, fields = reports[stage], {}
@@ -57,6 +57,16 @@ def annotate_case(identifier, reports):
         for key in ('stdout', 'stderr'):
             if type(result.get(key)) is bytes:
                 fields[key+'_bytes'] = len(result[key])
+        if stage == 'egress':
+            for key in ('accepted', 'eof', 'complete'):
+                if type(result.get(key)) is bool:
+                    fields[key] = result[key]
+            count = result.get('bytes')
+            if type(count) is int and 0 <= count <= 16384:
+                fields['bytes'] = count
+            if 'error' in result:
+                error = result['error']
+                fields['failure'] = error if type(error) is str and error in codes else 'other'
         output[stage] = fields
     print(f'::notice::{safe_identifier(identifier)} {json.dumps(output, separators=(",", ":"))}', flush=True)
 

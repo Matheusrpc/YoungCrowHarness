@@ -1,6 +1,9 @@
 """Host destination gate: local sockets and fake resolution, no external requests."""
 import importlib.util
+import contextlib
+import io
 import json
+import os
 from pathlib import Path
 import socket
 import sys
@@ -72,13 +75,42 @@ class EgressTests(unittest.TestCase):
                 on_started=lambda _:None, stop_requested=lambda:False)
         if exit_code or (result['reason'],result['exit_code']) != ('completed',exit_code) or not result['tree_reaped']:
             from ci_unittest import annotate_case
-            annotate_case(self.id(), dict(supervisor=result))
+            reports = dict(supervisor=result)
+            try:
+                receipt = json.loads(result['stdout'])
+            except (ValueError, UnicodeError, RecursionError):
+                receipt = None
+            if isinstance(receipt, dict) and isinstance(receipt.get('upstream_observation'), dict):
+                reports['egress'] = receipt['upstream_observation']
+            annotate_case(self.id(), reports)
         self.assertEqual((result['reason'],result['exit_code']),('completed',exit_code),result)
         self.assertTrue(result['tree_reaped'])
         if exit_code:
             self.assertTrue(mission_process.owner_gone(result['owner']))
             return result
         return json.loads(result['stdout'])
+
+    def test_incomplete_or_invalid_receipt_still_fails_with_bounded_diagnostics(self):
+        receipt = dict(upstream_observation=dict(accepted=True, eof=False, complete=False,
+            bytes=0, error='ConnectionResetError', path='private-path'))
+        for stdout in (json.dumps(receipt).encode(), b'not-json', b'\xff', b'[]', b'[' * 2000):
+            with self.subTest(stdout_bytes=len(stdout)):
+                result = dict(reason='completed', exit_code=1, tree_reaped=True,
+                              stdout=stdout, stderr=b'private-traceback')
+                output = io.StringIO()
+                with patch('mission_process.supervise', return_value=result), \
+                     patch.dict(os.environ, GITHUB_ACTIONS='true'), contextlib.redirect_stdout(output):
+                    with self.assertRaises(AssertionError):
+                        self.inherited('guard_domain_persistfail')
+                line = output.getvalue().strip()
+                self.assertNotIn('private', line)
+                diagnostics = json.loads(line.split(' ', 1)[1])
+                self.assertEqual(diagnostics['supervisor']['exit_code'], 1)
+                if stdout == json.dumps(receipt).encode():
+                    self.assertEqual(diagnostics['egress'], dict(accepted=True, eof=False,
+                        complete=False, bytes=0, failure='ConnectionResetError'))
+                else:
+                    self.assertNotIn('egress', diagnostics)
 
     def test_dns_inherits_existing_containment_without_starting_nested_supervisor(self):
         result = self.inherited('dns_success')
@@ -126,11 +158,14 @@ class EgressTests(unittest.TestCase):
         self.assertTrue(result['port_free'])
 
     def test_failed_destination_receipt_forwards_zero_upstream_bytes(self):
-        result = self.inherited('guard_domain_persistfail')
-        self.assertTrue(result['upstream_observed_after_close'],result)
-        self.assertEqual(result['offered_bytes'],len(b'local-request'),result)
-        self.assertEqual(result['upstream_bytes'],0,result)
-        self.assertNotIn('guard_finished',[r['kind'] for r in result['events']])
+        # Exercise scheduling around forced helper shutdown on every platform.
+        for attempt in range(8):
+            with self.subTest(attempt=attempt):
+                result = self.inherited('guard_domain_persistfail')
+                self.assertTrue(result['upstream_observed_after_close'],result)
+                self.assertEqual(result['offered_bytes'],len(b'local-request'),result)
+                self.assertEqual(result['upstream_bytes'],0,result)
+                self.assertNotIn('guard_finished',[r['kind'] for r in result['events']])
 
     def test_abrupt_controller_exit_before_config_reaps_the_waiting_guard(self):
         self.inherited('kill_before_config',exit_code=71)

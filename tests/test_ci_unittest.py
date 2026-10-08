@@ -16,6 +16,26 @@ RUNNER = Path(__file__).with_name('ci_unittest.py')
 
 
 class CIRunnerTests(unittest.TestCase):
+    def test_refused_egress_diagnostics_keep_observation_without_exception_text(self):
+        import ci_unittest
+        cases = [
+            (dict(accepted=True, eof=False, complete=False, bytes=0,
+                  error='ConnectionResetError', message='private-endpoint'),
+             dict(accepted=True, eof=False, complete=False, bytes=0, failure='ConnectionResetError')),
+            (dict(accepted='private-accepted', eof=1, complete=None, bytes=True,
+                  error='private-exception\n::error::injected'), dict(failure='other')),
+            (dict(bytes=-1), {}), (dict(bytes=16385), {}),
+        ]
+        for observation, expected in cases:
+            with self.subTest(expected=expected):
+                output = io.StringIO()
+                with patch.dict(os.environ, GITHUB_ACTIONS='true'), contextlib.redirect_stdout(output):
+                    ci_unittest.annotate_case('test_probe.Probe.test_refusal', dict(egress=observation))
+                line = output.getvalue().strip()
+                self.assertEqual(json.loads(line.split(' ', 1)[1]), dict(egress=expected))
+                self.assertNotIn('private', line)
+                self.assertNotIn('::error::', line)
+
     def test_fixture_diagnostics_exclude_unselected_data_and_unknown_codes(self):
         import ci_unittest
         annotate = getattr(ci_unittest, 'annotate_case', None)

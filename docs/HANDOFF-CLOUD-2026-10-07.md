@@ -164,7 +164,12 @@ Windows sem o traceback original. Os prazos do produto continuam iguais.
 Suíte local: 616 aprovados e 20 pulados; 12 focais e 11 testes de catálogo passaram.
 Adoção com diagnóstico passou em consumidor novo e existente, perfis Claude/Codex,
 com fixtures e zero chamadas de modelo. Apenas hashes de conteúdo do catálogo foram atualizados.
-Próxima ação: acompanhar os focais e a suíte completa Windows deste incremento.
+CI de `b106bc5`: sete dos oito jobs passaram. O Windows do PR passou integralmente;
+o do push falhou em `test_failed_destination_receipt_forwards_zero_upstream_bytes`
+com exit 1, stdout vazio e 445 bytes de stderr. O HTML público não expôs a exceção.
+O diagnóstico agora emite a observação antes das asserções e publica somente campos
+permitidos. Próxima ação: consultar esse recibo no novo CI; não atribuir a causa
+ao reset TCP reproduzido localmente sem confirmação remota.
 Contratos sbx, fontes nativas de B, perfis bloqueados e contador 2/3 preservados.
 
 ### Incremento anterior: concorrência da seleção

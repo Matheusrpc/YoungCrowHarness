@@ -59,7 +59,21 @@ Os quatro percursos Windows positivos v3/v4 da suíte levaram 9,734 a 13,078 seg
 
 As falhas anteriores de timeout e recibo continuam intermitentes. O traceback da
 falha histórica de egress não foi obtido; a corrida reproduzida não prova sua causa.
-O CI do novo commit precisa ser consultado depois da publicação.
+O CI de `b106bc5` terminou com sete de oito jobs aprovados:
+[push 37765970236](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37765970236)
+e [PR 37765976349](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37765976349).
+Os 12 focais passaram nos dois Windows. O Windows do PR passou integralmente;
+o do push falhou no teste de recusa do recibo de destino. O supervisor coletou a
+árvore, com exit 1 em 0,313 s, stdout vazio e 445 bytes de stderr. A página pública
+não mostrou a exceção. Os percursos v3/v4 passaram em ambos, entre 11,562 e 12,453 s.
+
+O complemento de diagnóstico emite um único JSON após cleanup, antes das asserções
+que rejeitam a observação incompleta. Anota somente conexão aceita, EOF, conclusão,
+contagem limitada de bytes e código de erro permitido. As asserções e o exit 1
+continuam ativos. O negativo percorre oito tentativas independentes; não há retry
+que transforme uma falha em sucesso. Passaram sete testes de anotação e 17 de
+egress, incluindo JSON inválido e campos privados no caminho de falha. Este
+complemento não altera fontes do produto nem confirma a causa remota.
 
 Nenhum Docker, sbx, cliente autenticado ou modelo foi executado. Contador nativo
 2/3, perfis bloqueados e `proof_accepted=false` preservados. Contratos externos do
@@ -76,6 +90,10 @@ The egress refusal fixture observes upstream bytes from the controller, outside
 the terminated helper. The negative case offers 13 bytes and requires zero received
 through EOF; the positive control requires 13 bytes. Both require collection after
 guard shutdown. Native acceptance and the historical Windows failure cause remain
-unproven; new-commit CI is checked after publication.
+unproven. CI at `b106bc5` passed seven of eight jobs: PR Windows passed, while push
+Windows failed the destination refusal test. Both v3/v4 flows passed. The follow-up
+emits selected observation fields before the unchanged failing assertions and
+exercises eight independent refusals. Seven annotation tests and 17 egress tests
+passed locally; follow-up CI remains pending.
 
-ATRASO: implementação local 0 | CI desta revisão: verificar após publicação | executor nativo: validação pendente.
+ATRASO: implementação local 0 | CI verde 1 | executor nativo: validação pendente.

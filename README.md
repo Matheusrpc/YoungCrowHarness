@@ -96,6 +96,9 @@ A consulta de uma missão existente agrupa leituras SQL adjacentes e usa nove pr
 mantendo a reabertura do banco após os arquivos de entrada e a leitura final
 independente. O teste de recusa de rede mede bytes em um observador que permanece
 ativo após encerrar o guard. [Medição e regressões](docs/relatorios/2026-10-08-mission-read-stability.md).
+O CI de `b106bc5` passou em sete dos oito jobs; a recusa de rede falhou no Windows
+do push. O teste publica campos limitados da observação antes de rejeitar um recibo
+incompleto. A causa remota continua em investigação.
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
@@ -652,6 +655,9 @@ Status for an existing mission groups adjacent SQL reads into nine Git processes
 while reopening the database after input files and keeping the independent final
 read. The network refusal test measures bytes with an observer that survives
 guard shutdown. [Measurement and regressions](docs/relatorios/2026-10-08-mission-read-stability.md#english-overview).
+CI at `b106bc5` passed seven of eight jobs; network refusal failed on push Windows.
+The test publishes selected observation fields before rejecting an incomplete
+receipt. The remote cause remains under investigation.
 
 Audit fixes recover interrupted mission/backlog notes even after another
 revision, preserving human edits. Malformed catalogs and Git failures during the

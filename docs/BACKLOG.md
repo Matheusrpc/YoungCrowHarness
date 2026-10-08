@@ -7,12 +7,20 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
-Incremento atual: correção da seleção concorrente, com 610 testes locais aprovados e
-20 pulados. Próximo gate: CI Windows da aquisição de lock vazio/somente leitura.
-O CI completo da otimização Git `25ee51d` passou no push e no PR.
-Current increment: concurrent selection fix, with 610 local passes and 20 skips.
-Next gate: Windows validation of empty/read-only locking. Full CI for the previous
-Git optimization at `25ee51d` passed on push and PR.
+Incremento atual: leituras de missão e observação independente de egress, publicado
+em `b106bc5`. Passaram 616 testes locais, com 20 pulados; adoção com diagnóstico em
+consumidor novo/existente também passou. Os 12 focais Windows passaram no push e no PR;
+a suíte completa do PR passou, mas a do push falhou na recusa de rede: sete dos oito
+jobs passaram. O diagnóstico agora registra a observação incompleta antes de
+reprovar; a causa remota está pendente. O baseline `c8e7f0b` passou nos oito jobs.
+[Entrega e medição](relatorios/2026-10-08-mission-read-stability.md).
+Current increment: mission reads and independent egress observation, published at
+`b106bc5`. Local validation passed 616 tests with 20 skips and installed-consumer
+diagnostics in new/existing projects. All 12 focused Windows cases passed on push
+and PR; the full PR suite passed, while push Windows failed the network refusal
+test: seven of eight jobs passed. Diagnostics now record incomplete observations
+before failing; the remote cause remains pending. Baseline `c8e7f0b` passed all eight
+jobs. [Delivery and measurement](relatorios/2026-10-08-mission-read-stability.md#english-overview).
 
 Histórico da investigação: falha da suíte de missões em `adoption-windows`
 no CI de `da28f00`. Push e PR falharam; os outros três jobs passaram. O runner publica
@@ -36,11 +44,13 @@ now batches three queries into one while retaining all checks. Full Windows CI a
 
 A correção da seleção concorrente usa o mesmo lock para inventário, leitura e troca.
 As provas com processos e barreiras cobrem criação inicial, atualização, consulta e
-bootstrap concorrente. Próxima prova: aquisição em lock vazio/somente leitura no
-Windows e conclusão da suíte completa. [Evidências](relatorios/2026-10-08-selection-concurrency.md).
+bootstrap concorrente. A aquisição em lock vazio/somente leitura no Windows passou
+nos focais de `b106bc5`; o CI completo do baseline `c8e7f0b` já passou.
+[Evidências da correção](relatorios/2026-10-08-selection-concurrency.md).
 Concurrent selection now locks inventory, reads and updates together. Process/barrier
-regressions cover initial creation, updates and concurrent bootstrap. Windows validation
-of empty/read-only locks and the full suite remain pending.
+regressions cover initial creation, updates and concurrent bootstrap. Empty/read-only
+lock cases passed on Windows in the `b106bc5` focal checks; full baseline CI at
+`c8e7f0b` also passed.
 
 A integração da captura de B (203.8) também aguarda transferência dos fontes e da
 fixture original do checkout privado anterior. Os hashes estão registrados; os

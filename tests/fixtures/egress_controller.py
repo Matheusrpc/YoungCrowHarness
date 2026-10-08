@@ -171,8 +171,17 @@ else:
                     listener.close()
     result['events'] = events
     if observer:
+        result['upstream_observation'] = observation
+        result.update(upstream_bytes=observation['bytes'],
+                      upstream_observed_after_close=(observation['accepted'] and observation['eof']
+                                                     and observation['complete']
+                                                     and 'error' not in observation),
+                      offered_bytes=offered_bytes)
+        # Emit the observation before validation so CI can diagnose a rejected
+        # receipt without exposing the subprocess traceback or accepting it.
+        print(json.dumps(result), flush=True)
         assert observation['accepted'] and observation['eof'] and observation['complete'], observation
         assert 'error' not in observation, observation
-        result.update(upstream_bytes=observation['bytes'], upstream_observed_after_close=True,
-                      offered_bytes=offered_bytes)
+        # Successful fixtures still emit one JSON document on stdout.
+        raise SystemExit()
 print(json.dumps(result), flush=True)

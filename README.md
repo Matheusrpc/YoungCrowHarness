@@ -142,6 +142,8 @@ interativa e exportação local de MP4. O tutorial é seguido por um agente de a
 features, vault, Codex, checkpoint e retomada no Claude. As telas são encenadas e a coordenação
 das sessões é manual; a execução autônoma segue em desenvolvimento.
 
+Baixar o vídeo completo: [16:9 para computador](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4) · [9:16 para celular](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4).
+
 Requer Bash, Git e `python3` funcionando no mesmo terminal. No Windows, use Git Bash.
 Para experimentar, use `--trial`: ele guarda um ponto privado antes da primeira escrita,
 fora de qualquer repo Git, no mesmo volume. Instala arquivos e skills próprios do projeto e pula
@@ -690,6 +692,8 @@ and 9:16 layouts, interactive playback and local MP4 export. It covers current p
 the appended fictional clinic reception agent example shows features, the vault, Codex, a checkpoint and
 continuation in Claude. Screens are staged and sessions are manually coordinated;
 autonomous execution remains under development.
+
+Download the complete video: [16:9 landscape](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4) · [9:16 mobile](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4).
 
 Requires Bash, Git and a working `python3` in the same terminal. On Windows, use Git Bash.
 For a first try, use `--trial`: it saves a private baseline before the first write, outside every

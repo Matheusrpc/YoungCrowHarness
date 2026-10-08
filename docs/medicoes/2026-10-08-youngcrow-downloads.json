@@ -1,0 +1,45 @@
+{
+  "measured_at": "2026-10-08T09:57:25.528810+00:00",
+  "scope": "Compressed public download copies of the YoungCrow film; no harness execution or native acceptance",
+  "encoding": {
+    "codec": "libx264",
+    "preset": "fast",
+    "crf": 24,
+    "audio": "copy",
+    "faststart": true,
+    "requested_pixel_format": "yuv420p"
+  },
+  "videos": [
+    {
+      "path": "docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4",
+      "bytes": 40144704,
+      "sha256": "5204a158afc9646e583a8af43cccbc1581c31f47493a62134eb394ac9459f7b9",
+      "width": 1920,
+      "height": 1080,
+      "frames": 7152,
+      "fps": 24,
+      "duration_seconds": 298.041016,
+      "full_decode_exit": 0,
+      "audio_payload_identical": true,
+      "master_sha256_preserved": "72fbebfa2fc100272de4e2dba3af07d08318af30f9ac0ce064bf13c7b9568d13",
+      "observed_pixel_format": "yuvj420p",
+      "observed_color_range": "pc"
+    },
+    {
+      "path": "docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4",
+      "bytes": 51998318,
+      "sha256": "8bffaf6e0ab778717827afeab7f90b0c398382844602de3d98c1c23f11d480fa",
+      "width": 1080,
+      "height": 1920,
+      "frames": 7152,
+      "fps": 24,
+      "duration_seconds": 298.041016,
+      "full_decode_exit": 0,
+      "audio_payload_identical": true,
+      "master_sha256_preserved": "b97af28e6303cb7a6376d19b1d307e1d849ded24ccef6cd6a219b048346be706",
+      "observed_pixel_format": "yuvj420p",
+      "observed_color_range": "pc"
+    }
+  ],
+  "master_files_unchanged": true
+}

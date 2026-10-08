@@ -26,6 +26,20 @@ Magnific não estava disponível no ambiente de criação. A arte vem do reposit
 sem geração ou ampliação atribuída a esse serviço. A trilha dos MP4 é uma composição
 instrumental procedural original, sem samples externos e sem locução.
 
+## Baixar os vídeos
+
+- [16:9 para computador, 1920 × 1080](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4)
+- [9:16 para celular, 1080 × 1920](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4)
+
+Os dois MP4 contêm o filme completo de 4min58s. O caso da clínica começa em 01:58.
+São cópias comprimidas para distribuição, com o mesmo conteúdo e áudio dos originais.
+Os links públicos funcionam fora da sessão cloud. Se o navegador abrir o player, use
+seu menu para baixar o arquivo. No celular, use a opção de compartilhar ou salvar.
+
+Os arquivos de distribuição ficam em `downloads/`. Os originais de maior qualidade
+continuam preservados em `.runtime/youngcrow-film/complete/`; caminhos dessa pasta são
+internos ao ambiente e não são links públicos de download.
+
 ## Assistir à apresentação
 
 Na raiz do repositório:
@@ -66,7 +80,8 @@ Una os WAV originais e codifique a trilha completa em AAC para manter a continui
 
 Arquivos gerados: `YoungCrow-16x9.mp4`, `YoungCrow-9x16.mp4`,
 `YoungCrow-apresentacao.html`, `YoungCrow-trilha-original.wav` e `render-evidence.json`.
-Capturas, vídeos e recibos ficam fora do Git. O script fecha suas páginas, navegador e
+Capturas, originais e recibos ficam fora do Git. As duas cópias de distribuição em
+`downloads/` são versionadas para permitir o download público. O script fecha suas páginas, navegador e
 servidor local em `finally`; não abre clientes de IA nem altera projetos consumidores.
 
 ## Roteiro e transcrição
@@ -253,5 +268,6 @@ include an original procedural instrumental score, with no narration. The standa
 includes its resources, playback controls and both layouts; it is silent and starts paused.
 
 Use the commands above to render previews and videos. Rendering requires Python Playwright,
-NumPy, Chromium, FFmpeg and WebGL. Runtime outputs are ignored by Git. Source and runtime
-proof are separate from native YoungCrow executor acceptance.
+NumPy, Chromium, FFmpeg and WebGL. Master exports and private receipts remain ignored by Git.
+Two compressed Full HD MP4 copies are published under `downloads/` for direct public download.
+Source and audiovisual proof are separate from native YoungCrow executor acceptance.

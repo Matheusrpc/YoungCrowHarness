@@ -94,6 +94,8 @@ da instalação à missão preparada e acrescenta três minutos de um agente de 
 com features, vault e troca manual Codex/Claude. Há layouts horizontal e vertical e uma
 transcrição com comandos. As telas encenadas não substituem as condições e verificações deste guia.
 
+Downloads em MP4: [16:9](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4) e [9:16](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4), ambos com 4min58s.
+
 <a id="adocao-reversivel-pt"></a>
 
 Use `--trial` no primeiro setup para guardar um ponto anterior à adoção. O perfil inicial cobre arquivos comuns, diretórios vazios
@@ -801,6 +803,8 @@ The [animated tutorial](media/youngcrow-guide/README.md) preserves the 118-secon
 and adds a three-minute fictional clinic reception agent example, including features, the vault and a manual
 Codex/Claude handoff. It is in Portuguese, with landscape and portrait layouts and copyable
 commands. The staged screens do not replace the conditions and checks in this guide.
+
+MP4 downloads: [16:9](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4) and [9:16](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4), each lasting 4min58s.
 
 <a id="reversible-adoption-en"></a>
 

@@ -44,7 +44,7 @@ O executor ainda depende de prova integrada de rede e dos dois clientes autentic
 
 **Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
 chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
-O pacote público passou em 516 testes, com 20 pulados; o CI não pôde ser consultado.
+O pacote público passou em 516 testes, com 20 pulados; naquela rodada, o CI não pôde ser consultado.
 Veja o [registro da publicação](docs/relatorios/2026-10-07-cloud-publication.md).
 
 `client check` reconhece o manifesto `isolated-egress-v1` e registra um bloqueio
@@ -67,6 +67,12 @@ setting. Nos testes, uma mudança externa após a intenção é preservada e imp
 reinício; a recuperação mantém a reserva bloqueada. O contrato atômico do sbx local
 continua sem prova. Validação local: 592 testes aprovados e 20 pulados.
 [Correção e bloqueio nativo](docs/relatorios/2026-10-07-conditional-settings.md).
+
+O CI de `da28f00` falhou em `adoption-windows`, na suíte de missões, tanto no push
+quanto no PR. Os outros três jobs passaram. O runner dessa etapa agora publica
+somente os identificadores dos testes falhos nas anotações do GitHub, preservando
+a saída e o resultado do unittest. A causa da falha Windows ainda precisa de diagnóstico.
+[Estado do CI e próxima ação](docs/relatorios/2026-10-07-windows-ci-diagnostics.md).
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
@@ -562,7 +568,7 @@ Integrated network proof and both authenticated clients are still pending; execu
 
 **Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
 are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
-The public package passed 516 tests, with 20 skipped; CI could not be queried.
+The public package passed 516 tests, with 20 skipped; CI could not be queried in that round.
 See the [publication record](docs/relatorios/2026-10-07-cloud-publication.md).
 
 `client check` recognizes `isolated-egress-v1` manifests and records a
@@ -585,6 +591,12 @@ Tests preserve an external change made after intent persistence and prevent rest
 recovery keeps the reservation blocked. The local sbx atomic contract remains unproven.
 Local validation: 592 tests passed and 20 were skipped.
 See the [fix and native blocker](docs/relatorios/2026-10-07-conditional-settings.md#english-overview).
+
+CI for `da28f00` failed in `adoption-windows`, during mission tests, on both push
+and PR runs. The other three jobs passed. That step's runner now publishes only
+failed test identifiers in GitHub annotations, preserving unittest output and status.
+The Windows failure still needs diagnosis.
+[CI evidence and next action](docs/relatorios/2026-10-07-windows-ci-diagnostics.md#english-overview).
 
 Audit fixes recover interrupted mission/backlog notes even after another
 revision, preserving human edits. Malformed catalogs and Git failures during the

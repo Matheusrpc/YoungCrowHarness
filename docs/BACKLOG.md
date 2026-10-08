@@ -10,6 +10,18 @@ YC-203 continua parcial; versionar o progresso não conclui o aceite do executor
 Publicado no PR #24 em `2f4e47a`; branch e ref do PR conferidas.
 Published to PR #24 at `2f4e47a`; branch and PR refs verified.
 
+Prioridade de validação: diagnosticar a falha da suíte de missões em `adoption-windows`
+no CI de `da28f00`. Push e PR falharam; os outros três jobs passaram. O runner publica
+IDs dos testes falhos nas anotações. O resultado da nova execução ainda está pendente.
+[Evidência e diagnóstico](relatorios/2026-10-07-windows-ci-diagnostics.md).
+
+A integração da captura de B (203.8) também aguarda transferência dos fontes e da
+fixture original do checkout privado anterior. Os hashes estão registrados; os
+arquivos não estão nesta cloud. Não reconstruir o parser nativo a partir do relato.
+B evidence integration (203.8) also awaits the original source and fixture from the
+previous private checkout. Recorded hashes identify the missing bytes; do not
+reconstruct the native parser from the narrative.
+
 A integração interna de 203.6 usa plano v4, guard no mesmo grupo/job e diário anterior
 aos efeitos. A/A2 reutilizam a porta; B exige ausência. Recuperação observa proprietário
 e porta ausentes e restaura apenas settings sandbox ainda iguais aos valores da operação.
@@ -56,7 +68,10 @@ AUD-01, AUD-02 e PR24-F2, está no [checkpoint cloud](relatorios/2026-10-07-clou
 Public `client check` still returns `failed/controller_pending` with zero model calls;
 native profiles remain blocked. Order: **203.6 and remaining recovery → package and
 native A/B/A2 → authenticated clients and adoption → queue/agents → QA → release/operations**.
-CI status remains unverified from this environment.
+CI for `da28f00` failed in Windows mission tests on both push and PR runs; the other
+three jobs passed. Diagnose this failure before native acceptance. The step now emits
+failed test identifiers as annotations; the new run is still pending.
+[Evidence](relatorios/2026-10-07-windows-ci-diagnostics.md#english-overview).
 
 Este é o índice público do trabalho necessário para entregar a esteira definida na
 [especificação aprovada](superpowers/specs/2026-10-03-ai-product-pipeline-design.md).

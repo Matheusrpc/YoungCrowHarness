@@ -57,7 +57,7 @@ jobs:
       - name: Prepare missions in new and existing consumers
         run: python -B tests/windows_fixture_runner.py tests/smoke_mission_foundation.py --root "$env:RUNNER_TEMP/mission-both" --client both
       - name: Verify mission diagnostics and process recovery
-        run: python -B tests/windows_fixture_runner.py -m unittest discover -s tests -p "test_mission*.py" -v
+        run: python -B tests/windows_fixture_runner.py tests/ci_unittest.py discover -s tests -p "test_mission*.py" -v
       - name: Exercise bounded diagnostic adoption without model calls
         run: python -B tests/windows_fixture_runner.py tests/smoke_mission_runtime.py --root "$env:SystemDrive/yrt" --client both
   graphify-smoke:

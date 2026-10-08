@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-08T02:17:13.680259+00:00",
+  "base_head": "da28f00016861af8fecdd43a99cc5de085e70971",
+  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
+  "scope": "CI diagnostics only; no product behavior changes",
+  "source_sha256": {
+    ".github/workflows/test.yml": "2de7de68a33755adc0837fb8a50692df80929c3cf9078ddda5ef46324250d614",
+    "tests/ci_unittest.py": "e6fc1cccc8a531eaffbab7d23cee60d72591e38eb355bc8f48a59b880cebb51f",
+    "tests/test_ci_unittest.py": "e1d20c65d695bfefe6d502331285a3e72a5e08610e2a876d4917c9d3eb0c1b33"
+  },
+  "tested_public_tree": "6d80d097d2a225592de04ae291b015b0401c685e",
+  "code_and_workflow_match_tested_tree": true,
+  "regression_before": {
+    "total": 5,
+    "passed": 3,
+    "failures": 2,
+    "errors": 0,
+    "log_sha256": "87aa31366be7eee871a76ebefdabe11d86c6880a878e6ea5e3c972e278e9aa99"
+  },
+  "focused": {
+    "total": 5,
+    "passed": 5,
+    "failures": 0,
+    "errors": 0,
+    "log_sha256": "cb8709e51c82cf50c8b4bd1d22619d5024f77ffd8097a6acb0822737e228c612"
+  },
+  "full_suite": {
+    "command": "python3 -B tests/ci_unittest.py discover -s tests -v",
+    "environment": {
+      "GITHUB_ACTIONS": "true"
+    },
+    "scope": "git archive of staged public tree; later changes are documentation only",
+    "total": 617,
+    "passed": 597,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 249.575,
+    "exit_code": 0,
+    "log_sha256": "4ce9857be7d8ad09ccea93502febd55259c494180b49f257677fbebfb7cff7e6",
+    "skips": [
+      "test_private_unrelated_directory_still_refuses_reinstall (test_adoption.AdoptionTests.test_private_unrelated_directory_still_refuses_reinstall) ... skipped 'Windows private ACL boundary'",
+      "test_open_file_prevents_exchange_without_losing_trial (test_adoption.RestoreTests.test_open_file_prevents_exchange_without_losing_trial) ... skipped 'real Windows non-share-delete handle'",
+      "test_posix_secondary_groups_survive_return (test_adoption.RestoreTests.test_posix_secondary_groups_survive_return) ... skipped 'requires an existing secondary group; Linux CI must exercise this'",
+      "test_acl_helper_does_not_write_user_profile (test_adoption_storage.StorageTests.test_acl_helper_does_not_write_user_profile) ... skipped 'native Windows profile cache'",
+      "test_alternate_data_stream_is_refused (test_adoption_storage.StorageTests.test_alternate_data_stream_is_refused) ... skipped 'Windows ADS proof'",
+      "test_directory_stream_is_not_silently_omitted (test_adoption_storage.StorageTests.test_directory_stream_is_not_silently_omitted) ... skipped 'Windows directory ADS proof'",
+      "test_not_indexed_attribute_is_preserved (test_adoption_storage.StorageTests.test_not_indexed_attribute_is_preserved) ... skipped 'Windows file attributes'",
+      "test_private_acl_write_refuses_streams_without_changing_permissions (test_adoption_storage.StorageTests.test_private_acl_write_refuses_streams_without_changing_permissions) ... skipped 'Windows streams before native ACL writes'",
+      "test_timeout_still_kills_child_after_parent_exits (test_documents.MediaTests.test_timeout_still_kills_child_after_parent_exits) ... skipped 'Windows process-tree regression'",
+      "test_junction_private_root_is_rejected (test_documents.StorageTests.test_junction_private_root_is_rejected) ... skipped 'Windows junction'",
+      "test_new_empty_temporary_gets_private_acl_before_data (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_new_empty_temporary_gets_private_acl_before_data) ... skipped 'Windows private file creation'",
+      "test_unsafe_temporary_never_changes_permissions (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_unsafe_temporary_never_changes_permissions) ... skipped 'Windows private file creation'",
+      "test_junction_selection_never_reads_or_writes_external_directory (test_mission_environment.ExecutionEnvironmentTests.test_junction_selection_never_reads_or_writes_external_directory) ... skipped 'Windows junction boundary'",
+      "test_private_reservation_survives_reopen_with_native_permissions (test_mission_execution.NativeReservationTests.test_private_reservation_survives_reopen_with_native_permissions) ... skipped 'native ACL fixture is explicitly selected through windows_fixture_runner'",
+      "test_discovery_descendant_cannot_hold_stdout_past_deadline (test_mission_process.ProcessTests.test_discovery_descendant_cannot_hold_stdout_past_deadline) ... skipped 'Discovery regression contained by an outer Windows Job'",
+      "test_failed_job_assignment_reaps_the_unassigned_bootstrap (test_mission_process.ProcessTests.test_failed_job_assignment_reaps_the_unassigned_bootstrap) ... skipped 'Windows Job Object boundary'",
+      "test_real_windows_metadata_does_not_write_profile (test_mission_sandbox.SandboxEnvironmentTests.test_real_windows_metadata_does_not_write_profile) ... skipped 'native Windows metadata and profile cache'",
+      "test_junction_without_python312_helper_blocks_setup (test_setup.SetupTests.test_junction_without_python312_helper_blocks_setup) ... skipped 'Windows junction behavior'",
+      "test_trial_deep_backup_is_refused_before_first_write (test_setup.SetupTests.test_trial_deep_backup_is_refused_before_first_write) ... skipped 'native PowerShell path limit'",
+      "test_junction_root_is_rejected_on_windows (test_vault.VaultTests.test_junction_root_is_rejected_on_windows) ... skipped 'Windows junction behavior'"
+    ]
+  },
+  "ci_before": {
+    "commit": "da28f00016861af8fecdd43a99cc5de085e70971",
+    "runs": [
+      {
+        "event": "push",
+        "run": 37702748727,
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37702748727",
+        "jobs": {
+          "public-pilot": "success",
+          "installer": "success",
+          "adoption-windows": "failure",
+          "graphify-smoke": "success"
+        }
+      },
+      {
+        "event": "pull_request",
+        "run": 37702753288,
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37702753288",
+        "jobs": {
+          "public-pilot": "success",
+          "installer": "success",
+          "adoption-windows": "failure",
+          "graphify-smoke": "success"
+        }
+      }
+    ],
+    "failed_step": "Verify mission diagnostics and process recovery",
+    "exit_code": 1,
+    "failed_test_ids": "unavailable from previous public page",
+    "detailed_logs": "sign-in required; linked log URL returned404"
+  },
+  "evidence": [
+    {
+      "file": "pr.html",
+      "url": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
+      "status": 200,
+      "bytes": 338358,
+      "sha256": "f37c04fe331e9d0264197245006781f2416558e03003f310f2cec088177de1df"
+    },
+    {
+      "file": "checks.html",
+      "url": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24/checks",
+      "status": 200,
+      "bytes": 290605,
+      "sha256": "bb14571f3fbe1a2b1566901cb59f40342bfe317366a484fcb3021ae7bce7f781"
+    },
+    {
+      "file": "run-37702748727.html",
+      "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37702748727",
+      "status": 200,
+      "bytes": 222408,
+      "sha256": "a9f2a69caac13c67a8afedf65d3846441cb29fada1028c2a0f5f1e2fa07ce75d"
+    },
+    {
+      "file": "run-37702753288.html",
+      "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37702753288",
+      "status": 200,
+      "bytes": 222105,
+      "sha256": "b67140293b84513e6a9ca8ceabb463d0551fad9b6739081d0575fc596d89f069"
+    },
+    {
+      "file": "windows-job.html",
+      "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37702753288/job/113069845967?pr=24",
+      "status": 200,
+      "bytes": 212487,
+      "sha256": "790bb19c211789fbb889ca52f24627689f40c124097edfe690752aad7d964d59"
+    }
+  ],
+  "ci_after": {
+    "state": "awaiting_publication_and_run"
+  },
+  "review": {
+    "agent": "review_ci_diagnostic_design",
+    "blocking_findings": 0,
+    "tests_run_by_reviewer": false
+  },
+  "B_evidence_transfer": {
+    "state": "required_original_files_absent",
+    "recorded_sha256": {
+      "captured_egress.py": "cd4394082e8da687efeff9bd835169163a540385e80faaacec8dc06b8fb7531c",
+      "test_captured_egress.py": "6945516531eaa08b0bdb89c31f257f26b10919ec2a481311069af5b5ae55330c",
+      "corrected-egress-proof/B-daemon-refusal.jsonl": "e16a55e82f8105b22dee598cd4d5efbd0b7dabf05d5f880d5236d5e17433cb46"
+    }
+  },
+  "environment": {
+    "native_docker_or_sbx_executed": false,
+    "model_calls": 0,
+    "native_cycles_used": 2,
+    "native_cycle_limit": 3,
+    "configuration_changes": "none_required"
+  },
+  "publication": {
+    "branch": "feat/isolated-executor",
+    "state": "ready_to_publish",
+    "main": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95"
+  },
+  "limitations": [
+    "Windows root cause not yet identified",
+    "post-run annotations require unittest completion",
+    "local tests do not prove Windows ACL/process behavior",
+    "native local credentials and settings contract still missing",
+    "original B collector and fixture not transferred"
+  ]
+}

@@ -2820,3 +2820,33 @@ the short root; adoption requires fewer than 248. ACL checks and path refusal be
 remain active. No global Windows policy changes. The synthetic MCP fixture publishes its PID
 after closing the write, without replacing an existing record. Pending publication means
 incomplete cleanup. These tests make no model calls. See the [QA evidence](relatorios/2026-10-04-qa-fixtures.md#english-overview).
+
+### Diagnóstico de testes no GitHub Actions / Test diagnostics in GitHub Actions
+
+A etapa de missões Windows usa o wrapper de ACL existente e a entrada abaixo:
+
+```powershell
+python -B tests/windows_fixture_runner.py tests/ci_unittest.py discover -s tests -p "test_mission*.py" -v
+```
+
+Com `GITHUB_ACTIONS=true`, `ci_unittest.py` publica um identificador por teste falho,
+com erro ou sucesso inesperado nas anotações da etapa. Subtestes usam o ID do teste pai;
+mensagens de exceção e valores de parâmetros não entram nessas anotações. IDs fora do
+formato convencional viram `test_identifier_unavailable`. A saída normal e o código de
+saída continuam sob controle do unittest; localmente, sem essa variável, não há anotações.
+
+As anotações exigem a conclusão da suíte. Cancelamento, timeout ou falha no wrapper
+antes do unittest exigem consultar o log da etapa com acesso ao GitHub. O CI de
+`da28f00` falhou nessa etapa; a causa ainda está em diagnóstico. Veja a
+[evidência](relatorios/2026-10-07-windows-ci-diagnostics.md). Essa suíte usa fixtures;
+não executa um ciclo de aceite nativo do sbx.
+
+The Windows mission step keeps the existing ACL wrapper and uses the entry point
+above. With `GITHUB_ACTIONS=true`, it annotates failure/error/unexpected-success test
+IDs, deduplicating subtests under their parent and excluding exception messages and
+parameter values. Nonstandard IDs become `test_identifier_unavailable`. Standard
+unittest output and exit status remain unchanged; local runs emit no annotations
+without that variable. Annotations require suite completion, so cancellation, timeout
+or earlier wrapper failure still requires access to step logs. CI at `da28f00` failed
+in this step and remains under diagnosis. These fixture tests do not run a native
+sbx acceptance cycle.

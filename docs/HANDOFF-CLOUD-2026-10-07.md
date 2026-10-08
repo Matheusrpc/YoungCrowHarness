@@ -123,7 +123,7 @@ Próxima evidência: contrato compatível com o armazenamento local e remoção 
 atômica, incluindo rotação e recusa de versão antiga. Não implementar esse adaptador
 com base somente no schema Cloud nem repetir consultas já sem resposta.
 
-### Incremento atual: settings condicionais
+### Incremento anterior: settings condicionais
 
 Publicado no PR #24 em `2f4e47a`; branch e ref do PR conferidas.
 
@@ -145,10 +145,33 @@ referência aplicável do fornecedor antes do adaptador. Não repetir as mesmas 
 baixar/executar binário como tentativa de desbloqueio ou consumir novo ciclo sem a
 prova exigida. Docker/modelos continuam sem execução nesta cloud; contador **2/3**.
 
+### Incremento atual: diagnóstico do CI Windows
+
+A consulta às páginas públicas do GitHub confirmou que `da28f00` falhou em
+`adoption-windows` nos runs de push `37702748727` e PR `37702753288`. Os jobs
+`public-pilot`, `installer` e `graphify-smoke` passaram em ambos. A etapa falha é
+`Verify mission diagnostics and process recovery`, saída 1. Logs detalhados exigem
+login nessa consulta; a página não identifica o teste responsável.
+
+`tests/ci_unittest.py` mantém a execução/saída do unittest e acrescenta anotações com
+IDs de falhas, erros e sucessos inesperados, sem traceback nem parâmetros de subteste.
+O workflow usa essa entrada dentro do wrapper de ACL já existente. Timeout, cancelamento
+ou falha anterior ao unittest podem impedir as anotações. A nova execução precisa ser
+consultada; instrumentar o diagnóstico não corrige a falha ainda desconhecida.
+[Relatório e medição](relatorios/2026-10-07-windows-ci-diagnostics.md).
+
+Próximo passo executável: obter os IDs na nova execução do CI e diagnosticar a falha
+Windows. Em paralelo ao bloqueio externo de 203.6, a integração de B (203.8) depende
+de transferir `captured_egress.py`, seus testes e a fixture nativa original do checkout
+privado anterior. Os arquivos/hashes necessários estão no relatório. Não substituir
+essa evidência por fixtures inventadas nem consumir outro ciclo para recuperá-la.
+O contador nativo permanece **2/3**, sem Docker/sbx ou modelos executados nesta cloud.
+
 Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
+| CI Windows | Consultar IDs de testes falhos nas anotações e diagnosticar a falha de `adoption-windows` |
 | Executor: 203.6 | Bloqueio externo: comprovar identidade/versão/remoção atômica da credencial e escrita condicional dos settings locais 0.46.0; depois adaptador e aceite v4 |
 | Executor: restante de 203.5 | Comprovar recuperação nativa de settings/serviço/credencial e demais políticas necessárias, preservando alterações externas |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |

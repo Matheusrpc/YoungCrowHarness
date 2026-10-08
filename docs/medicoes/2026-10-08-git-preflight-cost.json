@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-08T03:51:24.601123+00:00",
+  "scope": "Batch private-storage Git ignore checks without caching or changing acceptance gates",
+  "base_commit": "63bb22914a01fd9057bfff37590ca9fe8701a05c",
+  "tested_public_tree": "e1413a534296c052134f4eec0b6b2c9b4645451f",
+  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
+  "source_sha256": {
+    "scripts/document_store.py": "01221d353ca02747981b5a59c0ae8e8c1b7383727e878eca07b093a327db77fd",
+    "tests/test_documents.py": "78320e4532300ffac9a18a333e95af1def9f7c399d24b6b5cbbbc0d344ce8f69",
+    "skills-lock.json": "13657ee5728287888bb2eb7960440eb60921b23222744614a1fd990631a7dae1"
+  },
+  "before": {
+    "commit": "63bb22914a01fd9057bfff37590ca9fe8701a05c",
+    "runs": 15,
+    "git_calls": 75,
+    "per_run_calls": 5.0,
+    "median_seconds": 0.0075300689932191744,
+    "total_seconds": 0.11118734799674712,
+    "git_seconds": 0.1067545741534559
+  },
+  "after": {
+    "runs": 15,
+    "git_calls": 45,
+    "per_run_calls": 3.0,
+    "median_seconds": 0.004828355988138355,
+    "total_seconds": 0.07903204603644554,
+    "git_seconds": 0.07420006293978076
+  },
+  "benchmark_scope": "15 sequential read-only checks of this checkout on Linux; timings are not Windows predictions",
+  "ci_before": {
+    "at": "2026-10-08T03:31:41.521990+00:00",
+    "commit": "63bb22914a01fd9057bfff37590ca9fe8701a05c",
+    "jobs": [
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722718954/job/113133842174?pr=24",
+        "sha256": "5db5a6f627eb625baa599149b6b2175954e8675e731dc30860ce2bf0c488c3c1",
+        "annotations": [
+          "Diagnose Windows network and controller cleanup Process completed with exit code 1. Show more Show less",
+          "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit Show more Show less",
+          "Complete job Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/ Show more Show less",
+          "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_v4_literal_placeholder_cannot_pass_integrated_positive_phase {\"supervisor\":{\"reason\":\"completed\",\"exit_code\":0,\"tree_reaped\":true,\"elapsed_seconds\":5.36,\"stdout_bytes\":2077,\"stderr_bytes\":0},\"transaction\":{\"state\":\"blocked\",\"reason\":\"reconciliation_required\",\"failure\":null,\"journal_events\":9,\"network_events\":10,\"recovery_events\":0},\"A\":{\"state\":\"refused\",\"reason\":\"dispatch_failed\",\"journal_ms\":[3111,3206,3303,3553,3646,3736,3833,3926,4903],\"network_ms\":[1657,1756,1853,1945,1994,2020,2074,5043,5140,5239]},\"B\":{\"journal_ms\":[],\"network_ms\":[]},\"A2\":{\"journal_ms\":[],\"network_ms\":[]}} Show more Show less",
+          "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection {\"supervisor\":{\"reason\":\"completed\",\"exit_code\":0,\"tree_reaped\":true,\"elapsed_seconds\":14.891,\"stdout_bytes\":4015,\"stderr_bytes\":0},\"transaction\":{\"state\":\"observed\",\"reason\":\"native_attribution_and_recovery_required\",\"failure\":null,\"journal_events\":30,\"network_events\":21,\"recovery_events\":0},\"A\":{\"state\":\"observed\",\"reason\":\"phase_observed\",\"journal_ms\":[3102,3194,3283,3533,3624,3719,3814,3906,4874,5334],\"network_ms\":[1657,1770,1867,1956,2008,2034,2085,5050,5145,5242,5429,5530]},\"B\":{\"state\":\"blocked_unattributed\",\"reason\":\"native_attribution_required\",\"journal_ms\":[6713,6809,6903,7150,7243,7338,7432,7527,8558,10734],\"network_ms\":[5653]},\"A2\":{\"state\":\"observed\",\"reason\":\"phase_observed\",\"journal_ms\":[12216,12317,12416,12672,12778,12882,12989,13095,14116,14558],\"network_ms\":[10892,11000,11105,14243,14346,14457,14659,14770]},\"recovery\":{\"state\":\"recovered\",\"reason\":\"resources_observed\"}} Show more Show less",
+          "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit {\"supervisor\":{\"reason\":\"timeout\",\"exit_code\":null,\"tree_reaped\":true,\"elapsed_seconds\":15.0,\"stdout_bytes\":0,\"stderr_bytes\":0},\"transaction\":{\"reason\":\"invalid_fixture_result\",\"journal_events\":30,\"network_events\":19,\"recovery_events\":0},\"A\":{\"journal_ms\":[3410,3508,3605,3867,3966,4069,4171,4272,5311,5765],\"network_ms\":[1835,1945,2051,2157,2213,2242,2299,5452,5555,5664,5866,5980]},\"B\":{\"journal_ms\":[7216,7312,7403,7657,7748,7843,7940,8035,9029,11220],\"network_ms\":[6112]},\"A2\":{\"journal_ms\":[12649,12748,12846,13105,13208,13306,13403,13502,14507,14904],\"network_ms\":[11371,11491,11592,14608,14704,14811]}} Show more Show less",
+          "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_drift_between_activation_and_prepare_blocks_dispatch {\"supervisor\":{\"reason\":\"completed\",\"exit_code\":0,\"tree_reaped\":true,\"elapsed_seconds\":3.203,\"stdout_bytes\":2063,\"stderr_bytes\":0},\"transaction\":{\"state\":\"blocked\",\"reason\":\"reconciliation_required\",\"failure\":null,\"journal_events\":0,\"network_events\":7,\"recovery_events\":0},\"A\":{\"state\":\"refused\",\"reason\":\"persistence_failed\",\"journal_ms\":[],\"network_ms\":[1706,1805,1901,1996,2048,2075,2127]},\"B\":{\"journal_ms\":[],\"network_ms\":[]},\"A2\":{\"journal_ms\":[],\"network_ms\":[]}} Show more Show less",
+          "Diagnose Windows network and controller cleanup test_mission_egress.EgressTests.test_abrupt_controller_exit_before_config_reaps_the_waiting_guard {\"supervisor\":{\"reason\":\"completed\",\"exit_code\":71,\"tree_reaped\":true,\"elapsed_seconds\":0.266,\"stdout_bytes\":0,\"stderr_bytes\":0}} Show more Show less"
+        ]
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722722963/job/113133855509?pr=24",
+        "sha256": "a35db599a22a3d3bf24683c73debef23081aa87e8b175a8c9acd51cae766a9af",
+        "annotations": [
+          "Diagnose Windows network and controller cleanup Process completed with exit code 1. Show more Show less",
+          "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection Show more Show less",
+          "Complete job Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/ Show more Show less",
+          "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_v4_literal_placeholder_cannot_pass_integrated_positive_phase {\"supervisor\":{\"reason\":\"completed\",\"exit_code\":0,\"tree_reaped\":true,\"elapsed_seconds\":5.969,\"stdout_bytes\":2077,\"stderr_bytes\":0},\"transaction\":{\"state\":\"blocked\",\"reason\":\"reconciliation_required\",\"failure\":null,\"journal_events\":9,\"network_events\":10,\"recovery_events\":0},\"A\":{\"state\":\"refused\",\"reason\":\"dispatch_failed\",\"journal_ms\":[3404,3516,3630,3916,4025,4140,4246,4352,5484],\"network_ms\":[1742,1869,1984,2088,2144,2175,2231,5624,5733,5847]},\"B\":{\"journal_ms\":[],\"network_ms\":[]},\"A2\":{\"journal_ms\":[],\"network_ms\":[]}} Show more Show less",
+          "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection {\"supervisor\":{\"reason\":\"timeout\",\"exit_code\":null,\"tree_reaped\":true,\"elapsed_seconds\":15.015,\"stdout_bytes\":0,\"stderr_bytes\":0},\"transaction\":{\"reason\":\"invalid_fixture_result\",\"journal_events\":29,\"network_events\":18,\"recovery_events\":0},\"A\":{\"journal_ms\":[3442,3553,3742,4133,4245,4350,4461,4563,5634,6120],\"network_ms\":[1673,1803,1913,2025,2084,2112,2184,5832,5928,6026,6213,6316]},\"B\":{\"journal_ms\":[7499,7593,7686,7940,8031,8124,8216,8311,9315,11488],\"network_ms\":[6439]},\"A2\":{\"journal_ms\":[12896,12992,13090,13344,13444,13540,13638,13734,14726],\"network_ms\":[11643,11746,11843,14849,14952]}} Show more Show less",
+          "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit {\"supervisor\":{\"reason\":\"completed\",\"exit_code\":0,\"tree_reaped\":true,\"elapsed_seconds\":14.781,\"stdout_bytes\":3819,\"stderr_bytes\":0},\"transaction\":{\"state\":\"observed\",\"reason\":\"native_attribution_and_recovery_required\",\"failure\":null,\"journal_events\":30,\"network_events\":21,\"recovery_events\":0},\"A\":{\"state\":\"observed\",\"reason\":\"phase_observed\",\"journal_ms\":[3117,3214,3306,3557,3653,3745,3840,3939,4953,5387],\"network_ms\":[1657,1759,1854,1951,2001,2028,2079,5082,5183,5284,5485,5588]},\"B\":{\"state\":\"blocked_unattributed\",\"reason\":\"native_attribution_required\",\"journal_ms\":[6788,6885,6979,7227,7323,7421,7518,7615,8696,10861],\"network_ms\":[5709]},\"A2\":{\"state\":\"observed\",\"reason\":\"phase_observed\",\"journal_ms\":[12253,12352,12449,12697,12794,12895,12994,13092,14084,14469],\"network_ms\":[11005,11106,11205,14182,14275,14373,14565,14664]},\"recovery\":{\"state\":\"recovered\",\"reason\":\"resources_observed\"},\"replay\":{\"reason\":\"completed\",\"exit_code\":0,\"tree_reaped\":true,\"elapsed_seconds\":0.516,\"stdout_bytes\":1824,\"stderr_bytes\":0}} Show more Show less",
+          "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_drift_between_activation_and_prepare_blocks_dispatch {\"supervisor\":{\"reason\":\"completed\",\"exit_code\":0,\"tree_reaped\":true,\"elapsed_seconds\":3.25,\"stdout_bytes\":2063,\"stderr_bytes\":0},\"transaction\":{\"state\":\"blocked\",\"reason\":\"reconciliation_required\",\"failure\":null,\"journal_events\":0,\"network_events\":7,\"recovery_events\":0},\"A\":{\"state\":\"refused\",\"reason\":\"persistence_failed\",\"journal_ms\":[],\"network_ms\":[1733,1841,1938,2033,2085,2112,2164]},\"B\":{\"journal_ms\":[],\"network_ms\":[]},\"A2\":{\"journal_ms\":[],\"network_ms\":[]}} Show more Show less",
+          "Diagnose Windows network and controller cleanup test_mission_egress.EgressTests.test_abrupt_controller_exit_before_config_reaps_the_waiting_guard {\"supervisor\":{\"reason\":\"completed\",\"exit_code\":71,\"tree_reaped\":true,\"elapsed_seconds\":0.266,\"stdout_bytes\":0,\"stderr_bytes\":0}} Show more Show less"
+        ]
+      }
+    ]
+  },
+  "tests": {
+    "red": {
+      "total": 12,
+      "failures": 1,
+      "skipped": 1,
+      "assertion": "5 not less than or equal to 3"
+    },
+    "storage": {
+      "total": 12,
+      "passed": 11,
+      "skipped": 1,
+      "failures": 0,
+      "errors": 0
+    },
+    "focused": {
+      "total": 5,
+      "passed": 5,
+      "skipped": 0,
+      "seconds": 6.445
+    },
+    "full_suite": {
+      "total": 622,
+      "passed": 602,
+      "skipped": 20,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 240.982,
+      "exit_code": 0,
+      "log_sha256": "8717dd92790f0267cd7b30accd3f6a1a3496fae183d0721e09f84f56f9734f61",
+      "tree": "e1413a534296c052134f4eec0b6b2c9b4645451f",
+      "scope": "unchanged candidate confirmation; preexisting intermittent failure remains recorded separately"
+    },
+    "full_suite_before_catalog_refresh": {
+      "total": 622,
+      "failures": 7,
+      "skipped": 20,
+      "errors": 0,
+      "seconds": 246.669,
+      "exit_code": 1,
+      "log_sha256": "146cf621ca1fe0e2582abcf86e601c0b13b2415577db0f246ada4531c7f5af00",
+      "failed_cases": [
+        "test_mission_catalog_has_explicit_diagnostic_permissions (test_capabilities.CatalogTests.test_mission_catalog_has_explicit_diagnostic_permissions)",
+        "test_governance_installs_selected_profiles_and_audits (test_setup.SetupTests.test_governance_installs_selected_profiles_and_audits) (client='claude')",
+        "test_governance_installs_selected_profiles_and_audits (test_setup.SetupTests.test_governance_installs_selected_profiles_and_audits) (client='codex')",
+        "test_governance_installs_selected_profiles_and_audits (test_setup.SetupTests.test_governance_installs_selected_profiles_and_audits) (client='both')",
+        "test_mission_commands_follow_client_selection (test_setup.SetupTests.test_mission_commands_follow_client_selection) (client='claude')",
+        "test_mission_commands_follow_client_selection (test_setup.SetupTests.test_mission_commands_follow_client_selection) (client='codex')",
+        "test_mission_commands_follow_client_selection (test_setup.SetupTests.test_mission_commands_follow_client_selection) (client='both')"
+      ],
+      "reason": "pinned capability file digests still describe the previous document_store.py"
+    },
+    "capabilities": {
+      "total": 23,
+      "passed": 23,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": 1.018
+    },
+    "full_suite_after_catalog_refresh": {
+      "total": 622,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 20,
+      "seconds": 241.838,
+      "exit_code": 1,
+      "log_sha256": "18efa25829a076833c250424898d5612d0871612760e277624fd4098e5ce80d9",
+      "failed_case": "test_mission_environment.ExecutionEnvironmentTests.test_two_writers_one_digest",
+      "reason": "concurrent loser returned execution_storage_unprotected; same failure reproduced on published baseline"
+    },
+    "selection_comparison": {
+      "method": "30 executions of the unchanged two-writer test per revision; child error object also captures StorageError.diagnostic; assertions unchanged",
+      "baseline": {
+        "commit": "63bb22914a01fd9057bfff37590ca9fe8701a05c",
+        "total": 30,
+        "failures": 1,
+        "errors": 1,
+        "seconds": 2.862
+      },
+      "current": {
+        "tree": "e1413a534296c052134f4eec0b6b2c9b4645451f",
+        "total": 30,
+        "failures": 0,
+        "errors": 0,
+        "seconds": 2.805
+      },
+      "scope": "preexisting intermittent concurrency failure; comparison does not claim a fix"
+    }
+  },
+  "review": {
+    "agent": "review_git_preflight_batch",
+    "blocking_findings": 0,
+    "executed_tests": false
+  },
+  "limits": {
+    "supervisor_seconds": 15,
+    "plan_seconds": 30,
+    "native_cycles_used": 2,
+    "native_cycle_limit": 3,
+    "model_calls": 0,
+    "production_profiles_enabled": false
+  },
+  "publication": {
+    "state": "ready_for_push",
+    "branch": "feat/isolated-executor"
+  },
+  "ci_after": {
+    "state": "pending_push"
+  },
+  "limitations": [
+    "Windows Git time not separately profiled; redundant calls and local process reduction are measured",
+    "Full Windows validation of the optimization is pending",
+    "Native sbx contracts and original B evidence transfer remain blocked",
+    "Preexisting intermittent two-writer selection failure reproduced on baseline; no concurrency fix included"
+  ],
+  "private_evidence_sha256": {
+    "red.log": "e76facdfad2f46a6838b6a2ae5a3b6acdd231c1416ee5812b72e9c8f87645f56",
+    "storage-green.log": "26eed202a7916ddbaa7cb434419b6b5b76ae1a1cb23d122dd3bea7a20b901adc",
+    "network-focused.log": "a22d5f6f9c494dea0c5131781694452e8c0e7bea8d1074d585fe0215bfb81661",
+    "before.json": "9d7649dd96461e397e8982853a52eb56aeab5ab0ec7a97c0a427b024924f35f2",
+    "after.json": "bc477458c769b754a6b56375771a1a32076c345f56f5546a61b2172cc8aa73df",
+    "selection-baseline.log": "1e14166b14b5f940193ed8bc649cc11aba2049d2898c6a5b0e121d6516bea311",
+    "selection-current.log": "54b88da372bd5ef33c6ddbcd0521feb840aa7edcc785cb57441d041bb4e766fe",
+    "repeat-selection.py": "96c58d886da4d05503440a8721745fbe2a47fa4cbaf85ac62dbe45392cb5558e",
+    "full-final-suite.log": "18efa25829a076833c250424898d5612d0871612760e277624fd4098e5ce80d9",
+    "catalog-tests.log": "98cec6a4d016de3102621ce51df3b111ae8da5c526d8458ecc4b7273ff9cf7fe",
+    "capability-audit.json": "7abf73d6d73d843292aacecc8663727aa9f2d17aef0d955999484a497a852253",
+    "full-confirmation-suite.log": "8717dd92790f0267cd7b30accd3f6a1a3496fae183d0721e09f84f56f9734f61"
+  },
+  "catalog_refresh": {
+    "changes": [
+      {
+        "id": "retrieve-memory",
+        "client": "claude",
+        "before": "125b149cfd098757800a8d0728c892cfe2113c947a39044b59d65535712c6da2",
+        "after": "e8b61a20d805cb084f7d86eec4875680085664a64589f8e1fa64327240027d33"
+      },
+      {
+        "id": "retrieve-memory",
+        "client": "codex",
+        "before": "3592f2eb31bc4cf69a48e1ff3b6c5232718b38426871a840009528f55b270704",
+        "after": "85ba1410036a082d85163e76724b46ae7cf785236bb8e2e2a26ec70518b2eb9d"
+      },
+      {
+        "id": "ingest-source",
+        "client": "claude",
+        "before": "609cc75a10c8a0977e135348df3c799a6d5f8e17e11f576b18d0030fa2be42d2",
+        "after": "66ec7f30ea8426a9a236f72d0d20e0a05030ffc4191c63549f593f349ef91219"
+      },
+      {
+        "id": "ingest-source",
+        "client": "codex",
+        "before": "c42223d52efab4da4de9ec87fcdf98abc41cdff6edbac2a0c684ca314783b56b",
+        "after": "ad9770baa7fbd8c9aab0ce746efa08804f8058e8f74ca1813228c85f5c7907ac"
+      },
+      {
+        "id": "personalizer",
+        "client": "claude",
+        "before": "0e8e65872f1019c8869cee9a2e0cbaf78a9df530350503e6853973d91471215e",
+        "after": "02daf7dca79af81aca746bdcfb8b15dbac4aebb349a821492eb88150b2558b95"
+      },
+      {
+        "id": "personalizer",
+        "client": "codex",
+        "before": "d70dccc5a9b38d7e34662419a7805b9e766fb70ec06ccc3afc08b9f9a37ebab1",
+        "after": "888f696ac6562714b62827dda52aa258262fd6865b0ba47faefa24118687edfa"
+      },
+      {
+        "id": "integrate-from-docs",
+        "client": "claude",
+        "before": "a5f9e4d6b74e618cd0f148852e4bd46634a2c465ebd2eb185dc70fa88e498d9a",
+        "after": "429946d1b5719ac1cf8d8f22c837f5866312bdd87f159b51f09f5c2a815b1188"
+      },
+      {
+        "id": "integrate-from-docs",
+        "client": "codex",
+        "before": "c251fd132be15a95bed24a3a491914229ff545407256ca4a254ac603b08452c9",
+        "after": "5130af4e934422b58c1afb67ffd11bb37bed7b61967099029edb1a69386f7545"
+      },
+      {
+        "id": "govern-capabilities",
+        "client": "claude",
+        "before": "ae30e98a9bf30c21bff2f82cfef254c1cdbe669a22b0c7b9914c96ce449f96f8",
+        "after": "c8b21b17fdee40911121c1ac391bffb12ad04494ad60367b54f0f8b359b02407"
+      },
+      {
+        "id": "govern-capabilities",
+        "client": "codex",
+        "before": "1fd01db2b4e528155ad97e7cde940bc74490db05b728828abbd1dc9853ac6407",
+        "after": "af35592ddaf621c8ec4d2543106e0f444a889aa00a8a3e34fbf810db89d7334e"
+      },
+      {
+        "id": "yc-personalizer",
+        "client": "claude",
+        "before": "f346ba50622147a5663d405d860c441288cb461954bd0a859c33a26e0627f0bf",
+        "after": "928a0b5c37db16ae0f35f4963ccde6a31af4ff706f4d45cf69c9f536e1192250"
+      },
+      {
+        "id": "yc-personalizer",
+        "client": "codex",
+        "before": "fc25974938f127e56a323f4ab4855cfc574d133b173398720ea3e85d25aac17c",
+        "after": "696b5a00b273c7d42ac389e99fefeec667790a3c75b783e488510c535d816f29"
+      },
+      {
+        "id": "yc-config",
+        "client": "claude",
+        "before": "5093d4eb0a2da44452ebaba78fcbac1129fdf6ced0383476524e417b1c1835f9",
+        "after": "c5ceb8797b462d342143b3e705af1d0a36118c04bb558cda12591a07a264ef69"
+      },
+      {
+        "id": "yc-config",
+        "client": "codex",
+        "before": "fbe138d72b88dcf3900dae9c427be9ecf2048aec9bdd05c5798722c6105f00be",
+        "after": "ae667ba9e200cb38c7f8008b231dbe937790fe0754b9625551b6d727e65c2e74"
+      },
+      {
+        "id": "yc-missao",
+        "client": "claude",
+        "before": "3fcf266c084cc6fe5d7fd28c5ca4cf79956ec29cf4fdc4fb9dd3d1cb43a871a6",
+        "after": "b7a0531b1667132d0479c768b13f04f6fd9cfcac203d5895df6f39b45feaba4f"
+      },
+      {
+        "id": "yc-missao",
+        "client": "codex",
+        "before": "130dbb821b682eec4e11e26d0da3dd380c7163992c0d2aeea3ccd3f48d4b11cc",
+        "after": "2928a394027faad8f00ecd353a45f5ac1abb6e299233cedf1fbd6b2a851dc42e"
+      },
+      {
+        "id": "yc-status",
+        "client": "claude",
+        "before": "f5b852f7684f0d26ebe4f1fceef7ebdc57566504d6e8e34d3571122e0a0bda6a",
+        "after": "fbe12aa064eadb0ecf1ac556dc8fb2c8cddffc341a9f42be6d199e63220086f0"
+      },
+      {
+        "id": "yc-status",
+        "client": "codex",
+        "before": "d28676526685fdc419e310af2c316483c0dbaad20d3618c0e8f40774f1a0a6e0",
+        "after": "fac2acbb012a6b3eaae2ecfdfb0584d4668014c3022d8d7a74a591417e1cc94d"
+      }
+    ],
+    "count": 18,
+    "contracts_and_permissions_unchanged": true,
+    "before_sha256": "d7ddb359994e71dc6788938318e98c8de154af8f5afde8a864dd0de00696c368",
+    "after_sha256": "13657ee5728287888bb2eb7960440eb60921b23222744614a1fd990631a7dae1"
+  },
+  "capability_audit": {
+    "exit_code": 0,
+    "states": {
+      "matched": 20,
+      "unverified": 30
+    },
+    "scope": "project observations; unverified entries are not native runtime proof"
+  },
+  "vault_check": {
+    "notes_checked": 23,
+    "issues": 0
+  }
+}

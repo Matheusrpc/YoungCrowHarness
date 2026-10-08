@@ -57,9 +57,11 @@ def verify_private_storage(root):
     tracked = git(root, 'ls-files', '-z', '--', *PRIVATE)
     if tracked.returncode or tracked.stdout:
         raise ValueError('Private storage is already tracked or cannot be checked.')
-    for relative in PRIVATE:
-        if git(root, 'check-ignore', '--quiet', '--', relative + '/.youngcrow-ignore-check').returncode:
-            raise ValueError('Private storage is not ignored.')
+    probes = [relative + '/.youngcrow-ignore-check' for relative in PRIVATE]
+    ignored = git(root, 'check-ignore', '--', *probes)
+    # Exit zero means at least one match; every private boundary must be ignored.
+    if ignored.returncode or set(ignored.stdout.splitlines()) != {p.encode() for p in probes}:
+        raise ValueError('Private storage is not ignored.')
 
 
 def prepare_storage(root):

@@ -145,13 +145,28 @@ referência aplicável do fornecedor antes do adaptador. Não repetir as mesmas 
 baixar/executar binário como tentativa de desbloqueio ou consumir novo ciclo sem a
 prova exigida. Docker/modelos continuam sem execução nesta cloud; contador **2/3**.
 
-### Incremento atual: diagnóstico do CI Windows
+### Incremento de 8/out: custo do preflight Git
+
+O CI de `63bb229` confirmou timeout no fim de A2, após A/B completos; casos irmãos
+terminaram em 14,781 s e 14,891 s. A mudança local agrupa os três `check-ignore` de
+`verify_private_storage`, exigindo todos os probes na saída. Mantém verificações
+de caminhos, rastreamento, regras atuais e todos os prazos. Medição real Linux:
+cinco processos Git por consulta passaram a três. Testes de armazenamento e os
+cinco focais passaram; suíte geral confirmada com 602 aprovados e 20 pulados
+em 240,982 s. Windows ainda pendente. Uma falha intermitente de seleção concorrente
+também foi reproduzida no baseline e permanece registrada no backlog.
+[Relatório atual](relatorios/2026-10-08-git-preflight-cost.md).
+Próximo passo: publicar após QA e consultar os tempos do CI, sem atribuir todo o
+atraso ao Git antes da prova Windows. Dependências nativas e contador 2/3 preservados.
+
+### Histórico: diagnóstico do CI Windows
 
 Checkpoint atualizado em 8/out: código publicado `e674a83`, branch/ref do PR
 conferidas. Suíte pública local: 618 testes, 598 aprovados e 20 pulados em 255,268 s.
 Os cinco focais passaram nos runs `37722035973` (push) e `37722040460` (PR);
 a suíte Windows completa ainda estava em andamento na última consulta.
-Consultar esses runs antes de iniciar outra rodada. As fontes de produto não mudaram.
+Esse checkpoint foi sucedido por `63bb229` e pelo incremento de custo descrito acima.
+Naquele incremento, as fontes de produto não mudaram.
 O MCP GitHub não está exposto nesta sessão; Git HTTPS permitiu publicar. Uma falha
 401 transitória foi seguida por push e leitura de refs bem-sucedidos, sem alteração
 de autenticação/configuração.
@@ -178,8 +193,8 @@ continua falhando. Supervisor 15 s e plano 30 s permanecem inalterados.
 Em `32960b8`, o focal passou no push `37721430256`; o PR `37721434176` falhou
 com timeout externo de 15 s em v3 e v4, ambos sem stdout e com árvore recolhida.
 O diagnóstico agora lê o ledger mesmo sem envelope e publica tempos relativos.
-Próximo passo executável: localizar o atraso pelo ledger e acompanhar a suíte
-Windows completa. V4 e encerramento abrupto passaram nas rodadas focais anteriores,
+O passo seguinte era localizar o atraso pelo ledger e acompanhar a suíte
+Windows completa; a localização em A2 consta no incremento de 8/out. V4 e encerramento abrupto passaram nas rodadas focais anteriores,
 mas isso não explica suas falhas na execução longa de `a9d05ea`. Em paralelo ao bloqueio externo de 203.6, a integração de B (203.8) depende
 de transferir `captured_egress.py`, seus testes e a fixture nativa original do checkout
 privado anterior. Os arquivos/hashes necessários estão no relatório. Não substituir
@@ -190,7 +205,7 @@ Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
-| CI Windows | Localizar o timeout externo de v3/v4 pelos tempos do ledger; acompanhar a suíte completa |
+| CI Windows | Validar o preflight com menos processos Git nos focais e na suíte completa, preservando o supervisor de 15 s |
 | Executor: 203.6 | Bloqueio externo: comprovar identidade/versão/remoção atômica da credencial e escrita condicional dos settings locais 0.46.0; depois adaptador e aceite v4 |
 | Executor: restante de 203.5 | Comprovar recuperação nativa de settings/serviço/credencial e demais políticas necessárias, preservando alterações externas |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |

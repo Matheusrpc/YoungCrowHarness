@@ -7,20 +7,34 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
-Código e diagnóstico publicados no PR #24 em `e674a83`; branch e ref do PR conferidas.
-Code and diagnostics published to PR #24 at `e674a83`; branch and PR refs verified.
+Baseline publicado no PR #24: `63bb229`, com timeouts Windows confirmados.
+Published baseline on PR #24: `63bb229`, with confirmed Windows timeouts.
 
-Prioridade de validação: diagnosticar a falha da suíte de missões em `adoption-windows`
+Histórico da investigação: falha da suíte de missões em `adoption-windows`
 no CI de `da28f00`. Push e PR falharam; os outros três jobs passaram. O runner publica
 IDs dos testes falhos nas anotações. Em `a9d05ea`, falharam os dois percursos positivos
 de `NetworkBindingTests`; o CI do PR também falhou no encerramento abrupto do guard.
 O CI de `919b0a4` confirmou `TimeoutError` na sonda B v3. A correção da fixture
 usa o prazo restante da fase, sem aceitar timeout como recusa nem ampliar o limite
 do supervisor. Em `32960b8`, os cinco casos passaram no push; no PR, v3 e v4
-atingiram 15 s. Próximo passo: localizar esse atraso pelo ledger preservado após
-timeout e acompanhar a suíte completa. Em `e674a83`, os cinco focais passaram
-em ambos os runs; o CI completo permanece em andamento.
+atingiram 15 s. O ledger preservado após timeout passou a orientar a localização
+do atraso. Em `e674a83`, os cinco focais passaram
+em ambos os runs; naquele checkpoint, o CI completo ainda estava em andamento.
 [Evidência e diagnóstico](relatorios/2026-10-07-windows-ci-diagnostics.md).
+
+Em `63bb229`, o ledger localizou os timeouts no encerramento de A2. A verificação
+de ignore passa a agrupar três consultas em uma, mantendo todos os caminhos e
+checagens atuais. Próxima prova: CI Windows completo dentro do mesmo limite de 15 s.
+[Redução de custo e critérios](relatorios/2026-10-08-git-preflight-cost.md).
+At `63bb229`, ledger timelines located timeouts near A2 completion. Ignore preflight
+now batches three queries into one while retaining all checks. Next: full Windows
+CI within the unchanged 15-second supervisor limit.
+
+Pendência local identificada no QA: a seleção de ambiente pode falhar durante duas
+escritas concorrentes. O caso também falhou no baseline `63bb229`; preservar o
+bloqueio e diagnosticar a varredura anterior ao lock antes de qualquer correção.
+Local QA follow-up: concurrent environment selection can fail on the published
+baseline too; investigate the pre-lock inventory without relaxing rejection rules.
 
 A integração da captura de B (203.8) também aguarda transferência dos fontes e da
 fixture original do checkout privado anterior. Os hashes estão registrados; os

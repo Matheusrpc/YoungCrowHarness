@@ -2908,3 +2908,18 @@ estava em andamento. Um focal verde não encerra a investigação dos timeouts a
 Checkpoint `e674a83`: 618 local public tests, 598 passes and 20 skips; all five focused
 Windows cases passed on push and PR. Full Windows CI was still running. A focused
 pass does not resolve the earlier intermittent timeout investigation.
+
+
+### Verificação das regras privadas / Private ignore verification
+
+As consultas de missão e memória verificam novamente os caminhos privados antes
+de ler o armazenamento. O preflight consulta as três regras de ignore em uma só
+chamada Git e exige correspondência para todas. Remover uma regra, rastrear um
+arquivo privado ou receber erro do Git continua bloqueando a operação. A consulta
+não corrige `.gitignore` e não reutiliza resultados de chamadas anteriores.
+
+Mission and memory queries recheck private paths before reading storage. Preflight
+checks all three ignore rules in one Git invocation and requires every path to
+match. Removing a rule, tracking a private file or receiving a Git error still
+blocks the operation. Verification neither repairs `.gitignore` nor caches earlier
+results. See the [measurement](relatorios/2026-10-08-git-preflight-cost.md#english-overview).

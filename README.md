@@ -77,8 +77,14 @@ v3, que limitava a conexão a um segundo. A fixture agora usa o prazo restante d
 e continua exigindo recusa explícita. Os cinco casos focais passaram no push; no PR,
 v3 e v4 atingiram o limite externo de 15 s. Com o diagnóstico de tempos em `e674a83`,
 os cinco casos passaram em ambos os runs. A suíte completa local passou com 598
-aprovados e 20 pulados; o CI Windows completo segue em andamento.
+aprovados e 20 pulados; naquele checkpoint, o CI Windows completo ainda estava em andamento.
+O CI seguinte, em `63bb229`, registrou novos timeouts no fim de A2.
 [Estado do CI e próxima ação](docs/relatorios/2026-10-07-windows-ci-diagnostics.md).
+
+A verificação de armazenamento consulta as três regras de ignore em uma chamada
+Git e exige confirmação de todas. Isso reduz de cinco para três os processos por
+verificação, mantendo a leitura atual das regras em cada etapa. A confirmação local
+passou com 602 testes aprovados e 20 pulados; a validação Windows ainda está pendente. [Medição e regressões](docs/relatorios/2026-10-08-git-preflight-cost.md).
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
@@ -607,8 +613,15 @@ limited its connection to one second. The fixture now uses the remaining phase
 deadline and still requires explicit refusal. All five focused cases passed on push;
 v3 and v4 hit the outer 15-second limit on the PR run. With event timing diagnostics
 at `e674a83`, all five cases passed on both runs. The full local suite passed with
-598 successes and 20 skips; full Windows CI is still running.
+598 successes and 20 skips; full Windows CI was still running at that checkpoint.
+Subsequent CI at `63bb229` recorded further timeouts near A2 completion.
 [CI evidence and next action](docs/relatorios/2026-10-07-windows-ci-diagnostics.md#english-overview).
+
+Private-storage verification checks all three ignore rules in one Git invocation
+and requires every path to match. This reduces processes per check from five to
+three while reading current rules at each boundary. Local confirmation passed
+602 tests with 20 skips; Windows validation is pending.
+[Measurements and regressions](docs/relatorios/2026-10-08-git-preflight-cost.md#english-overview).
 
 Audit fixes recover interrupted mission/backlog notes even after another
 revision, preserving human edits. Malformed catalogs and Git failures during the

@@ -50,8 +50,8 @@ sem reparo ou escrita. Os cinco testes focais de rede/encerramento passaram em 6
 
 Revisão independente de segurança sem bloqueadores. A confirmação da suíte pública
 completa executou 622 testes: 602 aprovados e 20 pulados em 240,982 s.
-O CI Windows ainda precisa comprovar a conclusão dentro dos mesmos
-limites; reduzir chamadas não basta para declarar o timeout resolvido.
+O acompanhamento posterior confirmou a conclusão do CI Windows nos dois runs
+descritos abaixo, dentro dos mesmos limites.
 
 A primeira suíte completa executou 622 testes, com 7 falhas causadas pelos hashes
 antigos do helper no catálogo. Falharam o teste de contrato de missão e três
@@ -86,12 +86,10 @@ Destino autorizado: `feat/isolated-executor`, [PR #24](https://github.com/Matheu
 Código publicado em `25ee51d`; branch e ref do PR conferidas, main preservada.
 Os cinco focais Windows passaram nos runs [push 37724707270](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270)
 e [PR 37724712042](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042).
-Ambas as etapas duraram 42 s. Às 00:57 de 8/out (America/Sao_Paulo), os seis jobs
-Linux estavam aprovados; os dois Windows seguiam em armazenamento/recuperação.
-Os jobs Windows completos ainda estavam em andamento na consulta;
-esses tempos de etapa não substituem os tempos individuais de A/B/A2, ainda indisponíveis.
-Próximo: consultar esses mesmos runs antes de abrir outra rodada. Se houver falha, usar
-o ledger para localizar o trecho restante, sem aumentar o prazo. Retorno: reverter
+Ambas as etapas focais duraram 42 s. Os dois jobs Windows completos terminaram com
+todas as etapas aprovadas. Os oito percursos positivos das etapas focais/completas
+concluíram entre 8,625 e 10,656 s, com recuperação aprovada. Os seis jobs Linux também
+passaram. A próxima validação é a correção da seleção concorrente, registrada abaixo. Retorno: reverter
 este incremento restaura as três consultas individuais, preservando armazenamento
 e recibos. Nenhum arquivo privado, credencial ou HTML bruto entra no Git.
 
@@ -109,6 +107,13 @@ every call observes current rules without caching. Real local measurements confi
 five Git processes reduced to three per check. Security regressions and all five
 focused local network/cleanup tests passed. The full local confirmation passed
 602 tests with 20 skips. A preexisting intermittent concurrent-selection failure was
-also reproduced on the published baseline and remains open. Both Windows focused steps passed at `25ee51d`; the full push and PR jobs remain pending. No native execution or deadline increase was performed.
+also reproduced on the published baseline and remains open. Both full Windows jobs passed at `25ee51d`, including recovery, with positive flows
+completing in 8.625 to 10.656 seconds. No native execution or deadline increase was performed.
 
-ATRASO: PR #24 código publicado | CI completo Windows e aceite nativo pendentes.
+Checkpoint de 8/out: os dois jobs Windows de `25ee51d` terminaram com todas as etapas
+aprovadas. Os oito percursos positivos medidos concluíram entre 8,625 e 10,656 s,
+com recuperação aprovada. [Medição posterior e concorrência](2026-10-08-selection-concurrency.md).
+Full Windows jobs at `25ee51d` subsequently passed on push and PR; all eight measured
+positive flows completed in 8.625 to 10.656 seconds with successful recovery.
+
+ATRASO: PR #24 e CI do preflight Git 0 | aceite nativo pendente.

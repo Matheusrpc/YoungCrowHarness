@@ -85,7 +85,12 @@ A verificação de armazenamento consulta as três regras de ignore em uma chama
 Git e exige confirmação de todas. Isso reduz de cinco para três os processos por
 verificação, mantendo a leitura atual das regras em cada etapa. A confirmação local
 passou com 602 testes aprovados e 20 pulados. Em `25ee51d`, os cinco focais Windows
-passaram no push e no PR; o CI completo ainda está em andamento. [Medição e regressões](docs/relatorios/2026-10-08-git-preflight-cost.md).
+passaram no push e no PR; os dois jobs Windows completos também passaram. [Medição e regressões](docs/relatorios/2026-10-08-git-preflight-cost.md).
+
+A seleção do destino agora protege consultas e alterações com o mesmo lock. Um
+processo concorrente recebe `execution_selection_busy`; depois da gravação, um digest
+antigo continua sendo recusado. Consultar a seleção não cria nem inicializa o lock.
+[Correção e provas de concorrência](docs/relatorios/2026-10-08-selection-concurrency.md).
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
@@ -622,8 +627,13 @@ Private-storage verification checks all three ignore rules in one Git invocation
 and requires every path to match. This reduces processes per check from five to
 three while reading current rules at each boundary. Local confirmation passed
 602 tests with 20 skips. At `25ee51d`, all five focused Windows cases passed on
-push and PR; full CI is still running.
+push and PR; both full Windows jobs also passed.
 [Measurements and regressions](docs/relatorios/2026-10-08-git-preflight-cost.md#english-overview).
+
+Execution-location reads and updates now use the same lock. A competing operation
+receives `execution_selection_busy`; after publication, a stale digest is still
+rejected. Reading the selection never creates or initializes its lock.
+[Concurrency fix and evidence](docs/relatorios/2026-10-08-selection-concurrency.md#english-overview).
 
 Audit fixes recover interrupted mission/backlog notes even after another
 revision, preserving human edits. Malformed catalogs and Git failures during the

@@ -46,8 +46,8 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '24'
-      - name: Diagnose Windows network and controller cleanup
-        run: python -B tests/windows_fixture_runner.py tests/ci_unittest.py discover -s tests -p "test_mission*.py" -k NetworkBindingTests -k test_abrupt_controller_exit_before_config_reaps_the_waiting_guard -v
+      - name: Diagnose Windows network, selection locks and cleanup
+        run: python -B tests/windows_fixture_runner.py tests/ci_unittest.py discover -s tests -p "test_mission*.py" -k NetworkBindingTests -k test_abrupt_controller_exit_before_config_reaps_the_waiting_guard -k test_readonly_or_empty_selection_lock_is_not_modified -k test_reader_during_paused_selection_update_is_busy -v
       - name: Exercise the board in new and existing consumers
         run: python -B tests/windows_fixture_runner.py tests/smoke_public_pilot.py --root "$env:RUNNER_TEMP/public-pilot-adoption" --client both
       - name: Verify native storage, permissions and crash recovery

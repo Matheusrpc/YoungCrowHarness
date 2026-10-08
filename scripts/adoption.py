@@ -96,15 +96,12 @@ def write_state(store, previous, **changes):
 
 
 @contextmanager
-def lock_guard(store):
+def lock_guard(store, *, create=True):
     """OS advisory lock releases on process death; the recovery record is persistent."""
     path = safe_path(store, 'reclaim.lock')
-    descriptor = os.open(path, os.O_RDWR | os.O_CREAT | getattr(os, 'O_BINARY', 0), 0o600)
-    with os.fdopen(descriptor, 'r+b') as guard:
-        guard.seek(0, os.SEEK_END)
-        if guard.tell() == 0:
-            guard.write(b'0')
-            guard.flush()
+    flags = (os.O_RDWR if create else os.O_RDONLY) | getattr(os, 'O_BINARY', 0)
+    descriptor = os.open(path, flags | (os.O_CREAT if create else 0), 0o600)
+    with os.fdopen(descriptor, 'r+b' if create else 'rb') as guard:
         guard.seek(0)
         try:
             if os.name == 'nt':
@@ -116,6 +113,9 @@ def lock_guard(store):
         except OSError as error:
             raise ValueError('locked') from error
         try:
+            if create and os.fstat(guard.fileno()).st_size == 0:
+                guard.write(b'0')
+                guard.flush()
             yield
         finally:
             guard.seek(0)

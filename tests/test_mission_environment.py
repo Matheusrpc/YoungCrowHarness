@@ -9,6 +9,7 @@ import subprocess
 import sys
 import time
 import unittest
+from unittest.mock import patch
 
 from test_adoption_storage import StorageFixture, ROOT
 from test_setup import snapshot_bytes
@@ -152,6 +153,128 @@ class ExecutionEnvironmentTests(StorageFixture):
         env = dict(os.environ, PYTHONPATH=str(ROOT / 'scripts'))
         return subprocess.Popen([sys.executable, '-B', '-c', code, str(self.root), *args],
                                 env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    def assert_selection_contention(self, existing, read, during_check=False):
+        first = self.env.configure_selection(self.root, 'local', None) if existing else {'digest': None}
+        code = """import json,sys,time
+from pathlib import Path
+import mission_environment as environment
+root=Path(sys.argv[1])
+original=environment.atomic_write
+def paused(root,relative,data,before_write=None):
+ def ready(name):
+  before_write(name)
+  (root/'ready').touch()
+  deadline=time.monotonic()+45
+  while not (root/'release').exists():
+   if time.monotonic()>=deadline: raise RuntimeError('barrier deadline')
+   time.sleep(.01)
+ return original(root,relative,data,before_write=ready)
+environment.atomic_write=paused
+print(json.dumps(environment.configure_selection(root,'dedicated',json.loads(sys.argv[2]))))
+"""
+        child = None
+        def start_writer():
+            nonlocal child
+            child = self.child(code, json.dumps(first['digest']))
+            deadline = time.monotonic() + 45
+            while not (self.root / 'ready').exists() and child.poll() is None and time.monotonic() < deadline:
+                time.sleep(.01)
+            self.assertTrue((self.root / 'ready').exists(), 'writer did not reach the temporary-file barrier')
+        git_check = self.env._git_boundary
+        def start_during_check(root):
+            if child is None:
+                start_writer()
+            return git_check(root)
+        try:
+            if not during_check:
+                start_writer()
+            selection = self.root / self.env.SELECTION
+            before = selection.read_bytes() if selection.exists() else None
+            checked = self.env.fs.checked_path
+            def release_after_enumeration(path):
+                if Path(path).name.startswith('.yc-'):
+                    (self.root / 'release').touch()
+                    child.wait(timeout=45)
+                return checked(path)
+            # The old pre-lock inventory meets a real rename after enumerating its temporary.
+            expected = 'execution_selection_conflict' if during_check and not read else 'execution_selection_busy'
+            with patch.object(self.env.fs, 'checked_path', side_effect=release_after_enumeration), \
+                 patch.object(self.env, '_git_boundary', side_effect=start_during_check):
+                with self.assertRaisesRegex(ValueError, '^' + expected + '$'):
+                    if read:
+                        self.env.read_selection(self.root)
+                    else:
+                        self.env.configure_selection(self.root, 'local', first['digest'])
+            if during_check and not read:
+                self.assertTrue((self.root / 'release').exists(), 'bootstrap did not meet the inventory race')
+            else:
+                self.assertFalse((self.root / 'release').exists(), 'contender entered the active writer inventory')
+                self.assertEqual(selection.read_bytes() if selection.exists() else None, before)
+        finally:
+            (self.root / 'release').touch()
+            if child is not None:
+                try:
+                    output, errors = child.communicate(timeout=45)
+                finally:
+                    if child.poll() is None:
+                        child.kill()
+                        child.communicate(timeout=10)
+        self.assertEqual(child.returncode, 0, errors)
+        result = json.loads(output)
+        self.assertEqual(result['location'], 'dedicated')
+        self.assertEqual(self.env.read_selection(self.root), result)
+        with self.assertRaisesRegex(ValueError, '^execution_selection_conflict$'):
+            self.env.configure_selection(self.root, 'local', first['digest'])
+
+    def test_reader_during_paused_first_selection_is_busy(self):
+        self.assert_selection_contention(existing=False, read=True)
+
+    def test_reader_during_paused_selection_update_is_busy(self):
+        self.assert_selection_contention(existing=True, read=True)
+
+    def test_writer_during_paused_first_selection_is_busy(self):
+        self.assert_selection_contention(existing=False, read=False)
+
+    def test_writer_during_paused_selection_update_is_busy(self):
+        self.assert_selection_contention(existing=True, read=False)
+
+    def test_readonly_or_empty_selection_lock_is_not_modified(self):
+        first = self.env.configure_selection(self.root, 'local', None)
+        lock = self.root / self.env.AREA / 'reclaim.lock'
+        for data in (b'', b'0'):
+            with self.subTest(empty=not data):
+                lock.write_bytes(data)
+                os.chmod(lock, 0o400)
+                try:
+                    before = self.snapshot()
+                    self.assertEqual(self.env.read_selection(self.root), first)
+                    self.assertEqual(self.env.setup_selection(self.root, None, apply=False), first)
+                    self.assertEqual(self.snapshot(), before)
+                finally:
+                    os.chmod(lock, 0o600)
+        lock.unlink()
+        before = self.snapshot()
+        self.assertEqual(self.env.read_selection(self.root), first)
+        self.assertEqual(self.snapshot(), before)
+
+    def test_existing_empty_lock_and_unsafe_storage_are_not_repaired(self):
+        first = self.env.configure_selection(self.root, 'local', None)
+        lock = self.root / self.env.AREA / 'reclaim.lock'
+        lock.write_bytes(b'')
+        self.write('.gitignore', b'')
+        before = self.snapshot()
+        for call in (lambda: self.env.read_selection(self.root),
+                     lambda: self.env.configure_selection(self.root, 'dedicated', first['digest'])):
+            with self.assertRaisesRegex(ValueError, '^execution_storage_unprotected$'):
+                call()
+            self.assertEqual(self.snapshot(), before)
+
+    def test_reader_rechecks_when_first_writer_appears_during_git_check(self):
+        self.assert_selection_contention(existing=False, read=True, during_check=True)
+
+    def test_first_writer_inventory_race_rechecks_under_new_lock(self):
+        self.assert_selection_contention(existing=False, read=False, during_check=True)
 
     def test_two_writers_one_digest(self):
         first = self.env.configure_selection(self.root, 'local', None)

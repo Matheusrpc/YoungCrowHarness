@@ -7,10 +7,12 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
-Código publicado no PR #24: `25ee51d`. Focais Windows aprovados no push e no PR;
-CI completo pendente. O baseline `63bb229` teve timeouts confirmados.
-Code published on PR #24: `25ee51d`. Focused Windows checks passed on push and PR;
-full CI pending. Baseline `63bb229` had confirmed timeouts.
+Incremento atual: correção da seleção concorrente, com 610 testes locais aprovados e
+20 pulados. Próximo gate: CI Windows da aquisição de lock vazio/somente leitura.
+O CI completo da otimização Git `25ee51d` passou no push e no PR.
+Current increment: concurrent selection fix, with 610 local passes and 20 skips.
+Next gate: Windows validation of empty/read-only locking. Full CI for the previous
+Git optimization at `25ee51d` passed on push and PR.
 
 Histórico da investigação: falha da suíte de missões em `adoption-windows`
 no CI de `da28f00`. Push e PR falharam; os outros três jobs passaram. O runner publica
@@ -26,17 +28,19 @@ em ambos os runs; naquele checkpoint, o CI completo ainda estava em andamento.
 
 Em `63bb229`, o ledger localizou os timeouts no encerramento de A2. A verificação
 de ignore passa a agrupar três consultas em uma, mantendo todos os caminhos e
-checagens atuais. Próxima prova: CI Windows completo dentro do mesmo limite de 15 s.
+checagens atuais. O CI Windows completo de `25ee51d` passou dentro do mesmo limite de 15 s.
 [Redução de custo e critérios](relatorios/2026-10-08-git-preflight-cost.md).
 At `63bb229`, ledger timelines located timeouts near A2 completion. Ignore preflight
-now batches three queries into one while retaining all checks. Next: full Windows
-CI within the unchanged 15-second supervisor limit.
+now batches three queries into one while retaining all checks. Full Windows CI at
+`25ee51d` passed within the unchanged 15-second supervisor limit.
 
-Pendência local identificada no QA: a seleção de ambiente pode falhar durante duas
-escritas concorrentes. O caso também falhou no baseline `63bb229`; preservar o
-bloqueio e diagnosticar a varredura anterior ao lock antes de qualquer correção.
-Local QA follow-up: concurrent environment selection can fail on the published
-baseline too; investigate the pre-lock inventory without relaxing rejection rules.
+A correção da seleção concorrente usa o mesmo lock para inventário, leitura e troca.
+As provas com processos e barreiras cobrem criação inicial, atualização, consulta e
+bootstrap concorrente. Próxima prova: aquisição em lock vazio/somente leitura no
+Windows e conclusão da suíte completa. [Evidências](relatorios/2026-10-08-selection-concurrency.md).
+Concurrent selection now locks inventory, reads and updates together. Process/barrier
+regressions cover initial creation, updates and concurrent bootstrap. Windows validation
+of empty/read-only locks and the full suite remain pending.
 
 A integração da captura de B (203.8) também aguarda transferência dos fontes e da
 fixture original do checkout privado anterior. Os hashes estão registrados; os

@@ -2681,6 +2681,21 @@ banco ou nota. Mudança de preferência não transfere missões. Um lock ocupado
 consulta, sem apagar estado. Use the current digest; `none` applies only to an absent
 record. Read-only queries create no state. Selection changes do not transfer missions.
 
+A consulta e a troca do destino usam o mesmo lock da seleção. Se outra operação
+estiver usando esse lock, `environment show` ou `configure` retorna
+`execution_selection_busy`; consulte novamente depois que ela terminar. Não apague
+`reclaim.lock`: o arquivo permanece após a liberação pelo sistema operacional.
+Um digest antigo retorna `execution_selection_conflict`, sem uma segunda gravação.
+A consulta aceita lock vazio ou somente leitura e não o modifica. Proteção inválida
+continua sendo recusada; esse controle cobre a seleção, não todos os recibos da área.
+
+Selection reads and updates use the same lock. If another operation holds it,
+`environment show` or `configure` returns `execution_selection_busy`; query again
+after that operation finishes. Keep `reclaim.lock`: its file persists after the OS
+releases the lock. A stale digest returns `execution_selection_conflict` without a
+second write. Queries leave empty or read-only locks unchanged. Unsafe storage is
+still rejected. This coordination covers selection, not every receipt in the area.
+
 Exemplo abreviado de fixture sintética / Abbreviated synthetic fixture example:
 
 ```json

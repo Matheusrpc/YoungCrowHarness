@@ -249,140 +249,169 @@
     "push_exit_code": 0
   },
   "ci_after": {
-    "at": "2026-10-08T03:57:24.550793+00:00",
+    "at": "2026-10-08T04:16:19.634373+00:00",
     "commit": "25ee51d69cb87d8f944c91e7347240ec8af96c0f",
-    "state": "in_progress",
-    "jobs": [
-      {
-        "status": "This job succeeded",
-        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270/job/113140122339?pr=24",
-        "name": "public-pilot"
-      },
-      {
-        "status": "This job succeeded",
-        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270/job/113140122328?pr=24",
-        "name": "installer"
-      },
-      {
-        "status": "This job is in progress",
-        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270/job/113140122154?pr=24",
-        "name": "adoption-windows"
-      },
-      {
-        "status": "This job succeeded",
-        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270/job/113140122354?pr=24",
-        "name": "graphify-smoke"
-      },
-      {
-        "status": "This job succeeded",
-        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042/job/113140137353?pr=24",
-        "name": "public-pilot"
-      },
-      {
-        "status": "This job succeeded",
-        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042/job/113140137229?pr=24",
-        "name": "installer"
-      },
-      {
-        "status": "This job is in progress",
-        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042/job/113140137322?pr=24",
-        "name": "adoption-windows"
-      },
-      {
-        "status": "This job succeeded",
-        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042/job/113140137061?pr=24",
-        "name": "graphify-smoke"
-      }
-    ],
+    "state": "completed",
+    "linux_jobs_previously_verified": 6,
     "windows": [
       {
-        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270/job/113140122154?pr=24",
-        "html_sha256": "616dc5f159daa67e858ace173c63e065ed1f58b84aca361f3ae40e4ff14874d6",
-        "steps": [
+        "event": "push",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270/job/113140122154",
+        "html_sha256": "1b3c099c8d60faaaadb7c9088b34d29d4b3c0e1dd4632b86763c8635c7c23a16",
+        "all_steps": "success",
+        "completed_at": "2026-10-08T04:12:03Z",
+        "positive_flows": [
           {
-            "name": "Diagnose Windows network and controller cleanup",
-            "number": "5",
-            "conclusion": "success",
-            "started-at": "2026-10-08T03:51:48Z",
-            "completed-at": "2026-10-08T03:52:30Z"
+            "case": "Verify mission diagnostics and process recovery test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 10.297,
+              "stdout_bytes": 4015,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
           },
           {
-            "name": "Exercise the board in new and existing consumers",
-            "number": "6",
-            "conclusion": "success",
-            "started-at": "2026-10-08T03:52:30Z",
-            "completed-at": "2026-10-08T03:53:19Z"
+            "case": "Verify mission diagnostics and process recovery test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 10.656,
+              "stdout_bytes": 3819,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
           },
           {
-            "name": "Verify native storage, permissions and crash recovery",
-            "number": "7",
-            "conclusion": "null",
-            "started-at": "2026-10-08T03:53:19Z",
-            "completed-at": ""
+            "case": "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 9.984,
+              "stdout_bytes": 4015,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
           },
           {
-            "name": "Verify mission diagnostics and process recovery",
-            "number": "11",
-            "conclusion": "null",
-            "started-at": "",
-            "completed-at": ""
-          },
-          {
-            "name": "Exercise bounded diagnostic adoption without model calls",
-            "number": "12",
-            "conclusion": "null",
-            "started-at": "",
-            "completed-at": ""
+            "case": "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 9.938,
+              "stdout_bytes": 3819,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
           }
         ]
       },
       {
-        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042/job/113140137322?pr=24",
-        "html_sha256": "9efeb744148b9ef647a10f165d27524ce2d82ec4c59271042ac7849a41b0454a",
-        "steps": [
+        "event": "pr",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042/job/113140137322",
+        "html_sha256": "22693a4fd40e686dbc4cc340b1476d1bd6ed532296ef19d1460e922fe521e780",
+        "all_steps": "success",
+        "completed_at": "2026-10-08T04:09:17Z",
+        "positive_flows": [
           {
-            "name": "Diagnose Windows network and controller cleanup",
-            "number": "5",
-            "conclusion": "success",
-            "started-at": "2026-10-08T03:51:51Z",
-            "completed-at": "2026-10-08T03:52:33Z"
+            "case": "Verify mission diagnostics and process recovery test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 8.625,
+              "stdout_bytes": 4015,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
           },
           {
-            "name": "Exercise the board in new and existing consumers",
-            "number": "6",
-            "conclusion": "success",
-            "started-at": "2026-10-08T03:52:33Z",
-            "completed-at": "2026-10-08T03:53:16Z"
+            "case": "Verify mission diagnostics and process recovery test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 8.844,
+              "stdout_bytes": 3819,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
           },
           {
-            "name": "Verify native storage, permissions and crash recovery",
-            "number": "7",
-            "conclusion": "null",
-            "started-at": "2026-10-08T03:53:16Z",
-            "completed-at": ""
+            "case": "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 9.641,
+              "stdout_bytes": 4015,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
           },
           {
-            "name": "Verify mission diagnostics and process recovery",
-            "number": "11",
-            "conclusion": "null",
-            "started-at": "",
-            "completed-at": ""
-          },
-          {
-            "name": "Exercise bounded diagnostic adoption without model calls",
-            "number": "12",
-            "conclusion": "null",
-            "started-at": "",
-            "completed-at": ""
+            "case": "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 10.016,
+              "stdout_bytes": 3819,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
           }
         ]
       }
-    ],
-    "scope": "all six Linux jobs passed; both Windows focused and board steps passed; full Windows jobs pending"
+    ]
   },
   "limitations": [
     "Windows Git time not separately profiled; redundant calls and local process reduction are measured",
-    "Full Windows validation of the optimization is pending",
     "Native sbx contracts and original B evidence transfer remain blocked",
     "Preexisting intermittent two-writer selection failure reproduced on baseline; no concurrency fix included"
   ],

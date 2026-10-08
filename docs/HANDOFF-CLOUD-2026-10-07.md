@@ -145,7 +145,26 @@ referência aplicável do fornecedor antes do adaptador. Não repetir as mesmas 
 baixar/executar binário como tentativa de desbloqueio ou consumir novo ciclo sem a
 prova exigida. Docker/modelos continuam sem execução nesta cloud; contador **2/3**.
 
-### Incremento de 8/out: custo do preflight Git
+### Incremento atual: concorrência da seleção
+
+A seleção local/dedicada agora adquire o lock existente sem criar ou escrever bytes,
+antes de inspecionar o armazenamento. A primeira configuração mantém os gates antes
+da criação e revalida sob o lock. Leitura e escrita usam uma leitura interna comum;
+a consulta não adquire o lock recursivamente. Se o lock surgir durante o preflight,
+a operação refaz a validação uma vez sob proteção. Nenhum temporário é ignorado.
+
+As seis regressões de concorrência falham no baseline e passam na correção. A bateria
+local da seleção tem 18 aprovados e uma junction Windows pulada; os sete focais locais
+passaram. Suíte completa: 610 aprovados e 20 pulados em 249,942 s. O CI passa a testar cedo lock vazio/somente leitura
+e leitor durante gravação, mantendo a suíte integral. [Relatório](relatorios/2026-10-08-selection-concurrency.md).
+
+Próximo passo: consultar o CI desta revisão no PR #24, começando pelos sete focais
+e depois pela suíte Windows completa. O CI completo de `25ee51d` já passou no push
+e no PR; os oito percursos positivos medidos ficaram entre 8,625 e 10,656 s. O código coordena seleção;
+recibos de `Sbx.persist` não participam desse lock. Contratos sbx e fontes originais de B
+continuam bloqueados, perfis sem aceite nativo e contador 2/3 preservado.
+
+### Histórico: custo do preflight Git
 
 O CI de `63bb229` confirmou timeout no fim de A2, após A/B completos; casos irmãos
 terminaram em 14,781 s e 14,891 s. A mudança publicada em `25ee51d` agrupa os três `check-ignore` de
@@ -153,13 +172,14 @@ terminaram em 14,781 s e 14,891 s. A mudança publicada em `25ee51d` agrupa os t
 de caminhos, rastreamento, regras atuais e todos os prazos. Medição real Linux:
 cinco processos Git por consulta passaram a três. Testes de armazenamento e os
 cinco focais passaram; suíte geral confirmada com 602 aprovados e 20 pulados
-em 240,982 s. Windows ainda pendente. Uma falha intermitente de seleção concorrente
-também foi reproduzida no baseline e permanece registrada no backlog.
+em 240,982 s. Naquele checkpoint, Windows ainda estava pendente; depois os dois jobs
+completos de `25ee51d` passaram. A falha de seleção concorrente identificada nessa
+bateria é tratada pelo incremento atual.
 [Relatório atual](relatorios/2026-10-08-git-preflight-cost.md).
 Os cinco focais Windows passaram no push `37724707270` e no PR `37724712042`,
 42 s por etapa. Às 00:57 de 8/out (America/Sao_Paulo), seis jobs Linux aprovados e
-dois Windows ainda em armazenamento/recuperação. Próximo passo: consultar esses
-runs e seus tempos antes de outra rodada, sem atribuir todo o atraso ao Git. Dependências nativas e contador 2/3 preservados.
+dois Windows ainda em armazenamento/recuperação. Essa consulta foi sucedida pela
+confirmação dos dois jobs completos. O incremento atual de concorrência está descrito acima. Dependências nativas e contador 2/3 preservados.
 
 ### Histórico: diagnóstico do CI Windows
 
@@ -207,7 +227,7 @@ Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
-| CI Windows | Validar o preflight com menos processos Git nos focais e na suíte completa, preservando o supervisor de 15 s |
+| CI Windows | Validar os locks de seleção vazios/somente leitura e concluir a suíte desta revisão; preflight Git já aprovado em dois jobs completos |
 | Executor: 203.6 | Bloqueio externo: comprovar identidade/versão/remoção atômica da credencial e escrita condicional dos settings locais 0.46.0; depois adaptador e aceite v4 |
 | Executor: restante de 203.5 | Comprovar recuperação nativa de settings/serviço/credencial e demais políticas necessárias, preservando alterações externas |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |

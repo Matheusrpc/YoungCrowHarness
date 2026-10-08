@@ -3,6 +3,7 @@ import sys
 sys.dont_write_bytecode = True
 
 import argparse
+from contextlib import contextmanager
 from datetime import datetime, timezone, timedelta
 import hashlib
 import json
@@ -102,7 +103,7 @@ def _storage(root):
         raise storage_error(error, phase) from None
 
 
-def read_selection(root: Path) -> dict:
+def _read_selection(root: Path) -> dict:
     try:
         root = fs.checked_path(root)
         path = fs.checked_path(safe_path(root, SELECTION))
@@ -139,46 +140,89 @@ def read_selection(root: Path) -> dict:
         raise ValueError('invalid_execution_selection') from None
 
 
+@contextmanager
+def _selection_guard(root, *, create=False):
+    try:
+        with lock_guard(root / AREA, create=create):
+            yield
+    except ValueError as error:
+        if str(error) == 'locked':
+            raise ValueError('execution_selection_busy') from None
+        raise
+
+
+def read_selection(root: Path) -> dict:
+    try:
+        root = fs.checked_path(root)
+        lock = safe_path(root, AREA + '/reclaim.lock')
+        if not lock.exists():
+            try:
+                current = _read_selection(root)
+            except (ValueError, OSError, subprocess.SubprocessError):
+                if not lock.exists():
+                    raise
+            else:
+                if not lock.exists():
+                    return current
+            # A first writer appeared during inspection. Revalidate once under its lock.
+        with _selection_guard(root):
+            return _read_selection(root)
+    except (ValueError, OSError, TypeError, KeyError) as error:
+        if str(error) in ('execution_storage_unprotected', 'execution_selection_busy'):
+            raise
+        raise ValueError('invalid_execution_selection') from None
+
+
+def _configure_selection_locked(root, location, expected_digest):
+    current = _read_selection(root)
+    if current['digest'] != expected_digest:
+        raise ValueError('execution_selection_conflict')
+    _storage(root)
+    if current['origin'] == 'configured' and current['location'] == location:
+        return current
+    value = dict(schema_version=1, location=location, selected_at=datetime.now(timezone.utc).isoformat())
+    atomic_write(root, SELECTION, json.dumps(value, indent=2) + '\n',
+                 before_write=lambda relative: _private(root / relative))
+    return _read_selection(root)
+
+
 def configure_selection(root: Path, location: str, expected_digest: str | None) -> dict:
     if (location not in ('local', 'dedicated') or
             (expected_digest is not None and (not isinstance(expected_digest, str)
                                               or not re.fullmatch('[0-9a-f]{64}', expected_digest)))):
         raise ValueError('invalid_execution_selection')
-    current = read_selection(root)
-    if current['digest'] != expected_digest:
-        raise ValueError('execution_selection_conflict')
     root = fs.checked_path(root)
-    _storage(root)
-    for relative in ('.operacao-local', AREA):
-        directory = fs.checked_path(root / relative)
-        if not directory.exists():
-            try:
-                if relative == AREA:
-                    fs.private_dir(directory)
-                else:
-                    # Python 3.13+ treats Windows 0700 as a custom ACL. This parent stores no preference bytes.
-                    directory.mkdir(mode=0o777 if os.name == 'nt' else 0o700)
-            except (ValueError, FileExistsError):
-                if not directory.exists():
-                    raise
-        if relative == AREA:
-            _private(directory)
+    lock = safe_path(root, AREA + '/reclaim.lock')
+    if lock.exists():
+        with _selection_guard(root):
+            return _configure_selection_locked(root, location, expected_digest)
     try:
-        with lock_guard(root / AREA):
-            current = read_selection(root)
-            if current['digest'] != expected_digest:
-                raise ValueError('execution_selection_conflict')
-            _storage(root)
-            if current['origin'] == 'configured' and current['location'] == location:
-                return current
-            value = dict(schema_version=1, location=location, selected_at=datetime.now(timezone.utc).isoformat())
-            atomic_write(root, SELECTION, json.dumps(value, indent=2) + '\n',
-                         before_write=lambda relative: _private(root / relative))
-            return read_selection(root)
-    except ValueError as error:
-        if str(error) == 'locked':
-            raise ValueError('execution_selection_busy') from None
-        raise
+        current = _read_selection(root)
+        if current['digest'] != expected_digest:
+            raise ValueError('execution_selection_conflict')
+        _storage(root)
+        for relative in ('.operacao-local', AREA):
+            directory = fs.checked_path(root / relative)
+            if not directory.exists():
+                try:
+                    if relative == AREA:
+                        fs.private_dir(directory)
+                    else:
+                        # Python 3.13+ treats Windows 0700 as a custom ACL. This parent stores no preference bytes.
+                        directory.mkdir(mode=0o777 if os.name == 'nt' else 0o700)
+                except (ValueError, FileExistsError):
+                    if not directory.exists():
+                        raise
+            if relative == AREA:
+                _private(directory)
+    except (ValueError, OSError, subprocess.SubprocessError):
+        if not lock.exists():
+            raise
+        # Another first writer created the lock during preflight; do not repair storage.
+        with _selection_guard(root):
+            return _configure_selection_locked(root, location, expected_digest)
+    with _selection_guard(root, create=True):
+        return _configure_selection_locked(root, location, expected_digest)
 
 
 def setup_selection(root: Path, requested: str | None, *, apply: bool) -> dict:
@@ -189,10 +233,7 @@ def setup_selection(root: Path, requested: str | None, *, apply: bool) -> dict:
         if requested is not None and current['location'] != requested:
             raise ValueError('execution_location_conflict')
         return current
-    # Check existing storage before installation can overwrite its ignore rules.
-    area = fs.checked_path(Path(root) / AREA)
-    if area.exists():
-        _storage(Path(root))
+    # read_selection checked existing storage before setup can overwrite its ignore rules.
     if apply:
         return configure_selection(root, requested or 'local', None)
     return current

@@ -27,10 +27,12 @@ fora do Git.
 - Cada arquivo abaixo do limite de 100 MiB por arquivo do GitHub.
 
 Medição: [`2026-10-08-youngcrow-downloads.json`](../medicoes/2026-10-08-youngcrow-downloads.json).
-Essas provas cobrem os arquivos locais. A confirmação dos links públicos requer
-download integral após o push, comparando os bytes e hashes com essa medição.
+Após a publicação no commit `f064df3e2ed33f77e383ce929bfc007d87fa9ea3`, os dois
+links públicos foram baixados integralmente por HTTPS, sem autenticação. Ambos
+retornaram HTTP 200, com os mesmos bytes e SHA-256 dos arquivos locais. Os links
+da documentação também retornaram HTTP 200. O recibo está na mesma medição.
 
 O conteúdo continua identificado como encenação. Esta entrega não altera o
 executor nem representa aceitação nativa do harness.
 
-ATRASO: arquivos de download 0 | links públicos: verificar após publicação | executor: validação pendente.
+ATRASO: arquivos de download 0 | links públicos 0 | executor: validação pendente.

@@ -41,5 +41,38 @@
       "observed_color_range": "pc"
     }
   ],
-  "master_files_unchanged": true
+  "master_files_unchanged": true,
+  "public_download_verification": {
+    "verified_at": "2026-10-08T10:02:31.057229+00:00",
+    "commit": "f064df3e2ed33f77e383ce929bfc007d87fa9ea3",
+    "verification": "Full unauthenticated HTTPS GET with TLS verification and SHA-256 comparison",
+    "videos": [
+      {
+        "url": "https://raw.githubusercontent.com/Matheusrpc/YoungCrowHarness/f064df3e2ed33f77e383ce929bfc007d87fa9ea3/docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4",
+        "final_url": "https://raw.githubusercontent.com/Matheusrpc/YoungCrowHarness/f064df3e2ed33f77e383ce929bfc007d87fa9ea3/docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4",
+        "status": 200,
+        "content_type": "application/octet-stream",
+        "content_disposition": null,
+        "bytes": 40144704,
+        "sha256": "5204a158afc9646e583a8af43cccbc1581c31f47493a62134eb394ac9459f7b9",
+        "verified": true,
+        "documented_url": "https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4",
+        "documented_url_status": 200,
+        "documented_url_final": "https://raw.githubusercontent.com/Matheusrpc/YoungCrowHarness/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/Matheusrpc/YoungCrowHarness/f064df3e2ed33f77e383ce929bfc007d87fa9ea3/docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4",
+        "final_url": "https://raw.githubusercontent.com/Matheusrpc/YoungCrowHarness/f064df3e2ed33f77e383ce929bfc007d87fa9ea3/docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4",
+        "status": 200,
+        "content_type": "application/octet-stream",
+        "content_disposition": null,
+        "bytes": 51998318,
+        "sha256": "8bffaf6e0ab778717827afeab7f90b0c398382844602de3d98c1c23f11d480fa",
+        "verified": true,
+        "documented_url": "https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4",
+        "documented_url_status": 200,
+        "documented_url_final": "https://raw.githubusercontent.com/Matheusrpc/YoungCrowHarness/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4"
+      }
+    ]
+  }
 }

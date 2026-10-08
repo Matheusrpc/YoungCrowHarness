@@ -7,8 +7,10 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
-Baseline publicado no PR #24: `63bb229`, com timeouts Windows confirmados.
-Published baseline on PR #24: `63bb229`, with confirmed Windows timeouts.
+Código publicado no PR #24: `25ee51d`. Focais Windows aprovados no push e no PR;
+CI completo pendente. O baseline `63bb229` teve timeouts confirmados.
+Code published on PR #24: `25ee51d`. Focused Windows checks passed on push and PR;
+full CI pending. Baseline `63bb229` had confirmed timeouts.
 
 Histórico da investigação: falha da suíte de missões em `adoption-windows`
 no CI de `da28f00`. Push e PR falharam; os outros três jobs passaram. O runner publica

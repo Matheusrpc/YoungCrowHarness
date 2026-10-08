@@ -148,7 +148,7 @@ prova exigida. Docker/modelos continuam sem execução nesta cloud; contador **2
 ### Incremento de 8/out: custo do preflight Git
 
 O CI de `63bb229` confirmou timeout no fim de A2, após A/B completos; casos irmãos
-terminaram em 14,781 s e 14,891 s. A mudança local agrupa os três `check-ignore` de
+terminaram em 14,781 s e 14,891 s. A mudança publicada em `25ee51d` agrupa os três `check-ignore` de
 `verify_private_storage`, exigindo todos os probes na saída. Mantém verificações
 de caminhos, rastreamento, regras atuais e todos os prazos. Medição real Linux:
 cinco processos Git por consulta passaram a três. Testes de armazenamento e os
@@ -156,8 +156,10 @@ cinco focais passaram; suíte geral confirmada com 602 aprovados e 20 pulados
 em 240,982 s. Windows ainda pendente. Uma falha intermitente de seleção concorrente
 também foi reproduzida no baseline e permanece registrada no backlog.
 [Relatório atual](relatorios/2026-10-08-git-preflight-cost.md).
-Próximo passo: publicar após QA e consultar os tempos do CI, sem atribuir todo o
-atraso ao Git antes da prova Windows. Dependências nativas e contador 2/3 preservados.
+Os cinco focais Windows passaram no push `37724707270` e no PR `37724712042`,
+42 s por etapa. Às 00:57 de 8/out (America/Sao_Paulo), seis jobs Linux aprovados e
+dois Windows ainda em armazenamento/recuperação. Próximo passo: consultar esses
+runs e seus tempos antes de outra rodada, sem atribuir todo o atraso ao Git. Dependências nativas e contador 2/3 preservados.
 
 ### Histórico: diagnóstico do CI Windows
 

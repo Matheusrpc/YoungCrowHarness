@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "measured_at": "2026-10-08T03:51:24.601123+00:00",
+  "measured_at": "2026-10-08T03:56:52.626779+00:00",
   "scope": "Batch private-storage Git ignore checks without caching or changing acceptance gates",
   "base_commit": "63bb22914a01fd9057bfff37590ca9fe8701a05c",
   "tested_public_tree": "e1413a534296c052134f4eec0b6b2c9b4645451f",
@@ -148,6 +148,82 @@
         "seconds": 2.805
       },
       "scope": "preexisting intermittent concurrency failure; comparison does not claim a fix"
+    },
+    "controlled_selection_interleaving": {
+      "baseline_commit": "63bb22914a01fd9057bfff37590ca9fe8701a05c",
+      "candidate_commit": "25ee51d69cb87d8f944c91e7347240ec8af96c0f",
+      "baseline": {
+        "error": "execution_storage_unprotected",
+        "diagnostic": {
+          "phase": "existing_storage",
+          "reason": "inspection_failed"
+        },
+        "cause": "FileNotFoundError",
+        "point": [
+          {
+            "file": "mission_environment.py",
+            "line": 100,
+            "function": "_storage"
+          },
+          {
+            "file": "mission_environment.py",
+            "line": 63,
+            "function": "_private"
+          },
+          {
+            "file": "adoption_fs.py",
+            "line": 288,
+            "function": "inspect_permissions"
+          },
+          {
+            "file": "pathlib.py",
+            "line": 840,
+            "function": "stat"
+          }
+        ],
+        "rename_performed": true,
+        "selection_bytes_unchanged": true
+      },
+      "candidate": {
+        "error": "execution_storage_unprotected",
+        "diagnostic": {
+          "phase": "existing_storage",
+          "reason": "inspection_failed"
+        },
+        "cause": "FileNotFoundError",
+        "point": [
+          {
+            "file": "mission_environment.py",
+            "line": 100,
+            "function": "_storage"
+          },
+          {
+            "file": "mission_environment.py",
+            "line": 63,
+            "function": "_private"
+          },
+          {
+            "file": "adoption_fs.py",
+            "line": 288,
+            "function": "inspect_permissions"
+          },
+          {
+            "file": "pathlib.py",
+            "line": 840,
+            "function": "stat"
+          }
+        ],
+        "rename_performed": true,
+        "selection_bytes_unchanged": true
+      },
+      "command": "python3 -B reproduce-selection-inventory.py <archived-checkout>",
+      "scope": "controlled reader interleaving with real os.replace, not two-process timing; proves a compatible preexisting mechanism, not the exact original failure or its repair",
+      "independent_review": "review_windows_timeline; no blocking findings; read-only",
+      "unchanged_files_sha256": {
+        "scripts/adoption_fs.py": "798d8e6653204f6498288683c6d1d487742e8fb0a2929c809e9b3c2279749dbe",
+        "scripts/mission_environment.py": "bf045d0eb351dff85f20093684ab54ea4e28bf796fc1064cc124c7a58cfd8e41",
+        "tests/test_mission_environment.py": "15175babc0d3a9142da743ef2476a10b9530aa5bb1b20cb0f3102ba3eef6f6d0"
+      }
     }
   },
   "review": {
@@ -164,11 +240,145 @@
     "production_profiles_enabled": false
   },
   "publication": {
-    "state": "ready_for_push",
-    "branch": "feat/isolated-executor"
+    "at": "2026-10-08T03:51:59.311862+00:00",
+    "commit": "25ee51d69cb87d8f944c91e7347240ec8af96c0f",
+    "branch": "feat/isolated-executor",
+    "branch_and_pr_head_verified": true,
+    "main": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+    "main_unchanged": true,
+    "push_exit_code": 0
   },
   "ci_after": {
-    "state": "pending_push"
+    "at": "2026-10-08T03:57:24.550793+00:00",
+    "commit": "25ee51d69cb87d8f944c91e7347240ec8af96c0f",
+    "state": "in_progress",
+    "jobs": [
+      {
+        "status": "This job succeeded",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270/job/113140122339?pr=24",
+        "name": "public-pilot"
+      },
+      {
+        "status": "This job succeeded",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270/job/113140122328?pr=24",
+        "name": "installer"
+      },
+      {
+        "status": "This job is in progress",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270/job/113140122154?pr=24",
+        "name": "adoption-windows"
+      },
+      {
+        "status": "This job succeeded",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270/job/113140122354?pr=24",
+        "name": "graphify-smoke"
+      },
+      {
+        "status": "This job succeeded",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042/job/113140137353?pr=24",
+        "name": "public-pilot"
+      },
+      {
+        "status": "This job succeeded",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042/job/113140137229?pr=24",
+        "name": "installer"
+      },
+      {
+        "status": "This job is in progress",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042/job/113140137322?pr=24",
+        "name": "adoption-windows"
+      },
+      {
+        "status": "This job succeeded",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042/job/113140137061?pr=24",
+        "name": "graphify-smoke"
+      }
+    ],
+    "windows": [
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270/job/113140122154?pr=24",
+        "html_sha256": "616dc5f159daa67e858ace173c63e065ed1f58b84aca361f3ae40e4ff14874d6",
+        "steps": [
+          {
+            "name": "Diagnose Windows network and controller cleanup",
+            "number": "5",
+            "conclusion": "success",
+            "started-at": "2026-10-08T03:51:48Z",
+            "completed-at": "2026-10-08T03:52:30Z"
+          },
+          {
+            "name": "Exercise the board in new and existing consumers",
+            "number": "6",
+            "conclusion": "success",
+            "started-at": "2026-10-08T03:52:30Z",
+            "completed-at": "2026-10-08T03:53:19Z"
+          },
+          {
+            "name": "Verify native storage, permissions and crash recovery",
+            "number": "7",
+            "conclusion": "null",
+            "started-at": "2026-10-08T03:53:19Z",
+            "completed-at": ""
+          },
+          {
+            "name": "Verify mission diagnostics and process recovery",
+            "number": "11",
+            "conclusion": "null",
+            "started-at": "",
+            "completed-at": ""
+          },
+          {
+            "name": "Exercise bounded diagnostic adoption without model calls",
+            "number": "12",
+            "conclusion": "null",
+            "started-at": "",
+            "completed-at": ""
+          }
+        ]
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042/job/113140137322?pr=24",
+        "html_sha256": "9efeb744148b9ef647a10f165d27524ce2d82ec4c59271042ac7849a41b0454a",
+        "steps": [
+          {
+            "name": "Diagnose Windows network and controller cleanup",
+            "number": "5",
+            "conclusion": "success",
+            "started-at": "2026-10-08T03:51:51Z",
+            "completed-at": "2026-10-08T03:52:33Z"
+          },
+          {
+            "name": "Exercise the board in new and existing consumers",
+            "number": "6",
+            "conclusion": "success",
+            "started-at": "2026-10-08T03:52:33Z",
+            "completed-at": "2026-10-08T03:53:16Z"
+          },
+          {
+            "name": "Verify native storage, permissions and crash recovery",
+            "number": "7",
+            "conclusion": "null",
+            "started-at": "2026-10-08T03:53:16Z",
+            "completed-at": ""
+          },
+          {
+            "name": "Verify mission diagnostics and process recovery",
+            "number": "11",
+            "conclusion": "null",
+            "started-at": "",
+            "completed-at": ""
+          },
+          {
+            "name": "Exercise bounded diagnostic adoption without model calls",
+            "number": "12",
+            "conclusion": "null",
+            "started-at": "",
+            "completed-at": ""
+          }
+        ]
+      }
+    ],
+    "scope": "all six Linux jobs passed; both Windows focused and board steps passed; full Windows jobs pending"
   },
   "limitations": [
     "Windows Git time not separately profiled; redundant calls and local process reduction are measured",
@@ -188,7 +398,10 @@
     "full-final-suite.log": "18efa25829a076833c250424898d5612d0871612760e277624fd4098e5ce80d9",
     "catalog-tests.log": "98cec6a4d016de3102621ce51df3b111ae8da5c526d8458ecc4b7273ff9cf7fe",
     "capability-audit.json": "7abf73d6d73d843292aacecc8663727aa9f2d17aef0d955999484a497a852253",
-    "full-confirmation-suite.log": "8717dd92790f0267cd7b30accd3f6a1a3496fae183d0721e09f84f56f9734f61"
+    "full-confirmation-suite.log": "8717dd92790f0267cd7b30accd3f6a1a3496fae183d0721e09f84f56f9734f61",
+    "reproduce-selection-inventory.py": "e0a5b7fc2c7d8c843ba3912391ee32a17065f3f4e7da7627828bfc3b645c0669",
+    "inventory-baseline.json": "a3f36a8c9b229036d59eb1359dfef46ba8abfde556c7165a1fc339ab03cf34c0",
+    "inventory-current.json": "a3f36a8c9b229036d59eb1359dfef46ba8abfde556c7165a1fc339ab03cf34c0"
   },
   "catalog_refresh": {
     "changes": [

@@ -67,15 +67,30 @@ A comparação de 30 execuções reproduziu essa falha e um erro de saída vazia
 baseline publicado `63bb229`; as 30 execuções com o código atual passaram. A seleção
 usa outro caminho Git e suas funções não mudaram. A hipótese é uma varredura anterior
 ao lock encontrar um temporário que o outro escritor renomeou; o ponto exato ainda
-não foi medido. O teste mantém os mesmos critérios. Essa corrida preexistente fica
+não foi identificado no log original. O teste mantém os mesmos critérios. Essa corrida preexistente fica
 registrada como pendência. A confirmação completa passou sem mudanças no candidato;
 essa rodada verde não demonstra que a corrida foi corrigida. A auditoria de capacidades
 retornou saída zero, 20 observações correspondentes e 30 não verificadas.
 
+Uma reprodução controlada, no baseline e no candidato, publicou a seleção entre a
+enumeração e a inspeção do temporário. O `os.replace` real provocou `FileNotFoundError`
+em `adoption_fs.inspect_permissions:288`, normalizado como `existing_storage /
+inspection_failed`. Os bytes da seleção foram preservados. Isso demonstra um mecanismo
+compatível com a falha, sem atribuir a ele a ocorrência aleatória nem o erro de saída
+vazia. Não é teste entre dois processos nem correção. Script/recibos privados têm hashes
+na medição e foram revisados de forma independente.
+
 ## Publicação e continuidade
 
 Destino autorizado: `feat/isolated-executor`, [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
-Após QA, publicar e consultar as rodadas focais e completas. Se houver falha, usar
+Código publicado em `25ee51d`; branch e ref do PR conferidas, main preservada.
+Os cinco focais Windows passaram nos runs [push 37724707270](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270)
+e [PR 37724712042](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042).
+Ambas as etapas duraram 42 s. Às 00:57 de 8/out (America/Sao_Paulo), os seis jobs
+Linux estavam aprovados; os dois Windows seguiam em armazenamento/recuperação.
+Os jobs Windows completos ainda estavam em andamento na consulta;
+esses tempos de etapa não substituem os tempos individuais de A/B/A2, ainda indisponíveis.
+Próximo: consultar esses mesmos runs antes de abrir outra rodada. Se houver falha, usar
 o ledger para localizar o trecho restante, sem aumentar o prazo. Retorno: reverter
 este incremento restaura as três consultas individuais, preservando armazenamento
 e recibos. Nenhum arquivo privado, credencial ou HTML bruto entra no Git.
@@ -94,6 +109,6 @@ every call observes current rules without caching. Real local measurements confi
 five Git processes reduced to three per check. Security regressions and all five
 focused local network/cleanup tests passed. The full local confirmation passed
 602 tests with 20 skips. A preexisting intermittent concurrent-selection failure was
-also reproduced on the published baseline and remains open. Windows validation is pending. No native execution or deadline increase was performed.
+also reproduced on the published baseline and remains open. Both Windows focused steps passed at `25ee51d`; the full push and PR jobs remain pending. No native execution or deadline increase was performed.
 
-ATRASO: PR #24 incremento local | CI Windows e aceite nativo pendentes.
+ATRASO: PR #24 código publicado | CI completo Windows e aceite nativo pendentes.

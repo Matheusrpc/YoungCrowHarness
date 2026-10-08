@@ -84,7 +84,8 @@ O CI seguinte, em `63bb229`, registrou novos timeouts no fim de A2.
 A verificação de armazenamento consulta as três regras de ignore em uma chamada
 Git e exige confirmação de todas. Isso reduz de cinco para três os processos por
 verificação, mantendo a leitura atual das regras em cada etapa. A confirmação local
-passou com 602 testes aprovados e 20 pulados; a validação Windows ainda está pendente. [Medição e regressões](docs/relatorios/2026-10-08-git-preflight-cost.md).
+passou com 602 testes aprovados e 20 pulados. Em `25ee51d`, os cinco focais Windows
+passaram no push e no PR; o CI completo ainda está em andamento. [Medição e regressões](docs/relatorios/2026-10-08-git-preflight-cost.md).
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
@@ -620,7 +621,8 @@ Subsequent CI at `63bb229` recorded further timeouts near A2 completion.
 Private-storage verification checks all three ignore rules in one Git invocation
 and requires every path to match. This reduces processes per check from five to
 three while reading current rules at each boundary. Local confirmation passed
-602 tests with 20 skips; Windows validation is pending.
+602 tests with 20 skips. At `25ee51d`, all five focused Windows cases passed on
+push and PR; full CI is still running.
 [Measurements and regressions](docs/relatorios/2026-10-08-git-preflight-cost.md#english-overview).
 
 Audit fixes recover interrupted mission/backlog notes even after another

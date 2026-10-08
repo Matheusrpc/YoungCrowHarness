@@ -100,6 +100,8 @@ O diagnóstico Windows confirmou reset durante o encerramento do helper. O
 controlador agora permite até 100 ms para ele fechar após EOF, dentro dos 200 ms
 já reservados antes de `kill`. Filhos resistentes continuam sujeitos ao encerramento
 forçado. [Correção e validação](docs/relatorios/2026-10-08-guard-cooperative-close.md).
+O CI de `9cb3729` passou em sete dos oito jobs: Windows do PR completo aprovado,
+com timeout v4 ainda aberto no push. Os testes de EOF e recusa passaram nos dois.
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
@@ -660,6 +662,8 @@ Windows diagnostics confirmed a reset during helper shutdown. The controller now
 allows up to 100 ms for EOF cleanup within its existing 200 ms stage before `kill`.
 Unresponsive children remain subject to forced shutdown.
 [Fix and validation](docs/relatorios/2026-10-08-guard-cooperative-close.md#english-overview).
+CI at `9cb3729` passed seven of eight jobs: PR Windows passed fully, while a v4
+timeout remains open on push. EOF/refusal tests passed on both Windows runs.
 
 Audit fixes recover interrupted mission/backlog notes even after another
 revision, preserving human edits. Malformed catalogs and Git failures during the

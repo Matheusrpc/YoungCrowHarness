@@ -72,7 +72,59 @@
     "contracts_and_permissions_unchanged": true,
     "private_refresh_sha256": "1102691e60d073fceb4cde9f20fc9e182e96d6dc4ba641d7ede25624872db7c6"
   },
-  "ci_correction": "pending publication",
+  "ci_correction": {
+    "head": "9cb37296324d7cbcdeaf8b82222c02974c3dd839",
+    "linux_jobs_passed": 6,
+    "windows_push": {
+      "run": 37771064158,
+      "job": 113290466905,
+      "conclusion": "failure",
+      "failed_test": "test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection",
+      "supervisor": {
+        "reason": "timeout",
+        "elapsed_seconds": 15.047,
+        "tree_reaped": true,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      "egress_refusal_and_channel_shutdown_tests_passed": true,
+      "v4_phase_A_ms": {
+        "dispatch_authorization": 3671,
+        "guard_request": 10769,
+        "guard_destination": 10878,
+        "guard_finished": 11045,
+        "observed": 11149,
+        "guard_closed": 11253,
+        "guard_reaped": 11367
+      },
+      "authorization_to_request_ms": 7098,
+      "cause": "unconfirmed; delay precedes channel close",
+      "html_sha256": "cada07ae7f7188c4c240ee1ed485de81ef6463b3bf265b620e8079fec6f4d15f"
+    },
+    "windows_pr": {
+      "run": 37771069579,
+      "job": 113290484551,
+      "focal_conclusion": "success",
+      "focal_tests": 14,
+      "focal_elapsed_seconds": 65,
+      "conclusion": "success",
+      "mission_suite_elapsed_seconds": 421,
+      "final_adoption_elapsed_seconds": 167,
+      "html_sha256": "fabb48decbdb8873b5e6b5124059b0e0a411ac179e02efca436972c0cddfa7cd",
+      "v3_v4_positive_elapsed_seconds": [
+        9.329,
+        9.453,
+        9.516,
+        9.516
+      ]
+    },
+    "observed_until_utc": "2026-10-08T11:58:19.802288+00:00",
+    "passed_jobs": 7,
+    "failed_jobs": 1,
+    "private_summary_sha256": "72aeb521387bcff6b5be6bd51bc17bda2307f2337fb6cff010f083dd1cca1b61",
+    "remaining_work": "Locate the v4 delay before the first recorded SOCKS request; preserve deadlines and incomplete-observation refusal.",
+    "private_final_summary_sha256": "0b6f39593db0bca20c9d7700ec4b5483471ad1039a48b8c6f6c734d287dbe491"
+  },
   "native": {
     "new_cycles": 0,
     "used_cycles": 2,

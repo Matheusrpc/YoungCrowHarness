@@ -13,8 +13,10 @@ consumidor novo/existente também passou. Os 12 focais Windows passaram no push 
 a suíte completa do PR passou, mas a do push falhou na recusa de rede: sete dos oito
 jobs passaram. Em `f3e091d`, os dois Windows confirmaram `ConnectionResetError`
 antes de EOF. O controlador agora reserva parte do prazo existente para limpeza
-cooperativa; passaram 620 testes locais, com 20 pulados. O CI dessa correção está
-pendente. O baseline `c8e7f0b` passou nos oito jobs.
+cooperativa; passaram 620 testes locais, com 20 pulados. O CI de `9cb3729` terminou
+com sete dos oito jobs aprovados. O Windows do PR passou integralmente; o push
+teve timeout v4 antes do primeiro pedido SOCKS registrado. Os testes de EOF e
+recusa passaram nos dois Windows. Próxima ação: localizar essa pausa do v4.
 [Encerramento e provas](relatorios/2026-10-08-guard-cooperative-close.md).
 [Entrega e medição](relatorios/2026-10-08-mission-read-stability.md).
 Current increment: mission reads and independent egress observation, published at
@@ -23,8 +25,10 @@ diagnostics in new/existing projects. All 12 focused Windows cases passed on pus
 and PR; the full PR suite passed, while push Windows failed the network refusal
 test: seven of eight jobs passed. At `f3e091d`, both Windows runs confirmed a reset
 before EOF. The controller now uses part of its existing deadline for cooperative
-cleanup; 620 local tests passed with 20 skips. CI for this fix is pending.
-Baseline `c8e7f0b` passed all eight jobs.
+cleanup; 620 local tests passed with 20 skips. CI at `9cb3729` passed seven of
+eight jobs. PR Windows passed fully; push Windows timed out in v4 before the first
+recorded SOCKS request. EOF/refusal tests passed on both Windows runs. Next action:
+locate that v4 delay.
 [Shutdown evidence](relatorios/2026-10-08-guard-cooperative-close.md#english-overview).
 
 Histórico da investigação: falha da suíte de missões em `adoption-windows`

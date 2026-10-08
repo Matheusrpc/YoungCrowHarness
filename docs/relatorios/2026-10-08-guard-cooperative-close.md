@@ -34,10 +34,30 @@ fontes, testes e recibos: [evidência](../medicoes/2026-10-08-guard-cooperative-
 
 QA integral: 640 testes em 262,122 s, com 620 aprovados e 20 pulados, sem falhas
 ou erros. Os dois revisores aprovaram a alteração; dez observações do catálogo
-correspondem às fontes atuais. CI da correção: verificar após publicação.
+correspondem às fontes atuais.
+
+O commit `9cb3729` terminou com sete dos oito jobs aprovados: seis Linux e o
+[Windows do PR](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37771069579).
+Os testes de EOF e as oito recusas independentes passaram nos dois Windows.
+No PR, os 14 focais passaram em 65 s, a suíte completa de missões em 421 s e a
+adoção diagnóstica final em 167 s. Os quatro percursos positivos v3/v4 do PR
+levaram de 9,329 a 9,516 s.
+No [push](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37771064158),
+o fluxo v4 atingiu o limite de
+15,047 s, com árvore recolhida. A fase A ficou 7.098 ms entre persistir
+`dispatch_authorization` e registrar `guard_request`. Depois desse pedido, chegou
+a `observed` em 380 ms e completou o fechamento. A fase B começou; A2 não começou.
+
+A lacuna precede `Channel.close`; os registros não identificam sua causa.
+Próximo diagnóstico: comparar o `at_ms` já emitido no pedido do guard com a hora
+do registro. Se necessário, medir autorização persistida, entrada/imports de
+`injection_exchange`, conexão e handshake SOCKS. O timeout v4 permanece aberto.
 Nenhum Docker, sbx, cliente
 autenticado ou modelo foi executado. O contador nativo continua 2/3,
 `proof_accepted=false`, com perfis bloqueados.
+
+Retorno: reverter `9cb3729` restaura o encerramento anterior junto com os hashes
+do catálogo. A mudança permanece no PR #24 em rascunho; `main` não foi alterada.
 
 ## English overview
 
@@ -50,7 +70,11 @@ persistence never releases an ACK, and incomplete byte observations still fail.
 Real-child regressions cover cooperative cleanup and forced collection. Controlled
 clock cases cover short/expired deadlines and time already spent closing input.
 Full QA passed 620 tests with 20 skips in 262.122 s, without failures or errors.
-Both reviewers approved the change. Correction CI must be checked after publication;
-native acceptance remains pending.
+Both reviewers approved the change. At `9cb3729`, six Linux jobs passed and both
+Windows runs passed EOF/refusal tests. PR Windows passed all 14 focused tests,
+the full mission suite and final diagnostic adoption. Seven of eight jobs passed.
+Push Windows timed out in the separate v4 flow:
+the 7.098 s gap precedes the first recorded SOCKS request and channel shutdown.
+Its cause and native acceptance remain pending.
 
 ATRASO: QA local 0 | CI verde 1 | executor nativo: validação pendente.

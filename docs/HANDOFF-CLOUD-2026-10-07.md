@@ -171,8 +171,13 @@ O diagnóstico de `f3e091d` confirmou reset antes de EOF nos dois Windows: oito
 observações incompletas continuaram reprovadas. `Channel.close` agora permite até
 100 ms para EOF cooperativo, dentro do estágio existente de 200 ms e do Deadline.
 Persistência recusada continua sem ACK; terminate/kill e contenção permanecem.
-Próxima ação: validar o CI da correção, incluindo as oito recusas independentes e
-os filhos cooperativo/resistente. [Relatório](relatorios/2026-10-08-guard-cooperative-close.md).
+Em `9cb3729`, os testes de EOF e as oito recusas passaram nos dois Windows; o PR
+passou integralmente, incluindo os 14 focais, a suíte de missões e a adoção final.
+Resultado: sete dos oito jobs aprovados. O push falhou por timeout v4,
+com 7.098 ms entre autorização e primeiro pedido SOCKS registrado, antes do close.
+Próxima ação: comparar `guard_request.payload.at_ms`
+com a hora do registro para localizar essa pausa. Não atribuir causa nem ampliar
+prazos sem evidência. [Relatório](relatorios/2026-10-08-guard-cooperative-close.md).
 Contratos sbx, fontes nativas de B, perfis bloqueados e contador 2/3 preservados.
 
 ### Incremento anterior: concorrência da seleção
@@ -257,7 +262,7 @@ Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
-| CI Windows | Conferir os focais e a suíte completa após encerrar o helper por EOF dentro do orçamento atual; o diagnóstico `f3e091d` confirmou reset antes de EOF |
+| CI Windows | EOF/recusa passaram nos dois Windows e o PR completo passou em `9cb3729`; localizar os 7.098 ms entre autorização e primeiro pedido SOCKS no timeout v4 do push |
 | Executor: 203.6 | Bloqueio externo: comprovar identidade/versão/remoção atômica da credencial e escrita condicional dos settings locais 0.46.0; depois adaptador e aceite v4 |
 | Executor: restante de 203.5 | Comprovar recuperação nativa de settings/serviço/credencial e demais políticas necessárias, preservando alterações externas |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |

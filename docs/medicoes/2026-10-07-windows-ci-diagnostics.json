@@ -3,7 +3,7 @@
   "measured_at": "2026-10-08T02:17:13.680259+00:00",
   "base_head": "da28f00016861af8fecdd43a99cc5de085e70971",
   "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
-  "scope": "CI diagnostics only; no product behavior changes",
+  "scope": "CI diagnostics and legacy B fixture deadline correction; no product behavior changes",
   "source_sha256": {
     ".github/workflows/test.yml": "2de7de68a33755adc0837fb8a50692df80929c3cf9078ddda5ef46324250d614",
     "tests/ci_unittest.py": "e6fc1cccc8a531eaffbab7d23cee60d72591e38eb355bc8f48a59b880cebb51f",
@@ -193,13 +193,13 @@
   },
   "publication": {
     "branch": "feat/isolated-executor",
-    "state": "initial_diagnostic_published",
+    "state": "diagnostic_and_B_fixture_fix_published",
     "main": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
-    "code_commit": "a9d05ea7fe99cfacaff494c202ba3904444f884b",
+    "code_commit": "e674a8396a781a76745a3b61c8feb0a755c5e6c8",
     "branch_and_pr_refs_verified": true
   },
   "limitations": [
-    "v3 B one-second fixture cutoff produced TimeoutError; correction awaiting Windows validation; prior long-run v4/abrupt failures remain unexplained",
+    "v3 B cutoff corrected; focused Windows passed on push and PR for e674a83, but earlier 15-second outer timeouts in both positive flows remain unexplained; complete Windows suite pending",
     "post-run annotations require unittest completion",
     "local tests do not prove Windows ACL/process behavior",
     "native local credentials and settings contract still missing",
@@ -628,7 +628,7 @@
     }
   },
   "timeout_timeline": {
-    "state": "ready_to_publish",
+    "state": "published",
     "only_fixture_diagnostics": true,
     "ledger_read_independent_of_stdout": true,
     "timing_origin": "supervisor started_at; only relative integer milliseconds published",
@@ -661,6 +661,86 @@
       "tests/test_mission_network.py": "21d22b6384d303feeddae641c0d85191e59919539c12fe9b9730979847905c19",
       "tests/ci_unittest.py": "b015179065c88b7ec3ea803bbe0bec0bccd33324e9352d9a811a37ee985f4dbc",
       "tests/test_ci_unittest.py": "736d5873601728b3524bd29a80f5686cca816e0c4c3982b7e84a3769ccf78b48"
-    }
+    },
+    "code_commit": "e674a8396a781a76745a3b61c8feb0a755c5e6c8",
+    "branch_and_pr_refs_verified": true,
+    "tested_public_tree": "2459431be8f5fc48faf46d1b5956ba33b0f2ea01",
+    "full_suite": {
+      "total": 618,
+      "passed": 598,
+      "skipped": 20,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 255.268,
+      "exit_code": 0,
+      "command": "GITHUB_ACTIONS=true python3 -B tests/ci_unittest.py discover -s tests -v",
+      "log_sha256": "85d1c6f1b25082fb4738cd8f2d212b6a4e2ec0a6ccaf9468b537c041c995a98e",
+      "failure_annotations": 0
+    },
+    "ci_status_at": "2026-10-08T03:23:47.669487+00:00",
+    "ci_runs": [
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722035973/job/113131661047?pr=24",
+        "job": "public-pilot",
+        "state": "This job succeeded"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722035973/job/113131660805?pr=24",
+        "job": "installer",
+        "state": "This job succeeded"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722035973/job/113131661036?pr=24",
+        "job": "adoption-windows",
+        "state": "This job is in progress",
+        "focused": {
+          "number": "5",
+          "name": "Diagnose Windows network and controller cleanup",
+          "conclusion": "success",
+          "started-at": "2026-10-08T03:17:58Z",
+          "completed-at": "2026-10-08T03:19:01Z"
+        },
+        "html_sha256": "f97f9406512f3978064e15bd7d5fd8857fd6ad41eb8a13cecccdd7dc77d8947b"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722035973/job/113131661170?pr=24",
+        "job": "graphify-smoke",
+        "state": "This job succeeded"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722040460/job/113131675446?pr=24",
+        "job": "public-pilot",
+        "state": "This job succeeded"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722040460/job/113131675109?pr=24",
+        "job": "installer",
+        "state": "This job succeeded"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722040460/job/113131675317?pr=24",
+        "job": "adoption-windows",
+        "state": "This job is in progress",
+        "focused": {
+          "number": "5",
+          "name": "Diagnose Windows network and controller cleanup",
+          "conclusion": "success",
+          "started-at": "2026-10-08T03:18:01Z",
+          "completed-at": "2026-10-08T03:19:06Z"
+        },
+        "html_sha256": "d10d3bf8db7d81037919c1505abb696e217464a70fd8fa7ab3675e63c44b01ea"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722040460/job/113131675207?pr=24",
+        "job": "graphify-smoke",
+        "state": "This job succeeded"
+      }
+    ]
+  },
+  "latest_measured_at": "2026-10-08T03:25:33.359157+00:00",
+  "git_access": {
+    "state": "push_and_refs_verified_after_transient_401",
+    "github_mcp_available": false,
+    "credential_or_configuration_changed": false
   }
 }

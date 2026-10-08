@@ -1,14 +1,14 @@
 # Backlog do YoungCrowHarness
 
-Frente: produto completo e sequência de entrega. Atualizado em 2026-10-07.
+Frente: produto completo e sequência de entrega. Atualizado em 2026-10-08.
 
 Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [Contexto e próximos passos](HANDOFF-CLOUD-2026-10-07.md) ·
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
-Publicado no PR #24 em `2f4e47a`; branch e ref do PR conferidas.
-Published to PR #24 at `2f4e47a`; branch and PR refs verified.
+Código e diagnóstico publicados no PR #24 em `e674a83`; branch e ref do PR conferidas.
+Code and diagnostics published to PR #24 at `e674a83`; branch and PR refs verified.
 
 Prioridade de validação: diagnosticar a falha da suíte de missões em `adoption-windows`
 no CI de `da28f00`. Push e PR falharam; os outros três jobs passaram. O runner publica
@@ -18,7 +18,8 @@ O CI de `919b0a4` confirmou `TimeoutError` na sonda B v3. A correção da fixtur
 usa o prazo restante da fase, sem aceitar timeout como recusa nem ampliar o limite
 do supervisor. Em `32960b8`, os cinco casos passaram no push; no PR, v3 e v4
 atingiram 15 s. Próximo passo: localizar esse atraso pelo ledger preservado após
-timeout e acompanhar a suíte completa.
+timeout e acompanhar a suíte completa. Em `e674a83`, os cinco focais passaram
+em ambos os runs; o CI completo permanece em andamento.
 [Evidência e diagnóstico](relatorios/2026-10-07-windows-ci-diagnostics.md).
 
 A integração da captura de B (203.8) também aguarda transferência dos fontes e da
@@ -82,7 +83,8 @@ step confirmed `TimeoutError` in the v3 B probe at `919b0a4`. The fixture fix us
 the remaining phase deadline while retaining explicit refusal and the supervisor
 limit. At `32960b8`, all five cases passed on push, but v3 and v4 hit 15 seconds on
 the PR run. Next: locate the delay using the durable ledger after timeout and follow
-the full Windows suite.
+the full Windows suite. At `e674a83`, all five focused cases passed on both runs;
+full CI remains in progress.
 [Evidence](relatorios/2026-10-07-windows-ci-diagnostics.md#english-overview).
 
 Este é o índice público do trabalho necessário para entregar a esteira definida na

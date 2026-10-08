@@ -136,6 +136,31 @@ payloads; a coleta não substitui o assert nem amplia prazos. A suíte do runner
 nos seis casos após uma falha esperada da nova verificação; os cinco focais locais
 passaram. O tempo Windows ainda precisa ser localizado.
 
+## Checkpoint de 8/out
+
+Código e diagnóstico publicados em `e674a8396a781a76745a3b61c8feb0a755c5e6c8`,
+com branch e ref do PR conferidas. A suíte pública exata da árvore
+`2459431be8f5fc48faf46d1b5956ba33b0f2ea01` executou 618 testes: **598 aprovados,
+20 pulados, zero falhas/erros**, em 255,268 s. O runner estava com
+`GITHUB_ACTIONS=true`; houve zero anotações de erro. Mudanças posteriores são documentais.
+
+Os cinco focais Windows passaram no [push 37722035973](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722035973)
+e no [PR 37722040460](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722040460).
+A suíte completa Windows ainda estava em andamento na consulta registrada na medição.
+Isso não elimina os timeouts de 15 s observados no run anterior. Próxima ação: conferir
+a conclusão e os tempos do ledger antes de atribuir causa ou modificar o produto.
+
+A revisão estática identificou chamadas Git repetidas nas verificações de armazenamento.
+Uma possível redução sem cache é agrupar os três probes de `check-ignore`, exigindo
+que todos apareçam na resposta. Não foi implementada nesta rodada: a contagem de
+processos não mede o custo nem demonstra a causa do timeout. Preservar verificações
+novas em cada fronteira; não simular Git nem ampliar limites para obter aprovação.
+
+O MCP GitHub não está disponível nesta sessão. Git HTTPS permitiu os pushes; uma
+resposta 401 transitória no último incremento foi seguida por push e consulta de
+refs bem-sucedidos, sem alteração de credenciais ou configuração. A causa da falha
+de autenticação não foi determinada. Main permaneceu em `932b775`.
+
 ## Dependências preservadas
 
 A avaliação de 203.8 confirmou outra pendência: o coletor de B e sua evidência original
@@ -163,8 +188,8 @@ adicional. Fontes HTML foram lidas diretamente e guardadas em área privada com 
 ## Publicação e retorno
 
 Destino autorizado: `feat/isolated-executor`, [PR #24 em rascunho](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
-Base inicial `da28f00`; main conferida em `932b775`. Próxima ação: consultar os
-rodada focal após a correção da sonda v3 e acompanhar a suíte Windows completa.
+Base inicial `da28f00`; main conferida em `932b775`. Próxima ação: consultar a
+conclusão da suíte Windows completa e os tempos do ledger.
 Retorno: reverter o incremento na branch restaura a entrada anterior do unittest;
 isso remove as anotações e mantém a falha Windows pendente. Não altera ledger,
 perfis ou autorizações nativas. Recibos e HTML brutos ficam fora do Git.
@@ -187,7 +212,10 @@ requires ConnectionRefusedError; outer limits are unchanged. Windows validation
 of the fix passed all five focused cases on push, while the paired PR run timed out
 in both v3 and v4 at the unchanged 15-second outer limit. Diagnostics now read
 persisted journal counts and relative event times even when timeout leaves no stdout.
+At `e674a83`, the full local suite passed with 598 successes and 20 skips; both
+Windows focused runs passed all five cases. Full Windows CI was still in progress.
+Repeated Git checks are a static optimization lead, not a measured timeout cause.
 Original B collector sources and capture also need transfer from the private
 checkout. Native contracts remain blocked, with no new native cycles (2/3 used).
 
-ATRASO: main 1 frente sem aceite | PR #24 diagnóstico em publicação | CI Windows e aceite nativo pendentes.
+ATRASO: main 1 frente sem aceite | PR #24 código publicado | CI Windows completo e aceite nativo pendentes.

@@ -147,6 +147,15 @@ prova exigida. Docker/modelos continuam sem execução nesta cloud; contador **2
 
 ### Incremento atual: diagnóstico do CI Windows
 
+Checkpoint atualizado em 8/out: código publicado `e674a83`, branch/ref do PR
+conferidas. Suíte pública local: 618 testes, 598 aprovados e 20 pulados em 255,268 s.
+Os cinco focais passaram nos runs `37722035973` (push) e `37722040460` (PR);
+a suíte Windows completa ainda estava em andamento na última consulta.
+Consultar esses runs antes de iniciar outra rodada. As fontes de produto não mudaram.
+O MCP GitHub não está exposto nesta sessão; Git HTTPS permitiu publicar. Uma falha
+401 transitória foi seguida por push e leitura de refs bem-sucedidos, sem alteração
+de autenticação/configuração.
+
 A consulta às páginas públicas do GitHub confirmou que `da28f00` falhou em
 `adoption-windows` nos runs de push `37702748727` e PR `37702753288`. Os jobs
 `public-pilot`, `installer` e `graphify-smoke` passaram em ambos. A etapa falha é

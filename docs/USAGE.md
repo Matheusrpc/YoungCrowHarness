@@ -2899,3 +2899,12 @@ After a timeout with no stdout, diagnostics still attempt to read the durable le
 Per-phase lists report event times relative to supervisor start in milliseconds. Each
 list accepts at most 60 integers from 0 to 3,600,000, excluding absolute timestamps,
 payloads and identities. Collection failures preserve the original assertion.
+
+
+Checkpoint `e674a83`: suíte pública local com 618 testes, 598 aprovados e 20 pulados;
+cinco focais Windows passaram nos runs de push e PR. A suíte Windows completa ainda
+estava em andamento. Um focal verde não encerra a investigação dos timeouts anteriores.
+
+Checkpoint `e674a83`: 618 local public tests, 598 passes and 20 skips; all five focused
+Windows cases passed on push and PR. Full Windows CI was still running. A focused
+pass does not resolve the earlier intermittent timeout investigation.

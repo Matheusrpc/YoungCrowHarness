@@ -19,9 +19,13 @@ if sys.argv[1:2] == ['--dns']:
     print('x'*17000 if sys.argv[2] == 'oversized' else '["8.8.8.8"]', flush=True)
     raise SystemExit()
 
-if sys.argv[1:] in (['--guard-local'],['--guard-echo'],['--guard-echo-no-injection']):
+if sys.argv[1:2] in (['--guard-local'],['--guard-echo'],['--guard-echo-no-injection']):
     config = json.loads(sys.stdin.buffer.readline(16385))
     def connect(*args, **kwargs):
+        if sys.argv[1] == '--guard-local' and len(sys.argv) == 3:
+            upstream = socket.create_connection(('127.0.0.1', int(sys.argv[2])), timeout=5)
+            return upstream, dict(host=egress.HOST,port=443,resolved=['8.8.8.8'],selected_ip='8.8.8.8',
+                peer='8.8.8.8',peer_port=443,family='IPv4',decision='connected')
         upstream, peer = socket.socketpair()
         count = Path.cwd()/'upstream-count'
         count.write_text('0')
@@ -89,10 +93,42 @@ else:
         if request['mode'] == 'guard_domain_persistfail' and kind == 'guard_destination':
             raise ValueError('disk')
     guard = None
+    observer = None
+    offered_bytes = 0
+    if request['mode'].startswith('guard_domain'):
+        listener = socket.socket()
+        listener.bind(('127.0.0.1', 0))
+        listener.listen(1)
+        listener.settimeout(5)
+        upstream_port = listener.getsockname()[1]
+        observation = dict(accepted=False, eof=False, bytes=0, complete=False)
+        guard_closed = threading.Event()
+        def observe():
+            try:
+                peer, _ = listener.accept()
+                with peer:
+                    peer.settimeout(5)
+                    observation['accepted'] = True
+                    while True:
+                        chunk = peer.recv(1024)
+                        if not chunk:
+                            observation['eof'] = True
+                            break
+                        first = observation['bytes'] == 0
+                        observation['bytes'] += len(chunk)
+                        if first:
+                            peer.sendall(b'local-response')
+                            peer.shutdown(socket.SHUT_WR)
+                # Force the receipt to finish after collection of the guard.
+                observation['complete'] = guard_closed.wait(5)
+            except OSError as error:
+                observation['error'] = type(error).__name__
+        observer = threading.Thread(target=observe)
+        observer.start()
     try:
         class LocalGuard(egress.Guard):
             def command(self):
-                return [sys.executable,'-I','-B',str(Path(__file__).resolve()),'--guard-local']
+                return [sys.executable,'-I','-B',str(Path(__file__).resolve()),'--guard-local',str(upstream_port)]
         guard_type = LocalGuard if request['mode'].startswith('guard_domain') else egress.Guard
         guard = guard_type(request['config'], persist, cwd=Path.cwd())
         port = guard.port
@@ -101,13 +137,16 @@ else:
             assert client.recv(2) == b'\x05\x00'
             if request['mode'].startswith('guard_domain'):
                 host = egress.HOST.encode()
-                client.sendall(b'\x05\x01\x00\x03'+bytes([len(host)])+host+b'\x01\xbb')
+                early_payload = b'local-request' if request['mode']=='guard_domain_persistfail' else b''
+                client.sendall(b'\x05\x01\x00\x03'+bytes([len(host)])+host+b'\x01\xbb'+early_payload)
+                offered_bytes += len(early_payload)
                 reply = client.recv(10)
                 if request['mode']=='guard_domain_persistfail':
                     assert reply == b''
                     raise ValueError('receipt_refused')
                 assert reply[:2]==b'\x05\x00'
                 client.sendall(b'local-request')
+                offered_bytes += len(b'local-request')
                 if request['mode']=='guard_domain':
                     client.shutdown(socket.SHUT_WR)
                 assert client.recv(64)==b'local-response'
@@ -119,9 +158,21 @@ else:
     except (ValueError, OSError) as error:
         result = dict(error=type(error).__name__)
     finally:
-        if guard:
-            guard.close()
+        try:
+            if guard:
+                guard.close()
+        finally:
+            if observer:
+                guard_closed.set()
+                try:
+                    observer.join(6)
+                    assert not observer.is_alive(), 'upstream observer leaked'
+                finally:
+                    listener.close()
     result['events'] = events
-    if (Path.cwd()/'upstream-count').exists():
-        result['upstream_bytes'] = int((Path.cwd()/'upstream-count').read_text())
+    if observer:
+        assert observation['accepted'] and observation['eof'] and observation['complete'], observation
+        assert 'error' not in observation, observation
+        result.update(upstream_bytes=observation['bytes'], upstream_observed_after_close=True,
+                      offered_bytes=offered_bytes)
 print(json.dumps(result), flush=True)

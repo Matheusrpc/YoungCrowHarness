@@ -114,6 +114,8 @@ class EgressTests(unittest.TestCase):
         result = self.inherited('guard_domain')
         self.assertEqual(result.get('exit_code'),0,result)
         self.assertTrue(result['port_free'])
+        self.assertEqual(result['upstream_bytes'],len(b'local-request'),result)
+        self.assertTrue(result['upstream_observed_after_close'],result)
         self.assertEqual([row['kind'] for row in result['events']],
             ['guard_intent','guard_started','guard_ready','guard_request','guard_destination',
              'guard_finished','guard_closed','guard_reaped'])
@@ -125,6 +127,8 @@ class EgressTests(unittest.TestCase):
 
     def test_failed_destination_receipt_forwards_zero_upstream_bytes(self):
         result = self.inherited('guard_domain_persistfail')
+        self.assertTrue(result['upstream_observed_after_close'],result)
+        self.assertEqual(result['offered_bytes'],len(b'local-request'),result)
         self.assertEqual(result['upstream_bytes'],0,result)
         self.assertNotIn('guard_finished',[r['kind'] for r in result['events']])
 

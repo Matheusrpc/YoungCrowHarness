@@ -145,7 +145,29 @@ referência aplicável do fornecedor antes do adaptador. Não repetir as mesmas 
 baixar/executar binário como tentativa de desbloqueio ou consumir novo ciclo sem a
 prova exigida. Docker/modelos continuam sem execução nesta cloud; contador **2/3**.
 
-### Incremento atual: concorrência da seleção
+### Incremento atual: leituras de missão e observação de egress
+
+O CI completo de `c8e7f0b` passou nos oito jobs de push/PR. Os percursos Windows
+v3/v4 da suíte ficaram entre 9,734 e 13,078 segundos; as falhas históricas continuam
+intermitentes. No incremento atual, `mission_status` agrupa consultas SQL adjacentes:
+15 processos Git por chamada passam a nove, com reabertura após inputs e leitura
+final independente. Os testes preservam recusa de regras privadas alteradas,
+detecção de revisões concorrentes e remoção/substituição do banco.
+
+A fixture egress mede bytes no controlador, fora do helper encerrado. O negativo
+oferece 13 bytes antes da resposta SOCKS e exige zero bytes até EOF; o positivo
+comprova a contagem de 13 bytes. A observadora conclui depois de `guard.close` e
+é coletada antes de consumir o recibo. Não atribuir esse mecanismo à falha histórica
+Windows sem o traceback original. Os prazos do produto continuam iguais.
+
+[Relatório e validação desta revisão](relatorios/2026-10-08-mission-read-stability.md).
+Suíte local: 616 aprovados e 20 pulados; 12 focais e 11 testes de catálogo passaram.
+Adoção com diagnóstico passou em consumidor novo e existente, perfis Claude/Codex,
+com fixtures e zero chamadas de modelo. Apenas hashes de conteúdo do catálogo foram atualizados.
+Próxima ação: acompanhar os focais e a suíte completa Windows deste incremento.
+Contratos sbx, fontes nativas de B, perfis bloqueados e contador 2/3 preservados.
+
+### Incremento anterior: concorrência da seleção
 
 A seleção local/dedicada agora adquire o lock existente sem criar ou escrever bytes,
 antes de inspecionar o armazenamento. A primeira configuração mantém os gates antes
@@ -227,7 +249,7 @@ Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
-| CI Windows | Validar os locks de seleção vazios/somente leitura e concluir a suíte desta revisão; preflight Git já aprovado em dois jobs completos |
+| CI Windows | Conferir os focais e a suíte completa após agrupar leituras de missão e mover a observação de egress; o baseline `c8e7f0b` passou nos oito jobs |
 | Executor: 203.6 | Bloqueio externo: comprovar identidade/versão/remoção atômica da credencial e escrita condicional dos settings locais 0.46.0; depois adaptador e aceite v4 |
 | Executor: restante de 203.5 | Comprovar recuperação nativa de settings/serviço/credencial e demais políticas necessárias, preservando alterações externas |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |

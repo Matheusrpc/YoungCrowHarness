@@ -92,6 +92,11 @@ processo concorrente recebe `execution_selection_busy`; depois da gravação, um
 antigo continua sendo recusado. Consultar a seleção não cria nem inicializa o lock.
 [Correção e provas de concorrência](docs/relatorios/2026-10-08-selection-concurrency.md).
 
+A consulta de uma missão existente agrupa leituras SQL adjacentes e usa nove processos Git,
+mantendo a reabertura do banco após os arquivos de entrada e a leitura final
+independente. O teste de recusa de rede mede bytes em um observador que permanece
+ativo após encerrar o guard. [Medição e regressões](docs/relatorios/2026-10-08-mission-read-stability.md).
+
 As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
 de Git na primeira consulta de ambiente retornam JSON sanitizado.
@@ -642,6 +647,11 @@ Execution-location reads and updates now use the same lock. A competing operatio
 receives `execution_selection_busy`; after publication, a stale digest is still
 rejected. Reading the selection never creates or initializes its lock.
 [Concurrency fix and evidence](docs/relatorios/2026-10-08-selection-concurrency.md#english-overview).
+
+Status for an existing mission groups adjacent SQL reads into nine Git processes per query,
+while reopening the database after input files and keeping the independent final
+read. The network refusal test measures bytes with an observer that survives
+guard shutdown. [Measurement and regressions](docs/relatorios/2026-10-08-mission-read-stability.md#english-overview).
 
 Audit fixes recover interrupted mission/backlog notes even after another
 revision, preserving human edits. Malformed catalogs and Git failures during the

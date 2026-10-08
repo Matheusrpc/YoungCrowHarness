@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "measured_at_utc": "2026-10-08T10:48:30.331187+00:00",
+  "scope": "Mission status Git process count and local egress refusal observer",
+  "base_commit": "c8e7f0b46be74a4cfe8c63b77b302b0cb04bf6da",
+  "source_sha256": {
+    "scripts/missions.py": "b77670de544cc1d51c88b4b137c72432fe1f4027eaa847328eb1cc24a7024656",
+    "tests/test_missions.py": "6b8f4d0f2e52240c1777469de72adfcf6706176880a344e2e8ff88782fecf728",
+    "tests/test_mission_egress.py": "23f476da6b88a9e987c5df5df37434d5b15b24193cc0f9455d10adad11aaf568",
+    "tests/fixtures/egress_controller.py": "49f54e395a32ff9e9bf2b871e41572a9f0ca7a0a66af26640a1498517f754b7f",
+    "skills-lock.json": "1109f4d6f45a0d747260fa9ed1f97cbd9d7722b42ddadddd1c243344cceb61f2",
+    ".github/workflows/test.yml": "73e49c223bb5ccf9712be1deffc01466008a52212be3711dc9ce322e95ec65b8"
+  },
+  "status_cost": {
+    "before": [
+      {
+        "git_processes": 15,
+        "elapsed_seconds": 0.03767,
+        "state": "prepared"
+      },
+      {
+        "git_processes": 15,
+        "elapsed_seconds": 0.026279,
+        "state": "prepared"
+      },
+      {
+        "git_processes": 15,
+        "elapsed_seconds": 0.024887,
+        "state": "prepared"
+      }
+    ],
+    "after": [
+      {
+        "git_processes": 9,
+        "elapsed_seconds": 0.032538,
+        "state": "prepared"
+      },
+      {
+        "git_processes": 9,
+        "elapsed_seconds": 0.017753,
+        "state": "prepared"
+      },
+      {
+        "git_processes": 9,
+        "elapsed_seconds": 0.018577,
+        "state": "prepared"
+      }
+    ],
+    "reduction_in_process_count_percent": 40,
+    "scope": "Existing mission in a Git repository; independent invocations, real Git subprocesses, no timing threshold or Windows speedup claim"
+  },
+  "validation": {
+    "full_suite": {
+      "command": "python3 -B -m unittest discover -s tests -v",
+      "tests": 636,
+      "passed": 616,
+      "skipped": 20,
+      "failures": 0,
+      "errors": 0,
+      "elapsed_seconds": 243.735,
+      "exit_code": 0,
+      "private_log_sha256": "edc6ee73f5b67cca46e3247c94959e754566e26894abf6eac4008db382190fcf"
+    },
+    "ci_focal": {
+      "command": "python3 -B tests/ci_unittest.py discover -s tests -p \"test_mission*.py\" -k NetworkBindingTests -k test_abrupt_controller_exit_before_config_reaps_the_waiting_guard -k test_readonly_or_empty_selection_lock_is_not_modified -k test_reader_during_paused_selection_update_is_busy -k test_failed_destination_receipt -k test_guard_persists_destination -k test_status_uses_at_most_nine_git_processes -k test_status_reopens_database -k test_status_refuses_database_removed -v",
+      "tests": 12,
+      "passed": 12,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "elapsed_seconds": 7.526,
+      "exit_code": 0,
+      "private_log_sha256": "6ef269e869a19359928424a075d57afd557fceecbc3316c8824a34e6c289edc5"
+    },
+    "catalog": {
+      "command": "python3 -B -m unittest discover -s tests -p test_capabilities.py -k CatalogTests -v",
+      "tests": 11,
+      "passed": 11,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "elapsed_seconds": 0.228,
+      "exit_code": 0,
+      "private_log_sha256": "4dc85a04e9b07ca2765bd03fc8dc6763cc3e3672ec45d3b2521203110b8f2ab4"
+    },
+    "consumer_smoke": {
+      "command": "python3 -B tests/smoke_mission_runtime.py --root <absent disposable directory outside Git> --client both",
+      "exit_code": 0,
+      "cases": [
+        {
+          "case": "absent",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        },
+        {
+          "case": "dirty-git",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        }
+      ],
+      "diagnostics": [
+        {
+          "mode": "absent",
+          "diagnostic": "succeeded",
+          "replay": "same_run",
+          "dispatches": 1,
+          "read_only": true,
+          "timeout": "uncertain",
+          "crash": "uncertain",
+          "reconciliation": "interrupted",
+          "runtime_available": false,
+          "environment": "read_only_unverified"
+        },
+        {
+          "mode": "dirty-git",
+          "diagnostic": "succeeded",
+          "replay": "same_run",
+          "dispatches": 1,
+          "read_only": true,
+          "timeout": "uncertain",
+          "crash": "uncertain",
+          "reconciliation": "interrupted",
+          "runtime_available": false,
+          "environment": "read_only_unverified"
+        }
+      ],
+      "model_calls": 0,
+      "private_log_sha256": "ea71c1434b363f0c0d2a44e1322e1feacb75a1d4d8d7a99b543185df39bb3238"
+    }
+  },
+  "regression": {
+    "baseline_resource_budget_failed": true,
+    "baseline_egress_missing_observer_receipt": true,
+    "private_log_sha256": {
+      "budget-baseline-red.log": "4b2a1e7eea53e8dccca296ecd8c16ffbe259c67ea4d7c62b780e5d63454c70bd",
+      "egress-red.log": "2e72eef43c7720a463030d45056a57e5edc7b9e4433d92ca42b404e6cd2991fa",
+      "status-review-red.log": "b141ac28c0c2519faeca00093286930ef6c6f4dad8db95963b0a0647db60ebe7"
+    }
+  },
+  "catalog": {
+    "content_hashes_updated": 10,
+    "contracts_and_permissions_unchanged": true,
+    "observations_matched": 10,
+    "private_receipt_sha256": "ac6b74ee3090e4e88aceb2034bf97b457d3c0c320e6461b945497f87b9177b07"
+  },
+  "ci_before": {
+    "head": "c8e7f0b46be74a4cfe8c63b77b302b0cb04bf6da",
+    "all_eight_jobs_success": true,
+    "observed_until_utc": "2026-10-08T10:31:21.601189+00:00",
+    "jobs": [
+      {
+        "name": "public-pilot",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37760885128/job/113256715300?pr=24",
+        "conclusion": "success",
+        "html_sha256": "9111a8f42989d8c998dbb2da18f9ce819a421cf64a01447964fe61a82ba3a5a1"
+      },
+      {
+        "name": "graphify-smoke",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37760885128/job/113256715590?pr=24",
+        "conclusion": "success",
+        "html_sha256": "2c73f4da18f0c5f4ab8eea5af9cc9274ff1384dd1113bc353ecc853802cb75d0"
+      },
+      {
+        "name": "adoption-windows",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37760885128/job/113256715612?pr=24",
+        "conclusion": "success",
+        "html_sha256": "6fe45448839df6650544c32941e25540954772aed6b7871a28f5d1d1ed223117"
+      },
+      {
+        "name": "installer",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37760885128/job/113256715715?pr=24",
+        "conclusion": "success",
+        "html_sha256": "9befc83326880979eddf00b2b45be52b24a8751e205f5a0c64062563f8b4ef0c"
+      },
+      {
+        "name": "installer",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37760891582/job/113256735673?pr=24",
+        "conclusion": "success",
+        "html_sha256": "2524da737e75608977d78526ca610cb16f3c80e02d419a067bea38730e44699f"
+      },
+      {
+        "name": "adoption-windows",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37760891582/job/113256735937?pr=24",
+        "conclusion": "success",
+        "html_sha256": "fe81c68ce3d204ba0023c912e62db5d66b417a20d26c3c593c0b67ad9dc61f16"
+      },
+      {
+        "name": "graphify-smoke",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37760891582/job/113256735964?pr=24",
+        "conclusion": "success",
+        "html_sha256": "da28575a98ea6a338af435093f07a21d4f09e80e8575e6f6299994087fb1ac00"
+      },
+      {
+        "name": "public-pilot",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37760891582/job/113256736137?pr=24",
+        "conclusion": "success",
+        "html_sha256": "194f8b6b27b914959fa4076c805f66baba60faf8a561f92c7eee09b032b78ff9"
+      }
+    ]
+  },
+  "ci_this_revision": "To be checked after publication; baseline results do not validate the new commit",
+  "native": {
+    "new_cycles": 0,
+    "used_cycles": 2,
+    "max_cycles": 3,
+    "model_calls": 0,
+    "proof_accepted": false,
+    "profiles_enabled": false
+  }
+}

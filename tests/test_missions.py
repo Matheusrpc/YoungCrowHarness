@@ -245,6 +245,103 @@ class MissionTests(MissionCase):
             self.m.mission_status(self.root, 'M001')
         self.assertEqual(self.snapshot(), before)
 
+    def test_status_uses_at_most_nine_git_processes_per_call_without_writes(self):
+        request, actor = self.prepared_fixture()
+        receipt = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        before = self.snapshot()
+        results = []
+        for identifier in (receipt['code'], receipt['record_id']):
+            with patch.object(self.store, 'git', wraps=self.store.git) as git:
+                results.append(self.m.mission_status(self.root, identifier))
+            self.assertLessEqual(git.call_count, 9)
+        self.assertEqual(results[0], results[1])
+        self.assertEqual(self.snapshot(), before)
+
+    def test_status_revalidates_private_storage_after_input_and_projection_reads(self):
+        request, actor = self.prepared_fixture()
+        receipt = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        ignore = self.root / '.gitignore'
+        original = ignore.read_bytes()
+        for reader in ('read_inputs', 'projection_hash'):
+            with self.subTest(reader=reader):
+                read = getattr(self.m, reader)
+                changed = []
+                def change_ignore(*args, **kwargs):
+                    value = read(*args, **kwargs)
+                    if not changed:
+                        changed.append(True)
+                        ignore.write_bytes(original + b'\n!/vault/local/\n')
+                    return value
+                try:
+                    with patch.object(self.m, reader, side_effect=change_ignore):
+                        with self.assertRaisesRegex(ValueError, 'Private storage is not ignored'):
+                            self.m.mission_status(self.root, receipt['code'])
+                    self.assertTrue(changed)
+                finally:
+                    ignore.write_bytes(original)
+
+    def test_status_rechecks_newly_tracked_private_file_between_calls(self):
+        request, actor = self.prepared_fixture()
+        receipt = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        self.assertEqual(self.m.mission_status(self.root, receipt['code'])['state'], 'prepared')
+        private = self.root / 'vault/local/private.md'
+        private.write_bytes(b'private fixture')
+        self.git('add', '-f', '--', 'vault/local/private.md')
+        before = self.snapshot()
+        with self.assertRaisesRegex(ValueError, 'Private storage is already tracked'):
+            self.m.mission_status(self.root, receipt['code'])
+        self.assertEqual(self.snapshot(), before)
+
+    def test_status_detects_item_revision_changed_during_input_read(self):
+        request, actor = self.prepared_fixture()
+        receipt = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        item_id = self.item_id(self.paths[-1])
+        read = self.m.read_inputs
+        changed = []
+        def revise_item(*args, **kwargs):
+            value = read(*args, **kwargs)
+            if not changed:
+                changed.append(True)
+                with closing(sqlite3.connect(self.root / DB)) as conn:
+                    conn.execute('UPDATE records SET revision=revision+1 WHERE id=?', (item_id,))
+                    conn.commit()
+            return value
+        with patch.object(self.m, 'read_inputs', side_effect=revise_item):
+            status = self.m.mission_status(self.root, receipt['code'])
+        self.assertIn('revision:' + item_id, status['stale_inputs'])
+
+    def test_status_reopens_database_replaced_during_input_read(self):
+        request, actor = self.prepared_fixture()
+        receipt = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        replacement = self.root / (DB + '.replacement')
+        shutil.copyfile(self.root / DB, replacement)
+        with closing(sqlite3.connect(replacement)) as conn:
+            for table in ('records', 'events', 'projections'):
+                conn.execute('DELETE FROM ' + table)
+            conn.commit()
+        read = self.m.read_inputs
+        def replace_database(*args, **kwargs):
+            value = read(*args, **kwargs)
+            if replacement.exists():
+                os.replace(replacement, self.root / DB)
+            return value
+        with patch.object(self.m, 'read_inputs', side_effect=replace_database):
+            status = self.m.mission_status(self.root, receipt['code'])
+        self.assertEqual(status['stale_inputs'], sorted('revision:' + self.item_id(p) for p in self.paths))
+
+    def test_status_refuses_database_removed_during_input_read(self):
+        request, actor = self.prepared_fixture()
+        receipt = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        read = self.m.read_inputs
+        def remove_database(*args, **kwargs):
+            value = read(*args, **kwargs)
+            (self.root / DB).unlink(missing_ok=True)
+            return value
+        with patch.object(self.m, 'read_inputs', side_effect=remove_database):
+            with self.assertRaisesRegex(ValueError, 'invalid_store'):
+                self.m.mission_status(self.root, receipt['code'])
+        self.assertFalse((self.root / DB).exists())
+
     def test_projection_failure_recovers_without_duplicate(self):
         request, actor = self.prepared_fixture()
         with patch('missions.project_receipt', side_effect=OSError('fixture')):

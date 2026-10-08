@@ -238,15 +238,16 @@ def mission_status(root, mission_id):
                 stale.append(path)
         except (OSError, ValueError):
             stale.append(path)
-    current_records = {r['id']: r for r in store.list_records(root, None)}
-    for record in snapshot['items']:
-        current = current_records.get(record['id'])
-        if current is None or current['revision'] != record['revision']:
-            stale.append('revision:' + record['id'])
-    history = store.events(root, existing['id'])
-    state = 'conflict' if any(e['projection_state'] == 'conflict' for e in history) else 'pending' if any(e['projection_state'] != 'current' for e in history) else 'current'
     with store.reader(root) as conn:
+        require(conn is not None, 'invalid_store')
+        current_records = {r[0]: store.record_dict(r) for r in conn.execute('SELECT * FROM records').fetchall()}
+        for record in snapshot['items']:
+            current = current_records.get(record['id'])
+            if current is None or current['revision'] != record['revision']:
+                stale.append('revision:' + record['id'])
+        history = [store.event_dict(r) for r in conn.execute('SELECT * FROM events WHERE record_id=? ORDER BY seq', (existing['id'],)).fetchall()]
         projections = conn.execute('SELECT p.path,p.sha256 FROM projections p JOIN events e ON e.seq=p.sequence WHERE e.record_id=?', (existing['id'],)).fetchall()
+    state = 'conflict' if any(e['projection_state'] == 'conflict' for e in history) else 'pending' if any(e['projection_state'] != 'current' for e in history) else 'current'
     for path, expected in projections:
         try:
             if projection_hash(root, path) != expected:
@@ -256,6 +257,7 @@ def mission_status(root, mission_id):
                 state = 'pending'
         except (OSError, ValueError):
             state = 'conflict'
+    # Keep the independent final read after checking input and projection files.
     runs = runtime_helpers()[1].list_runs(root, existing['id'])
     return dict(schema_version=1, id=existing['id'], code=existing['code'], revision=existing['revision'],
                 state=snapshot['state'], snapshot=snapshot, gaps=snapshot['gaps'], stale_inputs=sorted(stale),

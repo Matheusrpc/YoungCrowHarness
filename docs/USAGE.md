@@ -2952,3 +2952,25 @@ checks all three ignore rules in one Git invocation and requires every path to
 match. Removing a rule, tracking a private file or receiving a Git error still
 blocks the operation. Verification neither repairs `.gitignore` nor caches earlier
 results. See the [measurement](relatorios/2026-10-08-git-preflight-cost.md#english-overview).
+
+Para uma missão existente, `missions.py status` faz três leituras do banco: missão, revisões/eventos/projeções
+e execuções do cliente. As consultas SQL adjacentes compartilham uma conexão; cada
+leitura mantém o preflight atual. O banco é reaberto após os arquivos de entrada.
+Remover o banco nesse intervalo retorna `invalid_store`; trocar o banco ou mudar
+uma revisão pode marcar `stale_inputs`. A consulta continua sem escrita e sem cache.
+
+Nos testes de rede, o observador fica no controlador. A recusa recebe um payload
+antecipado e precisa comprovar zero bytes até EOF, após encerrar o guard e coletar
+a thread. O controle positivo exige 13 bytes. Essa prova usa sockets locais e não
+substitui o aceite nativo do executor. [Relatório](relatorios/2026-10-08-mission-read-stability.md).
+
+For an existing mission, `missions.py status` reads the database three times: mission, item revisions/events/
+projections, and client runs. Adjacent SQL queries share a connection; each read
+retains current preflight checks. The database reopens after input files. Removal
+during that interval returns `invalid_store`; replacement or a changed item revision
+can mark `stale_inputs`. Status remains read-only and uncached.
+
+Network tests keep the observer in the controller. Refusal receives an early
+payload and must establish zero bytes through EOF after guard shutdown and thread
+collection. The positive control requires 13 bytes. This local socket proof does
+not replace native executor acceptance. [Report](relatorios/2026-10-08-mission-read-stability.md#english-overview).

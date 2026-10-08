@@ -42,10 +42,10 @@ testes e relatórios revisados para continuar em outro ambiente. Comece pelo
 [verificação deste checkpoint](docs/relatorios/2026-10-07-cloud-checkpoint.md).
 O executor ainda depende de prova integrada de rede e dos dois clientes autenticados; seus perfis permanecem bloqueados.
 
-Os quatro fontes/testes da captura de B e seus dois recibos foram recuperados na cloud,
-com os seis hashes originais conferidos. A reprodução ainda depende de módulos e recibos
-históricos ausentes; nenhum teste nativo foi executado nessa recuperação.
-[Arquivos recuperados e dependências](docs/relatorios/2026-10-08-b-source-recovery.md).
+O pacote privado da captura de B foi recuperado na cloud. Seus 26 testes offline
+passaram com 17 hashes fixados conferidos e os 635 arquivos preservados. A suíte
+usa transporte e efeitos nativos simulados; o aceite nativo continua pendente.
+[Recuperação e reprodução da suíte](docs/relatorios/2026-10-08-b-source-recovery.md).
 
 **Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
 chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
@@ -608,10 +608,10 @@ reviewed reports for continuing in another environment. Start with the
 [checkpoint verification](docs/relatorios/2026-10-07-cloud-checkpoint.md).
 Integrated network proof and both authenticated clients are still pending; execution profiles remain blocked.
 
-The four B collector/controller source and test files and two receipts were recovered
-in the cloud; all six hashes match the recorded originals. Replay still needs missing
-historical modules and receipts. Recovery ran no native tests.
-[Recovered files and dependencies](docs/relatorios/2026-10-08-b-source-recovery.md#english-overview).
+The private B capture bundle was recovered in the cloud. All 26 offline tests passed,
+17 pinned hashes matched, and all 635 files remained unchanged. The suite mocks
+transport and native effects; native acceptance is still pending.
+[Recovery and suite replay](docs/relatorios/2026-10-08-b-source-recovery.md#english-overview).
 
 **Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
 are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).

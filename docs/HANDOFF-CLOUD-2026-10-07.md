@@ -25,11 +25,15 @@ O próximo passo de 203.6 é comprovar identidade, versão e remoção atômica 
 
 Os quatro fontes/testes de captura e integração e os dois recibos B chegaram por
 transferência privada. Os seis hashes coincidem com os registros históricos; os
-originais estão preservados fora do Git. A suíte antiga ainda requer 13 dependências
-diretas ausentes, com a cadeia transitiva por inspecionar. Os 26 testes encontrados
-no código não foram executados. [Inventário e prova de transferência](relatorios/2026-10-08-b-source-recovery.md).
-Esta atualização supera as referências anteriores à ausência desses seis arquivos.
-Próximo passo: recuperar as dependências originais e verificar a suíte offline.
+originais estão preservados fora do Git. O ZIP recebido depois trouxe as 13 dependências
+diretas e as transitivas necessárias à suíte. Os 26 testes passaram em cópia privada
+na cloud Linux, com 17 hashes fixados conferidos e os 635 arquivos preservados.
+[Inventário e reprodução](relatorios/2026-10-08-b-source-recovery.md).
+Esta atualização supera as referências anteriores à ausência dos fontes e dependências.
+Transporte, guard e efeitos nativos usam os mocks originais; nenhum evento de processo
+ou rede ocorreu. A execução usa cinco auxiliares públicos do commit `9b27c8a`, com
+hashes na medição; não reproduz o ambiente Windows inteiro. A integração da atribuição
+ao contrato atual continua pendente, assim como o contrato nativo externo.
 Permanecem 2/3 ciclos consumidos, `proof_accepted=false` e perfis nativos bloqueados.
 
 ### Continuidade na cloud em 7/out
@@ -263,10 +267,10 @@ com timeout externo de 15 s em v3 e v4, ambos sem stdout e com árvore recolhida
 O diagnóstico agora lê o ledger mesmo sem envelope e publica tempos relativos.
 O passo seguinte era localizar o atraso pelo ledger e acompanhar a suíte
 Windows completa; a localização em A2 consta no incremento de 8/out. V4 e encerramento abrupto passaram nas rodadas focais anteriores,
-mas isso não explica suas falhas na execução longa de `a9d05ea`. A pendência de transferir
-os seis arquivos de B foi resolvida em 8/out; a reprodução ainda aguarda as dependências
-originais identificadas no inventário acima. Não substituir essa evidência por fixtures
-inventadas nem consumir outro ciclo para recuperá-la.
+mas isso não explica suas falhas na execução longa de `a9d05ea`. A transferência de B
+e a reprodução de seus 26 testes offline foram concluídas em 8/out. A integração
+ao contrato atual continua pendente. Não substituir a prova nativa por essa suíte
+nem repetir operações consumidas.
 O contador nativo permanece **2/3**, sem Docker/sbx ou modelos executados nesta cloud.
 
 Para continuar, seguir esta ordem sem reabrir decisões anteriores:

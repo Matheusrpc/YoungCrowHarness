@@ -1,6 +1,6 @@
 {
-  "checked_at": "2026-10-08T20:45:03.039731+00:00",
-  "scope": "private_original_recovery_and_static_inspection",
+  "checked_at": "2026-10-08T23:18:27.932448+00:00",
+  "scope": "private_original_recovery_and_offline_replay",
   "baseline_commit": "1bb136e2cfb7151d477bceacc9cc9d754ec0353e",
   "files": [
     {
@@ -47,29 +47,118 @@
     }
   ],
   "validation": {
-    "matched_files": 6,
-    "python_ast_parse_valid": 4,
-    "json_valid": 2,
-    "source_receipt_excerpt_matches": true,
-    "original_test_methods_identified_statically": 26,
-    "original_tests_executed": 0
+    "tests": 26,
+    "passed": 26,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 0.375,
+    "blocked_boundary_attempts": {},
+    "effective_pins": [
+      {
+        "file": "exclusive_egress.py",
+        "sha256": "16fcc9bde6719b7b765b3a8805c045d8fac1362a2c2b3d706a9e4b3169f01af0",
+        "matches": true
+      },
+      {
+        "file": "egress_guard.py",
+        "sha256": "7092626e4214f50848a64b95716d692b9b8b0d11dabf979a7fd098f0d5fcb777",
+        "matches": true
+      },
+      {
+        "file": "guardian_vm.py",
+        "sha256": "a2e82785634c3dcfcdd0c83d147318478cbfd34b23b604907470c83328111f71",
+        "matches": true
+      },
+      {
+        "file": "exclusive-egress-v2-closed.json",
+        "sha256": "87da06c23e8a0cfa8db2d36d80edccbab93f0615e75f1ecdf50ec67f612973e1",
+        "matches": true
+      },
+      {
+        "file": "exclusive-egress-proof/recovery-complete.json",
+        "sha256": "77fb0fb16a6b6e149c2652af1a0ca73b7bdf7dba310a00ecf48dddb557c83453",
+        "matches": true
+      },
+      {
+        "file": "observed_egress.py",
+        "sha256": "691fa96999f0d8b4baf7c0a0a8c4c14d2340f359db249d38d538effcf8fe586f",
+        "matches": true
+      },
+      {
+        "file": "observed-egress-proof/restoration-verified.json",
+        "sha256": "f038bb7e717ffef2302081ed7cc15125910ae0ff91004b2618a7cec4d53f0ef4",
+        "matches": true
+      },
+      {
+        "file": "observed-egress-proof/attempt.json",
+        "sha256": "37fe17bcb2d380ecee44ff1f015ca1f85d4fb768ed5767e2e5e7c8f05258f150",
+        "matches": true
+      },
+      {
+        "file": "observed-egress-proof/control.json",
+        "sha256": "d2847626c2e03232cf3c5d43db7a9fd4bad1727cb350c3dd8c22a92ab03c19b0",
+        "matches": true
+      },
+      {
+        "file": "observed-egress-proof/receipt.json",
+        "sha256": "cc07ac00447420eb375d2f95650d698cc86467d5b652e9e066d69f63b0e6e847",
+        "matches": true
+      },
+      {
+        "file": "observed-egress-proof/commands.jsonl",
+        "sha256": "536700781cb3751827381111e79a5977b6c3d71e0823095d94381c04d5153a8e",
+        "matches": true
+      },
+      {
+        "file": "captured_egress.py",
+        "sha256": "cd4394082e8da687efeff9bd835169163a540385e80faaacec8dc06b8fb7531c",
+        "matches": true
+      },
+      {
+        "file": "corrected_egress.py",
+        "sha256": "14003ceb662f72cdc96ed94f319222743c7766703536d2e8619fa1388aa17ec8",
+        "matches": true
+      },
+      {
+        "file": "corrected-egress-proof/attempt.json",
+        "sha256": "9a1b0b147044fa1abb122603287a67a99986d97c69c4a21455256b717378d1e4",
+        "matches": true
+      },
+      {
+        "file": "corrected-egress-proof/control.json",
+        "sha256": "c6c016ed0a1e5c02e7bb5cadbfe0ecb2a41e470e256f3c7e9f18cbcb3680b159",
+        "matches": true
+      },
+      {
+        "file": "corrected-egress-proof/receipt.json",
+        "sha256": "9e586cd2560282ab5610e38ad0f89c779eef9c395e90b03628629ee2d3049ecc",
+        "matches": true
+      },
+      {
+        "file": "corrected-egress-proof/commands.jsonl",
+        "sha256": "5d07ec9e04021a66e9a63badb0f927fe6f6ce950ea8a879e1bda942c17ef32fd",
+        "matches": true
+      }
+    ],
+    "public_runtime_commit": "9b27c8a2f63a9db96eee03410373b36d631c5c56",
+    "public_helpers": {
+      "scripts/adoption_fs.py": "798d8e6653204f6498288683c6d1d487742e8fb0a2929c809e9b3c2279749dbe",
+      "scripts/adoption.py": "0aff363b93f95dedd0742f925d5a56ed22de3d8ee39e1ad325b7938b66ae1454",
+      "scripts/document_store.py": "01221d353ca02747981b5a59c0ae8e8c1b7383727e878eca07b093a327db77fd",
+      "scripts/integrations.py": "29fc50039e714e37ea5050aa7b624c1d3381c646f0751987354385e06f23153b",
+      "scripts/mission_process.py": "1e8ef085b5bac1571b995309f1c1a7b80d20e7f129507c8e755ad079ff6fa227"
+    },
+    "python": "3.12.14",
+    "platform": "Linux",
+    "log_sha256": "f8ab47ce8ff5869fd73cd39896abe18d280df6f8078334d9164ee5b1d62970dc",
+    "private_runner_sha256": "97c030e92993fb7e96f981230150eb576ffa18820ac9f6d13a5a53cdefc6bc5a",
+    "private_runner_command": "python3 -I -B .runtime/recovered-b-20261008/bundle/run_offline.py",
+    "localappdata": "disposable_path_in_runner_process_only",
+    "native_boundaries": "original_tests_mock_transport_guard_and_sbx; audit_hook_refuses_process_and_socket_events"
   },
-  "direct_missing_dependencies": [
-    "exclusive_egress.py",
-    "corrected_egress.py",
-    "observed_egress.py",
-    "guardian_vm.py",
-    "hostname-cidr-client.py",
-    "hostname-cidr-proof.json",
-    "native-package-proof.json",
-    "corrected-egress-proof/control.json",
-    "corrected-egress-proof/B-diagnosis.json",
-    "corrected-egress-proof/restoration-verified.json",
-    "corrected-egress-proof/attempt.json",
-    "corrected-egress-proof/receipt.json",
-    "corrected-egress-proof/commands.jsonl"
-  ],
-  "transitive_dependencies": "not_yet_inspected",
+  "direct_missing_dependencies": [],
+  "transitive_dependencies": "present_for_the_selected_26_test_suite; other_archived_programs_not_executed",
   "native": {
     "new_cycles": 0,
     "cycles_consumed": 2,
@@ -82,5 +171,49 @@
     "model_calls": 0,
     "native_cycles": 0
   },
-  "next_action": "recover_original_dependencies_without_running_consumed_native_entries"
+  "next_action": "obtain_applicable_local_sbx_contract_for_conditional_settings_and_versioned_credential_removal_before_native_adapter_and_attribution",
+  "initial_transfer": {
+    "checked_at": "2026-10-08T20:45:03.039731+00:00",
+    "validation": {
+      "matched_files": 6,
+      "python_ast_parse_valid": 4,
+      "json_valid": 2,
+      "source_receipt_excerpt_matches": true,
+      "original_test_methods_identified_statically": 26,
+      "original_tests_executed": 0
+    },
+    "direct_missing_dependencies": [
+      "exclusive_egress.py",
+      "corrected_egress.py",
+      "observed_egress.py",
+      "guardian_vm.py",
+      "hostname-cidr-client.py",
+      "hostname-cidr-proof.json",
+      "native-package-proof.json",
+      "corrected-egress-proof/control.json",
+      "corrected-egress-proof/B-diagnosis.json",
+      "corrected-egress-proof/restoration-verified.json",
+      "corrected-egress-proof/attempt.json",
+      "corrected-egress-proof/receipt.json",
+      "corrected-egress-proof/commands.jsonl"
+    ],
+    "transitive_dependencies": "not_yet_inspected",
+    "next_action": "recover_original_dependencies_without_running_consumed_native_entries"
+  },
+  "bundle": {
+    "name": "youngcrow-fontes-20261008-201212.zip",
+    "sha256": "542be980a133508aace9d2f9f84b753d71b85adfc1b2e0451fde631e701be2ea",
+    "archive_bytes": 1050342,
+    "uncompressed_bytes": 5493727,
+    "file_count": 635,
+    "extensions": {
+      "py": 163,
+      "json": 447,
+      "jsonl": 25
+    },
+    "previous_six_match": true,
+    "previous_thirteen_dependencies_present": true,
+    "originals_preserved": 635,
+    "replay_copies_unchanged": 635
+  }
 }

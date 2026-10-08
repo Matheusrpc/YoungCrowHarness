@@ -146,8 +146,11 @@ def launch(mode):
             if network_path.exists() and manifest['schema_version'] != 4:
                 network = json.loads(network_path.read_bytes())
                 if blocked:
+                    from mission_controller import Deadline
                     try:
-                        with socket.create_connection(('127.0.0.1',network['port']),timeout=1):
+                        # Windows may need more than one second to report the refusal.
+                        with socket.create_connection(('127.0.0.1',network['port']),
+                                                      timeout=Deadline(manifest['deadline_ms']).remaining()):
                             raise AssertionError('B unexpectedly connected')
                     except ConnectionRefusedError:
                         pass

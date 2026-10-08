@@ -2875,3 +2875,16 @@ endereço ou conteúdo de processo. Uma exceção continua falhando o teste.
 The local B probe records only an unexpected exception class in its fixture and
 re-raises it. Annotations allow only fixed class names, excluding messages, addresses
 and process content. The exception still fails the test.
+
+
+No percurso local v3, B só é reconhecida quando a conexão recebe
+`ConnectionRefusedError`. O CI confirmou que o corte anterior de um segundo podia
+produzir `TimeoutError` no Windows. A sonda usa agora o prazo restante do manifesto,
+com a reserva de encerramento do controlador. Timeout e conexão bem-sucedida
+continuam falhando. Os limites do supervisor (15 s) e do plano (30 s) permanecem.
+
+In the local v3 flow, B is recognized only after `ConnectionRefusedError`. CI confirmed
+that the previous one-second cutoff could produce `TimeoutError` on Windows. The
+probe now uses the manifest's remaining deadline, preserving the controller's shutdown
+reserve. Timeout and successful connection still fail. Supervisor (15 s) and plan
+(30 s) limits remain unchanged.

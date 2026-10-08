@@ -72,8 +72,9 @@ O CI de `da28f00` falhou em `adoption-windows`, na suíte de missões, tanto no 
 quanto no PR. Os outros três jobs passaram. O runner dessa etapa agora publica
 identificadores e estados permitidos dos testes nas anotações do GitHub, preservando
 a saída e o resultado do unittest. O CI identificou dois percursos de rede e um caso
-de encerramento do controlador. A rodada focal localizou o erro atual no protocolo
-da fase B do percurso v3; a exceção da sonda está em diagnóstico.
+de encerramento do controlador. A rodada focal confirmou `TimeoutError` na sonda B
+v3, que limitava a conexão a um segundo. A fixture agora usa o prazo restante da fase
+e continua exigindo recusa explícita. A validação Windows da correção está pendente.
 [Estado do CI e próxima ação](docs/relatorios/2026-10-07-windows-ci-diagnostics.md).
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
@@ -598,8 +599,9 @@ CI for `da28f00` failed in `adoption-windows`, during mission tests, on both pus
 and PR runs. The other three jobs passed. That step's runner now publishes
 test identifiers and allowlisted fixture states in GitHub annotations, preserving
 unittest output and status. CI identified two network flows and one controller
-shutdown case. Focused execution located the current error in the v3 B-phase
-protocol; the probe exception is under diagnosis.
+shutdown case. Focused execution confirmed `TimeoutError` in the v3 B probe, which
+limited its connection to one second. The fixture now uses the remaining phase
+deadline and still requires explicit refusal. Windows validation of the fix is pending.
 [CI evidence and next action](docs/relatorios/2026-10-07-windows-ci-diagnostics.md#english-overview).
 
 Audit fixes recover interrupted mission/backlog notes even after another

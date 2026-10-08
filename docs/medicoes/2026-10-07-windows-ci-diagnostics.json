@@ -199,7 +199,7 @@
     "branch_and_pr_refs_verified": true
   },
   "limitations": [
-    "Windows root cause not yet identified",
+    "v3 B one-second fixture cutoff produced TimeoutError; correction awaiting Windows validation; prior long-run v4/abrupt failures remain unexplained",
     "post-run annotations require unittest completion",
     "local tests do not prove Windows ACL/process behavior",
     "native local credentials and settings contract still missing",
@@ -287,7 +287,7 @@
     }
   },
   "B_probe_diagnostic": {
-    "state": "ready_to_publish",
+    "state": "published",
     "exception_message_included": false,
     "original_exception_reraised": true,
     "focused_log_sha256": "28b51baddc801dc51a858e9c43f7f40992950e963eaa0b8ee3bfe532bb1d12aa",
@@ -297,6 +297,52 @@
       "tests/test_mission_network.py": "55f9d3b1121edb6f5306ea08bb47b54634d26b183aa533737196569cbc5ee31e",
       "tests/ci_unittest.py": "65f01d71517c7f3ce350172c8ec8fbaee60814900e9d57320b7ea754de4c20bd"
     },
-    "full_suite_basis": "618-test state diagnostic suite; only unexpected B probe exception metadata added afterwards; five affected cases and six runner tests rechecked"
+    "full_suite_basis": "618-test state diagnostic suite; only unexpected B probe exception metadata added afterwards; five affected cases and six runner tests rechecked",
+    "code_commit": "919b0a4405d26258847a0196fd42b4eeba817307",
+    "windows_runs": [
+      37720869779,
+      37720873246
+    ],
+    "observed_exception": "TimeoutError",
+    "focused_total_each": 5,
+    "focused_failures_each": 1,
+    "public_job_evidence": [
+      {
+        "file": "probe-job-0.html",
+        "sha256": "63d3cb873661d68631f541b5acdfd325a6164e24b6f2ebcca4890176d569c903"
+      },
+      {
+        "file": "probe-job-1.html",
+        "sha256": "cd6652e56e0d8972f2c2371559f796619cd2e4c82a667ec5fbbd33149a9aec93"
+      }
+    ]
+  },
+  "B_deadline_fix": {
+    "state": "ready_to_publish",
+    "measured_at": "2026-10-08T03:10:06.795238+00:00",
+    "production_code_changed": false,
+    "fixture_connection_budget": "existing manifest deadline minus controller shutdown reserve",
+    "supervisor_seconds": 15,
+    "plan_seconds": 30,
+    "required_exception": "ConnectionRefusedError",
+    "review": {
+      "agent": "windows_network_static_review",
+      "blocking_findings": 0,
+      "tests_run_by_reviewer": false
+    },
+    "focused": {
+      "total": 5,
+      "passed": 5,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 7.577,
+      "exit_code": 0,
+      "log_sha256": "6c7138e7ff02e9eac9f49a85f85c5dc9cd7b5823b1c757d9dbc4ade54411f320"
+    },
+    "source_sha256": {
+      "tests/fixtures/isolated_controller.py": "8ac11434ef51112142466de7711b2f4ffe77f43f75247f9db273bce7d8bfc545"
+    },
+    "windows_validation": "pending"
   }
 }

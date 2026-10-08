@@ -100,6 +100,25 @@ falha registrada. A sonda B pode sair com exceção antes de emitir os eventos f
 passa a registrar somente a classe da exceção inesperada, preservando o `raise`.
 A classe ainda precisa ser medida no Windows; não há correção de produto nesta etapa.
 
+## Correção do prazo da sonda v3
+
+Em `919b0a4`, os runs [37720869779](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37720869779)
+e [37720873246](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37720873246)
+confirmaram `TimeoutError` na conexão de B antes dos eventos finais. O supervisor
+completou com código 0 em 8,171 s e 7,328 s; a árvore foi recolhida. Os quatro outros
+casos focais passaram em ambos, incluindo v4 com recuperação e encerramento abrupto.
+
+A fixture v3 remove o corte particular de um segundo dessa conexão e usa
+`Deadline(manifest['deadline_ms']).remaining()`, o orçamento já declarado com reserva
+para encerramento. Só `ConnectionRefusedError` demonstra recusa; timeout e conexão
+bem-sucedida continuam falhando. Os limites externos de 15 s e 30 s não mudaram.
+Nenhum código de produto ou critério de aceite nativo mudou.
+
+Revisão independente sem bloqueadores. Os cinco casos focais locais passaram em
+7,577 s. Os casos Windows falhos são a regressão observada. A correção precisa completar
+A/B/A2 e recuperação dentro dos mesmos limites no CI. Passar a suíte focal não
+explica sozinho as falhas de v4 e encerramento abrupto na execução longa anterior.
+
 ## Dependências preservadas
 
 A avaliação de 203.8 confirmou outra pendência: o coletor de B e sua evidência original
@@ -128,7 +147,7 @@ adicional. Fontes HTML foram lidas diretamente e guardadas em área privada com 
 
 Destino autorizado: `feat/isolated-executor`, [PR #24 em rascunho](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 Base inicial `da28f00`; main conferida em `932b775`. Próxima ação: consultar os
-estados da rodada focal e investigar a causa antes de alegar correção.
+rodada focal após a correção da sonda v3 e acompanhar a suíte Windows completa.
 Retorno: reverter o incremento na branch restaura a entrada anterior do unittest;
 isso remove as anotações e mantém a falha Windows pendente. Não altera ledger,
 perfis ou autorizações nativas. Recibos e HTML brutos ficam fora do Git.
@@ -145,6 +164,10 @@ exit status. Controlled regressions and independent review cover this diagnostic
 which does not itself fix the Windows failure. A focused step now runs the affected cases first and publishes only allowlisted
 fixture states, durations and counts to locate the cause. Assertions and deadlines
 remain unchanged; later full-suite steps remain gated on the focused step.
+The next probe diagnostic confirmed a one-second connection timeout in v3 B on both
+Windows runs. That fixture now uses the existing remaining phase deadline and still
+requires ConnectionRefusedError; outer limits are unchanged. Windows validation
+of the fix remains pending.
 Original B collector sources and capture also need transfer from the private
 checkout. Native contracts remain blocked, with no new native cycles (2/3 used).
 

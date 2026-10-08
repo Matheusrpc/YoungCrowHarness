@@ -160,11 +160,15 @@ ou falha anterior ao unittest podem impedir as anotações. No CI de `a9d05ea`, 
 a execução do PR também falhou em
 `test_abrupt_controller_exit_before_config_reaps_the_waiting_guard`. Uma etapa focal
 executa esses casos primeiro e acrescenta estados/códigos permitidos, duração e
-contagens às anotações. A causa ainda não está confirmada.
+contagens às anotações. Em `919b0a4`, os dois runs confirmaram `TimeoutError` na
+sonda B v3 antes dos eventos finais. A fixture agora usa o prazo restante da fase
+em lugar do corte fixo de um segundo. Exige `ConnectionRefusedError`; timeout
+continua falhando. Supervisor 15 s e plano 30 s permanecem inalterados.
 [Relatório e medição](relatorios/2026-10-07-windows-ci-diagnostics.md).
 
-Próximo passo executável: consultar os estados na rodada focal e localizar a causa
-das falhas Windows. Em paralelo ao bloqueio externo de 203.6, a integração de B (203.8) depende
+Próximo passo executável: validar a correção nos cinco casos focais e na suíte
+Windows completa. V4 e encerramento abrupto passaram nas rodadas focais anteriores,
+mas isso não explica suas falhas na execução longa de `a9d05ea`. Em paralelo ao bloqueio externo de 203.6, a integração de B (203.8) depende
 de transferir `captured_egress.py`, seus testes e a fixture nativa original do checkout
 privado anterior. Os arquivos/hashes necessários estão no relatório. Não substituir
 essa evidência por fixtures inventadas nem consumir outro ciclo para recuperá-la.
@@ -174,7 +178,7 @@ Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
-| CI Windows | Consultar estados da rodada focal de rede/encerramento e corrigir a causa das falhas identificadas |
+| CI Windows | Validar a correção do timeout da fixture B v3 na rodada focal e acompanhar a suíte completa |
 | Executor: 203.6 | Bloqueio externo: comprovar identidade/versão/remoção atômica da credencial e escrita condicional dos settings locais 0.46.0; depois adaptador e aceite v4 |
 | Executor: restante de 203.5 | Comprovar recuperação nativa de settings/serviço/credencial e demais políticas necessárias, preservando alterações externas |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |

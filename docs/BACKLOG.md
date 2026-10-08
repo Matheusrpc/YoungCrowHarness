@@ -12,7 +12,9 @@ Published to PR #24 at `2f4e47a`; branch and PR refs verified.
 
 Prioridade de validação: diagnosticar a falha da suíte de missões em `adoption-windows`
 no CI de `da28f00`. Push e PR falharam; os outros três jobs passaram. O runner publica
-IDs dos testes falhos nas anotações. O resultado da nova execução ainda está pendente.
+IDs dos testes falhos nas anotações. Em `a9d05ea`, falharam os dois percursos positivos
+de `NetworkBindingTests`; o CI do PR também falhou no encerramento abrupto do guard.
+A próxima rodada focal expõe estados permitidos para localizar a causa.
 [Evidência e diagnóstico](relatorios/2026-10-07-windows-ci-diagnostics.md).
 
 A integração da captura de B (203.8) também aguarda transferência dos fontes e da
@@ -70,7 +72,9 @@ native profiles remain blocked. Order: **203.6 and remaining recovery → packag
 native A/B/A2 → authenticated clients and adoption → queue/agents → QA → release/operations**.
 CI for `da28f00` failed in Windows mission tests on both push and PR runs; the other
 three jobs passed. Diagnose this failure before native acceptance. The step now emits
-failed test identifiers as annotations; the new run is still pending.
+failed test identifiers as annotations. At `a9d05ea`, both positive NetworkBinding
+flows failed; the PR run also failed the abrupt controller shutdown test. A focused
+step now exposes allowlisted states to locate the cause.
 [Evidence](relatorios/2026-10-07-windows-ci-diagnostics.md#english-overview).
 
 Este é o índice público do trabalho necessário para entregar a esteira definida na

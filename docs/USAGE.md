@@ -2850,3 +2850,20 @@ without that variable. Annotations require suite completion, so cancellation, ti
 or earlier wrapper failure still requires access to step logs. CI at `da28f00` failed
 in this step and remains under diagnosis. These fixture tests do not run a native
 sbx acceptance cycle.
+
+
+Os testes integrados de rede também publicam uma anotação por caso com estados e
+códigos de uma lista fixa, duração, código de saída e contagens. Saída dos processos,
+texto de exceções, caminhos e identidades ficam fora da projeção. Valores desconhecidos
+viram `other`. A anotação roda depois que a fixture restaura o ambiente do chamador.
+O workflow executa primeiro os quatro casos `NetworkBindingTests` e o caso de encerramento
+abrupto; a suíte completa permanece depois deles. Se o diagnóstico falhar, os passos
+seguintes ficam pulados e o job continua falho. Não interpretar a rodada focal como
+execução de toda a suíte Windows.
+
+Integrated network tests also publish one notice per case with allowlisted states,
+elapsed time, exit code and counts. Process output, exception text, paths and identities
+are excluded; unknown codes become `other`. The notice runs after fixture environment
+restoration. The workflow first runs the four NetworkBinding cases and the abrupt
+shutdown case, retaining the full suite afterwards. A focused failure skips later
+steps and keeps the job failed; focused execution is not full Windows coverage.

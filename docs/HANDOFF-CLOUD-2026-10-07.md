@@ -156,12 +156,15 @@ login nessa consulta; a página não identifica o teste responsável.
 `tests/ci_unittest.py` mantém a execução/saída do unittest e acrescenta anotações com
 IDs de falhas, erros e sucessos inesperados, sem traceback nem parâmetros de subteste.
 O workflow usa essa entrada dentro do wrapper de ACL já existente. Timeout, cancelamento
-ou falha anterior ao unittest podem impedir as anotações. A nova execução precisa ser
-consultada; instrumentar o diagnóstico não corrige a falha ainda desconhecida.
+ou falha anterior ao unittest podem impedir as anotações. No CI de `a9d05ea`, falharam os dois percursos positivos de `NetworkBindingTests`;
+a execução do PR também falhou em
+`test_abrupt_controller_exit_before_config_reaps_the_waiting_guard`. Uma etapa focal
+executa esses casos primeiro e acrescenta estados/códigos permitidos, duração e
+contagens às anotações. A causa ainda não está confirmada.
 [Relatório e medição](relatorios/2026-10-07-windows-ci-diagnostics.md).
 
-Próximo passo executável: obter os IDs na nova execução do CI e diagnosticar a falha
-Windows. Em paralelo ao bloqueio externo de 203.6, a integração de B (203.8) depende
+Próximo passo executável: consultar os estados na rodada focal e localizar a causa
+das falhas Windows. Em paralelo ao bloqueio externo de 203.6, a integração de B (203.8) depende
 de transferir `captured_egress.py`, seus testes e a fixture nativa original do checkout
 privado anterior. Os arquivos/hashes necessários estão no relatório. Não substituir
 essa evidência por fixtures inventadas nem consumir outro ciclo para recuperá-la.
@@ -171,7 +174,7 @@ Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
-| CI Windows | Consultar IDs de testes falhos nas anotações e diagnosticar a falha de `adoption-windows` |
+| CI Windows | Consultar estados da rodada focal de rede/encerramento e corrigir a causa das falhas identificadas |
 | Executor: 203.6 | Bloqueio externo: comprovar identidade/versão/remoção atômica da credencial e escrita condicional dos settings locais 0.46.0; depois adaptador e aceite v4 |
 | Executor: restante de 203.5 | Comprovar recuperação nativa de settings/serviço/credencial e demais políticas necessárias, preservando alterações externas |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |

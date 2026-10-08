@@ -1,17 +1,46 @@
 """Exercise the CI entry point with real disposable test modules."""
 import os
+import contextlib
+import io
+import json
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import textwrap
 import unittest
+from unittest.mock import patch
 
 
 RUNNER = Path(__file__).with_name('ci_unittest.py')
 
 
 class CIRunnerTests(unittest.TestCase):
+    def test_fixture_diagnostics_exclude_unselected_data_and_unknown_codes(self):
+        import ci_unittest
+        annotate = getattr(ci_unittest, 'annotate_case', None)
+        self.assertTrue(callable(annotate), 'bounded fixture diagnostics missing')
+        reports = dict(supervisor=dict(reason='timeout', exit_code=1, tree_reaped=True,
+            elapsed_seconds=15.2, stdout=b'private-output', stderr=b'private-error',
+            owner='private-owner'), transaction=dict(state='blocked', reason='private-code',
+            failure='Refused:guard_port_occupied', journal_events=10,
+            secret='private-secret'), private_stage=dict(state='observed'))
+        output = io.StringIO()
+        with patch.dict(os.environ, GITHUB_ACTIONS='true'), contextlib.redirect_stdout(output):
+            annotate('test_probe.Probe.test_network', reports)
+        line = output.getvalue().strip()
+        self.assertTrue(line.startswith('::notice::test_probe.Probe.test_network '))
+        value = json.loads(line.split(' ', 1)[1])
+        self.assertEqual(value['supervisor'], dict(reason='timeout', exit_code=1,
+            tree_reaped=True, elapsed_seconds=15.2, stdout_bytes=14, stderr_bytes=13))
+        self.assertEqual(value['transaction'], dict(state='blocked', reason='other',
+            failure='Refused:guard_port_occupied', journal_events=10))
+        self.assertNotIn('private', line)
+        output = io.StringIO()
+        with patch.dict(os.environ, GITHUB_ACTIONS='false'), contextlib.redirect_stdout(output):
+            annotate('test_probe.Probe.test_network', reports)
+        self.assertEqual(output.getvalue(), '')
+
     def run_suite(self, source, *arguments, actions='true', standard=False):
         with tempfile.TemporaryDirectory() as directory:
             Path(directory, 'test_probe.py').write_text(textwrap.dedent(source), encoding='utf-8')

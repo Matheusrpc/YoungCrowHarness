@@ -70,8 +70,9 @@ continua sem prova. Validação local: 592 testes aprovados e 20 pulados.
 
 O CI de `da28f00` falhou em `adoption-windows`, na suíte de missões, tanto no push
 quanto no PR. Os outros três jobs passaram. O runner dessa etapa agora publica
-somente os identificadores dos testes falhos nas anotações do GitHub, preservando
-a saída e o resultado do unittest. A causa da falha Windows ainda precisa de diagnóstico.
+identificadores e estados permitidos dos testes nas anotações do GitHub, preservando
+a saída e o resultado do unittest. O CI identificou dois percursos de rede e um caso
+de encerramento do controlador; a causa ainda precisa de diagnóstico.
 [Estado do CI e próxima ação](docs/relatorios/2026-10-07-windows-ci-diagnostics.md).
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
@@ -593,9 +594,10 @@ Local validation: 592 tests passed and 20 were skipped.
 See the [fix and native blocker](docs/relatorios/2026-10-07-conditional-settings.md#english-overview).
 
 CI for `da28f00` failed in `adoption-windows`, during mission tests, on both push
-and PR runs. The other three jobs passed. That step's runner now publishes only
-failed test identifiers in GitHub annotations, preserving unittest output and status.
-The Windows failure still needs diagnosis.
+and PR runs. The other three jobs passed. That step's runner now publishes
+test identifiers and allowlisted fixture states in GitHub annotations, preserving
+unittest output and status. CI identified two network flows and one controller
+shutdown case; the cause still needs diagnosis.
 [CI evidence and next action](docs/relatorios/2026-10-07-windows-ci-diagnostics.md#english-overview).
 
 Audit fixes recover interrupted mission/backlog notes even after another

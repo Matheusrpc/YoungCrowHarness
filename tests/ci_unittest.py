@@ -1,7 +1,57 @@
 """Run unittest with failure identifiers visible in GitHub Actions annotations."""
 import os
 import re
+import json
 import unittest
+
+
+def safe_identifier(identifier):
+    if re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.]*(?: \([A-Za-z_][A-Za-z0-9_.]*\))?', identifier):
+        return identifier
+    return 'test_identifier_unavailable'
+
+
+def annotate_case(identifier, reports):
+    """Publish selected fixture states, never arbitrary output or exception text."""
+    if os.environ.get('GITHUB_ACTIONS') != 'true':
+        return
+    codes = {
+        'completed', 'timeout', 'cancelled', 'output_limit', 'spawn_failed',
+        'blocked', 'observed', 'refused', 'recovered', 'blocked_unattributed',
+        'preflight_changed', 'reconciliation_required', 'phase_observed',
+        'native_attribution_required', 'native_attribution_and_recovery_required',
+        'invalid_manifest', 'transport_failed', 'transport_close_failed',
+        'protocol_failed', 'dispatch_failed', 'deadline', 'execution_deadline',
+        'persistence_failed', 'configuration_changed', 'workload_stop_unverified',
+        'identity_changed', 'owner_still_present', 'stop_consumed',
+        'unowned_active_candidate', 'recovery_deadline', 'execution_history_limit',
+        'recovery_unverified', 'resources_observed', 'invalid_fixture_result',
+        'guard_port_occupied', 'guard_exit_unverified',
+        'Refused:guard_port_occupied', 'Refused:guard_exit_unverified',
+        'ValueError:execution_deadline', 'TimeoutError:deadline',
+    }
+    output = {}
+    for stage in ('supervisor', 'transaction', 'A', 'B', 'A2', 'recovery', 'replay'):
+        if stage not in reports:
+            continue
+        result, fields = reports[stage], {}
+        for key in ('state', 'reason', 'failure'):
+            if key in result:
+                value = result[key]
+                fields[key] = value if value is None or (type(value) is str and value in codes) else 'other'
+        for key in ('exit_code', 'journal_events', 'network_events', 'recovery_events'):
+            if key in result and (result[key] is None or type(result[key]) is int):
+                fields[key] = result[key]
+        if type(result.get('tree_reaped')) is bool:
+            fields['tree_reaped'] = result['tree_reaped']
+        elapsed = result.get('elapsed_seconds')
+        if type(elapsed) in (int, float) and 0 <= elapsed <= 3600:
+            fields['elapsed_seconds'] = elapsed
+        for key in ('stdout', 'stderr'):
+            if type(result.get(key)) is bytes:
+                fields[key+'_bytes'] = len(result[key])
+        output[stage] = fields
+    print(f'::notice::{safe_identifier(identifier)} {json.dumps(output, separators=(",", ":"))}', flush=True)
 
 
 class AnnotationRunner(unittest.TextTestRunner):
@@ -14,10 +64,8 @@ class AnnotationRunner(unittest.TextTestRunner):
                 # Subtest IDs include parameter values; retain only the parent ID.
                 if isinstance(case, unittest.case._SubTest):
                     case = case.test_case
-                identifier = case.id()
                 # Standard test IDs and class/module setup/teardown error holders.
-                if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.]*(?: \([A-Za-z_][A-Za-z0-9_.]*\))?', identifier):
-                    identifier = 'test_identifier_unavailable'
+                identifier = safe_identifier(case.id())
                 if identifier not in identifiers:
                     print(f'::error::{identifier}', flush=True)
                     identifiers.add(identifier)

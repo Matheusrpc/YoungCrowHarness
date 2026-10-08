@@ -18,6 +18,7 @@ import mission_transaction as tx
 from test_mission_transaction import inputs, RecoveryFixture
 from fixtures.transaction_storage import registry_storage
 from runtime_fixtures import RuntimeCase
+from ci_unittest import annotate_case
 
 
 class SettingsFixture(RecoveryFixture):
@@ -328,6 +329,12 @@ class NetworkTests(unittest.TestCase):
 
 
 class NetworkBindingTests(RuntimeCase):
+    def setUp(self):
+        self.diagnostics = {}
+        # Run after the base fixture restores the caller's environment.
+        self.addCleanup(annotate_case, self.id(), self.diagnostics)
+        super().setUp()
+
     def run_network(self, mode='success', *, injection=False):
         import mission_backlog
         import mission_process
@@ -348,6 +355,17 @@ class NetworkBindingTests(RuntimeCase):
                 client='metadata',connection='native')
         result=mission_process.supervise(command,on_started=lambda owner:tx.claim(self.root,registry,op,owner),
                                          stop_requested=lambda:False)
+        self.diagnostics['supervisor'] = result
+        try:
+            envelope = json.loads(result['stdout'])
+            self.diagnostics['transaction'] = dict(envelope['result'], failure=envelope.get('failure'))
+            for phase, observed in zip(('A','B','A2'), envelope['result']['phases']):
+                self.diagnostics[phase] = observed
+            record = registry.records()[0]
+            self.diagnostics['transaction'].update(journal_events=len(record['journal']),
+                network_events=len(record['network_events']), recovery_events=len(record['recovery']))
+        except (ValueError, OSError, KeyError, TypeError, IndexError):
+            self.diagnostics.setdefault('transaction', dict(reason='invalid_fixture_result'))
         self.assertEqual((result['reason'],result['exit_code']),('completed',0),result)
         self.assertTrue(result['tree_reaped'])
         return plan,registry,json.loads(result['stdout']),command
@@ -372,10 +390,12 @@ class NetworkBindingTests(RuntimeCase):
         backend.current=result['current'];backend.active=True;backend.workload_running=False
         backend.effects=result['effects']
         recovered=tx.reconcile(self.root,registry,plan['manifest']['operation_id'],backend)
+        self.diagnostics['recovery'] = recovered
         self.assertEqual(recovered['state'],'recovered',recovered)
         self.assertEqual(backend.effects,['setting:proxy.sandbox','restart','stop_vm','setting:proxy.sandbox','restart'])
         import mission_process
         again=mission_process.supervise(command,on_started=lambda _:None,stop_requested=lambda:False)
+        self.diagnostics['replay'] = again
         self.assertEqual(again['exit_code'],0,again)
         self.assertEqual(json.loads(again['stdout'])['result']['reason'],'reconciliation_required')
         self.assertEqual(len(registry.records()[0]['journal']),30)
@@ -397,7 +417,9 @@ class NetworkBindingTests(RuntimeCase):
         self.assertNotIn('disposable-test-injection',json.dumps(registry.records()))
         backend=SettingsFixture(plan,registry);backend.current=result['current'];backend.active=True
         backend.workload_running=False
-        self.assertEqual(tx.reconcile(self.root,registry,plan['manifest']['operation_id'],backend)['state'],'recovered')
+        recovered=tx.reconcile(self.root,registry,plan['manifest']['operation_id'],backend)
+        self.diagnostics['recovery'] = recovered
+        self.assertEqual(recovered['state'],'recovered')
 
     def test_v4_literal_placeholder_cannot_pass_integrated_positive_phase(self):
         _,registry,result,_=self.run_network('no_injection',injection=True)

@@ -70,6 +70,9 @@ class EgressTests(unittest.TestCase):
                 stdin=json.dumps(dict(mode=mode,config=config)).encode(), timeout_seconds=6,
                 output_limit_bytes=16384, client='metadata', connection='native'),
                 on_started=lambda _:None, stop_requested=lambda:False)
+        if exit_code or (result['reason'],result['exit_code']) != ('completed',exit_code) or not result['tree_reaped']:
+            from ci_unittest import annotate_case
+            annotate_case(self.id(), dict(supervisor=result))
         self.assertEqual((result['reason'],result['exit_code']),('completed',exit_code),result)
         self.assertTrue(result['tree_reaped'])
         if exit_code:

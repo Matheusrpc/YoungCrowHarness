@@ -3,6 +3,7 @@ import importlib
 import hashlib
 import json
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import time
@@ -155,6 +156,7 @@ class ControllerTests(unittest.TestCase):
     def test_partial_reader_startup_closes_child_and_sanitizes_error(self):
         process, first, second = Mock(), Mock(), Mock()
         process.poll.return_value = None
+        process.wait.side_effect = [subprocess.TimeoutExpired('internal-launcher', .1), 0]
         first.is_alive.return_value = False
         second.start.side_effect = RuntimeError('private-error-canary')
         with patch.object(self.controller.subprocess, 'Popen', return_value=process), \
@@ -163,12 +165,58 @@ class ControllerTests(unittest.TestCase):
                 self.controller.Channel(['internal-launcher'], cwd=self.root,
                                         deadline_ms=int(time.time()*1000)+5000)
         process.terminate.assert_called_once()
-        process.wait.assert_called_once()
+        self.assertEqual(process.wait.call_count, 2)
         first.join.assert_called_once()
         second.join.assert_not_called()
         process.stdin.close.assert_called_once()
         process.stdout.close.assert_called_once()
         process.stderr.close.assert_called_once()
+
+
+class ChannelShutdownTests(unittest.TestCase):
+    def test_eof_allows_cleanup_and_stubborn_child_is_still_collected(self):
+        for mode in ('cooperative', 'stubborn'):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as temporary:
+                result = mission_process.supervise(dict(argv=[sys.executable, '-I', '-B',
+                    str(Path(__file__).parent/'fixtures/channel_shutdown.py'), mode],
+                    cwd=temporary, stdin=b'', timeout_seconds=6, output_limit_bytes=4096,
+                    client='metadata', connection='native'),
+                    on_started=lambda _:None, stop_requested=lambda:False)
+                self.assertEqual((result['reason'], result['exit_code']), ('completed', 0), result)
+                self.assertTrue(result['tree_reaped'], result)
+                self.assertTrue(mission_process.owner_gone(result['owner']))
+                receipt = json.loads(result['stdout'])
+                self.assertTrue(receipt['readers_collected'], receipt)
+                self.assertEqual(receipt['cooperative_cleanup'], mode == 'cooperative', receipt)
+                if mode == 'cooperative':
+                    self.assertEqual(receipt['exit_code'], 0, receipt)
+                else:
+                    self.assertNotEqual(receipt['exit_code'], 0, receipt)
+
+    def test_grace_shares_termination_budget_and_expired_deadline_skips_it(self):
+        import mission_controller as controller
+        for expired, late in ((False, False), (False, True), (True, False)):
+            with self.subTest(expired=expired, late=late):
+                channel = controller.Channel.__new__(controller.Channel)
+                channel.stop, channel.process, channel.deadline = Mock(), Mock(), Mock()
+                channel.threads = []
+                channel.process.poll.return_value = None
+                if expired:
+                    channel.deadline.remaining.side_effect = controller.Refused('deadline')
+                    channel.process.wait.side_effect = [subprocess.TimeoutExpired('fixture', .2), 0]
+                else:
+                    channel.deadline.remaining.return_value = .08
+                    channel.process.wait.side_effect = [subprocess.TimeoutExpired('fixture', .08),
+                        subprocess.TimeoutExpired('fixture', .12), 0]
+                clock = [10, 10.08] if expired else [10, 10.18, 10.2] if late else [10, 10, 10.08]
+                with patch.object(controller.time, 'monotonic', side_effect=clock):
+                    channel.close()
+                timeouts = [call.kwargs['timeout'] for call in channel.process.wait.call_args_list]
+                self.assertEqual(len(timeouts), 2 if expired else 3)
+                self.assertAlmostEqual(sum(timeouts[:-1]), .12 if expired else .02 if late else .2)
+                self.assertEqual(timeouts[-1], .2)
+                channel.process.terminate.assert_called_once()
+                channel.process.kill.assert_called_once()
 
 
 if __name__ == '__main__':

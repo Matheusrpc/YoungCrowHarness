@@ -11,16 +11,21 @@ Incremento atual: leituras de missão e observação independente de egress, pub
 em `b106bc5`. Passaram 616 testes locais, com 20 pulados; adoção com diagnóstico em
 consumidor novo/existente também passou. Os 12 focais Windows passaram no push e no PR;
 a suíte completa do PR passou, mas a do push falhou na recusa de rede: sete dos oito
-jobs passaram. O diagnóstico agora registra a observação incompleta antes de
-reprovar; a causa remota está pendente. O baseline `c8e7f0b` passou nos oito jobs.
+jobs passaram. Em `f3e091d`, os dois Windows confirmaram `ConnectionResetError`
+antes de EOF. O controlador agora reserva parte do prazo existente para limpeza
+cooperativa; passaram 620 testes locais, com 20 pulados. O CI dessa correção está
+pendente. O baseline `c8e7f0b` passou nos oito jobs.
+[Encerramento e provas](relatorios/2026-10-08-guard-cooperative-close.md).
 [Entrega e medição](relatorios/2026-10-08-mission-read-stability.md).
 Current increment: mission reads and independent egress observation, published at
 `b106bc5`. Local validation passed 616 tests with 20 skips and installed-consumer
 diagnostics in new/existing projects. All 12 focused Windows cases passed on push
 and PR; the full PR suite passed, while push Windows failed the network refusal
-test: seven of eight jobs passed. Diagnostics now record incomplete observations
-before failing; the remote cause remains pending. Baseline `c8e7f0b` passed all eight
-jobs. [Delivery and measurement](relatorios/2026-10-08-mission-read-stability.md#english-overview).
+test: seven of eight jobs passed. At `f3e091d`, both Windows runs confirmed a reset
+before EOF. The controller now uses part of its existing deadline for cooperative
+cleanup; 620 local tests passed with 20 skips. CI for this fix is pending.
+Baseline `c8e7f0b` passed all eight jobs.
+[Shutdown evidence](relatorios/2026-10-08-guard-cooperative-close.md#english-overview).
 
 Histórico da investigação: falha da suíte de missões em `adoption-windows`
 no CI de `da28f00`. Push e PR falharam; os outros três jobs passaram. O runner publica

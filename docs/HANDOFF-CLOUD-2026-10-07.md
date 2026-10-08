@@ -167,9 +167,12 @@ com fixtures e zero chamadas de modelo. Apenas hashes de conteúdo do catálogo 
 CI de `b106bc5`: sete dos oito jobs passaram. O Windows do PR passou integralmente;
 o do push falhou em `test_failed_destination_receipt_forwards_zero_upstream_bytes`
 com exit 1, stdout vazio e 445 bytes de stderr. O HTML público não expôs a exceção.
-O diagnóstico agora emite a observação antes das asserções e publica somente campos
-permitidos. Próxima ação: consultar esse recibo no novo CI; não atribuir a causa
-ao reset TCP reproduzido localmente sem confirmação remota.
+O diagnóstico de `f3e091d` confirmou reset antes de EOF nos dois Windows: oito
+observações incompletas continuaram reprovadas. `Channel.close` agora permite até
+100 ms para EOF cooperativo, dentro do estágio existente de 200 ms e do Deadline.
+Persistência recusada continua sem ACK; terminate/kill e contenção permanecem.
+Próxima ação: validar o CI da correção, incluindo as oito recusas independentes e
+os filhos cooperativo/resistente. [Relatório](relatorios/2026-10-08-guard-cooperative-close.md).
 Contratos sbx, fontes nativas de B, perfis bloqueados e contador 2/3 preservados.
 
 ### Incremento anterior: concorrência da seleção
@@ -254,7 +257,7 @@ Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
-| CI Windows | Conferir os focais e a suíte completa após agrupar leituras de missão e mover a observação de egress; o baseline `c8e7f0b` passou nos oito jobs |
+| CI Windows | Conferir os focais e a suíte completa após encerrar o helper por EOF dentro do orçamento atual; o diagnóstico `f3e091d` confirmou reset antes de EOF |
 | Executor: 203.6 | Bloqueio externo: comprovar identidade/versão/remoção atômica da credencial e escrita condicional dos settings locais 0.46.0; depois adaptador e aceite v4 |
 | Executor: restante de 203.5 | Comprovar recuperação nativa de settings/serviço/credencial e demais políticas necessárias, preservando alterações externas |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |

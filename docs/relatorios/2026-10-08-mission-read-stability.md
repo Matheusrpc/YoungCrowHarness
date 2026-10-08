@@ -73,7 +73,9 @@ contagem limitada de bytes e código de erro permitido. As asserções e o exit 
 continuam ativos. O negativo percorre oito tentativas independentes; não há retry
 que transforme uma falha em sucesso. Passaram sete testes de anotação e 17 de
 egress, incluindo JSON inválido e campos privados no caminho de falha. Este
-complemento não altera fontes do produto nem confirma a causa remota.
+complemento não altera fontes do produto. O CI seguinte, em `f3e091d`, confirmou
+`ConnectionResetError` antes de EOF nos dois Windows. A correção do encerramento
+está no [relatório específico](2026-10-08-guard-cooperative-close.md).
 
 Nenhum Docker, sbx, cliente autenticado ou modelo foi executado. Contador nativo
 2/3, perfis bloqueados e `proof_accepted=false` preservados. Contratos externos do
@@ -94,6 +96,7 @@ unproven. CI at `b106bc5` passed seven of eight jobs: PR Windows passed, while p
 Windows failed the destination refusal test. Both v3/v4 flows passed. The follow-up
 emits selected observation fields before the unchanged failing assertions and
 exercises eight independent refusals. Seven annotation tests and 17 egress tests
-passed locally; follow-up CI remains pending.
+passed locally. Follow-up CI at `f3e091d` confirmed a reset before EOF on both
+Windows runs. See the [shutdown fix](2026-10-08-guard-cooperative-close.md#english-overview).
 
 ATRASO: implementação local 0 | CI verde 1 | executor nativo: validação pendente.

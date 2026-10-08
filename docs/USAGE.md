@@ -2967,6 +2967,10 @@ Uma observação incompleta continua reprovando o teste. No CI, a anotação exp
 somente os booleanos `accepted`, `eof`, `complete`, a contagem limitada de bytes
 e um código de erro permitido. O negativo faz oito tentativas independentes para
 exercitar o encerramento concorrente do helper.
+O controlador fecha a entrada do helper e permite até 100 ms para limpeza
+cooperativa. Essa espera usa o saldo dos 200 ms já destinados a `terminate` e
+respeita o prazo restante. Com prazo expirado, segue direto ao encerramento
+forçado; `kill` e a coleta da árvore continuam disponíveis.
 
 For an existing mission, `missions.py status` reads the database three times: mission, item revisions/events/
 projections, and client runs. Adjacent SQL queries share a connection; each read
@@ -2982,3 +2986,7 @@ Incomplete observations still fail the test. CI annotations expose only the
 `accepted`, `eof`, `complete` booleans, a bounded byte count and an allowed error
 code. The negative case performs eight independent attempts to exercise concurrent
 helper shutdown.
+The controller closes helper input and allows up to 100 ms for cooperative cleanup.
+This wait uses the remaining portion of the existing 200 ms termination stage and
+respects the execution deadline. Expired deadlines skip grace; forced shutdown,
+`kill` and process-tree collection remain available.

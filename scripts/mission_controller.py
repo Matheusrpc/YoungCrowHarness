@@ -177,15 +177,31 @@ class Channel:
             raise Refused('deadline') from None
 
     def close(self):
+        terminate_before = time.monotonic()+.2
         self.stop.set()
         self.process.stdin.close()
         if self.process.poll() is None:
-            self.process.terminate()
+            # EOF lets cooperative helpers close sockets before forced exit.
+            # This grace consumes part of the existing termination budget.
             try:
-                self.process.wait(timeout=.2)
-            except subprocess.TimeoutExpired:
-                self.process.kill()
-                self.process.wait(timeout=.2)
+                grace = min(.1, self.deadline.remaining(),
+                            max(0, terminate_before-time.monotonic()))
+            except Refused:
+                grace = 0
+            running = True
+            if grace > 0:
+                try:
+                    self.process.wait(timeout=grace)
+                    running = False
+                except subprocess.TimeoutExpired:
+                    pass
+            if running:
+                self.process.terminate()
+                try:
+                    self.process.wait(timeout=max(0, terminate_before-time.monotonic()))
+                except subprocess.TimeoutExpired:
+                    self.process.kill()
+                    self.process.wait(timeout=.2)
         for thread in self.threads:
             thread.join(timeout=.1)
         # The outer group/job owns descendants even after this direct child exits.

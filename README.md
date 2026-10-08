@@ -96,9 +96,10 @@ A consulta de uma missão existente agrupa leituras SQL adjacentes e usa nove pr
 mantendo a reabertura do banco após os arquivos de entrada e a leitura final
 independente. O teste de recusa de rede mede bytes em um observador que permanece
 ativo após encerrar o guard. [Medição e regressões](docs/relatorios/2026-10-08-mission-read-stability.md).
-O CI de `b106bc5` passou em sete dos oito jobs; a recusa de rede falhou no Windows
-do push. O teste publica campos limitados da observação antes de rejeitar um recibo
-incompleto. A causa remota continua em investigação.
+O diagnóstico Windows confirmou reset durante o encerramento do helper. O
+controlador agora permite até 100 ms para ele fechar após EOF, dentro dos 200 ms
+já reservados antes de `kill`. Filhos resistentes continuam sujeitos ao encerramento
+forçado. [Correção e validação](docs/relatorios/2026-10-08-guard-cooperative-close.md).
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
@@ -655,9 +656,10 @@ Status for an existing mission groups adjacent SQL reads into nine Git processes
 while reopening the database after input files and keeping the independent final
 read. The network refusal test measures bytes with an observer that survives
 guard shutdown. [Measurement and regressions](docs/relatorios/2026-10-08-mission-read-stability.md#english-overview).
-CI at `b106bc5` passed seven of eight jobs; network refusal failed on push Windows.
-The test publishes selected observation fields before rejecting an incomplete
-receipt. The remote cause remains under investigation.
+Windows diagnostics confirmed a reset during helper shutdown. The controller now
+allows up to 100 ms for EOF cleanup within its existing 200 ms stage before `kill`.
+Unresponsive children remain subject to forced shutdown.
+[Fix and validation](docs/relatorios/2026-10-08-guard-cooperative-close.md#english-overview).
 
 Audit fixes recover interrupted mission/backlog notes even after another
 revision, preserving human edits. Malformed catalogs and Git failures during the

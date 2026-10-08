@@ -250,7 +250,13 @@
       "annotation-followup.log": "ea376c79e1e98863ddf9869a76c848cceb03062c733ad5e4734e227b0c7b76e1",
       "egress-followup.log": "bc8a420d862e75fdccb7571b0eafeea83d92a5b1556ab1ef7105c89971d8d975"
     },
-    "ci": "pending publication",
+    "ci": {
+      "head": "f3e091de5ffb63b132e8721b83d3748e6324d3be",
+      "passed_jobs": 6,
+      "failed_jobs": 2,
+      "failure": "ConnectionResetError",
+      "details": "2026-10-08-guard-cooperative-close.json"
+    },
     "product_sources_changed": false
   }
 }

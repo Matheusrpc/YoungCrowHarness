@@ -166,7 +166,10 @@ em lugar do corte fixo de um segundo. Exige `ConnectionRefusedError`; timeout
 continua falhando. Supervisor 15 s e plano 30 s permanecem inalterados.
 [Relatório e medição](relatorios/2026-10-07-windows-ci-diagnostics.md).
 
-Próximo passo executável: validar a correção nos cinco casos focais e na suíte
+Em `32960b8`, o focal passou no push `37721430256`; o PR `37721434176` falhou
+com timeout externo de 15 s em v3 e v4, ambos sem stdout e com árvore recolhida.
+O diagnóstico agora lê o ledger mesmo sem envelope e publica tempos relativos.
+Próximo passo executável: localizar o atraso pelo ledger e acompanhar a suíte
 Windows completa. V4 e encerramento abrupto passaram nas rodadas focais anteriores,
 mas isso não explica suas falhas na execução longa de `a9d05ea`. Em paralelo ao bloqueio externo de 203.6, a integração de B (203.8) depende
 de transferir `captured_egress.py`, seus testes e a fixture nativa original do checkout
@@ -178,7 +181,7 @@ Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
-| CI Windows | Validar a correção do timeout da fixture B v3 na rodada focal e acompanhar a suíte completa |
+| CI Windows | Localizar o timeout externo de v3/v4 pelos tempos do ledger; acompanhar a suíte completa |
 | Executor: 203.6 | Bloqueio externo: comprovar identidade/versão/remoção atômica da credencial e escrita condicional dos settings locais 0.46.0; depois adaptador e aceite v4 |
 | Executor: restante de 203.5 | Comprovar recuperação nativa de settings/serviço/credencial e demais políticas necessárias, preservando alterações externas |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |

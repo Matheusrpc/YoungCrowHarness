@@ -74,7 +74,8 @@ identificadores e estados permitidos dos testes nas anotações do GitHub, prese
 a saída e o resultado do unittest. O CI identificou dois percursos de rede e um caso
 de encerramento do controlador. A rodada focal confirmou `TimeoutError` na sonda B
 v3, que limitava a conexão a um segundo. A fixture agora usa o prazo restante da fase
-e continua exigindo recusa explícita. A validação Windows da correção está pendente.
+e continua exigindo recusa explícita. Os cinco casos focais passaram no push; no PR,
+v3 e v4 atingiram o limite externo de 15 s. O CI permanece em diagnóstico.
 [Estado do CI e próxima ação](docs/relatorios/2026-10-07-windows-ci-diagnostics.md).
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
@@ -601,7 +602,8 @@ test identifiers and allowlisted fixture states in GitHub annotations, preservin
 unittest output and status. CI identified two network flows and one controller
 shutdown case. Focused execution confirmed `TimeoutError` in the v3 B probe, which
 limited its connection to one second. The fixture now uses the remaining phase
-deadline and still requires explicit refusal. Windows validation of the fix is pending.
+deadline and still requires explicit refusal. All five focused cases passed on push;
+v3 and v4 hit the outer 15-second limit on the PR run. CI remains under diagnosis.
 [CI evidence and next action](docs/relatorios/2026-10-07-windows-ci-diagnostics.md#english-overview).
 
 Audit fixes recover interrupted mission/backlog notes even after another

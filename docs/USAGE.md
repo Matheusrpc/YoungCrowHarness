@@ -2888,3 +2888,14 @@ that the previous one-second cutoff could produce `TimeoutError` on Windows. The
 probe now uses the manifest's remaining deadline, preserving the controller's shutdown
 reserve. Timeout and successful connection still fail. Supervisor (15 s) and plan
 (30 s) limits remain unchanged.
+
+
+Mesmo sem stdout após timeout, o diagnóstico tenta ler o ledger persistido. Publica
+contagens e listas de tempos relativos ao início do supervisor para cada fase, em
+milissegundos. Aceita no máximo 60 inteiros de 0 a 3.600.000 por lista; não publica
+timestamps absolutos, payloads ou identidades. Falha na coleta preserva o assert original.
+
+After a timeout with no stdout, diagnostics still attempt to read the durable ledger.
+Per-phase lists report event times relative to supervisor start in milliseconds. Each
+list accepts at most 60 integers from 0 to 3,600,000, excluding absolute timestamps,
+payloads and identities. Collection failures preserve the original assertion.

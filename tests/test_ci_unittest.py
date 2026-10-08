@@ -24,7 +24,10 @@ class CIRunnerTests(unittest.TestCase):
             elapsed_seconds=15.2, stdout=b'private-output', stderr=b'private-error',
             owner='private-owner'), transaction=dict(state='blocked', reason='private-code',
             failure='Refused:guard_port_occupied', journal_events=10,
-            secret='private-secret'), private_stage=dict(state='observed'))
+            journal_ms=[23, 40, 1300], network_ms=['private-time'],
+            secret='private-secret'), A=dict(network_ms=[1] * 61),
+            B=dict(journal_ms=[-1]), A2=dict(network_ms=[3600001]),
+            private_stage=dict(state='observed'))
         output = io.StringIO()
         with patch.dict(os.environ, GITHUB_ACTIONS='true'), contextlib.redirect_stdout(output):
             annotate('test_probe.Probe.test_network', reports)
@@ -34,7 +37,8 @@ class CIRunnerTests(unittest.TestCase):
         self.assertEqual(value['supervisor'], dict(reason='timeout', exit_code=1,
             tree_reaped=True, elapsed_seconds=15.2, stdout_bytes=14, stderr_bytes=13))
         self.assertEqual(value['transaction'], dict(state='blocked', reason='other',
-            failure='Refused:guard_port_occupied', journal_events=10))
+            failure='Refused:guard_port_occupied', journal_events=10, journal_ms=[23,40,1300]))
+        self.assertEqual([value[phase] for phase in ('A','B','A2')], [{},{},{}])
         self.assertNotIn('private', line)
         output = io.StringIO()
         with patch.dict(os.environ, GITHUB_ACTIONS='false'), contextlib.redirect_stdout(output):

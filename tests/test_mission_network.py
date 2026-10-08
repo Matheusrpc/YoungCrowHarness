@@ -1,5 +1,6 @@
 """Network coordination uses the real ledger; only sbx effects are simulated."""
 import copy
+from datetime import datetime
 import importlib.util
 import hashlib
 import json
@@ -364,11 +365,22 @@ class NetworkBindingTests(RuntimeCase):
                 failure = self.root/'.runtime'/('network-'+phase)/'loopback-failure.json'
                 if failure.is_file():
                     self.diagnostics[phase] = dict(observed, **json.loads(failure.read_bytes()))
+        except (ValueError, OSError, KeyError, TypeError, IndexError):
+            self.diagnostics.setdefault('transaction', dict(reason='invalid_fixture_result'))
+        # The durable journal survives an outer timeout even with no stdout envelope.
+        try:
             record = registry.records()[0]
             self.diagnostics['transaction'].update(journal_events=len(record['journal']),
                 network_events=len(record['network_events']), recovery_events=len(record['recovery']))
+            started = datetime.fromisoformat(result['started_at'])
+            for phase in ('A', 'B', 'A2'):
+                observed = self.diagnostics.setdefault(phase, {})
+                for name in ('journal', 'network'):
+                    events = record['journal' if name == 'journal' else 'network_events']
+                    observed[name+'_ms'] = [round((datetime.fromisoformat(e['at'])-started).total_seconds()*1000)
+                                           for e in events if e['phase'] == phase]
         except (ValueError, OSError, KeyError, TypeError, IndexError):
-            self.diagnostics.setdefault('transaction', dict(reason='invalid_fixture_result'))
+            pass  # Diagnostic failure must not replace the original test assertion.
         self.assertEqual((result['reason'],result['exit_code']),('completed',0),result)
         self.assertTrue(result['tree_reaped'])
         return plan,registry,json.loads(result['stdout']),command

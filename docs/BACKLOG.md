@@ -16,7 +16,9 @@ IDs dos testes falhos nas anotações. Em `a9d05ea`, falharam os dois percursos 
 de `NetworkBindingTests`; o CI do PR também falhou no encerramento abrupto do guard.
 O CI de `919b0a4` confirmou `TimeoutError` na sonda B v3. A correção da fixture
 usa o prazo restante da fase, sem aceitar timeout como recusa nem ampliar o limite
-do supervisor. Próximo passo: validar os cinco casos focais e a suíte Windows completa.
+do supervisor. Em `32960b8`, os cinco casos passaram no push; no PR, v3 e v4
+atingiram 15 s. Próximo passo: localizar esse atraso pelo ledger preservado após
+timeout e acompanhar a suíte completa.
 [Evidência e diagnóstico](relatorios/2026-10-07-windows-ci-diagnostics.md).
 
 A integração da captura de B (203.8) também aguarda transferência dos fontes e da
@@ -78,7 +80,9 @@ failed test identifiers as annotations. At `a9d05ea`, both positive NetworkBindi
 flows failed; the PR run also failed the abrupt controller shutdown test. A focused
 step confirmed `TimeoutError` in the v3 B probe at `919b0a4`. The fixture fix uses
 the remaining phase deadline while retaining explicit refusal and the supervisor
-limit. Next: validate the five focused cases and the full Windows suite.
+limit. At `32960b8`, all five cases passed on push, but v3 and v4 hit 15 seconds on
+the PR run. Next: locate the delay using the durable ledger after timeout and follow
+the full Windows suite.
 [Evidence](relatorios/2026-10-07-windows-ci-diagnostics.md#english-overview).
 
 Este é o índice público do trabalho necessário para entregar a esteira definida na

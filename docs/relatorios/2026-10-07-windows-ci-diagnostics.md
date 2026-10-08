@@ -119,6 +119,23 @@ Revisão independente sem bloqueadores. Os cinco casos focais locais passaram em
 A/B/A2 e recuperação dentro dos mesmos limites no CI. Passar a suíte focal não
 explica sozinho as falhas de v4 e encerramento abrupto na execução longa anterior.
 
+## Timeout externo após a correção da sonda
+
+A branch e a ref do PR foram conferidas em `32960b87a3f319d3147a22268e034871d18d96f2`.
+Os cinco casos focais passaram no [push 37721430256](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37721430256).
+No [PR 37721434176](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37721434176),
+v3 e v4 atingiram o timeout externo: 15,047 s, sem stdout/stderr, árvore recolhida.
+Os outros três casos passaram. Isso demonstra recusa B e recuperação no push, mas
+a correção não basta para estabilizar o CI. A falha também ocorre na rodada focal.
+
+A coleta anterior só consultava o ledger após interpretar stdout; timeout sem saída
+perdia essa medição. A leitura agora é independente do envelope. Tempos de eventos
+do journal e da rede são projetados por fase, relativos ao início do supervisor,
+como listas limitadas de inteiros. Não publica timestamps absolutos, identidades ou
+payloads; a coleta não substitui o assert nem amplia prazos. A suíte do runner passou
+nos seis casos após uma falha esperada da nova verificação; os cinco focais locais
+passaram. O tempo Windows ainda precisa ser localizado.
+
 ## Dependências preservadas
 
 A avaliação de 203.8 confirmou outra pendência: o coletor de B e sua evidência original
@@ -167,7 +184,9 @@ remain unchanged; later full-suite steps remain gated on the focused step.
 The next probe diagnostic confirmed a one-second connection timeout in v3 B on both
 Windows runs. That fixture now uses the existing remaining phase deadline and still
 requires ConnectionRefusedError; outer limits are unchanged. Windows validation
-of the fix remains pending.
+of the fix passed all five focused cases on push, while the paired PR run timed out
+in both v3 and v4 at the unchanged 15-second outer limit. Diagnostics now read
+persisted journal counts and relative event times even when timeout leaves no stdout.
 Original B collector sources and capture also need transfer from the private
 checkout. Native contracts remain blocked, with no new native cycles (2/3 used).
 

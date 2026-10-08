@@ -44,6 +44,11 @@ def annotate_case(identifier, reports):
         for key in ('exit_code', 'journal_events', 'network_events', 'recovery_events'):
             if key in result and (result[key] is None or type(result[key]) is int):
                 fields[key] = result[key]
+        for key in ('journal_ms', 'network_ms'):
+            values = result.get(key)
+            if (type(values) is list and len(values) <= 60
+                    and all(type(v) is int and 0 <= v <= 3600000 for v in values)):
+                fields[key] = values
         if type(result.get('tree_reaped')) is bool:
             fields['tree_reaped'] = result['tree_reaped']
         elapsed = result.get('elapsed_seconds')

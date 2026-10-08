@@ -1,0 +1,86 @@
+{
+  "checked_at": "2026-10-08T20:45:03.039731+00:00",
+  "scope": "private_original_recovery_and_static_inspection",
+  "baseline_commit": "1bb136e2cfb7151d477bceacc9cc9d754ec0353e",
+  "files": [
+    {
+      "name": "corrected-egress-proof/B-daemon-refusal.jsonl",
+      "bytes": 488,
+      "sha256": "e16a55e82f8105b22dee598cd4d5efbd0b7dabf05d5f880d5236d5e17433cb46",
+      "expected_sha256": "e16a55e82f8105b22dee598cd4d5efbd0b7dabf05d5f880d5236d5e17433cb46",
+      "matches": true
+    },
+    {
+      "name": "integrated_egress.py",
+      "bytes": 7508,
+      "sha256": "3a5a6f365c3cef6dc18437b278c8a068b3eeb138aaf51467f7571918ac65b62b",
+      "expected_sha256": "3a5a6f365c3cef6dc18437b278c8a068b3eeb138aaf51467f7571918ac65b62b",
+      "matches": true
+    },
+    {
+      "name": "test_captured_egress.py",
+      "bytes": 9315,
+      "sha256": "6945516531eaa08b0bdb89c31f257f26b10919ec2a481311069af5b5ae55330c",
+      "expected_sha256": "6945516531eaa08b0bdb89c31f257f26b10919ec2a481311069af5b5ae55330c",
+      "matches": true
+    },
+    {
+      "name": "test_integrated_egress.py",
+      "bytes": 16664,
+      "sha256": "7c226217284a76cd55b8a145493203446220d76636da132640cd915fa6d0d3a6",
+      "expected_sha256": "7c226217284a76cd55b8a145493203446220d76636da132640cd915fa6d0d3a6",
+      "matches": true
+    },
+    {
+      "name": "captured_egress.py",
+      "bytes": 6721,
+      "sha256": "cd4394082e8da687efeff9bd835169163a540385e80faaacec8dc06b8fb7531c",
+      "expected_sha256": "cd4394082e8da687efeff9bd835169163a540385e80faaacec8dc06b8fb7531c",
+      "matches": true
+    },
+    {
+      "name": "corrected-egress-proof/B-daemon-refusal-source.json",
+      "bytes": 479,
+      "sha256": "154d5f3270309f91c1e863c893325fa2207de04a68f861b8438d4a3afa06c6b6",
+      "expected_sha256": "154d5f3270309f91c1e863c893325fa2207de04a68f861b8438d4a3afa06c6b6",
+      "matches": true
+    }
+  ],
+  "validation": {
+    "matched_files": 6,
+    "python_ast_parse_valid": 4,
+    "json_valid": 2,
+    "source_receipt_excerpt_matches": true,
+    "original_test_methods_identified_statically": 26,
+    "original_tests_executed": 0
+  },
+  "direct_missing_dependencies": [
+    "exclusive_egress.py",
+    "corrected_egress.py",
+    "observed_egress.py",
+    "guardian_vm.py",
+    "hostname-cidr-client.py",
+    "hostname-cidr-proof.json",
+    "native-package-proof.json",
+    "corrected-egress-proof/control.json",
+    "corrected-egress-proof/B-diagnosis.json",
+    "corrected-egress-proof/restoration-verified.json",
+    "corrected-egress-proof/attempt.json",
+    "corrected-egress-proof/receipt.json",
+    "corrected-egress-proof/commands.jsonl"
+  ],
+  "transitive_dependencies": "not_yet_inspected",
+  "native": {
+    "new_cycles": 0,
+    "cycles_consumed": 2,
+    "cycle_limit": 3,
+    "proof_accepted": false,
+    "profiles_enabled": false
+  },
+  "new_effects": {
+    "docker_sbx_calls": 0,
+    "model_calls": 0,
+    "native_cycles": 0
+  },
+  "next_action": "recover_original_dependencies_without_running_consumed_native_entries"
+}

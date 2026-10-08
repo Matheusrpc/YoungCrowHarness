@@ -61,12 +61,15 @@ regressions cover initial creation, updates and concurrent bootstrap. Empty/read
 lock cases passed on Windows in the `b106bc5` focal checks; full baseline CI at
 `c8e7f0b` also passed.
 
-A integração da captura de B (203.8) também aguarda transferência dos fontes e da
-fixture original do checkout privado anterior. Os hashes estão registrados; os
-arquivos não estão nesta cloud. Não reconstruir o parser nativo a partir do relato.
-B evidence integration (203.8) also awaits the original source and fixture from the
-previous private checkout. Recorded hashes identify the missing bytes; do not
-reconstruct the native parser from the narrative.
+A recuperação de B (203.8) recebeu quatro fontes/testes e dois recibos originais em
+8/out; os seis hashes conferem. A leitura identificou 13 dependências diretas ausentes
+para reproduzir a suíte antiga, além de dependências transitivas ainda não inspecionadas.
+Próximo passo desta frente: recuperar esses arquivos, preservando os originais e o
+contrato nativo bloqueado. [Inventário e limites](relatorios/2026-10-08-b-source-recovery.md).
+B recovery (203.8) received four source/test files and two original receipts on Oct 8;
+all six hashes match. Static inspection found 13 missing direct dependencies for the
+old suite; transitive dependencies remain uninspected. Recover these originals next;
+the native contract remains blocked. Do not reconstruct historical evidence.
 
 A integração interna de 203.6 usa plano v4, guard no mesmo grupo/job e diário anterior
 aos efeitos. A/A2 reutilizam a porta; B exige ausência. Recuperação observa proprietário

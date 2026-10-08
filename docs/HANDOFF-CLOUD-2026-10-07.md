@@ -21,6 +21,17 @@ cd YoungCrowHarness
 
 O próximo passo de 203.6 é comprovar identidade, versão e remoção atômica condicionada da credencial fictícia no sbx local 0.46.0. A API Cloud documenta esse contrato, mas usa recursos separados. O contrato v4 de injeção distinta do placeholder já tem prova local; faltam adaptador, pacote e aceite nativos. Não reiniciar a investigação do zero, não produzir outro roteiro experimental de PowerShell e não repetir operações históricas consumidas.
 
+### Recuperação dos fontes de B em 8/out
+
+Os quatro fontes/testes de captura e integração e os dois recibos B chegaram por
+transferência privada. Os seis hashes coincidem com os registros históricos; os
+originais estão preservados fora do Git. A suíte antiga ainda requer 13 dependências
+diretas ausentes, com a cadeia transitiva por inspecionar. Os 26 testes encontrados
+no código não foram executados. [Inventário e prova de transferência](relatorios/2026-10-08-b-source-recovery.md).
+Esta atualização supera as referências anteriores à ausência desses seis arquivos.
+Próximo passo: recuperar as dependências originais e verificar a suíte offline.
+Permanecem 2/3 ciclos consumidos, `proof_accepted=false` e perfis nativos bloqueados.
+
 ### Continuidade na cloud em 7/out
 
 **Checkpoint anterior publicado:** os incrementos de admissão, controlador e auditoria chegaram ao PR #24 no commit
@@ -252,10 +263,10 @@ com timeout externo de 15 s em v3 e v4, ambos sem stdout e com árvore recolhida
 O diagnóstico agora lê o ledger mesmo sem envelope e publica tempos relativos.
 O passo seguinte era localizar o atraso pelo ledger e acompanhar a suíte
 Windows completa; a localização em A2 consta no incremento de 8/out. V4 e encerramento abrupto passaram nas rodadas focais anteriores,
-mas isso não explica suas falhas na execução longa de `a9d05ea`. Em paralelo ao bloqueio externo de 203.6, a integração de B (203.8) depende
-de transferir `captured_egress.py`, seus testes e a fixture nativa original do checkout
-privado anterior. Os arquivos/hashes necessários estão no relatório. Não substituir
-essa evidência por fixtures inventadas nem consumir outro ciclo para recuperá-la.
+mas isso não explica suas falhas na execução longa de `a9d05ea`. A pendência de transferir
+os seis arquivos de B foi resolvida em 8/out; a reprodução ainda aguarda as dependências
+originais identificadas no inventário acima. Não substituir essa evidência por fixtures
+inventadas nem consumir outro ciclo para recuperá-la.
 O contador nativo permanece **2/3**, sem Docker/sbx ou modelos executados nesta cloud.
 
 Para continuar, seguir esta ordem sem reabrir decisões anteriores:

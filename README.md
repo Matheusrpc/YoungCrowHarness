@@ -42,6 +42,11 @@ testes e relatórios revisados para continuar em outro ambiente. Comece pelo
 [verificação deste checkpoint](docs/relatorios/2026-10-07-cloud-checkpoint.md).
 O executor ainda depende de prova integrada de rede e dos dois clientes autenticados; seus perfis permanecem bloqueados.
 
+Os quatro fontes/testes da captura de B e seus dois recibos foram recuperados na cloud,
+com os seis hashes originais conferidos. A reprodução ainda depende de módulos e recibos
+históricos ausentes; nenhum teste nativo foi executado nessa recuperação.
+[Arquivos recuperados e dependências](docs/relatorios/2026-10-08-b-source-recovery.md).
+
 **Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
 chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 O pacote público passou em 516 testes, com 20 pulados; naquela rodada, o CI não pôde ser consultado.
@@ -602,6 +607,11 @@ reviewed reports for continuing in another environment. Start with the
 [full context](docs/HANDOFF-CLOUD-2026-10-07.md) and the
 [checkpoint verification](docs/relatorios/2026-10-07-cloud-checkpoint.md).
 Integrated network proof and both authenticated clients are still pending; execution profiles remain blocked.
+
+The four B collector/controller source and test files and two receipts were recovered
+in the cloud; all six hashes match the recorded originals. Replay still needs missing
+historical modules and receipts. Recovery ran no native tests.
+[Recovered files and dependencies](docs/relatorios/2026-10-08-b-source-recovery.md#english-overview).
 
 **Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
 are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).

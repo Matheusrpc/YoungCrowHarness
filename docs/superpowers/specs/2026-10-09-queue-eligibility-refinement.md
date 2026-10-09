@@ -2,8 +2,9 @@
 
 Frente: preparação da fila de desenvolvimento. Estado: desenho operacional em refinamento;
 política de ordenação aprovada pelo mantenedor em 2026-10-09.
-Este documento não habilita 2B nem substitui o aceite de YC-203. Não há implementação,
-migração, novo comando ou chamada de modelo nesta entrega.
+Este documento não habilita o despacho de 2B nem substitui o aceite de YC-203.
+Uma prévia inicial somente leitura foi antecipada com autorização do mantenedor;
+não há migração, novo comando ou chamada de modelo.
 
 ## Objetivo e base
 
@@ -17,6 +18,20 @@ PM define prioridade e critérios; Tech Lead define dependências e decomposiç�
 Dev implementa e corrige; QA valida em contexto independente. O coordenador aplica
 as condições de avanço. Propostas dos líderes pertencem a YC-206, worktrees a YC-205
 e execução do QA a YC-301. Aqui não se desenham novos agentes ou prompts desses papéis.
+
+## Prévia inicial antecipada em 9/out
+
+O mantenedor autorizou implementar a parte independente do executor. `status` usa os
+itens e a prioridade congelados da missão para apresentar `queue_preview`: código,
+título, revisão e dependências de cada PBI, mais o primeiro candidato sem dependências
+quando a preparação está consistente. Qualquer impedimento de `check_available`
+deixa `first_candidate_id` nulo e preserva `next_action`.
+
+O escopo é `initial_backlog`: nenhum PBI é presumido integrado. O esquema atual só
+registra PBIs `draft/refined`; não possui candidaturas, integração nem ocupação de vagas.
+A prévia não usa a sequência de importação como ordem de prontidão e não executa a
+política de continuação/QA/líderes abaixo. Coordenação, reservas e despacho seguem
+dependentes de YC-203; esta antecipação não altera os aceites nativos.
 
 ## Matriz proposta para a implementação futura
 
@@ -109,7 +124,7 @@ ser liberada só porque o PBI saiu do limite de trabalho ativo.
 This draft refines YC-204 into observable queue decisions: dependency waits, separate
 PBI/execution capacity, blocked-item release, reacquisition, empty queues and replay.
 PM/Tech Lead proposals, worktrees and QA execution remain separate backlog items.
-YC-203 acceptance remains mandatory before implementing 2B. The current account-wide
+YC-203 acceptance remains mandatory before implementing 2B dispatch. The current account-wide
 reservation allows one isolated operation; three configured agent slots do not override it.
 The maintainer approved the dispatch order on 2026-10-09. It favors eligible ongoing work and necessary leader decisions,
 ordered by their durable readiness sequence, before admitting new PBIs by saved priority.
@@ -118,6 +133,9 @@ blocked PBI must reacquire its PBI slot. Leader decisions without a PBI use an e
 Blocked ongoing work does not prevent eligible new work when capacity exists. Six approved
 criteria describe the policy, without claiming executed tests or bounded waiting for new PBIs.
 Cross-store recovery and persisted transitions still require a
-reviewed design and implementation plan. No runtime behavior or execution gate changed.
+reviewed design and implementation plan. The maintainer authorized an early read-only
+`queue_preview` in status, limited to initial PBI priority and dependencies from the
+frozen mission. It does not implement ongoing-stage ordering, reservations or dispatch.
+No execution gate changed.
 
 ATRASO: YC-204 em refinamento | aceite do executor pendente.

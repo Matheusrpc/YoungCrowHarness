@@ -291,6 +291,94 @@ class MissionTests(MissionCase):
                 self.assertEqual(json.loads(output.getvalue())['error'], 'invalid_store')
                 self.assertEqual(self.snapshot(), before)
 
+    def test_queue_preview_uses_priority_and_explains_initial_dependencies_without_writes(self):
+        request, actor = self.prepared_fixture(features=2, pbis=2)
+        a, b, c, d = request['priority']
+        for item_id, dependencies in ((b, [a]), (c, [b])):
+            path = next(p for p in self.paths if self.item_id(p) == item_id)
+            self.contract(path, dependencies=dependencies)
+            self.m.import_item(self.root, path, 1, str(uuid.uuid4()), TL)
+        request['priority'] = [c, d, b, a]
+        receipt = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        before = self.snapshot()
+        output = io.StringIO()
+        with patch('mission_clients.inspect_client', side_effect=AssertionError('preview inspected client')), \
+             patch('mission_runs.check_client', side_effect=AssertionError('preview dispatched client')), \
+             redirect_stdout(output):
+            code = self.m.main(['--root', str(self.root), '--json', 'status', receipt['code']])
+        self.assertEqual(code, 0, output.getvalue())
+        status = json.loads(output.getvalue())
+        self.assertTrue('queue_preview' in status, 'missing queue_preview')
+        preview = status['queue_preview']
+        self.assertEqual(preview['scope'], 'initial_backlog')
+        self.assertEqual([p['id'] for p in preview['items']], [c, d, b, a])
+        self.assertEqual([p['dependencies'] for p in preview['items']], [[b], [], [a], []])
+        self.assertEqual(preview['first_candidate_id'], d)
+        for item in preview['items']:
+            saved = self.db.get_record(self.root, item['id'])
+            self.assertEqual((item['code'], item['title'], item['revision']),
+                             (saved['code'], saved['snapshot']['title'], saved['revision']))
+        self.assertEqual(status['next_action'], 'runtime_not_available')
+        self.assertFalse(status['runnable'])
+        self.assertFalse(status['runtime_available'])
+        self.assertEqual(self.snapshot(), before)
+        self.m.revise_mission(self.root, receipt['code'], dict(request, priority=[c, a, b, d]),
+                              1, str(uuid.uuid4()), actor)
+        self.assertEqual(self.m.mission_status(self.root, receipt['code'])['queue_preview']['first_candidate_id'], a)
+
+    def test_queue_preview_withholds_candidate_for_stale_inputs_projections_and_gaps(self):
+        request, actor = self.prepared_fixture()
+        receipt = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        projection = self.root / receipt['paths'][0]
+        source = self.root / self.paths[-1]
+        for target, replacement, action in (
+                (source, source.read_bytes() + b'\nHuman source update\n', 'revise_inputs'),
+                (projection, None, 'repair_projection'),
+                (projection, b'Human projection change\n', 'review_projection_conflict')):
+            with self.subTest(action=action):
+                original = target.read_bytes()
+                try:
+                    if replacement is None:
+                        target.unlink()
+                    else:
+                        target.write_bytes(replacement)
+                    before = self.snapshot()
+                    status = self.m.mission_status(self.root, receipt['code'])
+                    self.assertTrue('queue_preview' in status, 'missing queue_preview')
+                    self.assertIsNone(status['queue_preview']['first_candidate_id'])
+                    self.assertEqual(status['next_action'], action)
+                    self.assertEqual(self.snapshot(), before)
+                finally:
+                    target.write_bytes(original)
+        self.m.revise_mission(self.root, receipt['code'], dict(request, scope_reference=''),
+                              1, str(uuid.uuid4()), actor)
+        status = self.m.mission_status(self.root, receipt['code'])
+        self.assertTrue('queue_preview' in status, 'missing queue_preview')
+        self.assertIsNone(status['queue_preview']['first_candidate_id'])
+        self.assertEqual(status['next_action'], 'complete_gaps')
+
+    def test_queue_preview_withholds_candidate_for_missing_or_cyclic_dependencies(self):
+        request, actor = self.prepared_fixture(pbis=3)
+        a, b, c = request['priority']
+        paths = {self.item_id(p): p for p in self.paths if '/pbis/' in p}
+        for revision, dependencies, gap in ((1, [str(uuid.uuid4())], 'invalid_dependency'),
+                                             (2, [b], 'dependency_cycle')):
+            with self.subTest(gap=gap):
+                self.contract(paths[a], dependencies=dependencies)
+                self.m.import_item(self.root, paths[a], revision, str(uuid.uuid4()), TL)
+                if gap == 'dependency_cycle':
+                    self.contract(paths[b], dependencies=[a])
+                    self.m.import_item(self.root, paths[b], 1, str(uuid.uuid4()), TL)
+                receipt = self.m.prepare_mission(self.root, request, str(uuid.uuid4()), actor)
+                before = self.snapshot()
+                status = self.m.mission_status(self.root, receipt['code'])
+                self.assertTrue('queue_preview' in status, 'missing queue_preview')
+                self.assertIsNone(status['queue_preview']['first_candidate_id'])
+                self.assertTrue(any(g.startswith(gap + ':') for g in status['gaps']))
+                self.assertEqual(status['next_action'], 'complete_gaps')
+                self.assertFalse(status['runnable'])
+                self.assertEqual(self.snapshot(), before)
+
     def test_status_does_not_initialize_or_repair(self):
         project = self.root / 'vault/project.json'
         saved_project = project.read_bytes()

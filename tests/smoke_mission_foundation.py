@@ -101,6 +101,9 @@ for name in ('capabilities', 'integrations'):
         many = cli('status', second['code'])
         check(many['state'] == 'prepared' and len(many['snapshot']['pbi_ids']) == 4, 'multi_feature_failed')
         check(many['snapshot']['config']['limits']['max_active_pbis'] == 3, 'wip_is_not_total')
+        check([p['id'] for p in many['queue_preview']['items']] == pbis, 'preview_priority_incorrect')
+        check(many['queue_preview']['scope'] == 'initial_backlog' and
+              many['queue_preview']['first_candidate_id'] == pbis[0], 'initial_candidate_incorrect')
         check(len(many['events']) == 1, 'duplicate_mission_event')
         inventory_before = fixture.snapshot()
         inventory = cli('list')
@@ -133,6 +136,7 @@ print(json.dumps(result))
         before_read = fixture.snapshot()
         pending_status = cli('status', pending['code'], expected=1)
         check(pending_status['projection_state'] == 'pending' and fixture.snapshot() == before_read, 'status_wrote_files')
+        check(pending_status['queue_preview']['first_candidate_id'] is None, 'pending_projection_selected_candidate')
         recovered = prepare(recovery_operation)
         check(recovered['event_id'] == pending['event_id'] and recovered['projection_state'] == 'current', 'recovery_failed')
         repaired = cli('repair', recovered['code'])
@@ -152,7 +156,7 @@ print(json.dumps(result))
                              mission_codes=[first['code'], second['code'], recovered['code']],
                              existing_hashes_preserved=mode == 'existing', legacy_hashes=retained if mode == 'existing' else {},
                              snapshots_frozen=True, replay_without_duplicate=True,
-                             read_only_status=True, read_only_discovery=True,
+                             read_only_status=True, read_only_discovery=True, initial_queue_preview=True,
                              projection_recovered=True, vault_notes=vault['notes_checked'],
                              state='prepared', runtime_available=False))
 

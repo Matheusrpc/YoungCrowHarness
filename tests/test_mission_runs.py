@@ -31,6 +31,8 @@ class RunTests(RuntimeCase):
                 status = missions.mission_status(self.root, manifest['mission_id'])
             self.assertEqual(status['next_action'], action)
             self.assertFalse(status['check_available'])
+            self.assertTrue('queue_preview' in status, 'missing queue_preview')
+            self.assertIsNone(status['queue_preview']['first_candidate_id'])
             self.assertEqual(status['blocking_runs'], [dict(run_id=run['id'], mission_id=run['mission_id'],
                 operation_id=run['operation_id'], revision=run['revision'], state=run['state'], next_action=action)])
             self.assertEqual(status['client_runs'], [run])
@@ -42,6 +44,7 @@ class RunTests(RuntimeCase):
         status = missions.mission_status(self.root, manifest['mission_id'])
         self.assertEqual(status['blocking_runs'], [])
         self.assertTrue(status['check_available'])
+        self.assertEqual(status['queue_preview']['first_candidate_id'], status['snapshot']['priority'][0])
         self.assertEqual(status['next_action'], 'runtime_not_available')
         self.assertEqual(self.snapshot(), before)
 
@@ -60,6 +63,8 @@ class RunTests(RuntimeCase):
         status = json.loads(result.stdout)
         self.assertEqual(status['next_action'], 'inspect_client_run')
         self.assertFalse(status['check_available'])
+        self.assertTrue('queue_preview' in status, 'missing queue_preview')
+        self.assertIsNone(status['queue_preview']['first_candidate_id'])
         self.assertEqual(status['client_runs'], [])
         self.assertEqual(status['blocking_runs'][0]['mission_id'], manifest['mission_id'])
         self.assertEqual(status['blocking_runs'][0]['run_id'], run['id'])

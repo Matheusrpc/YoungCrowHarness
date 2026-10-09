@@ -280,12 +280,23 @@ def mission_status(root, mission_id):
                    'review_projection_conflict' if state == 'conflict' else
                    'repair_projection' if state == 'pending' else
                    'revise_inputs' if stale else 'complete_gaps' if snapshot['gaps'] else 'runtime_not_available')
+    check_available = not (blocking_runs or state != 'current' or stale or snapshot['gaps'])
+    pbis = {r['id']: r for r in snapshot['items'] if r['kind'] == 'pbi'}
+    preview = []
+    for pbi_id in snapshot['priority']:
+        record = pbis[pbi_id]
+        item = record['snapshot']
+        preview.append(dict(id=pbi_id, code=record['code'], revision=record['revision'], title=item['title'],
+                            dependencies=(item['contract'] or {}).get('dependencies', [])))
+    # Initial backlog only: no PBI integration or live execution capacity is inferred.
+    first_candidate = next((p['id'] for p in preview if not p['dependencies']), None) if check_available else None
     return dict(schema_version=1, id=existing['id'], code=existing['code'], revision=existing['revision'],
                 state=snapshot['state'], snapshot=snapshot, gaps=snapshot['gaps'], stale_inputs=sorted(stale),
                 events=[{k: v for k, v in e.items() if k not in ('record', 'request_hash')} for e in history],
                 projection_state=state, compatibility={role: 'not_verified' for role in snapshot['config']['agents']},
                 runtime_available=False, runnable=False,
-                check_available=not (blocking_runs or state != 'current' or stale or snapshot['gaps']),
+                check_available=check_available,
+                queue_preview=dict(scope='initial_backlog', items=preview, first_candidate_id=first_candidate),
                 client_runs=runs, blocking_runs=blocking_runs, next_action=next_action)
 
 

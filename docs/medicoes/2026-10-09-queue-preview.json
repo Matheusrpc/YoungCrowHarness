@@ -1,0 +1,96 @@
+{
+  "front": "YC-204 initial backlog preview; YC-X05 future cockpit backlog",
+  "observed_at": "2026-10-09T04:31:37.346839+00:00",
+  "base_commit": "6d6d7a59d02caceaea9883a708957768cb23aa76",
+  "authorization": "Maintainer authorized work independent of native execution, then requested the bird-mascot cockpit be recorded for design after the complete roadmap.",
+  "environment": {
+    "system": "Linux",
+    "python": "3.12.14"
+  },
+  "scope": "Read-only initial backlog preview in existing status; no schema, extra I/O, command or dispatcher.",
+  "red": {
+    "planning_test_methods": 3,
+    "planning_failures_including_subtests": 7,
+    "run_test_methods": 2,
+    "run_failures": 2,
+    "reason": "queue_preview missing before implementation; fixture cleanup corrected before this recorded red run"
+  },
+  "focused_green": {
+    "new_methods": 3,
+    "elapsed_seconds": 1.83,
+    "extended_run_methods": 2,
+    "run_elapsed_seconds": 1.244
+  },
+  "full_suite": {
+    "command": "python3 -B -m unittest discover -s tests -v",
+    "total": 651,
+    "passed": 631,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "elapsed_seconds": 322.429,
+    "exit_code": 0,
+    "log_sha256": "fd41be01b7ba4a7ad44feadf6efde8dfc7d275b249a9fbfe4fcc67c4af78f4fb"
+  },
+  "installed_smoke": {
+    "command": "python3 -B tests/smoke_mission_foundation.py --root /tmp/youngcrow-queue-preview-20261009 --client both",
+    "modes": [
+      "new",
+      "existing"
+    ],
+    "initial_queue_preview": true,
+    "elapsed_seconds": 18.423,
+    "exit_code": 0,
+    "log_sha256": "a1882e50c33510bd372f3163933c1455f893180e2d18316960798178d5da7173",
+    "native_client_session": false
+  },
+  "catalog": {
+    "content_hashes_updated": 10,
+    "contract_or_permission_changes": false
+  },
+  "reviewer": "assess_completion_scope",
+  "review_result": "No material findings in code, tests, usage, handoff, queue scope or future cockpit backlog.",
+  "native_cycles_used": 2,
+  "native_cycle_limit": 3,
+  "proof_accepted": false,
+  "native_execution_performed": false,
+  "runtime_profiles_enabled": false,
+  "yc_x05": {
+    "state": "backlog_only",
+    "design_after": "Complete core roadmap including acceptance and publication",
+    "frontend_implemented": false
+  },
+  "documents": {
+    "local_markdown_paths_checked": 472,
+    "missing_paths": [],
+    "scope": "Markdown links outside literal code examples; local paths only",
+    "files": [
+      "README.md",
+      "docs/BACKLOG.md",
+      "docs/HANDOFF-CLOUD-2026-10-07.md",
+      "docs/USAGE.md",
+      "docs/superpowers/specs/2026-10-09-queue-eligibility-refinement.md",
+      "skills/yc-status/SKILL.md",
+      "docs/relatorios/2026-10-09-queue-preview.md"
+    ]
+  },
+  "source_sha256": {
+    "scripts/missions.py": "21fddc299d7bb36c5ad7bac6edcf976bea54cfc8d56659056627c2efce823eb6",
+    "tests/test_missions.py": "48d08135854d475d0d61565090ccd27748ce2f6ea6e1a31357fda4d02681fa71",
+    "tests/test_mission_runs.py": "b4daba6953aaab37c3011e3f1a9678c94af9072bddb246c93537ffeeb5765777",
+    "tests/smoke_mission_foundation.py": "a8676d698db5c7b5223fc0835e11b3175d57a663cece84ec79f91a929a358d4f",
+    "skills/yc-status/SKILL.md": "b336143153d284b112a9a69277765acb31ea1b4b1f6379f77f53267679da9d4f",
+    "skills-lock.json": "73335b9706436fdec5a77e879213419aaf51686f0c8c38a59247e36b3df1a3b9",
+    "README.md": "9bd05b48f540ff4f2113e7bc918b9049f3ded9757615a6025d94cfd7820af275",
+    "docs/USAGE.md": "cc7fe6f86afe9541e9d838d361a3db6d8463b2e7b18194573df00d72b6532cf5",
+    "docs/BACKLOG.md": "f5b69fd6f86b7f9d928127776c7a1857ddbec79cb1a611144ee3648ec9871693",
+    "docs/HANDOFF-CLOUD-2026-10-07.md": "9b746196b0fae999b6eea8a5b3ed0a5f0e66cd1251db5f358693ef1b88adda23",
+    "docs/superpowers/specs/2026-10-09-queue-eligibility-refinement.md": "5a2ea0ef7e6502bc5226ca9067137c24605dbbae0e1623dc61e655326a085cc2",
+    "docs/relatorios/2026-10-09-queue-preview.md": "f7b30f05d1d421430a41034f83dbfbd96e2d8acfffb831fa651826d1c8cdd2a3"
+  },
+  "git_diff_check_exit_code": 0,
+  "vault_check": {
+    "notes_checked": 43,
+    "issues": []
+  }
+}

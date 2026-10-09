@@ -73,6 +73,11 @@ fila prioriza etapas elegíveis do trabalho iniciado antes de admitir novos PBIs
 com ordem de entrada compartilhada por todos os papéis. O desenho operacional está
 em refinamento; a implementação continua dependente do aceite do executor.
 
+Já é possível antecipar a leitura da fila: `status CODIGO` retorna `queue_preview`
+com PBIs na prioridade salva, dependências e o primeiro candidato inicial quando a
+preparação está consistente. Essa consulta usa o snapshot da missão e não executa agentes.
+[Contrato e limites](docs/USAGE.md#mission-workflow).
+
 **Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
 chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 O pacote público passou em 516 testes, com 20 pulados; naquela rodada, o CI não pôde ser consultado.
@@ -663,6 +668,11 @@ The [YC-204 queue refinement](docs/superpowers/specs/2026-10-09-queue-eligibilit
 details priority, waiting and capacity decisions. The approved policy serves eligible
 ongoing stages before new PBIs, with the same readiness order for every role.
 Operational design remains in refinement; implementation depends on executor acceptance.
+
+The initial backlog can already be inspected: `status CODE` returns `queue_preview`
+with saved PBI priority, dependencies and the first initial candidate when preparation
+is current. This read-only view uses the mission snapshot and does not execute agents.
+[Contract and limits](docs/USAGE.md#mission-workflow).
 
 **Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
 are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).

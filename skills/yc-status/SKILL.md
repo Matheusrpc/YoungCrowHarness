@@ -26,6 +26,11 @@ frozen mission configuration from current project defaults. `prepared` means com
 unverified. Report client diagnostic receipts separately, with requested/resolved/observed model,
 effort, connection, timestamps and limits. Unknown cost or observed model stays unknown.
 
+Report `queue_preview` as the initial backlog: items follow saved priority and list dependency
+UUIDs. `first_candidate_id` identifies the first item without dependencies only when current
+preparation has no known blockers; otherwise it is null. It does not prove integration,
+reserve capacity or authorize dispatch. Keep `next_action` and execution gates unchanged.
+
 ```bash
 python3 -B scripts/missions.py client runs --mission M001 --json
 ```

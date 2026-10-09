@@ -45,13 +45,22 @@ missões salvas sem conhecer seu código. A consulta lê resumos do banco; depoi
 `status CODIGO` confere fontes, projeções e recibos atuais. A listagem não repara
 notas nem habilita execução. [Entrega e verificação](relatorios/2026-10-09-mission-discovery.md).
 
-O próximo preparo independente é a [matriz de elegibilidade de YC-204](superpowers/specs/2026-10-09-queue-eligibility-refinement.md).
+A preparação independente inclui a [matriz de elegibilidade de YC-204](superpowers/specs/2026-10-09-queue-eligibility-refinement.md).
 Ela explicita espera, capacidade de PBIs/execuções e recuperação ainda a detalhar.
 O mantenedor aprovou em 2026-10-09 a preferência por etapas elegíveis do trabalho iniciado,
 ordenadas pela sequência em que ficaram prontas, antes de admitir novos PBIs.
-Essa escolha está encerrada; o desenho operacional permanece em refinamento e não inicia 2B.
+Essa escolha está encerrada; o desenho operacional permanece em refinamento.
+O mantenedor autorizou antecipar o que não depende do executor: `status` agora expõe
+`queue_preview`, somente para a entrada inicial do backlog. Não usa eventos de
+importação como sequência de prontidão, não reserva vagas e não inicia agentes.
+Coordenação e despacho continuam dependentes do aceite de YC-203.
 A prova de retomada no Claude aguarda
 disponibilidade do cliente autenticado e não substitui o aceite isolado de YC-203.
+
+Visão posterior registrada: [YC-X05, aviário e cockpit local](BACKLOG.md#yc-x05-aviário-da-squad-e-cockpit-local).
+Desenhar somente depois de concluir todo o roadmap principal: mascotes pássaros por
+agente, passagens de demanda entre baias e métricas reais de épicos, features e PBIs
+a partir do vault. O pedido atual é de backlog; não iniciar esse front agora.
 
 ### Recuperação dos fontes de B em 8/out
 

@@ -1664,6 +1664,15 @@ revisão e estado. `client_runs` continua limitado à missão consultada.
 nem confirmação de orçamento, autenticação ou compatibilidade: o manifesto e o preflight
 continuam obrigatórios. A consulta não executa nenhuma das ações sugeridas.
 
+`queue_preview` apresenta a entrada inicial do backlog (`scope: initial_backlog`).
+`items` segue a prioridade salva e contém UUID, código, título, revisão e UUIDs das
+dependências de cada PBI. `first_candidate_id` aponta o primeiro item sem dependências,
+somente se a preparação estiver consistente. Lacunas, fontes/revisões alteradas,
+projeções pendentes/conflitantes ou recibos abertos deixam esse campo `null`.
+A prévia considera que nenhum PBI foi integrado. Não calcula vagas disponíveis nem
+a ordem entre trabalho em andamento, QA e decisões dos líderes; não reserva ou despacha.
+Mesmo com um candidato, `next_action` conserva os impedimentos e a execução segue bloqueada.
+
 Se a nota de missão ou item foi gravada antes da interrupção e houve outra revisão,
 o reparo reconhece os bytes exatos da escrita não confirmada pelo histórico durável.
 Ele mantém a revisão mais recente, sem criar eventos ou repetir execuções. Alterações
@@ -1715,6 +1724,14 @@ and `runtime_not_available` retain their planning meanings.
 `check_available=false` indicates a known blocker; `true` does not authorize a call or validate
 budget, authentication or compatibility. Manifest/preflight checks remain mandatory. Status
 performs none of the suggested actions.
+
+`queue_preview` describes the initial backlog (`scope: initial_backlog`). Its `items`
+follow saved priority and include each PBI's UUID, code, title, revision and dependency
+UUIDs. `first_candidate_id` selects the first item without dependencies only when
+preparation is current. Gaps, changed sources/revisions, pending/conflicting projections
+or unresolved runs leave it null. No PBI is assumed integrated. The preview does not
+compute available slots, ongoing-work/QA/leader ordering, reserve resources or dispatch.
+An initial candidate does not change `next_action` or enable execution.
 
 If a mission or item note was written before interruption and another revision followed,
 repair recognizes the exact unconfirmed bytes from durable history. It keeps the latest

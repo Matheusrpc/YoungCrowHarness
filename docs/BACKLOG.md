@@ -26,6 +26,13 @@ os impedimentos atuais. [Entrega e verificação](relatorios/2026-10-09-mission-
 Resuming: `missions.py --json list` discovers saved missions by code, title, UUID,
 revision and recorded state, including pending projections. `status CODE` checks current blockers.
 
+Preparação antecipada de YC-204: `status` apresenta `queue_preview`, com prioridade,
+dependências e primeiro candidato inicial. Usa dados existentes e preserva o bloqueio
+de execução; a coordenação, as vagas e a ordem entre etapas ainda não estão implementadas.
+Early YC-204 preparation: `status` exposes `queue_preview` with priority, dependencies
+and the first initial candidate. Execution stays gated; coordination, slots and
+ordering across ongoing stages remain unimplemented.
+
 Revisão de arquitetura em 8/out: proxy fixo entre missões pode reduzir escritas, mas
 ainda exige proteção do endpoint e recuperação verificável de credenciais. A instalação
 exclusiva já estava aprovada; não iniciar uma reescrita apenas para evitar a consulta
@@ -236,7 +243,7 @@ Até ela existir, esses ritos são conduzidos nas sessões autorizadas.
 | YC-201 | 2A: preflight e compatibilidade dos clientes | Frente 1 | Conferir cliente, versão, modelo/effort, autenticação selecionada e capacidades. Configuração desconhecida fica bloqueada, sem fallback ou chamada de modelo | Implementado; catálogo dinâmico e recusas testados. Perfis nativos continuam sem aceite de execução |
 | YC-202 | 2A: execução limitada e recibos duráveis | YC-201 | Reservar operação antes de chamar; impor tempo e quantidade, registrar consumo observado, encerrar processos próprios e conservar resultado incerto sem repetir | Verificado com simuladores: limites, recuperação e recibos; chamadas nativas bloqueadas |
 | YC-203 | 2A: instalação, consulta e provas dos adaptadores | YC-202 | Provar cliente autenticado e API explícita quando houver acesso, em matriz por ambiente; consulta sem escrita e adoção preservada. Cada combinação sem prova permanece indisponível | Parcial; inspeção Claude corrigida. Prova local reproduz falha de isolamento do Codex; chamadas reais bloqueadas. [Evidência atual](relatorios/2026-10-03-native-client-verification.md) |
-| YC-204 | 2B: coordenador e fila priorizada | YC-203 | Uma missão ativa por repositório; três PBIs e três execuções como limites distintos; dependências e ordem persistidas. Sem item elegível, persistir espera | Planejado; [ordenação aprovada, desenho operacional em refinamento](superpowers/specs/2026-10-09-queue-eligibility-refinement.md), sem implementação |
+| YC-204 | 2B: coordenador e fila priorizada | YC-203 para despacho | Uma missão ativa por repositório; três PBIs e três execuções como limites distintos; dependências e ordem persistidas. Sem item elegível, persistir espera | Prévia inicial somente leitura implementada; [ordenação aprovada, desenho operacional em refinamento](superpowers/specs/2026-10-09-queue-eligibility-refinement.md). Coordenação e despacho pendentes |
 | YC-205 | 2B: branches e worktrees por PBI | YC-204 | Um escritor por checkout, base registrada, alterações do usuário preservadas, limpeza apenas de recursos próprios e recuperação após criação interrompida | Planejado |
 | YC-206 | 2B: decisões de PM/Tech Lead e contexto dos agentes | YC-204, YC-205 | Validar propostas estruturadas e revisões; repriorizar somente PBIs não iniciados; avisar líderes uma vez por evento. Contexto reúne referências necessárias, sem ampliar escopo | Planejado |
 | YC-207 | 2C: pausa, retomada e cancelamento | YC-206 | Encerrar despachos/processos, persistir consumo e tentativas, reconciliar efeito incerto e retomar sem repetição. Cancelamento explícito libera a vaga e conserva o trabalho | Planejado |
@@ -435,6 +442,52 @@ próprios; não bloqueiam a primeira esteira completa acordada.
 | YC-X02 | Atualização assistida de relações e índices | Propor relações com evidência e revisão; detectar fontes alteradas e reindexar apenas seleção autorizada. Medir melhoria de recuperação e evitar duplicar a verdade do vault |
 | YC-X03 | Sincronização contínua entre máquinas | Avaliar somente se a transferência explícita não atender; resolver conflitos, privacidade e responsabilidade antes de automatizar |
 | YC-X04 | Revisões imutáveis para plugins de marketplace | Verificar o que cada host permite fixar e provar revogação/atualização; não prometer reprodução com números de versão que o instalador não aplica |
+| YC-X05 | Aviário da squad e cockpit local | Desenhar após concluir o roadmap principal (YC-501 a YC-504). Pássaros representam agentes e suas passagens reais de demanda; cockpit lê o vault e apresenta andamento e métricas medidas |
+
+### YC-X05: aviário da squad e cockpit local
+
+Solicitado pelo mantenedor em 2026-10-09. Estado: registrado para desenho após a
+conclusão de todo o roadmap principal, incluindo o aceite e a publicação do produto.
+
+**Objetivo:** permitir que o usuário faça o build de um front e o abra no localhost
+para acompanhar a squad como um escritório de pássaros, com uma baia para cada agente.
+O cockpit deve mostrar o trabalho registrado no vault e seu histórico de entrega.
+
+Escopo a desenhar:
+
+- Mascotes pássaros distintos para os agentes, identificados por papel, incluindo
+  PM, Tech Lead, Dev e QA. Mostrar quem trabalha em quê, quem está esperando,
+  bloqueado ou concluiu sua participação.
+- Comunicações e passagens automáticas de demanda entre agentes: quando um agente
+  entrega trabalho a outro, seu mascote vai até a baia do destinatário e entrega a
+  demanda. A animação deve corresponder ao evento real e identificar o item envolvido.
+- Cockpit com leitura do backlog do vault por épico, feature e PBI, mostrando o que
+  ainda não começou, o que está em andamento, bloqueado, em revisão/QA ou concluído,
+  além das relações de dependência e do responsável atual.
+- Métricas da squad: tempo médio medido por entrega de épico, feature e PBI,
+  quantidade de entregas por período, trabalho em andamento e tempo em espera/bloqueio.
+  Mostrar período, quantidade de amostras e origem dos dados; ausência de medição
+  aparece como indisponível, sem estimar ou tratar como zero.
+- No desenho, definir os marcos de início/fim e o tratamento de pausas e paralelismo.
+  A duração de uma feature ou épico deve refletir seus próprios marcos; somar tempos
+  de PBIs paralelos não equivale ao tempo decorrido da entrega.
+- Build e execução locais documentados; ao reabrir o cockpit, reconstruir a visão
+  do estado persistido. Eventos repetidos ou históricos não podem parecer novas
+  entregas, duplicar contagens ou inventar conversas entre agentes.
+
+Critérios para o aceite futuro: acompanhar uma entrega real entre pelo menos dois
+agentes, conferir o item e seus estados no vault, reproduzir uma passagem na animação
+e comparar as métricas exibidas com os timestamps e recibos dessa entrega. Reabertura,
+ausência de dados e eventos repetidos precisam preservar os mesmos resultados.
+Framework, biblioteca de animação, desenho visual e fórmulas finais ficam para o
+desenho posterior. Este registro não antecipa implementação nem altera o roadmap principal.
+
+English: YC-X05 is deferred until the full core roadmap is complete. A locally built
+frontend will depict agents as bird mascots moving between desks to hand off real
+work. A vault-backed cockpit will show epic/feature/PBI status and measured delivery
+times, throughput, WIP and waiting time. Metrics must expose source, time window and
+sample size; replay and reopening must not duplicate handoffs or counts. Design and
+implementation remain deferred.
 
 Histórico durável no vault permite continuar além de uma sessão. Armazenamento, retenção e contexto
 dos modelos continuam finitos; as extensões devem melhorar recuperação e navegação de forma mensurável.

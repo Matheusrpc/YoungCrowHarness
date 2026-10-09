@@ -15,7 +15,8 @@ O operador concluiu a renovação do login e reportou `loggedIn: true`,
 `authMethod: claude.ai` e `apiProvider: firstParty`. A tentativa original continua
 preservada. Duas suposições de plataforma nos testes foram
 [corrigidas](relatorios/2026-10-09-p06-windows-tests.md); a confirmação Windows
-e a revisão de uma nova tentativa de retomada permanecem pendentes.
+passou nos 13 testes no PC do operador. O novo pacote r2 foi preparado com zero
+prompts e revisado; sua execução aguarda autorização específica.
 
 ## Renovar o login após a falha OAuth
 
@@ -78,6 +79,41 @@ Resultado esperado: `state: prepared_no_model_prompt`, `native_prompt_count: 0`,
 árvore encerrada e cópia temporária da credencial removida. O recibo fica na cópia
 do pacote, em `.runtime/test-campaign-20261010/claude-p06/prepare-receipt.json`.
 Uma falha preserva o material de diagnóstico; não apagar a pasta para tentar novamente.
+
+## Nova operação preparada em 9/out
+
+Após renovar o login, o operador preparou uma cópia irmã `p06-package-20261010-r2`,
+fixa em `6481a9174070e9c2fbc65fc66950381089136758`. Antes do preparo, os 13 testes
+locais passaram no Windows em 9,373 s. O recibo reportou inicialização concluída
+em 13,889191 s, zero prompts, árvore encerrada, credencial temporária removida e
+autenticação original preservada. A [medição](medicoes/2026-10-09-p06-windows-tests.json)
+registra essa evidência enviada pelo operador; o CI completo ainda está pendente.
+
+| Identificação | Valor |
+|---|---|
+| Operação preparada | `323ef492-4967-4d13-bd71-8afe0bc2ed00` |
+| SHA-256 de `setup.json` | `6d1c2bd27f6c35308712310ab640205b06d5f19de5836d60b00c1730431d9811` |
+| Escopo proposto | Uma sessão nova, um prompt, até 300 s e 24 ferramentas |
+| Cliente e autenticação | Claude Code 2.1.220, assinatura `claude.ai`/`firstParty` |
+| Modelo e esforço | Padrão do cliente, `medium`, conforme preparo |
+| Estado | Preparo concluído; execução ainda não autorizada |
+
+A revisão independente não encontrou impedimento para apresentar essa operação
+à autorização do mantenedor. Ela não envia um prompt nem aceita a memória recuperada.
+Os campos `approval_revision` e `planned_local` de `setup.json` são metadados
+históricos fixos no runner; não autorizam r2. Registrar eventual aprovação com a
+operação e o hash acima, sem editar o pacote nem o marcador da primeira tentativa.
+Manter a cópia Windows nesta revisão, mesmo que a documentação avance no GitHub.
+
+Comando correspondente, somente após autorização específica desta operação:
+
+```powershell
+python -B 'C:\Users\rmfon\YoungCrowHarness-review-20261001\.runtime\p06-package-20261010-r2\tests\pilot_claude.py' run
+```
+
+O runner reconfere os hashes e reserva a nova tentativa antes de iniciar processos.
+Uma falha não libera repetição. O preparo não prova aceitação da inferência pelo
+fornecedor. Um resultado positivo ainda exige a revisão semântica descrita abaixo.
 
 ## Execução da tentativa registrada
 
@@ -161,5 +197,9 @@ success is inferred from fixtures. Original receipts and failed attempts are pre
 The operator supplied a successful Windows preparation receipt on Oct 9, followed
 by a failed attempt with expired OAuth and zero reported token counts. Preserve the
 reserved attempt, renew login and review any retry. Retrieval remains unverified.
-The operator subsequently renewed login. Two test portability assumptions were
-corrected and verified locally; Windows confirmation and retry review remain pending.
+The operator subsequently renewed login. All 13 corrected tests passed on the
+operator's Windows PC in 9.373 seconds. A separate r2 package pinned to `6481a91`
+completed preparation with zero prompts and preserved credentials. Its operation
+and setup hash are recorded above; one new bounded execution awaits specific
+approval. Keep the original attempt and the prepared package unchanged. Full CI
+and native retrieval acceptance remain pending.

@@ -50,7 +50,51 @@
   "prior_attempt_preserved": true,
   "login_renewal_reported": true,
   "retry_authorized": false,
-  "windows_ci": "pending",
+  "windows_ci": "pending_full_confirmation",
   "reviewer": "review_windows_fix_publish",
-  "review_result": "No material findings"
+  "review_result": "No material findings",
+  "windows_operator_confirmation": {
+    "source_sha256": "036d72bab1385952e3220fa9bb3f53da45089167c1745623f4313936d66e4d46",
+    "bytes": 5451,
+    "code_revision": "6481a9174070e9c2fbc65fc66950381089136758",
+    "evidence_kind": "operator_supplied_terminal_output",
+    "tests": 13,
+    "passed": 13,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 9.373,
+    "preparation": {
+      "batch_id": "YC-TEST-20261010-A",
+      "operation_id": "323ef492-4967-4d13-bd71-8afe0bc2ed00",
+      "state": "prepared_no_model_prompt",
+      "native_prompt_count": 0,
+      "temporary_credential_removed": true,
+      "original_auth_unchanged": true,
+      "setup_sha256": "6d1c2bd27f6c35308712310ab640205b06d5f19de5836d60b00c1730431d9811",
+      "supervision": {
+        "reason": "completed",
+        "exit_code": 0,
+        "tree_reaped": true,
+        "elapsed_seconds": 13.889191,
+        "started_at": "2026-10-09T20:15:12.745138+00:00",
+        "ended_at": "2026-10-09T20:15:26.634888+00:00"
+      }
+    },
+    "additional_inference_authorized": false,
+    "reviewer": "review_retry_preparation",
+    "review_result": "No blocking findings for presenting the exact new operation for approval"
+  },
+  "ci_observation": {
+    "observed_at": "2026-10-09T20:20:00+00:00",
+    "code_revision": "6481a9174070e9c2fbc65fc66950381089136758",
+    "push_run": 37984411482,
+    "push_windows": "failure_before_p06",
+    "failed_case": "test_mission_egress.EgressTests.test_abrupt_controller_exit_before_config_reaps_the_waiting_guard",
+    "push_p06": "skipped",
+    "pr_run": 37984416730,
+    "pr_windows": "in_progress",
+    "pr_p06": "pending",
+    "other_jobs": "success_on_both_runs",
+    "reviewer": "diagnose_ci_6481"
+  }
 }

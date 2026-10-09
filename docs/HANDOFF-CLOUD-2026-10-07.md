@@ -29,8 +29,13 @@ antes de qualquer chamada adicional. Nenhum novo ciclo Docker foi iniciado.
 Atualização posterior de 9/out: o operador renovou o login por assinatura.
 A saída de 13 testes no PC identificou duas suposições de plataforma nos testes,
 [corrigidas em duas linhas](relatorios/2026-10-09-p06-windows-tests.md).
-Os 13 casos passaram localmente; aguardar confirmação Windows antes da revisão
-de outra tentativa. Executor, contexto e marcadores da tentativa real permanecem preservados.
+Os 13 casos passaram no PC Windows em 9,373 s, na revisão `6481a91`.
+O [pacote r2](P06-CLAUDE.md#nova-operação-preparada-em-9out) foi preparado em
+13,889191 s, com zero prompts e limpeza confirmada. Operação
+`323ef492-4967-4d13-bd71-8afe0bc2ed00`: execução pendente de autorização específica,
+uma sessão/300 s/24 ferramentas, seguida de revisão semântica. Preservar a revisão
+do pacote Windows e a tentativa anterior. CI completo ainda pendente: o push falhou
+em diagnóstico anterior ao P06; o PR passou esse diagnóstico e segue em execução.
 
 Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor atual](#6-estado-atual-do-executor-componente-por-componente) · [testes](#7-o-que-os-testes-já-demonstraram) · [falhas](#8-falhas-históricas-causas-e-tratamento) · [próximos passos](#10-próximos-passos-de-implementação-em-ordem) · [backlog](#11-backlog-restante-até-o-produto-completo) · [transferência para cloud](#12-o-que-levar-para-a-cloud) · [evidências](#14-evidências-e-identidade-da-implementação).
 
@@ -82,8 +87,8 @@ O mantenedor autorizou antecipar o que não depende do executor: `status` agora 
 `queue_preview`, somente para a entrada inicial do backlog. Não usa eventos de
 importação como sequência de prontidão, não reserva vagas e não inicia agentes.
 Coordenação e despacho continuam dependentes do aceite de YC-203.
-A prova de retomada no Claude aguarda
-disponibilidade do cliente autenticado e não substitui o aceite isolado de YC-203.
+A prova de retomada no Claude aguarda execução autorizada do pacote preparado
+e revisão do resultado; não substitui o aceite isolado de YC-203.
 
 Visão posterior registrada: [YC-X05, aviário e cockpit local](BACKLOG.md#yc-x05-aviário-da-squad-e-cockpit-local).
 Desenhar somente depois de concluir todo o roadmap principal: mascotes pássaros por

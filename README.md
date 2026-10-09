@@ -358,7 +358,8 @@ passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do
 [tentativa Claude de 9/out](docs/P06-CLAUDE.md) terminou por sessão OAuth expirada,
 com contadores de tokens zerados. O operador renovou o login; a retomada continua pendente.
 As [correções dos testes Windows](docs/relatorios/2026-10-09-p06-windows-tests.md)
-passaram localmente e aguardam confirmação no CI Windows.
+passaram nos 13 casos no PC do operador. O novo pacote Claude foi preparado com
+zero prompts; a execução dessa operação aguarda autorização. O CI completo segue pendente.
 Veja as [provas e limites](docs/relatorios/2026-10-03-public-pilot.md).
 O pacote usa uma lista explícita de arquivos e um manifesto de hashes; o CI do piloto valida dados, testes e navegação do vault.
 
@@ -968,7 +969,8 @@ projects passed real setup and returned to their initial state while retaining t
 [Oct 9 Claude attempt](docs/P06-CLAUDE.md) ended with an expired OAuth session and
 zero reported token counts. The operator renewed login; retrieval remains pending.
 The [Windows test corrections](docs/relatorios/2026-10-09-p06-windows-tests.md)
-passed locally and await confirmation in Windows CI.
+passed all 13 cases on the operator's Windows PC. A new Claude package was prepared
+with zero prompts; executing that operation awaits approval. Full CI remains pending.
 See the [evidence and limits](docs/relatorios/2026-10-03-public-pilot.md).
 The package uses an explicit file list and hash manifest; the pilot CI checks data, tests and vault navigation.
 

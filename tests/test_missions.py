@@ -229,6 +229,68 @@ class MissionTests(MissionCase):
             self.m.apply_config(self.root, self.configured(), None)
         self.assertEqual(self.snapshot(), before)
 
+    def test_list_is_empty_without_initializing_storage(self):
+        (self.root / 'vault/project.json').unlink()
+        before = self.snapshot()
+        output = io.StringIO()
+        with redirect_stdout(output):
+            code = self.m.main(['--root', str(self.root), '--json', 'list'])
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(output.getvalue()), dict(
+            schema_version=1, missions=[], runtime_available=False, runnable=False))
+        self.assertEqual(self.snapshot(), before)
+
+    def test_list_returns_only_current_mission_summaries(self):
+        request, actor = self.prepared_fixture()
+        first = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        self.m.revise_mission(self.root, first['code'], dict(request, title='Revised mission'),
+                              1, str(uuid.uuid4()), actor)
+        second = self.m.prepare_mission(self.root, dict(request, scope_reference=''), str(uuid.uuid4()), actor)
+        before = self.snapshot()
+        with patch('missions.mission_status', side_effect=AssertionError('Inventory must not inspect each mission')):
+            result = self.m.list_missions(self.root)
+        self.assertEqual(result['missions'], [
+            dict(id=first['record_id'], code=first['code'], title='Revised mission', revision=2, state='prepared'),
+            dict(id=second['record_id'], code=second['code'], title=request['title'], revision=1, state='draft')])
+        self.assertFalse(result['runtime_available'])
+        self.assertFalse(result['runnable'])
+        self.assertEqual(self.snapshot(), before)
+
+    def test_list_finds_mission_after_projection_failure_without_repair(self):
+        request, actor = self.prepared_fixture()
+        with patch('missions.project_receipt', side_effect=OSError('interrupted projection')):
+            receipt = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        self.assertEqual(receipt['projection_state'], 'pending')
+        self.assertNotIn(receipt['record_id'], (self.root / 'vault/local/missions/index.md').read_text())
+        before = self.snapshot()
+        output = io.StringIO()
+        with redirect_stdout(output):
+            code = self.m.main(['--root', str(self.root), '--json', 'list'])
+        self.assertEqual(code, 0)
+        found = json.loads(output.getvalue())['missions'][0]
+        self.assertEqual(found['id'], receipt['record_id'])
+        self.assertEqual(self.m.mission_status(self.root, found['code'])['projection_state'], 'pending')
+        self.assertEqual(self.snapshot(), before)
+
+    def test_list_refuses_corrupt_or_foreign_storage_without_writes(self):
+        request, actor = self.prepared_fixture()
+        self.m.prepare_mission(self.root, request, self.op_id, actor)
+        project_path = self.root / 'vault/project.json'
+        project = json.loads(project_path.read_text())
+        project['project_id'] = str(uuid.uuid4())
+        project_path.write_text(json.dumps(project))
+        for corrupt in (False, True):
+            with self.subTest(corrupt=corrupt):
+                if corrupt:
+                    (self.root / DB).write_bytes(b'corrupt')
+                before = self.snapshot()
+                output = io.StringIO()
+                with redirect_stdout(output):
+                    code = self.m.main(['--root', str(self.root), '--json', 'list'])
+                self.assertEqual(code, 1)
+                self.assertEqual(json.loads(output.getvalue())['error'], 'invalid_store')
+                self.assertEqual(self.snapshot(), before)
+
     def test_status_does_not_initialize_or_repair(self):
         project = self.root / 'vault/project.json'
         saved_project = project.read_bytes()

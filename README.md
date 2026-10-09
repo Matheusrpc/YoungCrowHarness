@@ -58,6 +58,12 @@ missão do projeto, e indica revisão de recuperação ou reparo de notas antes 
 entradas. A consulta permanece somente leitura. [Uso e limites](docs/USAGE.md#mission-workflow).
 [Verificação da entrega](docs/relatorios/2026-10-08-mission-status-guidance.md).
 
+Para retomar sem lembrar o código, `python3 -B scripts/missions.py --json list` lista
+as missões salvas com título, código, UUID, revisão e estado registrado. Depois use
+`status CODIGO` para consultar impedimentos atuais. A listagem funciona mesmo quando
+a projeção da nota está pendente e não altera arquivos.
+[Uso](docs/USAGE.md#mission-workflow) · [Verificação](docs/relatorios/2026-10-09-mission-discovery.md).
+
 **Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
 chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 O pacote público passou em 516 testes, com 20 pulados; naquela rodada, o CI não pôde ser consultado.
@@ -634,6 +640,12 @@ improves `yc-status`: it identifies receipts blocking new diagnostics, including
 missions in the project, and directs recovery review or note repair before input
 refinement. Status remains read-only. [Usage and limits](docs/USAGE.md#mission-workflow).
 [Delivery verification](docs/relatorios/2026-10-08-mission-status-guidance.md#english-overview).
+
+To resume without remembering a code, `python3 -B scripts/missions.py --json list`
+shows saved missions with title, code, UUID, revision and recorded state. Then use
+`status CODE` to check current blockers. Listing also finds missions with pending
+note projections and leaves files unchanged.
+[Usage](docs/USAGE.md#mission-workflow) · [Verification](docs/relatorios/2026-10-09-mission-discovery.md#english-overview).
 
 **Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
 are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).

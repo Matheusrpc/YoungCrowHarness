@@ -1,11 +1,16 @@
 ---
 name: yc-status
-description: Use when consulting a YoungCrow mission, its revisions, planning gaps, source freshness, history or pending projections without changing the project.
+description: Use when finding saved YoungCrow missions or consulting their revisions, planning gaps, source freshness, history or pending projections without changing the project.
 ---
 
 # Read mission status
 
-Read project instructions and the requested mission identifier. From the project root:
+Read project instructions. If the user asks which missions exist or has no identifier, run
+`python3 -B scripts/missions.py --json list` from the project root. It returns code, UUID,
+title, revision and recorded state, including missions whose note projection failed.
+It does not validate current sources or blockers; an empty list needs no initialization.
+Use a returned code or UUID for the requested detailed status. If selection is ambiguous,
+show the summaries and ask which mission the user means. From the project root:
 
 ```bash
 python3 -B scripts/missions.py --json status M001

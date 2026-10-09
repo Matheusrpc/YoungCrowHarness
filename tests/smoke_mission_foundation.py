@@ -102,6 +102,13 @@ for name in ('capabilities', 'integrations'):
         check(many['state'] == 'prepared' and len(many['snapshot']['pbi_ids']) == 4, 'multi_feature_failed')
         check(many['snapshot']['config']['limits']['max_active_pbis'] == 3, 'wip_is_not_total')
         check(len(many['events']) == 1, 'duplicate_mission_event')
+        inventory_before = fixture.snapshot()
+        inventory = cli('list')
+        check([entry['id'] for entry in inventory['missions']] == [first['record_id'], second['record_id']],
+              'mission_inventory_incorrect')
+        discovered = inventory['missions'][1]
+        check(cli('status', discovered['code'])['id'] == discovered['id'], 'mission_discovery_failed')
+        check(fixture.snapshot() == inventory_before, 'mission_discovery_wrote_files')
         defaults = cli('config', 'show')
         updated = defaults['config']
         updated['agents']['pm']['model'] = 'fixture-b'
@@ -145,7 +152,8 @@ print(json.dumps(result))
                              mission_codes=[first['code'], second['code'], recovered['code']],
                              existing_hashes_preserved=mode == 'existing', legacy_hashes=retained if mode == 'existing' else {},
                              snapshots_frozen=True, replay_without_duplicate=True,
-                             read_only_status=True, projection_recovered=True, vault_notes=vault['notes_checked'],
+                             read_only_status=True, read_only_discovery=True,
+                             projection_recovered=True, vault_notes=vault['notes_checked'],
                              state='prepared', runtime_available=False))
 
     result = smoke(root, client, prepare_existing=prepare_existing, exercise=exercise, cases=('absent', 'dirty-git'))

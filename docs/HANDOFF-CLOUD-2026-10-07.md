@@ -35,6 +35,11 @@ Não retentar a issue, pesquisar novamente o contrato ou executar novo ciclo nat
 A entrega independente corrige `yc-status`, usando recibos e projeções existentes
 para indicar o impedimento real e a próxima ação. A fila 2B permanece indisponível.
 
+Em 9/out, a preparação ganhou `scripts/missions.py --json list` para descobrir
+missões salvas sem conhecer seu código. A consulta lê resumos do banco; depois,
+`status CODIGO` confere fontes, projeções e recibos atuais. A listagem não repara
+notas nem habilita execução. [Entrega e verificação](relatorios/2026-10-09-mission-discovery.md).
+
 ### Recuperação dos fontes de B em 8/out
 
 Os quatro fontes/testes de captura e integração e os dois recibos B chegaram por

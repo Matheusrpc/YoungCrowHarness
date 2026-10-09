@@ -1,6 +1,6 @@
 # Backlog do YoungCrowHarness
 
-Frente: produto completo e sequência de entrega. Atualizado em 2026-10-08.
+Frente: produto completo e sequência de entrega. Atualizado em 2026-10-09.
 
 Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [Contexto e próximos passos](HANDOFF-CLOUD-2026-10-07.md) ·
@@ -16,6 +16,12 @@ projeções pendentes/conflitantes passam a orientar a próxima ação. Não hab
 **Docker inquiry on hold at the maintainer's request.** No issue-publication retry or
 new native cycle while paused. Independent work fixes `yc-status` guidance for unresolved
 repository runs, integrated recovery and pending/conflicting projections; it does not enable 2B.
+
+Retomada: `missions.py --json list` encontra missões salvas por código, título, UUID,
+revisão e estado registrado, inclusive com projeção pendente. `status CODIGO` consulta
+os impedimentos atuais. [Entrega e verificação](relatorios/2026-10-09-mission-discovery.md).
+Resuming: `missions.py --json list` discovers saved missions by code, title, UUID,
+revision and recorded state, including pending projections. `status CODE` checks current blockers.
 
 Revisão de arquitetura em 8/out: proxy fixo entre missões pode reduzir escritas, mas
 ainda exige proteção do endpoint e recuperação verificável de credenciais. A instalação

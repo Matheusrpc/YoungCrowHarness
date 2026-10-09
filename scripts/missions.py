@@ -222,6 +222,14 @@ def revise_mission(root, mission_id, request, expected_revision, operation_id, a
     return commit(root, dict(id=existing['id'], kind='mission', snapshot=snapshot, _request=intent), expected_revision, operation_id, actor)
 
 
+def list_missions(root):
+    check_helpers()
+    summaries = [dict(id=record['id'], code=record['code'], revision=record['revision'],
+                      title=record['snapshot']['title'], state=record['snapshot']['state'])
+                 for record in store.list_records(root, 'mission')]
+    return dict(schema_version=1, missions=summaries, runtime_available=False, runnable=False)
+
+
 def mission_status(root, mission_id):
     check_helpers()
     existing = store.get_record(root, mission_id)
@@ -348,6 +356,7 @@ def parser():
         sub.add_argument('--operation-id', required=True)
         sub.add_argument('--actor-id', required=True)
         sub.add_argument('--actor-role', choices=('pm', 'tech_lead'), required=True)
+    subs.add_parser('list', help='List saved mission summaries; use status CODE for current blockers')
     for name in ('status', 'repair'):
         subs.add_parser(name).add_argument('identifier')
     client = subs.add_parser('client').add_subparsers(dest='action', required=True)
@@ -467,6 +476,8 @@ def main(argv=None):
                 result = prepare_mission(root, load_input(root, args.input), args.operation_id, actor)
             else:
                 result = revise_mission(root, args.identifier, load_input(root, args.input), args.expected_revision, args.operation_id, actor)
+        elif args.command == 'list':
+            result = list_missions(root)
         else:
             result = mission_status(root, args.identifier) if args.command == 'status' else repair(root, args.identifier)
         print(json.dumps(result, ensure_ascii=True, indent=2))

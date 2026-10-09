@@ -1598,6 +1598,7 @@ python3 -B scripts/missions.py --json config validate --input vault/local/agents
 python3 -B scripts/missions.py --json config apply --input vault/local/agents-draft.json --expected-digest absent
 python3 -B scripts/missions.py --json backlog import --note vault/local/product/epics/EPIC_UUID/index.md --expected-revision 0 --operation-id OPERATION_UUID --actor-id current-session --actor-role pm
 python3 -B scripts/missions.py --json prepare --input vault/local/mission-request.json --operation-id OPERATION_UUID --actor-id current-session --actor-role pm
+python3 -B scripts/missions.py --json list
 python3 -B scripts/missions.py --json status M001
 python3 -B scripts/missions.py --json repair M001
 ```
@@ -1607,6 +1608,13 @@ para PBIs, use `--actor-role tech_lead`. Cada importação tem seu próprio UUID
 O papel é uma atribuição declarada, sem autenticação de identidade. Uma nota importada recebe
 código E/F/P e revisão. Importar uma edição exige a revisão atual em `--expected-revision`.
 Para alterar os padrões, substitua `absent` pelo digest retornado por `config show`.
+
+Para descobrir o código ao retomar, use `list`. O campo `missions` contém código, UUID,
+título, revisão atual salva e estado registrado (`draft` ou `prepared`) de cada missão.
+Esse estado não revalida fontes, projeções ou recibos: use `status CODIGO` para consultar
+os impedimentos atuais. A listagem lê o banco mesmo se uma projeção da nota falhou;
+não repara nem inicializa arquivos. Sem banco ou com banco vazio, retorna `missions: []`.
+Armazenamento incompatível ou pertencente a outro projeto continua recusado.
 
 O pedido da missão contém exatamente:
 
@@ -1675,6 +1683,13 @@ paths. Keep requests and backlog private. Use real UUIDs and a distinct operatio
 retry an interrupted request with its original UUID. Import epics, features and then PBIs. PBIs use
 `tech_lead`; other items and mission preparation use `pm`. These are declared roles, not authenticated identities.
 Updating an item requires its current revision; changing defaults requires the current configuration digest.
+
+Use `list` to discover mission codes when resuming. Its `missions` array contains each
+mission's code, UUID, title, latest saved revision and recorded state (`draft` or `prepared`).
+It does not revalidate sources, projections or receipts; use `status CODE` for current
+blockers. Listing reads the database even when a note projection failed, without repairing
+or initializing files. An absent or empty database returns `missions: []`; incompatible
+storage or a database belonging to another project remains rejected.
 
 A request selects one or more feature UUIDs and lists every imported PBI in priority order. Empty criteria,
 unresolved dependencies or missing choices produce `draft`; complete planning produces `prepared`.

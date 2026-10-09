@@ -356,8 +356,9 @@ O [exemplo](examples/delivery-board/README.md) tem página com filtros, critéri
 O percurso local foi verificado por teclado e em tela estreita. No Windows e no Linux, projeto novo e migração
 passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do trial. O site publicado teve revisão, hashes e uso conferidos. A retomada passou no Codex; a
 [tentativa Claude de 9/out](docs/P06-CLAUDE.md) terminou por sessão OAuth expirada,
-com contadores de tokens zerados. O preparo passou, mas a retomada continua pendente;
-renovar o login precede a revisão de uma nova tentativa.
+com contadores de tokens zerados. O operador renovou o login; a retomada continua pendente.
+As [correções dos testes Windows](docs/relatorios/2026-10-09-p06-windows-tests.md)
+passaram localmente e aguardam confirmação no CI Windows.
 Veja as [provas e limites](docs/relatorios/2026-10-03-public-pilot.md).
 O pacote usa uma lista explícita de arquivos e um manifesto de hashes; o CI do piloto valida dados, testes e navegação do vault.
 
@@ -965,8 +966,9 @@ The [example](examples/delivery-board/README.md) has a page with filters, accept
 The local flow was checked with keyboard navigation and a narrow viewport. On Windows and Linux, new and existing
 projects passed real setup and returned to their initial state while retaining trial work. The published site passed revision, hash and interaction checks. Retrieval passed in Codex; the
 [Oct 9 Claude attempt](docs/P06-CLAUDE.md) ended with an expired OAuth session and
-zero reported token counts. Preparation passed, but retrieval remains pending;
-renewing login precedes review of another attempt.
+zero reported token counts. The operator renewed login; retrieval remains pending.
+The [Windows test corrections](docs/relatorios/2026-10-09-p06-windows-tests.md)
+passed locally and await confirmation in Windows CI.
 See the [evidence and limits](docs/relatorios/2026-10-03-public-pilot.md).
 The package uses an explicit file list and hash manifest; the pilot CI checks data, tests and vault navigation.
 

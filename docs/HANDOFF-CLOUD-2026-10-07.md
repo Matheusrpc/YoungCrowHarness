@@ -26,6 +26,12 @@ A aprovação original previa uma sessão em 10/out às 18h30; o horário não c
 outra tentativa após essa reserva usada. Renovar login e revisar a repetição
 antes de qualquer chamada adicional. Nenhum novo ciclo Docker foi iniciado.
 
+Atualização posterior de 9/out: o operador renovou o login por assinatura.
+A saída de 13 testes no PC identificou duas suposições de plataforma nos testes,
+[corrigidas em duas linhas](relatorios/2026-10-09-p06-windows-tests.md).
+Os 13 casos passaram localmente; aguardar confirmação Windows antes da revisão
+de outra tentativa. Executor, contexto e marcadores da tentativa real permanecem preservados.
+
 Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor atual](#6-estado-atual-do-executor-componente-por-componente) · [testes](#7-o-que-os-testes-já-demonstraram) · [falhas](#8-falhas-históricas-causas-e-tratamento) · [próximos passos](#10-próximos-passos-de-implementação-em-ordem) · [backlog](#11-backlog-restante-até-o-produto-completo) · [transferência para cloud](#12-o-que-levar-para-a-cloud) · [evidências](#14-evidências-e-identidade-da-implementação).
 
 ## 1. Leia isto primeiro

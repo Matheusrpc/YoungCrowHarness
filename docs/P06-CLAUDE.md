@@ -11,6 +11,12 @@ e contadores de tokens zerados. O pacote já tem uma tentativa reservada:
 preservar seus recibos e marcador, renovar o login e revisar qualquer nova tentativa.
 [Registro e limites da prova](relatorios/2026-10-09-p06-correction.md#preparo-no-windows).
 
+O operador concluiu a renovação do login e reportou `loggedIn: true`,
+`authMethod: claude.ai` e `apiProvider: firstParty`. A tentativa original continua
+preservada. Duas suposições de plataforma nos testes foram
+[corrigidas](relatorios/2026-10-09-p06-windows-tests.md); a confirmação Windows
+e a revisão de uma nova tentativa de retomada permanecem pendentes.
+
 ## Renovar o login após a falha OAuth
 
 No PowerShell do operador, usar o perfil original:
@@ -155,3 +161,5 @@ success is inferred from fixtures. Original receipts and failed attempts are pre
 The operator supplied a successful Windows preparation receipt on Oct 9, followed
 by a failed attempt with expired OAuth and zero reported token counts. Preserve the
 reserved attempt, renew login and review any retry. Retrieval remains unverified.
+The operator subsequently renewed login. Two test portability assumptions were
+corrected and verified locally; Windows confirmation and retry review remain pending.

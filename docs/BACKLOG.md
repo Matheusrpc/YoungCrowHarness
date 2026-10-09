@@ -241,7 +241,7 @@ package. Existing limits, separate acceptance criteria and current blockers rema
 
 | ID | Entrega | Dependência | Critério de aceite | Estado |
 |---|---|---|---|---|
-| YC-010 | Retomar o piloto público em sessão nova do Claude | Login válido e tentativa delimitada | Encontrar índices, UUIDs, revisão e produção observada sem receber o histórico inteiro; registrar resultado real | [Preparo Windows](P06-CLAUDE.md) passou; tentativa de 9/out falhou por OAuth expirado, com tokens reportados zerados. Renovar login e revisar nova tentativa; preservar recibos |
+| YC-010 | Retomar o piloto público em sessão nova do Claude | Login válido e tentativa delimitada | Encontrar índices, UUIDs, revisão e produção observada sem receber o histórico inteiro; registrar resultado real | [Preparo Windows](P06-CLAUDE.md) passou; tentativa de 9/out falhou por OAuth expirado. Login renovado; [testes corrigidos](relatorios/2026-10-09-p06-windows-tests.md) aguardam confirmação Windows e revisão de nova tentativa. Recibos preservados |
 | YC-011 | Provar as quatro novas skills nos clientes nativos | Instalação atual e sessão autorizada em cada cliente | Descobrir e aplicar `yc-personalizer`, `yc-config`, `yc-missao` e `yc-status`; preservar dados e distinguir preparo de execução | Pendente; integra a prova de YC-203 |
 
 ## Frente 2: execução e continuidade

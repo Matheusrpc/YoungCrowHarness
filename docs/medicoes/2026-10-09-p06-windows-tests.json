@@ -1,0 +1,56 @@
+{
+  "front": "P06 Windows test portability",
+  "base_commit": "09f95c693d252b678bcc1b9b4f5a875634ae19c1",
+  "observed_at": "2026-10-09T20:03:14.378631+00:00",
+  "operator_report": {
+    "source_sha256": "e9bacc46d4c7ddba2401f9165b98a86e3f92b76be111f794df2e171e1e8615eb",
+    "bytes": 5936,
+    "platform": "Windows",
+    "python": "3.14",
+    "tests": 13,
+    "passed": 10,
+    "failures": 1,
+    "errors": 2,
+    "seconds": 12.532
+  },
+  "correction": {
+    "file": "tests/test_pilot_claude.py",
+    "changed_lines": 2,
+    "changes": [
+      "explicit UTF-8 for fixture reads",
+      "native pathlib key for existing manifest lookup"
+    ]
+  },
+  "verification": {
+    "command": "python3 -B -m unittest discover -s tests -p test_pilot_claude.py -v",
+    "tests": 13,
+    "passed": 13,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 3.17,
+    "after_cloud_reconnection": true
+  },
+  "cp1252_probe": {
+    "existing_cases": 2,
+    "before_errors": 2,
+    "after_passed": 2,
+    "after_seconds": 0.41,
+    "native_windows_execution": false
+  },
+  "source_sha256": {
+    "tests/test_pilot_claude.py": "581c8cb045275b3e5832b97d5d0d8f17888ee84077880a025ab17ddae0a8945c",
+    "tests/pilot_claude.py": "b2477efe9ecfb8720e53c8d2e538457abe8a5c768e6fa1a79f06896591fa09ea",
+    "tests/fixtures/pilot_claude.py": "47fc7db32ff6c6bad7a18aeec2967ad97c51254886984868b6ea3a3cff2824b1",
+    ".github/workflows/test.yml": "d00c2541e55f909476056202dcb6fcad9d3af7666562ea902d213697a6b78829"
+  },
+  "runner_modified": false,
+  "supervisor_modified": false,
+  "workflow_modified": false,
+  "new_native_model_calls": 0,
+  "prior_attempt_preserved": true,
+  "login_renewal_reported": true,
+  "retry_authorized": false,
+  "windows_ci": "pending",
+  "reviewer": "review_windows_fix_publish",
+  "review_result": "No material findings"
+}

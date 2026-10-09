@@ -145,7 +145,7 @@ class PilotClaudeTests(unittest.TestCase):
             self.p.read_prepared(self.base)
 
     def test_package_binds_native_acl_helper(self):
-        self.assertEqual(self.p.package_hashes(ROOT).get('scripts/adoption_acl.ps1'),
+        self.assertEqual(self.p.package_hashes(ROOT).get(str(Path('scripts')/'adoption_acl.ps1')),
                          self.p.digest(ROOT/'scripts/adoption_acl.ps1'))
 
     def evidence(self):
@@ -174,7 +174,7 @@ class PilotClaudeTests(unittest.TestCase):
             rows.append(dict(type='p06_admitted', **admitted))
             rows.append(dict(type='assistant', session_id='session-1', message={'content':[dict(type='tool_use',id=hook['tool_use_id'],name=tool,input=args)]}))
             rows.append(dict(type='p06_completed', **self.gate.complete({**hook,'hook_event_name':'PostToolUse'})))
-            content='\n'.join(self.before[p]+'  '+p for p in admitted['paths']) if tool=='Bash' else (self.context/admitted['paths'][0]).read_text()
+            content='\n'.join(self.before[p]+'  '+p for p in admitted['paths']) if tool=='Bash' else (self.context/admitted['paths'][0]).read_text(encoding='utf-8')
             rows.append(dict(type='user', session_id='session-1', message={'content':[dict(type='tool_result',tool_use_id=hook['tool_use_id'],content=content)]}))
         rows.append(dict(type='result',subtype='success',is_error=False,session_id='session-1',result=json.dumps(result)))
         return rows

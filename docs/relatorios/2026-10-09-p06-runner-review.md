@@ -54,6 +54,10 @@ ferramenta, timeout, replay, falha de autenticação e rejeição de resultados 
 antes da sessão nativa. A escolha de executável/modelo e a compatibilidade no Windows
 ainda precisam ser conferidas. O login reportado pelo operador não prova inferência.
 
+Continuidade: a [correção do ensaio](2026-10-09-p06-correction.md) implementa esses
+controles com regressões sem modelo. Usar o novo guia para preparar o pacote no
+Windows; os dois fontes originais continuam preservados como evidência histórica.
+
 A aprovação do lote A permanece vigente, com o horário combinado de 10/out às
 18h30 em America/Sao_Paulo. Os achados são pré-condições técnicas; não justificam
 pedir a mesma aprovação novamente, repetir Codex ou aumentar os limites. Não há

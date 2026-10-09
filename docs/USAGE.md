@@ -28,7 +28,11 @@ records current scope and the next task, 203.6.
 [Abra a demonstração](https://matheusrpc.github.io/YoungCrowHarness/) ou siga o [roteiro do piloto](../examples/delivery-board/README.md), que reúne esses percursos em um exemplo com
 vault próprio. A página e os filtros foram verificados localmente, incluindo teclado e tela estreita.
 O roteiro explica início do zero, migração e saída; os dois consumidores passaram pela prova de retorno no Windows e no Linux.
-A [prova de retomada](relatorios/2026-10-03-public-pilot.md) passou no Codex; Claude aguarda renovação de login.
+A [prova de retomada](relatorios/2026-10-03-public-pilot.md) passou no Codex. Para Claude,
+o login foi reportado ativo; usar o [ensaio corrigido de P06](P06-CLAUDE.md) para preparar
+o pacote no Windows sem prompt de modelo e executar a única tentativa autorizada no horário combinado.
+For Claude P06, [prepare the corrected proof on Windows](P06-CLAUDE.md) without a model prompt;
+run the single approved attempt at the agreed time. Native acceptance remains pending.
 O README do exemplo explica como gerar e servir somente o pacote permitido, em um destino novo.
 
 [Open the demonstration](https://matheusrpc.github.io/YoungCrowHarness/) or follow the [pilot recipe](../examples/delivery-board/README.md), which brings these paths together in an example

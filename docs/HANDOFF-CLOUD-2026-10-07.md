@@ -13,9 +13,11 @@ em America/Sao_Paulo. Falhas anteriores abaixo são histórico, não resultados 
 O mantenedor pediu aprovação por lote para as próximas provas. Usar a
 [campanha controlada](TEST-RUN-2026-10-10.md): não pedir confirmação por teste dentro
 de um pacote autorizado. Os dois fontes privados de P06 foram recuperados e
-[auditados](relatorios/2026-10-09-p06-runner-review.md). Precisam de limite preventivo
-de ferramentas, encerramento no prazo e verificação específica de Claude antes da
-nova tentativa. Preservar os marcadores de 3/out. O operador reportou login ativo
+[auditados](relatorios/2026-10-09-p06-runner-review.md). O [runner corrigido](P06-CLAUDE.md)
+admite ferramentas antes de executá-las, reutiliza o prazo/árvore do supervisor
+existente e verifica os artefatos Claude. Preparar no Windows sem prompt de modelo
+antes da nova tentativa; fixtures não comprovam o cliente nativo. Preservar os
+marcadores de 3/out. O operador reportou login ativo
 por assinatura, sem inferência comprovada. O pacote Docker permanece bloqueado.
 O lote A e a política foram aprovados em 9/out; manter 10/out às 18h30, sem pedir
 novamente a mesma aprovação. Nenhuma nova prova nativa ou ciclo foi iniciado.

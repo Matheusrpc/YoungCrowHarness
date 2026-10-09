@@ -1,0 +1,72 @@
+{
+  "front": "P06 Claude bounded proof correction",
+  "observed_at": "2026-10-09T12:05:52.678127+00:00",
+  "base_commit": "91be370a7bc089974aad524a0f3505f0f7ac15a7",
+  "native_calls": 0,
+  "native_proof_accepted": false,
+  "windows_client_preflight": "pending",
+  "docker_profiles_enabled": false,
+  "correction_cycles_used": 2,
+  "correction_cycle_limit": 3,
+  "original_sources_modified": false,
+  "supervisor_modified": false,
+  "sdk_commit": "cadaa636a221f14e587a2e21a9b9532ce60adba3",
+  "native_cli_version": "2.1.220",
+  "fixture_regressions": {
+    "command": "python3 -B -m unittest discover -s tests -p test_pilot_claude.py -v",
+    "tests": 13,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 2.959
+  },
+  "initial_suite": {
+    "tests": 661,
+    "failures": 3,
+    "errors": 1,
+    "skipped": 20,
+    "seconds": 402.007,
+    "accepted_as_final": false,
+    "warnings": [
+      "fixture_changed_during_execution",
+      "existing_controller_deadline_helper_pid_missing"
+    ]
+  },
+  "unchanged_deadline_recheck": {
+    "tests": 1,
+    "failures": 0,
+    "seconds": 1.068
+  },
+  "final_suite": {
+    "state": "passed",
+    "command": "python3 -B -m unittest discover -s tests -v",
+    "tests": 664,
+    "passed": 644,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 376.401,
+    "source_hashes_unchanged_during_run": true
+  },
+  "source_sha256": {
+    "tests/pilot_claude.py": "b2477efe9ecfb8720e53c8d2e538457abe8a5c768e6fa1a79f06896591fa09ea",
+    "tests/test_pilot_claude.py": "1c96d03a0bdd2dccd95f0172a7d12214be84da510c697b00bb57a971bf8d74d0",
+    "tests/fixtures/pilot_claude.py": "47fc7db32ff6c6bad7a18aeec2967ad97c51254886984868b6ea3a3cff2824b1",
+    ".github/workflows/test.yml": "d00c2541e55f909476056202dcb6fcad9d3af7666562ea902d213697a6b78829"
+  },
+  "reviewers": [
+    "p06_protocol_contract",
+    "p06_verification_scope"
+  ],
+  "documentation_check": {
+    "local_markdown_paths_checked": 494,
+    "missing_paths": [],
+    "frozen_sources_unchanged": true,
+    "git_diff_check_exit_code": 0
+  },
+  "vault_check": {
+    "notes_checked": 47,
+    "issues": []
+  },
+  "final_review": "No remaining material findings; native Windows client remains unverified",
+  "windows_fixture_ci": "pending"
+}

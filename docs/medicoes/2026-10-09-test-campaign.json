@@ -115,5 +115,13 @@
       "vault_issues": [],
       "git_diff_check_exit_code": 0
     }
+  },
+  "runner_correction": {
+    "report": "docs/relatorios/2026-10-09-p06-correction.md",
+    "measurement": "docs/medicoes/2026-10-09-p06-correction.json",
+    "guide": "docs/P06-CLAUDE.md",
+    "state": "implemented_pending_windows_preparation_and_native_proof",
+    "native_calls": 0,
+    "current_plan_sha256": "850f75e08e2bd40d48557955414fb9592e7f376e5894e013d97959bbe7bf76a9"
   }
 }

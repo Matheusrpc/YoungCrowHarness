@@ -242,7 +242,7 @@ package. Existing limits, separate acceptance criteria and current blockers rema
 | ID | Entrega | Dependência | Critério de aceite | Estado |
 |---|---|---|---|---|
 | YC-010 | Retomar o piloto público em sessão nova do Claude | Login válido e tentativa delimitada | Encontrar índices, UUIDs, revisão e produção observada sem receber o histórico inteiro; registrar resultado real | [Verificado no piloto](relatorios/2026-10-09-p06-offline-review.md): sessão Haiku real e reavaliação offline dos eventos/arquivos originais, com correção do verificador e revisão semântica. Recibo original de falha preservado; zero novas chamadas. Leitura manual de skills não encerra YC-011 |
-| YC-011 | Provar as quatro novas skills nos clientes nativos | Instalação atual e sessão autorizada em cada cliente | Descobrir e aplicar `yc-personalizer`, `yc-config`, `yc-missao` e `yc-status`; preservar dados e distinguir preparo de execução | Pendente; integra a prova de YC-203 |
+| YC-011 | Provar as quatro novas skills nos clientes nativos | Instalação atual e sessão autorizada em cada cliente | Descobrir e aplicar `yc-personalizer`, `yc-config`, `yc-missao` e `yc-status`; preservar dados e distinguir preparo de execução | Parcial: [descoberta das quatro skills verificada no Codex/Linux](relatorios/2026-10-09-client-skill-discovery.md), sem prompt. Smoke por cliente com recibo entregue. Descoberta Claude e aplicação nativa em ambos continuam pendentes; aplicação integra a prova de YC-203 |
 
 ## Frente 2: execução e continuidade
 

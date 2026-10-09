@@ -276,13 +276,30 @@ Execute uma instalação por destino de cada vez. O preflight recusa links em ca
 
 **Trocar de cliente:** finalize ou registre o estado da frente, encerre o escritor atual e abra o outro cliente no mesmo projeto. Peça que leia `AGENTS.md`, `CLAUDE.md` e o relato atual. Não opere dois escritores no mesmo checkout.
 
-O teste opcional `tests/smoke_clients.py` usa os clientes reais com configuração temporária: valida descoberta de skills/hooks/configuração no Codex e leitura de MCP pendente de aprovação no Claude. Não executa uma conversa de modelo, plugins reais ou chamadas MCP. Rode com Python 3.11+ e os caminhos dos executáveis:
+O teste opcional `tests/smoke_clients.py` usa os clientes reais com configuração temporária: valida descoberta de skills/hooks/configuração no Codex e leitura de MCP pendente de aprovação no Claude. O modo completo inclui uma requisição Codex à fixture de modelo em loopback, sem fornecedor pago, plugins reais ou chamadas MCP. Rode com Python 3.11+ e os caminhos dos executáveis:
 
 ```bash
 python3 tests/smoke_clients.py --codex /caminho/codex --claude /caminho/claude
 ```
 
 No Windows, use os `.exe` reais, não os wrappers `.ps1`/`.cmd` do npm. O teste termina seus processos e mantém sua configuração pessoal fora da fixture.
+
+
+Para conferir só a descoberta das quatro skills de missão em um cliente, sem enviar
+prompt, use um caminho novo para o recibo. A pasta de destino deve existir:
+
+```bash
+python3 -B tests/smoke_clients.py --discovery-only --codex /caminho/codex --report .runtime/descoberta-codex.json
+```
+
+Para Claude, troque `--codex` por `--claude` e indique o executável nativo. Também
+é possível fornecer ambos; a sequência para na primeira falha. O cliente omitido
+fica `not_run`. Um recibo existente é preservado e impede repetir esse comando
+sobre o mesmo arquivo. O resultado registra versão, plataforma, hash do binário,
+nomes encontrados e hashes das quatro skills e suas entradas instaladas.
+`passed` comprova descoberta, não aplicação em uma missão. O teste usa um consumidor
+e perfil temporários, sem copiar seu login. O [Codex passou nesta cloud](relatorios/2026-10-09-client-skill-discovery.md);
+Claude ainda precisa de observação nativa. YC-011 continua parcial.
 
 <a id="operar-pt"></a>
 
@@ -952,7 +969,24 @@ Claude marketplace plugins are installed when `claude` is available, unless `--n
 
 When switching clients, save the workstream state, end the current writer, then ask the next client to read `AGENTS.md`, `CLAUDE.md` and the current report. Use one writer per checkout.
 
-Optional real-client check (Python 3.11+): `python3 tests/smoke_clients.py --codex /path/to/codex --claude /path/to/claude`. On Windows use actual `.exe` files. It checks Codex skill/hook/config discovery and Claude MCP configuration pending approval, in temporary configuration. It makes no model calls or MCP connections, does not run real plugins, and terminates its processes.
+Optional real-client check (Python 3.11+): `python3 tests/smoke_clients.py --codex /path/to/codex --claude /path/to/claude`. On Windows use actual `.exe` files. It checks Codex skill/hook/config discovery and Claude MCP configuration pending approval, in temporary configuration. Its full mode includes one Codex request to a loopback model fixture, with no paid provider, real plugin execution or MCP connection; it terminates its direct processes.
+
+
+To check only the four mission skills in one client without sending a prompt, use
+a new receipt path whose parent directory already exists:
+
+```bash
+python3 -B tests/smoke_clients.py --discovery-only --codex /path/to/codex --report .runtime/codex-discovery.json
+```
+
+For Claude, replace `--codex` with `--claude` and supply the native executable.
+Both may be supplied; the sequence stops at the first failure. An omitted client
+is `not_run`. Existing receipts are preserved and cannot be overwritten. The receipt
+records version, platform, executable hash, discovered names and hashes of the four
+skills and their installed entries. `passed` proves discovery, not application in
+a mission. The disposable consumer/profile does not copy personal login data.
+[Codex passed in this cloud](relatorios/2026-10-09-client-skill-discovery.md);
+native Claude observation is still pending. YC-011 remains partial.
 
 <a id="operate-en"></a>
 

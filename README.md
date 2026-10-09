@@ -1267,7 +1267,10 @@ Os testes cobrem instalação, preservação, caminhos, índices e retomada. Cas
 o teste de junction nativa é exclusivo de Windows. A suíte usa Git local, usuário temporário e chamadas
 de plugins simuladas. Execute um setup por destino de cada vez.
 O teste opcional [smoke_clients.py](tests/smoke_clients.py) confere skills e agente nos clientes reais.
-O Codex envia uma requisição a um modelo fictício em loopback; o Claude carrega metadados pelo SDK.
+Com `--discovery-only`, pode consultar um cliente por vez e salvar recibo sem prompt.
+As quatro skills de missão foram [descobertas pelo Codex nesta cloud](docs/relatorios/2026-10-09-client-skill-discovery.md);
+a descoberta Claude e a aplicação nativa continuam pendentes em YC-011.
+No modo completo, o Codex envia uma requisição a um modelo fictício em loopback; o Claude carrega metadados pelo SDK.
 Não há chamada de modelo pago, execução de plugins reais ou conexão MCP. Confira o
 [guia dos clientes](docs/USAGE.md#clientes-pt) para confiança e ativação.
 
@@ -1275,6 +1278,9 @@ Tests cover installation, preservation, paths, indices and resumption. Symlink c
 the native junction test runs on Windows. The optional smoke check uses real client loaders, a
 loopback model fixture for Codex and SDK metadata initialization for Claude. It makes no paid model
 calls or MCP connections and does not prove third-party plugin execution.
+`--discovery-only` checks one client at a time and saves a receipt without a prompt.
+The four mission skills were [discovered by Codex in this cloud](docs/relatorios/2026-10-09-client-skill-discovery.md);
+Claude discovery and native application remain pending under YC-011.
 
 <p align="center">
   <img src="assets/assinatura.svg" alt="☧ Ora et labora ☧ et coda &lt;/&gt;" width="100%">

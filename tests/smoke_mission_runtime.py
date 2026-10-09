@@ -94,6 +94,13 @@ def runtime_smoke(root, client):
         manifest.update(operation_id=str(uuid.uuid4()), agent_seconds=5)
         timeout = check_client('child', expected=1)
         check(timeout['state'] == 'uncertain' and timeout['reason'] == 'timeout', 'timeout_not_enforced')
+        before_status = {p.relative_to(project).as_posix(): p.read_bytes()
+                         for p in (project / 'vault').rglob('*') if p.is_file()}
+        blocked = json.loads(run([sys.executable, '-B', 'scripts/missions.py', '--json', 'status', mission_id], env=env, cwd=project))
+        check(blocked['next_action'] == 'review_reconciliation' and not blocked['check_available'], 'status_missed_reconciliation')
+        check(blocked['blocking_runs'][0]['run_id'] == timeout['id'], 'status_changed_run_identity')
+        check(before_status == {p.relative_to(project).as_posix(): p.read_bytes()
+                                for p in (project / 'vault').rglob('*') if p.is_file()}, 'status_wrote_project')
         reconcile(timeout)
         manifest.update(operation_id=str(uuid.uuid4()), agent_seconds=60)
         invoke('coordinator-crash', expected=9)

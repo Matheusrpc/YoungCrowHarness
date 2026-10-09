@@ -17,6 +17,55 @@ import missions
 
 
 class RunTests(RuntimeCase):
+    def test_status_identifies_unresolved_runs_without_observing_or_changing_them(self):
+        manifest = self.make_manifest()
+        run = self.runs.reserve_check(self.root, manifest, self.observe())
+        for event, action in ((None, 'inspect_client_run'),
+                              (dict(kind='started', owner=dict(kind='linux-group', name='fixture', pid=123)), 'inspect_client_run'),
+                              (dict(kind='uncertain'), 'review_reconciliation')):
+            if event:
+                run = self.runs.transition_run(self.root, run['id'], event, run['revision'], str(uuid.uuid4()))
+            before = self.snapshot()
+            with patch.object(self.runs.processes, 'owner_gone', side_effect=AssertionError('status probed owner')), \
+                 patch.object(mission_clients, 'inspect_client', side_effect=AssertionError('status probed client')):
+                status = missions.mission_status(self.root, manifest['mission_id'])
+            self.assertEqual(status['next_action'], action)
+            self.assertFalse(status['check_available'])
+            self.assertEqual(status['blocking_runs'], [dict(run_id=run['id'], mission_id=run['mission_id'],
+                operation_id=run['operation_id'], revision=run['revision'], state=run['state'], next_action=action)])
+            self.assertEqual(status['client_runs'], [run])
+            self.assertFalse(status['runnable'])
+            self.assertEqual(self.snapshot(), before)
+        self.runs.transition_run(self.root, run['id'], dict(kind='finished', state='interrupted', reason='cancelled'),
+                                 run['revision'], str(uuid.uuid4()))
+        before = self.snapshot()
+        status = missions.mission_status(self.root, manifest['mission_id'])
+        self.assertEqual(status['blocking_runs'], [])
+        self.assertTrue(status['check_available'])
+        self.assertEqual(status['next_action'], 'runtime_not_available')
+        self.assertEqual(self.snapshot(), before)
+
+    def test_status_reports_another_missions_blocking_run_through_cli(self):
+        manifest = self.make_manifest()
+        saved = mission_store.get_record(self.root, manifest['mission_id'])['snapshot']
+        request = {key: saved[key] for key in ('title', 'feature_ids', 'priority', 'overrides', 'scope_reference')}
+        second = missions.prepare_mission(self.root, dict(request, title='Second'), str(uuid.uuid4()),
+                                          dict(id='fixture', role='pm'))
+        run = self.runs.reserve_check(self.root, manifest, self.observe())
+        before = self.snapshot()
+        result = subprocess.run([sys.executable, '-B', str(Path(missions.__file__).resolve()),
+                                 '--root', str(self.root), '--json', 'status', second['code']],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        status = json.loads(result.stdout)
+        self.assertEqual(status['next_action'], 'inspect_client_run')
+        self.assertFalse(status['check_available'])
+        self.assertEqual(status['client_runs'], [])
+        self.assertEqual(status['blocking_runs'][0]['mission_id'], manifest['mission_id'])
+        self.assertEqual(status['blocking_runs'][0]['run_id'], run['id'])
+        self.assertEqual(self.runs.list_runs(self.root, second['code']), [])
+        self.assertEqual(self.snapshot(), before)
+
     def test_mission_projection_recovery_preserves_consumed_run_reservation(self):
         import mission_vault
         manifest = self.make_manifest()

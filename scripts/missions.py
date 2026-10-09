@@ -258,13 +258,27 @@ def mission_status(root, mission_id):
         except (OSError, ValueError):
             state = 'conflict'
     # Keep the independent final read after checking input and projection files.
-    runs = runtime_helpers()[1].list_runs(root, existing['id'])
+    run_store = runtime_helpers()[1]
+    observed_runs = run_store.list_runs(root, existing['id'], include_unresolved=True)
+    runs = [run for run in observed_runs if run['mission_id'] == existing['id']]
+    blocking_runs = []
+    for run in observed_runs:
+        if run['state'] in run_store.UNRESOLVED:
+            action = ('review_integrated_recovery' if 'execution_plan_sha256' in run else
+                      'review_reconciliation' if run['state'] == 'uncertain' else 'inspect_client_run')
+            blocking_runs.append(dict(run_id=run['id'], mission_id=run['mission_id'],
+                operation_id=run['operation_id'], revision=run['revision'], state=run['state'], next_action=action))
+    next_action = (blocking_runs[0]['next_action'] if blocking_runs else
+                   'review_projection_conflict' if state == 'conflict' else
+                   'repair_projection' if state == 'pending' else
+                   'revise_inputs' if stale else 'complete_gaps' if snapshot['gaps'] else 'runtime_not_available')
     return dict(schema_version=1, id=existing['id'], code=existing['code'], revision=existing['revision'],
                 state=snapshot['state'], snapshot=snapshot, gaps=snapshot['gaps'], stale_inputs=sorted(stale),
                 events=[{k: v for k, v in e.items() if k not in ('record', 'request_hash')} for e in history],
                 projection_state=state, compatibility={role: 'not_verified' for role in snapshot['config']['agents']},
-                runtime_available=False, runnable=False, check_available=True, client_runs=runs,
-                next_action='revise_inputs' if stale else 'complete_gaps' if snapshot['gaps'] else 'runtime_not_available')
+                runtime_available=False, runnable=False,
+                check_available=not (blocking_runs or state != 'current' or stale or snapshot['gaps']),
+                client_runs=runs, blocking_runs=blocking_runs, next_action=next_action)
 
 
 def runtime_helpers():

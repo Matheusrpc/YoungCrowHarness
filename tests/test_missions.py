@@ -245,6 +245,27 @@ class MissionTests(MissionCase):
             self.m.mission_status(self.root, 'M001')
         self.assertEqual(self.snapshot(), before)
 
+    def test_status_prioritizes_projection_repair_over_stale_inputs(self):
+        request, actor = self.prepared_fixture()
+        receipt = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        path = self.root / receipt['paths'][0]
+        original = path.read_bytes()
+        with (self.root / self.paths[-1]).open('a') as source:
+            source.write('\nUpdated human source.\n')
+        for content, action in ((None, 'repair_projection'), (b'Human edits to preserve\n', 'review_projection_conflict')):
+            if content is None:
+                path.unlink()
+            else:
+                path.write_bytes(content)
+            before = self.snapshot()
+            status = self.m.mission_status(self.root, receipt['code'])
+            self.assertEqual(status['next_action'], action)
+            self.assertFalse(status['check_available'])
+            self.assertTrue(status['stale_inputs'])
+            self.assertEqual(self.snapshot(), before)
+        path.write_bytes(original)
+        self.assertEqual(self.m.mission_status(self.root, receipt['code'])['next_action'], 'revise_inputs')
+
     def test_status_uses_at_most_nine_git_processes_per_call_without_writes(self):
         request, actor = self.prepared_fixture()
         receipt = self.m.prepare_mission(self.root, request, self.op_id, actor)

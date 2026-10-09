@@ -52,6 +52,12 @@ identificou uma alternativa com proxy fixo entre missões. Ela pode reduzir escr
 mas ainda depende de proteção do endpoint e recuperação das credenciais; não foi
 implementada. O contrato atual e os bloqueios permanecem. Abrir uma issue no Docker é opcional.
 
+A consulta ao Docker está em espera por decisão do mantenedor. A entrega independente
+melhora `yc-status`: mostra o recibo que bloqueia novos diagnósticos, inclusive de outra
+missão do projeto, e indica revisão de recuperação ou reparo de notas antes de refinar
+entradas. A consulta permanece somente leitura. [Uso e limites](docs/USAGE.md#mission-workflow).
+[Verificação da entrega](docs/relatorios/2026-10-08-mission-status-guidance.md).
+
 **Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
 chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 O pacote público passou em 516 testes, com 20 pulados; naquela rodada, o CI não pôde ser consultado.
@@ -622,6 +628,12 @@ The [configuration lifecycle review](docs/relatorios/2026-10-08-executor-lifecyc
 identified a fixed proxy between missions as a way to reduce writes. Endpoint ownership
 and credential recovery remain unresolved; the alternative is not implemented.
 The current contract and gates remain. Filing a Docker issue is optional.
+
+The Docker inquiry is on hold at the maintainer's request. The independent delivery
+improves `yc-status`: it identifies receipts blocking new diagnostics, including other
+missions in the project, and directs recovery review or note repair before input
+refinement. Status remains read-only. [Usage and limits](docs/USAGE.md#mission-workflow).
+[Delivery verification](docs/relatorios/2026-10-08-mission-status-guidance.md#english-overview).
 
 **Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
 are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).

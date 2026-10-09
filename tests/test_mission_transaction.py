@@ -376,6 +376,19 @@ class MissionBindingTests(RuntimeCase):
         with self.assertRaisesRegex(ValueError, 'integrated_recovery_required'):
             mission_runs.reconcile_check(self.root, first['run']['id'], evidence, first['run']['revision'], str(uuid.uuid4()))
 
+    def test_status_directs_integrated_receipt_to_its_recovery(self):
+        import missions
+        tx, plan = self.make_plan()
+        first = tx.admit(self.root, self.registry, plan)
+        before = self.snapshot()
+        status = missions.mission_status(self.root, plan['manifest']['mission_id'])
+        self.assertEqual(status['next_action'], 'review_integrated_recovery')
+        self.assertFalse(status['check_available'])
+        self.assertEqual(status['blocking_runs'][0]['operation_id'], plan['manifest']['operation_id'])
+        self.assertEqual(status['blocking_runs'][0]['run_id'], first['run']['id'])
+        self.assertFalse(status['runnable'])
+        self.assertEqual(self.snapshot(), before)
+
     def test_verified_global_recovery_closes_mission_receipt_once_without_refunding_limits(self):
         tx, plan = self.make_plan()
         self.assertTrue(callable(getattr(tx, 'reconcile', None)), 'mission recovery binding missing')

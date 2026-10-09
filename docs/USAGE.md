@@ -1636,6 +1636,26 @@ datas de desenvolvimento, QA ou produção.
 
 Uma falha de projeção mantém o evento confirmado no banco. Repita a mesma operação ou use
 `repair`; conflito com edição humana exige conciliar essa nota, sem apagar seu conteúdo.
+
+`next_action` prioriza recibos abertos no repositório, depois conflitos/projeções pendentes,
+fontes alteradas e lacunas de planejamento. `blocking_runs` identifica os recibos que impedem
+um novo diagnóstico, inclusive de outra missão, com UUID da missão, execução e operação,
+revisão e estado. `client_runs` continua limitado à missão consultada.
+
+| Próxima ação | O que fazer em uma operação separada e autorizada |
+|---|---|
+| `inspect_client_run` | Conferir o recibo reservado/em execução; status não verifica se o processo continua vivo |
+| `review_reconciliation` | Revisar a evidência de encerramento e efeito externo antes de `client reconcile` |
+| `review_integrated_recovery` | Revisar a recuperação do plano integrado; `client reconcile` não serve para esse recibo e o adaptador nativo continua bloqueado |
+| `review_projection_conflict` | Preservar a edição humana e decidir como conciliar a nota |
+| `repair_projection` | Pedir reparo explícito da projeção pendente |
+| `revise_inputs` / `complete_gaps` | Atualizar as fontes ou completar o planejamento e preparar outra revisão |
+| `runtime_not_available` | Aguardar o aceite do executor; planejamento completo não habilita execução |
+
+`check_available=false` sinaliza um desses impedimentos conhecidos. `true` não é autorização
+nem confirmação de orçamento, autenticação ou compatibilidade: o manifesto e o preflight
+continuam obrigatórios. A consulta não executa nenhuma das ações sugeridas.
+
 Se a nota de missão ou item foi gravada antes da interrupção e houve outra revisão,
 o reparo reconhece os bytes exatos da escrita não confirmada pelo histórico durável.
 Ele mantém a revisão mais recente, sem criar eventos ou repetir execuções. Alterações
@@ -1666,6 +1686,21 @@ and reports changed inputs. Import edits, then use `revise` with the current rev
 UUID. Global defaults never rewrite a mission; revision inherits frozen choices plus explicit overrides.
 Event times record import/refinement, without inventing development, QA or production dates.
 Retry or `repair` recovers a failed projection. Human edits are preserved and reported as conflicts.
+
+`next_action` prioritizes unresolved repository runs, projection conflicts/pending writes,
+changed sources and planning gaps. `blocking_runs` identifies unresolved receipts from any
+mission in this repository by mission/run/operation UUID, revision, state and next action;
+`client_runs` remains limited to the requested mission. `inspect_client_run` asks for inspection
+of a reserved/running receipt without probing process liveness. `review_reconciliation` requires
+reviewing termination and external-effect evidence before a separate `client reconcile`.
+`review_integrated_recovery` directs review to the integrated plan; legacy reconciliation cannot
+close it and native recovery remains gated. Projection actions are `review_projection_conflict`
+(preserve human edits) and `repair_projection` (explicit repair). `revise_inputs`, `complete_gaps`
+and `runtime_not_available` retain their planning meanings.
+`check_available=false` indicates a known blocker; `true` does not authorize a call or validate
+budget, authentication or compatibility. Manifest/preflight checks remain mandatory. Status
+performs none of the suggested actions.
+
 If a mission or item note was written before interruption and another revision followed,
 repair recognizes the exact unconfirmed bytes from durable history. It keeps the latest
 revision without adding events or repeating execution. Human edits and manual restoration

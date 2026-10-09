@@ -41,12 +41,14 @@ def has_runs(conn):
     return conn is not None and conn.execute('SELECT schema_version FROM metadata').fetchone()[0] == 2
 
 
-def list_runs(root: Path, mission_id: str) -> list[dict]:
+def list_runs(root: Path, mission_id: str, *, include_unresolved=False) -> list[dict]:
     with store.reader(root) as conn:
         if not has_runs(conn):
             return []
         row = conn.execute('SELECT id FROM records WHERE kind=? AND (id=? OR code=?)', ('mission', mission_id, mission_id)).fetchone()
-        return [json.loads(r[0]) for r in conn.execute('SELECT snapshot FROM agent_runs WHERE mission_id=? ORDER BY rowid', (row[0],))] if row else []
+        return [json.loads(r[0]) for r in conn.execute(
+            'SELECT snapshot FROM agent_runs WHERE mission_id=? OR (? AND state IN (?,?,?)) ORDER BY rowid',
+            (row[0], include_unresolved, *UNRESOLVED))] if row else []
 
 
 def find_run(conn, run_id):

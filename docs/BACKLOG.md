@@ -7,6 +7,16 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
+**Consulta ao Docker em espera por decisão do mantenedor.** Não retentar a publicação
+da issue nem consumir outro ciclo nativo enquanto essa frente estiver pausada.
+A entrega independente corrige a orientação de `yc-status`, na preparação
+já existente: recibos abertos em qualquer missão do projeto, recuperação integrada e
+projeções pendentes/conflitantes passam a orientar a próxima ação. Não habilita 2B.
+[Entrega e verificação](relatorios/2026-10-08-mission-status-guidance.md).
+**Docker inquiry on hold at the maintainer's request.** No issue-publication retry or
+new native cycle while paused. Independent work fixes `yc-status` guidance for unresolved
+repository runs, integrated recovery and pending/conflicting projections; it does not enable 2B.
+
 Revisão de arquitetura em 8/out: proxy fixo entre missões pode reduzir escritas, mas
 ainda exige proteção do endpoint e recuperação verificável de credenciais. A instalação
 exclusiva já estava aprovada; não iniciar uma reescrita apenas para evitar a consulta

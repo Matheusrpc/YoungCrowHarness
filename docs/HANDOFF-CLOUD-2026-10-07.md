@@ -28,6 +28,13 @@ A instalação exclusiva já estava aprovada. Não reimplementar esse fluxo ante
 essas condições; a alternativa não está implementada nem aprovada como substituta.
 Abrir uma issue no fornecedor é opcional. O contrato e os bloqueios atuais permanecem.
 
+**Decisão posterior: consulta ao Docker em espera.** A tentativa de abrir a issue foi
+recusada pela API (`Forbidden`); a liberação de rede foi salva como rascunho, sem
+aplicação confirmada. O mantenedor pediu suspender essa frente e avançar outra entrega.
+Não retentar a issue, pesquisar novamente o contrato ou executar novo ciclo nativo.
+A entrega independente corrige `yc-status`, usando recibos e projeções existentes
+para indicar o impedimento real e a próxima ação. A fila 2B permanece indisponível.
+
 ### Recuperação dos fontes de B em 8/out
 
 Os quatro fontes/testes de captura e integração e os dois recibos B chegaram por

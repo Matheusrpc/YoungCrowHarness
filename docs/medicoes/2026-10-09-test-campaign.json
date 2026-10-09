@@ -2,7 +2,7 @@
   "front": "Controlled acceptance test campaign",
   "observed_at": "2026-10-09T09:38:48.409408+00:00",
   "base_commit": "f548042578d4d1ae34d372c1e557b8b4805b847e",
-  "state": "plan_prepared_not_executed",
+  "state": "block_A_approved_pending_pc_prerequisites",
   "plan": "docs/TEST-RUN-2026-10-10.md",
   "plan_sha256": "7aba6eccc5992e41a4d0b3d1ccceef3d58efc95e3c8f6561cb71626d207a80c5",
   "local_markdown_paths_checked": 360,
@@ -15,5 +15,49 @@
   "correction_cycles_used": 2,
   "correction_cycle_limit": 3,
   "p06_supervisor_verified_here": false,
-  "docker_package_executable": false
+  "docker_package_executable": false,
+  "approval": {
+    "observed_at": "2026-10-09T09:51:40.072406+00:00",
+    "source": "Maintainer replied aprovado in the conversation",
+    "approved_revision": "48b16645727ebe9c5a2e3e83bbc32850d65ffe79",
+    "approved_plan_sha256": "7aba6eccc5992e41a4d0b3d1ccceef3d58efc95e3c8f6561cb71626d207a80c5",
+    "scope": [
+      "block_A_with_existing_limits",
+      "batch_approval_policy"
+    ],
+    "claude_sessions": 1,
+    "agent_seconds": 300,
+    "tool_calls": 24,
+    "additional_api_allowed": false,
+    "scheduled_local": "2026-10-10T18:30:00-03:00",
+    "timezone": "America/Sao_Paulo",
+    "scheduler_created": false,
+    "native_calls": 0,
+    "block_B_executable": false,
+    "documentation_check": {
+      "local_markdown_paths_checked": 26,
+      "missing_paths": []
+    }
+  },
+  "preparation_checks": {
+    "harness_vault": {
+      "notes_checked": 44,
+      "issues": []
+    },
+    "pilot_vault": {
+      "notes_checked": 21,
+      "issues": []
+    },
+    "claude_in_cloud": false,
+    "historical_p06_runner_in_cloud": false,
+    "native_discovery_executed": false,
+    "code_unchanged_since_ci_commit": "a0af931b8200c3b1c9416e0eba395ed3a5791016",
+    "public_corpus": {
+      "files_checked": 23,
+      "instruction_files_checked": 3,
+      "matches_commit": "48b16645727ebe9c5a2e3e83bbc32850d65ffe79",
+      "private_vault_present": false
+    }
+  },
+  "plan_sha256_commit": "48b16645727ebe9c5a2e3e83bbc32850d65ffe79"
 }

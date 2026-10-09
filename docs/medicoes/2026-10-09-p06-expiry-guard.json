@@ -83,7 +83,7 @@
     "provider_inference_acceptance_confirmed": false
   },
   "oauth_refresh_fixed": false,
-  "native_retry_authorized": true,
+  "native_retry_authorized": false,
   "source_sha256": {
     "tests/pilot_claude.py": "ea17f27a474fa77a47bb5c61d3b819f99255acf66025662541b1576f23284c99",
     "tests/test_pilot_claude.py": "d97b7230e6a07731f1902ed07aa62d240147638dbb83fbec7fac7ddec52285ca"
@@ -124,7 +124,7 @@
     }
   },
   "authorization": {
-    "state": "approved_pending_operator_execution",
+    "state": "attempt_consumed_navigation_rejected",
     "operation_id": "164e5438-0cac-4089-845c-f1e3cc60db04",
     "setup_sha256": "45ec8706433bbe3866c17d79d963df7e3617eaaf224ca15f4c27a24e87ea8ac4",
     "git_revision": "47a81504deeafe59920036d3cf39a422a7317f81",
@@ -145,7 +145,90 @@
       "extra_api": false,
       "automatic_retry": false
     },
-    "execution_observed": false,
-    "prior_attempts_remain_consumed": true
+    "execution_observed": true,
+    "prior_attempts_remain_consumed": true,
+    "approved_session_consumed": true,
+    "retry_authorized": false
+  },
+  "native_execution": {
+    "evidence_kind": "operator_reported_receipt_selected_events_and_response",
+    "source_sha256": "0628d1e933da8437da02907f822fff1287a003cb62f39fe50a9b25522d4359c0",
+    "source_bytes": 8158,
+    "receipt": {
+      "batch_id": "YC-TEST-20261010-A",
+      "operation_id": "164e5438-0cac-4089-845c-f1e3cc60db04",
+      "state": "failed",
+      "native_prompt_count": 1,
+      "temporary_credential_removed": true,
+      "original_auth_unchanged": true,
+      "error": "missing_memory_navigation",
+      "supervision": {
+        "reason": "completed",
+        "exit_code": 0,
+        "tree_reaped": true,
+        "effect_started": true,
+        "elapsed_seconds": 39.351451,
+        "started_at": "2026-10-09T22:26:46.478812+00:00",
+        "ended_at": "2026-10-09T22:27:25.830582+00:00"
+      }
+    },
+    "observed_models": [
+      "claude-haiku-5-5"
+    ],
+    "provider_inference_acceptance_confirmed": true,
+    "terminal_subtype": "success",
+    "terminal_is_error": false,
+    "usage_reported": {
+      "input_tokens": 14,
+      "cache_creation_input_tokens": 29691,
+      "cache_read_input_tokens": 99660,
+      "output_tokens": 6939,
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 29691,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [],
+      "speed": "standard"
+    },
+    "completed_read_paths": [
+      ".claude/skills/retrieve-memory/SKILL.md",
+      ".claude/skills/karpathy/SKILL.md",
+      ".claude/skills/ponytail/SKILL.md",
+      "vault/index.md",
+      "vault/features/delivery-board/index.md",
+      "vault/decisions/static-site.md",
+      "vault/features/delivery-board/delivery.md",
+      "vault/features/delivery-board/runs/implementation.md",
+      "vault/features/delivery-board/runs/native-memory.md",
+      "vault/product/profile.md",
+      "vault/operations/index.md",
+      "vault/capabilities/index.md"
+    ],
+    "static_review": {
+      "evidence_note_ids_matching": 6,
+      "project_id_matches": true,
+      "reported_hashes_matching_crlf_git_content": 6,
+      "historical_production_distinguished": true
+    },
+    "verification_gaps": [
+      "skill mirror paths are not recognized by the verifier",
+      "project.json was not read fully; Grep and hash claimed in response, raw events pending",
+      "terminal JSON is inside a Markdown code fence"
+    ],
+    "local_reproduction": {
+      "baseline": "evidence_verified_pending_semantic_review",
+      "same_bytes_at_skill_mirror": "missing_memory_navigation",
+      "same_json_inside_fence": "JSONDecodeError",
+      "model_calls": 0
+    },
+    "full_event_and_context_review": "pending",
+    "native_acceptance": "pending",
+    "new_session_authorized": false
   }
 }

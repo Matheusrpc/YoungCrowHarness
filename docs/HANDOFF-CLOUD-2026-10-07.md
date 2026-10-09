@@ -58,7 +58,11 @@ revisão `47a8150`. Após novo login, o preparo Haiku passou em 4,968794 s com z
 prompts e limpeza confirmada. Operação `164e5438-0cac-4089-845c-f1e3cc60db04`, hash
 `45ec8706433bbe3866c17d79d963df7e3617eaaf224ca15f4c27a24e87ea8ac4`.
 O mantenedor aprovou essa operação: uma sessão/um prompt/300 s/24 ferramentas.
-Execução pendente; usar o comando do guia P06 no pacote preparado.
+Execução realizada: um prompt, 39,351451 s, exit 0, limpeza confirmada e resposta
+Haiku. O verificador recusou `missing_memory_navigation`: skills lidas por
+`.claude/skills/`, `project.json` consultado por Grep segundo a resposta e JSON
+final com cerca Markdown. Seis UUIDs e hashes CRLF conferem com as notas. Recolher
+contexto e eventos para análise offline; não repetir run. A reserva está consumida.
 Pacotes antigos preservados; renovação OAuth e aceite de memória não comprovados.
 CI push `37996841986` falhou antes de P06 no teste de encerramento abrupto do guard;
 PR `37996847736` terminou com os quatro jobs aprovados, incluindo P06 Windows.

@@ -54,14 +54,21 @@ O recibo registra `prepared_no_model_prompt`, zero prompts e conclusão em 4,968
 - Escopo aprovado: uma sessão, um prompt, até 300 s e 24 ferramentas, esforço
   `medium`, `claude-haiku-5-5`, assinatura existente, sem API adicional ou repetição automática.
 
-Estado: aprovado para uma tentativa, execução pendente. O mantenedor respondeu
-«aprovado pr» ao pedido específico desta operação em 9/out. Essa autorização cobre
-a sessão Haiku descrita acima; as tentativas anteriores permanecem consumidas.
-Manter a revisão fixada e todos os recibos anteriores.
+A sessão aprovada foi executada: um prompt, 39,351451 s, Haiku explícito,
+saída 0 e limpeza confirmada. Claude respondeu, mas o verificador recusou
+`missing_memory_navigation`. Esta autorização está consumida.
+
+As skills foram lidas por `.claude/skills/`, enquanto o verificador exige os
+caminhos `skills/`. A resposta informa consulta de `project.json` por Grep e hash,
+sem leitura completa; os eventos dessa busca ainda precisam ser conferidos. O JSON
+final veio dentro de uma cerca Markdown, que o parser atual também rejeita.
+Os seis UUIDs e hashes da resposta conferem com as notas em CRLF. A leitura do
+contexto e dos eventos completos está pendente. Preservar o pacote e os recibos;
+não mudar regras ou declarar aceite com base apenas na resposta selecionada.
 O runner volta a verificar validade do login antes da reserva; o preparo não prova
 que o fornecedor aceitará a inferência. [Evidência](relatorios/2026-10-09-p06-expiry-guard.md#confirmação-no-windows).
 
-Para executar a operação aprovada no Windows, conferir o hash e chamar `run`:
+O bloco abaixo registra a tentativa já executada. Não repetir:
 
 ```powershell
 & {
@@ -374,5 +381,7 @@ prepare a separate corrected revision before reviewing any new inference.
 The corrected `47a8150` revision passed all 17 tests on the operator's Windows PC.
 Following interactive login, preparation completed in 4.968794 seconds with zero
 prompts and confirmed cleanup. Operation `164e5438-0cac-4089-845c-f1e3cc60db04`
-was approved for one bounded Haiku session under the existing subscription.
-Execution and native retrieval acceptance remain pending.
+was executed under the existing subscription: one prompt, a Haiku response in
+39.351451 seconds and confirmed cleanup. The verifier rejected navigation. Skill
+mirror paths, partial project identity retrieval and fenced JSON require review
+against the full events and context. The attempt is consumed; acceptance is pending.

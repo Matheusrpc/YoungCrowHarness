@@ -66,7 +66,9 @@ a projeção da nota está pendente e não altera arquivos.
 
 O [refinamento da fila YC-204](docs/superpowers/specs/2026-10-09-queue-eligibility-refinement.md)
 detalha decisões de prioridade, espera e capacidade. É um rascunho para revisão;
-a implementação continua dependente do aceite do executor.
+propõe concluir etapas elegíveis do trabalho iniciado antes de admitir novos PBIs,
+com ordem de entrada compartilhada por todos os papéis. A implementação continua
+dependente do aceite do executor.
 
 **Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
 chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
@@ -653,7 +655,8 @@ note projections and leaves files unchanged.
 
 The [YC-204 queue refinement](docs/superpowers/specs/2026-10-09-queue-eligibility-refinement.md#english-overview)
 details priority, waiting and capacity decisions. It is a review draft; implementation
-still depends on executor acceptance.
+still depends on executor acceptance. It proposes serving eligible ongoing stages
+before new PBIs, with the same readiness order for every role.
 
 **Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
 are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).

@@ -8,6 +8,14 @@ vagas de execução e capacidade comprovada do executor. Também registra o trab
 ainda necessário para recuperar uma intenção entre SQLite e a reserva compartilhada.
 PM, Tech Lead, Dev e QA mantêm suas responsabilidades na especificação geral.
 
+O complemento detalha uma proposta de ordem entre etapas e papéis: primeiro trabalho
+iniciado e decisões necessárias dos líderes, pela sequência em que ficaram prontos;
+depois novos PBIs pela prioridade persistida. Trabalho ativo impedido não retém
+capacidade livre quando outro PBI pode avançar. Repetir um evento conserva a candidatura;
+uma etapa nova recebe sequência própria. Retomada de bloqueio exige vaga de PBI novamente.
+Seis casos exemplificam critérios futuros, sem alegar testes executados. A preferência
+por trabalho iniciado ainda está em revisão, sem aprovação registrada nesta entrega.
+
 O documento está em revisão e não é um plano autorizado de implementação. YC-203
 continua pré-condição; a consulta Docker está em espera. Não houve alteração de código,
 esquema, permissões, perfis ou limites. README PT/EN, backlog e handoff apontam o rascunho.

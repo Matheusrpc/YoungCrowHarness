@@ -25,5 +25,28 @@
   "native_cycle_limit": 3,
   "proof_accepted": false,
   "docker_inquiry": "on_hold",
-  "ci_observed": false
+  "ci_observed": false,
+  "initial_published_commit": "f8372db760e97ee1f7d3fc865294d1c923010d7c",
+  "ordering_proposal": {
+    "observed_at": "2026-10-09T03:37:47.168019+00:00",
+    "base_commit": "f8372db760e97ee1f7d3fc865294d1c923010d7c",
+    "status": "proposal_not_approved_or_implemented",
+    "proposed_cases": 6,
+    "documents_sha256": {
+      "docs/superpowers/specs/2026-10-09-queue-eligibility-refinement.md": "21ef2b03684f00625c5e142871a5e71ca94c4cad48fa3d8660215e44f955d22f",
+      "docs/relatorios/2026-10-09-queue-refinement.md": "8e148c1a7a48e8ffe2d6edb723b7f943e26d1a0b69c50021e3391e8b55e8a62c"
+    },
+    "review": {
+      "agent": "assess_completion_scope",
+      "read_only": true,
+      "blocking_findings": 0
+    },
+    "verification": {
+      "local_link_paths_checked": 350,
+      "missing": 0,
+      "scope": "Markdown path existence outside code examples; fragments and remote URLs not checked",
+      "git_diff_check_exit_code": 0,
+      "product_tests": "not_run_documentation_only"
+    }
+  }
 }

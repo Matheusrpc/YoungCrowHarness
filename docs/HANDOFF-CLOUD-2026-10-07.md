@@ -57,10 +57,12 @@ e 20 pulados, sem falhas. O operador confirmou os 17 testes Windows em 12,776 s 
 revisão `47a8150`. Após novo login, o preparo Haiku passou em 4,968794 s com zero
 prompts e limpeza confirmada. Operação `164e5438-0cac-4089-845c-f1e3cc60db04`, hash
 `45ec8706433bbe3866c17d79d963df7e3617eaaf224ca15f4c27a24e87ea8ac4`.
-Essa nova operação aguarda aprovação para uma sessão/um prompt/300 s/24 ferramentas.
+O mantenedor aprovou essa operação: uma sessão/um prompt/300 s/24 ferramentas.
+Execução pendente; usar o comando do guia P06 no pacote preparado.
 Pacotes antigos preservados; renovação OAuth e aceite de memória não comprovados.
 CI push `37996841986` falhou antes de P06 no teste de encerramento abrupto do guard;
-PR `37996847736` ainda em andamento na consulta. Ver relatório para os limites.
+PR `37996847736` terminou com os quatro jobs aprovados, incluindo P06 Windows.
+Esse resultado não substitui a inferência real nem apaga a falha do run de push.
 
 Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor atual](#6-estado-atual-do-executor-componente-por-componente) · [testes](#7-o-que-os-testes-já-demonstraram) · [falhas](#8-falhas-históricas-causas-e-tratamento) · [próximos passos](#10-próximos-passos-de-implementação-em-ordem) · [backlog](#11-backlog-restante-até-o-produto-completo) · [transferência para cloud](#12-o-que-levar-para-a-cloud) · [evidências](#14-evidências-e-identidade-da-implementação).
 

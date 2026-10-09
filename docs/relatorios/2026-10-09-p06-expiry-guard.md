@@ -71,15 +71,17 @@ teve três jobs aprovados e falha em `adoption-windows`, na etapa de diagnóstic
 rede, seleção e limpeza, antes de P06. A anotação identifica
 `test_abrupt_controller_exit_before_config_reaps_the_waiting_guard`.
 O [run do PR](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37996847736)
-ainda estava em andamento na consulta. Não há alegação de CI integralmente verde.
+terminou com os quatro jobs aprovados, incluindo a fixture Claude no Windows
+entre 22h18min43s e 22h18min51s UTC. A falha do push permanece registrada.
 
 ## Próximo passo
 
-O pacote está preparado para revisão: uma sessão, um prompt, até 300 segundos e
-24 ferramentas, esforço `medium`, Haiku explícito, assinatura existente e nenhuma
-API adicional. A operação acima ainda não tem autorização para inferência. As duas
-tentativas anteriores consumiram suas reservas; preservar seus recibos e marcadores.
-Após aprovação, executar somente este pacote e revisar o resultado de memória.
+O mantenedor aprovou a operação acima em 9/out: uma sessão, um prompt, até 300
+segundos e 24 ferramentas, esforço `medium`, Haiku explícito, assinatura existente e
+nenhuma API adicional. A resposta «aprovado pr» se refere ao pedido dessa sessão.
+Execução ainda pendente. As duas tentativas anteriores consumiram suas reservas;
+preservar seus recibos e marcadores. Executar somente o pacote preparado e revisar
+o resultado de memória, sem repetição automática.
 
 ## English overview
 
@@ -93,8 +95,8 @@ credential; it does not fix OAuth refresh or prove provider acceptance. The full
 suite finished with 648 passed and 20 skipped tests, without failures. The operator
 subsequently reported all 17 Windows tests passing in 12.776 seconds on `47a8150`.
 After interactive login, preparation completed in 4.968794 seconds with zero
-prompts and confirmed cleanup. The new operation awaits approval for inference.
+prompts and confirmed cleanup. The new operation was approved for one inference session and awaits execution.
 The push CI failed in an earlier Windows cleanup test; its P06 step was skipped.
-The PR run was still in progress when checked.
+All four jobs of the PR run passed, including the Windows Claude fixture.
 
-ATRASO: aprovação da nova sessão e aceite Claude pendentes | CI Windows pendente.
+ATRASO: execução e aceite Claude pendentes | falha do CI push registrada.

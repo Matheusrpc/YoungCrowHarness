@@ -40,7 +40,7 @@ Os metadados confirmaram vencimento antes do teste. O runner agora
 [recusa credenciais sem validade suficiente](relatorios/2026-10-09-p06-expiry-guard.md)
 antes de criar o pacote ou reservar a tentativa. Os 17 testes passaram no Windows
 e o novo preparo Haiku concluiu com zero prompts após login renovado. A próxima
-sessão aguarda aprovação; refresh OAuth e aceite de memória continuam pendentes.
+sessão foi aprovada e aguarda execução; refresh OAuth e aceite de memória continuam pendentes.
 O README do exemplo explica como gerar e servir somente o pacote permitido, em um destino novo.
 
 [Open the demonstration](https://matheusrpc.github.io/YoungCrowHarness/) or follow the [pilot recipe](../examples/delivery-board/README.md), which brings these paths together in an example
@@ -58,7 +58,7 @@ Metadata confirmed expiry before the test. The runner now
 [rejects insufficient credential validity](relatorios/2026-10-09-p06-expiry-guard.md)
 before package creation or reservation. All 17 tests passed on Windows and the
 new Haiku preparation completed with zero prompts after a fresh login. The next
-session awaits approval; OAuth refresh and retrieval acceptance remain unverified.
+session was approved and awaits execution; OAuth refresh and retrieval acceptance remain unverified.
 The example README explains how to build and serve only the allowed package, using a new destination.
 
 Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;

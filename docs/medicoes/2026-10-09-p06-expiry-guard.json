@@ -83,7 +83,7 @@
     "provider_inference_acceptance_confirmed": false
   },
   "oauth_refresh_fixed": false,
-  "native_retry_authorized": false,
+  "native_retry_authorized": true,
   "source_sha256": {
     "tests/pilot_claude.py": "ea17f27a474fa77a47bb5c61d3b819f99255acf66025662541b1576f23284c99",
     "tests/test_pilot_claude.py": "d97b7230e6a07731f1902ed07aa62d240147638dbb83fbec7fac7ddec52285ca"
@@ -110,9 +110,42 @@
     },
     "pull_request": {
       "run_id": 37996847736,
-      "status": "in_progress",
-      "conclusion": null,
-      "p06_step": "pending"
+      "status": "completed",
+      "conclusion": "success",
+      "p06_step": "success",
+      "passed_jobs": [
+        "public-pilot",
+        "graphify-smoke",
+        "installer",
+        "adoption-windows"
+      ],
+      "p06_step_started_at": "2026-10-09T22:18:43Z",
+      "p06_step_completed_at": "2026-10-09T22:18:51Z"
     }
+  },
+  "authorization": {
+    "state": "approved_pending_operator_execution",
+    "operation_id": "164e5438-0cac-4089-845c-f1e3cc60db04",
+    "setup_sha256": "45ec8706433bbe3866c17d79d963df7e3617eaaf224ca15f4c27a24e87ea8ac4",
+    "git_revision": "47a81504deeafe59920036d3cf39a422a7317f81",
+    "approval": {
+      "source": "user_message",
+      "text": "aprovado pr",
+      "scope": "reply to approval request for operation 164e5438; one native Haiku session, no PR merge",
+      "recorded_at": "2026-10-09T22:24:44.373292+00:00"
+    },
+    "approved": {
+      "model": "claude-haiku-5-5",
+      "effort": "medium",
+      "sessions": 1,
+      "prompts": 1,
+      "seconds": 300,
+      "tool_calls": 24,
+      "authentication": "claude.ai firstParty existing subscription",
+      "extra_api": false,
+      "automatic_retry": false
+    },
+    "execution_observed": false,
+    "prior_attempts_remain_consumed": true
   }
 }

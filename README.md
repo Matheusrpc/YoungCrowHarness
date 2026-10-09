@@ -364,7 +364,7 @@ também parou por OAuth expirado, com zero tokens reportados e limpeza confirmad
 Os metadados confirmaram que o login venceu cerca de 25 segundos antes do teste.
 O runner agora [recusa validade insuficiente antes de reservar](docs/relatorios/2026-10-09-p06-expiry-guard.md).
 Os 17 testes passaram no Windows; após novo login, o preparo Haiku concluiu com
-zero prompts. A nova sessão aguarda aprovação; renovação OAuth e aceite de memória
+zero prompts. A nova sessão foi aprovada e aguarda execução; renovação OAuth e aceite de memória
 continuam sem comprovação.
 Veja as [provas e limites](docs/relatorios/2026-10-03-public-pilot.md).
 O pacote usa uma lista explícita de arquivos e um manifesto de hashes; o CI do piloto valida dados, testes e navegação do vault.
@@ -981,7 +981,7 @@ also stopped on expired OAuth, with zero reported tokens and confirmed cleanup.
 Metadata confirmed expiry about 25 seconds before the run. The runner now
 [rejects insufficient validity before reservation](docs/relatorios/2026-10-09-p06-expiry-guard.md).
 All 17 tests passed on Windows; after a fresh login, Haiku preparation completed
-with zero prompts. The new session awaits approval; OAuth refresh and native
+with zero prompts. The new session was approved and awaits execution; OAuth refresh and native
 retrieval acceptance remain unverified.
 See the [evidence and limits](docs/relatorios/2026-10-03-public-pilot.md).
 The package uses an explicit file list and hash manifest; the pilot CI checks data, tests and vault navigation.

@@ -51,14 +51,34 @@ O recibo registra `prepared_no_model_prompt`, zero prompts e conclusão em 4,968
 
 - Operação: `164e5438-0cac-4089-845c-f1e3cc60db04`.
 - SHA-256 de `setup.json`: `45ec8706433bbe3866c17d79d963df7e3617eaaf224ca15f4c27a24e87ea8ac4`.
-- Escopo proposto: uma sessão, um prompt, até 300 s e 24 ferramentas, esforço
+- Escopo aprovado: uma sessão, um prompt, até 300 s e 24 ferramentas, esforço
   `medium`, `claude-haiku-5-5`, assinatura existente, sem API adicional ou repetição automática.
 
-Estado: preparado, inferência ainda não autorizada. A autorização das tentativas
-anteriores foi consumida. Após aprovação dessa operação, conferir o hash e executar
-somente o pacote preparado. Manter a revisão fixada e todos os recibos anteriores.
+Estado: aprovado para uma tentativa, execução pendente. O mantenedor respondeu
+«aprovado pr» ao pedido específico desta operação em 9/out. Essa autorização cobre
+a sessão Haiku descrita acima; as tentativas anteriores permanecem consumidas.
+Manter a revisão fixada e todos os recibos anteriores.
 O runner volta a verificar validade do login antes da reserva; o preparo não prova
 que o fornecedor aceitará a inferência. [Evidência](relatorios/2026-10-09-p06-expiry-guard.md#confirmação-no-windows).
+
+Para executar a operação aprovada no Windows, conferir o hash e chamar `run`:
+
+```powershell
+& {
+    $ErrorActionPreference = 'Stop'
+    $ycPkg = 'C:\Users\rmfon\YoungCrowHarness-review-20261001\.runtime\p06-package-20261010-expiry'
+    $ycSetup = "$ycPkg\.runtime\test-campaign-20261010\claude-p06\setup.json"
+    $ycHash = (Get-FileHash -LiteralPath $ycSetup -Algorithm SHA256).Hash
+    if ($ycHash -ne '45ec8706433bbe3866c17d79d963df7e3617eaaf224ca15f4c27a24e87ea8ac4') {
+        throw 'Pacote diferente do aprovado. Envie esta mensagem no chat.'
+    }
+    python -B "$ycPkg\tests\pilot_claude.py" run
+    if ($LASTEXITCODE) { throw 'Tentativa encerrada com falha. Preserve a pasta e envie a saída; não repita.' }
+}
+```
+
+A reserva do runner impede reutilizar a tentativa. Se falhar, preservar o resultado
+e revisar o diagnóstico antes de qualquer repetição.
 
 ## Modelo econômico autorizado
 
@@ -354,4 +374,5 @@ prepare a separate corrected revision before reviewing any new inference.
 The corrected `47a8150` revision passed all 17 tests on the operator's Windows PC.
 Following interactive login, preparation completed in 4.968794 seconds with zero
 prompts and confirmed cleanup. Operation `164e5438-0cac-4089-845c-f1e3cc60db04`
-awaits approval for one bounded Haiku session under the existing subscription.
+was approved for one bounded Haiku session under the existing subscription.
+Execution and native retrieval acceptance remain pending.

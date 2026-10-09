@@ -64,6 +64,10 @@ as missões salvas com título, código, UUID, revisão e estado registrado. Dep
 a projeção da nota está pendente e não altera arquivos.
 [Uso](docs/USAGE.md#mission-workflow) · [Verificação](docs/relatorios/2026-10-09-mission-discovery.md).
 
+O [refinamento da fila YC-204](docs/superpowers/specs/2026-10-09-queue-eligibility-refinement.md)
+detalha decisões de prioridade, espera e capacidade. É um rascunho para revisão;
+a implementação continua dependente do aceite do executor.
+
 **Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
 chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 O pacote público passou em 516 testes, com 20 pulados; naquela rodada, o CI não pôde ser consultado.
@@ -646,6 +650,10 @@ shows saved missions with title, code, UUID, revision and recorded state. Then u
 `status CODE` to check current blockers. Listing also finds missions with pending
 note projections and leaves files unchanged.
 [Usage](docs/USAGE.md#mission-workflow) · [Verification](docs/relatorios/2026-10-09-mission-discovery.md#english-overview).
+
+The [YC-204 queue refinement](docs/superpowers/specs/2026-10-09-queue-eligibility-refinement.md#english-overview)
+details priority, waiting and capacity decisions. It is a review draft; implementation
+still depends on executor acceptance.
 
 **Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
 are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).

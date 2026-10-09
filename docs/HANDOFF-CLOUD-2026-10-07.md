@@ -40,6 +40,11 @@ missões salvas sem conhecer seu código. A consulta lê resumos do banco; depoi
 `status CODIGO` confere fontes, projeções e recibos atuais. A listagem não repara
 notas nem habilita execução. [Entrega e verificação](relatorios/2026-10-09-mission-discovery.md).
 
+O próximo preparo independente é a [matriz de elegibilidade de YC-204](superpowers/specs/2026-10-09-queue-eligibility-refinement.md).
+Ela explicita espera, capacidade de PBIs/execuções e recuperação ainda a detalhar.
+É um rascunho documental; não inicia 2B. A prova de retomada no Claude aguarda
+disponibilidade do cliente autenticado e não substitui o aceite isolado de YC-203.
+
 ### Recuperação dos fontes de B em 8/out
 
 Os quatro fontes/testes de captura e integração e os dois recibos B chegaram por

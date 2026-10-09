@@ -1,0 +1,29 @@
+{
+  "front": "YC-204 eligibility refinement",
+  "observed_at": "2026-10-09T03:27:33.814558+00:00",
+  "base_commit": "9febcf2d51703eca5676113bb9e06d59e45c6438",
+  "status": "draft_for_review_not_implemented",
+  "documents_sha256": {
+    "docs/superpowers/specs/2026-10-09-queue-eligibility-refinement.md": "5757042f8be50670ec39bee2c34cdfe77ec62ee9a7a8800d4cb25fb9204b9a39",
+    "docs/relatorios/2026-10-09-queue-refinement.md": "42bebe07d5bf591c56e158cb98a5d87e7c5e079e6f8dd5f571a8d7c4181948fc"
+  },
+  "review": {
+    "agent": "assess_completion_scope",
+    "read_only": true,
+    "blocking_findings": 0
+  },
+  "verification": {
+    "local_link_paths_checked": 350,
+    "missing": 0,
+    "scope": "Markdown local path existence outside code examples; fragments and remote URLs not checked",
+    "git_diff_check_exit_code": 0,
+    "product_tests": "not_run_documentation_only"
+  },
+  "runtime_changes": false,
+  "model_calls": 0,
+  "native_cycles_used": 2,
+  "native_cycle_limit": 3,
+  "proof_accepted": false,
+  "docker_inquiry": "on_hold",
+  "ci_observed": false
+}

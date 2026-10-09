@@ -68,5 +68,39 @@
       "docs/HANDOFF-CLOUD-2026-10-07.md": "ceb791529862b352ee1e96f55485f3a3f576ec869fe882c18f6599bbfd579bc1",
       "docs/relatorios/2026-10-08-executor-lifecycle-review.md": "a3f970d53482e94f25a16e38947ad6db10850deae4c9454784a74ce2d5013c9b"
     }
+  },
+  "vendor_issue_publication": {
+    "observed_at": "2026-10-09T04:09:06.740087+00:00",
+    "base_commit": "15e17646402f1755b98e6894febd45cda24b9af2",
+    "url": "https://github.com/docker/sbx-releases/issues/690",
+    "number": 690,
+    "author": "Matheusrpc",
+    "created_at": "2026-10-09T04:06:30Z",
+    "updated_at": "2026-10-09T04:06:30Z",
+    "state": "open",
+    "comments": 0,
+    "api_response_sha256": "8b3c39fe81904bd57532c60494479490f2eb81bb8a9dd0c5cf5fabb3485f2cad",
+    "body_sha256": "5abf6d8f1472fe1fd07543230f7a05e035fa6840b75f2a043141afc9648a0bbe",
+    "matches_reviewed_body_after_strip": true,
+    "published_by": "maintainer",
+    "vendor_contact_sent": true,
+    "native_cycles_used": 2,
+    "proof_accepted": false,
+    "next_action": "Assess the vendor response for applicability to local sbx when available; do not create a duplicate issue.",
+    "checks": {
+      "local_markdown_paths_checked": 350,
+      "missing_local_paths": [],
+      "git_diff_check_exit_code": 0,
+      "vault_notes_checked": 42,
+      "vault_issues": 0,
+      "product_tests_run": false,
+      "independent_review": "assess_completion_scope: no material findings in the five public files"
+    },
+    "document_sha256": {
+      "README.md": "56867272eff86c3bfa271e0ec596ff0e6360bc991de75d276f8a5e27f2f91552",
+      "docs/BACKLOG.md": "72b37c50655a3bfde1244820d13fb48e034e46ffeca6feba20cc84e08bcdb706",
+      "docs/HANDOFF-CLOUD-2026-10-07.md": "23fac6a103020edafd62c524d6405c41a33651abb806f679de1904b433dcfecd",
+      "docs/relatorios/2026-10-08-executor-lifecycle-review.md": "5be87967fcf75a1b306e8b3047308c23c4059a72622a333e5cada5e990cc3677"
+    }
   }
 }

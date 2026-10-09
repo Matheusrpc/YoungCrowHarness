@@ -50,12 +50,11 @@ usa transporte e efeitos nativos simulados; o aceite nativo continua pendente.
 A [revisão do ciclo de configuração](docs/relatorios/2026-10-08-executor-lifecycle-review.md)
 identificou uma alternativa com proxy fixo entre missões. Ela pode reduzir escritas,
 mas ainda depende de proteção do endpoint e recuperação das credenciais; não foi
-implementada. O contrato atual e os bloqueios permanecem. Abrir uma issue no Docker é opcional.
+implementada. O contrato atual e os bloqueios permanecem.
 
-A consulta ao Docker foi retomada com autorização do mantenedor em 9/out. A issue
-ainda não foi criada: a liberação de `api.github.com` está salva no rascunho do ambiente,
-sem aplicação no runtime. A próxima ação é aplicar a configuração e conferir o acesso
-antes de publicar. O aceite do executor e a fila 2B continuam pendentes.
+A consulta ao Docker está publicada na [issue #690](https://github.com/docker/sbx-releases/issues/690),
+aberta pelo mantenedor em 9/out. A publicação e o texto foram conferidos pela API;
+aguardamos resposta sobre o contrato local. O aceite do executor e a fila 2B continuam pendentes.
 
 A entrega independente melhora `yc-status`: mostra o recibo que bloqueia novos diagnósticos, inclusive de outra
 missão do projeto, e indica revisão de recuperação ou reparo de notas antes de refinar
@@ -643,12 +642,11 @@ transport and native effects; native acceptance is still pending.
 The [configuration lifecycle review](docs/relatorios/2026-10-08-executor-lifecycle-review.md#english-overview)
 identified a fixed proxy between missions as a way to reduce writes. Endpoint ownership
 and credential recovery remain unresolved; the alternative is not implemented.
-The current contract and gates remain. Filing a Docker issue is optional.
+The current contract and gates remain.
 
-The maintainer authorized resuming the Docker inquiry on Oct 9. The issue has not
-been created: the `api.github.com` allowance is saved in the environment draft but
-has not reached the runtime. Apply the configuration and verify access before
-publishing. Executor acceptance and the 2B queue remain pending.
+The maintainer published the Docker inquiry as [issue #690](https://github.com/docker/sbx-releases/issues/690)
+on Oct 9. Publication and body were verified through the API; a response about the
+local contract is pending. Executor acceptance and the 2B queue remain pending.
 
 The independent delivery improves `yc-status`: it identifies receipts blocking new diagnostics, including other
 missions in the project, and directs recovery review or note repair before input

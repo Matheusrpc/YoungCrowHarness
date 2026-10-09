@@ -7,18 +7,16 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
-**Consulta ao Docker retomada com autorização em 9/out.** A issue ainda não foi criada.
-A liberação de `api.github.com` está salva no rascunho do ambiente, sem aplicação no
-runtime. Aplicar a configuração, conferir o acesso e verificar duplicatas antes de
-publicar o texto revisado. Novo ciclo nativo permanece fora desta etapa.
+**Consulta ao Docker publicada em 9/out:** [issue #690](https://github.com/docker/sbx-releases/issues/690),
+aberta pelo mantenedor e conferida pela API. Aguardar resposta aplicável ao sbx local;
+a consulta permanece sem comentários na verificação. Novo ciclo nativo continua fora desta etapa.
 A entrega independente corrige a orientação de `yc-status`, na preparação
 já existente: recibos abertos em qualquer missão do projeto, recuperação integrada e
 projeções pendentes/conflitantes passam a orientar a próxima ação. Não habilita 2B.
 [Entrega e verificação](relatorios/2026-10-08-mission-status-guidance.md).
-**Docker inquiry resumed with authorization on Oct 9.** The issue has not been created.
-The `api.github.com` allowance is saved in the environment draft but has not reached
-the runtime. Apply it, verify access and check for duplicates before publishing the
-reviewed text. A new native cycle remains outside this step.
+**Docker inquiry published on Oct 9:** [issue #690](https://github.com/docker/sbx-releases/issues/690),
+opened by the maintainer and verified through the API. Await a response applicable
+to local sbx; the issue had no comments when checked. A new native cycle remains outside this step.
 Independent work fixes `yc-status` guidance for unresolved
 repository runs, integrated recovery and pending/conflicting projections; it does not enable 2B.
 

@@ -26,17 +26,16 @@ avaliou manter o proxy configurado entre missões. Isso pode retirar escritas de
 das missões, mas não resolve sozinho propriedade do endpoint e recuperação de credenciais.
 A instalação exclusiva já estava aprovada. Não reimplementar esse fluxo antes de fechar
 essas condições; a alternativa não está implementada nem aprovada como substituta.
-Abrir uma issue no fornecedor é opcional. O contrato e os bloqueios atuais permanecem.
+O contrato e os bloqueios atuais permanecem.
 
-**Retomada autorizada em 9/out: consulta ao Docker.** A tentativa de abrir a issue foi
-recusada pela API (`Forbidden`); a liberação de rede foi salva como rascunho, sem
-aplicação confirmada. O mantenedor suspendeu a frente e depois autorizou retomá-la.
-Na retomada, a configuração observada ainda é a revisão 3, com `api.github.com` ausente
-dos hosts efetivos; o rascunho conserva essa adição. A issue não foi criada e a chamada
-recusada não foi repetida sem mudança no ambiente. A próxima ação é salvar a mudança
-nas configurações do ambiente, conferir acesso e duplicatas, então publicar a consulta
-revisada em `docker/sbx-releases`. A autorização de publicação permanece válida;
-novo ciclo nativo não faz parte desta etapa.
+**Consulta publicada em 9/out:** [Docker #690](https://github.com/docker/sbx-releases/issues/690).
+O mantenedor publicou o texto revisado pela própria conta. A API confirmou autor,
+título, corpo e estado aberto; a issue não tinha comentários na verificação.
+O acesso a `api.github.com` passou após aplicar a configuração do ambiente, revisão 5.
+A integração ainda recusou criar a issue, por `Resource not accessible by integration`;
+a publicação manual resolveu essa etapa. Não criar duplicata nem solicitar novamente
+a liberação de rede. Próxima ação: acompanhar a resposta e conferir sua aplicabilidade
+ao sbx local antes de alterar o adaptador. Novo ciclo nativo não faz parte desta etapa.
 
 A entrega independente corrigiu `yc-status`, usando recibos e projeções existentes
 para indicar o impedimento real e a próxima ação. A fila 2B permanece indisponível.

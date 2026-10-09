@@ -96,6 +96,18 @@ A chamada antes recusada não foi repetida sem mudança no ambiente. Aplicar a
 configuração e verificar acesso e duplicatas precede a publicação. Nenhum ciclo
 nativo foi executado ou autorizado por esta retomada.
 
+### Publicação confirmada em 9/out
+
+O mantenedor abriu a [issue Docker #690](https://github.com/docker/sbx-releases/issues/690)
+às 04:06:30 UTC. A API confirmou autor `Matheusrpc`, título, corpo revisado e estado
+aberto, sem comentários na verificação. A comparação do corpo ignora apenas espaços
+nas extremidades; nenhuma barra de escape extra foi publicada.
+
+A rede foi aplicada na revisão 5 e as leituras autenticadas passaram. A criação pela
+integração foi recusada com `Resource not accessible by integration`; o mantenedor
+publicou pela própria conta. A publicação não comprova o contrato do fornecedor.
+Próxima ação: avaliar a resposta quando disponível; contador nativo permanece 2/3.
+
 ## English overview
 
 Exclusive local Docker use was already approved. A fixed installation proxy could
@@ -109,5 +121,8 @@ does not create/delete user credentials per mission.
 Keep the current implementation and gates until a replacement addresses the complete
 lifecycle. A vendor issue is optional. This read-only review does not authorize a
 new native attempt or certify a profile. No product code or native state changed.
+The maintainer subsequently published [Docker issue #690](https://github.com/docker/sbx-releases/issues/690)
+on Oct 9. Its body and open state were verified through the API; no vendor response
+was present. Native acceptance remains pending.
 
 ATRASO: main 1 frente sem aceite | aceite nativo pendente.

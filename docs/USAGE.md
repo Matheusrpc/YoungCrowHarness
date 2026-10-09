@@ -28,39 +28,21 @@ records current scope and the next task, 203.6.
 [Abra a demonstração](https://matheusrpc.github.io/YoungCrowHarness/) ou siga o [roteiro do piloto](../examples/delivery-board/README.md), que reúne esses percursos em um exemplo com
 vault próprio. A página e os filtros foram verificados localmente, incluindo teclado e tela estreita.
 O roteiro explica início do zero, migração e saída; os dois consumidores passaram pela prova de retorno no Windows e no Linux.
-A [prova de retomada](relatorios/2026-10-03-public-pilot.md) passou no Codex. Para Claude,
-o [preparo de P06 no Windows](P06-CLAUDE.md) passou, mas a tentativa de 9/out terminou
-por OAuth expirado, com tokens reportados zerados. O operador renovou o login;
-preservar os recibos. As [correções dos testes Windows](relatorios/2026-10-09-p06-windows-tests.md)
-passaram nos 13 casos no PC do operador. Um novo pacote foi preparado com zero
-prompts. A [tentativa Haiku](relatorios/2026-10-09-p06-haiku.md) foi executada e
-também falhou por OAuth. Preservar o pacote e diagnosticar a origem do login;
-a autorização foi consumida, sem repetição automática.
-Os metadados confirmaram vencimento antes do teste. O runner agora
-[recusa credenciais sem validade suficiente](relatorios/2026-10-09-p06-expiry-guard.md)
-antes de criar o pacote ou reservar a tentativa. Os 17 testes passaram no Windows
-e o novo preparo Haiku concluiu com zero prompts após login renovado. A sessão
-seguinte respondeu, mas o verificador recusou a navegação. Preservar os registros
-para análise offline; tentativa consumida e aceite de memória pendente.
+A retomada passou no Codex e foi [confirmada no Claude](relatorios/2026-10-09-p06-offline-review.md) em uma
+sessão Haiku. O verificador original recusou a navegação; a reavaliação
+offline dos mesmos arquivos passou com a correção e a revisão do conteúdo.
+O recibo original permanece intacto. P06 está verificado no piloto; não é preciso
+repetir o teste. O [guia](P06-CLAUDE.md) conserva o histórico e os limites.
 O README do exemplo explica como gerar e servir somente o pacote permitido, em um destino novo.
 
 [Open the demonstration](https://matheusrpc.github.io/YoungCrowHarness/) or follow the [pilot recipe](../examples/delivery-board/README.md), which brings these paths together in an example
 with its own vault. The page and filters were checked locally, including keyboard navigation and a narrow viewport.
 The recipe covers a new project, migration and exit; both consumers passed restoration on Windows and Linux.
-The [retrieval proof](relatorios/2026-10-03-public-pilot.md) passed in Codex.
-[Claude P06 preparation on Windows](P06-CLAUDE.md) passed, but the Oct 9 attempt ended
-with expired OAuth and zero reported token counts. The operator renewed login;
-preserve receipts. The [Windows test corrections](relatorios/2026-10-09-p06-windows-tests.md)
-passed all 13 cases on the operator's PC. A new package was prepared with zero
-prompts. The [Haiku attempt](relatorios/2026-10-09-p06-haiku.md) was executed and
-also failed on OAuth. Preserve the package and diagnose the authentication source;
-the authorization was consumed, with no automatic retry.
-Metadata confirmed expiry before the test. The runner now
-[rejects insufficient credential validity](relatorios/2026-10-09-p06-expiry-guard.md)
-before package creation or reservation. All 17 tests passed on Windows and the
-new Haiku preparation completed with zero prompts after a fresh login. The next
-session returned a response, but the verifier rejected navigation. Preserve the
-records for offline review; the attempt is consumed and retrieval acceptance is pending.
+Retrieval passed in Codex and was [confirmed in Claude](relatorios/2026-10-09-p06-offline-review.md) in one
+Haiku session. The original verifier rejected navigation; offline
+re-evaluation of the same files passed with the fix and semantic review.
+The original receipt remains intact. Pilot P06 is verified; no repeat is needed.
+The [guide](P06-CLAUDE.md) preserves the history and limits.
 The example README explains how to build and serve only the allowed package, using a new destination.
 
 Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;

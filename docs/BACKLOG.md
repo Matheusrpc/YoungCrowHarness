@@ -241,7 +241,7 @@ package. Existing limits, separate acceptance criteria and current blockers rema
 
 | ID | Entrega | Dependência | Critério de aceite | Estado |
 |---|---|---|---|---|
-| YC-010 | Retomar o piloto público em sessão nova do Claude | Login válido e tentativa delimitada | Encontrar índices, UUIDs, revisão e produção observada sem receber o histórico inteiro; registrar resultado real | [Tentativa Haiku](relatorios/2026-10-09-p06-haiku.md) falhou por OAuth; o login venceu antes do preparo. [Checagem de validade](relatorios/2026-10-09-p06-expiry-guard.md) confirmada nos 17 testes Windows. Login renovado e novo pacote Haiku preparado com zero prompts. Sessão Haiku executada: resposta em 39,35 s e navegação recusada pelo verificador. Seis UUIDs e hashes CRLF conferem com as notas. Análise offline dos eventos e aceite de memória pendentes; tentativa consumida |
+| YC-010 | Retomar o piloto público em sessão nova do Claude | Login válido e tentativa delimitada | Encontrar índices, UUIDs, revisão e produção observada sem receber o histórico inteiro; registrar resultado real | [Verificado no piloto](relatorios/2026-10-09-p06-offline-review.md): sessão Haiku real e reavaliação offline dos eventos/arquivos originais, com correção do verificador e revisão semântica. Recibo original de falha preservado; zero novas chamadas. Leitura manual de skills não encerra YC-011 |
 | YC-011 | Provar as quatro novas skills nos clientes nativos | Instalação atual e sessão autorizada em cada cliente | Descobrir e aplicar `yc-personalizer`, `yc-config`, `yc-missao` e `yc-status`; preservar dados e distinguir preparo de execução | Pendente; integra a prova de YC-203 |
 
 ## Frente 2: execução e continuidade

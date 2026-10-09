@@ -354,19 +354,12 @@ O [piloto público](https://matheusrpc.github.io/YoungCrowHarness/) demonstra o 
 um quadro de entregas para acompanhar projeto novo, migração, testes, memória e publicação.
 O [exemplo](examples/delivery-board/README.md) tem página com filtros, critérios e um vault próprio.
 O percurso local foi verificado por teclado e em tela estreita. No Windows e no Linux, projeto novo e migração
-passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do trial. O site publicado teve revisão, hashes e uso conferidos. A retomada passou no Codex; a
-[tentativa Claude de 9/out](docs/P06-CLAUDE.md) terminou por sessão OAuth expirada,
-com contadores de tokens zerados. O operador renovou o login; a retomada continua pendente.
-As [correções dos testes Windows](docs/relatorios/2026-10-09-p06-windows-tests.md)
-passaram nos 13 casos no PC do operador. O novo pacote Claude foi preparado com
-zero prompts. A [tentativa com Haiku explícito](docs/relatorios/2026-10-09-p06-haiku.md)
-também parou por OAuth expirado, com zero tokens reportados e limpeza confirmada.
-Os metadados confirmaram que o login venceu cerca de 25 segundos antes do teste.
-O runner agora [recusa validade insuficiente antes de reservar](docs/relatorios/2026-10-09-p06-expiry-guard.md).
-Os 17 testes passaram no Windows; após novo login, o preparo Haiku concluiu com
-zero prompts. A sessão seguinte respondeu com Haiku em 39,35 s e recuperou as notas,
-mas o verificador recusou a navegação. A análise dos registros está pendente; a
-tentativa foi consumida. O aceite de memória e o refresh OAuth seguem sem comprovação.
+passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do trial. O site publicado teve revisão, hashes e uso conferidos. A retomada passou no Codex e foi
+[confirmada no Claude](docs/relatorios/2026-10-09-p06-offline-review.md): uma sessão
+Haiku recuperou a memória em 39,35 s. O verificador original recusou a navegação;
+a correção foi conferida offline sobre os mesmos eventos e arquivos, seguida de
+revisão do conteúdo, sem outra chamada ao modelo. O recibo de falha foi preservado.
+Essa prova do piloto não libera o executor Docker nem comprova descoberta automática de skills.
 Veja as [provas e limites](docs/relatorios/2026-10-03-public-pilot.md).
 O pacote usa uma lista explícita de arquivos e um manifesto de hashes; o CI do piloto valida dados, testes e navegação do vault.
 
@@ -972,20 +965,12 @@ The [public pilot](https://matheusrpc.github.io/YoungCrowHarness/) demonstrates 
 a delivery board covering a new project, adoption, tests, memory and publication.
 The [example](examples/delivery-board/README.md) has a page with filters, acceptance criteria and its own vault.
 The local flow was checked with keyboard navigation and a narrow viewport. On Windows and Linux, new and existing
-projects passed real setup and returned to their initial state while retaining trial work. The published site passed revision, hash and interaction checks. Retrieval passed in Codex; the
-[Oct 9 Claude attempt](docs/P06-CLAUDE.md) ended with an expired OAuth session and
-zero reported token counts. The operator renewed login; retrieval remains pending.
-The [Windows test corrections](docs/relatorios/2026-10-09-p06-windows-tests.md)
-passed all 13 cases on the operator's Windows PC. A new Claude package was prepared
-with zero prompts. The [explicit Haiku attempt](docs/relatorios/2026-10-09-p06-haiku.md)
-also stopped on expired OAuth, with zero reported tokens and confirmed cleanup.
-Metadata confirmed expiry about 25 seconds before the run. The runner now
-[rejects insufficient validity before reservation](docs/relatorios/2026-10-09-p06-expiry-guard.md).
-All 17 tests passed on Windows; after a fresh login, Haiku preparation completed
-with zero prompts. The next session returned a Haiku response in 39.35 seconds
-and retrieved the notes, but the verifier rejected navigation. Full event review
-is pending and the attempt is consumed. Retrieval acceptance and OAuth refresh
-remain unverified.
+projects passed real setup and returned to their initial state while retaining trial work. The published site passed revision, hash and interaction checks. Retrieval passed in Codex and was
+[confirmed in Claude](docs/relatorios/2026-10-09-p06-offline-review.md): one Haiku
+session retrieved memory in 39.35 seconds. The original verifier rejected navigation;
+the fix was checked offline against the same events and files, followed by semantic
+review, without another model call. The failed receipt is preserved. This pilot
+proof does not enable the Docker executor or prove automatic skill discovery.
 See the [evidence and limits](docs/relatorios/2026-10-03-public-pilot.md).
 The package uses an explicit file list and hash manifest; the pilot CI checks data, tests and vault navigation.
 

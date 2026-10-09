@@ -230,7 +230,7 @@ class PilotClaudeTests(unittest.TestCase):
                                sha256=hashlib.sha256(raw).hexdigest()))
         return output
 
-    def complete_events(self):
+    def complete_events(self, project_grep=False):
         evidence=self.evidence()
         result=dict(project_id=json.loads((self.context/'vault/project.json').read_text())['project_id'],
                     feature_id=next(e['note_id'] for e in evidence if e['path'].endswith('delivery-board/index.md')),
@@ -240,21 +240,110 @@ class PilotClaudeTests(unittest.TestCase):
                     capabilities_used=['retrieve-memory','karpathy','ponytail'], warnings=[])
         rows=[dict(type='p06_prompt_sent'), dict(type='system', subtype='init', session_id='session-1', model='fixture')]
         reads=set(self.p.REQUIRED_READS)|{e['path'] for e in evidence}
+        hashes={e['path'] for e in evidence}
+        if project_grep:
+            reads.remove('vault/project.json')
+            hashes.add('vault/project.json')
         calls=[('Read',{'file_path':p}) for p in sorted(reads)]
-        calls.append(('Bash',{'command':'sha256sum -- '+' '.join(sorted(e['path'] for e in evidence))}))
+        if project_grep:
+            calls.append(('Grep',{'pattern':'project_id','path':'vault','output_mode':'content','-n':True}))
+        calls.append(('Bash',{'command':'sha256sum -- '+' '.join(sorted(hashes))}))
         for number,(tool,args) in enumerate(calls):
             hook=self.hook(number,tool,args)
             admitted=self.gate.admit(hook)
             rows.append(dict(type='p06_admitted', **admitted))
             rows.append(dict(type='assistant', session_id='session-1', message={'content':[dict(type='tool_use',id=hook['tool_use_id'],name=tool,input=args)]}))
             rows.append(dict(type='p06_completed', **self.gate.complete({**hook,'hook_event_name':'PostToolUse'})))
-            content='\n'.join(self.before[p]+'  '+p for p in admitted['paths']) if tool=='Bash' else (self.context/admitted['paths'][0]).read_text(encoding='utf-8')
+            if tool=='Grep':
+                content='\n'.join(f'vault\\project.json:{n}:{line}' for n,line in
+                                  enumerate((self.context/'vault/project.json').read_text().splitlines(),1)
+                                  if '"project_id"' in line)
+            else:
+                content='\n'.join(self.before[p]+'  '+p for p in admitted['paths']) if tool=='Bash' else (self.context/admitted['paths'][0]).read_text(encoding='utf-8')
             rows.append(dict(type='user', session_id='session-1', message={'content':[dict(type='tool_result',tool_use_id=hook['tool_use_id'],content=content)]}))
         rows.append(dict(type='result',subtype='success',is_error=False,session_id='session-1',result=json.dumps(result)))
         return rows
 
     def supervision(self):
         return dict(reason='completed',exit_code=0,tree_reaped=True,elapsed_seconds=1)
+
+    def test_skill_mirrors_require_identical_reviewed_bytes(self):
+        encoded=json.dumps(self.complete_events())
+        for name in self.p.SKILLS:
+            path=f'skills/{name}/SKILL.md'
+            encoded=encoded.replace('"'+path+'"','".claude/'+path+'"')
+        rows=json.loads(encoded)
+        try:
+            verified=self.p.verify(self.context,self.before,rows,self.supervision())
+        except ValueError as error:
+            self.fail(f'Identical staged skills were rejected: {error}')
+        self.assertEqual(len(verified['verification_details']['skill_mirrors']),3)
+        mirror='.claude/skills/karpathy/SKILL.md'
+        with (self.context/mirror).open('a') as stream:
+            stream.write('\nDifferent skill instructions.\n')
+        before={**self.before,mirror:self.p.digest(self.context/mirror)}
+        with self.assertRaisesRegex(ValueError,'missing_memory_navigation'):
+            self.p.verify(self.context,before,rows,self.supervision())
+
+    def test_project_grep_requires_exact_source_line_and_verified_hash(self):
+        rows=self.complete_events(project_grep=True)
+        try:
+            verified=self.p.verify(self.context,self.before,rows,self.supervision())
+        except ValueError as error:
+            self.fail(f'Project identity with source and hash was rejected: {error}')
+        self.assertEqual(verified['verification_details']['project_identity'],'grep_with_hash')
+        grep_id=next(e['tool_use_id'] for e in rows if e['type']=='p06_admitted' and e['tool_name']=='Grep')
+        grep_result=next(e['message']['content'][0] for e in rows if e['type']=='user'
+                         and e['message']['content'][0]['tool_use_id']==grep_id)
+        original=grep_result['content']
+        for bad in (original.replace('vault\\project.json','vault\\other.json'),
+                    original.replace(':2:',':1:'),original+' extra',
+                    original.replace(verified['handoff']['project_id'],'wrong-id'),
+                    'vault\\project.json'):
+            with self.subTest(output=bad), self.assertRaises(ValueError):
+                grep_result['content']=bad
+                self.p.verify(self.context,self.before,rows,self.supervision())
+        grep_result['content']=original.replace('\\','/')
+        self.assertEqual(self.p.verify(self.context,self.before,rows,self.supervision())['state'],
+                         'evidence_verified_pending_semantic_review')
+        grep_input=next(e['tool_input'] for e in rows if e['type']=='p06_admitted' and e['tool_name']=='Grep')
+        for option,value in (('output_mode','files_with_matches'),('-n',False)):
+            previous=grep_input[option]
+            with self.subTest(option=option), self.assertRaises(ValueError):
+                grep_input[option]=value
+                self.p.verify(self.context,self.before,rows,self.supervision())
+            grep_input[option]=previous
+        for event in rows:
+            if event['type'] in ('p06_admitted','p06_completed') and event['tool_name']=='Bash':
+                event['paths']=[p for p in event['paths'] if p!='vault/project.json']
+                event['tool_input']['command']=event['tool_input']['command'].replace(' vault/project.json','')
+            if event['type']=='assistant':
+                for item in event['message']['content']:
+                    if item.get('name')=='Bash':
+                        item['input']['command']=item['input']['command'].replace(' vault/project.json','')
+            if event['type']=='user':
+                item=event['message']['content'][0]
+                item['content']='\n'.join(line for line in item['content'].splitlines()
+                                           if not line.endswith('  vault/project.json'))
+        with self.assertRaisesRegex(ValueError,'missing_memory_navigation'):
+            self.p.verify(self.context,self.before,rows,self.supervision())
+
+    def test_single_json_fence_is_reported_but_extra_text_is_rejected(self):
+        rows=self.complete_events()
+        raw=rows[-1]['result']
+        fenced='```json\n'+raw+'\n```'
+        rows[-1]['result']=fenced
+        try:
+            verified=self.p.verify(self.context,self.before,rows,self.supervision())
+        except ValueError as error:
+            self.fail(f'A single JSON fence was rejected: {error}')
+        self.assertEqual(verified['verification_details']['result_format'],'json_code_fence')
+        self.assertEqual(verified['handoff'],json.loads(raw))
+        for bad in ('intro\n'+fenced,fenced+'\nextra',fenced+'\n'+fenced,
+                    fenced.replace('```json','```python')):
+            with self.subTest(result=bad), self.assertRaises(ValueError):
+                rows[-1]['result']=bad
+                self.p.verify(self.context,self.before,rows,self.supervision())
 
     def test_verifier_checks_claude_events_and_rejects_missing_or_forged_proofs(self):
         rows=self.complete_events()

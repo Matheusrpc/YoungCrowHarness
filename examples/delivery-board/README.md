@@ -13,7 +13,7 @@ node --test tests/*.test.mjs
 Execute na pasta `examples/delivery-board`. O modelo valida os dados e combina estado e busca.
 A página usa controles nativos e mostra critérios e referências. O percurso local foi conferido em
 1280px e 360px, com teclado, filtros vazios, limpeza e falhas de carregamento. Os dois consumidores
-passaram por adoção e retorno no Windows e no Linux, com trabalho do trial preservado. Retomada nativa passou no Codex; Claude aguarda login. Publicação verificada, com revisão e hashes na operação.
+passaram por adoção e retorno no Windows e no Linux, com trabalho do trial preservado. Retomada passou no Codex e foi [confirmada no Claude por reavaliação offline](../../docs/relatorios/2026-10-09-p06-offline-review.md), preservando o recibo original de falha. Publicação verificada, com revisão e hashes na operação.
 As [medições e limitações](../../docs/relatorios/2026-10-03-public-pilot.md) detalham cada prova.
 
 Para preparar uma prévia a partir da raiz do harness, escolha um destino novo fora da pasta do exemplo:
@@ -51,7 +51,7 @@ destination outside the source; existing destinations, linked files and invalid 
 Open `http://127.0.0.1:8765`, then stop the server. The package contains six public files and a hash
 manifest. The manifest records bytes and the supplied revision, not approval or authentication.
 The external check verified all three public vault destinations.
-Both consumers passed reversible adoption on Windows and Linux, with trial work preserved. Native retrieval passed in Codex; Claude needs a renewed login. Publication passed revision, hash and browser checks.
+Both consumers passed reversible adoption on Windows and Linux, with trial work preserved. Retrieval passed in Codex and was [confirmed in Claude through offline re-evaluation](../../docs/relatorios/2026-10-09-p06-offline-review.md), preserving the original failed receipt. Publication passed revision, hash and browser checks.
 See the [evidence and limits](../../docs/relatorios/2026-10-03-public-pilot.md). The example has its own vault identity and linked
 indices. Setup does not copy this example into every consumer. Private notes, source documents, receipts
 and backups stay outside the public site.

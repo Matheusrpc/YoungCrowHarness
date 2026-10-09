@@ -4,6 +4,16 @@ Frente: lote A, uma sessão Claude, 300 segundos, 24 ferramentas e assinatura ex
 O runner de desenvolvimento é `tests/pilot_claude.py`; não integra o instalador nem
 habilita os perfis do executor Docker. O lote autorizava uma tentativa de retomada.
 
+**Resultado atual:** [P06 verificado no piloto](relatorios/2026-10-09-p06-offline-review.md). A sessão Haiku
+recuperou a memória; a reavaliação offline dos 34 arquivos recebidos passou com o
+verificador corrigido e a revisão semântica. O recibo original continua
+`failed / missing_memory_navigation`. Nenhuma nova sessão foi executada ou autorizada.
+A descoberta automática de skills e o executor isolado continuam fora deste aceite.
+
+## Histórico das tentativas
+
+Os comandos abaixo documentam tentativas consumidas. Não são instruções para repeti-las.
+
 Em 9/out, o operador enviou o recibo `prepared_no_model_prompt`: inicialização
 concluída em 3,065 s no Windows, zero prompts, árvore encerrada e autenticação original
 preservada. A execução seguinte terminou por OAuth expirado, com um prompt registrado
@@ -23,7 +33,7 @@ OAuth expirado sem renovação. Registrou um prompt e zero tokens reportados;
 processos e credencial temporária foram limpos. A autorização está consumida.
 Os metadados posteriores confirmaram vencimento cerca de 20 segundos antes do
 preparo e 25 segundos antes do run. O runner recebeu a checagem descrita abaixo;
-a renovação OAuth e o aceite de memória continuam pendentes.
+naquele momento, a renovação OAuth e o aceite de memória continuavam pendentes.
 
 ## Validade do login antes do preparo e da reserva
 
@@ -58,13 +68,14 @@ A sessão aprovada foi executada: um prompt, 39,351451 s, Haiku explícito,
 saída 0 e limpeza confirmada. Claude respondeu, mas o verificador recusou
 `missing_memory_navigation`. Esta autorização está consumida.
 
-As skills foram lidas por `.claude/skills/`, enquanto o verificador exige os
-caminhos `skills/`. A resposta informa consulta de `project.json` por Grep e hash,
-sem leitura completa; os eventos dessa busca ainda precisam ser conferidos. O JSON
-final veio dentro de uma cerca Markdown, que o parser atual também rejeita.
-Os seis UUIDs e hashes da resposta conferem com as notas em CRLF. A leitura do
-contexto e dos eventos completos está pendente. Preservar o pacote e os recibos;
-não mudar regras ou declarar aceite com base apenas na resposta selecionada.
+A [auditoria do pacote completo](relatorios/2026-10-09-p06-offline-review.md) confirmou leitura das três skills
+por espelhos `.claude/skills/` idênticos em bytes aos caminhos `skills/`.
+A identidade veio da linha de `project.json` rotulada pelo Grep, acompanhada do
+hash completo do arquivo. Os seis UUIDs e hashes das notas conferem com os bytes CRLF.
+O JSON final veio em uma cerca Markdown: desvio do pedido de JSON puro, agora
+aceito e explicitado em `verification_details`, sem reescrever a resposta original.
+A verificação corrigida e a revisão semântica passaram offline sobre esse mesmo
+snapshot. Preservar o pacote e o recibo original de falha; não repetir o run.
 O runner volta a verificar validade do login antes da reserva; o preparo não prova
 que o fornecedor aceitará a inferência. [Evidência](relatorios/2026-10-09-p06-expiry-guard.md#confirmação-no-windows).
 
@@ -309,6 +320,14 @@ O recibo de execução confere um prompt, uma sessão, resultado Claude de suces
 admissões, conclusões, saídas das ferramentas, UUIDs, hashes e preservação dos arquivos.
 Exige a operação atual e a última retomada, além da feature, decisão e implementação.
 O estado positivo automático é `evidence_verified_pending_semantic_review`.
+A revisão de 9/out acrescenta `verification_details`: espelhos das skills só contam
+quando conhecidos e idênticos em bytes; Grep de identidade exige modo `content`,
+linhas numeradas, caminho/linha/conteúdo exatos e hash completo de `project.json`.
+Isso prova o campo, não uma leitura completa. O parser aceita JSON puro ou uma única
+cerca `json` completa; texto extra, outros rótulos e blocos múltiplos são recusados.
+As três situações ficam explícitas no resultado. O runner não altera eventos antigos.
+Na operação `164e5438`, o aceite semântico foi registrado separadamente no relatório,
+sem promover o recibo original a sucesso.
 
 Em 9/out, o terminal trouxe `subtype: success` junto de `is_error: true` e a mensagem
 `Failed to authenticate: OAuth session expired and could not be refreshed` no campo
@@ -343,45 +362,16 @@ Consulte a [campanha](TEST-RUN-2026-10-10.md) e a
 
 ## English overview
 
-Run `python tests/pilot_claude.py prepare` from this revision on the operator's
-Windows machine. Preparation checks the subscription, client version and protocol
-without sending a user prompt. At the approved time, `run` reserves one attempt,
-uses the existing process supervisor and admits at most 24 tools before execution.
-Filesystem settings are disabled; the three staged skills are read explicitly.
-The verifier checks Claude evidence and requires a separate semantic review.
-No Docker profiles are enabled, no Codex session is repeated, and no native Claude
-success is inferred from fixtures. Original receipts and failed attempts are preserved.
-The operator supplied a successful Windows preparation receipt on Oct 9, followed
-by a failed attempt with expired OAuth and zero reported token counts. Preserve the
-reserved attempt, renew login and review any retry. Retrieval remains unverified.
-The operator subsequently renewed login. All 13 corrected tests passed on the
-operator's Windows PC in 9.373 seconds. A separate r2 package pinned to `6481a91`
-completed preparation with zero prompts and preserved credentials. Its operation
-and setup hash are recorded above. The maintainer approved one bounded session,
-then restricted it to the cheapest model. Prepare a separate package with explicit
-`claude-haiku-5-5`; do not run default-model r2 or alter its setup. Approval covers
-one session/prompt, 300 seconds and 24 tools through the existing subscription,
-with no more expensive fallback. Native compatibility with pinned CLI 2.1.220 and
-retrieval remain unverified; Haiku 5.5 support was announced in CLI 2.1.293.
-Keep both earlier packages unchanged. No additional approval is required merely
-to apply this explicit restriction.
+[Pilot P06 is now verified](relatorios/2026-10-09-p06-offline-review.md). The operator's native Windows session
+used explicit Haiku, one prompt and 18 tools in 39.351451 seconds. Its original
+receipt remains `failed / missing_memory_navigation`. All 34 supplied files were
+preserved. The corrected verifier passed offline against the same events and
+snapshot, followed by independent semantic review; no new model call was made.
 
-The Haiku attempt has now been executed and failed with expired OAuth that could
-not be refreshed. Initialization reported the selected model, one prompt was
-recorded and token counters were zero. Cleanup passed; the reservation remains
-consumed. Diagnose the authentication source without starting another session.
-
-Metadata subsequently confirmed that the credential expired before preparation.
-The corrected runner checks for more than six minutes of declared validity before
-creating the package or reserving a run, and rechecks the actual temporary copy.
-Missing or malformed expiry is refused without printing credential contents.
-This does not prove provider acceptance or fix refresh. Preserve old packages and
-prepare a separate corrected revision before reviewing any new inference.
-
-The corrected `47a8150` revision passed all 17 tests on the operator's Windows PC.
-Following interactive login, preparation completed in 4.968794 seconds with zero
-prompts and confirmed cleanup. Operation `164e5438-0cac-4089-845c-f1e3cc60db04`
-was executed under the existing subscription: one prompt, a Haiku response in
-39.351451 seconds and confirmed cleanup. The verifier rejected navigation. Skill
-mirror paths, partial project identity retrieval and fenced JSON require review
-against the full events and context. The attempt is consumed; acceptance is pending.
+Three observed cases are disclosed in `verification_details`: byte-identical known
+skill mirrors, an exact source-labelled project identity line plus its file hash,
+and one complete JSON code fence. The fence deviated from the original plain-JSON
+request. Extra text, unrelated search matches and changed mirrors are rejected.
+Skills were read manually; automatic discovery and Docker executor acceptance
+remain unverified. Earlier commands above are historical, consumed attempts.
+OAuth refresh remains unexplained, but no new login or retry is needed for this proof.

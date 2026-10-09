@@ -4,6 +4,12 @@ Frente: produto YoungCrowHarness, com trabalho ativo no executor isolado.
 
 Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra sessão consiga continuar sem receber toda a conversa. Reúne decisões do mantenedor, estado do código, resultados observados, falhas, limites e próximos passos. Os caminhos de arquivos, salvo indicação contrária, são relativos à raiz do repositório.
 
+**Estado atual de P06 (9/out):** [memória Claude verificada](relatorios/2026-10-09-p06-offline-review.md)
+na sessão Haiku `164e5438`, por reavaliação offline dos eventos e arquivos originais
+com o verificador corrigido e revisão semântica. O recibo original de falha permanece;
+não repetir a inferência. YC-011 e o executor Docker continuam pendentes.
+Os parágrafos seguintes preservam a sequência histórica e suas decisões na ocasião.
+
 Checkpoint conferido em 9/out: `a0af931` passou nos oito jobs de push e PR, incluindo
 Windows. [Publicação e CI](relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
 A prévia inicial da fila está entregue; execução nativa aguarda o contrato local da
@@ -118,8 +124,8 @@ O mantenedor autorizou antecipar o que não depende do executor: `status` agora 
 `queue_preview`, somente para a entrada inicial do backlog. Não usa eventos de
 importação como sequência de prontidão, não reserva vagas e não inicia agentes.
 Coordenação e despacho continuam dependentes do aceite de YC-203.
-A prova de retomada no Claude aguarda diagnóstico da renovação OAuth e posterior
-prova autenticada; não substitui o aceite isolado de YC-203.
+A prova de retomada no Claude está verificada no piloto por reavaliação offline
+e revisão semântica; não substitui o aceite isolado de YC-203.
 
 Visão posterior registrada: [YC-X05, aviário e cockpit local](BACKLOG.md#yc-x05-aviário-da-squad-e-cockpit-local).
 Desenhar somente depois de concluir todo o roadmap principal: mascotes pássaros por
@@ -483,7 +489,7 @@ Esta tabela resume os registros do backlog e dos relatórios. “Entregue na bas
 | Memória consultável | Markdown e Graphify opcional; provas de retomada e isolamento de temas/projetos | `docs/relatorios/2026-10-02-memory-project-isolation.md` |
 | Capacidades | Catálogo, auditoria e provas delimitadas de skills, agentes e MCPs | `docs/relatorios/2026-10-02-capability-governance.md` |
 | Adoção reversível | Baseline anterior ao setup, trial e retorno preservando o trabalho realizado durante a experiência | `docs/relatorios/2026-10-02-reversible-adoption.md` |
-| Piloto público | Quadro de entregas publicado/verificado no checkpoint; retomada do piloto no Claude ainda pendente | `docs/relatorios/2026-10-03-public-pilot.md` |
+| Piloto público | Quadro publicado/verificado no checkpoint; retomada Codex e Claude verificadas, esta por reavaliação offline | `docs/relatorios/2026-10-09-p06-offline-review.md` |
 | Preparação de missões | Configuração, backlog, DoR/DoD, histórico e quatro skills; registrada como publicada pelo PR #18 | `docs/relatorios/2026-10-03-mission-foundation.md` |
 | Adaptadores e execução limitada | Mecanismo e simuladores implementados; perfis nativos sem aceite | `docs/relatorios/2026-10-03-mission-runtime-adapters.md` |
 | Seleção local/dedicado | Implementada e testada localmente em oito adoções; conexão e execução reais em runner ainda não certificadas | `docs/relatorios/2026-10-05-execution-setup.md` |
@@ -500,7 +506,7 @@ O rollback de adoção cobre os arquivos/estado previstos no seu contrato. Não 
 - Houve sessões reais de Claude e Codex recuperando memória. No corpus fixo registrado, Markdown acertou 4/4 consultas e Graphify 3/4. Isso não demonstra vantagem geral de Graphify; preservar o fallback e o escopo das consultas.
 - Separação de projetos por UUID/revisão e distinção DEV/produção foram demonstradas na recuperação. Isso não comprova isolamento de filesystem entre projetos.
 - A governança de MCP foi exercitada com servidor sintético: leitura permitida, escrita recusada, revogação e restauração. Não certifica qualquer MCP de fornecedor nem substitui isolamento de sistema operacional.
-- O piloto `examples/delivery-board` teve publicação e seis hashes públicos conferidos em 3/out. A retomada posterior pelo Claude ficou pendente após OAuth expirado; isso continua no YC-010.
+- O piloto `examples/delivery-board` teve publicação e seis hashes públicos conferidos em 3/out. A retomada posterior pelo Claude foi verificada na sessão Haiku de 9/out, por reavaliação offline com correção do verificador e revisão semântica. O recibo original de falha foi preservado.
 
 Os diagramas de processo são Mermaid/SVG inspirados em BPMN, não um motor executável BPMN 2.0. As provas reais dos clientes nas frentes anteriores continuam válidas no seu escopo; o que falta é o aceite autenticado dentro do novo executor isolado.
 
@@ -770,7 +776,7 @@ Fonte: `docs/BACKLOG.md`. IDs são planejamento público; não são PBIs automat
 
 | ID | Entrega | Estado resumido |
 |---|---|---|
-| YC-010 | Retomar piloto público em nova sessão Claude | Pendente de prova autenticada |
+| YC-010 | Retomar piloto público em nova sessão Claude | Verificado no piloto: sessão real, reavaliação offline e revisão semântica; recibo original preservado |
 | YC-011 | Provar as quatro skills de preparação nos clientes atuais | Pendente; ligado a YC-203 |
 | YC-201 | Preflight, catálogo e compatibilidade | Mecanismo implementado; execução nativa não certificada |
 | YC-202 | Limites, recibos e recuperação de processo | Simuladores verificados; integração isolada pendente |

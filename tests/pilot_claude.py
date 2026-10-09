@@ -222,6 +222,12 @@ def verify(context, before, events, supervision):
                     results[key] = item
     require(0 < len(admitted) <= TOOLS and admitted.keys() == completed.keys() == uses.keys() == results.keys(), 'unreconciled_tools')
     reads, hashed = set(), set()
+    mirrors, project_grep = set(), False
+    project_text = (context / 'vault/project.json').read_text(encoding='utf-8')
+    project = json.loads(project_text)['project_id']
+    # A source-labelled identity line plus the file hash proves this field, not a full Read.
+    project_lines = {f'vault/project.json:{n}:{line}' for n, line in enumerate(project_text.splitlines(), 1)
+                     if re.fullmatch(r'\s*"project_id"\s*:\s*' + re.escape(json.dumps(project)) + r'\s*,?\s*', line)}
     for key, entry in admitted.items():
         require(uses[key]['name'] == entry['tool_name'] and uses[key]['input'] == entry['tool_input'], 'changed_tool')
         require(all(completed[key][k] == entry[k] for k in ('tool_name','tool_input','paths')), 'changed_completion')
@@ -239,19 +245,30 @@ def verify(context, before, events, supervision):
                 witness = witness or next((line for line in text.splitlines() if line.strip() and line != '---'), '')
             require(witness and witness in content, 'missing_read_content')
             reads.update(entry['paths'])
+            canonical = relative.removeprefix('.claude/')
+            if (relative != canonical and canonical.startswith('skills/') and canonical in REQUIRED_READS
+                    and before.get(canonical) == before[relative]):
+                reads.add(canonical)
+                mirrors.add(relative)
+        if (entry['tool_name'] == 'Grep' and entry['tool_input'].get('output_mode') == 'content'
+                and entry['tool_input'].get('-n') is True):
+            lines = tool_text(results[key].get('content','')).replace('\\', '/').splitlines()
+            project_grep |= bool(project_lines.intersection(lines))
         if entry['tool_name'] == 'Bash':
             content = tool_text(results[key].get('content',''))
             checksums = re.findall(r'^([0-9a-f]{64}) [ *]([^\r\n]+)\r?$', content, re.M)
             require(len(checksums) == len(entry['paths']) and
                     {p:h for h,p in checksums} == {p:before[p] for p in entry['paths']}, 'missing_hash_output')
             hashed.update(entry['paths'])
-    require(REQUIRED_READS <= reads, 'missing_memory_navigation')
-    result = json.loads(terminal[0]['result'])
+    require(REQUIRED_READS - {'vault/project.json'} <= reads and
+            ('vault/project.json' in reads or (project_grep and 'vault/project.json' in hashed)), 'missing_memory_navigation')
+    raw = terminal[0]['result'].strip()
+    fenced = re.fullmatch(r'```json\r?\n(.*?)\r?\n```', raw, re.S)
+    result = json.loads(fenced[1] if fenced else raw)
     require(isinstance(result, dict) and {'project_id','feature_id','decision','development','production','evidence','next_action','capabilities_used','warnings'} <= result.keys(), 'incomplete_handoff')
     for field in ('decision','development','production','next_action'):
         require(isinstance(result[field], (str,dict)) and bool(result[field]), 'empty_handoff')
     require(isinstance(result['capabilities_used'], (list,dict)) and bool(result['capabilities_used']), 'invalid_capabilities')
-    project = json.loads((context / 'vault/project.json').read_text())['project_id']
     feature = vault.metadata((context / 'vault/features/delivery-board/index.md').read_text())[0]['id']
     require(result['project_id'] == project and result['feature_id'] == feature, 'wrong_identity')
     uuid.UUID(project); uuid.UUID(feature)
@@ -271,7 +288,10 @@ def verify(context, before, events, supervision):
     models = sorted({e['model'] for e in events if e.get('type') == 'system' and isinstance(e.get('model'),str)})
     require(bool(models), 'model_unobserved')
     return dict(state='evidence_verified_pending_semantic_review', tool_calls=len(admitted),
-                session_id=next(iter(sessions)), observed_models=models, handoff=result)
+                session_id=next(iter(sessions)), observed_models=models, handoff=result,
+                verification_details=dict(skill_mirrors=sorted(mirrors),
+                    project_identity='read' if 'vault/project.json' in reads else 'grep_with_hash',
+                    result_format='json_code_fence' if fenced else 'json'))
 
 
 def check_credential_expiry(source):

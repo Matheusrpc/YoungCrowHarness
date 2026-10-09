@@ -59,5 +59,61 @@
       "private_vault_present": false
     }
   },
-  "plan_sha256_commit": "48b16645727ebe9c5a2e3e83bbc32850d65ffe79"
+  "plan_sha256_commit": "48b16645727ebe9c5a2e3e83bbc32850d65ffe79",
+  "runner_source_review": {
+    "observed_at": "2026-10-09T11:22:38.274528+00:00",
+    "base_commit": "e0ae21cd7b9f0465faf94ea670224638f7aad3f0",
+    "state": "correction_required_before_native_execution",
+    "report": "docs/relatorios/2026-10-09-p06-runner-review.md",
+    "sources": [
+      {
+        "name": "public-pilot-native.py",
+        "size_bytes": 12271,
+        "sha256": "a18003d174f4a1d5b0411ddc6c981893d3187aaf6ab6fe328cf027935ce1ddb3"
+      },
+      {
+        "name": "verify-pilot-native.py",
+        "size_bytes": 2397,
+        "sha256": "27134ef1b5f3e9555952da9dd7b0bd99612a3d1f3b3835bfe1ae99508247dfee"
+      }
+    ],
+    "method": "Execute only inspected AST statements at lines 143,144,148 with synthetic events/time; original scripts not imported or run.",
+    "probes": [
+      {
+        "case": "25_events_without_result",
+        "observed_tools": 25,
+        "elapsed_seconds": 1,
+        "terminal_present": false,
+        "observed_stop_reason": "budget_limit"
+      },
+      {
+        "case": "25_events_with_result",
+        "observed_tools": 25,
+        "elapsed_seconds": 1,
+        "terminal_present": true,
+        "observed_stop_reason": "completed"
+      },
+      {
+        "case": "result_after_deadline",
+        "observed_tools": 0,
+        "elapsed_seconds": 301,
+        "terminal_present": true,
+        "observed_stop_reason": "completed"
+      }
+    ],
+    "native_calls": 0,
+    "native_overrun_observed": false,
+    "original_scripts_executed": false,
+    "reviewer": "review_p06_sources",
+    "current_plan_sha256": "48f59468df880069828fb005a8809c3910b7cc602687fea5e53ab193df536852",
+    "historical_checks_preserved": true,
+    "original_source_files_published": false,
+    "documentation_check": {
+      "local_markdown_paths_checked": 278,
+      "missing_paths": [],
+      "vault_notes_checked": 47,
+      "vault_issues": [],
+      "git_diff_check_exit_code": 0
+    }
+  }
 }

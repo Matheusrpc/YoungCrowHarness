@@ -354,7 +354,9 @@ O [piloto público](https://matheusrpc.github.io/YoungCrowHarness/) demonstra o 
 um quadro de entregas para acompanhar projeto novo, migração, testes, memória e publicação.
 O [exemplo](examples/delivery-board/README.md) tem página com filtros, critérios e um vault próprio.
 O percurso local foi verificado por teclado e em tela estreita. No Windows e no Linux, projeto novo e migração
-passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do trial. O site publicado teve revisão, hashes e uso conferidos. A retomada passou no Codex; no Claude, aguarda renovação de login.
+passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do trial. O site publicado teve revisão, hashes e uso conferidos. A retomada passou no Codex; a nova prova Claude aguarda
+[correção do runner e do verificador](docs/relatorios/2026-10-09-p06-runner-review.md).
+O operador reportou login ativo, ainda sem nova inferência comprovada.
 Veja as [provas e limites](docs/relatorios/2026-10-03-public-pilot.md).
 O pacote usa uma lista explícita de arquivos e um manifesto de hashes; o CI do piloto valida dados, testes e navegação do vault.
 
@@ -960,7 +962,9 @@ The [public pilot](https://matheusrpc.github.io/YoungCrowHarness/) demonstrates 
 a delivery board covering a new project, adoption, tests, memory and publication.
 The [example](examples/delivery-board/README.md) has a page with filters, acceptance criteria and its own vault.
 The local flow was checked with keyboard navigation and a narrow viewport. On Windows and Linux, new and existing
-projects passed real setup and returned to their initial state while retaining trial work. The published site passed revision, hash and interaction checks. Retrieval passed in Codex; Claude needs a renewed login.
+projects passed real setup and returned to their initial state while retaining trial work. The published site passed revision, hash and interaction checks. Retrieval passed in Codex; the new Claude proof awaits
+[runner and verifier corrections](docs/relatorios/2026-10-09-p06-runner-review.md).
+The operator reported an active login; fresh inference remains unverified.
 See the [evidence and limits](docs/relatorios/2026-10-03-public-pilot.md).
 The package uses an explicit file list and hash manifest; the pilot CI checks data, tests and vault navigation.
 

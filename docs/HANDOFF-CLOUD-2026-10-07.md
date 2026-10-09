@@ -12,10 +12,13 @@ em America/Sao_Paulo. Falhas anteriores abaixo são histórico, não resultados 
 
 O mantenedor pediu aprovação por lote para as próximas provas. Usar a
 [campanha controlada](TEST-RUN-2026-10-10.md): não pedir confirmação por teste dentro
-de um pacote autorizado. O supervisor privado P06 precisa ser conferido no PC;
-o pacote Docker permanece bloqueado. O lote A e a política foram aprovados em 9/out;
-manter 10/out às 18h30, sem pedir novamente a mesma aprovação. Autenticação e
-supervisor ainda condicionam a chamada; nenhuma prova nativa ou ciclo foi iniciado.
+de um pacote autorizado. Os dois fontes privados de P06 foram recuperados e
+[auditados](relatorios/2026-10-09-p06-runner-review.md). Precisam de limite preventivo
+de ferramentas, encerramento no prazo e verificação específica de Claude antes da
+nova tentativa. Preservar os marcadores de 3/out. O operador reportou login ativo
+por assinatura, sem inferência comprovada. O pacote Docker permanece bloqueado.
+O lote A e a política foram aprovados em 9/out; manter 10/out às 18h30, sem pedir
+novamente a mesma aprovação. Nenhuma nova prova nativa ou ciclo foi iniciado.
 
 Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor atual](#6-estado-atual-do-executor-componente-por-componente) · [testes](#7-o-que-os-testes-já-demonstraram) · [falhas](#8-falhas-históricas-causas-e-tratamento) · [próximos passos](#10-próximos-passos-de-implementação-em-ordem) · [backlog](#11-backlog-restante-até-o-produto-completo) · [transferência para cloud](#12-o-que-levar-para-a-cloud) · [evidências](#14-evidências-e-identidade-da-implementação).
 

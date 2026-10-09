@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 import sys
 import tempfile
+import time
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -74,7 +76,8 @@ class PilotClaudeTests(unittest.TestCase):
 
     def test_temporary_credential_cleanup_includes_copy_failures(self):
         source=self.base/'source.json'
-        source.write_text('synthetic-credential')
+        source.write_text(json.dumps({'claudeAiOauth':{'expiresAt':int((time.time()+3600)*1000)}}))
+        original=source.read_bytes()
         profile=self.base/'profile'
         self.assertTrue(hasattr(self.p,'temporary_auth'), 'Credential cleanup missing')
         def partial_copy(src,dst):
@@ -90,7 +93,78 @@ class PilotClaudeTests(unittest.TestCase):
             with self.p.temporary_auth(source,profile):
                 raise RuntimeError('simulated authentication failure')
         self.assertFalse((profile/'.credentials.json').exists())
-        self.assertEqual(source.read_text(),'synthetic-credential')
+        self.assertEqual(source.read_bytes(),original)
+
+    def test_credential_expiry_and_session_margin_are_checked_without_leaking_contents(self):
+        source=self.base/'source.json'
+        now=1000
+        for number, expiry in enumerate((None, True, 'private-fixture', float('inf'), 0,
+                                          (now+359)*1000, (now+360)*1000)):
+            with self.subTest(expiry=expiry):
+                source.write_text(json.dumps({'claudeAiOauth':{
+                    'accessToken':'private-fixture', 'expiresAt':expiry}}))
+                profile=self.base/f'profile-{number}'
+                with patch.object(self.p,'time',SimpleNamespace(time=lambda:now),create=True):
+                    with self.assertRaisesRegex(ValueError,'subscription_') as failure:
+                        with self.p.temporary_auth(source,profile):
+                            pass
+                self.assertNotIn('private-fixture',str(failure.exception))
+                self.assertFalse((profile/'.credentials.json').exists())
+        source.write_text(json.dumps({'claudeAiOauth':{'expiresAt':(now+360)*1000+1}}))
+        with patch.object(self.p,'time',SimpleNamespace(time=lambda:now),create=True):
+            with self.p.temporary_auth(source,self.base/'fresh-profile'):
+                self.assertEqual((self.base/'fresh-profile/.credentials.json').read_bytes(),source.read_bytes())
+
+    def test_actual_credential_copy_is_checked_before_releasing_client(self):
+        source=self.base/'source.json'
+        source.write_text(json.dumps({'claudeAiOauth':{'expiresAt':int((time.time()+3600)*1000)}}))
+        original=source.read_bytes()
+        def stale_copy(src,dst):
+            Path(dst).write_text(json.dumps({'claudeAiOauth':{'expiresAt':0}}))
+        profile=self.base/'profile'
+        with patch.object(self.p.shutil,'copyfile',side_effect=stale_copy):
+            with self.assertRaisesRegex(ValueError,'subscription_login_expired_or_expiring'):
+                with self.p.temporary_auth(source,profile):
+                    pass
+        self.assertEqual(source.read_bytes(),original)
+        self.assertFalse((profile/'.credentials.json').exists())
+
+    def test_expired_login_blocks_prepare_before_creating_package(self):
+        source=self.base/'.credentials.json'
+        source.write_text(json.dumps({'claudeAiOauth':{'expiresAt':0}}))
+        package=self.base/'package'
+        local_os=SimpleNamespace(name='nt',environ={'CLAUDE_CONFIG_DIR':str(self.base)},
+                                 walk=self.p.os.walk,fsync=self.p.os.fsync)
+        with patch.object(self.p,'os',local_os), patch.object(self.p,'BASE',str(package)), \
+                patch.object(self.p,'native_executable',return_value=Path(sys.executable)), \
+                patch.object(self.p,'supervised_worker',side_effect=ValueError('client_started')) as worker:
+            with self.assertRaisesRegex(ValueError,'subscription_login_expired_or_expiring'):
+                self.p.campaign('prepare',skills_dir=self.base/'skills')
+            worker.assert_not_called()
+        self.assertFalse(package.exists())
+
+    def test_login_expiring_after_prepare_blocks_run_before_reservation(self):
+        source=self.base/'.credentials.json'
+        source.write_text(json.dumps({'claudeAiOauth':{'expiresAt':int((time.time()+3600)*1000)}}))
+        package=self.base/'package'
+        local_os=SimpleNamespace(name='nt',environ={'CLAUDE_CONFIG_DIR':str(self.base)},
+                                 walk=self.p.os.walk,fsync=self.p.os.fsync)
+        observed=dict(reason='completed',exit_code=0,tree_reaped=True,
+                      stdout=b'{"type":"p06_initialized"}\n',stderr=b'')
+        with patch.object(self.p,'os',local_os), patch.object(self.p,'BASE',str(package)), \
+                patch.object(self.p,'native_executable',return_value=Path(sys.executable)), \
+                patch.object(self.p,'supervised_worker',side_effect=lambda *args:dict(observed)) as worker:
+            result=self.p.campaign('prepare',skills_dir=self.base/'skills')
+            self.assertEqual(result['state'],'prepared_no_model_prompt')
+            setup_before=(package/'setup.json').read_bytes()
+            source.write_text(json.dumps({'claudeAiOauth':{'expiresAt':0}}))
+            worker.reset_mock()
+            with self.assertRaisesRegex(ValueError,'subscription_login_expired_or_expiring'):
+                self.p.campaign('run')
+            worker.assert_not_called()
+        self.assertFalse((package/'started.json').exists())
+        self.assertFalse((package/'profile-run').exists())
+        self.assertEqual((package/'setup.json').read_bytes(),setup_before)
 
     def run_fixture(self, mode, seconds=5):
         self.assertTrue(hasattr(self.p,'supervised_worker'), 'Supervised protocol worker missing')

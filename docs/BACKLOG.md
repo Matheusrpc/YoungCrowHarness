@@ -241,7 +241,7 @@ package. Existing limits, separate acceptance criteria and current blockers rema
 
 | ID | Entrega | Dependência | Critério de aceite | Estado |
 |---|---|---|---|---|
-| YC-010 | Retomar o piloto público em sessão nova do Claude | Login válido e tentativa delimitada | Encontrar índices, UUIDs, revisão e produção observada sem receber o histórico inteiro; registrar resultado real | [13 testes Windows passaram](relatorios/2026-10-09-p06-windows-tests.md). A [tentativa Haiku](relatorios/2026-10-09-p06-haiku.md), após login renovado, também falhou por OAuth. Um prompt registrado, tokens reportados zerados e limpeza confirmada. Diagnóstico do login e aceite de memória pendentes; tentativa consumida |
+| YC-010 | Retomar o piloto público em sessão nova do Claude | Login válido e tentativa delimitada | Encontrar índices, UUIDs, revisão e produção observada sem receber o histórico inteiro; registrar resultado real | [Tentativa Haiku](relatorios/2026-10-09-p06-haiku.md) falhou por OAuth; o login venceu antes do preparo. [Checagem de validade](relatorios/2026-10-09-p06-expiry-guard.md) implementada e 17 testes focados passaram. Nova revisão Windows e aceite de memória pendentes; reservas anteriores consumidas |
 | YC-011 | Provar as quatro novas skills nos clientes nativos | Instalação atual e sessão autorizada em cada cliente | Descobrir e aplicar `yc-personalizer`, `yc-config`, `yc-missao` e `yc-status`; preservar dados e distinguir preparo de execução | Pendente; integra a prova de YC-203 |
 
 ## Frente 2: execução e continuidade

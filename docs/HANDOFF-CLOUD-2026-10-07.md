@@ -48,6 +48,14 @@ o run terminou em 4,102774 s por OAuth expirado sem renovação. Inicialização
 autorização ficou consumida. O próximo passo é conferir a origem e os metadados
 do login, sem novo prompt, troca de modelo ou atualização automática do cliente.
 
+Metadados recebidos depois: arquivo atualizado às 09h51min56s e validade encerrada
+às 17h51min56s (America/Sao_Paulo). O preparo começou cerca de 20 s após o
+vencimento; o run, 25 s depois. A [checagem de validade](relatorios/2026-10-09-p06-expiry-guard.md)
+agora recusa `expiresAt` sem mais de 360 s antes de criar pacote/reserva e reconfere
+a cópia temporária. 17 testes focados passaram; suíte completa com 648 aprovados
+e 20 pulados, sem falhas. Nova prova Windows pendente. Isso corrige a admissão de login vencido, não a renovação
+OAuth. Preservar pacotes antigos; renovar login e preparar nova revisão sem prompt.
+
 Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor atual](#6-estado-atual-do-executor-componente-por-componente) · [testes](#7-o-que-os-testes-já-demonstraram) · [falhas](#8-falhas-históricas-causas-e-tratamento) · [próximos passos](#10-próximos-passos-de-implementação-em-ordem) · [backlog](#11-backlog-restante-até-o-produto-completo) · [transferência para cloud](#12-o-que-levar-para-a-cloud) · [evidências](#14-evidências-e-identidade-da-implementação).
 
 ## 1. Leia isto primeiro

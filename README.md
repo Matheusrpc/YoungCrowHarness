@@ -361,7 +361,9 @@ As [correções dos testes Windows](docs/relatorios/2026-10-09-p06-windows-tests
 passaram nos 13 casos no PC do operador. O novo pacote Claude foi preparado com
 zero prompts. A [tentativa com Haiku explícito](docs/relatorios/2026-10-09-p06-haiku.md)
 também parou por OAuth expirado, com zero tokens reportados e limpeza confirmada.
-O diagnóstico da renovação e o aceite de memória permanecem pendentes.
+Os metadados confirmaram que o login venceu cerca de 25 segundos antes do teste.
+O runner agora [recusa validade insuficiente antes de reservar](docs/relatorios/2026-10-09-p06-expiry-guard.md).
+A renovação OAuth e o aceite de memória continuam sem comprovação.
 Veja as [provas e limites](docs/relatorios/2026-10-03-public-pilot.md).
 O pacote usa uma lista explícita de arquivos e um manifesto de hashes; o CI do piloto valida dados, testes e navegação do vault.
 
@@ -974,7 +976,9 @@ The [Windows test corrections](docs/relatorios/2026-10-09-p06-windows-tests.md)
 passed all 13 cases on the operator's Windows PC. A new Claude package was prepared
 with zero prompts. The [explicit Haiku attempt](docs/relatorios/2026-10-09-p06-haiku.md)
 also stopped on expired OAuth, with zero reported tokens and confirmed cleanup.
-Refresh diagnosis and native retrieval acceptance remain pending.
+Metadata confirmed expiry about 25 seconds before the run. The runner now
+[rejects insufficient validity before reservation](docs/relatorios/2026-10-09-p06-expiry-guard.md).
+OAuth refresh and native retrieval acceptance remain unverified.
 See the [evidence and limits](docs/relatorios/2026-10-03-public-pilot.md).
 The package uses an explicit file list and hash manifest; the pilot CI checks data, tests and vault navigation.
 

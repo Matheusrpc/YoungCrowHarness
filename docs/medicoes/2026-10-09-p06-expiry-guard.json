@@ -1,0 +1,65 @@
+{
+  "front": "P06 credential expiry preflight",
+  "base_commit": "681035e71a3d45fbb21ba334d632f5abc4fd467d",
+  "observed_at": "2026-10-09T21:53:41.942732+00:00",
+  "operator_metadata": {
+    "evidence_kind": "operator_reported_metadata_only",
+    "credential_modified_utc": "2026-10-09T12:51:56.3369777Z",
+    "operator_now_utc": "2026-10-09T21:46:11.6507208+00:00",
+    "expires_utc": "2026-10-09T20:51:56.1060000+00:00",
+    "refresh_token_present": true,
+    "oauth_override_present": false,
+    "api_key_override_present": false,
+    "proxy_environment_present": false,
+    "prepare_seconds_after_expiry": 19.936753,
+    "run_seconds_after_expiry": 25.441313
+  },
+  "change": {
+    "scope": "development-only Claude pilot runner",
+    "minimum_remaining_seconds": 360,
+    "strictly_greater": true,
+    "checks": [
+      "original credential before prepare writes",
+      "original credential before run reservation",
+      "actual temporary copy before worker release"
+    ],
+    "new_model_calls": 0
+  },
+  "red": {
+    "command": "python3 -B -m unittest discover -s tests -p test_pilot_claude.py -v",
+    "tests": 17,
+    "failures": 10,
+    "errors": 0,
+    "seconds": 3.308,
+    "failed_new_test_methods": 4
+  },
+  "green": {
+    "command": "python3 -B -m unittest discover -s tests -p test_pilot_claude.py -v",
+    "tests": 17,
+    "passed": 17,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 3.338
+  },
+  "full_suite": {
+    "command": "python3 -B -m unittest discover -s tests -v",
+    "tests": 668,
+    "passed": 648,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 324.553
+  },
+  "windows_verification": "pending_new_revision",
+  "oauth_refresh_fixed": false,
+  "native_retry_authorized": false,
+  "source_sha256": {
+    "tests/pilot_claude.py": "ea17f27a474fa77a47bb5c61d3b819f99255acf66025662541b1576f23284c99",
+    "tests/test_pilot_claude.py": "d97b7230e6a07731f1902ed07aa62d240147638dbb83fbec7fac7ddec52285ca"
+  },
+  "review": {
+    "kind": "root_static_review_and_executed_regressions",
+    "independent_agent_review": "unavailable_usage_limit",
+    "scope": "expiry admission only; no provider refresh fix claimed"
+  }
+}

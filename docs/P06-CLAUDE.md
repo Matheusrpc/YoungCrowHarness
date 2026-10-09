@@ -21,7 +21,25 @@ a execução de r2 com modelo padrão foi substituída pelo preparo explícito d
 A [tentativa Haiku](relatorios/2026-10-09-p06-haiku.md) foi executada e falhou por
 OAuth expirado sem renovação. Registrou um prompt e zero tokens reportados;
 processos e credencial temporária foram limpos. A autorização está consumida.
-O próximo passo é diagnosticar a origem do login, sem outra chamada ao modelo.
+Os metadados posteriores confirmaram vencimento cerca de 20 segundos antes do
+preparo e 25 segundos antes do run. O runner recebeu a checagem descrita abaixo;
+a renovação OAuth e o aceite de memória continuam pendentes.
+
+## Validade do login antes do preparo e da reserva
+
+A [correção de admissão](relatorios/2026-10-09-p06-expiry-guard.md) exige mais de
+seis minutos de validade em `expiresAt` antes de criar o pacote ou reservar o run.
+O campo deve ser um inteiro em milissegundos Unix. A cópia temporária também passa
+pela checagem antes de liberar o cliente. Essa validação local não comprova aceitação
+ou renovação pelo fornecedor.
+
+`subscription_login_expired_or_expiring` pede renovação do login original antes
+de continuar. `subscription_expiry_unknown` indica metadados ausentes ou inválidos;
+não editar credenciais nem enviá-las no chat. A recusa anterior à reserva não cria
+`started.json`; uma recusa posterior à reserva conserva o marcador. Nenhuma dessas
+checagens libera as tentativas antigas. Preparar nova revisão em pacote separado,
+com `--model claude-haiku-5-5`, e registrar sua operação antes de pedir autorização
+para outra inferência. Não substituir o código dentro de um pacote preparado.
 
 ## Modelo econômico autorizado
 
@@ -306,3 +324,10 @@ The Haiku attempt has now been executed and failed with expired OAuth that could
 not be refreshed. Initialization reported the selected model, one prompt was
 recorded and token counters were zero. Cleanup passed; the reservation remains
 consumed. Diagnose the authentication source without starting another session.
+
+Metadata subsequently confirmed that the credential expired before preparation.
+The corrected runner checks for more than six minutes of declared validity before
+creating the package or reserving a run, and rechecks the actual temporary copy.
+Missing or malformed expiry is refused without printing credential contents.
+This does not prove provider acceptance or fix refresh. Preserve old packages and
+prepare a separate corrected revision before reviewing any new inference.

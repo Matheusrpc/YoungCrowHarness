@@ -13,6 +13,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 import uuid
 
 sys.dont_write_bytecode = True
@@ -273,6 +274,20 @@ def verify(context, before, events, supervision):
                 session_id=next(iter(sessions)), observed_models=models, handoff=result)
 
 
+def check_credential_expiry(source):
+    source = fs.checked_path(source)
+    require(source.is_file(), 'subscription_credential_missing')
+    try:
+        expires = json.loads(source.read_text(encoding='utf-8'))['claudeAiOauth']['expiresAt']
+    except (ValueError, KeyError, TypeError):
+        raise ValueError('subscription_expiry_unknown') from None
+    require(type(expires) is int, 'subscription_expiry_unknown')
+    # Local metadata only, not proof of provider acceptance. Allow the 300-second
+    # session plus 60 seconds for startup before relying on this credential.
+    require(expires > (time.time() + SECONDS + 60) * 1000,
+            'subscription_login_expired_or_expiring')
+
+
 @contextmanager
 def temporary_auth(source, profile):
     fs.checked_path(source)
@@ -284,6 +299,7 @@ def temporary_auth(source, profile):
     try:
         # Cleanup also covers partial copy and authentication failures.
         shutil.copyfile(source, credential)
+        check_credential_expiry(credential)
         yield
     finally:
         credential.unlink(missing_ok=True)
@@ -429,6 +445,7 @@ def campaign(mode, executable=None, model='default', skills_dir=None):
     source = Path(os.environ.get('CLAUDE_CONFIG_DIR') or Path.home() / '.claude') / '.credentials.json'
     if mode == 'prepare':
         require(not base.exists(), 'preserve_existing_package')
+        check_credential_expiry(source)
         exe = native_executable(executable)
         base.parent.mkdir(parents=True, exist_ok=True)
         fs.private_dir(base)
@@ -443,6 +460,7 @@ def campaign(mode, executable=None, model='default', skills_dir=None):
     else:
         setup = read_prepared(base)
         require(not marker.exists(), 'attempt_already_reserved_no_retry')
+        check_credential_expiry(source)
         require(setup['batch_id'] == BATCH and setup['package'] == package_hashes(ROOT)
                 and setup['before'] == snapshot(context), 'package_changed')
         exe = Path(setup['executable'])

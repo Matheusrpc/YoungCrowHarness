@@ -36,6 +36,9 @@ passaram nos 13 casos no PC do operador. Um novo pacote foi preparado com zero
 prompts. A [tentativa Haiku](relatorios/2026-10-09-p06-haiku.md) foi executada e
 também falhou por OAuth. Preservar o pacote e diagnosticar a origem do login;
 a autorização foi consumida, sem repetição automática.
+Os metadados confirmaram vencimento antes do teste. O runner agora
+[recusa credenciais sem validade suficiente](relatorios/2026-10-09-p06-expiry-guard.md)
+antes de criar o pacote ou reservar a tentativa; isso não comprova renovação OAuth.
 O README do exemplo explica como gerar e servir somente o pacote permitido, em um destino novo.
 
 [Open the demonstration](https://matheusrpc.github.io/YoungCrowHarness/) or follow the [pilot recipe](../examples/delivery-board/README.md), which brings these paths together in an example
@@ -49,6 +52,9 @@ passed all 13 cases on the operator's PC. A new package was prepared with zero
 prompts. The [Haiku attempt](relatorios/2026-10-09-p06-haiku.md) was executed and
 also failed on OAuth. Preserve the package and diagnose the authentication source;
 the authorization was consumed, with no automatic retry.
+Metadata confirmed expiry before the test. The runner now
+[rejects insufficient credential validity](relatorios/2026-10-09-p06-expiry-guard.md)
+before package creation or reservation; this does not prove OAuth refresh.
 The example README explains how to build and serve only the allowed package, using a new destination.
 
 Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;

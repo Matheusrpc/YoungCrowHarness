@@ -7,6 +7,14 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
+Revisão de arquitetura em 8/out: proxy fixo entre missões pode reduzir escritas, mas
+ainda exige proteção do endpoint e recuperação verificável de credenciais. A instalação
+exclusiva já estava aprovada; não iniciar uma reescrita apenas para evitar a consulta
+ao fornecedor. A alternativa não foi implementada. [Parecer](relatorios/2026-10-08-executor-lifecycle-review.md).
+Architecture review: a fixed proxy between missions could reduce writes, but endpoint
+ownership and credential recovery remain unresolved. Exclusive installation was already
+approved. No replacement was implemented; a vendor issue remains optional.
+
 Incremento atual: leituras de missão e observação independente de egress, publicado
 em `b106bc5`. Passaram 616 testes locais, com 20 pulados; adoção com diagnóstico em
 consumidor novo/existente também passou. Os 12 focais Windows passaram no push e no PR;

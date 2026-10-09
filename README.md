@@ -47,6 +47,11 @@ passaram com 17 hashes fixados conferidos e os 635 arquivos preservados. A suít
 usa transporte e efeitos nativos simulados; o aceite nativo continua pendente.
 [Recuperação e reprodução da suíte](docs/relatorios/2026-10-08-b-source-recovery.md).
 
+A [revisão do ciclo de configuração](docs/relatorios/2026-10-08-executor-lifecycle-review.md)
+identificou uma alternativa com proxy fixo entre missões. Ela pode reduzir escritas,
+mas ainda depende de proteção do endpoint e recuperação das credenciais; não foi
+implementada. O contrato atual e os bloqueios permanecem. Abrir uma issue no Docker é opcional.
+
 **Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
 chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 O pacote público passou em 516 testes, com 20 pulados; naquela rodada, o CI não pôde ser consultado.
@@ -612,6 +617,11 @@ The private B capture bundle was recovered in the cloud. All 26 offline tests pa
 17 pinned hashes matched, and all 635 files remained unchanged. The suite mocks
 transport and native effects; native acceptance is still pending.
 [Recovery and suite replay](docs/relatorios/2026-10-08-b-source-recovery.md#english-overview).
+
+The [configuration lifecycle review](docs/relatorios/2026-10-08-executor-lifecycle-review.md#english-overview)
+identified a fixed proxy between missions as a way to reduce writes. Endpoint ownership
+and credential recovery remain unresolved; the alternative is not implemented.
+The current contract and gates remain. Filing a Docker issue is optional.
 
 **Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
 are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).

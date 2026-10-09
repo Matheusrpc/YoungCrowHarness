@@ -21,6 +21,13 @@ cd YoungCrowHarness
 
 O próximo passo de 203.6 é comprovar identidade, versão e remoção atômica condicionada da credencial fictícia no sbx local 0.46.0. A API Cloud documenta esse contrato, mas usa recursos separados. O contrato v4 de injeção distinta do placeholder já tem prova local; faltam adaptador, pacote e aceite nativos. Não reiniciar a investigação do zero, não produzir outro roteiro experimental de PowerShell e não repetir operações históricas consumidas.
 
+A [revisão de simplificação em 8/out](relatorios/2026-10-08-executor-lifecycle-review.md)
+avaliou manter o proxy configurado entre missões. Isso pode retirar escritas de settings
+das missões, mas não resolve sozinho propriedade do endpoint e recuperação de credenciais.
+A instalação exclusiva já estava aprovada. Não reimplementar esse fluxo antes de fechar
+essas condições; a alternativa não está implementada nem aprovada como substituta.
+Abrir uma issue no fornecedor é opcional. O contrato e os bloqueios atuais permanecem.
+
 ### Recuperação dos fontes de B em 8/out
 
 Os quatro fontes/testes de captura e integração e os dois recibos B chegaram por

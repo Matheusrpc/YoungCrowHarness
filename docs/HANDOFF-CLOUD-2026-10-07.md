@@ -41,6 +41,13 @@ para aplicar essa restrição. Preservar a revisão `6481a91` e os pacotes anter
 O CI do PR `37984416730` passou integralmente, incluindo P06; o push `37984411482`
 mantém a falha histórica de diagnóstico anterior ao P06.
 
+Atualização posterior: a [tentativa Haiku](relatorios/2026-10-09-p06-haiku.md) foi
+executada, operação `4c9999a6-8c3a-4ec7-abc8-b187360d0b35`. O preparo passou;
+o run terminou em 4,102774 s por OAuth expirado sem renovação. Inicialização em
+`claude-haiku-5-5`, um prompt, zero tokens reportados e limpeza confirmada. A
+autorização ficou consumida. O próximo passo é conferir a origem e os metadados
+do login, sem novo prompt, troca de modelo ou atualização automática do cliente.
+
 Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor atual](#6-estado-atual-do-executor-componente-por-componente) · [testes](#7-o-que-os-testes-já-demonstraram) · [falhas](#8-falhas-históricas-causas-e-tratamento) · [próximos passos](#10-próximos-passos-de-implementação-em-ordem) · [backlog](#11-backlog-restante-até-o-produto-completo) · [transferência para cloud](#12-o-que-levar-para-a-cloud) · [evidências](#14-evidências-e-identidade-da-implementação).
 
 ## 1. Leia isto primeiro
@@ -91,8 +98,8 @@ O mantenedor autorizou antecipar o que não depende do executor: `status` agora 
 `queue_preview`, somente para a entrada inicial do backlog. Não usa eventos de
 importação como sequência de prontidão, não reserva vagas e não inicia agentes.
 Coordenação e despacho continuam dependentes do aceite de YC-203.
-A prova de retomada no Claude aguarda execução autorizada do pacote preparado
-e revisão do resultado; não substitui o aceite isolado de YC-203.
+A prova de retomada no Claude aguarda diagnóstico da renovação OAuth e posterior
+prova autenticada; não substitui o aceite isolado de YC-203.
 
 Visão posterior registrada: [YC-X05, aviário e cockpit local](BACKLOG.md#yc-x05-aviário-da-squad-e-cockpit-local).
 Desenhar somente depois de concluir todo o roadmap principal: mascotes pássaros por

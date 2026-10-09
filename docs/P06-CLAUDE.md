@@ -18,8 +18,15 @@ preservada. Duas suposições de plataforma nos testes foram
 passou nos 13 testes no PC do operador. O novo pacote r2 foi preparado com zero
 prompts e revisado. O mantenedor aprovou uma sessão e exigiu o modelo mais barato:
 a execução de r2 com modelo padrão foi substituída pelo preparo explícito de Haiku.
+A [tentativa Haiku](relatorios/2026-10-09-p06-haiku.md) foi executada e falhou por
+OAuth expirado sem renovação. Registrou um prompt e zero tokens reportados;
+processos e credencial temporária foram limpos. A autorização está consumida.
+O próximo passo é diagnosticar a origem do login, sem outra chamada ao modelo.
 
 ## Modelo econômico autorizado
+
+Esta seção registra a decisão e o preparo da tentativa já consumida. O diagnóstico
+atual está no relatório acima; as instruções históricas não autorizam repetição.
 
 O mantenedor aprovou uma única sessão e, antes da execução, restringiu o teste ao
 modelo mais barato. O [catálogo oficial](https://github.com/anthropics/skills/blob/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/claude-api/shared/models.md)
@@ -46,13 +53,13 @@ no servidor para Haiku 5.5. Conferir `observed_models` no resultado: o verificad
 registra os modelos observados, mas não compara automaticamente com o solicitado.
 Uma recusa encerra a tentativa; não substituir por outro modelo ou repetir.
 
-## Executar o pacote Haiku aprovado
+## Roteiro da tentativa Haiku registrada
 
-No PowerShell do rmfon, o bloco abaixo prepara e executa uma única sessão conforme
-aprovação e restrição acima. Ele não repete os 13 testes do código inalterado.
+O bloco abaixo foi executado no rmfon e fica como histórico. Não repetir, apagar
+marcadores ou mudar a pasta para renovar a tentativa. Ele não repete os 13 testes do código inalterado.
 Uma pasta existente ou qualquer falha interrompe o fluxo, preservando os recibos.
 O registro de autorização fica fora do contexto que o modelo pode ler.
-O roteiro foi revisado estaticamente; a execução com Haiku no Windows ainda está pendente.
+O preparo passou; a execução terminou com a falha OAuth registrada acima.
 
 ```powershell
 & {
@@ -100,8 +107,8 @@ O roteiro foi revisado estaticamente; a execução com Haiku no Windows ainda es
 }
 ```
 
-Ao terminar, revisar o recibo resumido e `observed_models` antes de aceitar o handoff.
-Se o cliente não aceitar Haiku 5.5, encerrar sem mudar o modelo nem repetir a chamada.
+Preservar o recibo e os eventos. A inicialização registrou Haiku 5.5; a falha OAuth
+impediu o aceite de memória. Não mudar o modelo nem repetir a chamada.
 
 ## Renovar o login após a falha OAuth
 
@@ -294,3 +301,8 @@ with no more expensive fallback. Native compatibility with pinned CLI 2.1.220 an
 retrieval remain unverified; Haiku 5.5 support was announced in CLI 2.1.293.
 Keep both earlier packages unchanged. No additional approval is required merely
 to apply this explicit restriction.
+
+The Haiku attempt has now been executed and failed with expired OAuth that could
+not be refreshed. Initialization reported the selected model, one prompt was
+recorded and token counters were zero. Cleanup passed; the reservation remains
+consumed. Diagnose the authentication source without starting another session.

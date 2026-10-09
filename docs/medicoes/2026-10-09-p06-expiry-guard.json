@@ -50,7 +50,38 @@
     "errors": 0,
     "seconds": 324.553
   },
-  "windows_verification": "pending_new_revision",
+  "windows_verification": {
+    "evidence_kind": "operator_reported_terminal_output",
+    "git_revision": "47a81504deeafe59920036d3cf39a422a7317f81",
+    "source_sha256": "8a247ac6b761b61ef242d9e159c5bed7caf0219fe04ea60ae6160cb27a1b0146",
+    "source_bytes": 6721,
+    "tests": 17,
+    "passed": 17,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 12.776,
+    "interactive_login_reported": "Login successful.",
+    "prepare_model_argument": "claude-haiku-5-5",
+    "prepare_receipt": {
+      "batch_id": "YC-TEST-20261010-A",
+      "operation_id": "164e5438-0cac-4089-845c-f1e3cc60db04",
+      "state": "prepared_no_model_prompt",
+      "native_prompt_count": 0,
+      "temporary_credential_removed": true,
+      "original_auth_unchanged": true,
+      "setup_sha256": "45ec8706433bbe3866c17d79d963df7e3617eaaf224ca15f4c27a24e87ea8ac4",
+      "supervision": {
+        "reason": "completed",
+        "exit_code": 0,
+        "tree_reaped": true,
+        "effect_started": true,
+        "elapsed_seconds": 4.968794,
+        "started_at": "2026-10-09T22:13:13.041313+00:00",
+        "ended_at": "2026-10-09T22:13:18.010608+00:00"
+      }
+    },
+    "provider_inference_acceptance_confirmed": false
+  },
   "oauth_refresh_fixed": false,
   "native_retry_authorized": false,
   "source_sha256": {
@@ -61,5 +92,27 @@
     "kind": "root_static_review_and_executed_regressions",
     "independent_agent_review": "unavailable_usage_limit",
     "scope": "expiry admission only; no provider refresh fix claimed"
+  },
+  "ci": {
+    "revision": "47a81504deeafe59920036d3cf39a422a7317f81",
+    "push": {
+      "run_id": 37996841986,
+      "conclusion": "failure",
+      "passed_jobs": [
+        "public-pilot",
+        "graphify-smoke",
+        "installer"
+      ],
+      "failed_job": "adoption-windows",
+      "failed_step": "Diagnose Windows network, selection locks and cleanup",
+      "failure_annotation": "test_mission_egress.EgressTests.test_abrupt_controller_exit_before_config_reaps_the_waiting_guard",
+      "p06_step": "skipped"
+    },
+    "pull_request": {
+      "run_id": 37996847736,
+      "status": "in_progress",
+      "conclusion": null,
+      "p06_step": "pending"
+    }
   }
 }

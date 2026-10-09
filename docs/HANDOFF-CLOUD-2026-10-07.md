@@ -53,8 +53,14 @@ Metadados recebidos depois: arquivo atualizado às 09h51min56s e validade encerr
 vencimento; o run, 25 s depois. A [checagem de validade](relatorios/2026-10-09-p06-expiry-guard.md)
 agora recusa `expiresAt` sem mais de 360 s antes de criar pacote/reserva e reconfere
 a cópia temporária. 17 testes focados passaram; suíte completa com 648 aprovados
-e 20 pulados, sem falhas. Nova prova Windows pendente. Isso corrige a admissão de login vencido, não a renovação
-OAuth. Preservar pacotes antigos; renovar login e preparar nova revisão sem prompt.
+e 20 pulados, sem falhas. O operador confirmou os 17 testes Windows em 12,776 s na
+revisão `47a8150`. Após novo login, o preparo Haiku passou em 4,968794 s com zero
+prompts e limpeza confirmada. Operação `164e5438-0cac-4089-845c-f1e3cc60db04`, hash
+`45ec8706433bbe3866c17d79d963df7e3617eaaf224ca15f4c27a24e87ea8ac4`.
+Essa nova operação aguarda aprovação para uma sessão/um prompt/300 s/24 ferramentas.
+Pacotes antigos preservados; renovação OAuth e aceite de memória não comprovados.
+CI push `37996841986` falhou antes de P06 no teste de encerramento abrupto do guard;
+PR `37996847736` ainda em andamento na consulta. Ver relatório para os limites.
 
 Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor atual](#6-estado-atual-do-executor-componente-por-componente) · [testes](#7-o-que-os-testes-já-demonstraram) · [falhas](#8-falhas-históricas-causas-e-tratamento) · [próximos passos](#10-próximos-passos-de-implementação-em-ordem) · [backlog](#11-backlog-restante-até-o-produto-completo) · [transferência para cloud](#12-o-que-levar-para-a-cloud) · [evidências](#14-evidências-e-identidade-da-implementação).
 

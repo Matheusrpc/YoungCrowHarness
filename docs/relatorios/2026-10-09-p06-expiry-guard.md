@@ -50,16 +50,36 @@ não foi chamado. Os testes conferem a ausência de pacote/reserva nos caminhos
 recusados antes desses efeitos e a preservação da credencial original.
 
 A suíte completa terminou: 668 testes, 648 aprovados e 20 pulados, sem falhas, em
-324,553 s. A nova revisão ainda exige confirmação Windows;
-o sucesso anterior de `6481a91` não valida código posterior. Contagens e hashes
-estão na [medição](../medicoes/2026-10-09-p06-expiry-guard.json).
+324,553 s. Contagens e hashes estão na
+[medição](../medicoes/2026-10-09-p06-expiry-guard.json).
+
+## Confirmação no Windows
+
+O operador enviou a saída da revisão `47a8150`: os 17 testes passaram em 12,776 s.
+Após concluir `claude auth login`, preparou o pacote separado com
+`--model claude-haiku-5-5`. O preparo terminou em 4,968794 s, às 22h13min18s UTC,
+com estado `prepared_no_model_prompt`, zero prompts, saída 0, árvore encerrada,
+cópia temporária removida e bytes da credencial original preservados.
+
+A operação é `164e5438-0cac-4089-845c-f1e3cc60db04`; o SHA-256 de `setup.json` é
+`45ec8706433bbe3866c17d79d963df7e3617eaaf224ca15f4c27a24e87ea8ac4`.
+São evidências relatadas pelo operador. O preparo passou pelas checagens locais de
+validade e autenticação, mas não realizou inferência nem comprova refresh OAuth.
+
+No CI, o [push](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37996841986)
+teve três jobs aprovados e falha em `adoption-windows`, na etapa de diagnóstico de
+rede, seleção e limpeza, antes de P06. A anotação identifica
+`test_abrupt_controller_exit_before_config_reaps_the_waiting_guard`.
+O [run do PR](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37996847736)
+ainda estava em andamento na consulta. Não há alegação de CI integralmente verde.
 
 ## Próximo passo
 
-Renovar o login no perfil do operador e conferir os metadados sem expor tokens.
-Preparar um pacote novo com a revisão corrigida e Haiku explícito, sem prompt;
-preservar todos os recibos anteriores. Uma nova inferência exige aprovação da
-operação concreta, porque as duas tentativas registradas consumiram suas reservas.
+O pacote está preparado para revisão: uma sessão, um prompt, até 300 segundos e
+24 ferramentas, esforço `medium`, Haiku explícito, assinatura existente e nenhuma
+API adicional. A operação acima ainda não tem autorização para inferência. As duas
+tentativas anteriores consumiram suas reservas; preservar seus recibos e marcadores.
+Após aprovação, executar somente este pacote e revisar o resultado de memória.
 
 ## English overview
 
@@ -70,7 +90,11 @@ actual temporary copy before releasing the client. Four new regression methods
 failed before the fix; all 17 focused tests now pass without native model calls.
 Existing reservations remain intact. This prevents admitting a locally expired
 credential; it does not fix OAuth refresh or prove provider acceptance. The full
-suite finished with 648 passed and 20 skipped tests, without failures. New Windows
-verification remains pending.
+suite finished with 648 passed and 20 skipped tests, without failures. The operator
+subsequently reported all 17 Windows tests passing in 12.776 seconds on `47a8150`.
+After interactive login, preparation completed in 4.968794 seconds with zero
+prompts and confirmed cleanup. The new operation awaits approval for inference.
+The push CI failed in an earlier Windows cleanup test; its P06 step was skipped.
+The PR run was still in progress when checked.
 
-ATRASO: confirmação Windows da nova revisão | aceite Claude pendente.
+ATRASO: aprovação da nova sessão e aceite Claude pendentes | CI Windows pendente.

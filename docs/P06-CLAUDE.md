@@ -41,6 +41,25 @@ checagens libera as tentativas antigas. Preparar nova revisão em pacote separad
 com `--model claude-haiku-5-5`, e registrar sua operação antes de pedir autorização
 para outra inferência. Não substituir o código dentro de um pacote preparado.
 
+## Pacote corrigido preparado
+
+O operador confirmou os 17 testes Windows em 12,776 s na revisão
+`47a81504deeafe59920036d3cf39a422a7317f81`, renovou o login interativo e preparou
+`p06-package-20261010-expiry` com `--model claude-haiku-5-5`.
+O recibo registra `prepared_no_model_prompt`, zero prompts e conclusão em 4,968794 s;
+árvore encerrada, credencial temporária removida e bytes do login original preservados.
+
+- Operação: `164e5438-0cac-4089-845c-f1e3cc60db04`.
+- SHA-256 de `setup.json`: `45ec8706433bbe3866c17d79d963df7e3617eaaf224ca15f4c27a24e87ea8ac4`.
+- Escopo proposto: uma sessão, um prompt, até 300 s e 24 ferramentas, esforço
+  `medium`, `claude-haiku-5-5`, assinatura existente, sem API adicional ou repetição automática.
+
+Estado: preparado, inferência ainda não autorizada. A autorização das tentativas
+anteriores foi consumida. Após aprovação dessa operação, conferir o hash e executar
+somente o pacote preparado. Manter a revisão fixada e todos os recibos anteriores.
+O runner volta a verificar validade do login antes da reserva; o preparo não prova
+que o fornecedor aceitará a inferência. [Evidência](relatorios/2026-10-09-p06-expiry-guard.md#confirmação-no-windows).
+
 ## Modelo econômico autorizado
 
 Esta seção registra a decisão e o preparo da tentativa já consumida. O diagnóstico
@@ -331,3 +350,8 @@ creating the package or reserving a run, and rechecks the actual temporary copy.
 Missing or malformed expiry is refused without printing credential contents.
 This does not prove provider acceptance or fix refresh. Preserve old packages and
 prepare a separate corrected revision before reviewing any new inference.
+
+The corrected `47a8150` revision passed all 17 tests on the operator's Windows PC.
+Following interactive login, preparation completed in 4.968794 seconds with zero
+prompts and confirmed cleanup. Operation `164e5438-0cac-4089-845c-f1e3cc60db04`
+awaits approval for one bounded Haiku session under the existing subscription.

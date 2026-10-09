@@ -12,6 +12,9 @@ não repetir a inferência. YC-011 e o executor Docker continuam pendentes.
 sem prompt; smoke separado por cliente com recibo. Claude não foi executado aqui,
 e a aplicação nativa em ambos continua pendente. O CI de `5fa0c65` passou nos oito
 jobs de push/PR; esse resultado antecede o incremento de descoberta.
+Próxima ação: executar o [roteiro Claude/Windows sem prompt](YC011-CLAUDE-DISCOVERY.md),
+que fixa `058be40` em uma cópia nova e preserva P06. A seleção de fontes e o
+instalador da fixture foram conferidos na cloud; o recibo nativo Windows está pendente.
 Os parágrafos seguintes preservam a sequência histórica e suas decisões na ocasião.
 
 Checkpoint conferido em 9/out: `a0af931` passou nos oito jobs de push e PR, incluindo

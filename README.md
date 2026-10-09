@@ -1270,6 +1270,8 @@ O teste opcional [smoke_clients.py](tests/smoke_clients.py) confere skills e age
 Com `--discovery-only`, pode consultar um cliente por vez e salvar recibo sem prompt.
 As quatro skills de missão foram [descobertas pelo Codex nesta cloud](docs/relatorios/2026-10-09-client-skill-discovery.md);
 a descoberta Claude e a aplicação nativa continuam pendentes em YC-011.
+O [roteiro Windows](docs/YC011-CLAUDE-DISCOVERY.md) prepara uma cópia pequena e consulta
+o Claude sem prompt, preservando os pacotes P06.
 No modo completo, o Codex envia uma requisição a um modelo fictício em loopback; o Claude carrega metadados pelo SDK.
 Não há chamada de modelo pago, execução de plugins reais ou conexão MCP. Confira o
 [guia dos clientes](docs/USAGE.md#clientes-pt) para confiança e ativação.
@@ -1281,6 +1283,8 @@ calls or MCP connections and does not prove third-party plugin execution.
 `--discovery-only` checks one client at a time and saves a receipt without a prompt.
 The four mission skills were [discovered by Codex in this cloud](docs/relatorios/2026-10-09-client-skill-discovery.md);
 Claude discovery and native application remain pending under YC-011.
+The [Windows recipe](docs/YC011-CLAUDE-DISCOVERY.md) prepares a small checkout and queries
+Claude without a model prompt, preserving P06 packages.
 
 <p align="center">
   <img src="assets/assinatura.svg" alt="☧ Ora et labora ☧ et coda &lt;/&gt;" width="100%">

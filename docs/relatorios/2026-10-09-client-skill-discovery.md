@@ -77,4 +77,14 @@ receipt. Real Codex discovery passed; Claude was not run here. Native applicatio
 of the four skills and Docker executor acceptance remain pending. No model prompt
 was sent, and the previous full smoke remains available.
 
+O próximo passo está no [roteiro Claude/Windows](../YC011-CLAUDE-DISCOVERY.md).
+A seleção esparsa de `058be40` foi executada na cloud: 152 arquivos, 1.629.228 bytes
+de conteúdo de trabalho, 80 dependências presentes e nenhuma mídia. O instalador
+da fixture Claude passou e limpou seus temporários. PowerShell e descoberta Claude
+no PC do operador ainda não foram executados. Nenhum código do probe foi alterado.
+
+The Windows recipe uses a separate checkout pinned to `058be40`. Its sparse source
+selection and actual fixture installer passed on Linux. PowerShell and real Claude
+discovery on the operator's Windows PC remain pending; probe code is unchanged.
+
 ATRASO: descoberta Codex 0 | descoberta Claude pendente | aplicação nativa/YC-203 pendentes.

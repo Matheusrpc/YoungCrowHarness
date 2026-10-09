@@ -121,5 +121,26 @@
     "missing": 0,
     "source_hashes_match": true,
     "git_diff_check": "passed"
+  },
+  "windows_recipe_preparation": {
+    "revision": "058be40265606ef670fa024d0d511975e26f91a1",
+    "required_files": 80,
+    "missing": [],
+    "checkout_files": 152,
+    "checkout_bytes": 1629228,
+    "media_downloaded": false,
+    "fixture_setup_exit_code": 0,
+    "fixture_removed": true,
+    "platform": "linux",
+    "claude_native_run": false,
+    "powershell_run": false,
+    "recipe": "docs/YC011-CLAUDE-DISCOVERY.md",
+    "review": {
+      "markdown_links_checked": 413,
+      "missing": 0,
+      "probe_sources_unchanged": true,
+      "prepared_package_revision_and_probe_hash_match": true,
+      "independent_review": "passed_read_only"
+    }
   }
 }

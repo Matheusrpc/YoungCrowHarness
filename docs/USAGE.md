@@ -300,6 +300,8 @@ nomes encontrados e hashes das quatro skills e suas entradas instaladas.
 `passed` comprova descoberta, não aplicação em uma missão. O teste usa um consumidor
 e perfil temporários, sem copiar seu login. O [Codex passou nesta cloud](relatorios/2026-10-09-client-skill-discovery.md);
 Claude ainda precisa de observação nativa. YC-011 continua parcial.
+Para o PC Windows usado na prova P06, siga o [preparo e a consulta sem prompt](YC011-CLAUDE-DISCOVERY.md).
+O roteiro usa uma cópia nova e preserva os recibos anteriores.
 
 <a id="operar-pt"></a>
 
@@ -987,6 +989,8 @@ skills and their installed entries. `passed` proves discovery, not application i
 a mission. The disposable consumer/profile does not copy personal login data.
 [Codex passed in this cloud](relatorios/2026-10-09-client-skill-discovery.md);
 native Claude observation is still pending. YC-011 remains partial.
+For the Windows PC used in P06, follow the [preparation and metadata-only probe](YC011-CLAUDE-DISCOVERY.md).
+The recipe uses a new checkout and preserves previous receipts.
 
 <a id="operate-en"></a>
 

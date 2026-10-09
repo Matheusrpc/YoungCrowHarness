@@ -231,6 +231,11 @@ desempata por ordem persistida e verifica limites antes de despachar. PM não po
 features, cancelar trabalho em andamento ou reduzir critérios por conta própria. Mudança de
 escopo depende do usuário, cria revisão e reavalia planejamento, orçamento e aprovações.
 
+A [ordenação aprovada em 2026-10-09](2026-10-09-queue-eligibility-refinement.md#ordem-aprovada-entre-etapas-e-papéis)
+prioriza etapas elegíveis de trabalho iniciado e decisões necessárias dos líderes,
+pela sequência em que ficaram prontas. Sem candidatura elegível desse grupo, novos
+PBIs seguem a prioridade persistida. A implementação mantém o aceite de YC-203 como pré-condição.
+
 ## Estado, histórico e memória
 
 A proposta usa Python e SQLite da biblioteca padrão para o estado operacional local. Um processo

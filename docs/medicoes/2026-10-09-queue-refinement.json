@@ -48,5 +48,39 @@
       "git_diff_check_exit_code": 0,
       "product_tests": "not_run_documentation_only"
     }
+  },
+  "approval": {
+    "observed_at": "2026-10-09T03:42:15.909609+00:00",
+    "user_date": "2026-10-09",
+    "user_timezone": "America/Sao_Paulo",
+    "source": "maintainer message: aprovado",
+    "scope": "dispatch order and its six acceptance criteria",
+    "status": "ordering_approved_operational_design_pending",
+    "approved_document_commit": "bfd2dd9c6ea16e43b1f4403e8fb35a7378af0715",
+    "does_not_approve": [
+      "native_executor_acceptance",
+      "2B_implementation",
+      "runtime_changes"
+    ],
+    "documents_sha256": {
+      "README.md": "8ebe88fceb039c443d90d8cc6725f9a244f6ef30eef3a58d1e6877bf0390355b",
+      "docs/BACKLOG.md": "152bcf20f5ef49d71066da2c2e5e31391cdd4adc6071f054947e57f273d8e936",
+      "docs/HANDOFF-CLOUD-2026-10-07.md": "64946afc4b71faf36f4706e580f1f74e9cde139ae4b4d528a9eb32ef3be71755",
+      "docs/superpowers/specs/2026-10-03-ai-product-pipeline-design.md": "03e79dfdf141e77926c677d5d660fa133d0f10fed4fd3e591344271a7d5682e3",
+      "docs/superpowers/specs/2026-10-09-queue-eligibility-refinement.md": "12dbc495a98811c9aeb0b643fd12eb5613eb7b77bdb3f08c0f0c3533b94bf134",
+      "docs/relatorios/2026-10-09-queue-refinement.md": "4f9f2ef8927d8fc396a4a6cd29da582b539f322e73aed51e1ffa8473e3446c4d"
+    },
+    "review": {
+      "agent": "assess_completion_scope",
+      "blocking_findings": 0,
+      "read_only": true
+    },
+    "verification": {
+      "local_link_paths_checked": 352,
+      "missing": 0,
+      "scope": "local Markdown paths outside code examples; no remote or fragment verification",
+      "git_diff_check_exit_code": 0,
+      "product_tests": "not_run_documentation_only"
+    }
   }
 }

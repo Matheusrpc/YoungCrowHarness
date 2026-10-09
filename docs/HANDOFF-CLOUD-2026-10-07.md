@@ -42,9 +42,10 @@ notas nem habilita execução. [Entrega e verificação](relatorios/2026-10-09-m
 
 O próximo preparo independente é a [matriz de elegibilidade de YC-204](superpowers/specs/2026-10-09-queue-eligibility-refinement.md).
 Ela explicita espera, capacidade de PBIs/execuções e recuperação ainda a detalhar.
-Inclui uma proposta de preferência por etapas elegíveis do trabalho iniciado,
+O mantenedor aprovou em 2026-10-09 a preferência por etapas elegíveis do trabalho iniciado,
 ordenadas pela sequência em que ficaram prontas, antes de admitir novos PBIs.
-Essa política ainda precisa de revisão. É um rascunho documental; não inicia 2B. A prova de retomada no Claude aguarda
+Essa escolha está encerrada; o desenho operacional permanece em refinamento e não inicia 2B.
+A prova de retomada no Claude aguarda
 disponibilidade do cliente autenticado e não substitui o aceite isolado de YC-203.
 
 ### Recuperação dos fontes de B em 8/out

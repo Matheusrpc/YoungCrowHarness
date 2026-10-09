@@ -1,6 +1,7 @@
 # Refinamento de YC-204: elegibilidade e reservas
 
-Frente: preparação da fila de desenvolvimento. Estado: rascunho técnico para revisão.
+Frente: preparação da fila de desenvolvimento. Estado: desenho operacional em refinamento;
+política de ordenação aprovada pelo mantenedor em 2026-10-09.
 Este documento não habilita 2B nem substitui o aceite de YC-203. Não há implementação,
 migração, novo comando ou chamada de modelo nesta entrega.
 
@@ -39,11 +40,11 @@ Entre PBIs ainda não iniciados e elegíveis, a ordem é a prioridade persistida
 PBI bloqueado não autoriza alteração de escopo ou redução de critérios. Uma resposta de
 agente não confirma integração; a evidência de integração deverá vir de YC-304.
 
-## Proposta de ordem entre etapas e papéis
+## Ordem aprovada entre etapas e papéis
 
-Política proposta para revisão: dar preferência a trabalho já iniciado, depois abrir
-novos PBIs pela prioridade persistida. Essa preferência ainda não está definida na
-especificação geral e não deve ser tratada como comportamento implementado.
+Política aprovada: dar preferência a etapas elegíveis do trabalho já iniciado, depois
+abrir novos PBIs pela prioridade persistida. A aprovação do mantenedor em 2026-10-09
+fecha essa escolha. A política ainda não está implementada e não habilita 2B.
 
 1. Conferir missão, revisão, autorização, dependências, limites e capacidade do executor
    antes de escolher. Uma tarefa bloqueada não ganha preferência por estar esperando.
@@ -67,7 +68,7 @@ extras. Esperar integração ou aplicar uma integração mecânica não cria can
 modelo. Conflitos ou decisões de produto seguem seus responsáveis e autorizações.
 Chamadas aos líderes precisam de motivo e contexto; não servem para sondar se há trabalho.
 
-| Caso proposto | Escolha esperada, se os demais requisitos estiverem válidos |
+| Critério aprovado | Escolha esperada, se os demais requisitos estiverem válidos |
 |---|---|
 | Correção pronta na sequência 118, QA na 120, novo PBI com prioridade máxima | Correção 118; QA não perde a vez para uma nova etapa de correção registrada depois |
 | Decisão necessária de PM pronta na sequência 117 e correção na 118 | Decisão 117, sujeita ao mesmo limite de execuções |
@@ -76,9 +77,9 @@ Chamadas aos líderes precisam de motivo e contexto; não servem para sondar se 
 | Mesmo evento de conclusão é entregue novamente | Mesma candidatura e ordem, sem segunda chamada |
 | Todas as candidaturas estão impedidas | Persistir motivos e encerrar o ciclo sem chamada de modelo |
 
-Os casos acima são critérios propostos, não testes executados. Continuidade constante
+Os casos acima são critérios de aceite da política, ainda sem testes executados. Continuidade constante
 pode adiar novos PBIs até os limites da missão; a política não promete prazo máximo
-de espera. Não há pesos, escalonamento por idade ou configuração adicional nesta proposta.
+de espera. Não há pesos, escalonamento por idade ou configuração adicional nessa política.
 
 ## Capacidade do executor
 
@@ -98,8 +99,8 @@ ser liberada só porque o PBI saiu do limite de trabalho ativo.
    tratar uma reserva compartilhada ocupada ou incerta, sem escrever duas vezes após queda.
 2. Definir o registro de tentativas da fila e suas transições no SQLite existente,
    com revisão esperada e recuperação entre intenção local e reserva da conta.
-3. Revisar a preferência por trabalho iniciado e a ordem por sequência propostas acima.
-   A prioridade aprovada dos PBIs não decide sozinha a disputa entre etapas e papéis.
+3. Levar os seis critérios de ordenação aprovados ao plano de testes da implementação,
+   preservando a preferência por trabalho iniciado e a ordem por sequência entre papéis.
 4. Revisar o desenho e então elaborar o plano de implementação com provas de queda,
    concorrência e preservação. Esta matriz é uma entrada desse trabalho, não seu aceite.
 
@@ -110,13 +111,13 @@ PBI/execution capacity, blocked-item release, reacquisition, empty queues and re
 PM/Tech Lead proposals, worktrees and QA execution remain separate backlog items.
 YC-203 acceptance remains mandatory before implementing 2B. The current account-wide
 reservation allows one isolated operation; three configured agent slots do not override it.
-The proposed dispatch order favors eligible ongoing work and necessary leader decisions,
+The maintainer approved the dispatch order on 2026-10-09. It favors eligible ongoing work and necessary leader decisions,
 ordered by their durable readiness sequence, before admitting new PBIs by saved priority.
 Replayed events retain their candidate and order; new stages get new sequences. A resumed
 blocked PBI must reacquire its PBI slot. Leader decisions without a PBI use an execution slot.
-Blocked ongoing work does not prevent eligible new work when capacity exists. Six proposed
-cases describe the policy, without claiming executed tests or bounded waiting for new PBIs.
-Cross-store recovery, persisted transitions and this scheduling proposal still require a
+Blocked ongoing work does not prevent eligible new work when capacity exists. Six approved
+criteria describe the policy, without claiming executed tests or bounded waiting for new PBIs.
+Cross-store recovery and persisted transitions still require a
 reviewed design and implementation plan. No runtime behavior or execution gate changed.
 
 ATRASO: YC-204 em refinamento | aceite do executor pendente.

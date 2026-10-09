@@ -65,10 +65,10 @@ a projeção da nota está pendente e não altera arquivos.
 [Uso](docs/USAGE.md#mission-workflow) · [Verificação](docs/relatorios/2026-10-09-mission-discovery.md).
 
 O [refinamento da fila YC-204](docs/superpowers/specs/2026-10-09-queue-eligibility-refinement.md)
-detalha decisões de prioridade, espera e capacidade. É um rascunho para revisão;
-propõe concluir etapas elegíveis do trabalho iniciado antes de admitir novos PBIs,
-com ordem de entrada compartilhada por todos os papéis. A implementação continua
-dependente do aceite do executor.
+detalha decisões de prioridade, espera e capacidade. A política aprovada para a futura
+fila prioriza etapas elegíveis do trabalho iniciado antes de admitir novos PBIs,
+com ordem de entrada compartilhada por todos os papéis. O desenho operacional está
+em refinamento; a implementação continua dependente do aceite do executor.
 
 **Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
 chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
@@ -654,9 +654,9 @@ note projections and leaves files unchanged.
 [Usage](docs/USAGE.md#mission-workflow) · [Verification](docs/relatorios/2026-10-09-mission-discovery.md#english-overview).
 
 The [YC-204 queue refinement](docs/superpowers/specs/2026-10-09-queue-eligibility-refinement.md#english-overview)
-details priority, waiting and capacity decisions. It is a review draft; implementation
-still depends on executor acceptance. It proposes serving eligible ongoing stages
-before new PBIs, with the same readiness order for every role.
+details priority, waiting and capacity decisions. The approved policy serves eligible
+ongoing stages before new PBIs, with the same readiness order for every role.
+Operational design remains in refinement; implementation depends on executor acceptance.
 
 **Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
 are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).

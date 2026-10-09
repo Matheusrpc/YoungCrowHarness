@@ -78,6 +78,10 @@ com PBIs na prioridade salva, dependências e o primeiro candidato inicial quand
 preparação está consistente. Essa consulta usa o snapshot da missão e não executa agentes.
 [Contrato e limites](docs/USAGE.md#mission-workflow).
 
+O checkpoint `a0af931` passou nos oito jobs de CI entre push e PR, incluindo Windows.
+[Publicação e resultados](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
+O aceite nativo do executor continua pendente.
+
 **Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
 chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 O pacote público passou em 516 testes, com 20 pulados; naquela rodada, o CI não pôde ser consultado.
@@ -137,7 +141,7 @@ controlador agora permite até 100 ms para ele fechar após EOF, dentro dos 200 
 já reservados antes de `kill`. Filhos resistentes continuam sujeitos ao encerramento
 forçado. [Correção e validação](docs/relatorios/2026-10-08-guard-cooperative-close.md).
 O CI de `9cb3729` passou em sete dos oito jobs: Windows do PR completo aprovado,
-com timeout v4 ainda aberto no push. Os testes de EOF e recusa passaram nos dois.
+com timeout v4 no push daquela revisão. Os testes de EOF e recusa passaram nos dois.
 
 As correções da auditoria recuperam notas de missão/backlog interrompidas
 mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
@@ -674,6 +678,10 @@ with saved PBI priority, dependencies and the first initial candidate when prepa
 is current. This read-only view uses the mission snapshot and does not execute agents.
 [Contract and limits](docs/USAGE.md#mission-workflow).
 
+Checkpoint `a0af931` passed all eight push/PR CI jobs, including Windows.
+[Publication and results](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
+Native executor acceptance remains pending.
+
 **Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
 are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 The public package passed 516 tests, with 20 skipped; CI could not be queried in that round.
@@ -734,7 +742,7 @@ allows up to 100 ms for EOF cleanup within its existing 200 ms stage before `kil
 Unresponsive children remain subject to forced shutdown.
 [Fix and validation](docs/relatorios/2026-10-08-guard-cooperative-close.md#english-overview).
 CI at `9cb3729` passed seven of eight jobs: PR Windows passed fully, while a v4
-timeout remains open on push. EOF/refusal tests passed on both Windows runs.
+timeout occurred on that push. EOF/refusal tests passed on both Windows runs.
 
 Audit fixes recover interrupted mission/backlog notes even after another
 revision, preserving human edits. Malformed catalogs and Git failures during the

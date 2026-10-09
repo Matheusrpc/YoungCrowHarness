@@ -7,6 +7,12 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
+Checkpoint validado: `a0af931`, com oito jobs aprovados entre push e PR, incluindo
+Windows. A prévia inicial da fila está publicada; o próximo aceite do executor
+depende do contrato sbx local. [Publicação e CI](relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
+Validated checkpoint: `a0af931`, all eight push/PR jobs passed, including Windows.
+The initial queue preview is published; native acceptance still needs the local sbx contract.
+
 **Consulta ao Docker publicada em 9/out:** [issue #690](https://github.com/docker/sbx-releases/issues/690),
 aberta pelo mantenedor e conferida pela API. Aguardar resposta aplicável ao sbx local;
 a consulta permanece sem comentários na verificação. Novo ciclo nativo continua fora desta etapa.
@@ -41,7 +47,7 @@ Architecture review: a fixed proxy between missions could reduce writes, but end
 ownership and credential recovery remain unresolved. Exclusive installation was already
 approved. No replacement was implemented; a vendor issue remains optional.
 
-Incremento atual: leituras de missão e observação independente de egress, publicado
+Histórico de 8/out: leituras de missão e observação independente de egress, publicado
 em `b106bc5`. Passaram 616 testes locais, com 20 pulados; adoção com diagnóstico em
 consumidor novo/existente também passou. Os 12 focais Windows passaram no push e no PR;
 a suíte completa do PR passou, mas a do push falhou na recusa de rede: sete dos oito
@@ -50,10 +56,10 @@ antes de EOF. O controlador agora reserva parte do prazo existente para limpeza
 cooperativa; passaram 620 testes locais, com 20 pulados. O CI de `9cb3729` terminou
 com sete dos oito jobs aprovados. O Windows do PR passou integralmente; o push
 teve timeout v4 antes do primeiro pedido SOCKS registrado. Os testes de EOF e
-recusa passaram nos dois Windows. Próxima ação: localizar essa pausa do v4.
+recusa passaram nos dois Windows. Naquela revisão, restava localizar essa pausa do v4.
 [Encerramento e provas](relatorios/2026-10-08-guard-cooperative-close.md).
 [Entrega e medição](relatorios/2026-10-08-mission-read-stability.md).
-Current increment: mission reads and independent egress observation, published at
+Oct 8 history: mission reads and independent egress observation, published at
 `b106bc5`. Local validation passed 616 tests with 20 skips and installed-consumer
 diagnostics in new/existing projects. All 12 focused Windows cases passed on push
 and PR; the full PR suite passed, while push Windows failed the network refusal
@@ -61,8 +67,8 @@ test: seven of eight jobs passed. At `f3e091d`, both Windows runs confirmed a re
 before EOF. The controller now uses part of its existing deadline for cooperative
 cleanup; 620 local tests passed with 20 skips. CI at `9cb3729` passed seven of
 eight jobs. PR Windows passed fully; push Windows timed out in v4 before the first
-recorded SOCKS request. EOF/refusal tests passed on both Windows runs. Next action:
-locate that v4 delay.
+recorded SOCKS request. EOF/refusal tests passed on both Windows runs. At that revision,
+the next investigation was to locate the v4 delay.
 [Shutdown evidence](relatorios/2026-10-08-guard-cooperative-close.md#english-overview).
 
 Histórico da investigação: falha da suíte de missões em `adoption-windows`

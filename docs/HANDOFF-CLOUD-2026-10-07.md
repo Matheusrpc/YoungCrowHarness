@@ -4,6 +4,12 @@ Frente: produto YoungCrowHarness, com trabalho ativo no executor isolado.
 
 Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra sessão consiga continuar sem receber toda a conversa. Reúne decisões do mantenedor, estado do código, resultados observados, falhas, limites e próximos passos. Os caminhos de arquivos, salvo indicação contrária, são relativos à raiz do repositório.
 
+Checkpoint conferido em 9/out: `a0af931` passou nos oito jobs de push e PR, incluindo
+Windows. [Publicação e CI](relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
+A prévia inicial da fila está entregue; execução nativa aguarda o contrato local da
+issue Docker #690. A prova de memória Claude permanece combinada para 10/out às 18h30
+em America/Sao_Paulo. Falhas anteriores abaixo são histórico, não resultados desse checkpoint.
+
 Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor atual](#6-estado-atual-do-executor-componente-por-componente) · [testes](#7-o-que-os-testes-já-demonstraram) · [falhas](#8-falhas-históricas-causas-e-tratamento) · [próximos passos](#10-próximos-passos-de-implementação-em-ordem) · [backlog](#11-backlog-restante-até-o-produto-completo) · [transferência para cloud](#12-o-que-levar-para-a-cloud) · [evidências](#14-evidências-e-identidade-da-implementação).
 
 ## 1. Leia isto primeiro
@@ -231,7 +237,7 @@ Em `9cb3729`, os testes de EOF e as oito recusas passaram nos dois Windows; o PR
 passou integralmente, incluindo os 14 focais, a suíte de missões e a adoção final.
 Resultado: sete dos oito jobs aprovados. O push falhou por timeout v4,
 com 7.098 ms entre autorização e primeiro pedido SOCKS registrado, antes do close.
-Próxima ação: comparar `guard_request.payload.at_ms`
+Naquela revisão, a próxima investigação era comparar `guard_request.payload.at_ms`
 com a hora do registro para localizar essa pausa. Não atribuir causa nem ampliar
 prazos sem evidência. [Relatório](relatorios/2026-10-08-guard-cooperative-close.md).
 Contratos sbx, fontes nativas de B, perfis bloqueados e contador 2/3 preservados.
@@ -318,7 +324,7 @@ Para continuar, seguir esta ordem sem reabrir decisões anteriores:
 
 | Etapa | Próxima entrega verificável |
 |---|---|
-| CI Windows | EOF/recusa passaram nos dois Windows e o PR completo passou em `9cb3729`; localizar os 7.098 ms entre autorização e primeiro pedido SOCKS no timeout v4 do push |
+| CI Windows | Concluído para `a0af931`: push e PR passaram integralmente. Timeout anterior preservado como histórico, sem causa final comprovada; nova investigação exige falha reproduzida |
 | Executor: 203.6 | Bloqueio externo: comprovar identidade/versão/remoção atômica da credencial e escrita condicional dos settings locais 0.46.0; depois adaptador e aceite v4 |
 | Executor: restante de 203.5 | Comprovar recuperação nativa de settings/serviço/credencial e demais políticas necessárias, preservando alterações externas |
 | Executor: aceite | Reconstruir candidato exato; provar A/B/A2 com B atribuível; Claude e Codex por assinatura; adoção |

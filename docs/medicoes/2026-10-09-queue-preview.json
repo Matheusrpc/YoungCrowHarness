@@ -92,5 +92,117 @@
   "vault_check": {
     "notes_checked": 43,
     "issues": []
+  },
+  "source_sha256_commit": "a0af931b8200c3b1c9416e0eba395ed3a5791016",
+  "ci_confirmation": {
+    "observed_at": "2026-10-09T09:24:52.338510+00:00",
+    "head_sha": "a0af931b8200c3b1c9416e0eba395ed3a5791016",
+    "runs": [
+      {
+        "id": 37884519194,
+        "head_sha": "a0af931b8200c3b1c9416e0eba395ed3a5791016",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37884519194",
+        "jobs": [
+          {
+            "id": 113671400404,
+            "name": "installer",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-09T04:34:35Z",
+            "completed_at": "2026-10-09T04:39:45Z"
+          },
+          {
+            "id": 113671400585,
+            "name": "public-pilot",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-09T04:34:35Z",
+            "completed_at": "2026-10-09T04:34:52Z"
+          },
+          {
+            "id": 113671400604,
+            "name": "adoption-windows",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-09T04:34:35Z",
+            "completed_at": "2026-10-09T05:01:49Z"
+          },
+          {
+            "id": 113671400629,
+            "name": "graphify-smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-09T04:34:35Z",
+            "completed_at": "2026-10-09T04:34:50Z"
+          }
+        ]
+      },
+      {
+        "id": 37884523562,
+        "head_sha": "a0af931b8200c3b1c9416e0eba395ed3a5791016",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37884523562",
+        "jobs": [
+          {
+            "id": 113671413184,
+            "name": "graphify-smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-09T04:34:38Z",
+            "completed_at": "2026-10-09T04:34:57Z"
+          },
+          {
+            "id": 113671413418,
+            "name": "public-pilot",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-09T04:34:38Z",
+            "completed_at": "2026-10-09T04:34:57Z"
+          },
+          {
+            "id": 113671413433,
+            "name": "installer",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-09T04:34:38Z",
+            "completed_at": "2026-10-09T04:40:03Z"
+          },
+          {
+            "id": 113671413441,
+            "name": "adoption-windows",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-09T04:34:38Z",
+            "completed_at": "2026-10-09T05:01:29Z"
+          }
+        ]
+      }
+    ],
+    "passed_jobs": 8,
+    "native_acceptance": false,
+    "docker_issue": {
+      "html_url": "https://github.com/docker/sbx-releases/issues/690",
+      "state": "open",
+      "comments": 0,
+      "updated_at": "2026-10-09T04:06:30Z"
+    },
+    "documentation_check": {
+      "files": [
+        "README.md",
+        "docs/BACKLOG.md",
+        "docs/HANDOFF-CLOUD-2026-10-07.md",
+        "docs/relatorios/2026-10-09-queue-preview.md"
+      ],
+      "local_markdown_paths_checked": 355,
+      "missing_paths": [],
+      "diff_check_exit_code": 0,
+      "source_hashes_verified_at_commit": "a0af931b8200c3b1c9416e0eba395ed3a5791016",
+      "product_tests_rerun": false
+    }
   }
 }

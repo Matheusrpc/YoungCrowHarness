@@ -233,6 +233,12 @@ da base exigem acesso e limites explícitos; o backlog não autoriza chamadas po
 
 ## Pendências de prova da base
 
+As provas serão organizadas em [lotes controlados](TEST-RUN-2026-10-10.md), com
+autorização por pacote definido e avanço entre etapas elegíveis sem confirmação
+por teste. O roteiro preserva limites, aceites separados e os bloqueios atuais.
+Pending proofs are grouped in controlled batches, with one approval per defined
+package. Existing limits, separate acceptance criteria and current blockers remain.
+
 | ID | Entrega | Dependência | Critério de aceite | Estado |
 |---|---|---|---|---|
 | YC-010 | Retomar o piloto público em sessão nova do Claude | Login válido e tentativa delimitada | Encontrar índices, UUIDs, revisão e produção observada sem receber o histórico inteiro; registrar resultado real | Bloqueado por autenticação na última tentativa |

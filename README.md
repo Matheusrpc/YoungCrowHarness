@@ -82,6 +82,9 @@ O checkpoint `a0af931` passou nos oito jobs de CI entre push e PR, incluindo Win
 [Publicação e resultados](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
 O aceite nativo do executor continua pendente.
 
+As próximas provas estão reunidas em uma [campanha com aprovação por lote](docs/TEST-RUN-2026-10-10.md),
+com sequência, limites e critérios de parada. Os bloqueios nativos permanecem.
+
 **Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
 chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
 O pacote público passou em 516 testes, com 20 pulados; naquela rodada, o CI não pôde ser consultado.
@@ -681,6 +684,9 @@ is current. This read-only view uses the mission snapshot and does not execute a
 Checkpoint `a0af931` passed all eight push/PR CI jobs, including Windows.
 [Publication and results](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
 Native executor acceptance remains pending.
+
+Upcoming proofs are grouped in a [campaign with batch approval](docs/TEST-RUN-2026-10-10.md),
+with ordered stages, limits and stop conditions. Native blockers remain in place.
 
 **Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
 are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).

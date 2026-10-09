@@ -1,0 +1,19 @@
+{
+  "front": "Controlled acceptance test campaign",
+  "observed_at": "2026-10-09T09:38:48.409408+00:00",
+  "base_commit": "f548042578d4d1ae34d372c1e557b8b4805b847e",
+  "state": "plan_prepared_not_executed",
+  "plan": "docs/TEST-RUN-2026-10-10.md",
+  "plan_sha256": "7aba6eccc5992e41a4d0b3d1ccceef3d58efc95e3c8f6561cb71626d207a80c5",
+  "local_markdown_paths_checked": 360,
+  "missing_paths": [],
+  "git_diff_check_exit_code": 0,
+  "reviewer": "assess_completion_scope",
+  "review_result": "No material discrepancies in scope, approval boundaries or retained limits",
+  "product_tests_rerun": false,
+  "native_calls": 0,
+  "correction_cycles_used": 2,
+  "correction_cycle_limit": 3,
+  "p06_supervisor_verified_here": false,
+  "docker_package_executable": false
+}

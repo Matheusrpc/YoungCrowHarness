@@ -10,6 +10,11 @@ A prévia inicial da fila está entregue; execução nativa aguarda o contrato l
 issue Docker #690. A prova de memória Claude permanece combinada para 10/out às 18h30
 em America/Sao_Paulo. Falhas anteriores abaixo são histórico, não resultados desse checkpoint.
 
+O mantenedor pediu aprovação por lote para as próximas provas. Usar a
+[campanha controlada](TEST-RUN-2026-10-10.md): não pedir confirmação por teste dentro
+de um pacote autorizado. O supervisor privado P06 precisa ser conferido no PC;
+o pacote Docker permanece bloqueado. O pedido não iniciou provas nem renovou ciclos.
+
 Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor atual](#6-estado-atual-do-executor-componente-por-componente) · [testes](#7-o-que-os-testes-já-demonstraram) · [falhas](#8-falhas-históricas-causas-e-tratamento) · [próximos passos](#10-próximos-passos-de-implementação-em-ordem) · [backlog](#11-backlog-restante-até-o-produto-completo) · [transferência para cloud](#12-o-que-levar-para-a-cloud) · [evidências](#14-evidências-e-identidade-da-implementação).
 
 ## 1. Leia isto primeiro

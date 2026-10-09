@@ -33,7 +33,8 @@ o [preparo de P06 no Windows](P06-CLAUDE.md) passou, mas a tentativa de 9/out te
 por OAuth expirado, com tokens reportados zerados. O operador renovou o login;
 preservar os recibos. As [correções dos testes Windows](relatorios/2026-10-09-p06-windows-tests.md)
 passaram nos 13 casos no PC do operador. Um novo pacote foi preparado com zero
-prompts; a execução aguarda autorização dessa operação e posterior revisão do resultado.
+prompts. A nova sessão foi autorizada com a exigência do modelo mais barato;
+preparar Haiku explícito conforme o guia antes de executar e revisar o resultado.
 O README do exemplo explica como gerar e servir somente o pacote permitido, em um destino novo.
 
 [Open the demonstration](https://matheusrpc.github.io/YoungCrowHarness/) or follow the [pilot recipe](../examples/delivery-board/README.md), which brings these paths together in an example
@@ -44,7 +45,8 @@ The [retrieval proof](relatorios/2026-10-03-public-pilot.md) passed in Codex.
 with expired OAuth and zero reported token counts. The operator renewed login;
 preserve receipts. The [Windows test corrections](relatorios/2026-10-09-p06-windows-tests.md)
 passed all 13 cases on the operator's PC. A new package was prepared with zero
-prompts; execution awaits approval for that operation and subsequent result review.
+prompts. One new session was approved with a cheapest-model restriction; prepare
+explicit Haiku as described in the guide before execution and result review.
 The example README explains how to build and serve only the allowed package, using a new destination.
 
 Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;

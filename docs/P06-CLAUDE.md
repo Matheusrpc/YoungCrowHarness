@@ -16,7 +16,92 @@ O operador concluiu a renovação do login e reportou `loggedIn: true`,
 preservada. Duas suposições de plataforma nos testes foram
 [corrigidas](relatorios/2026-10-09-p06-windows-tests.md); a confirmação Windows
 passou nos 13 testes no PC do operador. O novo pacote r2 foi preparado com zero
-prompts e revisado; sua execução aguarda autorização específica.
+prompts e revisado. O mantenedor aprovou uma sessão e exigiu o modelo mais barato:
+a execução de r2 com modelo padrão foi substituída pelo preparo explícito de Haiku.
+
+## Modelo econômico autorizado
+
+O mantenedor aprovou uma única sessão e, antes da execução, restringiu o teste ao
+modelo mais barato. O [catálogo oficial](https://github.com/anthropics/skills/blob/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/claude-api/shared/models.md)
+indica `claude-haiku-5-5`: US$ 0,10/0,50 por milhão de tokens de entrada/saída até
+100 mil tokens de entrada, ou US$ 0,50/2,50 acima disso. Esses são preços de API,
+usados para comparar modelos; este ensaio continua na assinatura existente.
+
+Preparar um pacote irmão `p06-package-20261010-haiku` na mesma revisão `6481a91`,
+usando `prepare --model claude-haiku-5-5`. Preservar os dois pacotes anteriores;
+não executar r2 com `default` nem alterar seu `setup.json`. A aprovação agora cobre
+somente uma sessão com esse modelo, um prompt, até 300 s e 24 ferramentas, esforço
+`medium`, sem API adicional nem substituição por modelo mais caro. Não exigir
+nova aprovação por esta restrição explícita do mantenedor.
+
+O suporte ao Haiku 5.5 foi anunciado no [Claude Code 2.1.293](https://github.com/anthropics/claude-code/blob/2301018b1f61073c501a8e7a4813ef48c239163b/CHANGELOG.md#21293);
+o runner fixa 2.1.220. A compatibilidade do ID explícito precisa ser conferida no
+preparo sem prompt; não atualizar o cliente automaticamente. Mesmo um preparo
+positivo não prova que o fornecedor aceitará a inferência. Registrar a nova
+operação e o hash retornados sob esta aprovação antes do comando `run`.
+
+O runner já passa o modelo preparado em `--model`, sem `--fallback-model`, e ignora
+configurações externas de seleção. O catálogo oficial declara ausência de fallback
+no servidor para Haiku 5.5. Conferir `observed_models` no resultado: o verificador
+registra os modelos observados, mas não compara automaticamente com o solicitado.
+Uma recusa encerra a tentativa; não substituir por outro modelo ou repetir.
+
+## Executar o pacote Haiku aprovado
+
+No PowerShell do rmfon, o bloco abaixo prepara e executa uma única sessão conforme
+aprovação e restrição acima. Ele não repete os 13 testes do código inalterado.
+Uma pasta existente ou qualquer falha interrompe o fluxo, preservando os recibos.
+O registro de autorização fica fora do contexto que o modelo pode ler.
+O roteiro foi revisado estaticamente; a execução com Haiku no Windows ainda está pendente.
+
+```powershell
+& {
+    $ErrorActionPreference = 'Stop'
+    $ycHaiku = 'C:\Users\rmfon\YoungCrowHarness-review-20261001\.runtime\p06-package-20261010-haiku'
+    $ycRevision = '6481a9174070e9c2fbc65fc66950381089136758'
+    $ycModel = 'claude-haiku-5-5'
+    if (Test-Path -LiteralPath $ycHaiku) { throw 'Pasta já existe. Preserve e envie a mensagem no chat.' }
+
+    git clone --depth 1 --filter=blob:none --sparse --no-checkout --branch feat/isolated-executor https://github.com/Matheusrpc/YoungCrowHarness.git $ycHaiku
+    if ($LASTEXITCODE -ne 0) { throw 'Clone falhou.' }
+    git -C $ycHaiku fetch --depth 1 origin $ycRevision
+    if ($LASTEXITCODE -ne 0) { throw 'Busca da revisão falhou.' }
+    git -C $ycHaiku sparse-checkout set scripts skills/retrieve-memory tests examples/delivery-board
+    if ($LASTEXITCODE -ne 0) { throw 'Seleção de arquivos falhou.' }
+    git -C $ycHaiku checkout --detach $ycRevision
+    if ($LASTEXITCODE -ne 0) { throw 'Checkout falhou.' }
+    $ycHead = git -C $ycHaiku rev-parse HEAD
+    if ($LASTEXITCODE -ne 0 -or $ycHead -ne $ycRevision) { throw 'Revisão divergente.' }
+
+    python -B "$ycHaiku\tests\pilot_claude.py" prepare --model $ycModel
+    if ($LASTEXITCODE -ne 0) { throw 'Preparo falhou. Não executar nem repetir.' }
+    $ycBase = "$ycHaiku\.runtime\test-campaign-20261010\claude-p06"
+    $ycSetup = Get-Content -LiteralPath "$ycBase\setup.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+    $ycReceipt = Get-Content -LiteralPath "$ycBase\prepare-receipt.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+    $ycHash = (Get-FileHash -LiteralPath "$ycBase\setup.json" -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($ycSetup.model -cne $ycModel -or $ycSetup.git_revision -ne $ycRevision -or
+        $ycSetup.effort -ne 'medium' -or $ycSetup.seconds -ne 300 -or $ycSetup.tool_calls -ne 24 -or
+        $ycReceipt.setup_sha256 -ne $ycHash -or $ycSetup.operation_id -ne $ycReceipt.operation_id -or
+        $ycReceipt.state -ne 'prepared_no_model_prompt' -or $ycReceipt.native_prompt_count -ne 0 -or
+        $ycReceipt.supervision.exit_code -ne 0 -or $ycReceipt.supervision.tree_reaped -ne $true -or
+        $ycReceipt.temporary_credential_removed -ne $true -or $ycReceipt.original_auth_unchanged -ne $true) {
+        throw 'Pacote não confere com a autorização. Não executar.'
+    }
+    [ordered]@{
+        operation_id = $ycSetup.operation_id; setup_sha256 = $ycHash; model = $ycModel
+        approved_sessions = 1; approved_prompts = 1; seconds = 300; tool_calls = 24
+        approval = 'Aprovado no chat, depois restrito ao modelo mais barato; assinatura existente.'
+        supersedes_prepared_operation = '323ef492-4967-4d13-bd71-8afe0bc2ed00'
+    } | ConvertTo-Json | Set-Content -LiteralPath "$ycBase\authorization-haiku.json" -Encoding UTF8
+
+    Write-Output "Executando uma única sessão com $ycModel."
+    python -B "$ycHaiku\tests\pilot_claude.py" run
+    if ($LASTEXITCODE -ne 0) { throw 'Tentativa encerrada com falha. Preserve a pasta e envie a saída; não repita.' }
+}
+```
+
+Ao terminar, revisar o recibo resumido e `observed_models` antes de aceitar o handoff.
+Se o cliente não aceitar Haiku 5.5, encerrar sem mudar o modelo nem repetir a chamada.
 
 ## Renovar o login após a falha OAuth
 
@@ -87,7 +172,8 @@ fixa em `6481a9174070e9c2fbc65fc66950381089136758`. Antes do preparo, os 13 test
 locais passaram no Windows em 9,373 s. O recibo reportou inicialização concluída
 em 13,889191 s, zero prompts, árvore encerrada, credencial temporária removida e
 autenticação original preservada. A [medição](medicoes/2026-10-09-p06-windows-tests.json)
-registra essa evidência enviada pelo operador; o CI completo ainda está pendente.
+registra essa evidência enviada pelo operador. O CI do PR `37984416730` passou
+integralmente, incluindo P06; o push `37984411482` preserva a falha anterior ao P06.
 
 | Identificação | Valor |
 |---|---|
@@ -96,16 +182,16 @@ registra essa evidência enviada pelo operador; o CI completo ainda está penden
 | Escopo proposto | Uma sessão nova, um prompt, até 300 s e 24 ferramentas |
 | Cliente e autenticação | Claude Code 2.1.220, assinatura `claude.ai`/`firstParty` |
 | Modelo e esforço | Padrão do cliente, `medium`, conforme preparo |
-| Estado | Preparo concluído; execução ainda não autorizada |
+| Estado | Preparo concluído; execução com modelo padrão substituída pela restrição Haiku |
 
 A revisão independente não encontrou impedimento para apresentar essa operação
 à autorização do mantenedor. Ela não envia um prompt nem aceita a memória recuperada.
 Os campos `approval_revision` e `planned_local` de `setup.json` são metadados
-históricos fixos no runner; não autorizam r2. Registrar eventual aprovação com a
-operação e o hash acima, sem editar o pacote nem o marcador da primeira tentativa.
+históricos fixos no runner; não autorizam r2. O preparo acima fica como histórico;
+vincular a aprovação atual à nova operação Haiku, sem editar os pacotes anteriores.
 Manter a cópia Windows nesta revisão, mesmo que a documentação avance no GitHub.
 
-Comando correspondente, somente após autorização específica desta operação:
+Comando histórico de r2, não executar após a restrição de modelo acima:
 
 ```powershell
 python -B 'C:\Users\rmfon\YoungCrowHarness-review-20261001\.runtime\p06-package-20261010-r2\tests\pilot_claude.py' run
@@ -200,6 +286,11 @@ reserved attempt, renew login and review any retry. Retrieval remains unverified
 The operator subsequently renewed login. All 13 corrected tests passed on the
 operator's Windows PC in 9.373 seconds. A separate r2 package pinned to `6481a91`
 completed preparation with zero prompts and preserved credentials. Its operation
-and setup hash are recorded above; one new bounded execution awaits specific
-approval. Keep the original attempt and the prepared package unchanged. Full CI
-and native retrieval acceptance remain pending.
+and setup hash are recorded above. The maintainer approved one bounded session,
+then restricted it to the cheapest model. Prepare a separate package with explicit
+`claude-haiku-5-5`; do not run default-model r2 or alter its setup. Approval covers
+one session/prompt, 300 seconds and 24 tools through the existing subscription,
+with no more expensive fallback. Native compatibility with pinned CLI 2.1.220 and
+retrieval remain unverified; Haiku 5.5 support was announced in CLI 2.1.293.
+Keep both earlier packages unchanged. No additional approval is required merely
+to apply this explicit restriction.

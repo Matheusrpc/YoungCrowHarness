@@ -359,7 +359,8 @@ passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do
 com contadores de tokens zerados. O operador renovou o login; a retomada continua pendente.
 As [correções dos testes Windows](docs/relatorios/2026-10-09-p06-windows-tests.md)
 passaram nos 13 casos no PC do operador. O novo pacote Claude foi preparado com
-zero prompts; a execução dessa operação aguarda autorização. O CI completo segue pendente.
+zero prompts. A nova sessão foi autorizada com a exigência do modelo mais barato;
+o [preparo explícito de Haiku](docs/P06-CLAUDE.md#modelo-econômico-autorizado) está pendente.
 Veja as [provas e limites](docs/relatorios/2026-10-03-public-pilot.md).
 O pacote usa uma lista explícita de arquivos e um manifesto de hashes; o CI do piloto valida dados, testes e navegação do vault.
 
@@ -970,7 +971,8 @@ projects passed real setup and returned to their initial state while retaining t
 zero reported token counts. The operator renewed login; retrieval remains pending.
 The [Windows test corrections](docs/relatorios/2026-10-09-p06-windows-tests.md)
 passed all 13 cases on the operator's Windows PC. A new Claude package was prepared
-with zero prompts; executing that operation awaits approval. Full CI remains pending.
+with zero prompts. One new session was approved with a cheapest-model restriction;
+[explicit Haiku preparation](docs/P06-CLAUDE.md#modelo-econômico-autorizado) remains pending.
 See the [evidence and limits](docs/relatorios/2026-10-03-public-pilot.md).
 The package uses an explicit file list and hash manifest; the pilot CI checks data, tests and vault navigation.
 

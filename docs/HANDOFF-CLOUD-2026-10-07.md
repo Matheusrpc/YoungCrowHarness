@@ -32,10 +32,14 @@ A saída de 13 testes no PC identificou duas suposições de plataforma nos test
 Os 13 casos passaram no PC Windows em 9,373 s, na revisão `6481a91`.
 O [pacote r2](P06-CLAUDE.md#nova-operação-preparada-em-9out) foi preparado em
 13,889191 s, com zero prompts e limpeza confirmada. Operação
-`323ef492-4967-4d13-bd71-8afe0bc2ed00`: execução pendente de autorização específica,
-uma sessão/300 s/24 ferramentas, seguida de revisão semântica. Preservar a revisão
-do pacote Windows e a tentativa anterior. CI completo ainda pendente: o push falhou
-em diagnóstico anterior ao P06; o PR passou esse diagnóstico e segue em execução.
+`323ef492-4967-4d13-bd71-8afe0bc2ed00`: pacote com modelo padrão preservado.
+O mantenedor aprovou uma nova sessão/300 s/24 ferramentas, seguida de revisão
+semântica, e exigiu o modelo mais barato antes de executá-la. Preparar outro pacote
+com [Haiku 5.5 explícito](P06-CLAUDE.md#modelo-econômico-autorizado) e vincular
+operação/hash à aprovação já dada. Não executar r2 nem pedir aprovação novamente
+para aplicar essa restrição. Preservar a revisão `6481a91` e os pacotes anteriores.
+O CI do PR `37984416730` passou integralmente, incluindo P06; o push `37984411482`
+mantém a falha histórica de diagnóstico anterior ao P06.
 
 Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor atual](#6-estado-atual-do-executor-componente-por-componente) · [testes](#7-o-que-os-testes-já-demonstraram) · [falhas](#8-falhas-históricas-causas-e-tratamento) · [próximos passos](#10-próximos-passos-de-implementação-em-ordem) · [backlog](#11-backlog-restante-até-o-produto-completo) · [transferência para cloud](#12-o-que-levar-para-a-cloud) · [evidências](#14-evidências-e-identidade-da-implementação).
 

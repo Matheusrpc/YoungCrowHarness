@@ -28,11 +28,17 @@ A instalação exclusiva já estava aprovada. Não reimplementar esse fluxo ante
 essas condições; a alternativa não está implementada nem aprovada como substituta.
 Abrir uma issue no fornecedor é opcional. O contrato e os bloqueios atuais permanecem.
 
-**Decisão posterior: consulta ao Docker em espera.** A tentativa de abrir a issue foi
+**Retomada autorizada em 9/out: consulta ao Docker.** A tentativa de abrir a issue foi
 recusada pela API (`Forbidden`); a liberação de rede foi salva como rascunho, sem
-aplicação confirmada. O mantenedor pediu suspender essa frente e avançar outra entrega.
-Não retentar a issue, pesquisar novamente o contrato ou executar novo ciclo nativo.
-A entrega independente corrige `yc-status`, usando recibos e projeções existentes
+aplicação confirmada. O mantenedor suspendeu a frente e depois autorizou retomá-la.
+Na retomada, a configuração observada ainda é a revisão 3, com `api.github.com` ausente
+dos hosts efetivos; o rascunho conserva essa adição. A issue não foi criada e a chamada
+recusada não foi repetida sem mudança no ambiente. A próxima ação é salvar a mudança
+nas configurações do ambiente, conferir acesso e duplicatas, então publicar a consulta
+revisada em `docker/sbx-releases`. A autorização de publicação permanece válida;
+novo ciclo nativo não faz parte desta etapa.
+
+A entrega independente corrigiu `yc-status`, usando recibos e projeções existentes
 para indicar o impedimento real e a próxima ação. A fila 2B permanece indisponível.
 
 Em 9/out, a preparação ganhou `scripts/missions.py --json list` para descobrir

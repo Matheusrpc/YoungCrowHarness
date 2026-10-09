@@ -52,8 +52,12 @@ identificou uma alternativa com proxy fixo entre missões. Ela pode reduzir escr
 mas ainda depende de proteção do endpoint e recuperação das credenciais; não foi
 implementada. O contrato atual e os bloqueios permanecem. Abrir uma issue no Docker é opcional.
 
-A consulta ao Docker está em espera por decisão do mantenedor. A entrega independente
-melhora `yc-status`: mostra o recibo que bloqueia novos diagnósticos, inclusive de outra
+A consulta ao Docker foi retomada com autorização do mantenedor em 9/out. A issue
+ainda não foi criada: a liberação de `api.github.com` está salva no rascunho do ambiente,
+sem aplicação no runtime. A próxima ação é aplicar a configuração e conferir o acesso
+antes de publicar. O aceite do executor e a fila 2B continuam pendentes.
+
+A entrega independente melhora `yc-status`: mostra o recibo que bloqueia novos diagnósticos, inclusive de outra
 missão do projeto, e indica revisão de recuperação ou reparo de notas antes de refinar
 entradas. A consulta permanece somente leitura. [Uso e limites](docs/USAGE.md#mission-workflow).
 [Verificação da entrega](docs/relatorios/2026-10-08-mission-status-guidance.md).
@@ -641,8 +645,12 @@ identified a fixed proxy between missions as a way to reduce writes. Endpoint ow
 and credential recovery remain unresolved; the alternative is not implemented.
 The current contract and gates remain. Filing a Docker issue is optional.
 
-The Docker inquiry is on hold at the maintainer's request. The independent delivery
-improves `yc-status`: it identifies receipts blocking new diagnostics, including other
+The maintainer authorized resuming the Docker inquiry on Oct 9. The issue has not
+been created: the `api.github.com` allowance is saved in the environment draft but
+has not reached the runtime. Apply the configuration and verify access before
+publishing. Executor acceptance and the 2B queue remain pending.
+
+The independent delivery improves `yc-status`: it identifies receipts blocking new diagnostics, including other
 missions in the project, and directs recovery review or note repair before input
 refinement. Status remains read-only. [Usage and limits](docs/USAGE.md#mission-workflow).
 [Delivery verification](docs/relatorios/2026-10-08-mission-status-guidance.md#english-overview).

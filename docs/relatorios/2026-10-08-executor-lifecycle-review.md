@@ -86,6 +86,16 @@ Docker/sbx, login ou chamada de modelo. Os 26 testes offline publicados anterior
 continuam sendo evidência da reprodução dos fontes de B, sem novo aceite nativo.
 Permanecem 2/3 ciclos consumidos, `proof_accepted=false` e perfis bloqueados.
 
+## Retomada da consulta em 9/out
+
+O mantenedor autorizou retomar a publicação do texto já revisado em
+`docker/sbx-releases`. A revisão independente não encontrou segredos ou afirmações
+sem suporte. A issue permanece sem envio: a configuração observada está na revisão 3,
+sem `api.github.com` nos hosts efetivos; a adição existe apenas no rascunho.
+A chamada antes recusada não foi repetida sem mudança no ambiente. Aplicar a
+configuração e verificar acesso e duplicatas precede a publicação. Nenhum ciclo
+nativo foi executado ou autorizado por esta retomada.
+
 ## English overview
 
 Exclusive local Docker use was already approved. A fixed installation proxy could

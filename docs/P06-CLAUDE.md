@@ -2,15 +2,40 @@
 
 Frente: lote A, uma sessão Claude, 300 segundos, 24 ferramentas e assinatura existente.
 O runner de desenvolvimento é `tests/pilot_claude.py`; não integra o instalador nem
-habilita os perfis do executor Docker. A aprovação do lote permanece vigente.
+habilita os perfis do executor Docker. O lote autorizava uma tentativa de retomada.
 
 Em 9/out, o operador enviou o recibo `prepared_no_model_prompt`: inicialização
 concluída em 3,065 s no Windows, zero prompts, árvore encerrada e autenticação original
-preservada. Para esse pacote, seguir diretamente à tentativa no horário combinado;
-o bloco de preparo abaixo serve apenas para uma cópia ainda não preparada.
+preservada. A execução seguinte terminou por OAuth expirado, com um prompt registrado
+e contadores de tokens zerados. O pacote já tem uma tentativa reservada:
+preservar seus recibos e marcador, renovar o login e revisar qualquer nova tentativa.
 [Registro e limites da prova](relatorios/2026-10-09-p06-correction.md#preparo-no-windows).
 
+## Renovar o login após a falha OAuth
+
+No PowerShell do operador, usar o perfil original:
+
+```powershell
+claude auth login
+```
+
+Concluir o login com a conta da assinatura Claude. Depois, conferir apenas o estado:
+
+```powershell
+claude auth status | ConvertFrom-Json |
+    Select-Object loggedIn, authMethod, apiProvider
+```
+
+Esperado: `True`, `claude.ai`, `firstParty`. Esse comando confirma o estado que
+o cliente apresenta; não prova inferência nem libera a repetição de `run`.
+Preservar a pasta, recibos e `started.json` da tentativa. Não usar `--console`,
+que seleciona cobrança API. Os subcomandos estão no
+[changelog oficial da versão 2.1.220](https://github.com/anthropics/claude-code/blob/7ef6eec9d9ba84ea6f233f26c45f1df5c5991843/CHANGELOG.md#L3568).
+
 ## Preparar no Windows
+
+Este procedimento descreve o preparo original. Não o repetir em outra pasta para
+contornar o marcador da tentativa de 9/out.
 
 Requisitos: Python 3.11+, Git/Git Bash, Claude Code 2.1.220 autenticado por assinatura
 e as skills `karpathy` e `ponytail` já existentes em `%USERPROFILE%\.codex\skills`.
@@ -48,10 +73,11 @@ Resultado esperado: `state: prepared_no_model_prompt`, `native_prompt_count: 0`,
 do pacote, em `.runtime/test-campaign-20261010/claude-p06/prepare-receipt.json`.
 Uma falha preserva o material de diagnóstico; não apagar a pasta para tentar novamente.
 
-## Executar a tentativa autorizada
+## Execução da tentativa registrada
 
-Manter o horário combinado: **10/out, 18h30, America/Sao_Paulo**. Não há agendador
-ou notificação automática. Depois de conferir a preparação e no horário combinado:
+O horário original era **10/out, 18h30, America/Sao_Paulo**. O operador executou
+o pacote em 9/out; essa tentativa ficou registrada apesar da falha de autenticação.
+Não há agendador ou notificação automática. Comando usado, apenas para referência:
 
 ```powershell
 python 'C:\Users\rmfon\YoungCrowHarness-review-20261001\.runtime\p06-package-20261010\tests\pilot_claude.py' run
@@ -85,7 +111,12 @@ admissões, conclusões, saídas das ferramentas, UUIDs, hashes e preservação 
 Exige a operação atual e a última retomada, além da feature, decisão e implementação.
 O estado positivo automático é `evidence_verified_pending_semantic_review`.
 
-Ainda é necessário confrontar o handoff com as notas citadas: decisão vigente,
+Em 9/out, o terminal trouxe `subtype: success` junto de `is_error: true` e a mensagem
+`Failed to authenticate: OAuth session expired and could not be refreshed` no campo
+`result`. O subtipo sozinho não prova sucesso. `auth status` e inicialização haviam
+passado; isso não comprovou renovação OAuth nem aceitação da chamada pelo fornecedor.
+
+Ainda é necessário confrontar um handoff bem-sucedido com as notas citadas: decisão vigente,
 desenvolvimento, publicação observada e próxima ação. Um campo preenchido não prova
 que seu significado esteja correto. Só depois dessa revisão registrar o aceite P06.
 O recibo resumido pode ser enviado ao responsável por essa revisão; eventos e
@@ -121,5 +152,6 @@ Filesystem settings are disabled; the three staged skills are read explicitly.
 The verifier checks Claude evidence and requires a separate semantic review.
 No Docker profiles are enabled, no Codex session is repeated, and no native Claude
 success is inferred from fixtures. Original receipts and failed attempts are preserved.
-The operator supplied a successful Windows preparation receipt on Oct 9. Keep that
-package for the Oct 10 session; retrieval and semantic review remain pending.
+The operator supplied a successful Windows preparation receipt on Oct 9, followed
+by a failed attempt with expired OAuth and zero reported token counts. Preserve the
+reserved attempt, renew login and review any retry. Retrieval remains unverified.

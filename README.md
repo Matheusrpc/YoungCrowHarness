@@ -354,10 +354,10 @@ O [piloto público](https://matheusrpc.github.io/YoungCrowHarness/) demonstra o 
 um quadro de entregas para acompanhar projeto novo, migração, testes, memória e publicação.
 O [exemplo](examples/delivery-board/README.md) tem página com filtros, critérios e um vault próprio.
 O percurso local foi verificado por teclado e em tela estreita. No Windows e no Linux, projeto novo e migração
-passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do trial. O site publicado teve revisão, hashes e uso conferidos. A retomada passou no Codex; a nova prova Claude aguarda
-[execução no Windows](docs/P06-CLAUDE.md) com o runner corrigido.
-O recibo enviado pelo operador em 9/out confirma preparo e inicialização do Claude sem prompt de modelo;
-a prova de retomada continua pendente para 10/out às 18h30, horário de Brasília.
+passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do trial. O site publicado teve revisão, hashes e uso conferidos. A retomada passou no Codex; a
+[tentativa Claude de 9/out](docs/P06-CLAUDE.md) terminou por sessão OAuth expirada,
+com contadores de tokens zerados. O preparo passou, mas a retomada continua pendente;
+renovar o login precede a revisão de uma nova tentativa.
 Veja as [provas e limites](docs/relatorios/2026-10-03-public-pilot.md).
 O pacote usa uma lista explícita de arquivos e um manifesto de hashes; o CI do piloto valida dados, testes e navegação do vault.
 
@@ -963,10 +963,10 @@ The [public pilot](https://matheusrpc.github.io/YoungCrowHarness/) demonstrates 
 a delivery board covering a new project, adoption, tests, memory and publication.
 The [example](examples/delivery-board/README.md) has a page with filters, acceptance criteria and its own vault.
 The local flow was checked with keyboard navigation and a narrow viewport. On Windows and Linux, new and existing
-projects passed real setup and returned to their initial state while retaining trial work. The published site passed revision, hash and interaction checks. Retrieval passed in Codex; the new Claude proof awaits
-[Windows execution](docs/P06-CLAUDE.md) with the corrected runner.
-The operator's Oct 9 receipt confirms preparation and Claude initialization without a model prompt;
-the retrieval proof remains scheduled for Oct 10 at 18:30 America/Sao_Paulo.
+projects passed real setup and returned to their initial state while retaining trial work. The published site passed revision, hash and interaction checks. Retrieval passed in Codex; the
+[Oct 9 Claude attempt](docs/P06-CLAUDE.md) ended with an expired OAuth session and
+zero reported token counts. Preparation passed, but retrieval remains pending;
+renewing login precedes review of another attempt.
 See the [evidence and limits](docs/relatorios/2026-10-03-public-pilot.md).
 The package uses an explicit file list and hash manifest; the pilot CI checks data, tests and vault navigation.
 

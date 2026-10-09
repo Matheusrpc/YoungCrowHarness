@@ -29,18 +29,18 @@ records current scope and the next task, 203.6.
 vault próprio. A página e os filtros foram verificados localmente, incluindo teclado e tela estreita.
 O roteiro explica início do zero, migração e saída; os dois consumidores passaram pela prova de retorno no Windows e no Linux.
 A [prova de retomada](relatorios/2026-10-03-public-pilot.md) passou no Codex. Para Claude,
-o recibo enviado pelo operador em 9/out confirma o [preparo de P06 no Windows](P06-CLAUDE.md)
-sem prompt de modelo. A única tentativa de retomada permanece para 10/out às 18h30,
-horário de Brasília; preservar o pacote preparado até a execução.
+o [preparo de P06 no Windows](P06-CLAUDE.md) passou, mas a tentativa de 9/out terminou
+por OAuth expirado, com tokens reportados zerados. Renovar o login e preservar os
+recibos; a retomada aguarda revisão de nova tentativa.
 O README do exemplo explica como gerar e servir somente o pacote permitido, em um destino novo.
 
 [Open the demonstration](https://matheusrpc.github.io/YoungCrowHarness/) or follow the [pilot recipe](../examples/delivery-board/README.md), which brings these paths together in an example
 with its own vault. The page and filters were checked locally, including keyboard navigation and a narrow viewport.
 The recipe covers a new project, migration and exit; both consumers passed restoration on Windows and Linux.
 The [retrieval proof](relatorios/2026-10-03-public-pilot.md) passed in Codex.
-The operator's Oct 9 receipt confirms [Claude P06 preparation on Windows](P06-CLAUDE.md)
-without a model prompt. Keep the prepared package for the single approved retrieval attempt
-on Oct 10 at 18:30 America/Sao_Paulo. Native retrieval acceptance remains pending.
+[Claude P06 preparation on Windows](P06-CLAUDE.md) passed, but the Oct 9 attempt ended
+with expired OAuth and zero reported token counts. Renew login and preserve receipts;
+native retrieval awaits review of another attempt.
 The example README explains how to build and serve only the allowed package, using a new destination.
 
 Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;

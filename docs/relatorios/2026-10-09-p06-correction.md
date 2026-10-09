@@ -35,6 +35,13 @@ timeout, resposta incompleta, hashes e integridade do pacote. O cliente fictíci
 conversa por subprocessos usando o protocolo; não importa nem chama Claude.
 O CI Windows ganhou uma etapa para essas mesmas provas sem modelo.
 
+No commit `0e1021a`, essa etapa executou e falhou nos runs
+[37928107576](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37928107576)
+e [37928101051](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37928101051).
+A API confirmou saída 1, mas o download dos logs detalhados retornou `Forbidden`;
+a asserção ainda não foi identificada. Os outros três jobs passaram. Essa falha
+usa cliente fictício e permanece separada da falha OAuth no PC do operador.
+
 Os testes foram escritos antes dos trechos correspondentes e falharam pelos
 comportamentos ausentes. A revisão independente identificou e corrigiu transporte
 de texto Windows, configurações ancestrais, preservação de falhas, retorno dos hashes
@@ -69,10 +76,27 @@ Nenhum prompt de modelo foi enviado, e o aceite da retomada permanece pendente.
 O preparo não exercita os callbacks com ferramentas reais nem substitui a revisão
 semântica da sessão. A medição registra separadamente esse avanço e os testes locais.
 
+## Tentativa de retomada em 9/out
+
+Depois do preparo, o operador executou `run` em 9/out às 12:30:52 UTC. O recibo
+registrou um prompt, duração de 4,041061 s, saída 1 e árvore encerrada. A cópia
+temporária da credencial foi removida e o original permaneceu igual. O terminal
+Claude informou `is_error: true` e, no campo `result`:
+
+> Failed to authenticate: OAuth session expired and could not be refreshed
+
+Os contadores de entrada, cache e saída retornaram zero. O filtro de eventos não
+mostrou `p06_error` ou `p06_denied`. O erro imediato é de autenticação; a causa da
+falha na renovação do OAuth ainda não está demonstrada. O preparo confirmou
+estado declarado e inicialização, mas não garantiu uma chamada autenticada.
+Não houve aceite da retomada. Os dados vieram dos recibos colados pelo operador;
+esta cloud não executou outro cliente nem acessou credenciais do PC.
+
 ## Próxima ação
 
-Preservar o pacote preparado no Windows. A tentativa `run` continua
-reservada para 10/out às 18h30 em America/Sao_Paulo, dentro da aprovação existente.
+Preservar o pacote e a tentativa reservada. Renovar o login do Claude no perfil
+original, conferir apenas o status e revisar qualquer nova tentativa. O horário
+original de 10/out às 18h30 não concede outra execução após a reserva de 9/out.
 Nenhum cliente nativo foi iniciado nesta cloud. Não houve agendamento automático,
 repetição Codex, novo ciclo Docker ou alteração da main.
 
@@ -82,7 +106,8 @@ The P06 test runner now gates tools before execution, reuses the existing proces
 supervisor, preserves one-attempt receipts and verifies Claude evidence. Thirteen
 local regression cases exercise a subprocess protocol fixture without model calls.
 Successful integrity verification still requires semantic review. The operator supplied
-a successful Windows preparation receipt without a model prompt; the approved retrieval
-session remains pending. This does not enable Docker profiles.
+a successful Windows preparation receipt without a model prompt, followed by a failed
+attempt with expired OAuth and zero reported token counts. Login renewal and retry
+review remain pending. This does not enable Docker profiles.
 
-ATRASO: preparo Windows confirmado | aceite Claude pendente.
+ATRASO: renovação OAuth pendente | aceite Claude pendente.

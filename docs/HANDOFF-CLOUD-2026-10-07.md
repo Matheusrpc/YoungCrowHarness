@@ -7,8 +7,9 @@ Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra
 Checkpoint conferido em 9/out: `a0af931` passou nos oito jobs de push e PR, incluindo
 Windows. [Publicação e CI](relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
 A prévia inicial da fila está entregue; execução nativa aguarda o contrato local da
-issue Docker #690. A prova de memória Claude permanece combinada para 10/out às 18h30
-em America/Sao_Paulo. Falhas anteriores abaixo são histórico, não resultados desse checkpoint.
+issue Docker #690. A tentativa de memória Claude reportada em 9/out falhou por OAuth
+expirado; renovar login e reconciliar a tentativa antes de outra execução.
+Falhas anteriores abaixo são histórico, não resultados desse checkpoint.
 
 O mantenedor pediu aprovação por lote para as próximas provas. Usar a
 [campanha controlada](TEST-RUN-2026-10-10.md): não pedir confirmação por teste dentro
@@ -17,10 +18,13 @@ de um pacote autorizado. Os dois fontes privados de P06 foram recuperados e
 admite ferramentas antes de executá-las, reutiliza o prazo/árvore do supervisor
 existente e verifica os artefatos Claude. O recibo enviado pelo operador em 9/out
 confirma preparo no Windows, inicialização do cliente real, zero prompts e limpeza
-dos processos e da cópia temporária de autenticação. Preservar esse pacote e os
-marcadores de 3/out. A retomada com inferência continua pendente; o pacote Docker permanece bloqueado.
-O lote A e a política foram aprovados em 9/out; manter 10/out às 18h30, sem pedir
-novamente a mesma aprovação. Nenhuma nova prova de retomada ou ciclo Docker foi iniciado.
+dos processos e da cópia temporária de autenticação. Na execução seguinte, em
+9/out às 12:30 UTC, o runner registrou um prompt, saída 1 e árvore encerrada;
+Claude informou OAuth expirado e tokens zerados. Preservar esse pacote e os
+marcadores de 3/out. A retomada não passou; o pacote Docker permanece bloqueado.
+A aprovação original previa uma sessão em 10/out às 18h30; o horário não concede
+outra tentativa após essa reserva usada. Renovar login e revisar a repetição
+antes de qualquer chamada adicional. Nenhum novo ciclo Docker foi iniciado.
 
 Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor atual](#6-estado-atual-do-executor-componente-por-componente) · [testes](#7-o-que-os-testes-já-demonstraram) · [falhas](#8-falhas-históricas-causas-e-tratamento) · [próximos passos](#10-próximos-passos-de-implementação-em-ordem) · [backlog](#11-backlog-restante-até-o-produto-completo) · [transferência para cloud](#12-o-que-levar-para-a-cloud) · [evidências](#14-evidências-e-identidade-da-implementação).
 

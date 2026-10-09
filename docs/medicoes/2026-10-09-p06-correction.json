@@ -68,7 +68,7 @@
     "issues": []
   },
   "final_review": "No remaining material findings; native Windows client remains unverified",
-  "windows_fixture_ci": "pending",
+  "windows_fixture_ci": "failed",
   "windows_preparation": {
     "source": "PowerShell receipt pasted by maintainer on 2026-10-09",
     "recorded_at": "2026-10-09T12:16:30.090052+00:00",
@@ -87,5 +87,56 @@
     "cloud_to_pc_access_verified": false,
     "retrieval_accepted": false,
     "next_action": "Keep prepared package for 2026-10-10T18:30:00-03:00; one run then semantic review"
+  },
+  "windows_attempt": {
+    "source": "Receipt and filtered terminal events pasted by maintainer",
+    "recorded_at": "2026-10-09T12:42:48.448880+00:00",
+    "started_at": "2026-10-09T12:30:52.863900+00:00",
+    "ended_at": "2026-10-09T12:30:56.905675+00:00",
+    "state": "failed_oauth_expired_refresh_failed",
+    "native_prompt_count": 1,
+    "supervision": {
+      "reason": "completed",
+      "exit_code": 1,
+      "tree_reaped": true,
+      "effect_started": true,
+      "elapsed_seconds": 4.041061,
+      "started_at": "2026-10-09T12:30:52.863900+00:00",
+      "ended_at": "2026-10-09T12:30:56.905675+00:00"
+    },
+    "temporary_credential_removed": true,
+    "original_auth_unchanged": true,
+    "terminal": {
+      "type": "result",
+      "subtype": "success",
+      "is_error": true,
+      "result": "Failed to authenticate: OAuth session expired and could not be refreshed",
+      "usage": {
+        "input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 0,
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      }
+    },
+    "refresh_failure_cause": "undetermined",
+    "raw_events_received": false,
+    "retrieval_accepted": false,
+    "next_action": "Renew subscription login; preserve reserved attempt and review any retry",
+    "retry_authorized": false
+  },
+  "windows_fixture_ci_observation": {
+    "commit": "0e1021a36601197ad11c9b3e96a875cc22af76ea",
+    "runs": [
+      37928107576,
+      37928101051
+    ],
+    "job": "adoption-windows",
+    "step": "Verify bounded Claude pilot with a local protocol fixture",
+    "conclusion": "failure",
+    "exit_code": 1,
+    "assertion": "unavailable: log download storage returned Forbidden",
+    "distinct_from_native_oauth_failure": true
   }
 }

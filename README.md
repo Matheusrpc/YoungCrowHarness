@@ -355,8 +355,9 @@ um quadro de entregas para acompanhar projeto novo, migração, testes, memória
 O [exemplo](examples/delivery-board/README.md) tem página com filtros, critérios e um vault próprio.
 O percurso local foi verificado por teclado e em tela estreita. No Windows e no Linux, projeto novo e migração
 passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do trial. O site publicado teve revisão, hashes e uso conferidos. A retomada passou no Codex; a nova prova Claude aguarda
-[preparação e execução no Windows](docs/P06-CLAUDE.md) com o runner corrigido.
-O operador reportou login ativo; as regressões usam um cliente fictício, e a nova inferência continua pendente.
+[execução no Windows](docs/P06-CLAUDE.md) com o runner corrigido.
+O recibo enviado pelo operador em 9/out confirma preparo e inicialização do Claude sem prompt de modelo;
+a prova de retomada continua pendente para 10/out às 18h30, horário de Brasília.
 Veja as [provas e limites](docs/relatorios/2026-10-03-public-pilot.md).
 O pacote usa uma lista explícita de arquivos e um manifesto de hashes; o CI do piloto valida dados, testes e navegação do vault.
 
@@ -963,8 +964,9 @@ a delivery board covering a new project, adoption, tests, memory and publication
 The [example](examples/delivery-board/README.md) has a page with filters, acceptance criteria and its own vault.
 The local flow was checked with keyboard navigation and a narrow viewport. On Windows and Linux, new and existing
 projects passed real setup and returned to their initial state while retaining trial work. The published site passed revision, hash and interaction checks. Retrieval passed in Codex; the new Claude proof awaits
-[Windows preparation and execution](docs/P06-CLAUDE.md) with the corrected runner.
-The operator reported an active login; regressions use a local fixture and fresh inference remains pending.
+[Windows execution](docs/P06-CLAUDE.md) with the corrected runner.
+The operator's Oct 9 receipt confirms preparation and Claude initialization without a model prompt;
+the retrieval proof remains scheduled for Oct 10 at 18:30 America/Sao_Paulo.
 See the [evidence and limits](docs/relatorios/2026-10-03-public-pilot.md).
 The package uses an explicit file list and hash manifest; the pilot CI checks data, tests and vault navigation.
 

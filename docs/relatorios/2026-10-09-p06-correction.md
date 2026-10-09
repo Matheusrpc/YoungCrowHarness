@@ -55,10 +55,23 @@ para desativar configurações de filesystem e carregamento de CLAUDE.md; as tr�
 skills são lidas explicitamente. Isso não comprova descoberta automática de toda
 a instalação nem isolamento geral de filesystem/rede.
 
+## Preparo no Windows
+
+O operador enviou a saída do preparo em 9/out, entre 12:13:34 e 12:13:37 UTC.
+O recibo informa `prepared_no_model_prompt`, `native_prompt_count: 0`, saída 0,
+árvore Windows Job encerrada, cópia temporária da credencial removida e original
+preservado. Duração supervisionada: 3,065195 s. O estado exige inicialização do
+protocolo, versão 2.1.220, login por assinatura e contexto preservado no runner.
+
+A fonte é o recibo colado pelo operador; a cloud não acessou o PC nem recebeu os
+eventos brutos. `effect_started: true` registra o processo supervisionado iniciado.
+Nenhum prompt de modelo foi enviado, e o aceite da retomada permanece pendente.
+O preparo não exercita os callbacks com ferramentas reais nem substitui a revisão
+semântica da sessão. A medição registra separadamente esse avanço e os testes locais.
+
 ## Próxima ação
 
-No Windows, executar somente `prepare` pelo guia. Confirmar versão, assinatura,
-inicialização e limpeza sem enviar prompt ao modelo. A tentativa `run` continua
+Preservar o pacote preparado no Windows. A tentativa `run` continua
 reservada para 10/out às 18h30 em America/Sao_Paulo, dentro da aprovação existente.
 Nenhum cliente nativo foi iniciado nesta cloud. Não houve agendamento automático,
 repetição Codex, novo ciclo Docker ou alteração da main.
@@ -68,7 +81,8 @@ repetição Codex, novo ciclo Docker ou alteração da main.
 The P06 test runner now gates tools before execution, reuses the existing process
 supervisor, preserves one-attempt receipts and verifies Claude evidence. Thirteen
 local regression cases exercise a subprocess protocol fixture without model calls.
-Successful integrity verification still requires semantic review. Windows preparation
-and the approved native session remain pending; this does not enable Docker profiles.
+Successful integrity verification still requires semantic review. The operator supplied
+a successful Windows preparation receipt without a model prompt; the approved retrieval
+session remains pending. This does not enable Docker profiles.
 
-ATRASO: correção local verificada | preparação Windows pendente | aceite Claude pendente.
+ATRASO: preparo Windows confirmado | aceite Claude pendente.

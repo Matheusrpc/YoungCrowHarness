@@ -4,7 +4,7 @@
   "base_commit": "91be370a7bc089974aad524a0f3505f0f7ac15a7",
   "native_calls": 0,
   "native_proof_accepted": false,
-  "windows_client_preflight": "pending",
+  "windows_client_preflight": "reported_prepared_no_model_prompt",
   "docker_profiles_enabled": false,
   "correction_cycles_used": 2,
   "correction_cycle_limit": 3,
@@ -68,5 +68,24 @@
     "issues": []
   },
   "final_review": "No remaining material findings; native Windows client remains unverified",
-  "windows_fixture_ci": "pending"
+  "windows_fixture_ci": "pending",
+  "windows_preparation": {
+    "source": "PowerShell receipt pasted by maintainer on 2026-10-09",
+    "recorded_at": "2026-10-09T12:16:30.090052+00:00",
+    "state": "prepared_no_model_prompt",
+    "native_prompt_count": 0,
+    "started_at": "2026-10-09T12:13:34.713251+00:00",
+    "ended_at": "2026-10-09T12:13:37.779128+00:00",
+    "elapsed_seconds": 3.065195,
+    "exit_code": 0,
+    "tree_reaped": true,
+    "owner_kind": "windows-job",
+    "temporary_credential_removed": true,
+    "original_auth_unchanged": true,
+    "setup_sha256": "31e4d02e934abc10feb810985dbc1039cfbbc815581342caaca352b1c0c2ca8d",
+    "raw_events_received": false,
+    "cloud_to_pc_access_verified": false,
+    "retrieval_accepted": false,
+    "next_action": "Keep prepared package for 2026-10-10T18:30:00-03:00; one run then semantic review"
+  }
 }

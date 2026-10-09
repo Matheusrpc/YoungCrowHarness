@@ -4,6 +4,12 @@ Frente: lote A, uma sessão Claude, 300 segundos, 24 ferramentas e assinatura ex
 O runner de desenvolvimento é `tests/pilot_claude.py`; não integra o instalador nem
 habilita os perfis do executor Docker. A aprovação do lote permanece vigente.
 
+Em 9/out, o operador enviou o recibo `prepared_no_model_prompt`: inicialização
+concluída em 3,065 s no Windows, zero prompts, árvore encerrada e autenticação original
+preservada. Para esse pacote, seguir diretamente à tentativa no horário combinado;
+o bloco de preparo abaixo serve apenas para uma cópia ainda não preparada.
+[Registro e limites da prova](relatorios/2026-10-09-p06-correction.md#preparo-no-windows).
+
 ## Preparar no Windows
 
 Requisitos: Python 3.11+, Git/Git Bash, Claude Code 2.1.220 autenticado por assinatura
@@ -48,7 +54,7 @@ Manter o horário combinado: **10/out, 18h30, America/Sao_Paulo**. Não há agen
 ou notificação automática. Depois de conferir a preparação e no horário combinado:
 
 ```powershell
-python "$ycP06\tests\pilot_claude.py" run
+python 'C:\Users\rmfon\YoungCrowHarness-review-20261001\.runtime\p06-package-20261010\tests\pilot_claude.py' run
 ```
 
 O comando reserva a tentativa antes de liberar processos. Falha, interrupção ou
@@ -115,3 +121,5 @@ Filesystem settings are disabled; the three staged skills are read explicitly.
 The verifier checks Claude evidence and requires a separate semantic review.
 No Docker profiles are enabled, no Codex session is repeated, and no native Claude
 success is inferred from fixtures. Original receipts and failed attempts are preserved.
+The operator supplied a successful Windows preparation receipt on Oct 9. Keep that
+package for the Oct 10 session; retrieval and semantic review remain pending.

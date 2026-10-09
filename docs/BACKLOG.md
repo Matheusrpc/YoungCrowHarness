@@ -241,7 +241,7 @@ package. Existing limits, separate acceptance criteria and current blockers rema
 
 | ID | Entrega | Dependência | Critério de aceite | Estado |
 |---|---|---|---|---|
-| YC-010 | Retomar o piloto público em sessão nova do Claude | Login válido e tentativa delimitada | Encontrar índices, UUIDs, revisão e produção observada sem receber o histórico inteiro; registrar resultado real | Login reportado ativo; [runner corrigido](P06-CLAUDE.md), preparação Windows e prova nativa pendentes |
+| YC-010 | Retomar o piloto público em sessão nova do Claude | Login válido e tentativa delimitada | Encontrar índices, UUIDs, revisão e produção observada sem receber o histórico inteiro; registrar resultado real | [Preparo Windows](P06-CLAUDE.md) confirmado pelo recibo do operador em 9/out, sem prompt; retomada Claude pendente para 10/out às 18h30 |
 | YC-011 | Provar as quatro novas skills nos clientes nativos | Instalação atual e sessão autorizada em cada cliente | Descobrir e aplicar `yc-personalizer`, `yc-config`, `yc-missao` e `yc-status`; preservar dados e distinguir preparo de execução | Pendente; integra a prova de YC-203 |
 
 ## Frente 2: execução e continuidade

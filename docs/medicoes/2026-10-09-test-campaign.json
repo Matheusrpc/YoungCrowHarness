@@ -123,5 +123,13 @@
     "state": "implemented_pending_windows_preparation_and_native_proof",
     "native_calls": 0,
     "current_plan_sha256": "850f75e08e2bd40d48557955414fb9592e7f376e5894e013d97959bbe7bf76a9"
+  },
+  "windows_preparation": {
+    "recorded_at": "2026-10-09T12:16:30.090052+00:00",
+    "state": "reported_prepared_no_model_prompt",
+    "measurement": "docs/medicoes/2026-10-09-p06-correction.json",
+    "native_prompt_count": 0,
+    "retrieval_accepted": false,
+    "current_plan_sha256": "d6dab44c507d2c19468230007c259847b960fbcbdbb7f4074334a36f54dcd16e"
   }
 }

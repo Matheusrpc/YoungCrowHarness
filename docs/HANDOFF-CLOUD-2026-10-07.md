@@ -15,12 +15,12 @@ O mantenedor pediu aprovação por lote para as próximas provas. Usar a
 de um pacote autorizado. Os dois fontes privados de P06 foram recuperados e
 [auditados](relatorios/2026-10-09-p06-runner-review.md). O [runner corrigido](P06-CLAUDE.md)
 admite ferramentas antes de executá-las, reutiliza o prazo/árvore do supervisor
-existente e verifica os artefatos Claude. Preparar no Windows sem prompt de modelo
-antes da nova tentativa; fixtures não comprovam o cliente nativo. Preservar os
-marcadores de 3/out. O operador reportou login ativo
-por assinatura, sem inferência comprovada. O pacote Docker permanece bloqueado.
+existente e verifica os artefatos Claude. O recibo enviado pelo operador em 9/out
+confirma preparo no Windows, inicialização do cliente real, zero prompts e limpeza
+dos processos e da cópia temporária de autenticação. Preservar esse pacote e os
+marcadores de 3/out. A retomada com inferência continua pendente; o pacote Docker permanece bloqueado.
 O lote A e a política foram aprovados em 9/out; manter 10/out às 18h30, sem pedir
-novamente a mesma aprovação. Nenhuma nova prova nativa ou ciclo foi iniciado.
+novamente a mesma aprovação. Nenhuma nova prova de retomada ou ciclo Docker foi iniciado.
 
 Navegação: [entregas](#4-o-que-já-foi-desenvolvido-no-produto) · [executor atual](#6-estado-atual-do-executor-componente-por-componente) · [testes](#7-o-que-os-testes-já-demonstraram) · [falhas](#8-falhas-históricas-causas-e-tratamento) · [próximos passos](#10-próximos-passos-de-implementação-em-ordem) · [backlog](#11-backlog-restante-até-o-produto-completo) · [transferência para cloud](#12-o-que-levar-para-a-cloud) · [evidências](#14-evidências-e-identidade-da-implementação).
 

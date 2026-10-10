@@ -59,6 +59,14 @@ Home inventory pauses the Hyper-V role candidate on this PC, without establishin
 an sbx/WHP incompatibility. No replacement, provisioning or native acceptance has
 occurred. A separate Windows CI failure awaits its network-blocked traceback.
 
+Diagnóstico de CI: exceções no preparo, supervisor ou limpeza dos testes de egress
+agora registram a última etapa alcançada e categoria permitida. Mensagens privadas
+ficam fora das anotações; a falha original continua propagada.
+[Prova e limites](relatorios/2026-10-10-ci-fixture-diagnostics.md).
+CI diagnostics: egress fixture exceptions now annotate the last stage reached and
+an allowed error category, excluding private messages and preserving the exception.
+This does not establish the cause of the historical Windows failure or native acceptance.
+
 Histórico de 8/out: leituras de missão e observação independente de egress, publicado
 em `b106bc5`. Passaram 616 testes locais, com 20 pulados; adoção com diagnóstico em
 consumidor novo/existente também passou. Os 12 focais Windows passaram no push e no PR;

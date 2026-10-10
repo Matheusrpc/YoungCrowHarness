@@ -679,6 +679,18 @@ git diff --check
 
 Os testes usam Git local e simulam chamadas de rede/plugins, com um diretório de usuário temporário. Não acessam MCPs reais. Veja a [matriz de verificação](../README.md#verificacao).
 
+<a id="ci-fixture-diagnostics"></a>
+
+Nos testes de egress executados com `GITHUB_ACTIONS=true`, exceções antes do recibo
+normal geram uma anotação `fixture`. O campo `reason` informa a última etapa alcançada:
+`fixture_setup`, `fixture_supervise` ou `fixture_cleanup`. `failure` publica uma
+categoria permitida ou `other`; nunca a mensagem, traceback ou caminho. Se o supervisor
+já retornou, seus estados e contagens permitidos acompanham a anotação.
+Uma exceção durante a saída do contexto pode substituir outra anterior: a etapa não
+determina a causa. O teste continua falhando; erro de escrita da anotação não substitui
+a exceção da fixture. Sem `GITHUB_ACTIONS=true`, não há anotação adicional.
+[Prova e limites](relatorios/2026-10-10-ci-fixture-diagnostics.md).
+
 <img src="../assets/vidro.svg" alt="" width="100%">
 
 <a id="protection-pt"></a>
@@ -1375,6 +1387,15 @@ git diff --check
 ```
 
 Tests use local Git, simulated network/plugin calls and an isolated temporary home. See the [verification matrix](../README.md#verification).
+
+With `GITHUB_ACTIONS=true`, egress fixture exceptions before the normal receipt emit a
+`fixture` annotation. `reason` identifies the last stage reached: `fixture_setup`,
+`fixture_supervise` or `fixture_cleanup`. `failure` is an allowed category or `other`,
+never the exception message, traceback or path. Available supervisor results retain
+only allowed states and counts. An exception while unwinding may replace an earlier
+one, so the stage does not establish root cause. The test still fails, and annotation
+output errors do not replace the fixture exception. Without `GITHUB_ACTIONS=true`, no extra annotation is emitted.
+[Evidence and limits](relatorios/2026-10-10-ci-fixture-diagnostics.md#english-overview).
 
 <a id="memory-en"></a>
 

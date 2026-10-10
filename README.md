@@ -1259,6 +1259,12 @@ and resolved review conversations. Deletion and force pushes are blocked, with n
 With one maintainer, a second approval is not required. See the
 [configuration and adoption steps](docs/USAGE.md#protection-en); setup does not change GitHub rules.
 
+O CI de egress também anota exceções durante o preparo, supervisor e limpeza da fixture,
+com a última etapa alcançada e a categoria do erro. Mensagens e caminhos ficam fora da anotação.
+[Como interpretar / How to interpret](docs/USAGE.md#ci-fixture-diagnostics).
+Egress CI also annotates fixture setup, supervision and cleanup exceptions, reporting the
+last stage reached and an error category. Annotations exclude exception messages and paths.
+
 ```bash
 python3 -m unittest discover -s tests -v  # Python 3.11+
 bash -n setup.sh

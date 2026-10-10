@@ -31,9 +31,11 @@ def annotate_case(identifier, reports):
         'ValueError:execution_deadline', 'TimeoutError:deadline',
         'TimeoutError', 'ConnectionRefusedError', 'ConnectionResetError',
         'ConnectionError', 'PermissionError', 'OSError', 'AssertionError',
+        'ValueError', 'RuntimeError', 'FileNotFoundError',
+        'fixture_setup', 'fixture_supervise', 'fixture_cleanup',
     }
     output = {}
-    for stage in ('supervisor', 'transaction', 'A', 'B', 'A2', 'recovery', 'replay', 'egress'):
+    for stage in ('supervisor', 'transaction', 'A', 'B', 'A2', 'recovery', 'replay', 'egress', 'fixture'):
         if stage not in reports:
             continue
         result, fields = reports[stage], {}

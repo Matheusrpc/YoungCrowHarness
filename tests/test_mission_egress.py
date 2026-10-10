@@ -66,13 +66,28 @@ class EgressTests(unittest.TestCase):
 
     def inherited(self, mode, *, exit_code=0):
         import mission_process
-        with tempfile.TemporaryDirectory() as temporary:
-            config = dict(self.config, deadline_ms=int(time.time()*1000)+5000)
-            result = mission_process.supervise(dict(argv=[sys.executable,'-I','-B',
-                str(Path(__file__).parent/'fixtures/egress_controller.py')], cwd=temporary,
-                stdin=json.dumps(dict(mode=mode,config=config)).encode(), timeout_seconds=6,
-                output_limit_bytes=16384, client='metadata', connection='native'),
-                on_started=lambda _:None, stop_requested=lambda:False)
+        result, stage = None, 'fixture_setup'
+        try:
+            with tempfile.TemporaryDirectory() as temporary:
+                config = dict(self.config, deadline_ms=int(time.time()*1000)+5000)
+                stage = 'fixture_supervise'
+                result = mission_process.supervise(dict(argv=[sys.executable,'-I','-B',
+                    str(Path(__file__).parent/'fixtures/egress_controller.py')], cwd=temporary,
+                    stdin=json.dumps(dict(mode=mode,config=config)).encode(), timeout_seconds=6,
+                    output_limit_bytes=16384, client='metadata', connection='native'),
+                    on_started=lambda _:None, stop_requested=lambda:False)
+                stage = 'fixture_cleanup'
+        except Exception as error:
+            from ci_unittest import annotate_case
+            # Last stage reached, not a claim about the cause of an unwinding error.
+            reports = dict(fixture=dict(reason=stage, failure=type(error).__name__))
+            if result is not None:
+                reports['supervisor'] = result
+            try:
+                annotate_case(self.id(), reports)
+            except OSError:
+                pass  # A closed CI output must not replace the fixture exception.
+            raise
         if exit_code or (result['reason'],result['exit_code']) != ('completed',exit_code) or not result['tree_reaped']:
             from ci_unittest import annotate_case
             reports = dict(supervisor=result)
@@ -111,6 +126,57 @@ class EgressTests(unittest.TestCase):
                         complete=False, bytes=0, failure='ConnectionResetError'))
                 else:
                     self.assertNotIn('egress', diagnostics)
+
+    def test_fixture_exceptions_publish_bounded_diagnostics_and_still_raise(self):
+        original_temporary = tempfile.TemporaryDirectory
+        private_error = type('private-error\n::error::injected', (Exception,), {})
+        for stage, error_type in (('fixture_setup', PermissionError),
+                                  ('fixture_supervise', ValueError),
+                                  ('fixture_cleanup', PermissionError),
+                                  ('fixture_supervise', private_error)):
+            for actions in ('true', 'false'):
+                with self.subTest(stage=stage, actions=actions, error_type=error_type):
+                    error = error_type('private-path-and-credential\n::error::injected')
+                    @contextlib.contextmanager
+                    def temporary():
+                        if stage == 'fixture_setup':
+                            raise error
+                        with original_temporary() as directory:
+                            yield directory
+                        if stage == 'fixture_cleanup':
+                            raise error
+                    result = dict(reason='completed', exit_code=71, tree_reaped=True,
+                                  stdout=b'private-output', stderr=b'private-traceback')
+                    output = io.StringIO()
+                    with patch.object(tempfile, 'TemporaryDirectory', temporary), \
+                         patch('mission_process.supervise', return_value=result,
+                               side_effect=error if stage == 'fixture_supervise' else None), \
+                         patch.dict(os.environ, GITHUB_ACTIONS=actions), contextlib.redirect_stdout(output):
+                        with self.assertRaises(error_type) as raised:
+                            self.inherited('kill_before_config', exit_code=71)
+                    self.assertIs(raised.exception, error)
+                    if actions == 'false':
+                        self.assertEqual(output.getvalue(), '')
+                        continue
+                    lines = output.getvalue().splitlines()
+                    self.assertEqual(len(lines), 1, output.getvalue())
+                    diagnostics = json.loads(lines[0].split(' ', 1)[1])
+                    self.assertEqual(diagnostics['fixture'], dict(reason=stage,
+                        failure='other' if error_type is private_error else error_type.__name__))
+                    self.assertEqual('supervisor' in diagnostics, stage == 'fixture_cleanup')
+                    self.assertNotIn('private', output.getvalue())
+                    self.assertNotIn('::error::', output.getvalue())
+
+    def test_fixture_exception_survives_annotation_output_failure(self):
+        class ClosedOutput(io.StringIO):
+            def write(self, value):
+                raise BrokenPipeError('private-output-failure')
+        error = ValueError('private-original-failure')
+        with patch('mission_process.supervise', side_effect=error), \
+             patch.dict(os.environ, GITHUB_ACTIONS='true'), contextlib.redirect_stdout(ClosedOutput()):
+            with self.assertRaises(Exception) as raised:
+                self.inherited('kill_before_config', exit_code=71)
+        self.assertIs(raised.exception, error)
 
     def test_dns_inherits_existing_containment_without_starting_nested_supervisor(self):
         result = self.inherited('dns_success')

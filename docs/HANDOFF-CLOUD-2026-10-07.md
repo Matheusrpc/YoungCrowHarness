@@ -23,9 +23,13 @@ e 7,69 GiB de RAM total. A função Hyper-V não é suportada nessa edição; ca
 pausada nesse PC. Não repetir inventário, recomendar upgrade ou reprovar sbx/WHP
 com esses campos. Nenhuma substituição, instalação ou novo ciclo nativo aprovado.
 Falha independente: CI Windows do PR em `136469e`, teste de queda abrupta do
-controlador. Mesmo diagnóstico passou no push; causa ainda sem traceback. Próxima
-ação: aplicar a adição salva no rascunho de rede e obter o log completo. A leitura
-é bloqueada em `productionresultssa3.blob.core.windows.net`; não ajustar prazos ou
+controlador. Mesmo diagnóstico passou no push; causa ainda sem traceback. O commit
+`35fe0f9` passou nos oito jobs de push/PR, incluindo Windows; isso não explica a
+falha anterior nem comprova o executor nativo. O log histórico continua bloqueado
+em `productionresultssa3.blob.core.windows.net`, com adição salva no rascunho de rede.
+O [diagnóstico de exceções da fixture](relatorios/2026-10-10-ci-fixture-diagnostics.md)
+passa a anotar a última etapa alcançada e uma categoria permitida antes de propagar
+a exceção. Consultar essas anotações se houver nova falha; não ajustar prazos ou
 reexecutar por suposição. Docker #690 permanece sem resposta no último checkpoint.
 Os parágrafos seguintes preservam a sequência histórica e suas decisões na ocasião.
 

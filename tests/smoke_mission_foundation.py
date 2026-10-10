@@ -112,6 +112,17 @@ for name in ('capabilities', 'integrations'):
         discovered = inventory['missions'][1]
         check(cli('status', discovered['code'])['id'] == discovered['id'], 'mission_discovery_failed')
         check(fixture.snapshot() == inventory_before, 'mission_discovery_wrote_files')
+        context = cli('context', second['code'], '--pbi', pbis[0], '--expected-revision', '1')
+        check([item['kind'] for item in context['items']] == ['epic', 'feature', 'pbi'], 'context_ancestry_incorrect')
+        check(context['pbi_id'] == pbis[0] and not context['runnable'], 'context_scope_incorrect')
+        expected_sources = {r['snapshot']['note_path'] for r in context['items']} | {'vault/product/profile.md'}
+        check({source['path'] for source in context['sources']} == expected_sources, 'context_leaked_other_items')
+        for source in context['sources']:
+            check(source['content'].encode('utf-8') == (project / source['path']).read_bytes() and
+                  source['sha256'] == digest(project / source['path']), 'context_source_mismatch')
+        check(cli('context', second['code'], '--pbi', pbis[0], '--expected-revision', '2', expected=1)
+              ['error'] == 'revision_conflict', 'context_accepted_wrong_revision')
+        check(fixture.snapshot() == inventory_before, 'context_wrote_files')
         defaults = cli('config', 'show')
         updated = defaults['config']
         updated['agents']['pm']['model'] = 'fixture-b'
@@ -157,6 +168,7 @@ print(json.dumps(result))
                              existing_hashes_preserved=mode == 'existing', legacy_hashes=retained if mode == 'existing' else {},
                              snapshots_frozen=True, replay_without_duplicate=True,
                              read_only_status=True, read_only_discovery=True, initial_queue_preview=True,
+                             selected_pbi_context=True, context_without_writes=True,
                              projection_recovered=True, vault_notes=vault['notes_checked'],
                              state='prepared', runtime_available=False))
 

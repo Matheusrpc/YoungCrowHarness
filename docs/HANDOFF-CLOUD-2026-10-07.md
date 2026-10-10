@@ -4,6 +4,18 @@ Frente: produto YoungCrowHarness, com trabalho ativo no executor isolado.
 
 Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra sessão consiga continuar sem receber toda a conversa. Reúne decisões do mantenedor, estado do código, resultados observados, falhas, limites e próximos passos. Os caminhos de arquivos, salvo indicação contrária, são relativos à raiz do repositório.
 
+**YC-206 parcial (10/out):** consulta `context M001 --pbi UUID --expected-revision N`
+reúne contratos do PBI/feature/épico, perfil e fontes explícitas. JSON privado com
+UUIDs, revisões e hashes, sem escrita/migração ou entrega automática ao worktree.
+[Uso](USAGE.md#pbi-context) e [provas](relatorios/2026-10-10-pbi-context.md).
+Recusa fontes/revisões divergentes e ancestralidade incompleta; gaps e pendências
+operacionais continuam visíveis para refinamento. Propostas de líderes, repriorização
+em execução e avisos permanecem pendentes. Preservar aceite nativo e contador 2/3.
+Base `ded7ac5` aprovada nos oito checks, incluindo Windows, runs
+[push 38053689598](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38053689598) e
+[PR 38053692382](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38053692382).
+Conferir separadamente o CI do novo incremento.
+
 **YC-205 parcial (10/out):** preparo/liberação explícitos de worktree Git por PBI,
 com commit base fixado, branch própria, recibos e retomada do pedido congelado.
 [Uso e limites](USAGE.md#pbi-workspaces) e [provas](relatorios/2026-10-10-pbi-workspaces.md). Diretório contém o commit, sem copiar alterações

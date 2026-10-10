@@ -327,8 +327,8 @@
       "expected": {
         "contract_sha256": "4ed02a5e2e4d82e34d37823fab9b30ed144d950fb42b6e488ffae4499a4932a4",
         "files_sha256": {
-          "claude": "f35fbe0f737419710b0262dc0ff580e80fed3c7999990783fa981a3a7f528807",
-          "codex": "85e2c6d6243742269d76dc1e78aef32d0d1a3b3d4379dae7546374f597de5214"
+          "claude": "0cd64b1e1ccaf8f3e8ca366c25a740934df6c2b03533059bcc2503eeba2d4f44",
+          "codex": "6c2d3562b2dc6f020edc1a203a1e77e3a7c3375dd6d010baff133aa17b87fac0"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1250,8 +1250,8 @@
       "expected": {
         "contract_sha256": "cc7f0be1bbc77eba45aa6c320fe24acb39039eb463827e3af8b104fc39d7014e",
         "files_sha256": {
-          "claude": "1de73f71a7e99b656f392d4ccc6a7dfa71285bc1219b6820eb0b3cc045e6a694",
-          "codex": "c5ad2a8e79b1003b62c98490d9f0632376b32baf0b9694dfce06af976f600681"
+          "claude": "049b871ee7f7462c44fc12d52530d0e3c74b2546c9f46d1750e929ce5a8f3a7b",
+          "codex": "4e16a3c58517c13a8857c87c10b725c3cdf92ca45a23c2c91dbe6786aec272dd"
         }
       }
     },
@@ -1342,8 +1342,8 @@
       "expected": {
         "contract_sha256": "7badfa4acfe7638f7326e93e94506a3b291d44cfb3d635bcee2a90884f9dcc08",
         "files_sha256": {
-          "claude": "fec1615723fae505cbc78c47423fb5fc67cb5b953083fc583bd872eab47ce975",
-          "codex": "e1ad88566e59ec64fad493cfff404f62f621679d4eaaf96e58d0c05a3913abe9"
+          "claude": "15f1229a18d5db987760a48e286d8b80c5a9f1e7c7f03866a5a1e9b14f05cf56",
+          "codex": "6bd9c56ee01e5d196ce8f3f59498ba19a1866d507e737b860f83d921e473933e"
         }
       }
     },
@@ -1351,9 +1351,9 @@
       "id": "yc-missao",
       "kind": "skill",
       "purpose": {
-        "when": "Refine backlog, prepare missions or explicitly prepare/release a PBI Git workspace",
+        "when": "Refine backlog, assemble selected PBI context, prepare missions or explicitly prepare/release a PBI Git workspace",
         "inputs": "Selected contracts, references, priorities and explicit pinned Git base",
-        "outputs": "Private mission snapshot, events and workspace recovery receipts",
+        "outputs": "Private mission snapshot, events, selected read-only PBI context and workspace recovery receipts",
         "limits": "Local explicit preparation/release; no autonomous workers, integration, push or deployment"
       },
       "clients": [
@@ -1430,10 +1430,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "f8c7d9d09ce3d7a11a40349eb5b6490e32adce5a5af8d602973a32571aa99c9e",
+        "contract_sha256": "d5e9d859f28c12e5d49131c8a68c6c96259ecf410af4b862eeac5393690fe531",
         "files_sha256": {
-          "claude": "94cb7a3e29882442092629b27dda0e931379be868fa68ba7c017069bb9529606",
-          "codex": "6e6d0c2d18698a0ed64a21f9d723c6f21e91670a0c5c7c55feb2f515be680344"
+          "claude": "0c652216a677ca1759a5a4923897dba0185edf5243166776add25a66188efc27",
+          "codex": "af4eccb3222cedd6f60cc12f4e93b13665ea8fec46e1b3b9da03c2f2053e4aad"
         }
       }
     },
@@ -1442,8 +1442,8 @@
       "kind": "skill",
       "purpose": {
         "when": "Read mission state and pending work",
-        "inputs": "Mission UUID or code",
-        "outputs": "Read-only history, freshness, planning gaps and saved workspace state",
+        "inputs": "Mission UUID or code; PBI UUID and expected mission revision for context",
+        "outputs": "Read-only history, freshness, planning gaps, selected PBI context and saved workspace state",
         "limits": "Offline preparation only; no autonomous workers or deployment"
       },
       "clients": [
@@ -1515,10 +1515,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "b33febfbe7579cb91337dc9e87ac784469218d8eaaffe6cf130c5a471f972584",
+        "contract_sha256": "7178919bceaf2d9573235e775babdc3e8a38200e4c2cf815f890d499ceeaba6e",
         "files_sha256": {
-          "claude": "58f253cf6b63df3cbe43b3f8fe580a6a08a610acd1c43abb237a8866472af408",
-          "codex": "a77b5d77e85b2444e58bcc5ac1c605a0eb7128f8be68d0e618d5329664685bed"
+          "claude": "c16989617dff380603ef700f84d330fc7168ca9e4bac9ed3cbb3ee58bacea5f4",
+          "codex": "d94925eb8f146f87c0b3f542fb4192b85123820c506d63564f27ff8b47a36f15"
         }
       }
     }

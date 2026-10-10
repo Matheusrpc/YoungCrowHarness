@@ -230,6 +230,73 @@ def list_missions(root):
     return dict(schema_version=1, missions=summaries, runtime_available=False, runnable=False)
 
 
+def mission_context(root, mission_id, pbi_id, expected_revision):
+    """Selected private context as data, never a prompt, dispatch or approval."""
+    from vault import metadata
+    identity(pbi_id)
+    require(type(expected_revision) is int and expected_revision > 0, 'invalid_revision')
+    status = mission_status(root, mission_id)
+    require('id' in status, 'unknown_mission')
+    require(status['revision'] == expected_revision, 'revision_conflict')
+    require(not status['stale_inputs'], 'stale_context')
+    snapshot = status['snapshot']
+    records = {r['id']: r for r in snapshot['items']}
+    require(pbi_id in snapshot['pbi_ids'] and records[pbi_id]['kind'] == 'pbi', 'unknown_pbi')
+    selected, key = [], pbi_id
+    for kind in ('pbi', 'feature', 'epic'):
+        record = records.get(key)
+        require(record is not None and record['kind'] == kind and record['snapshot']['contract'] is not None,
+                'incomplete_context')
+        selected.append(record)
+        key = record['snapshot']['contract']['parent_id']
+    selected.reverse()
+    profile = 'vault/product/profile.md'
+    pinned = [dict(path=profile, note_id=None, sha256=snapshot['inputs'][profile])]
+    for record in selected:
+        item = record['snapshot']
+        pinned.append(dict(path=item['note_path'], note_id=record['id'], sha256=item['note_sha256']))
+        pinned.extend(item['references'])
+    paths = sorted({ref['path'] for ref in pinned})
+    require(all(p.startswith('vault/') and p.endswith('.md') for p in paths), 'invalid_context_source')
+    data = read_inputs(root, paths)
+    sources = {}
+    identities = {}
+    for path, raw in data.items():
+        digest = hashlib.sha256(raw).hexdigest()
+        require(digest == snapshot['inputs'].get(path), 'stale_context')
+        fields, _ = metadata(raw.decode('utf-8-sig'))
+        note_id = identity(fields['id'])
+        require(note_id not in identities or identities[note_id] == path, 'context_identity_conflict')
+        identities[note_id] = path
+        sources[path] = dict(path=path, note_id=note_id, sha256=digest, origin=fields['origin'],
+                             updated=fields['updated'], title=fields['title'], content=raw.decode('utf-8'))
+    for ref in pinned:
+        source = sources[ref['path']]
+        require(ref['sha256'] == source['sha256'], 'stale_context')
+        require(ref['note_id'] is None or ref['note_id'] == source['note_id'], 'context_identity_conflict')
+    dependencies = []
+    for dependency in records[pbi_id]['snapshot']['contract']['dependencies']:
+        record = records.get(dependency)
+        summary = dict(id=dependency, available_in_mission=record is not None and record['kind'] == 'pbi')
+        if summary['available_in_mission']:
+            summary.update(code=record['code'], revision=record['revision'], title=record['snapshot']['title'])
+        dependencies.append(summary)
+    # Observe revisions again after reading bytes; this query never migrates or repairs.
+    with store.reader(root) as conn:
+        require(conn is not None, 'invalid_store')
+        project = conn.execute('SELECT project_id FROM metadata').fetchone()[0]
+        current = {r[0]: r[1] for r in conn.execute('SELECT id,revision FROM records')}
+        require(current.get(status['id']) == expected_revision, 'revision_conflict')
+        require(all(current.get(r['id']) == r['revision'] for r in snapshot['items']), 'stale_context')
+    result = dict(schema_version=1, project_id=project, pbi_id=pbi_id,
+        mission=dict(id=status['id'], code=status['code'], revision=expected_revision,
+                     title=snapshot['title'], scope_reference=snapshot['scope_reference']),
+        items=selected, dependencies=dependencies, sources=list(sources.values()),
+        readiness={k: status[k] for k in ('state', 'gaps', 'projection_state', 'check_available', 'next_action')},
+        source_trust='untrusted_data', runtime_available=False, runnable=False)
+    return dict(result, context_sha256=hashlib.sha256(canonical(result)).hexdigest())
+
+
 def mission_status(root, mission_id):
     check_helpers()
     existing = store.get_record(root, mission_id)
@@ -389,6 +456,10 @@ def parser():
     subs.add_parser('list', help='List saved mission summaries; use status CODE for current blockers')
     for name in ('status', 'repair'):
         subs.add_parser(name).add_argument('identifier')
+    context = subs.add_parser('context', help='Read selected PBI context; no agent dispatch or file writes')
+    context.add_argument('identifier')
+    context.add_argument('--pbi', required=True)
+    context.add_argument('--expected-revision', type=int, required=True)
     queue = subs.add_parser('queue', help='Serial deterministic rehearsal with bounded corrections; no native dispatch').add_subparsers(dest='action', required=True)
     for name in ('start', 'step', 'cancel'):
         entry = queue.add_parser(name)
@@ -449,6 +520,7 @@ SAFE_ERRORS = CONFLICTS | {'invalid_config', 'invalid_request', 'invalid_argumen
                          'unsupported_queue_scope', 'unknown_queue_session', 'invalid_fixture_result', 'invalid_queue_state',
                          'execution_location_conflict', 'execution_selection_busy', 'execution_storage_unprotected',
                          'unknown_workspace', 'unsupported_workspace_repository', 'invalid_base', 'workspace_git_failed'}
+SAFE_ERRORS |= {'unknown_pbi', 'stale_context', 'incomplete_context', 'context_identity_conflict', 'invalid_context_source'}
 
 
 def main(argv=None):
@@ -555,6 +627,8 @@ def main(argv=None):
                 result = revise_mission(root, args.identifier, load_input(root, args.input), args.expected_revision, args.operation_id, actor)
         elif args.command == 'list':
             result = list_missions(root)
+        elif args.command == 'context':
+            result = mission_context(root, args.identifier, args.pbi, args.expected_revision)
         else:
             result = mission_status(root, args.identifier) if args.command == 'status' else repair(root, args.identifier)
         print(json.dumps(result, ensure_ascii=True, indent=2))

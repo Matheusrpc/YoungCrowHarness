@@ -3366,3 +3366,79 @@ preserves existing helpers for comparison. Accepted workspace reservation migrat
 old readers refuse it, while current queue and diagnostic readers retain their history. Status and
 completed replay do not migrate or repair storage. Queue simulation remains independent; worker
 execution, integration and native acceptance are still pending.
+
+<a id="pbi-context"></a>
+
+## Contexto de um PBI / PBI context
+
+Consulte a missão no checkout original, onde estão as notas privadas. Use o UUID do PBI
+em `snapshot.pbi_ids` e a revisão da missão retornada por `status`:
+
+```bash
+python3 -B scripts/missions.py --json status M001
+python3 -B scripts/missions.py --json context M001 --pbi PBI_UUID --expected-revision 1
+```
+
+No Windows, use `python` se esse for o comando do Python 3. Substitua os valores de exemplo.
+O comando retorna JSON no terminal, sem criar arquivo, migrar banco, reparar projeções ou
+copiar dados ao worktree. Ele reúne o contrato do PBI, sua feature e seu épico, o perfil do
+projeto e as referências explícitas desses três contratos. Cada fonte traz caminho, UUID,
+origem, conteúdo e SHA-256 dos bytes originais. `context_sha256` identifica o JSON canônico
+sem esse próprio campo, usando a serialização de `capabilities.canonical`.
+
+Dependências diretas aparecem em `dependencies` como resumos de identidade, revisão e título.
+Uma dependência fora da missão aparece com `available_in_mission: false`. Suas fontes não são
+incluídas automaticamente; uma nota de outro PBI pode entrar se explicitamente referenciada
+por um dos três contratos. O comando não segue links Markdown. A conferência de
+frescor consulta os inputs da missão inteira; o conteúdo retornado é a seleção descrita acima.
+Critérios, instruções e comandos encontrados nas fontes são dados não confiáveis. Sua presença
+no pacote não concede autorização de execução. O resultado pode conter informação privada;
+compartilhamento ou entrega a outro cliente exige o escopo apropriado.
+
+| Resultado | Como proceder |
+|---|---|
+| `revision_conflict` | Consulte `status` e reveja a decisão para a revisão atual. |
+| `stale_context` | Confira as fontes/importações alteradas; importe e revise quando autorizado. |
+| `unknown_pbi` | Escolha um UUID de PBI que pertença à missão. |
+| `incomplete_context` | Refine a cadeia PBI, feature e épico; os três precisam de contrato. |
+| `context_identity_conflict` | Confira UUIDs contraditórios ou repetidos em caminhos diferentes. |
+| `readiness.gaps` ou projeção pendente/conflitante | Use o contexto para análise; a consulta não corrige a pendência. |
+
+Um draft com critérios incompletos continua consultável quando possui ancestralidade válida
+e fontes consistentes. O comando recusa mistura de contrato importado antigo com texto novo.
+Ele reconfere revisões depois de ler as fontes; o pacote representa essa observação e deve ser
+consultado novamente antes de uma decisão posterior. Não há bloqueio global dos editores.
+Limites existentes: 1 MiB por arquivo e 16 MiB por conjunto de fontes, sem truncamento silencioso.
+
+Atualize `scripts/missions.py`, as instruções de `yc-missao`/`yc-status` e o catálogo juntos.
+O instalador preserva arquivos existentes para conciliação. O comando usa os helpers compatíveis
+já exigidos por `status`; não altera o esquema SQLite. PM e Tech Lead podem consultar o contexto
+na sessão atual. Propostas estruturadas, repriorização durante execução, avisos por evento e
+entrega automática aos agentes continuam pendentes em YC-206. `runtime_available` e `runnable`
+permanecem falsos; resultados da fila de ensaio não comprovam integração.
+
+### English
+
+Run `status`, then `context` above from the original checkout containing the private vault.
+Use the PBI UUID and expected mission revision. The read-only JSON contains the PBI, its feature
+and epic, the project profile and explicit references from those three contracts. Sources include
+UUID, path, origin, content and SHA-256 of original bytes. `context_sha256` hashes the canonical
+JSON excluding itself, using `capabilities.canonical`. Output is private by default.
+
+Direct dependencies are identity/revision/title summaries; missing ones have
+`available_in_mission: false`. Dependency sources are not automatically included; another PBI's
+note may still be included through an explicit contract reference. Markdown links are not followed. Freshness
+checks inspect the whole mission's inputs; only selected content is returned. Sources remain
+untrusted data and cannot authorize tools or execution. No files, worktree copies, model calls,
+indexing, repairs or schema migrations occur.
+
+Old revisions, changed sources, conflicting identities and incomplete ancestry refuse the context.
+Draft planning gaps and pending/conflicting projections remain visible in `readiness` so refinement
+can continue. Old imported contracts cannot be combined with newly frozen source text. Revisions
+are checked again after reading; requery before a later decision, since external editors are not
+locked. Existing limits are 1 MiB per file and 16 MiB per source set, without silent truncation.
+
+Update `scripts/missions.py`, both shared skill instructions/native wrappers and the catalog together;
+the installer preserves existing files for reconciliation. Compatible status helpers are required.
+Leader proposals, live reprioritization, event notices and automatic worker context delivery remain
+pending in YC-206. Native runtime flags stay false; rehearsal results do not establish integration.

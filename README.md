@@ -98,6 +98,11 @@ O checkout original conserva suas alterações. A liberação exige um worktree 
 preserva branch/commits e permite pedir novamente o preview de retorno do trial.
 É preparo local explícito; agentes reais e integração seguem pendentes.
 
+O [contexto por PBI](docs/USAGE.md#pbi-context) reúne critérios, feature, épico e fontes
+explicitamente vinculadas, com UUIDs, revisões e hashes. `context` consulta o vault do
+checkout original e retorna JSON privado, sem alterar notas ou iniciar agentes.
+Fontes divergentes são recusadas; lacunas de planejamento aparecem no resultado.
+
 
 O checkpoint `a0af931` passou nos oito jobs de CI entre push e PR, incluindo Windows.
 [Publicação e resultados](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
@@ -725,6 +730,11 @@ Replaying an operation recovers its receipt. No models or real delivery acceptan
 `workspace prepare/status/release`, with a pinned base and recoverable receipts. Original checkout
 changes are preserved. Release requires a clean owned worktree and retains its branch/commits,
 allowing a new trial return preview. Real workers and integration remain pending.
+
+The [PBI context query](docs/USAGE.md#pbi-context) collects criteria, feature, epic and
+explicitly linked sources with UUIDs, revisions and hashes. `context` reads the original
+checkout's vault and returns private JSON without changing notes or launching agents.
+Changed sources are refused; planning gaps remain visible in the result.
 
 
 Checkpoint `a0af931` passed all eight push/PR CI jobs, including Windows.

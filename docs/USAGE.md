@@ -3413,7 +3413,8 @@ Limites existentes: 1 MiB por arquivo e 16 MiB por conjunto de fontes, sem trunc
 Atualize `scripts/missions.py`, as instruções de `yc-missao`/`yc-status` e o catálogo juntos.
 O instalador preserva arquivos existentes para conciliação. O comando usa os helpers compatíveis
 já exigidos por `status`; não altera o esquema SQLite. PM e Tech Lead podem consultar o contexto
-na sessão atual. Propostas estruturadas, repriorização durante execução, avisos por evento e
+na sessão atual. A [proposta PM de prioridade](#pbi-priority) está disponível para planejamento.
+Decisões Tech Lead, repriorização durante execução, avisos por evento e
 entrega automática aos agentes continuam pendentes em YC-206. `runtime_available` e `runnable`
 permanecem falsos; resultados da fila de ensaio não comprovam integração.
 
@@ -3440,5 +3441,93 @@ locked. Existing limits are 1 MiB per file and 16 MiB per source set, without si
 
 Update `scripts/missions.py`, both shared skill instructions/native wrappers and the catalog together;
 the installer preserves existing files for reconciliation. Compatible status helpers are required.
-Leader proposals, live reprioritization, event notices and automatic worker context delivery remain
+The [PM priority proposal](#pbi-priority) is available for planning. Tech Lead decisions,
+live reprioritization, event notices and automatic worker context delivery remain
 pending in YC-206. Native runtime flags stay false; rehearsal results do not establish integration.
+
+<a id="pbi-priority"></a>
+
+## Proposta de prioridade PM / PM priority proposal
+
+Use esta operação quando a decisão autorizada for mudar apenas a ordem dos PBIs já
+selecionados. Consulte `status M001` e salve um JSON privado, por exemplo
+`vault/local/priority-proposal.json`, com **exatamente** estes campos:
+
+```json
+{
+  "schema_version": 1,
+  "project_id": "UUID_DO_PROJETO",
+  "mission_id": "UUID_DA_MISSAO",
+  "mission_revision": 1,
+  "priority": ["UUID_PBI_B", "UUID_PBI_A"],
+  "reason": "Antecipar a entrega já selecionada que desbloqueia a validação."
+}
+```
+
+Substitua os exemplos pelos UUIDs canônicos e pela revisão atual. Inclua cada PBI
+da prioridade atual uma única vez; nenhum pode entrar ou sair. O motivo deve ter
+conteúdo e no máximo 8.000 caracteres. Salve também operação, ator e caminho em
+um handoff privado antes de aplicar:
+
+```bash
+python3 -B scripts/missions.py --json reprioritize --input vault/local/priority-proposal.json --operation-id OPERATION_UUID --actor-id current-session --actor-role pm --dry-run
+python3 -B scripts/missions.py --json reprioritize --input vault/local/priority-proposal.json --operation-id OPERATION_UUID --actor-id current-session --actor-role pm
+python3 -B scripts/missions.py --json status M001
+```
+
+No Windows, use `python` no lugar de `python3`. A prévia retorna ordem anterior,
+ordem proposta e `protected_pbi_ids`; não grava, repara ou reserva nada. Aplicar
+confere novamente os limites, incrementa a revisão e guarda o motivo em
+`snapshot.last_planning_decision`. O evento guarda ator, data e revisões; projeções
+e histórico conservam a decisão. `--actor-role pm` atribui o papel, sem autenticar
+um agente nativo.
+
+A missão precisa estar preparada, com fontes/importações atuais, projeções íntegras
+e sem diagnóstico pendente. Desenvolvimento e QA continuam `not_started`, produção
+`not_verified` e flags nativas falsas. Uma fila ativa da missão bloqueia a alteração,
+inclusive se pertence a uma revisão anterior. Qualquer PBI com histórico de workspace
+conserva sua posição absoluta, mesmo após release ou se foi preparado em outra missão.
+Esse histórico não prova se houve execução; o diretório pode conter trabalho.
+
+| Resultado | Próximo passo |
+|---|---|
+| `revision_conflict` | Releia status; reveja a proposta e use uma nova operação para outra decisão. |
+| `invalid_priority` | Preserve todos os PBIs selecionados, sem duplicar ou acrescentar IDs. |
+| `priority_locked` | Mantenha as posições de PBIs com histórico de workspace. Release não remove esse histórico. |
+| `queue_busy` | Preserve a fila. A repriorização não a cancela; conclua ou cancele apenas conforme a decisão autorizada. |
+| `mission_not_ready` | Consulte fontes, lacunas, projeções e diagnósticos em status. Não contorne o bloqueio. |
+| `operation_conflict` | A operação já identifica outro pedido/ator; preserve seu recibo. |
+
+Depois de interrupção, repita os mesmos bytes semânticos do JSON, operação e ator.
+Uma aplicação já concluída retorna o recibo original, mesmo se as fontes mudaram
+depois; pode reparar sua projeção pendente. Em dry-run, `already_applied` apenas lê
+o recibo e não repara. A prévia pode perder validade antes da aplicação.
+
+O comando preserva contratos, critérios, referências, configuração e workspaces.
+Não importa notas, cria PBIs, chama modelos ou inicia desenvolvimento. `revise` continua
+sendo o fluxo mais amplo para refinamento autorizado; não o use para contornar um
+bloqueio desta operação. Prioridade durante execução, propostas Tech Lead e avisos
+automáticos continuam pendentes.
+
+**English.** Use the exact JSON fields and commands above for an authorized PM decision
+that only reorders existing selected PBIs. Replace placeholders with canonical UUIDs and
+the current mission revision; include every current PBI once and a nonblank reason of
+at most 8,000 characters. Persist the proposal, operation UUID and actor before applying.
+On Windows, use `python`. Role attribution does not authenticate a native agent.
+
+Dry-run returns the old/new order and protected PBI IDs without writing, repairing or
+reserving anything. Apply rechecks the current state, increments the mission revision and
+stores the reason in `snapshot.last_planning_decision`; the event retains actor/time/revisions.
+The mission must be prepared, fresh, with intact projections and no unresolved diagnostic.
+An active queue at any revision of this mission blocks the change. Any workspace history
+pins that PBI's absolute position, including released workspaces or those in another mission.
+Workspace history cannot establish whether execution happened.
+
+Repeat the exact semantic request, operation and actor after interruption. Completed replay
+returns the original receipt and can repair a pending projection even if sources later changed.
+Dry-run of a completed operation returns `already_applied` without repair. Changed requests
+under the same operation conflict; a preview does not reserve a revision. Inspect status and
+resolve each refusal within authorization; do not cancel queues or rewrite scope to bypass it.
+Contracts, scope, criteria, configuration and workspaces remain frozen. No model or worker is
+started. Development/QA remain `not_started`, production `not_verified`, native flags false.
+Tech Lead proposals, live reprioritization and automatic notices remain pending.

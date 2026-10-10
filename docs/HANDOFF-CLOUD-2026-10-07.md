@@ -4,13 +4,24 @@ Frente: produto YoungCrowHarness, com trabalho ativo no executor isolado.
 
 Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra sessão consiga continuar sem receber toda a conversa. Reúne decisões do mantenedor, estado do código, resultados observados, falhas, limites e próximos passos. Os caminhos de arquivos, salvo indicação contrária, são relativos à raiz do repositório.
 
-**YC-206 parcial (10/out):** consulta `context M001 --pbi UUID --expected-revision N`
+**YC-206 parcial — prioridade PM (10/out):** `reprioritize` aceita proposta JSON
+restrita à ordem dos PBIs já selecionados. Prévia sem escrita, revisão esperada,
+motivo e ator no histórico; retomada usa a mesma operação. Preserva snapshot de
+escopo/configuração, bloqueia fila ativa de qualquer revisão e mantém posições dos
+PBIs com histórico de workspace, inclusive liberado/em outra missão.
+[Uso](USAGE.md#pbi-priority) e [provas](relatorios/2026-10-10-pm-priority.md).
+É planejamento; decisões Tech Lead, prioridade durante execução, avisos e despacho
+continuam pendentes. Não repetir pilotos nativos; contador 2/3 preservado.
+CI da base `8897bb9`: falha de cleanup Windows no run do PR; mesma etapa passou
+no push. Fixture ajustada com repetição limitada do erro 32; confirmação no novo CI.
+
+**YC-206 parcial — contexto (10/out):** consulta `context M001 --pbi UUID --expected-revision N`
 reúne contratos do PBI/feature/épico, perfil e fontes explícitas. JSON privado com
 UUIDs, revisões e hashes, sem escrita/migração ou entrega automática ao worktree.
 [Uso](USAGE.md#pbi-context) e [provas](relatorios/2026-10-10-pbi-context.md).
 Recusa fontes/revisões divergentes e ancestralidade incompleta; gaps e pendências
-operacionais continuam visíveis para refinamento. Propostas de líderes, repriorização
-em execução e avisos permanecem pendentes. Preservar aceite nativo e contador 2/3.
+operacionais continuam visíveis para refinamento. Propostas PM limitadas à ordem estão
+descritas acima; decisões Tech Lead, repriorização em execução e avisos permanecem pendentes.
 Base `ded7ac5` aprovada nos oito checks, incluindo Windows, runs
 [push 38053689598](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38053689598) e
 [PR 38053692382](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38053692382).

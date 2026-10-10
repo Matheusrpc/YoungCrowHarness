@@ -327,8 +327,8 @@
       "expected": {
         "contract_sha256": "4ed02a5e2e4d82e34d37823fab9b30ed144d950fb42b6e488ffae4499a4932a4",
         "files_sha256": {
-          "claude": "0cd64b1e1ccaf8f3e8ca366c25a740934df6c2b03533059bcc2503eeba2d4f44",
-          "codex": "6c2d3562b2dc6f020edc1a203a1e77e3a7c3375dd6d010baff133aa17b87fac0"
+          "claude": "92307d7d2e28581cbb188b7804c6b30b5c9b51d225ad9e780c9e08ff3407b49f",
+          "codex": "3523972e3cb7bef85097eb601a2c4388ac00b48bcda000de90d7f0f45f5fd254"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1250,8 +1250,8 @@
       "expected": {
         "contract_sha256": "cc7f0be1bbc77eba45aa6c320fe24acb39039eb463827e3af8b104fc39d7014e",
         "files_sha256": {
-          "claude": "049b871ee7f7462c44fc12d52530d0e3c74b2546c9f46d1750e929ce5a8f3a7b",
-          "codex": "4e16a3c58517c13a8857c87c10b725c3cdf92ca45a23c2c91dbe6786aec272dd"
+          "claude": "d376e3bfbae304236f9f407f456496d8bed0f9762655e06d44a3dac9b25535c4",
+          "codex": "76aa4df483c6efd325f2d609276577466fd5f393391c91964aaa9d579f1dc413"
         }
       }
     },
@@ -1342,8 +1342,8 @@
       "expected": {
         "contract_sha256": "7badfa4acfe7638f7326e93e94506a3b291d44cfb3d635bcee2a90884f9dcc08",
         "files_sha256": {
-          "claude": "15f1229a18d5db987760a48e286d8b80c5a9f1e7c7f03866a5a1e9b14f05cf56",
-          "codex": "6bd9c56ee01e5d196ce8f3f59498ba19a1866d507e737b860f83d921e473933e"
+          "claude": "ef0d8ee39de75f89c1705be5417c7809c03469e742c9c15fa8c8103fc6cdef09",
+          "codex": "d4330f412f53ded4a295086b9b7f4eda08f1324e40f4c2d3c6e018d7a27f5959"
         }
       }
     },
@@ -1351,9 +1351,9 @@
       "id": "yc-missao",
       "kind": "skill",
       "purpose": {
-        "when": "Refine backlog, assemble selected PBI context, prepare missions or explicitly prepare/release a PBI Git workspace",
+        "when": "Refine backlog, propose restricted PM priority changes, assemble selected PBI context, prepare missions or explicitly prepare/release a PBI Git workspace",
         "inputs": "Selected contracts, references, priorities and explicit pinned Git base",
-        "outputs": "Private mission snapshot, events, selected read-only PBI context and workspace recovery receipts",
+        "outputs": "Private mission snapshots, revision-bound priority decisions, events, selected read-only PBI context and workspace recovery receipts",
         "limits": "Local explicit preparation/release; no autonomous workers, integration, push or deployment"
       },
       "clients": [
@@ -1430,10 +1430,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "d5e9d859f28c12e5d49131c8a68c6c96259ecf410af4b862eeac5393690fe531",
+        "contract_sha256": "5aa9825ed87a89e3969005dcd63de834ef6f5ed4ff3608687508fc287d6eb372",
         "files_sha256": {
-          "claude": "0c652216a677ca1759a5a4923897dba0185edf5243166776add25a66188efc27",
-          "codex": "af4eccb3222cedd6f60cc12f4e93b13665ea8fec46e1b3b9da03c2f2053e4aad"
+          "claude": "aeccda3efbf467b5ebdebdf39340bebfae2cfd560fa4e9cdb002752d01b64d23",
+          "codex": "1fc8bf26415388de92abb5d4ef6bcfbc51de706bce5ccd693c4acdcabf1b51ba"
         }
       }
     },
@@ -1517,8 +1517,8 @@
       "expected": {
         "contract_sha256": "7178919bceaf2d9573235e775babdc3e8a38200e4c2cf815f890d499ceeaba6e",
         "files_sha256": {
-          "claude": "c16989617dff380603ef700f84d330fc7168ca9e4bac9ed3cbb3ee58bacea5f4",
-          "codex": "d94925eb8f146f87c0b3f542fb4192b85123820c506d63564f27ff8b47a36f15"
+          "claude": "ab934f2017c2cc5cf88178ff7e15ac1e41adf521c1b7cf97cf6fe5877fcfc8ad",
+          "codex": "f4d8c5e9570867d6f9ea535479afa424b76afbfc379049c322d657a7fea1f86f"
         }
       }
     }

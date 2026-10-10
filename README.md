@@ -103,6 +103,11 @@ explicitamente vinculadas, com UUIDs, revisões e hashes. `context` consulta o v
 checkout original e retorna JSON privado, sem alterar notas ou iniciar agentes.
 Fontes divergentes são recusadas; lacunas de planejamento aparecem no resultado.
 
+O PM pode [propor outra ordem para os PBIs selecionados](docs/USAGE.md#pbi-priority).
+`reprioritize --dry-run` mostra a mudança sem escrever; a aplicação guarda motivo,
+autor e revisão, preservando escopo e configuração. Fila ativa bloqueia a mudança;
+PBIs com histórico de workspace conservam suas posições. É uma decisão de planejamento.
+
 
 O checkpoint `a0af931` passou nos oito jobs de CI entre push e PR, incluindo Windows.
 [Publicação e resultados](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
@@ -735,6 +740,11 @@ The [PBI context query](docs/USAGE.md#pbi-context) collects criteria, feature, e
 explicitly linked sources with UUIDs, revisions and hashes. `context` reads the original
 checkout's vault and returns private JSON without changing notes or launching agents.
 Changed sources are refused; planning gaps remain visible in the result.
+
+The PM can [propose a new order for selected PBIs](docs/USAGE.md#pbi-priority).
+`reprioritize --dry-run` previews without writing; applying records the reason,
+actor and revision while preserving scope and configuration. An active queue blocks
+the change; PBIs with workspace history retain their positions. This is a planning decision.
 
 
 Checkpoint `a0af931` passed all eight push/PR CI jobs, including Windows.

@@ -123,6 +123,22 @@ for name in ('capabilities', 'integrations'):
         check(cli('context', second['code'], '--pbi', pbis[0], '--expected-revision', '2', expected=1)
               ['error'] == 'revision_conflict', 'context_accepted_wrong_revision')
         check(fixture.snapshot() == inventory_before, 'context_wrote_files')
+        proposal_path = 'vault/local/priority-proposal.json'
+        proposal = dict(schema_version=1, project_id=fixture.project_id, mission_id=second['record_id'],
+                        mission_revision=1, priority=list(reversed(pbis)), reason='Synthetic planning priority')
+        write(project / proposal_path, json.dumps(proposal).encode())
+        priority_args = ('reprioritize', '--input', proposal_path, '--operation-id', str(uuid.uuid4()), *actor)
+        before_priority = fixture.snapshot()
+        preview = cli(*priority_args, '--dry-run')
+        check(preview['state'] == 'preview' and fixture.snapshot() == before_priority, 'priority_preview_wrote_files')
+        priority_receipt = cli(*priority_args)
+        check(priority_receipt['revision'] == 2 and cli(*priority_args) == priority_receipt, 'priority_replay_failed')
+        reordered = cli('status', second['code'])
+        changed = dict(reordered['snapshot'])
+        check(changed.pop('last_planning_decision') == dict(action='reprioritize', reason=proposal['reason']) and
+              changed.pop('priority') == proposal['priority'], 'priority_decision_incorrect')
+        check(changed == {k: v for k, v in many['snapshot'].items() if k != 'priority'}, 'priority_changed_scope')
+        check(len(reordered['events']) == 2 and not reordered['runnable'], 'priority_started_runtime')
         defaults = cli('config', 'show')
         updated = defaults['config']
         updated['agents']['pm']['model'] = 'fixture-b'
@@ -169,6 +185,7 @@ print(json.dumps(result))
                              snapshots_frozen=True, replay_without_duplicate=True,
                              read_only_status=True, read_only_discovery=True, initial_queue_preview=True,
                              selected_pbi_context=True, context_without_writes=True,
+                             restricted_pm_priority=True, priority_preview_without_writes=True,
                              projection_recovered=True, vault_notes=vault['notes_checked'],
                              state='prepared', runtime_available=False))
 

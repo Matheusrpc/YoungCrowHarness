@@ -17,6 +17,20 @@ import uuid
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 
 
+class FixtureDirectory(tempfile.TemporaryDirectory):
+    def cleanup(self):
+        deadline = time.monotonic() + 2
+        while True:
+            try:
+                return super().cleanup()
+            except PermissionError as error:
+                # Windows can release a cwd handle after the job has terminated.
+                # Wait for actual deletion; never hide a persistent lock or ACL error.
+                if getattr(error, 'winerror', None) != 32 or time.monotonic() >= deadline:
+                    raise
+                time.sleep(.02)
+
+
 class EgressTests(unittest.TestCase):
     def setUp(self):
         self.assertIsNotNone(importlib.util.find_spec('mission_egress'), 'product destination guard missing')
@@ -68,7 +82,7 @@ class EgressTests(unittest.TestCase):
         import mission_process
         result, stage = None, 'fixture_setup'
         try:
-            with tempfile.TemporaryDirectory() as temporary:
+            with FixtureDirectory() as temporary:
                 config = dict(self.config, deadline_ms=int(time.time()*1000)+5000)
                 stage = 'fixture_supervise'
                 result = mission_process.supervise(dict(argv=[sys.executable,'-I','-B',
@@ -76,6 +90,9 @@ class EgressTests(unittest.TestCase):
                     stdin=json.dumps(dict(mode=mode,config=config)).encode(), timeout_seconds=6,
                     output_limit_bytes=16384, client='metadata', connection='native'),
                     on_started=lambda _:None, stop_requested=lambda:False)
+                if exit_code:
+                    self.assertTrue(result['tree_reaped'])
+                    self.assertTrue(mission_process.owner_gone(result['owner']))
                 stage = 'fixture_cleanup'
         except Exception as error:
             from ci_unittest import annotate_case
@@ -101,7 +118,6 @@ class EgressTests(unittest.TestCase):
         self.assertEqual((result['reason'],result['exit_code']),('completed',exit_code),result)
         self.assertTrue(result['tree_reaped'])
         if exit_code:
-            self.assertTrue(mission_process.owner_gone(result['owner']))
             return result
         return json.loads(result['stdout'])
 
@@ -145,10 +161,11 @@ class EgressTests(unittest.TestCase):
                             yield directory
                         if stage == 'fixture_cleanup':
                             raise error
-                    result = dict(reason='completed', exit_code=71, tree_reaped=True,
+                    result = dict(reason='completed', exit_code=71, tree_reaped=True, owner=dict(kind='fixture'),
                                   stdout=b'private-output', stderr=b'private-traceback')
                     output = io.StringIO()
-                    with patch.object(tempfile, 'TemporaryDirectory', temporary), \
+                    with patch(__name__ + '.FixtureDirectory', temporary), \
+                         patch('mission_process.owner_gone', return_value=True), \
                          patch('mission_process.supervise', return_value=result,
                                side_effect=error if stage == 'fixture_supervise' else None), \
                          patch.dict(os.environ, GITHUB_ACTIONS=actions), contextlib.redirect_stdout(output):
@@ -177,6 +194,39 @@ class EgressTests(unittest.TestCase):
             with self.assertRaises(Exception) as raised:
                 self.inherited('kill_before_config', exit_code=71)
         self.assertIs(raised.exception, error)
+
+    def test_fixture_cleanup_retries_only_transient_windows_sharing_violation(self):
+        for winerror, times, effects, succeeds in (
+                (32, [0, 0], 'transient', True),
+                (32, [0, 0, 2], 'persistent', False),
+                (5, [0], 'persistent', False)):
+            with self.subTest(winerror=winerror, effects=effects):
+                directory = FixtureDirectory()
+                error = PermissionError('fixture only')
+                error.winerror = winerror
+                try:
+                    with patch.object(tempfile.TemporaryDirectory, 'cleanup',
+                                      side_effect=[error, None] if succeeds else error) as cleanup, \
+                         patch('time.monotonic', side_effect=times), patch('time.sleep') as pause:
+                        if succeeds:
+                            directory.cleanup()
+                        else:
+                            with self.assertRaises(PermissionError) as raised:
+                                directory.cleanup()
+                            self.assertIs(raised.exception, error)
+                        self.assertEqual(cleanup.call_count, 1 if winerror == 5 else 2)
+                        self.assertEqual(pause.call_count, 0 if winerror == 5 else 1)
+                finally:
+                    directory.cleanup()
+                self.assertFalse(Path(directory.name).exists())
+
+    def test_live_owner_is_refused_before_fixture_cleanup(self):
+        result = dict(reason='completed', exit_code=71, tree_reaped=True, owner=dict(kind='fixture'),
+                      stdout=b'', stderr=b'')
+        with patch('mission_process.supervise', return_value=result), \
+             patch('mission_process.owner_gone', return_value=False), patch.dict(os.environ, GITHUB_ACTIONS='false'):
+            with self.assertRaises(AssertionError):
+                self.inherited('kill_before_config', exit_code=71)
 
     def test_dns_inherits_existing_containment_without_starting_nested_supervisor(self):
         result = self.inherited('dns_success')

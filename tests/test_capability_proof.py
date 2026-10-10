@@ -14,6 +14,68 @@ from smoke_capabilities import assess_native
 
 
 class NativeProofTests(unittest.TestCase):
+    def test_fixture_publishes_only_a_complete_pid(self):
+        root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory(dir=root / '.runtime') as directory:
+            folder = Path(directory)
+            log = folder / 'publication.jsonl'
+            # Pause the writer before its first byte, when open('x') already exposes a file.
+            script = '''
+import sys, time
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import smoke_capabilities as smoke
+root = Path(sys.argv[2])
+original_getpid = smoke.os.getpid
+def paused_pid():
+    (root / 'paused').touch()
+    while not (root / 'release').exists():
+        time.sleep(.01)
+    return original_getpid()
+smoke.os.getpid = paused_pid
+raise SystemExit(smoke.serve(root, root / 'publication.jsonl'))
+'''
+            child = subprocess.Popen([sys.executable, '-B', '-c', script, str(root / 'tests'), directory],
+                                     stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            try:
+                deadline = time.monotonic() + 5
+                while not (folder / 'paused').exists() and child.poll() is None and time.monotonic() < deadline:
+                    time.sleep(.01)
+                self.assertTrue((folder / 'paused').exists(), 'writer did not reach publication barrier')
+                self.assertFalse(log.with_suffix('.pid').exists(), 'reader can see an incomplete PID')
+            finally:
+                (folder / 'release').touch()
+                try:
+                    _, stderr = child.communicate(timeout=5)
+                except subprocess.TimeoutExpired:
+                    child.kill()
+                    child.communicate()
+                    raise
+            self.assertEqual(child.returncode, 0, stderr)
+            self.assertEqual(log.with_suffix('.pid').read_text(), str(child.pid))
+            self.assertFalse(log.with_suffix('.pid.pending').exists())
+
+    def test_cleanup_does_not_claim_a_pending_writer_has_stopped(self):
+        root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory(dir=root / '.runtime') as directory:
+            log = Path(directory) / 'pending.jsonl'
+            log.with_suffix('.pid.pending').touch()
+            self.assertEqual(smoke.stop_fixture(log), 1)
+            self.assertTrue(log.with_suffix('.stop').exists())
+
+    def test_fixture_does_not_replace_an_existing_pid(self):
+        root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory(dir=root / '.runtime') as directory:
+            log = Path(directory) / 'existing.jsonl'
+            pidfile = log.with_suffix('.pid')
+            pidfile.write_text('existing owner', encoding='ascii')
+            run = subprocess.run([sys.executable, '-B', str(root / 'tests/smoke_capabilities.py'),
+                                  '--serve-mcp', '--root', directory, '--log', str(log)],
+                                 input=b'', capture_output=True, timeout=5)
+            self.assertNotEqual(run.returncode, 0)
+            self.assertEqual(pidfile.read_text(), 'existing owner')
+            self.assertFalse(log.exists())
+
     def test_cleanup_failure_reports_observed_live_processes(self):
         root = Path(__file__).resolve().parents[1]
         with tempfile.TemporaryDirectory(dir=root / '.runtime') as directory:

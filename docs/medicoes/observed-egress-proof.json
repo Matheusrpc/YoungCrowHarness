@@ -1,0 +1,108 @@
+{
+  "schema_version": 2,
+  "checked_at": "2026-10-06T03:13:17.303978+00:00",
+  "state": "inconclusive_restoration_verified_local_fix_passed",
+  "product_profiles_enabled": false,
+  "production_published": false,
+  "cause": "default_assignment_removes_override_but_controller_and_fixture_expected_override",
+  "vendor_source": "https://docs.docker.com/ai/sandboxes/configuration/settings/",
+  "tests": {
+    "total": 75,
+    "passed": 75,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0,
+    "red_failure": "settings_readback_failed",
+    "native_validation_of_fix": false
+  },
+  "preparation": {
+    "checked_at": "2026-10-06T02:08:21.424952+00:00",
+    "tests": {
+      "total": 72,
+      "passed": 72,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "inherited": 60,
+      "new": 12
+    },
+    "review": {
+      "independent": true,
+      "fresh_context": false,
+      "reason": "platform_thread_limit",
+      "important_findings": 1,
+      "fixed_with_red_green": 1,
+      "minor_findings": 0,
+      "rereview": false
+    },
+    "measurement_sha256": "94f722a45ff3c473ac0b221855baf88d7976df626a0808d13f790416115f7417"
+  },
+  "native_operation_exists": true,
+  "native_commands": 60,
+  "native_command_failures": 0,
+  "native_model_calls": 0,
+  "native_echo_requests": 0,
+  "native_daemon_restarts": 1,
+  "native_restart_kind": "restore",
+  "native_settings_mutations": 3,
+  "native_settings_mutation_kinds": [
+    "set",
+    "set",
+    "unset"
+  ],
+  "native_new_rules": 0,
+  "native_new_credentials": 0,
+  "restoration": {
+    "checked_at": "2026-10-06T03:06:59.373256+00:00",
+    "daemon_matches_cleanup": true,
+    "stopped_vms": 5,
+    "settings_restored": true,
+    "global_settings_preserved": true,
+    "policy_preserved": true,
+    "credential_inventory_preserved": true,
+    "guard_listener_absent": true,
+    "receipt_sha256": {
+      "attempt.json": "37fe17bcb2d380ecee44ff1f015ca1f85d4fb768ed5767e2e5e7c8f05258f150",
+      "control.json": "d2847626c2e03232cf3c5d43db7a9fd4bad1727cb350c3dd8c22a92ab03c19b0",
+      "receipt.json": "cc07ac00447420eb375d2f95650d698cc86467d5b652e9e066d69f63b0e6e847",
+      "commands.jsonl": "536700781cb3751827381111e79a5977b6c3d71e0823095d94381c04d5153a8e"
+    }
+  },
+  "executed_controller_sha256": "3edc8f391ea87e4d1ceb22e0d21fd59a619311fb3057c1227c844f37a4203b1d",
+  "corrected_controller_sha256": "16fcc9bde6719b7b765b3a8805c045d8fac1362a2c2b3d706a9e4b3169f01af0",
+  "consumed_wrapper_pins_unchanged": true,
+  "correction_round": {
+    "native_attempts": 0,
+    "daemon_restarts": 0,
+    "settings_mutations": 0,
+    "model_calls": 0,
+    "echo_requests": 0,
+    "cleanup_pending": false
+  },
+  "source_sha256": {
+    ".superpowers/sdd/2026-10-04-isolated-executor/exclusive_egress.py": "16fcc9bde6719b7b765b3a8805c045d8fac1362a2c2b3d706a9e4b3169f01af0",
+    ".superpowers/sdd/2026-10-04-isolated-executor/test_exclusive_egress.py": "8975fde9a19b91df32eadba1e36d78681c9c1a8eb83796d0877a8a7af9b30da7",
+    ".superpowers/sdd/2026-10-04-isolated-executor/default-readback-red.log": "855445e9ad1332c6ebff9b7ac5544aa5b0e6562891428e4e06caf973d1d38578",
+    ".superpowers/sdd/2026-10-04-isolated-executor/default-readback-green.log": "8637a6549f493282b13dddb203c173992d3c8c99d08eaf2fabc92635e31adb77",
+    ".superpowers/sdd/2026-10-04-isolated-executor/default-readback-vault-check.json": "4ed714c468171f8019928ac0dceafadee9a3788c1481760a03a83c7909698956",
+    ".superpowers/sdd/2026-10-04-isolated-executor/observed-egress-proof/restoration-verified.json": "f038bb7e717ffef2302081ed7cc15125910ae0ff91004b2618a7cec4d53f0ef4",
+    ".superpowers/sdd/2026-10-04-isolated-executor/observed_egress.py": "691fa96999f0d8b4baf7c0a0a8c4c14d2340f359db249d38d538effcf8fe586f",
+    ".superpowers/sdd/2026-10-04-isolated-executor/run-observed-egress-proof.ps1": "534118153027713105382adf1f86b575fbb75d0af55d1bc116d0438f03a6e917"
+  },
+  "public_source_sha256": {
+    "README.md": "ea48a11093d6d721a379e3ff99c8df6dd961f8c2b04bb26fd7713f882087f510",
+    "docs/USAGE.md": "ed15f72c4e120e8cee84db51f8e51b64f23e9798a5cd16d9770e98925d8977c9",
+    "docs/BACKLOG.md": "1f37699e2f0f7ef81715c958c9a82e37ab1e36277454f2c0e7c86a09ff0dd7cc",
+    "docs/superpowers/plans/2026-10-04-isolated-executor.md": "6b5faf4443fdd488535bf37c30d589b65a812a2fe29df209d23f3e1bc909a190",
+    "docs/superpowers/plans/2026-10-06-observed-egress-proof.md": "beb3c3b3d5bc3dbad72d442c0e7a6309bd74b8f24216f8afba88b668e4073aed",
+    "docs/relatorios/2026-10-06-observed-egress-proof.md": "d61f6ab25489eb56e7523b20420a8fb8f0288fd1b19c62f1829f969e0566d816"
+  },
+  "public_local_links_verified": 340,
+  "readme_visual_elements": 52,
+  "readme_visual_elements_unchanged": true,
+  "vault": {
+    "notes_checked": 351,
+    "issues": 0
+  },
+  "next_action": "Assess a separately scoped future native operation with the corrected contract; do not replay or reconcile the consumed operation"
+}

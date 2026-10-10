@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "front": "YC-203 local Docker contract review",
+  "base_commit": "c4fcae10a61711380f6acf96d0c0b7885269f573",
+  "recorded_at_utc": "2026-10-10T18:01:34.278596+00:00",
+  "docker_docs_revision": "18bbfeeb249da011f359d558dba84c4b6dc3a335",
+  "sources": [
+    {
+      "url": "https://github.com/docker/docs/blob/18bbfeeb249da011f359d558dba84c4b6dc3a335/content/manuals/ai/sandboxes/configuration/settings.md",
+      "sha256": "fc06b336501a560faefce0536a4860ff3d4623e8eb2395f0f1417e1b1cd982e6",
+      "quote": "With `--json`, it\nprints the complete setting record, including the source and default."
+    },
+    {
+      "url": "https://github.com/docker/docs/blob/18bbfeeb249da011f359d558dba84c4b6dc3a335/content/manuals/ai/sandboxes/configuration/credentials.md",
+      "sha256": "67fb56ccc71b2ac2bfa08016fdb23f4bff455d3c097c355f57305ca3929a7085",
+      "quote": "Removing a sandbox-scoped secret restores the global secret for that service,\nif one is available."
+    },
+    {
+      "url": "https://github.com/docker/docs/blob/18bbfeeb249da011f359d558dba84c4b6dc3a335/content/manuals/ai/sandboxes/release-notes.md",
+      "sha256": "334fdbf53f4e27d374c9122d435e3303f38653c68aff2b0ddf63b23927ff287f",
+      "quote": "Removing secrets in bulk revokes credentials from running sandboxes. Failed revocations can be retried even after the stored secrets have been deleted."
+    },
+    {
+      "url": "https://github.com/docker/docs/blob/18bbfeeb249da011f359d558dba84c4b6dc3a335/content/manuals/ai/sandboxes/install.md",
+      "sha256": "1e9ad1ab8d604e4100f42ddeccbbe33f3f08ac4910f6797ecab6653d021b20d2",
+      "quote": "- Windows Hypervisor Platform for local sandboxes"
+    }
+  ],
+  "release": {
+    "tag_name": "v0.47.0",
+    "published_at": "2026-10-05T15:46:13Z",
+    "html_url": "https://github.com/docker/sbx-releases/releases/tag/v0.47.0"
+  },
+  "issue": {
+    "state": "open",
+    "comments": 0,
+    "updated_at": "2026-10-09T04:06:30Z",
+    "html_url": "https://github.com/docker/sbx-releases/issues/690"
+  },
+  "code_and_report_sha256": {
+    "scripts/mission_transaction.py": "935bc018847da7ecbbd3c14ea41a34d380a7fba29b94b05868c4a3c88294cb5c",
+    "scripts/mission_sbx.py": "4313896ca373a64a4170aa95dead3c11452b29eb42bba9217a87549426743610",
+    "docs/relatorios/2026-10-10-sbx-047-contract-review.md": "489b5fbadb72efb060f49819b7143fa947ed54e4c4ac05075f36a314accd189d"
+  },
+  "outcome": "required_local_preconditions_not_specified_in_reviewed_sources",
+  "unsupported_by_vendor_proven": false,
+  "native_version_pin": "0.46.0",
+  "new_pc_inventory_source": "operator_message",
+  "new_pc_edition": "Windows 11 Home Single Language",
+  "new_pc_cpu_ram_whp": "unknown",
+  "whp_sbx_compatibility_proven": false,
+  "independent_code_review": {
+    "agent": "architecture_disposable_boundary",
+    "read_only": true,
+    "finding": "legacy_plan_without_network_omits_integrated_injection_proof"
+  },
+  "limits": {
+    "executable_changes": false,
+    "native_runs": 0,
+    "docker_calls": 0,
+    "model_calls": 0,
+    "installations": 0,
+    "native_cycles_used": 2,
+    "native_cycle_limit": 3
+  },
+  "next_action": "Obtain applicable local settings/secret/revocation contract; review version and plan before a native trial.",
+  "validation": {
+    "markdown_paths_checked": 435,
+    "missing": [],
+    "hashes_and_quotes_verified": true,
+    "executable_files_changed": false,
+    "vault_notes_checked": 68,
+    "vault_issues": [],
+    "code_tests": "not_repeated_for_documentation_only"
+  }
+}

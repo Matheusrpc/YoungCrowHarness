@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "front": "YC-206 partial",
+  "base_commit": "f3e00b1b2727bfd67c323f5bd11e979d4720b852",
+  "scope": "selected_technical_plan_in_pbi_context",
+  "model_calls": 0,
+  "docker_calls": 0,
+  "store_schema_changed": false,
+  "tests": {
+    "focused": {
+      "passed": 8,
+      "seconds": 10.49
+    },
+    "pm_regression": {
+      "passed": 10,
+      "seconds": 11.01
+    },
+    "full_suite": {
+      "state": "passed",
+      "total": 758,
+      "passed": 738,
+      "skipped": 20,
+      "failed": 0,
+      "seconds": 580.444
+    }
+  },
+  "installed_smoke": {
+    "state": "passed",
+    "client": "both",
+    "modes": [
+      "new",
+      "existing"
+    ],
+    "selected_technical_plan": true,
+    "read_only_preview": true,
+    "scope_preserved": true,
+    "context_isolated_per_pbi": true,
+    "trial_restored": true,
+    "global_profile_preserved": true,
+    "model_calls": 0
+  },
+  "review": {
+    "code_findings_corrected": 1,
+    "remaining_material_findings": 0
+  },
+  "catalog": {
+    "affected_capabilities": 5,
+    "changed_contracts": 2,
+    "changed_content_hashes": 10,
+    "permissions_unchanged": true
+  },
+  "markdown_paths": {
+    "local_paths_checked": 551,
+    "missing": []
+  },
+  "vault_check": {
+    "schema_version": 1,
+    "notes_checked": 64,
+    "issues": []
+  },
+  "code_sha256": {
+    "scripts/missions.py": "a30ccbb94b32a0cfa4c39874ddd25b23cfcf4238047313850a8a5cde1b6394ad",
+    "tests/test_mission_technical_plan.py": "dee887e35ccd5571f9697d6c0b38c331cc9a97aebd41faaffe781e6e7b281edc",
+    "tests/smoke_mission_foundation.py": "95791c49853c8fea63024ff0c1dfbc43fd51e8d435d07aa101d1375de813d27e"
+  },
+  "evidence_sha256": {
+    ".runtime/technical-plan-red.log": "afd4afe321b9242805de3f1c9ddc3f4167682d0f7734348ccf68c188c9a5f5b9",
+    ".runtime/technical-plan-focused.log": "d51ce5672118c21559a55e8f9f982a321572ec2478c290e096136ea86c041d26",
+    ".runtime/technical-plan-review-red.log": "1899a33bef1d3be0873f370d33a8d3c16b1aba570088e69541e995d4939202aa",
+    ".runtime/technical-plan-priority-regression.log": "d3ccc94274eed2530360fda22b4159efc514a873ff8b1781120c35983cd37890",
+    ".runtime/technical-plan-installed.log": "ac05afa9ca823f0f9f52ec5347c82334b18db1f284e482ed629b13548aaac920",
+    ".runtime/technical-plan-base-ci.json": "190b20a02a6f875098edb2403c64ffde3e56420fc026aa60a24d4c872c7bbde3",
+    ".runtime/technical-plan-full.log": "b589ac1e88a2e2da9560fac18503675ec075d0f3e4169bf0581141249df3b9fc"
+  }
+}

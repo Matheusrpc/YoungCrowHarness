@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-07T10:38:03.335510+00:00",
+  "repository": "Matheusrpc/YoungCrowHarness",
+  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
+  "base_head": "b801bec963e8af4af921b8c5473d3884ee5a7a03",
+  "changes_published": false,
+  "ci": {
+    "state": "unknown",
+    "reason": "GitHub API returned Forbidden"
+  },
+  "scope": "partial handoff 10.2: synthetic admission and durable blocked receipt",
+  "initial_full_suite": {
+    "total": 506,
+    "failures": 7,
+    "skipped": 20,
+    "failed_cases": [
+      "test_mission_catalog_has_explicit_diagnostic_permissions (test_capabilities.CatalogTests.test_mission_catalog_has_explicit_diagnostic_permissions)",
+      "test_governance_installs_selected_profiles_and_audits (test_setup.SetupTests.test_governance_installs_selected_profiles_and_audits) (client='claude')",
+      "test_governance_installs_selected_profiles_and_audits (test_setup.SetupTests.test_governance_installs_selected_profiles_and_audits) (client='codex')",
+      "test_governance_installs_selected_profiles_and_audits (test_setup.SetupTests.test_governance_installs_selected_profiles_and_audits) (client='both')",
+      "test_mission_commands_follow_client_selection (test_setup.SetupTests.test_mission_commands_follow_client_selection) (client='claude')",
+      "test_mission_commands_follow_client_selection (test_setup.SetupTests.test_mission_commands_follow_client_selection) (client='codex')",
+      "test_mission_commands_follow_client_selection (test_setup.SetupTests.test_mission_commands_follow_client_selection) (client='both')"
+    ],
+    "cause": "stale files_sha256 in skills-lock.json after source changes"
+  },
+  "intermediate_full_suite": {
+    "total": 506,
+    "failures": 3,
+    "skipped": 20,
+    "cause": "personalizer also includes the changed helpers; its two content hashes were still stale"
+  },
+  "full_suite": {
+    "command": "python3 -B -m unittest discover -s tests -v",
+    "total": 506,
+    "passed": 486,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 208.592,
+    "skipped_cases": [
+      "test_private_unrelated_directory_still_refuses_reinstall (test_adoption.AdoptionTests.test_private_unrelated_directory_still_refuses_reinstall) ... skipped 'Windows private ACL boundary'",
+      "test_open_file_prevents_exchange_without_losing_trial (test_adoption.RestoreTests.test_open_file_prevents_exchange_without_losing_trial) ... skipped 'real Windows non-share-delete handle'",
+      "test_posix_secondary_groups_survive_return (test_adoption.RestoreTests.test_posix_secondary_groups_survive_return) ... skipped 'requires an existing secondary group; Linux CI must exercise this'",
+      "test_acl_helper_does_not_write_user_profile (test_adoption_storage.StorageTests.test_acl_helper_does_not_write_user_profile) ... skipped 'native Windows profile cache'",
+      "test_alternate_data_stream_is_refused (test_adoption_storage.StorageTests.test_alternate_data_stream_is_refused) ... skipped 'Windows ADS proof'",
+      "test_directory_stream_is_not_silently_omitted (test_adoption_storage.StorageTests.test_directory_stream_is_not_silently_omitted) ... skipped 'Windows directory ADS proof'",
+      "test_not_indexed_attribute_is_preserved (test_adoption_storage.StorageTests.test_not_indexed_attribute_is_preserved) ... skipped 'Windows file attributes'",
+      "test_private_acl_write_refuses_streams_without_changing_permissions (test_adoption_storage.StorageTests.test_private_acl_write_refuses_streams_without_changing_permissions) ... skipped 'Windows streams before native ACL writes'",
+      "test_timeout_still_kills_child_after_parent_exits (test_documents.MediaTests.test_timeout_still_kills_child_after_parent_exits) ... skipped 'Windows process-tree regression'",
+      "test_junction_private_root_is_rejected (test_documents.StorageTests.test_junction_private_root_is_rejected) ... skipped 'Windows junction'",
+      "test_new_empty_temporary_gets_private_acl_before_data (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_new_empty_temporary_gets_private_acl_before_data) ... skipped 'Windows private file creation'",
+      "test_unsafe_temporary_never_changes_permissions (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_unsafe_temporary_never_changes_permissions) ... skipped 'Windows private file creation'",
+      "test_junction_selection_never_reads_or_writes_external_directory (test_mission_environment.ExecutionEnvironmentTests.test_junction_selection_never_reads_or_writes_external_directory) ... skipped 'Windows junction boundary'",
+      "test_private_reservation_survives_reopen_with_native_permissions (test_mission_execution.NativeReservationTests.test_private_reservation_survives_reopen_with_native_permissions) ... skipped 'native ACL fixture is explicitly selected through windows_fixture_runner'",
+      "test_discovery_descendant_cannot_hold_stdout_past_deadline (test_mission_process.ProcessTests.test_discovery_descendant_cannot_hold_stdout_past_deadline) ... skipped 'Discovery regression contained by an outer Windows Job'",
+      "test_failed_job_assignment_reaps_the_unassigned_bootstrap (test_mission_process.ProcessTests.test_failed_job_assignment_reaps_the_unassigned_bootstrap) ... skipped 'Windows Job Object boundary'",
+      "test_real_windows_metadata_does_not_write_profile (test_mission_sandbox.SandboxEnvironmentTests.test_real_windows_metadata_does_not_write_profile) ... skipped 'native Windows metadata and profile cache'",
+      "test_junction_without_python312_helper_blocks_setup (test_setup.SetupTests.test_junction_without_python312_helper_blocks_setup) ... skipped 'Windows junction behavior'",
+      "test_trial_deep_backup_is_refused_before_first_write (test_setup.SetupTests.test_trial_deep_backup_is_refused_before_first_write) ... skipped 'native PowerShell path limit'",
+      "test_junction_root_is_rejected_on_windows (test_vault.VaultTests.test_junction_root_is_rejected_on_windows) ... skipped 'Windows junction behavior'"
+    ]
+  },
+  "focused": {
+    "synthetic_admission": {
+      "total": 10,
+      "passed": 10
+    },
+    "shared_reservation": {
+      "total": 15,
+      "passed": 14,
+      "skipped": 1
+    },
+    "existing_client_runs": {
+      "total": 13,
+      "passed": 13
+    },
+    "capabilities": {
+      "total": 23,
+      "passed": 23
+    },
+    "installed_catalog": {
+      "test_methods": 2,
+      "client_variants": 6,
+      "failures": 0
+    }
+  },
+  "regression_evidence": {
+    "lock": "RED under umask 000/022; GREEN under 000/022/077; existing unsafe lock preserved",
+    "synthetic": "RED invalid_manifest; GREEN admission/replay/limits/concurrency/CLI",
+    "chronology": "RED ended_at before created_at; GREEN timestamp order inside transaction"
+  },
+  "independent_review": {
+    "blockers": 0,
+    "minor_findings_fixed": [
+      "receipt timestamp order"
+    ],
+    "catalog_changes": "ten content hashes only; contracts and permissions unchanged"
+  },
+  "environment": {
+    "sbx_available": false,
+    "kvm_present": false
+  },
+  "native_docker_mutations": 0,
+  "model_calls": 0,
+  "correction_cycles": {
+    "historical_native_used": 2,
+    "approved_limit": 3,
+    "native_attempts_this_session": 0
+  },
+  "pending": [
+    "candidate and baseline observations",
+    "bound A/B/A2 plan and phase identities",
+    "global reservation binding",
+    "supervised open-channel controller",
+    "verified recovery before native effects",
+    "native synthetic and authenticated client proofs"
+  ],
+  "checks": {
+    "diff_check": "passed",
+    "setup_bash_syntax": "passed",
+    "vault_notes_checked": 3,
+    "vault_issues": 0
+  },
+  "source_hashes": {
+    "scripts/mission_execution.py": "c79b7e794b1501e6b00bdeb3d4cee630bddc9b52fd6da8a79f3adc4933314a7e",
+    "scripts/mission_runs.py": "c4b6ae5fe2f7675072bf89dc3acc6e37ba698bda72d0570f6eac75cec8da23cb",
+    "skills-lock.json": "2a58394b4503b3d5c59071cdf5b21963d8e48deced750276fdb98064f3761fe4",
+    "tests/test_mission_execution.py": "fd313c206686c1bf84d2ba94f803c813ea0c1932ccafef93b19041147b3184db",
+    "tests/test_mission_synthetic.py": "c0634016c938084290b35cd4038eb77816d712f495853dd6ff14e5e863c5e494",
+    "README.md": "7b55f11057d0666dd25180729b568e2def31f1a390ab4c8062bbd7e2190c33ce",
+    "docs/USAGE.md": "b3efd37d49c7305aa52c13965fbb36d57402c52402987694f20b1264a89e8369",
+    "docs/HANDOFF-CLOUD-2026-10-07.md": "80f16985a180b7e46a6ea23252e76a16cbc51c005013e7071458f48dc2fa49ae",
+    "docs/BACKLOG.md": "9c163bc47bba00a684624df81682f7d87fe741bcab840e4b1bd8c9c8f65deabe"
+  },
+  "log_hashes": {
+    ".runtime/cloud-continuation-20261007/catalog-green.log": "05c4f66a41415f1181aa7de15941108edec89329559f80f765cd9a03fbbe2ae0",
+    ".runtime/cloud-continuation-20261007/install-catalog-green.log": "63d331ec9f6797b4c2ba3566ce3a40150c282b4a71111e982b2044ca1ace361a",
+    ".runtime/cloud-continuation-20261007/lock-green.log": "95f83bf5714a07a4cfaa5760d1e76b2653fd881bd737a3e5ce700191adc034bf",
+    ".runtime/cloud-continuation-20261007/lock-red.log": "8bab76bef2981565db6b601a31e6e521b2dc1ffb639075d88e3aa17efa2cbe30",
+    ".runtime/cloud-continuation-20261007/runs.log": "6a8fd707e3015a626f5812e05a5bbba270c93c26ba5a47867e869f7c984bd814",
+    ".runtime/cloud-continuation-20261007/synthetic-green.log": "92ff27bb8c339dd9a9b0ef4e1adeaec6e72695de6904b329a1184351f3245e25",
+    ".runtime/cloud-continuation-20261007/synthetic-red.log": "a572465908f60f590e16d50d5057f20bffb6995c2b8f7b7b31e161500528e494",
+    ".runtime/cloud-continuation-20261007/timestamps-red.log": "e88f090998eeca9ab54f0d6500412d8d42fd8183908e3e34a10fe443a50a79cc",
+    ".runtime/cloud-continuation-20261007/unittest-final.log": "7cedb7ea0c5c4556692b64592c742644d84bb2a3a9a245c5ff6131e2df8fb13c",
+    ".runtime/cloud-continuation-20261007/unittest-green.log": "033609987964e6ff635c1bf9ecc13b29fb90cefacfda93574bf5582d08fca450",
+    ".runtime/cloud-continuation-20261007/unittest.log": "c205a3aa967ea82fa9c8f2b480265c4d4f4fc91c481122091fd82fd20b455feb"
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "front": "Mission status guidance",
+  "observed_at": "2026-10-09T01:44:25.742909+00:00",
+  "base_commit": "5427fb990ab8db107164845bc0ee61d9cf7f616a",
+  "code_and_test_sha256": {
+    "scripts/missions.py": "c4f491a0de69694d831667785128c6cf3f82d684146ada1951fded3e9bfb5dcb",
+    "scripts/mission_runs.py": "b3c5e22822e2c2369fdc611ef411c9b09e207744f640efce3a8853a5200883fd",
+    "tests/test_missions.py": "161d57e0f72f157b2ce9569ebc142f7bd257a882ec510890225f8aac83b9fcef",
+    "tests/test_mission_runs.py": "9682b25e71c210457cbb0cd45da6275b2a0ce1e09a27420e4c6f1d904576915d",
+    "tests/test_mission_transaction.py": "5eb1d38bc379213a8427b0683f9f914db264f9d7dbd53ac1ee044048449d7013",
+    "tests/smoke_mission_runtime.py": "10a1e4a75ab385b7bbad8836a45f2994839d0a1d4184d85c3a8d5c4202dc45e5",
+    "skills-lock.json": "fd05671f9e533b4eecc7f455c892e1b1235116d26b7870cb5fc89ef789708324",
+    "setup.sh": "bb09d9aaab9504e1edd808ea11ffd548371cd810a9ce198420a0f8314f57a8ba"
+  },
+  "regression_before": {
+    "tests": 4,
+    "failures": 4,
+    "errors": 0,
+    "seconds": 1.322,
+    "reason": "Incorrect next_action for own/other unresolved run, integrated recovery and pending projection"
+  },
+  "focused_status": {
+    "tests": 11,
+    "passed": 11,
+    "seconds": 2.962
+  },
+  "independent_review": {
+    "reviewer": "assess_completion_scope",
+    "blocking_findings": 0,
+    "tests_passed": 6,
+    "seconds": 1.608
+  },
+  "full_suite": {
+    "command": "python3 -B -m unittest discover -s tests -v",
+    "tests": 644,
+    "passed": 624,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 236.436,
+    "exit_code": 0,
+    "log_sha256": "34eb53d2aa9aa947288579663ef8e4fb56f0df19cf426e816b342e212c2a40bd"
+  },
+  "installed_smoke": {
+    "state": "passed",
+    "exit_code": 0,
+    "command": "python3 -B tests/smoke_mission_runtime.py --root <disposable-root> --client both",
+    "platform": "Linux",
+    "python": "3.12.14",
+    "source": "working tree changes; baseline revision reported by smoke is not the full tested source identity",
+    "baseline_revision_reported_by_smoke": "5427fb990ab8db107164845bc0ee61d9cf7f616a",
+    "cases": [
+      {
+        "case": "absent",
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true
+      },
+      {
+        "case": "dirty-git",
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true
+      }
+    ],
+    "diagnostics": [
+      {
+        "mode": "absent",
+        "diagnostic": "succeeded",
+        "replay": "same_run",
+        "dispatches": 1,
+        "read_only": true,
+        "timeout": "uncertain",
+        "crash": "uncertain",
+        "reconciliation": "interrupted",
+        "runtime_available": false,
+        "environment": "read_only_unverified"
+      },
+      {
+        "mode": "dirty-git",
+        "diagnostic": "succeeded",
+        "replay": "same_run",
+        "dispatches": 1,
+        "read_only": true,
+        "timeout": "uncertain",
+        "crash": "uncertain",
+        "reconciliation": "interrupted",
+        "runtime_available": false,
+        "environment": "read_only_unverified"
+      }
+    ],
+    "log_sha256": "384701780c587e9445f01faa4976725d1e8a2345ed7aed720721dda7c2b68eb8"
+  },
+  "docker_inquiry": "on_hold",
+  "native_cycles_used": 2,
+  "native_cycle_limit": 3,
+  "proof_accepted": false,
+  "native_profiles_enabled": false,
+  "model_calls": 0,
+  "ci_observed": false,
+  "document_checks": {
+    "local_link_paths_checked": 457,
+    "missing": [],
+    "scope": "local Markdown path existence outside code examples; no remote URL or fragment rendering verification",
+    "git_diff_check_exit_code": 0
+  }
+}

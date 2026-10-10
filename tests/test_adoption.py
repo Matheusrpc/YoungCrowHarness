@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -20,6 +21,43 @@ class AdoptionFixture(StorageFixture):
 
 
 class AdoptionTests(AdoptionFixture):
+
+    def test_private_execution_after_baseline_can_reinstall_and_restore(self):
+        self.write('.gitignore', b'/.operacao-local/execution/\n')
+        self.write('human.txt', b'before')
+        before = self.fs.inspect_tree(self.project)
+        first = self.a.prepare(self.project, self.base)
+        environment = importlib.import_module('mission_environment')
+        environment.configure_selection(self.project, 'dedicated', None)
+        second = self.a.prepare(self.project, self.base)
+        self.assertEqual(second['baseline_digest'], first['baseline_digest'])
+        proposal = self.a.preview(self.project, self.base)
+        restored = self.a.restore(self.project, self.base, proposal['digest'])
+        self.assertEqual(restored['state'], 'restored')
+        self.assertEqual(self.fs.inspect_tree(self.project), before)
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows private ACL boundary')
+    def test_private_unrelated_directory_still_refuses_reinstall(self):
+        self.a.prepare(self.project, self.base)
+        self.fs.private_dir(self.project / 'unrelated')
+        with self.assertRaisesRegex(ValueError, 'unsupported_permissions'):
+            self.a.prepare(self.project, self.base)
+
+    def test_older_recovery_contract_refuses_install_before_project_writes(self):
+        shorter = tempfile.TemporaryDirectory(prefix='r-', dir=self.sandbox.parent)
+        self.addCleanup(shorter.cleanup)
+        self.base = Path(shorter.name) / 'b'
+        self.write('human.txt', b'baseline')
+        self.a.prepare(self.project, self.base)
+        source = self.sandbox / 'distribution'
+        (source / 'scripts').mkdir(parents=True)
+        for name in ('adoption.py', 'adoption_fs.py', 'adoption_acl.ps1'):
+            data = (Path(self.a.__file__).parent / name).read_bytes()
+            (source / 'scripts' / name).write_bytes(data + b'\n# different recovery version\n')
+        before = self.fs.inspect_tree(self.project)
+        with self.assertRaisesRegex(ValueError, '^incompatible_recovery_runner$'):
+            self.a.run_install(self.project, self.base, source, ['--client', 'codex'])
+        self.assertEqual(self.fs.inspect_tree(self.project), before)
 
     def test_prepare_never_replaces_the_original_baseline(self):
         self.write('app.txt', b'before')

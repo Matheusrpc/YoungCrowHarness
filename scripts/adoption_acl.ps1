@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('private-create','private-apply','private-check','profile-check','parent-check','restore-inheritance','transition-check')]
+    [ValidateSet('private-create','private-apply','private-check','profile-check','installed-check','parent-check','restore-inheritance','transition-check')]
     [string]$Mode,
     [Parameter(Mandatory=$true)][string]$LiteralPath,
     [switch]$AwaitParent
@@ -73,6 +73,13 @@ try {
         if ($acl.GetOwner($sidType).Value -ne $sid.Value) { throw 'owner' }
         $rules = @($acl.GetAccessRules($true, $true, $sidType))
         if (-not $rules.Count) { throw 'empty_acl' }
+        # Only an already captured adoption may contain the new private preference area.
+        $relative = $item.FullName.Substring($LiteralPath.TrimEnd('\','/').Length).TrimStart('\','/').Replace('\','/')
+        $privateRules = @($rules | Where-Object { $_.IdentityReference.Value -ne $sid.Value -or
+            $_.AccessControlType -ne 'Allow' -or ([int]$_.FileSystemRights -band 0x1f01ff) -ne 0x1f01ff }).Count -eq 0
+        $executionPrivate = $Mode -eq 'installed-check' -and (
+            ($relative -eq '.operacao-local' -and $privateRules) -or $relative -eq '.operacao-local/execution' -or
+            $relative.StartsWith('.operacao-local/execution/'))
         if ($Mode -eq 'transition-check') {
             $private = @($rules | Where-Object { $_.IdentityReference.Value -ne $sid.Value -or
                 $_.AccessControlType -ne 'Allow' -or ([int]$_.FileSystemRights -band 0x1f01ff) -ne 0x1f01ff }).Count -eq 0
@@ -80,18 +87,25 @@ try {
             if (-not ($private -or $inherited)) { throw 'unexpected_acl' }
         }
         foreach ($rule in $rules) {
-            if ($Mode -in @('private-create','private-apply','private-check')) {
+            if ($Mode -in @('private-create','private-apply','private-check') -or $executionPrivate) {
                 if ($rule.IdentityReference.Value -ne $sid.Value -or $rule.AccessControlType -ne 'Allow' -or
                     ([int]$rule.FileSystemRights -band 0x1f01ff) -ne 0x1f01ff) { throw 'not_private' }
             } elseif ($Mode -ne 'transition-check' -and $rule.IsInherited -eq $false) { throw 'custom_acl' }
         }
-        if ($Mode -in @('profile-check','restore-inheritance') -and $acl.AreAccessRulesProtected) { throw 'custom_acl' }
+        if ($Mode -in @('profile-check','installed-check','restore-inheritance') -and
+            -not $executionPrivate -and $acl.AreAccessRulesProtected) { throw 'custom_acl' }
         # The Python caller checks file and directory streams before starting this helper.
     }
-    if ($Mode -in @('profile-check','restore-inheritance','transition-check')) { ParentPolicy | ConvertTo-Json -Compress }
+    if ($Mode -in @('profile-check','installed-check','restore-inheritance','transition-check')) { ParentPolicy | ConvertTo-Json -Compress }
     else { @{private=$true} | ConvertTo-Json -Compress }
 } catch {
     # No path, file content, ACL principal or user data in diagnostics.
+    $reasons = @{owner='owner_mismatch'; not_private='acl_not_private'; empty_acl='acl_empty';
+        custom_acl='acl_custom'; unexpected_acl='acl_unexpected'; reparse='unsupported_entry';
+        attributes='unsupported_attributes'; limit='inventory_limit'}
+    $reason = $reasons[$_.Exception.Message]
+    if (-not $reason) { $reason = 'inspection_failed' }
+    @{reason=$reason} | ConvertTo-Json -Compress
     [Console]::Error.WriteLine('unsupported_permissions')
     exit 2
 }

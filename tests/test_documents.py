@@ -39,6 +39,53 @@ class ProjectCase(unittest.TestCase):
 
 
 class StorageTests(ProjectCase):
+    def test_private_verification_uses_at_most_three_git_processes(self):
+        self.store.prepare_storage(self.root)
+        with patch.object(self.store, 'git', wraps=self.store.git) as git:
+            self.store.verify_private_storage(self.root)
+        self.assertLessEqual(git.call_count, 3)
+
+    def test_private_verification_rechecks_each_ignore_rule_without_writes(self):
+        self.store.prepare_storage(self.root)
+        ignore = self.root / '.gitignore'
+        original = ignore.read_bytes()
+        self.store.verify_private_storage(self.root)
+        for relative in self.store.PRIVATE:
+            with self.subTest(relative=relative):
+                changed = original.replace(('/' + relative + '/\n').encode(), b'')
+                ignore.write_bytes(changed)
+                with self.assertRaisesRegex(ValueError, 'Private storage is not ignored'):
+                    self.store.verify_private_storage(self.root)
+                self.assertEqual(ignore.read_bytes(), changed)
+                ignore.write_bytes(original)
+                self.store.verify_private_storage(self.root)
+        ignore.write_bytes(b'')
+        with self.assertRaisesRegex(ValueError, 'Private storage is not ignored'):
+            self.store.verify_private_storage(self.root)
+        self.assertEqual(ignore.read_bytes(), b'')
+
+    def test_private_verification_refuses_git_error_even_with_all_paths_in_output(self):
+        self.store.prepare_storage(self.root)
+        original = self.store.git
+        output = b''.join((relative + '/.youngcrow-ignore-check\n').encode() for relative in self.store.PRIVATE)
+        def failed(root, *args):
+            if args[0] == 'check-ignore':
+                return subprocess.CompletedProcess(args, 128, output, b'fixture Git failure')
+            return original(root, *args)
+        with patch.object(self.store, 'git', side_effect=failed):
+            with self.assertRaisesRegex(ValueError, 'Private storage is not ignored'):
+                self.store.verify_private_storage(self.root)
+
+    def test_private_verification_refuses_a_newly_tracked_private_file(self):
+        self.store.prepare_storage(self.root)
+        self.store.verify_private_storage(self.root)
+        target = self.root / 'vault/local/private.md'
+        target.write_bytes(b'private fixture')
+        self.git('add', '-f', '--', 'vault/local/private.md')
+        with self.assertRaisesRegex(ValueError, 'Private storage is already tracked'):
+            self.store.verify_private_storage(self.root)
+        self.assertEqual(target.read_bytes(), b'private fixture')
+
     def test_existing_local_index_keeps_new_sources_reachable(self):
         import vault
         self.store.prepare_storage(self.root)
@@ -77,6 +124,7 @@ class StorageTests(ProjectCase):
         ignore.write_text('# preserve\n/vault/local/\n!/vault/local/', encoding='utf-8')
         self.store.prepare_storage(self.root)
         self.assertTrue(ignore.read_text().startswith('# preserve\n'))
+        self.store.verify_private_storage(self.root)
         self.assertEqual(self.git('check-ignore', '--quiet', '--', 'vault/local/index.md', check=False).returncode, 0)
         self.git('add', '--', '.')
         self.assertNotIn(b'vault/local/', self.git('ls-files', '-z').stdout)
@@ -93,7 +141,9 @@ class StorageTests(ProjectCase):
         self.root = Path(self.temp.name) / 'not yet git'
         self.root.mkdir()
         self.store.prepare_storage(self.root)
+        self.store.verify_private_storage(self.root)
         self.git('init', '-q')
+        self.store.verify_private_storage(self.root)
         self.assertEqual(self.git('check-ignore', '--quiet', '--', 'vault/local/index.md', check=False).returncode, 0)
 
     def test_wrong_directory_type_and_hardlink_refuse_without_writes(self):

@@ -1,4 +1,5 @@
 import importlib
+from datetime import datetime, timedelta
 import io
 import os
 from pathlib import Path
@@ -14,6 +15,35 @@ FIXTURE = Path(__file__).parent / 'fixtures/mission_client.py'
 
 
 class ProcessTests(unittest.TestCase):
+    def test_separate_stderr_retained_and_joint_output_bounded(self):
+        plan = self.plan('success')
+        plan['argv'] = [sys.executable, '-I', '-S', '-c',
+                        'import sys; sys.stdout.write("{}"); sys.stdout.flush(); '
+                        'sys.stderr.write("denied-token-canary"); sys.exit(7)']
+        result = self.module.supervise(plan, on_started=lambda _: None, stop_requested=lambda: False)
+        self.assertEqual(result.get('stderr'), b'denied-token-canary')
+        self.assertEqual(result['stdout'], b'{}')
+        self.assertEqual(result['exit_code'], 7)
+        plan['output_limit_bytes'] = 4
+        result = self.module.supervise(plan, on_started=lambda _: None, stop_requested=lambda: False)
+        self.assertEqual(result['reason'], 'output_limit')
+        self.assertLessEqual(len(result['stdout']) + len(result['stderr']), 4)
+
+    def test_supervisor_observation_covers_success_missing_and_timeout(self):
+        for mode in ('success', 'missing', 'hang'):
+            plan = self.plan('success' if mode == 'missing' else mode)
+            plan['timeout_seconds'] = 0.4
+            if mode == 'missing':
+                plan['argv'] = [str(self.root / 'absent.exe')]
+            result = self.module.supervise(plan, on_started=lambda _: None, stop_requested=lambda: False)
+            self.assertEqual(result['reason'], {'success': 'completed', 'missing': 'spawn_failed', 'hang': 'timeout'}[mode])
+            start, end = [datetime.fromisoformat(result[k]) for k in ('started_at', 'ended_at')]
+            self.assertEqual(start.utcoffset(), timedelta(0))
+            self.assertEqual(end.utcoffset(), timedelta(0))
+            self.assertGreaterEqual(end, start)
+            self.assertGreaterEqual(result['elapsed_seconds'], 0)
+            self.assertTrue(result['tree_reaped'])
+
     def setUp(self):
         self.assertIsNotNone(importlib.util.find_spec('mission_process'), 'supervisor not implemented')
         self.module = importlib.import_module('mission_process')

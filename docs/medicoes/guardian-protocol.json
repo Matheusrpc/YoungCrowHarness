@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-04T19:44:37.953387+00:00",
+  "status": "partial_R1",
+  "host": "Windows 11 AMD64",
+  "sbx_version": "0.46.0",
+  "sbx_sha256": "a2c8d68f3a16851a65e1d43f7330ae6860c5a2f07df8f22fab5dae7a4a232780",
+  "vm_image_digest": "sha256:5bbe8539825fe1cace6dda2fb66919ef819324d905bea2795b8516aee0198222",
+  "python": "3.14.4",
+  "inner_image_digest": "sha256:3d93d69beb5b52ad1a190de216179df2b9be9df34d041a1d118c297b13cc951b",
+  "image_preparation": "VM system Python/stdlib plus selected guardian/test sources; no external downloads or personal host data",
+  "linux_unit_tests": 9,
+  "model_calls": 0,
+  "native_profiles": [],
+  "source_sha256": {
+    "runtime/sbx/guardian.py": "a2dd03e7e379f77292c9ea79040b63c50bcd7c2c767f3273715332c1d0d651a3",
+    "tests/test_mission_guardian.py": "fc0db71e51e09e0af853226c75e0824e71cc5337752f6d98c0d3b5b963e43fef",
+    "tests/fixtures/guardian_attack.py": "4a0dde10eb5f3693d1fdeaa7497f4f24289d7abe32671fed35106d07364dbb37",
+    "tests/smoke_mission_guardian.py": "c3d65796e04bc0a2fd783e66c39212dccaccfd0db858ba4d0764e7cde52329f0"
+  },
+  "cases": [
+    {
+      "mode": "complete",
+      "elapsed_seconds": 0.464365,
+      "exit_code": 0,
+      "final_pid": 0,
+      "running": false,
+      "worker_count": 1,
+      "restart_exit": 125,
+      "restart_started_clients": 0,
+      "assertions_passed": true,
+      "worker": {
+        "kind": "synthetic_worker",
+        "uid": 1000,
+        "gid": 1000,
+        "caps": {
+          "CapInh": "0000000000000000",
+          "CapPrm": "0000000000000000",
+          "CapEff": "0000000000000000",
+          "CapBnd": "0000000000000000",
+          "CapAmb": "0000000000000000"
+        },
+        "no_new_privs": "1",
+        "stdin_closed": true,
+        "control_read_denied": true,
+        "control_write_denied": true,
+        "signal_denied": true,
+        "parent_fds_denied": true,
+        "sockets_absent": true,
+        "home_writable": true,
+        "env_keys": [
+          "HOME",
+          "LANG",
+          "PATH",
+          "PYTHONDONTWRITEBYTECODE"
+        ],
+        "fds": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ],
+        "cpu_max": "200000 100000",
+        "memory_max": "4294967296",
+        "pids_max": "64"
+      }
+    },
+    {
+      "mode": "replay",
+      "elapsed_seconds": 0.411897,
+      "exit_code": 125,
+      "final_pid": 0,
+      "running": false,
+      "worker_count": 1,
+      "restart_exit": 125,
+      "restart_started_clients": 0,
+      "assertions_passed": true,
+      "worker": {
+        "kind": "synthetic_worker",
+        "uid": 1000,
+        "gid": 1000,
+        "caps": {
+          "CapInh": "0000000000000000",
+          "CapPrm": "0000000000000000",
+          "CapEff": "0000000000000000",
+          "CapBnd": "0000000000000000",
+          "CapAmb": "0000000000000000"
+        },
+        "no_new_privs": "1",
+        "stdin_closed": true,
+        "control_read_denied": true,
+        "control_write_denied": true,
+        "signal_denied": true,
+        "parent_fds_denied": true,
+        "sockets_absent": true,
+        "home_writable": true,
+        "env_keys": [
+          "HOME",
+          "LANG",
+          "PATH",
+          "PYTHONDONTWRITEBYTECODE"
+        ],
+        "fds": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ],
+        "cpu_max": "200000 100000",
+        "memory_max": "4294967296",
+        "pids_max": "64"
+      }
+    },
+    {
+      "mode": "bad-identity",
+      "elapsed_seconds": 0.310081,
+      "exit_code": 125,
+      "final_pid": 0,
+      "running": false,
+      "worker_count": 0,
+      "restart_exit": 125,
+      "restart_started_clients": 0,
+      "assertions_passed": true,
+      "worker": null
+    },
+    {
+      "mode": "discovery-fails",
+      "elapsed_seconds": 0.339371,
+      "exit_code": 126,
+      "final_pid": 0,
+      "running": false,
+      "worker_count": 0,
+      "restart_exit": 125,
+      "restart_started_clients": 0,
+      "assertions_passed": true,
+      "worker": null
+    },
+    {
+      "mode": "deadline",
+      "elapsed_seconds": 5.109999,
+      "exit_code": 124,
+      "final_pid": 0,
+      "running": false,
+      "worker_count": 1,
+      "restart_exit": 125,
+      "restart_started_clients": 0,
+      "assertions_passed": true,
+      "worker": {
+        "kind": "synthetic_worker",
+        "uid": 1000,
+        "gid": 1000,
+        "caps": {
+          "CapInh": "0000000000000000",
+          "CapPrm": "0000000000000000",
+          "CapEff": "0000000000000000",
+          "CapBnd": "0000000000000000",
+          "CapAmb": "0000000000000000"
+        },
+        "no_new_privs": "1",
+        "stdin_closed": true,
+        "control_read_denied": true,
+        "control_write_denied": true,
+        "signal_denied": true,
+        "parent_fds_denied": true,
+        "sockets_absent": true,
+        "home_writable": true,
+        "env_keys": [
+          "HOME",
+          "LANG",
+          "PATH",
+          "PYTHONDONTWRITEBYTECODE"
+        ],
+        "fds": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ],
+        "cpu_max": "200000 100000",
+        "memory_max": "4294967296",
+        "pids_max": "64"
+      }
+    },
+    {
+      "mode": "output-limit",
+      "elapsed_seconds": 2.90749,
+      "exit_code": 122,
+      "final_pid": 0,
+      "running": false,
+      "worker_count": 1,
+      "restart_exit": 125,
+      "restart_started_clients": 0,
+      "assertions_passed": true,
+      "worker": {
+        "kind": "synthetic_worker",
+        "uid": 1000,
+        "gid": 1000,
+        "caps": {
+          "CapInh": "0000000000000000",
+          "CapPrm": "0000000000000000",
+          "CapEff": "0000000000000000",
+          "CapBnd": "0000000000000000",
+          "CapAmb": "0000000000000000"
+        },
+        "no_new_privs": "1",
+        "stdin_closed": true,
+        "control_read_denied": true,
+        "control_write_denied": true,
+        "signal_denied": true,
+        "parent_fds_denied": true,
+        "sockets_absent": true,
+        "home_writable": true,
+        "env_keys": [
+          "HOME",
+          "LANG",
+          "PATH",
+          "PYTHONDONTWRITEBYTECODE"
+        ],
+        "fds": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ],
+        "cpu_max": "200000 100000",
+        "memory_max": "4294967296",
+        "pids_max": "64"
+      }
+    }
+  ],
+  "pending": [
+    "reproducible runtime packaging",
+    "outer gateway/policy compatibility",
+    "allowed network and denied sentinels",
+    "active daemon restart",
+    "whole-VM/host suspension semantics",
+    "coordinator/transport loss on Python guardian",
+    "R2 reservation/reconciliation integration",
+    "OAuth/catalog verification",
+    "authenticated Claude and Codex proof"
+  ]
+}

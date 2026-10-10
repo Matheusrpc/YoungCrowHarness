@@ -1,0 +1,98 @@
+{
+  "front": "Saved mission discovery",
+  "observed_at": "2026-10-09T01:57:37.777646+00:00",
+  "base_commit": "79b2c8162596c7a9c10f16622273f8daa76eefec",
+  "code_and_test_sha256": {
+    "scripts/missions.py": "012c5dbbd2f0e3c99d678911251b65e4e1d29a4b39f7071eec6999557ec4312e",
+    "tests/test_missions.py": "3503e0c25e8e32c7945e3d54c21eb2f53ba87fd544790e74d8fa7e20fd47d663",
+    "tests/smoke_mission_foundation.py": "f725d67f89cede01a62a1ce274895186530eec48cd83d8752312357e206b53d5",
+    "skills/yc-status/SKILL.md": "f3e88d76e9b0f2249a0d4f887528bc8938d045bc26810ec051468697c5f54af6",
+    "skills-lock.json": "d31dd99b6c16e453bc67e82a57987f30bf618bdc4a2baae7f9c3e57cb85d2cb8",
+    "setup.sh": "bb09d9aaab9504e1edd808ea11ffd548371cd810a9ce198420a0f8314f57a8ba"
+  },
+  "regression_before": {
+    "test_methods": 4,
+    "failures": 4,
+    "errors": 1,
+    "seconds": 0.797,
+    "reason": "list CLI command and list_missions helper absent; two invalid-store subtests counted separately"
+  },
+  "focused": {
+    "tests": 4,
+    "passed": 4,
+    "seconds": 0.858
+  },
+  "independent_review": {
+    "reviewer": "assess_completion_scope",
+    "blocking_findings": 0,
+    "tests_passed": 4,
+    "seconds": 0.822
+  },
+  "reference_review": {
+    "reviewer": "mission_discovery_skill",
+    "before": "yc-status reference does not teach discovery without an identifier",
+    "after": "reference supplies list then status, distinguishes recorded state and preserves read-only scope",
+    "scope": "one scenario read before and after editing the reference; not a native client conversation"
+  },
+  "full_suite": {
+    "command": "python3 -B -m unittest discover -s tests -v",
+    "tests": 648,
+    "passed": 628,
+    "skipped": 20,
+    "seconds": 236.935,
+    "failures": 0,
+    "errors": 0,
+    "exit_code": 0,
+    "log_sha256": "4051391b8bc03b26ae9197997fe529b77551ed321c0af090c9fc775d9d9c6b45"
+  },
+  "installed_smoke": {
+    "command": "python3 -B tests/smoke_mission_foundation.py --root <disposable-root> --client both",
+    "exit_code": 0,
+    "platform": "Linux",
+    "python": "3.12.14",
+    "baseline_revision_reported": "79b2c8162596c7a9c10f16622273f8daa76eefec",
+    "source": "working tree with listed code hashes; baseline revision alone is not the tested source identity",
+    "cases": [
+      {
+        "case": "absent",
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true
+      },
+      {
+        "case": "dirty-git",
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true
+      }
+    ],
+    "mission_checks": [
+      {
+        "mode": "new",
+        "read_only_discovery": true,
+        "read_only_status": true,
+        "projection_recovered": true
+      },
+      {
+        "mode": "existing",
+        "read_only_discovery": true,
+        "read_only_status": true,
+        "projection_recovered": true
+      }
+    ],
+    "log_sha256": "22dd2e830efce2091c459efc1c94dda0acc0f2e9123108568b6d158f28433948"
+  },
+  "docker_inquiry": "on_hold",
+  "native_cycles_used": 2,
+  "native_cycle_limit": 3,
+  "proof_accepted": false,
+  "native_profiles_enabled": false,
+  "model_calls": 0,
+  "ci_observed": false,
+  "document_checks": {
+    "local_link_paths_checked": 463,
+    "missing": [],
+    "scope": "local Markdown paths outside code examples; no remote URL or anchor rendering verification",
+    "git_diff_check_exit_code": 0
+  }
+}

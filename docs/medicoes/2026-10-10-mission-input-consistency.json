@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "front": "mission input consistency",
+  "base_commit": "a6e556b52ca9e82cdf665e148861e156cb3eef22",
+  "scope": "imported_notes_and_frozen_inputs",
+  "model_calls": 0,
+  "docker_calls": 0,
+  "store_schema_changed": false,
+  "tests": {
+    "focused": {
+      "passed": 3,
+      "seconds": 3.139
+    },
+    "suite": {
+      "state": "passed",
+      "total": 761,
+      "passed": 741,
+      "skipped": 20,
+      "failures": 0,
+      "errors": 0,
+      "partitions": [
+        {
+          "pattern": "test_mission*.py",
+          "total": 432,
+          "passed": 427,
+          "skipped": 5,
+          "seconds": 314.89
+        },
+        {
+          "pattern": "remaining test_*.py",
+          "total": 329,
+          "passed": 314,
+          "skipped": 15,
+          "seconds": 358.154
+        }
+      ]
+    }
+  },
+  "installed_smoke": {
+    "state": "passed",
+    "client": "both",
+    "modes": [
+      "new",
+      "existing"
+    ],
+    "inconsistent_inputs_blocked": true,
+    "explicit_consistent_revision": true,
+    "trial_restored": true,
+    "global_profile_preserved": true,
+    "model_calls": 0
+  },
+  "review": {
+    "remaining_material_findings": 0
+  },
+  "catalog": {
+    "affected_capabilities": 5,
+    "changed_contracts": 0,
+    "changed_content_hashes": 10,
+    "permissions_unchanged": true
+  },
+  "vault_check": {
+    "schema_version": 1,
+    "notes_checked": 65,
+    "issues": []
+  },
+  "code_sha256": {
+    "scripts/missions.py": "7b90095e295b8580d429f23b38522d627973365bd4960f7bd039c3ed5d4c6efd",
+    "tests/test_missions.py": "58b4ff39bea81bbd11e843a1246273bde3390f685d140d37ae38d75c1004c2fd",
+    "tests/test_mission_context.py": "7195c6cc19e7d0640783e0beb899dfe09bc2ccf0a4f31c3b329764490f7165b0",
+    "tests/test_mission_technical_plan.py": "74ba5556f55696421a33d8afdbf79db77753b4b722bce510ed73971f7bde9dc7",
+    "tests/smoke_mission_foundation.py": "bf5d4bbdadb2bd7126d89f3085210d84f92ee7d1e27092f62671dc26c09bde56"
+  },
+  "markdown_paths": {
+    "local_paths_checked": 549,
+    "missing": []
+  },
+  "evidence_sha256": {
+    ".runtime/input-consistency-red.log": "e2d645bbccf099309cbca2029b410b32d19f2012ebf833bc8485920663358123",
+    ".runtime/input-consistency-focused.log": "c449b41cec32738d010ba28ba52941254faf1f87bf3d85f7a6bd317eaa231dce",
+    ".runtime/input-consistency-missions.log": "431444eb4d2e144c0c1a201d869672d4ad46a5e341a2b5acc2e368d2ebda7408",
+    ".runtime/input-consistency-remaining.log": "b781525b29a169c47acb2a961b60266b49556b97e040cd2fb6eecca764bd119b",
+    ".runtime/input-consistency-installed.log": "eca3bb20d60e3c565bd8f91ca857ac94dc8996be5a4a9399c76c61d71de1a26a",
+    ".runtime/input-consistency-partitions.json": "0940b5ffaff720bb26ea41a29593c34e613733ddfe2ab19a4c6d2a15e6e4e71f",
+    ".runtime/input-consistency-base-ci.json": "6c3163ab6ca32f8c533e7923ecb3ee08f31905e49f170db3b7bd4a45868629e5",
+    ".runtime/input-consistency-markdown-paths.json": "bd806e016da4facd7d58a2a1e2accc624270e262e4116518dc8989ed14b49e47",
+    ".runtime/input-consistency-vault.json": "70a49127024e2b8ee42bea9aaeb2d101a6b7638656568105825a0849322d8a18"
+  }
+}

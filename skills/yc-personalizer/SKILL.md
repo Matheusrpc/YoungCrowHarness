@@ -23,6 +23,11 @@ existing interview/profile, preserving private-source boundaries. Use `ingest-so
 documents and `govern-capabilities` for skill/MCP changes. Neither onboarding nor a catalog enables
 tools or grants vendor access automatically.
 
+Follow [the installed execution guide](../personalizer/references/execution.md): read the local
+preference before asking about a runner, record source/date, and configure only an authorized
+change with its current digest. Reuse client/model/effort answers. Remote SSH is operator access;
+the preference neither connects to a host nor verifies an execution profile.
+
 When mission preparation is requested, continue with [yc-config](../yc-config/SKILL.md) for missing
 client/model/effort choices and limits. Keep choices project-wide unless explicitly overridden for
 a mission. Do not guess models or ask for secrets. Reuse approved defaults and existing answers.

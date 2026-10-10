@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "front": "isolated-executor",
+  "recorded_at": "2026-10-05T01:44:43.580880+00:00",
+  "status": "qa_passed_R1_partial",
+  "publication": "not_published",
+  "model_calls": 0,
+  "native_profiles_enabled": false,
+  "previous_measurement": "docs/medicoes/shutdown-reserve.json",
+  "path_lengths": {
+    "kind": "projected_trial_path_lengths",
+    "default_temp_utf16_units": 256,
+    "short_runner_temp_utf16_units": 237,
+    "must_be_less_than": 248,
+    "product_guard_unchanged": true
+  },
+  "focused": {
+    "trial": {
+      "tests": 9,
+      "seconds": 155.206,
+      "exit_code": 0
+    },
+    "restore": {
+      "tests": 1,
+      "seconds": 20.126,
+      "exit_code": 0
+    },
+    "capabilities": {
+      "tests": 7,
+      "seconds": 0.695,
+      "exit_code": 0
+    }
+  },
+  "red": {
+    "incomplete_pid": {
+      "tests": 1,
+      "failures": 1
+    },
+    "pending_cleanup": {
+      "tests": 1,
+      "failures": 1
+    }
+  },
+  "full_suite": {
+    "status": "passed_with_skips",
+    "command": "python -X utf8 -B tests/windows_fixture_runner.py -m unittest discover -s tests -v",
+    "runner_temp": "short writable parent outside Git",
+    "tests": 384,
+    "seconds": 1836.435,
+    "passed": 373,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 11,
+    "skips": [
+      {
+        "test": "test_posix_secondary_groups_survive_return (test_adoption.RestoreTests.test_posix_secondary_groups_survive_return)",
+        "reason": "POSIX secondary group permissions"
+      },
+      {
+        "test": "test_fifo_and_extended_attributes_are_rejected (test_adoption_storage.StorageTests.test_fifo_and_extended_attributes_are_rejected)",
+        "reason": "POSIX FIFO and mode proof"
+      },
+      {
+        "test": "test_symlink_is_not_followed (test_capabilities.CatalogTests.test_symlink_is_not_followed)",
+        "reason": "Host does not allow creating a symlink"
+      },
+      {
+        "test": "test_linked_vault_is_rejected (test_integrations.IntegrationTests.test_linked_vault_is_rejected)",
+        "reason": "Windows symlink privilege unavailable; exercised in Linux CI"
+      },
+      {
+        "test": "test_clear_refuses_unknown_files_or_linked_generation_before_removing (test_memory.MemoryTests.test_clear_refuses_unknown_files_or_linked_generation_before_removing)",
+        "reason": "Symlink privilege unavailable; unexpected-file preflight was checked."
+      },
+      {
+        "test": "test_hardlink_and_symlink_are_rejected (test_memory.MemoryTests.test_hardlink_and_symlink_are_rejected)",
+        "reason": "Host cannot create symlinks; hardlink boundary was checked."
+      },
+      {
+        "test": "test_child_cannot_escape_process_group (test_mission_process.ProcessTests.test_child_cannot_escape_process_group)",
+        "reason": "Linux seccomp boundary"
+      },
+      {
+        "test": "test_linked_feature_parent_is_rejected (test_personalize.PersonalizeTests.test_linked_feature_parent_is_rejected)",
+        "reason": "Windows symlink privilege unavailable; exercised in Linux CI"
+      },
+      {
+        "test": "test_dangling_env_link_is_rejected (test_setup.SetupTests.test_dangling_env_link_is_rejected)",
+        "reason": "Windows needs Developer Mode or symlink privilege; Linux CI must run this case."
+      },
+      {
+        "test": "test_directory_link_cannot_write_outside_project (test_setup.SetupTests.test_directory_link_cannot_write_outside_project)",
+        "reason": "Windows needs Developer Mode or symlink privilege; Linux CI must run this case."
+      },
+      {
+        "test": "test_symlink_directory_is_not_followed (test_vault.VaultTests.test_symlink_directory_is_not_followed)",
+        "reason": "Windows symlink privilege unavailable; exercised in Linux CI"
+      }
+    ],
+    "exit_code": 0
+  },
+  "source_sha256": {
+    "tests/smoke_capabilities.py": "e39d54186dbfeeac0473ca9f259fceee313ab12f2f0028f0251ac650c08f0b2e",
+    "tests/test_capability_proof.py": "d856920cbee69e46fb6c469c7c79ad94997cfdac42a6d2cde862c8307b51ba09",
+    "tests/windows_fixture_runner.py": "1560a120d4d98f5e6761a9b9a28f9028e84f667c1747b53f2da8c478ca5e8cd9"
+  },
+  "unchanged_runtime_sha256": {
+    "runtime/sbx/guardian.py": "819b0abf6a7b92a9019132c12af04b8d212546bd97a483e8edc154c07f38e92f",
+    "runtime/sbx/launcher.py": "0f610599d9153acd43e8b72478ed358989691aee7da0495ddfe829a836061acf"
+  },
+  "private_receipt_sha256": {
+    "qa-fixtures-pid-red.log": "cd991e5b3a02fb89206e0ecc354d3ce00d7fcb8d7b293ef9b0781fefa1a630e6",
+    "qa-fixtures-pid-green.log": "7f2a42e6294da0bf72aedef93d81b067a859c8efedbff338a112a9e719643191",
+    "qa-fixtures-pid-green-clean.log": "86ea5a05ef45b06194c17fbf46cc3d86bbbbd43c5a72e6a949dfab75c7ad5957",
+    "qa-fixtures-pending-red.log": "693771df0c72368d3e38bf65cbf2a765b5fb2fff5876997b0808b4f921daee44",
+    "qa-fixtures-pid-final.log": "bc591d79391f1ced5736ad43857191e49a76454cd41ca2e2cb4a4920d89f6a80",
+    "qa-fixtures-trial-green.log": "eaa34b2a18092a7dfe96e58759465f747152c8fdc6436fa7fbd839ba741278e6",
+    "qa-fixtures-restore-green.log": "09fbaafee18cec56f26135d8468d0ce2143b733759181dc81f6fec2a0ee2a892",
+    "qa-fixtures-path-lengths.json": "be75e61fe659440ccd3596538862ecabd6230c08a5318fc1bb999731b7eede90",
+    "qa-fixtures-suite.log": "2ddc6a705c79e552e518226d4e9100be0dc87c4c38145fbdb1e58a1de0bf441f",
+    "qa-fixtures-suite.exit": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+    "qa-fixtures-vault-check.json": "44a0a93da9c06e39b859d1a3ce3a27855b15671970f13a469192f9521350179e"
+  },
+  "verification": {
+    "adoption_product_unchanged": true,
+    "public_local_links": 264,
+    "vault_notes": 277,
+    "vault_issues": 0,
+    "diff_check": "clean",
+    "profiles_empty": true,
+    "source_hashes": 3,
+    "unchanged_runtime_hashes": 2
+  },
+  "pending": [
+    "provider-enabled networking/MCP and sentinels",
+    "rebuilt native package",
+    "whole-host suspension",
+    "authenticated client and adoption proofs"
+  ]
+}

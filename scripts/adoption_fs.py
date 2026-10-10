@@ -108,7 +108,15 @@ def acl(mode, root):
         if observer is not None and process.poll() is not None:
             observer(None)
     if process.returncode:
-        raise ValueError('unsupported_permissions')
+        error = ValueError('unsupported_permissions')
+        try:
+            reason = json.loads(stdout).get('reason')
+        except (ValueError, AttributeError):
+            reason = None
+        error.reason = reason if reason in ('owner_mismatch', 'acl_not_private', 'acl_empty',
+            'acl_custom', 'acl_unexpected', 'unsupported_entry', 'unsupported_attributes',
+            'inventory_limit') else 'inspection_failed'
+        raise error
     return json.loads(stdout)
 
 
@@ -266,10 +274,10 @@ def inspect_tree(root):
 
 def inspect_permissions(root, *, role):
     root = checked_path(root)
-    if role not in ('project', 'snapshot', 'transition'):
+    if role not in ('project', 'installed', 'snapshot', 'transition'):
         raise ValueError('invalid_role')
     if os.name == 'nt':
-        return acl({'project': 'profile-check', 'snapshot': 'private-check',
+        return acl({'project': 'profile-check', 'installed': 'installed-check', 'snapshot': 'private-check',
                     'transition': 'transition-check'}[role], root)
     if not hasattr(os, 'listxattr'):
         raise ValueError('unsupported_permissions')
@@ -315,7 +323,7 @@ def apply_metadata(path, value):
         os.chmod(path, value['mode'])
 
 
-def restore_permissions(root, expected, parent_policy):
+def restore_permissions(root, expected, parent_policy, *, installed=False):
     root = checked_path(root)
     if not expected['exists']:
         if root.exists():
@@ -326,12 +334,16 @@ def restore_permissions(root, expected, parent_policy):
         if observed != parent_policy:
             raise ValueError('parent_permissions_changed')
         acl('restore-inheritance', root)
+        if installed:
+            execution = checked_path(root / '.operacao-local/execution')
+            if execution.exists():
+                acl('private-apply', execution)
     elif inspect_permissions(root, role='project') != parent_policy:
         raise ValueError('parent_permissions_changed')
     for entry in reversed(expected['entries']):
         apply_metadata(root / relative_path(entry['path']), entry)
     apply_metadata(root, expected['root_metadata'])
-    if inspect_permissions(root, role='project') != parent_policy:
+    if inspect_permissions(root, role='installed' if installed else 'project') != parent_policy:
         raise ValueError('permission_restore_failed')
 
 

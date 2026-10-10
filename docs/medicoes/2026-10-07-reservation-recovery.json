@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-07T21:21:37.251638+00:00",
+  "base_head": "8754b943f4d91d1bc8bdd35a77c884538da24ecc",
+  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
+  "changes_published": true,
+  "scope": {
+    "203.4": "implemented_internal",
+    "203.5": "partial_workload_and_vm_recovery",
+    "203.6": "next_egress_global_configuration_helpers_ports"
+  },
+  "tested_public_tree": "12c370b0aee579ed13cfc085dc2ab0fe48ad5582",
+  "production_sources_match_tested_tree": true,
+  "full_suite": {
+    "command": "python3 -B -m unittest discover -s tests -v",
+    "scope": "git archive of staged public tree, before Windows fixture adjustment and final documentation",
+    "total": 567,
+    "passed": 547,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 233.921,
+    "log_sha256": "918c18e105758154bddbd3e27dc6c93f620a121d4795b7f702dd68eea0fbbee8",
+    "skips": [
+      "test_private_unrelated_directory_still_refuses_reinstall (test_adoption.AdoptionTests.test_private_unrelated_directory_still_refuses_reinstall) ... skipped 'Windows private ACL boundary'",
+      "test_open_file_prevents_exchange_without_losing_trial (test_adoption.RestoreTests.test_open_file_prevents_exchange_without_losing_trial) ... skipped 'real Windows non-share-delete handle'",
+      "test_posix_secondary_groups_survive_return (test_adoption.RestoreTests.test_posix_secondary_groups_survive_return) ... skipped 'requires an existing secondary group; Linux CI must exercise this'",
+      "test_acl_helper_does_not_write_user_profile (test_adoption_storage.StorageTests.test_acl_helper_does_not_write_user_profile) ... skipped 'native Windows profile cache'",
+      "test_alternate_data_stream_is_refused (test_adoption_storage.StorageTests.test_alternate_data_stream_is_refused) ... skipped 'Windows ADS proof'",
+      "test_directory_stream_is_not_silently_omitted (test_adoption_storage.StorageTests.test_directory_stream_is_not_silently_omitted) ... skipped 'Windows directory ADS proof'",
+      "test_not_indexed_attribute_is_preserved (test_adoption_storage.StorageTests.test_not_indexed_attribute_is_preserved) ... skipped 'Windows file attributes'",
+      "test_private_acl_write_refuses_streams_without_changing_permissions (test_adoption_storage.StorageTests.test_private_acl_write_refuses_streams_without_changing_permissions) ... skipped 'Windows streams before native ACL writes'",
+      "test_timeout_still_kills_child_after_parent_exits (test_documents.MediaTests.test_timeout_still_kills_child_after_parent_exits) ... skipped 'Windows process-tree regression'",
+      "test_junction_private_root_is_rejected (test_documents.StorageTests.test_junction_private_root_is_rejected) ... skipped 'Windows junction'",
+      "test_new_empty_temporary_gets_private_acl_before_data (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_new_empty_temporary_gets_private_acl_before_data) ... skipped 'Windows private file creation'",
+      "test_unsafe_temporary_never_changes_permissions (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_unsafe_temporary_never_changes_permissions) ... skipped 'Windows private file creation'",
+      "test_junction_selection_never_reads_or_writes_external_directory (test_mission_environment.ExecutionEnvironmentTests.test_junction_selection_never_reads_or_writes_external_directory) ... skipped 'Windows junction boundary'",
+      "test_private_reservation_survives_reopen_with_native_permissions (test_mission_execution.NativeReservationTests.test_private_reservation_survives_reopen_with_native_permissions) ... skipped 'native ACL fixture is explicitly selected through windows_fixture_runner'",
+      "test_discovery_descendant_cannot_hold_stdout_past_deadline (test_mission_process.ProcessTests.test_discovery_descendant_cannot_hold_stdout_past_deadline) ... skipped 'Discovery regression contained by an outer Windows Job'",
+      "test_failed_job_assignment_reaps_the_unassigned_bootstrap (test_mission_process.ProcessTests.test_failed_job_assignment_reaps_the_unassigned_bootstrap) ... skipped 'Windows Job Object boundary'",
+      "test_real_windows_metadata_does_not_write_profile (test_mission_sandbox.SandboxEnvironmentTests.test_real_windows_metadata_does_not_write_profile) ... skipped 'native Windows metadata and profile cache'",
+      "test_junction_without_python312_helper_blocks_setup (test_setup.SetupTests.test_junction_without_python312_helper_blocks_setup) ... skipped 'Windows junction behavior'",
+      "test_trial_deep_backup_is_refused_before_first_write (test_setup.SetupTests.test_trial_deep_backup_is_refused_before_first_write) ... skipped 'native PowerShell path limit'",
+      "test_junction_root_is_rejected_on_windows (test_vault.VaultTests.test_junction_root_is_rejected_on_windows) ... skipped 'Windows junction behavior'"
+    ]
+  },
+  "after_full_suite": {
+    "changes": "Windows-only temporary-registry ACL fixture, applied in parent and contained worker; production sources unchanged",
+    "focused_tests": 23,
+    "passed": 23,
+    "seconds": 5.13,
+    "log_sha256": "529170aec69a23ab872406bc62b7ec914f39f6737257a4ecb07d2a0ec9b6ef73",
+    "fixture_boundary_contract_probe": "passed; outside paths delegate to originals; not native Windows proof"
+  },
+  "focused": {
+    "transaction_launcher_sbx": 76,
+    "setup": {
+      "total": 63,
+      "passed": 61,
+      "skipped": 2
+    },
+    "catalog": {
+      "passed": 23
+    },
+    "contract_hashes": 14,
+    "content_hashes": 24
+  },
+  "review": {
+    "independent_reviewers": 2,
+    "findings_fixed": [
+      "CID mismatch against prepared or pre-stop observations",
+      "historical daemon identity blocking legitimate restart",
+      "history exhausted by failed observation retries",
+      "recovery adapter exceeding coordinator deadline"
+    ],
+    "followup": "no remaining blocking findings in reviewed scope",
+    "documentation": "PT/EN coherent; next203.6; no native acceptance claim"
+  },
+  "sources_sha256": {
+    "runtime/sbx/launcher.py": "67beae603a579b2f0957132e0dbf1276058f24dcd546d81795d6268b92a2454d",
+    "scripts/mission_controller.py": "0866cc1f4f7c1e24daadbecd0f41d1f93084a70d5ccaa90aacedaa2b3a0c9f8e",
+    "scripts/mission_execution.py": "f3fa71b79bdb78cff77b04a2281f9f036d14a0e5c40e10fe581de897066d09aa",
+    "scripts/mission_runs.py": "ca7c4d0e08ebed5ee606fb4dda2284ca0caaaa89ec9f98088b79a8d79c429383",
+    "scripts/mission_sbx.py": "1decd09f3efa0b85a2741ef22245892ea6260c6125459cc4ac9f3db6fa079b4d",
+    "scripts/mission_transaction.py": "bd89fc5b366283986d3e5adcee4baa76344870ea59e52b8ecb28b2e04911da5e",
+    "setup.sh": "4869256b535458c24e75acafa98b3e17784df64b6142ee03226371e2aa86fbd2",
+    "skills-lock.json": "427abbd18233354d03533c36cf59382b0eb54f0bc15780673bcbebb0fccbe83f",
+    "tests/test_mission_transaction.py": "945c715c63485fbe78cb79d7b66f730b600f579402111e0017990096122915ef",
+    "tests/test_mission_launcher.py": "c91f43619d5000f10d3f6807c1e707ec736331c0ce210f0ea2a6265646046757",
+    "tests/test_mission_sbx.py": "c95863c4a83d17d73b5adf4761e55bf47668d1bc49b7c1059ba319407463957b",
+    "tests/test_setup.py": "590b047a7e7a80c084bba2f021889401a4e70b0de153abc205984fc5e4d85d42",
+    "tests/test_capabilities.py": "5b2120a54b53fb39110dc1509991fc08123768e17532451e9202118d6da8a41e",
+    "tests/fixtures/transaction_controller.py": "5dbf158e61e07df56f042f79ac23d6e271f8066aa1a6a095d5ec7de90bb6a352",
+    "tests/fixtures/transaction_storage.py": "5dbedfa163038a051cfb4572f2c89361a867ba33a1c5f1f29861ec7bc2e650d0"
+  },
+  "official_cli_sources": {
+    "commit": "7ba25eeb0c4c594f79e6efadad1af5eaca0500a8",
+    "repository": "https://github.com/docker/docs",
+    "files": {
+      "data/sbx_cli/sbx_exec.yaml": "9e7b58d92448f05223afa1df8f4f4676ea80deb4001370834bd44597752f46cf",
+      "data/sbx_cli/sbx_stop.yaml": "92c8f3e602e0bb355abc1fddcb614325d463c08df76937cb7578e15adf56d742"
+    },
+    "limit": "documented grammar, not measured sbx0.46.0 compatibility"
+  },
+  "ci": {
+    "status": "unverified",
+    "last_query_result": "GitHub API Forbidden"
+  },
+  "limits": {
+    "main_changed": false,
+    "merged": false,
+    "deployed": false,
+    "public_check_enabled": false,
+    "native_executor_accepted": false,
+    "model_calls": 0,
+    "docker_operations": 0,
+    "native_correction_cycles_used": 2,
+    "native_correction_cycles_limit": 3
+  },
+  "excluded_paths": [
+    ".runtime/",
+    ".operacao-local/",
+    "vault/local/",
+    "vault/project.json",
+    ".superpowers/"
+  ],
+  "next_task": "203.6: integrate destination guard, global configuration, helper/port ownership and restore only operation-owned changes to complete203.5",
+  "published_code_commit": "ea2ff60a863ef294322b3247c5c5ffe59bd9748f",
+  "publication_verified_at": "2026-10-07T21:23:31.302286+00:00",
+  "remote_refs_after_code_push": {
+    "refs/heads/feat/isolated-executor": "ea2ff60a863ef294322b3247c5c5ffe59bd9748f",
+    "refs/heads/main": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+    "refs/pull/24/head": "ea2ff60a863ef294322b3247c5c5ffe59bd9748f"
+  },
+  "publication_method": "fast-forward push to existing feat/isolated-executor branch",
+  "published_increment_file_count": 22,
+  "vault": {
+    "notes_checked": 9,
+    "issues": 0
+  },
+  "pr_metadata": {
+    "last_reported_draft": true,
+    "draft_changed_by_session": false,
+    "current_draft_api_verified": false,
+    "title_body_updated": false
+  }
+}

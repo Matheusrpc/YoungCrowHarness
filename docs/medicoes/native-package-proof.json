@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-05T00:18:38.589114+00:00",
+  "status": "partial_R1",
+  "production": "not_published",
+  "model_calls": 0,
+  "native_profiles": [],
+  "manager": {
+    "image_digest": "sha256:3e6a380a46840656b9e724694ef2964e2d13471bc3dd0fe92ae66492217dfe2f",
+    "cpus": 2,
+    "memory_mib": 4096,
+    "host_mounts": 0,
+    "mcp_gateway": true
+  },
+  "creation": {
+    "exit_code": 0,
+    "pull_policy": "missing",
+    "elapsed_seconds": 4.872
+  },
+  "package": {
+    "files": {
+      "/opt/youngcrow/guardian.py": {
+        "sha256": "a2dd03e7e379f77292c9ea79040b63c50bcd7c2c767f3273715332c1d0d651a3",
+        "uid": 0,
+        "mode": "0o644"
+      },
+      "/opt/youngcrow/launcher.py": {
+        "sha256": "d58ca1a32557d0e04c5bf69e43b79066e7cc024d2501dc45ba3dcf18f9b74b7d",
+        "uid": 0,
+        "mode": "0o644"
+      }
+    },
+    "default_agent_exit": 125,
+    "nonroot_protection": {
+      "denied": [
+        "/opt/youngcrow/guardian.py",
+        "/opt/youngcrow/launcher.py",
+        "operations"
+      ],
+      "uid": 1000
+    },
+    "operations_empty": true,
+    "visible_cpus": 2,
+    "engine_version": "29.8.1"
+  },
+  "launcher_cases": [
+    {
+      "mode": "complete",
+      "passed": true,
+      "exit_code": 0,
+      "final_pid": 0,
+      "elapsed_observation_seconds": 0.9022189000000003,
+      "replay": "refused_without_start"
+    },
+    {
+      "mode": "deadline",
+      "passed": true,
+      "exit_code": 124,
+      "final_pid": 0,
+      "elapsed_observation_seconds": 5.071981099999999,
+      "replay": "refused_without_start"
+    },
+    {
+      "mode": "transport-loss",
+      "passed": true,
+      "exit_code": 125,
+      "final_pid": 0,
+      "elapsed_observation_seconds": 0.5703547000000011,
+      "replay": "refused_without_start"
+    }
+  ],
+  "freeze_thaw": {
+    "scope": "nested_container_cgroup_freezer",
+    "final_exit": 124,
+    "final_pid": 0,
+    "replay_exit": 125,
+    "forwarded_heartbeats_after_deadline": 0,
+    "limits": [
+      "whole_host_suspension_not_tested",
+      "guardian_forwarding_does_not_exclude_transient_client_execution_after_thaw"
+    ]
+  },
+  "cleanup": {
+    "certificate_absent": true,
+    "inventory_restored": true,
+    "source_restored": true,
+    "ports_remaining": 0,
+    "owned_vms_stopped": 5,
+    "prior_policy_rules_unchanged": true,
+    "new_policy": "only_owned_package_deny_all"
+  },
+  "next_test": {
+    "kind": "active_daemon_restart",
+    "status": "prepared_syntax_and_read_only_preconditions_passed_not_executed",
+    "workload_seconds": 5,
+    "daemon_restarts": 1,
+    "windows_restart": false,
+    "certificate_change": false,
+    "script_sha256": "efdef1fd2bead1e21e983593c52ae753f39034ff3b0d0fbc6b2338976dc3755c"
+  },
+  "pending": [
+    "network_and_MCP_with_provider_access",
+    "host_private_metadata_sentinels",
+    "active_daemon_restart",
+    "whole_host_suspension",
+    "R2_reservation_reconciliation",
+    "R3_authenticated_clients_adoption"
+  ],
+  "source_sha256": {
+    "runtime/sbx/youngcrow.yaml": "b3c36ff6a3401ceb66d4f5f1bdb0b664b4aae70345c866dd5dc8453987a5d997",
+    "runtime/sbx/youngcrow.dockerfile": "075c5b56c4404c5f03a33eee7161ca3a00f6c689954cf87c9eb1b9a3d8a35656",
+    "runtime/sbx/.dockerignore": "2aa65063da3b58f9ae5c4c7a3e1beae67f783ed4a6a16125a3adde8d2db40d89",
+    "runtime/sbx/guardian.py": "a2dd03e7e379f77292c9ea79040b63c50bcd7c2c767f3273715332c1d0d651a3",
+    "runtime/sbx/launcher.py": "d58ca1a32557d0e04c5bf69e43b79066e7cc024d2501dc45ba3dcf18f9b74b7d"
+  },
+  "private_receipt_sha256": {
+    "native-manager-via-tls-operator-2.json": "a2eb236275610ad6cbc8d813f7f2b7f8f888274035e6b3774773d80d5d41620e",
+    "native-package-proof.json": "413b39763287efa72e05c582086720cd2bd004b39aac4ad56fcc694bce70d9b2",
+    "native-package-launcher-proof.json": "3d1fad209d42b993dadb7e51fadeacf4ffcfbf32ba779f504d928d1bd9b52358"
+  },
+  "product_code_changed": false,
+  "full_repository_suite": "not_repeated_no_product_change",
+  "verification": {
+    "vault_notes": 272,
+    "vault_issues": 0,
+    "public_local_links": 272,
+    "source_hashes": 5,
+    "receipt_hashes": 12,
+    "operator_script_and_generated_probes_syntax": "passed",
+    "native_profiles_empty": true,
+    "diff_check": "clean"
+  }
+}

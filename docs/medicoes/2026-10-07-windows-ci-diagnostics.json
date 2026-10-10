@@ -1,0 +1,746 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-08T02:17:13.680259+00:00",
+  "base_head": "da28f00016861af8fecdd43a99cc5de085e70971",
+  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
+  "scope": "CI diagnostics and legacy B fixture deadline correction; no product behavior changes",
+  "source_sha256": {
+    ".github/workflows/test.yml": "2de7de68a33755adc0837fb8a50692df80929c3cf9078ddda5ef46324250d614",
+    "tests/ci_unittest.py": "e6fc1cccc8a531eaffbab7d23cee60d72591e38eb355bc8f48a59b880cebb51f",
+    "tests/test_ci_unittest.py": "e1d20c65d695bfefe6d502331285a3e72a5e08610e2a876d4917c9d3eb0c1b33"
+  },
+  "tested_public_tree": "6d80d097d2a225592de04ae291b015b0401c685e",
+  "code_and_workflow_match_tested_tree": true,
+  "regression_before": {
+    "total": 5,
+    "passed": 3,
+    "failures": 2,
+    "errors": 0,
+    "log_sha256": "87aa31366be7eee871a76ebefdabe11d86c6880a878e6ea5e3c972e278e9aa99"
+  },
+  "focused": {
+    "total": 5,
+    "passed": 5,
+    "failures": 0,
+    "errors": 0,
+    "log_sha256": "cb8709e51c82cf50c8b4bd1d22619d5024f77ffd8097a6acb0822737e228c612"
+  },
+  "full_suite": {
+    "command": "python3 -B tests/ci_unittest.py discover -s tests -v",
+    "environment": {
+      "GITHUB_ACTIONS": "true"
+    },
+    "scope": "git archive of staged public tree; later changes are documentation only",
+    "total": 617,
+    "passed": 597,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 249.575,
+    "exit_code": 0,
+    "log_sha256": "4ce9857be7d8ad09ccea93502febd55259c494180b49f257677fbebfb7cff7e6",
+    "skips": [
+      "test_private_unrelated_directory_still_refuses_reinstall (test_adoption.AdoptionTests.test_private_unrelated_directory_still_refuses_reinstall) ... skipped 'Windows private ACL boundary'",
+      "test_open_file_prevents_exchange_without_losing_trial (test_adoption.RestoreTests.test_open_file_prevents_exchange_without_losing_trial) ... skipped 'real Windows non-share-delete handle'",
+      "test_posix_secondary_groups_survive_return (test_adoption.RestoreTests.test_posix_secondary_groups_survive_return) ... skipped 'requires an existing secondary group; Linux CI must exercise this'",
+      "test_acl_helper_does_not_write_user_profile (test_adoption_storage.StorageTests.test_acl_helper_does_not_write_user_profile) ... skipped 'native Windows profile cache'",
+      "test_alternate_data_stream_is_refused (test_adoption_storage.StorageTests.test_alternate_data_stream_is_refused) ... skipped 'Windows ADS proof'",
+      "test_directory_stream_is_not_silently_omitted (test_adoption_storage.StorageTests.test_directory_stream_is_not_silently_omitted) ... skipped 'Windows directory ADS proof'",
+      "test_not_indexed_attribute_is_preserved (test_adoption_storage.StorageTests.test_not_indexed_attribute_is_preserved) ... skipped 'Windows file attributes'",
+      "test_private_acl_write_refuses_streams_without_changing_permissions (test_adoption_storage.StorageTests.test_private_acl_write_refuses_streams_without_changing_permissions) ... skipped 'Windows streams before native ACL writes'",
+      "test_timeout_still_kills_child_after_parent_exits (test_documents.MediaTests.test_timeout_still_kills_child_after_parent_exits) ... skipped 'Windows process-tree regression'",
+      "test_junction_private_root_is_rejected (test_documents.StorageTests.test_junction_private_root_is_rejected) ... skipped 'Windows junction'",
+      "test_new_empty_temporary_gets_private_acl_before_data (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_new_empty_temporary_gets_private_acl_before_data) ... skipped 'Windows private file creation'",
+      "test_unsafe_temporary_never_changes_permissions (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_unsafe_temporary_never_changes_permissions) ... skipped 'Windows private file creation'",
+      "test_junction_selection_never_reads_or_writes_external_directory (test_mission_environment.ExecutionEnvironmentTests.test_junction_selection_never_reads_or_writes_external_directory) ... skipped 'Windows junction boundary'",
+      "test_private_reservation_survives_reopen_with_native_permissions (test_mission_execution.NativeReservationTests.test_private_reservation_survives_reopen_with_native_permissions) ... skipped 'native ACL fixture is explicitly selected through windows_fixture_runner'",
+      "test_discovery_descendant_cannot_hold_stdout_past_deadline (test_mission_process.ProcessTests.test_discovery_descendant_cannot_hold_stdout_past_deadline) ... skipped 'Discovery regression contained by an outer Windows Job'",
+      "test_failed_job_assignment_reaps_the_unassigned_bootstrap (test_mission_process.ProcessTests.test_failed_job_assignment_reaps_the_unassigned_bootstrap) ... skipped 'Windows Job Object boundary'",
+      "test_real_windows_metadata_does_not_write_profile (test_mission_sandbox.SandboxEnvironmentTests.test_real_windows_metadata_does_not_write_profile) ... skipped 'native Windows metadata and profile cache'",
+      "test_junction_without_python312_helper_blocks_setup (test_setup.SetupTests.test_junction_without_python312_helper_blocks_setup) ... skipped 'Windows junction behavior'",
+      "test_trial_deep_backup_is_refused_before_first_write (test_setup.SetupTests.test_trial_deep_backup_is_refused_before_first_write) ... skipped 'native PowerShell path limit'",
+      "test_junction_root_is_rejected_on_windows (test_vault.VaultTests.test_junction_root_is_rejected_on_windows) ... skipped 'Windows junction behavior'"
+    ]
+  },
+  "ci_before": {
+    "commit": "da28f00016861af8fecdd43a99cc5de085e70971",
+    "runs": [
+      {
+        "event": "push",
+        "run": 37702748727,
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37702748727",
+        "jobs": {
+          "public-pilot": "success",
+          "installer": "success",
+          "adoption-windows": "failure",
+          "graphify-smoke": "success"
+        }
+      },
+      {
+        "event": "pull_request",
+        "run": 37702753288,
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37702753288",
+        "jobs": {
+          "public-pilot": "success",
+          "installer": "success",
+          "adoption-windows": "failure",
+          "graphify-smoke": "success"
+        }
+      }
+    ],
+    "failed_step": "Verify mission diagnostics and process recovery",
+    "exit_code": 1,
+    "failed_test_ids": "unavailable from previous public page",
+    "detailed_logs": "sign-in required; linked log URL returned404"
+  },
+  "evidence": [
+    {
+      "file": "pr.html",
+      "url": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
+      "status": 200,
+      "bytes": 338358,
+      "sha256": "f37c04fe331e9d0264197245006781f2416558e03003f310f2cec088177de1df"
+    },
+    {
+      "file": "checks.html",
+      "url": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24/checks",
+      "status": 200,
+      "bytes": 290605,
+      "sha256": "bb14571f3fbe1a2b1566901cb59f40342bfe317366a484fcb3021ae7bce7f781"
+    },
+    {
+      "file": "run-37702748727.html",
+      "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37702748727",
+      "status": 200,
+      "bytes": 222408,
+      "sha256": "a9f2a69caac13c67a8afedf65d3846441cb29fada1028c2a0f5f1e2fa07ce75d"
+    },
+    {
+      "file": "run-37702753288.html",
+      "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37702753288",
+      "status": 200,
+      "bytes": 222105,
+      "sha256": "b67140293b84513e6a9ca8ceabb463d0551fad9b6739081d0575fc596d89f069"
+    },
+    {
+      "file": "windows-job.html",
+      "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37702753288/job/113069845967?pr=24",
+      "status": 200,
+      "bytes": 212487,
+      "sha256": "790bb19c211789fbb889ca52f24627689f40c124097edfe690752aad7d964d59"
+    }
+  ],
+  "ci_after": {
+    "state": "failure",
+    "measured_at": "2026-10-08T02:54:53.708172+00:00",
+    "runs": [
+      {
+        "event": "push",
+        "run": 37717179017,
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37717179017",
+        "commit": "a9d05ea7fe99cfacaff494c202ba3904444f884b",
+        "jobs": {
+          "public-pilot": "success",
+          "installer": "success",
+          "adoption-windows": "failure",
+          "graphify-smoke": "success"
+        },
+        "failed_test_ids": [
+          "test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit",
+          "test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection"
+        ],
+        "job_html_sha256": "7782fbfaf78f9840e4bb71a28c6501f828aa2600194831af1e029842183f083f"
+      },
+      {
+        "event": "pull_request",
+        "run": 37717181788,
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37717181788",
+        "commit": "a9d05ea7fe99cfacaff494c202ba3904444f884b",
+        "jobs": {
+          "public-pilot": "success",
+          "installer": "success",
+          "adoption-windows": "failure",
+          "graphify-smoke": "success"
+        },
+        "failed_test_ids": [
+          "test_mission_egress.EgressTests.test_abrupt_controller_exit_before_config_reaps_the_waiting_guard",
+          "test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit",
+          "test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection"
+        ],
+        "job_html_sha256": "6e4794f82e85d78490f1e87a2bb53b86751c53492546642fad0d9396837bced6"
+      }
+    ]
+  },
+  "review": {
+    "agent": "review_ci_diagnostic_design",
+    "blocking_findings": 0,
+    "tests_run_by_reviewer": false
+  },
+  "B_evidence_transfer": {
+    "state": "required_original_files_absent",
+    "recorded_sha256": {
+      "captured_egress.py": "cd4394082e8da687efeff9bd835169163a540385e80faaacec8dc06b8fb7531c",
+      "test_captured_egress.py": "6945516531eaa08b0bdb89c31f257f26b10919ec2a481311069af5b5ae55330c",
+      "corrected-egress-proof/B-daemon-refusal.jsonl": "e16a55e82f8105b22dee598cd4d5efbd0b7dabf05d5f880d5236d5e17433cb46"
+    }
+  },
+  "environment": {
+    "native_docker_or_sbx_executed": false,
+    "model_calls": 0,
+    "native_cycles_used": 2,
+    "native_cycle_limit": 3,
+    "configuration_changes": "none_required"
+  },
+  "publication": {
+    "branch": "feat/isolated-executor",
+    "state": "diagnostic_and_B_fixture_fix_published",
+    "main": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+    "code_commit": "e674a8396a781a76745a3b61c8feb0a755c5e6c8",
+    "branch_and_pr_refs_verified": true
+  },
+  "limitations": [
+    "v3 B cutoff corrected; focused Windows passed on push and PR for e674a83, but earlier 15-second outer timeouts in both positive flows remain unexplained; complete Windows suite pending",
+    "post-run annotations require unittest completion",
+    "local tests do not prove Windows ACL/process behavior",
+    "native local credentials and settings contract still missing",
+    "original B collector and fixture not transferred"
+  ],
+  "state_diagnostics": {
+    "state": "published",
+    "production_code_changed": false,
+    "assertions_changed": false,
+    "deadlines_changed": false,
+    "early_windows_step": "four NetworkBindingTests plus abrupt controller shutdown; full suite follows only on success",
+    "review": "no privacy/status blockers; owner_gone diagnostic gap covered with expected-nonzero-exit notice",
+    "measured_at": "2026-10-08T02:55:54.183714+00:00",
+    "tested_public_tree": "adb392f91836e87ace3af93ad9ff91699b8bdaeb",
+    "full_suite": {
+      "total": 618,
+      "passed": 598,
+      "skipped": 20,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 257.096,
+      "log_sha256": "939bfd5289369500fe724db7b5a8d1f11e082efe22d49e2f4e865705103ecfbb",
+      "command": "python3 -B tests/ci_unittest.py discover -s tests -v",
+      "exit_code": 0
+    },
+    "focused": {
+      "total": 5,
+      "passed": 5,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 7.054,
+      "log_sha256": "869b029d71e0ba5742cd94243263c11ca6c95723221387b5c70709ef85a04325"
+    },
+    "egress_final": {
+      "total": 16,
+      "passed": 16,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 1.852,
+      "log_sha256": "d58776d9ebf04773ca9c3f978e9cf89420ad7fa07c9e60f79d271d7dfba2505b"
+    },
+    "runner": {
+      "total": 6,
+      "passed": 6,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.357,
+      "log_sha256": "cf66511fbfd5be9da06d1514a32655a75171349a59b54b40c7b274809065fbeb"
+    },
+    "full_suite_followup": "After the full-suite snapshot, only the expected-nonzero-exit notice condition changed in test_mission_egress.py; all16egress tests passed on that final file. Other changes are documentation.",
+    "regression_before": {
+      "total": 6,
+      "passed": 5,
+      "failures": 1,
+      "errors": 0,
+      "log_sha256": "e0a79fa7e49c33cc75421e75229a28db756ec8715970f8e8ca49c417bfff0cb3"
+    },
+    "source_sha256": {
+      ".github/workflows/test.yml": "c19f3ef4ae686b585ac34c3dec40f29779d1c0817eaaabaf86c37e8465fb6d65",
+      "tests/ci_unittest.py": "2f3f04714ce5db5fe0140f0164f50e434475aa6bb1800c460dd0b1f00936e656",
+      "tests/test_ci_unittest.py": "00fe5498e68cdf310ba23240b9c7fbeb35226aca61daa0f5c3dd6b18f4bcb944",
+      "tests/test_mission_network.py": "50d9e3371d5d48e6c18d37ac3da3fc3e5ed81aa1f7f95d8ed2c7b5942773a7af",
+      "tests/test_mission_egress.py": "ed87a38b480009f5b98458990390e1a10be5583c8fbe3d50af09dfced4a3e4ad"
+    },
+    "code_commit": "90f6bb96a298b59c7488e1301bb8822ca3a1bfec",
+    "windows_focused": {
+      "push_run": 37720278703,
+      "pull_request_run": 37720283494,
+      "total_each": 5,
+      "failed_each": 1,
+      "failure": "test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit",
+      "phase_B_reason": "protocol_failed",
+      "journal_events": 19,
+      "network_events": 13,
+      "supervisor_elapsed_seconds": [
+        9.453,
+        9.515
+      ],
+      "v4_recovered": true,
+      "abrupt_exit_code": 71,
+      "later_windows_steps": "skipped"
+    }
+  },
+  "B_probe_diagnostic": {
+    "state": "published",
+    "exception_message_included": false,
+    "original_exception_reraised": true,
+    "focused_log_sha256": "28b51baddc801dc51a858e9c43f7f40992950e963eaa0b8ee3bfe532bb1d12aa",
+    "runner_log_sha256": "032b52bdaf19567c9692e33303e3831516b3230a6ac44b6700dae5185c6ca453",
+    "source_sha256": {
+      "tests/fixtures/isolated_controller.py": "ef35fd3c1a1eb98226104dc954efb2cf45afc2c26960686a51e46540d77ae495",
+      "tests/test_mission_network.py": "55f9d3b1121edb6f5306ea08bb47b54634d26b183aa533737196569cbc5ee31e",
+      "tests/ci_unittest.py": "65f01d71517c7f3ce350172c8ec8fbaee60814900e9d57320b7ea754de4c20bd"
+    },
+    "full_suite_basis": "618-test state diagnostic suite; only unexpected B probe exception metadata added afterwards; five affected cases and six runner tests rechecked",
+    "code_commit": "919b0a4405d26258847a0196fd42b4eeba817307",
+    "windows_runs": [
+      37720869779,
+      37720873246
+    ],
+    "observed_exception": "TimeoutError",
+    "focused_total_each": 5,
+    "focused_failures_each": 1,
+    "public_job_evidence": [
+      {
+        "file": "probe-job-0.html",
+        "sha256": "63d3cb873661d68631f541b5acdfd325a6164e24b6f2ebcca4890176d569c903"
+      },
+      {
+        "file": "probe-job-1.html",
+        "sha256": "cd6652e56e0d8972f2c2371559f796619cd2e4c82a667ec5fbbd33149a9aec93"
+      }
+    ]
+  },
+  "B_deadline_fix": {
+    "state": "published",
+    "measured_at": "2026-10-08T03:10:06.795238+00:00",
+    "production_code_changed": false,
+    "fixture_connection_budget": "existing manifest deadline minus controller shutdown reserve",
+    "supervisor_seconds": 15,
+    "plan_seconds": 30,
+    "required_exception": "ConnectionRefusedError",
+    "review": {
+      "agent": "windows_network_static_review",
+      "blocking_findings": 0,
+      "tests_run_by_reviewer": false
+    },
+    "focused": {
+      "total": 5,
+      "passed": 5,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 7.577,
+      "exit_code": 0,
+      "log_sha256": "6c7138e7ff02e9eac9f49a85f85c5dc9cd7b5823b1c757d9dbc4ade54411f320"
+    },
+    "source_sha256": {
+      "tests/fixtures/isolated_controller.py": "8ac11434ef51112142466de7711b2f4ffe77f43f75247f9db273bce7d8bfc545"
+    },
+    "windows_validation": "focused_push_passed; focused_PR_v3_and_v4_outer_timeout",
+    "code_commit": "32960b87a3f319d3147a22268e034871d18d96f2",
+    "branch_and_pr_refs_verified": true,
+    "windows_evidence": {
+      "at": "2026-10-08T03:12:25.225923+00:00",
+      "jobs": [
+        {
+          "name": "public-pilot",
+          "status": "This job succeeded",
+          "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37721430256/job/113129725201?pr=24"
+        },
+        {
+          "name": "installer",
+          "status": "This job is in progress",
+          "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37721430256/job/113129725234?pr=24"
+        },
+        {
+          "name": "adoption-windows",
+          "status": "This job is in progress",
+          "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37721430256/job/113129725310?pr=24",
+          "html_sha256": "b79f6e4ee472fec815ab749a71da63a561e0f1c88111f9bdc987e510a60b678e",
+          "steps": [
+            {
+              "number": "1",
+              "name": "Set up job",
+              "conclusion": "success",
+              "started-at": "2026-10-08T03:10:13Z",
+              "completed-at": "2026-10-08T03:10:14Z"
+            },
+            {
+              "number": "2",
+              "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "conclusion": "success",
+              "started-at": "2026-10-08T03:10:14Z",
+              "completed-at": "2026-10-08T03:10:19Z"
+            },
+            {
+              "number": "3",
+              "name": "Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+              "conclusion": "success",
+              "started-at": "2026-10-08T03:10:19Z",
+              "completed-at": "2026-10-08T03:10:19Z"
+            },
+            {
+              "number": "4",
+              "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+              "conclusion": "success",
+              "started-at": "2026-10-08T03:10:19Z",
+              "completed-at": "2026-10-08T03:10:24Z"
+            },
+            {
+              "number": "5",
+              "name": "Diagnose Windows network and controller cleanup",
+              "conclusion": "success",
+              "started-at": "2026-10-08T03:10:24Z",
+              "completed-at": "2026-10-08T03:11:16Z"
+            },
+            {
+              "number": "6",
+              "name": "Exercise the board in new and existing consumers",
+              "conclusion": "success",
+              "started-at": "2026-10-08T03:11:16Z",
+              "completed-at": "2026-10-08T03:12:03Z"
+            },
+            {
+              "number": "7",
+              "name": "Verify native storage, permissions and crash recovery",
+              "conclusion": "null",
+              "started-at": "2026-10-08T03:12:03Z",
+              "completed-at": ""
+            },
+            {
+              "number": "8",
+              "name": "Verify trial installer and unchanged global profile",
+              "conclusion": "null",
+              "started-at": "",
+              "completed-at": ""
+            },
+            {
+              "number": "9",
+              "name": "Exercise return through the external runner",
+              "conclusion": "null",
+              "started-at": "",
+              "completed-at": ""
+            },
+            {
+              "number": "10",
+              "name": "Prepare missions in new and existing consumers",
+              "conclusion": "null",
+              "started-at": "",
+              "completed-at": ""
+            },
+            {
+              "number": "11",
+              "name": "Verify mission diagnostics and process recovery",
+              "conclusion": "null",
+              "started-at": "",
+              "completed-at": ""
+            },
+            {
+              "number": "12",
+              "name": "Exercise bounded diagnostic adoption without model calls",
+              "conclusion": "null",
+              "started-at": "",
+              "completed-at": ""
+            },
+            {
+              "number": "22",
+              "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+              "conclusion": "null",
+              "started-at": "",
+              "completed-at": ""
+            },
+            {
+              "number": "23",
+              "name": "Post Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+              "conclusion": "null",
+              "started-at": "",
+              "completed-at": ""
+            },
+            {
+              "number": "24",
+              "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "conclusion": "null",
+              "started-at": "",
+              "completed-at": ""
+            }
+          ],
+          "annotations": []
+        },
+        {
+          "name": "graphify-smoke",
+          "status": "This job succeeded",
+          "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37721430256/job/113129725322?pr=24"
+        },
+        {
+          "name": "public-pilot",
+          "status": "This job succeeded",
+          "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37721434176/job/113129738553?pr=24"
+        },
+        {
+          "name": "installer",
+          "status": "This job is in progress",
+          "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37721434176/job/113129738691?pr=24"
+        },
+        {
+          "name": "adoption-windows",
+          "status": "This job failed",
+          "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37721434176/job/113129738400?pr=24",
+          "html_sha256": "c2cda953c259c7fe2b458a25c1349eac7c93ab4b1bff5aff24f9f3ae21b44c1e",
+          "steps": [
+            {
+              "number": "1",
+              "name": "Set up job",
+              "conclusion": "success",
+              "started-at": "2026-10-08T03:10:17Z",
+              "completed-at": "2026-10-08T03:10:18Z"
+            },
+            {
+              "number": "2",
+              "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "conclusion": "success",
+              "started-at": "2026-10-08T03:10:18Z",
+              "completed-at": "2026-10-08T03:10:23Z"
+            },
+            {
+              "number": "3",
+              "name": "Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+              "conclusion": "success",
+              "started-at": "2026-10-08T03:10:23Z",
+              "completed-at": "2026-10-08T03:10:23Z"
+            },
+            {
+              "number": "4",
+              "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+              "conclusion": "success",
+              "started-at": "2026-10-08T03:10:23Z",
+              "completed-at": "2026-10-08T03:10:29Z"
+            },
+            {
+              "number": "5",
+              "name": "Diagnose Windows network and controller cleanup",
+              "conclusion": "failure",
+              "started-at": "2026-10-08T03:10:29Z",
+              "completed-at": "2026-10-08T03:11:34Z"
+            },
+            {
+              "number": "6",
+              "name": "Exercise the board in new and existing consumers",
+              "conclusion": "skipped",
+              "started-at": "2026-10-08T03:11:34Z",
+              "completed-at": "2026-10-08T03:11:34Z"
+            },
+            {
+              "number": "7",
+              "name": "Verify native storage, permissions and crash recovery",
+              "conclusion": "skipped",
+              "started-at": "2026-10-08T03:11:34Z",
+              "completed-at": "2026-10-08T03:11:34Z"
+            },
+            {
+              "number": "8",
+              "name": "Verify trial installer and unchanged global profile",
+              "conclusion": "skipped",
+              "started-at": "2026-10-08T03:11:34Z",
+              "completed-at": "2026-10-08T03:11:34Z"
+            },
+            {
+              "number": "9",
+              "name": "Exercise return through the external runner",
+              "conclusion": "skipped",
+              "started-at": "2026-10-08T03:11:34Z",
+              "completed-at": "2026-10-08T03:11:34Z"
+            },
+            {
+              "number": "10",
+              "name": "Prepare missions in new and existing consumers",
+              "conclusion": "skipped",
+              "started-at": "2026-10-08T03:11:34Z",
+              "completed-at": "2026-10-08T03:11:34Z"
+            },
+            {
+              "number": "11",
+              "name": "Verify mission diagnostics and process recovery",
+              "conclusion": "skipped",
+              "started-at": "2026-10-08T03:11:34Z",
+              "completed-at": "2026-10-08T03:11:34Z"
+            },
+            {
+              "number": "12",
+              "name": "Exercise bounded diagnostic adoption without model calls",
+              "conclusion": "skipped",
+              "started-at": "2026-10-08T03:11:34Z",
+              "completed-at": "2026-10-08T03:11:34Z"
+            },
+            {
+              "number": "22",
+              "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+              "conclusion": "skipped",
+              "started-at": "2026-10-08T03:11:34Z",
+              "completed-at": "2026-10-08T03:11:34Z"
+            },
+            {
+              "number": "23",
+              "name": "Post Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+              "conclusion": "skipped",
+              "started-at": "2026-10-08T03:11:34Z",
+              "completed-at": "2026-10-08T03:11:34Z"
+            },
+            {
+              "number": "24",
+              "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "conclusion": "success",
+              "started-at": "2026-10-08T03:11:34Z",
+              "completed-at": "2026-10-08T03:11:36Z"
+            },
+            {
+              "number": "25",
+              "name": "Complete job",
+              "conclusion": "success",
+              "started-at": "2026-10-08T03:11:36Z",
+              "completed-at": "2026-10-08T03:11:36Z"
+            }
+          ],
+          "annotations": [
+            "Diagnose Windows network and controller cleanup Process completed with exit code 1. Show more Show less",
+            "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection Show more Show less",
+            "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit Show more Show less",
+            "Complete job Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/ Show more Show less",
+            "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_v4_literal_placeholder_cannot_pass_integrated_positive_phase {\"supervisor\":{\"reason\":\"completed\",\"exit_code\":0,\"tree_reaped\":true,\"elapsed_seconds\":5.454,\"stdout_bytes\":2077,\"stderr_bytes\":0},\"transaction\":{\"state\":\"blocked\",\"reason\":\"reconciliation_required\",\"failure\":null,\"journal_events\":9,\"network_events\":10,\"recovery_events\":0},\"A\":{\"state\":\"refused\",\"reason\":\"dispatch_failed\"}} Show more Show less",
+            "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection {\"supervisor\":{\"reason\":\"timeout\",\"exit_code\":null,\"tree_reaped\":true,\"elapsed_seconds\":15.047,\"stdout_bytes\":0,\"stderr_bytes\":0},\"transaction\":{\"reason\":\"invalid_fixture_result\"}} Show more Show less",
+            "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit {\"supervisor\":{\"reason\":\"timeout\",\"exit_code\":null,\"tree_reaped\":true,\"elapsed_seconds\":15.047,\"stdout_bytes\":0,\"stderr_bytes\":0},\"transaction\":{\"reason\":\"invalid_fixture_result\"}} Show more Show less",
+            "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_drift_between_activation_and_prepare_blocks_dispatch {\"supervisor\":{\"reason\":\"completed\",\"exit_code\":0,\"tree_reaped\":true,\"elapsed_seconds\":3.344,\"stdout_bytes\":2063,\"stderr_bytes\":0},\"transaction\":{\"state\":\"blocked\",\"reason\":\"reconciliation_required\",\"failure\":null,\"journal_events\":0,\"network_events\":7,\"recovery_events\":0},\"A\":{\"state\":\"refused\",\"reason\":\"persistence_failed\"}} Show more Show less",
+            "Diagnose Windows network and controller cleanup test_mission_egress.EgressTests.test_abrupt_controller_exit_before_config_reaps_the_waiting_guard {\"supervisor\":{\"reason\":\"completed\",\"exit_code\":71,\"tree_reaped\":true,\"elapsed_seconds\":0.265,\"stdout_bytes\":0,\"stderr_bytes\":0}} Show more Show less"
+          ]
+        },
+        {
+          "name": "graphify-smoke",
+          "status": "This job succeeded",
+          "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37721434176/job/113129738612?pr=24"
+        }
+      ]
+    }
+  },
+  "timeout_timeline": {
+    "state": "published",
+    "only_fixture_diagnostics": true,
+    "ledger_read_independent_of_stdout": true,
+    "timing_origin": "supervisor started_at; only relative integer milliseconds published",
+    "list_limit": 60,
+    "milliseconds_limit": 3600000,
+    "runner": {
+      "total": 6,
+      "seconds": 0.411,
+      "log_sha256": "c686ea8d64f0886af12c940103db4d1c662fc7baa37dd524330c4d206269107d",
+      "failures": 0
+    },
+    "focused": {
+      "total": 5,
+      "seconds": 7.169,
+      "log_sha256": "52ab513a83bc276d0b7509fe8607a873f80541177f5eeb971c6a409e495797d1",
+      "failures": 0
+    },
+    "red": {
+      "total": 6,
+      "seconds": 0.351,
+      "log_sha256": "59a79433c161fc3a3d5cba6056c8efdf551ad9a72e7315eb48b6b62ed3b3d8df",
+      "failures": 1
+    },
+    "review": {
+      "agent": "windows_network_static_review",
+      "blocking_findings": 0,
+      "tests_run_by_reviewer": false
+    },
+    "source_sha256": {
+      "tests/test_mission_network.py": "21d22b6384d303feeddae641c0d85191e59919539c12fe9b9730979847905c19",
+      "tests/ci_unittest.py": "b015179065c88b7ec3ea803bbe0bec0bccd33324e9352d9a811a37ee985f4dbc",
+      "tests/test_ci_unittest.py": "736d5873601728b3524bd29a80f5686cca816e0c4c3982b7e84a3769ccf78b48"
+    },
+    "code_commit": "e674a8396a781a76745a3b61c8feb0a755c5e6c8",
+    "branch_and_pr_refs_verified": true,
+    "tested_public_tree": "2459431be8f5fc48faf46d1b5956ba33b0f2ea01",
+    "full_suite": {
+      "total": 618,
+      "passed": 598,
+      "skipped": 20,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 255.268,
+      "exit_code": 0,
+      "command": "GITHUB_ACTIONS=true python3 -B tests/ci_unittest.py discover -s tests -v",
+      "log_sha256": "85d1c6f1b25082fb4738cd8f2d212b6a4e2ec0a6ccaf9468b537c041c995a98e",
+      "failure_annotations": 0
+    },
+    "ci_status_at": "2026-10-08T03:23:47.669487+00:00",
+    "ci_runs": [
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722035973/job/113131661047?pr=24",
+        "job": "public-pilot",
+        "state": "This job succeeded"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722035973/job/113131660805?pr=24",
+        "job": "installer",
+        "state": "This job succeeded"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722035973/job/113131661036?pr=24",
+        "job": "adoption-windows",
+        "state": "This job is in progress",
+        "focused": {
+          "number": "5",
+          "name": "Diagnose Windows network and controller cleanup",
+          "conclusion": "success",
+          "started-at": "2026-10-08T03:17:58Z",
+          "completed-at": "2026-10-08T03:19:01Z"
+        },
+        "html_sha256": "f97f9406512f3978064e15bd7d5fd8857fd6ad41eb8a13cecccdd7dc77d8947b"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722035973/job/113131661170?pr=24",
+        "job": "graphify-smoke",
+        "state": "This job succeeded"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722040460/job/113131675446?pr=24",
+        "job": "public-pilot",
+        "state": "This job succeeded"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722040460/job/113131675109?pr=24",
+        "job": "installer",
+        "state": "This job succeeded"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722040460/job/113131675317?pr=24",
+        "job": "adoption-windows",
+        "state": "This job is in progress",
+        "focused": {
+          "number": "5",
+          "name": "Diagnose Windows network and controller cleanup",
+          "conclusion": "success",
+          "started-at": "2026-10-08T03:18:01Z",
+          "completed-at": "2026-10-08T03:19:06Z"
+        },
+        "html_sha256": "d10d3bf8db7d81037919c1505abb696e217464a70fd8fa7ab3675e63c44b01ea"
+      },
+      {
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37722040460/job/113131675207?pr=24",
+        "job": "graphify-smoke",
+        "state": "This job succeeded"
+      }
+    ]
+  },
+  "latest_measured_at": "2026-10-08T03:25:33.359157+00:00",
+  "git_access": {
+    "state": "push_and_refs_verified_after_transient_401",
+    "github_mcp_available": false,
+    "credential_or_configuration_changed": false
+  }
+}

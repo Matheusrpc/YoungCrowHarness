@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-05T11:40:51.406721+00:00",
+  "front": "isolated-executor",
+  "state": "proposed_scope_awaiting_decision",
+  "review_type": "documentation_and_cli_help_only",
+  "docker_sandboxes_version": "0.46.0",
+  "sbx_executable_sha256": "a2c8d68f3a16851a65e1d43f7330ae6860c5a2f07df8f22fab5dae7a4a232780",
+  "interface_checks": [
+    {
+      "command": "sbx settings set --help",
+      "exit_code": 0,
+      "receipt": "upstream-help-settings.txt",
+      "sha256": "041d98d272940d562fee5befa675c63f481b1bd864a32a5b949ed2124765229c"
+    },
+    {
+      "command": "sbx daemon start --help",
+      "exit_code": 0,
+      "receipt": "upstream-help-daemon.txt",
+      "sha256": "5b9f61102162266c6177bc29c7691aba3273ad0a8ff7faf044cadb52d25cc679"
+    },
+    {
+      "command": "sbx create --help",
+      "exit_code": 0,
+      "receipt": "upstream-help-create.txt",
+      "sha256": "d2deffe97aee1d7f40949152bee1b4d2413c81a2ef85d8752b281fc9d872776b"
+    }
+  ],
+  "interpretation": "No per-VM upstream selector or alternative daemon state/socket is exposed in the inspected public interfaces; this is not an exhaustive claim about hidden vendor capabilities.",
+  "proposal": "A Docker Sandboxes installation dedicated to YoungCrow, locally or on a dedicated runner, with final-address enforcement after credential injection.",
+  "sources": [
+    {
+      "url": "https://docs.docker.com/reference/cli/sbx/settings/set/",
+      "source_id": "50989d36-e364-4a2d-9f83-5f43c690e899",
+      "revision": "ff8a36efdbca8dc0008a3df7aee544c7bd45e4bfd2bc24c10b0d4a53c0ad7f19",
+      "note_id": "e9d5dae0-76e9-51c9-b50d-7aee7163bd74",
+      "note_path": "vault/local/sources/50989d36-e364-4a2d-9f83-5f43c690e899/content-ff8a36efdbca8dc0008a3df7aee544c7bd45e4bfd2bc24c10b0d4a53c0ad7f19.md",
+      "note_sha256": "c5de282e3fd32a979e2d2f83202ded0b876987cd30b8075fa13d84958fcce969",
+      "evidence": "Environment variables take precedence over user overrides."
+    },
+    {
+      "url": "https://docs.docker.com/reference/cli/sbx/daemon/start/",
+      "source_id": "e98c1ca5-bbf9-418d-b2ff-e9dafa327f23",
+      "revision": "7b33fa41de230a79e10c27b4a5f71a07e4216055e652c0a79b9e6c437e6248a5",
+      "note_id": "8cc5b8d5-c9eb-520b-a88f-0a359c6f37a5",
+      "note_path": "vault/local/sources/e98c1ca5-bbf9-418d-b2ff-e9dafa327f23/content-7b33fa41de230a79e10c27b4a5f71a07e4216055e652c0a79b9e6c437e6248a5.md",
+      "note_sha256": "ef4e270d9a5452599d6c205b57e032c55634dc2f6952b1f11edc6c30b3121534",
+      "evidence": "Run daemon in background"
+    },
+    {
+      "url": "https://docs.docker.com/reference/cli/sbx/create/",
+      "source_id": "717c87b3-d9c7-415c-9407-878af4b157bc",
+      "revision": "5cd465d48a074551d8c5d2f5c8cb49c42ef8f9ed145a1d99e3a058171adc3ee0",
+      "note_id": "58c6099d-3a6f-5a54-9306-940647bc74a0",
+      "note_path": "vault/local/sources/717c87b3-d9c7-415c-9407-878af4b157bc/content-5cd465d48a074551d8c5d2f5c8cb49c42ef8f9ed145a1d99e3a058171adc3ee0.md",
+      "note_sha256": "d0aa705321dea730bd6a66bc191080ce58f58588396f24e521a48a9d0cdf090b",
+      "evidence": "Set an environment variable in the sandbox"
+    },
+    {
+      "url": "https://docs.docker.com/ai/sandboxes/configuration/upstream-proxy/",
+      "source_id": "220218b0-a22d-43c3-870a-9471c5eeeb30",
+      "revision": "536d11129e7fe3f513504cacd21e2e22e04464ee0a50d5de3b0805bdf00042a9",
+      "note_id": "c2f696be-7443-500f-a3c5-045f2a1c67ea",
+      "note_path": "vault/local/sources/220218b0-a22d-43c3-870a-9471c5eeeb30/content-536d11129e7fe3f513504cacd21e2e22e04464ee0a50d5de3b0805bdf00042a9.md",
+      "note_sha256": "3fc169af70ac2593f1e55cc5c2d7ea760fc4c228685e9032ce5eb617430a7acd",
+      "evidence": "Upstream proxy support is experimental."
+    }
+  ],
+  "product_runtime_sha256": {
+    "runtime/sbx/guardian.py": "5b26f23f407a1e1f589e222b7f7ad04cd54e36567c11a761825d9af765d60add",
+    "runtime/sbx/launcher.py": "dcd1198c097dcc0e19dda958f5a9aaf1962cec163003948da52648e494885afe"
+  },
+  "previous_probe": {
+    "path": "docs/medicoes/hostname-cidr-proof.json",
+    "sha256": "39ddcec149c3f3c1f3bce0a2822fc7827ae229166b24ae44789ccd3cdbf56e2a",
+    "candidate": "rejected",
+    "replayed": false
+  },
+  "actions": {
+    "cli_help_reads": 3,
+    "settings_values_read": false,
+    "settings_changes": 0,
+    "vm_starts": 0,
+    "daemon_restarts": 0,
+    "native_probe_requests": 0,
+    "model_calls": 0
+  },
+  "compatibility_tested": false,
+  "profile_ids": [],
+  "production_published": false,
+  "next_action": "Review written scope choice before updating the implementation plan."
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "front": "YC-206 partial",
+  "base_commit": "ded7ac5fe33bbec9f15ae0515f73742cca991108",
+  "scope": "selected_read_only_pbi_context",
+  "model_calls": 0,
+  "docker_calls": 0,
+  "store_schema_changed": false,
+  "tests": {
+    "focused": {
+      "passed": 13,
+      "seconds": 9.741
+    },
+    "full_suite": {
+      "state": "passed",
+      "total": 738,
+      "passed": 718,
+      "skipped": 20,
+      "failed": 0,
+      "seconds": 486.165
+    }
+  },
+  "installed_smoke": {
+    "client": "both",
+    "modes": [
+      "new",
+      "existing"
+    ],
+    "passed": true,
+    "trial_restored": true,
+    "read_only_context": true,
+    "source_bytes_verified": true,
+    "stale_revision_refused": true,
+    "model_calls": 0
+  },
+  "review": {
+    "code_findings_corrected": 2,
+    "documentation_findings_corrected": 1,
+    "remaining_material_findings": 0
+  },
+  "code_sha256": {
+    "scripts/missions.py": "e2ee8adaba5650ac7f9614bf944037ebb76a4d694ae43422de18c00d5d08599a",
+    "tests/test_mission_context.py": "643b1cdd0f4262562e90a33cb7f18b4ff72f4e084f68f8b33fab092d48159cc2",
+    "tests/smoke_mission_foundation.py": "a533c86b85d948999d1988b9b8174837fdd176d4b51cc5acb2a5333ea9695a12"
+  },
+  "evidence_sha256": {
+    ".runtime/context-focused.log": "a4acbb6fb603973712fd4de3355f63b65f24002b935e2da78b14cfadfddba163",
+    ".runtime/context-installed.log": "1735576abe28198fad292692903c72442b439b89ba94bc00cbc0faf5d68c6188",
+    ".runtime/context-review-red.log": "4afc1fb8fa934f5a9c2186b5c33436aaa5932742a29fd304ce06dfe0e1c1542d",
+    ".runtime/context-full.log": "5da4e36d8d0868fce60f6cc34c7c0574eaf9db94fa4e33b3c39feded58e02a32"
+  },
+  "markdown_paths": {
+    "local_paths_checked": 540,
+    "missing": []
+  },
+  "vault_check": {
+    "schema_version": 1,
+    "notes_checked": 62,
+    "issues": []
+  },
+  "catalog": {
+    "affected_capabilities": 5,
+    "changed_contracts": 2,
+    "changed_content_hashes": 10,
+    "permissions_unchanged": true
+  }
+}

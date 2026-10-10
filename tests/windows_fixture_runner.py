@@ -3,6 +3,8 @@
 Windows hosted runners create objects owned by Administrators by default. This
 process-only fixture setup models the supported profile without changing the
 product's permission checks, existing files, accounts or machine policy.
+For local runs, set RUNNER_TEMP to a short writable directory outside Git; the
+runner creates a private child there. Adoption still enforces its path limit.
 """
 import ctypes
 from ctypes import wintypes
@@ -59,7 +61,7 @@ def main():
         fs.inspect_permissions(base, role='snapshot')
         os.environ.update(TEMP=str(base), TMP=str(base))
         tempfile.tempdir = str(base)
-        print(f'Windows fixture: current user owner verified; adjusted={changed}; private parent verified', flush=True)
+        print(f'Windows fixture: current user owner verified; adjusted={changed}; private parent verified; root={base}', flush=True)
         command = sys.argv[1:]
         if command[0] == '-m':
             sys.argv = command[1:]

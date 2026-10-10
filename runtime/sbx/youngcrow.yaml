@@ -1,0 +1,11 @@
+# syntax=docker/sandbox-kit:3
+schemaVersion: "3"
+kind: workload
+displayName: YoungCrow diagnostic manager
+description: Development-only manager; native execution profiles remain disabled.
+capabilities:
+  - type: com.docker.sandbox/sbx@1
+  - type: com.docker.sandbox/resources@1
+    config:
+      cpu: 2
+      memory: 4g

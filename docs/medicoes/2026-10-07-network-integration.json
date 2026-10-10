@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-07T22:13:39.045258+00:00",
+  "base_head": "12361498ef0b660d2cfd19bb260e9d5f95cd3f82",
+  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
+  "changes_published": true,
+  "scope": {
+    "203.4": "implemented_internal",
+    "203.5": "partial_local_settings_workload_vm_recovery",
+    "203.6": "partial_internal_network_integration_native_credential_contract_blocked"
+  },
+  "tested_public_tree": "eb60eb33d30779519ae2a36504abe0e44fda3921",
+  "product_tests_setup_catalog_match_tested_tree": true,
+  "full_suite": {
+    "command": "python3 -B -m unittest discover -s tests -v",
+    "scope": "git archive of staged public tree; only documentation updated afterwards",
+    "total": 594,
+    "passed": 574,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 233.787,
+    "log_sha256": "ae41715eb27ef33998bfdd294169381239ae21acbf226f7c39c660f3ada561e8",
+    "skips": [
+      "test_private_unrelated_directory_still_refuses_reinstall (test_adoption.AdoptionTests.test_private_unrelated_directory_still_refuses_reinstall) ... skipped 'Windows private ACL boundary'",
+      "test_open_file_prevents_exchange_without_losing_trial (test_adoption.RestoreTests.test_open_file_prevents_exchange_without_losing_trial) ... skipped 'real Windows non-share-delete handle'",
+      "test_posix_secondary_groups_survive_return (test_adoption.RestoreTests.test_posix_secondary_groups_survive_return) ... skipped 'requires an existing secondary group; Linux CI must exercise this'",
+      "test_acl_helper_does_not_write_user_profile (test_adoption_storage.StorageTests.test_acl_helper_does_not_write_user_profile) ... skipped 'native Windows profile cache'",
+      "test_alternate_data_stream_is_refused (test_adoption_storage.StorageTests.test_alternate_data_stream_is_refused) ... skipped 'Windows ADS proof'",
+      "test_directory_stream_is_not_silently_omitted (test_adoption_storage.StorageTests.test_directory_stream_is_not_silently_omitted) ... skipped 'Windows directory ADS proof'",
+      "test_not_indexed_attribute_is_preserved (test_adoption_storage.StorageTests.test_not_indexed_attribute_is_preserved) ... skipped 'Windows file attributes'",
+      "test_private_acl_write_refuses_streams_without_changing_permissions (test_adoption_storage.StorageTests.test_private_acl_write_refuses_streams_without_changing_permissions) ... skipped 'Windows streams before native ACL writes'",
+      "test_timeout_still_kills_child_after_parent_exits (test_documents.MediaTests.test_timeout_still_kills_child_after_parent_exits) ... skipped 'Windows process-tree regression'",
+      "test_junction_private_root_is_rejected (test_documents.StorageTests.test_junction_private_root_is_rejected) ... skipped 'Windows junction'",
+      "test_new_empty_temporary_gets_private_acl_before_data (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_new_empty_temporary_gets_private_acl_before_data) ... skipped 'Windows private file creation'",
+      "test_unsafe_temporary_never_changes_permissions (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_unsafe_temporary_never_changes_permissions) ... skipped 'Windows private file creation'",
+      "test_junction_selection_never_reads_or_writes_external_directory (test_mission_environment.ExecutionEnvironmentTests.test_junction_selection_never_reads_or_writes_external_directory) ... skipped 'Windows junction boundary'",
+      "test_private_reservation_survives_reopen_with_native_permissions (test_mission_execution.NativeReservationTests.test_private_reservation_survives_reopen_with_native_permissions) ... skipped 'native ACL fixture is explicitly selected through windows_fixture_runner'",
+      "test_discovery_descendant_cannot_hold_stdout_past_deadline (test_mission_process.ProcessTests.test_discovery_descendant_cannot_hold_stdout_past_deadline) ... skipped 'Discovery regression contained by an outer Windows Job'",
+      "test_failed_job_assignment_reaps_the_unassigned_bootstrap (test_mission_process.ProcessTests.test_failed_job_assignment_reaps_the_unassigned_bootstrap) ... skipped 'Windows Job Object boundary'",
+      "test_real_windows_metadata_does_not_write_profile (test_mission_sandbox.SandboxEnvironmentTests.test_real_windows_metadata_does_not_write_profile) ... skipped 'native Windows metadata and profile cache'",
+      "test_junction_without_python312_helper_blocks_setup (test_setup.SetupTests.test_junction_without_python312_helper_blocks_setup) ... skipped 'Windows junction behavior'",
+      "test_trial_deep_backup_is_refused_before_first_write (test_setup.SetupTests.test_trial_deep_backup_is_refused_before_first_write) ... skipped 'native PowerShell path limit'",
+      "test_junction_root_is_rejected_on_windows (test_vault.VaultTests.test_junction_root_is_rejected_on_windows) ... skipped 'Windows junction behavior'"
+    ]
+  },
+  "first_suite": {
+    "total": 594,
+    "skipped": 20,
+    "failures": 4,
+    "errors": 0,
+    "seconds": 243.703,
+    "log_sha256": "61de916c5f1db6eb3f3216c69b03630681ed8d8259521a55e56c9f30d693e115",
+    "skips": [
+      "test_private_unrelated_directory_still_refuses_reinstall (test_adoption.AdoptionTests.test_private_unrelated_directory_still_refuses_reinstall) ... skipped 'Windows private ACL boundary'",
+      "test_open_file_prevents_exchange_without_losing_trial (test_adoption.RestoreTests.test_open_file_prevents_exchange_without_losing_trial) ... skipped 'real Windows non-share-delete handle'",
+      "test_posix_secondary_groups_survive_return (test_adoption.RestoreTests.test_posix_secondary_groups_survive_return) ... skipped 'requires an existing secondary group; Linux CI must exercise this'",
+      "test_acl_helper_does_not_write_user_profile (test_adoption_storage.StorageTests.test_acl_helper_does_not_write_user_profile) ... skipped 'native Windows profile cache'",
+      "test_alternate_data_stream_is_refused (test_adoption_storage.StorageTests.test_alternate_data_stream_is_refused) ... skipped 'Windows ADS proof'",
+      "test_directory_stream_is_not_silently_omitted (test_adoption_storage.StorageTests.test_directory_stream_is_not_silently_omitted) ... skipped 'Windows directory ADS proof'",
+      "test_not_indexed_attribute_is_preserved (test_adoption_storage.StorageTests.test_not_indexed_attribute_is_preserved) ... skipped 'Windows file attributes'",
+      "test_private_acl_write_refuses_streams_without_changing_permissions (test_adoption_storage.StorageTests.test_private_acl_write_refuses_streams_without_changing_permissions) ... skipped 'Windows streams before native ACL writes'",
+      "test_timeout_still_kills_child_after_parent_exits (test_documents.MediaTests.test_timeout_still_kills_child_after_parent_exits) ... skipped 'Windows process-tree regression'",
+      "test_junction_private_root_is_rejected (test_documents.StorageTests.test_junction_private_root_is_rejected) ... skipped 'Windows junction'",
+      "test_new_empty_temporary_gets_private_acl_before_data (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_new_empty_temporary_gets_private_acl_before_data) ... skipped 'Windows private file creation'",
+      "test_unsafe_temporary_never_changes_permissions (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_unsafe_temporary_never_changes_permissions) ... skipped 'Windows private file creation'",
+      "test_junction_selection_never_reads_or_writes_external_directory (test_mission_environment.ExecutionEnvironmentTests.test_junction_selection_never_reads_or_writes_external_directory) ... skipped 'Windows junction boundary'",
+      "test_private_reservation_survives_reopen_with_native_permissions (test_mission_execution.NativeReservationTests.test_private_reservation_survives_reopen_with_native_permissions) ... skipped 'native ACL fixture is explicitly selected through windows_fixture_runner'",
+      "test_discovery_descendant_cannot_hold_stdout_past_deadline (test_mission_process.ProcessTests.test_discovery_descendant_cannot_hold_stdout_past_deadline) ... skipped 'Discovery regression contained by an outer Windows Job'",
+      "test_failed_job_assignment_reaps_the_unassigned_bootstrap (test_mission_process.ProcessTests.test_failed_job_assignment_reaps_the_unassigned_bootstrap) ... skipped 'Windows Job Object boundary'",
+      "test_real_windows_metadata_does_not_write_profile (test_mission_sandbox.SandboxEnvironmentTests.test_real_windows_metadata_does_not_write_profile) ... skipped 'native Windows metadata and profile cache'",
+      "test_junction_without_python312_helper_blocks_setup (test_setup.SetupTests.test_junction_without_python312_helper_blocks_setup) ... skipped 'Windows junction behavior'",
+      "test_trial_deep_backup_is_refused_before_first_write (test_setup.SetupTests.test_trial_deep_backup_is_refused_before_first_write) ... skipped 'native PowerShell path limit'",
+      "test_junction_root_is_rejected_on_windows (test_vault.VaultTests.test_junction_root_is_rejected_on_windows) ... skipped 'Windows junction behavior'"
+    ],
+    "cause": "legacy personalizer contract hashed before resolving identity; corrected and full suite rerun"
+  },
+  "focused": {
+    "egress": {
+      "total": 16,
+      "passed": 16,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 1.909,
+      "log_sha256": "18e4ae226b35446069233cec6286710110429ba81aa24088d9067e6560d1239f",
+      "skips": []
+    },
+    "network": {
+      "total": 19,
+      "passed": 19,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 5.175,
+      "log_sha256": "0829405f952195a33638a0ec89bad30efc276eb9f6c3cccb0e910e1562b61c3a",
+      "skips": []
+    },
+    "transaction": {
+      "total": 23,
+      "passed": 23,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 5.953,
+      "log_sha256": "b19b68f3985ab0cbd7c74731e5982354d44673306f5623fdf6c8ecff1cbbf811",
+      "skips": []
+    },
+    "catalog": {
+      "total": 30,
+      "passed": 30,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 1.178,
+      "log_sha256": "2bcb921796e04cdd59b5123f0b73d8d979cadd18cb41c7bee1d914b0ea81599e",
+      "skips": []
+    }
+  },
+  "catalog": {
+    "observations": [
+      {
+        "id": "personalizer",
+        "client": "claude",
+        "content_state": "matched",
+        "codes": [
+          "dynamic_instructions"
+        ]
+      },
+      {
+        "id": "personalizer",
+        "client": "codex",
+        "content_state": "matched",
+        "codes": [
+          "dynamic_instructions"
+        ]
+      },
+      {
+        "id": "yc-personalizer",
+        "client": "claude",
+        "content_state": "matched",
+        "codes": [
+          "dynamic_instructions"
+        ]
+      },
+      {
+        "id": "yc-personalizer",
+        "client": "codex",
+        "content_state": "matched",
+        "codes": [
+          "dynamic_instructions"
+        ]
+      },
+      {
+        "id": "yc-config",
+        "client": "claude",
+        "content_state": "matched",
+        "codes": [
+          "dynamic_instructions"
+        ]
+      },
+      {
+        "id": "yc-config",
+        "client": "codex",
+        "content_state": "matched",
+        "codes": [
+          "dynamic_instructions"
+        ]
+      },
+      {
+        "id": "yc-missao",
+        "client": "claude",
+        "content_state": "matched",
+        "codes": [
+          "dynamic_instructions"
+        ]
+      },
+      {
+        "id": "yc-missao",
+        "client": "codex",
+        "content_state": "matched",
+        "codes": [
+          "dynamic_instructions"
+        ]
+      },
+      {
+        "id": "yc-status",
+        "client": "claude",
+        "content_state": "matched",
+        "codes": [
+          "dynamic_instructions"
+        ]
+      },
+      {
+        "id": "yc-status",
+        "client": "codex",
+        "content_state": "matched",
+        "codes": [
+          "dynamic_instructions"
+        ]
+      }
+    ],
+    "log_sha256": "68483ee0c292db4f25f1fd42a0a2e242815b72d4346cc495eb64fa7475c3f791",
+    "permissions_changed": false
+  },
+  "review": {
+    "agents": [
+      "guard_review",
+      "network_final_review"
+    ],
+    "critical_or_important_pending": 0,
+    "corrected": [
+      "TIME_WAIT on upstream close",
+      "concurrent local ledger writers",
+      "daemon identity drift during restore",
+      "deadline after durable intent"
+    ],
+    "added_proofs": [
+      "zero tunneled bytes after destination receipt failure",
+      "abrupt controller death before guard configuration"
+    ]
+  },
+  "source_sha256": {
+    "scripts/mission_controller.py": "e2d3b01bf0fcd29d3eb24c746b8396958f74de7e800d2d07ac65cac5a6f57e3f",
+    "scripts/mission_egress.py": "dfe2b6c9cfd7b2293d5aeab0c35926b0be24c7ddacf44ad0e4c4c6c829fd6a0f",
+    "scripts/mission_network.py": "7ef7df88839bbd4570292e61caa239cdf4ca7d224a3092edc1fc1053a1d4b546",
+    "scripts/mission_sbx.py": "2bc50f0f6b3e8199724ff3fcdbbd42f48b3cdeb8a05ed600860a75d4b81bdc8c",
+    "scripts/mission_transaction.py": "1335ae19a220a7a9d20ea85cce33e04ad2d8d981936f20ecdac0255d6599ae68",
+    "setup.sh": "bb09d9aaab9504e1edd808ea11ffd548371cd810a9ce198420a0f8314f57a8ba",
+    "skills-lock.json": "4a86200d012fdeabf738499756a032f265735ea5cc62b316bf364b33c999cb91",
+    "tests/fixtures/egress_controller.py": "2765451ae9500e65bc81cbcdfbfbf8e1049803fdf0b074a41b846f407495df24",
+    "tests/fixtures/isolated_controller.py": "4ed43e9c57cec18efad020b1aa4d5271d8ba99ce0ad9b21e1f16b54029afc8cc",
+    "tests/fixtures/network_controller.py": "32a9b84369bca6c1a875e024545d5dc8e76fef3dbe1b136a8ec17fb1c779613f",
+    "tests/test_mission_egress.py": "6288a8e3000ec7361237761d6522f1321ab8b1829fe03ce8f56f678ee6f7e2d5",
+    "tests/test_mission_network.py": "16f23e60423b8e4a9155f44afd4eee5c182c25c1cd0a212fb3b06fa89fd8118d",
+    "tests/test_setup.py": "5264e2406844543e22e477945aadec3fee5f11a978cbcf9e152e869700573034"
+  },
+  "documentation": {
+    "repository": "docker/docs",
+    "revision": "7ba25eeb0c4c594f79e6efadad1af5eaca0500a8",
+    "consulted": "2026-10-07",
+    "sha256": {
+      "data/sbx_cli/sbx_settings_set.yaml": "575d44cd4b20a3effb02972bacbe274f5efeccff19476f5d48e65a7f48cda350",
+      "data/sbx_cli/sbx_settings_unset.yaml": "08f190f8a643e7bbd8888b1760445438bcbde8e176cd4f5848d2dfe040b209d9",
+      "data/sbx_cli/sbx_settings_get.yaml": "72b9cfa7ff986dbfe4543498cab53bb1eda7d9c46e3d09a9cb2855d304ff7994",
+      "data/sbx_cli/sbx_secret_set-custom.yaml": "3b2ae7bf28a37d14813236e87542e205051bcb7304f762497547211048405202",
+      "data/sbx_cli/sbx_secret_rm.yaml": "1f08f9317050528f5b7aefe1fb2d08ea0e1bb57e17913341c0e54a3e4f2e404f",
+      "data/sbx_cli/sbx_secret_ls.yaml": "737d63ed5e57f26ba7eb5b910040d666efa0f69f89753a314597844b23882797",
+      "data/sbx_cli/sbx_daemon_restart.yaml": "313d7c1ed79a1ff11ea70617f4ee0ae789bc804ec374810d8dcb161d2b8cc319",
+      "content/manuals/ai/sandboxes/configuration/settings.md": "fc06b336501a560faefce0536a4860ff3d4623e8eb2395f0f1417e1b1cd982e6",
+      "content/manuals/ai/sandboxes/configuration/credentials.md": "67fb56ccc71b2ac2bfa08016fdb23f4bff455d3c097c355f57305ca3929a7085",
+      "content/manuals/ai/sandboxes/configuration/upstream-proxy.md": "3484420736fa086e51fb296d8d81279c1028cb8930dbad86caaa98de2336131c"
+    }
+  },
+  "environment": {
+    "native_docker_executed": false,
+    "model_calls": 0,
+    "native_cycles_used": 2,
+    "native_cycle_limit": 3,
+    "windows_native": "unverified",
+    "configuration_changes": "none_required"
+  },
+  "limitations": [
+    "custom credential ownership schema unavailable",
+    "native setting/restart adapter deliberately refuses",
+    "injection proof pending; echo is not sufficient",
+    "B blocked_unattributed",
+    "Docker TLS, MCP/host/private bypass refusal and authenticated clients unverified",
+    "native forbidden-IP provenance pending",
+    "nonce is not SOCKS authentication"
+  ],
+  "public_client_check": "failed/controller_pending",
+  "native_profiles_empty": true,
+  "ci": "unverified; API Forbidden earlier in session",
+  "publication": {
+    "branch": "feat/isolated-executor",
+    "main_before": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+    "state": "published_to_draft_pr",
+    "code_commit": "7d1031c99c326ea7ca8afde2d1daacefe985a5ef",
+    "verified_at": "2026-10-07T22:14:22.560001+00:00",
+    "refs": {
+      "refs/heads/feat/isolated-executor": "7d1031c99c326ea7ca8afde2d1daacefe985a5ef",
+      "refs/heads/main": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+      "refs/pull/24/head": "7d1031c99c326ea7ca8afde2d1daacefe985a5ef"
+    }
+  }
+}

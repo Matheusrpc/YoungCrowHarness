@@ -1,0 +1,100 @@
+{
+  "front": "P06 Windows test portability",
+  "base_commit": "09f95c693d252b678bcc1b9b4f5a875634ae19c1",
+  "observed_at": "2026-10-09T20:03:14.378631+00:00",
+  "operator_report": {
+    "source_sha256": "e9bacc46d4c7ddba2401f9165b98a86e3f92b76be111f794df2e171e1e8615eb",
+    "bytes": 5936,
+    "platform": "Windows",
+    "python": "3.14",
+    "tests": 13,
+    "passed": 10,
+    "failures": 1,
+    "errors": 2,
+    "seconds": 12.532
+  },
+  "correction": {
+    "file": "tests/test_pilot_claude.py",
+    "changed_lines": 2,
+    "changes": [
+      "explicit UTF-8 for fixture reads",
+      "native pathlib key for existing manifest lookup"
+    ]
+  },
+  "verification": {
+    "command": "python3 -B -m unittest discover -s tests -p test_pilot_claude.py -v",
+    "tests": 13,
+    "passed": 13,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 3.17,
+    "after_cloud_reconnection": true
+  },
+  "cp1252_probe": {
+    "existing_cases": 2,
+    "before_errors": 2,
+    "after_passed": 2,
+    "after_seconds": 0.41,
+    "native_windows_execution": false
+  },
+  "source_sha256": {
+    "tests/test_pilot_claude.py": "581c8cb045275b3e5832b97d5d0d8f17888ee84077880a025ab17ddae0a8945c",
+    "tests/pilot_claude.py": "b2477efe9ecfb8720e53c8d2e538457abe8a5c768e6fa1a79f06896591fa09ea",
+    "tests/fixtures/pilot_claude.py": "47fc7db32ff6c6bad7a18aeec2967ad97c51254886984868b6ea3a3cff2824b1",
+    ".github/workflows/test.yml": "d00c2541e55f909476056202dcb6fcad9d3af7666562ea902d213697a6b78829"
+  },
+  "runner_modified": false,
+  "supervisor_modified": false,
+  "workflow_modified": false,
+  "new_native_model_calls": 0,
+  "prior_attempt_preserved": true,
+  "login_renewal_reported": true,
+  "retry_authorized": false,
+  "windows_ci": "pending_full_confirmation",
+  "reviewer": "review_windows_fix_publish",
+  "review_result": "No material findings",
+  "windows_operator_confirmation": {
+    "source_sha256": "036d72bab1385952e3220fa9bb3f53da45089167c1745623f4313936d66e4d46",
+    "bytes": 5451,
+    "code_revision": "6481a9174070e9c2fbc65fc66950381089136758",
+    "evidence_kind": "operator_supplied_terminal_output",
+    "tests": 13,
+    "passed": 13,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 9.373,
+    "preparation": {
+      "batch_id": "YC-TEST-20261010-A",
+      "operation_id": "323ef492-4967-4d13-bd71-8afe0bc2ed00",
+      "state": "prepared_no_model_prompt",
+      "native_prompt_count": 0,
+      "temporary_credential_removed": true,
+      "original_auth_unchanged": true,
+      "setup_sha256": "6d1c2bd27f6c35308712310ab640205b06d5f19de5836d60b00c1730431d9811",
+      "supervision": {
+        "reason": "completed",
+        "exit_code": 0,
+        "tree_reaped": true,
+        "elapsed_seconds": 13.889191,
+        "started_at": "2026-10-09T20:15:12.745138+00:00",
+        "ended_at": "2026-10-09T20:15:26.634888+00:00"
+      }
+    },
+    "additional_inference_authorized": false,
+    "reviewer": "review_retry_preparation",
+    "review_result": "No blocking findings for presenting the exact new operation for approval"
+  },
+  "ci_observation": {
+    "observed_at": "2026-10-09T20:20:00+00:00",
+    "code_revision": "6481a9174070e9c2fbc65fc66950381089136758",
+    "push_run": 37984411482,
+    "push_windows": "failure_before_p06",
+    "failed_case": "test_mission_egress.EgressTests.test_abrupt_controller_exit_before_config_reaps_the_waiting_guard",
+    "push_p06": "skipped",
+    "pr_run": 37984416730,
+    "pr_windows": "in_progress",
+    "pr_p06": "pending",
+    "other_jobs": "success_on_both_runs",
+    "reviewer": "diagnose_ci_6481"
+  }
+}

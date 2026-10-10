@@ -1,0 +1,524 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-07T04:42:30+00:00",
+  "scope": "read-only local preflight; not native execution approval",
+  "runtime_version": "0.46.0",
+  "runtime_sha256": "a2c8d68f3a16851a65e1d43f7330ae6860c5a2f07df8f22fab5dae7a4a232780",
+  "queries": [
+    {
+      "phase": "daemon_before",
+      "args": [
+        "daemon",
+        "status",
+        "--json"
+      ],
+      "exit_code": 0,
+      "reason": "observed",
+      "elapsed_seconds": 1.240222
+    },
+    {
+      "phase": "secret_inventory",
+      "args": [
+        "secret",
+        "ls",
+        "--json"
+      ],
+      "exit_code": 0,
+      "reason": "observed",
+      "elapsed_seconds": 0.60537
+    },
+    {
+      "phase": "sandbox_inventory",
+      "args": [
+        "ls",
+        "--json"
+      ],
+      "exit_code": 0,
+      "reason": "observed",
+      "elapsed_seconds": 0.719123
+    },
+    {
+      "phase": "setting_proxy_sandbox",
+      "args": [
+        "settings",
+        "get",
+        "proxy.sandbox",
+        "--json"
+      ],
+      "exit_code": 0,
+      "reason": "observed",
+      "elapsed_seconds": 1.093601
+    },
+    {
+      "phase": "setting_no_proxy_sandbox",
+      "args": [
+        "settings",
+        "get",
+        "no_proxy.sandbox",
+        "--json"
+      ],
+      "exit_code": 0,
+      "reason": "observed",
+      "elapsed_seconds": 1.068402
+    },
+    {
+      "phase": "setting_proxy",
+      "args": [
+        "settings",
+        "get",
+        "proxy",
+        "--json"
+      ],
+      "exit_code": 0,
+      "reason": "observed",
+      "elapsed_seconds": 0.507628
+    },
+    {
+      "phase": "setting_no_proxy",
+      "args": [
+        "settings",
+        "get",
+        "no_proxy",
+        "--json"
+      ],
+      "exit_code": 0,
+      "reason": "observed",
+      "elapsed_seconds": 0.491483
+    },
+    {
+      "phase": "setting_proxy_daemon",
+      "args": [
+        "settings",
+        "get",
+        "proxy.daemon",
+        "--json"
+      ],
+      "exit_code": 0,
+      "reason": "observed",
+      "elapsed_seconds": 0.427068
+    },
+    {
+      "phase": "setting_no_proxy_daemon",
+      "args": [
+        "settings",
+        "get",
+        "no_proxy.daemon",
+        "--json"
+      ],
+      "exit_code": 0,
+      "reason": "observed",
+      "elapsed_seconds": 0.44358
+    },
+    {
+      "phase": "setting_proxy_integratedAuth",
+      "args": [
+        "settings",
+        "get",
+        "proxy.integratedAuth",
+        "--json"
+      ],
+      "exit_code": 0,
+      "reason": "observed",
+      "elapsed_seconds": 0.598794
+    },
+    {
+      "phase": "daemon_after",
+      "args": [
+        "daemon",
+        "status",
+        "--json"
+      ],
+      "exit_code": 0,
+      "reason": "observed",
+      "elapsed_seconds": 0.543659
+    }
+  ],
+  "query_count": 11,
+  "configuration_writes": 0,
+  "model_calls": 0,
+  "runtime_profiles_enabled": false,
+  "remote_failure_reproduced": true,
+  "authenticated_clients_proven": false,
+  "source_files_sha256": {
+    "scripts/mission_sbx.py": "cc624fcd4a3e034c25965d63904561cb97d1763ece2cafa44c371bab232b8707",
+    "scripts/mission_sandbox.py": "f406b7ea10d1e767c4efb4f5ffd8d5af09e41a2e2dac5b48890b665ccf7d6fd0",
+    "scripts/mission_process.py": "1e8ef085b5bac1571b995309f1c1a7b80d20e7f129507c8e755ad079ff6fa227",
+    "scripts/missions.py": "4116c662c899a2718561b56a3090fb4f612e554a5306117d1c3cf0f8d0dd5a91",
+    "tests/test_mission_sbx.py": "ebf3d15ac42d052fb66f3cdb8a26804fffa9456973e8046d6c5f4ff63dc768cb",
+    "scripts/mission_environment.py": "50d58e68121e670c9b7a1f5b18e2de2784fa8cd9b9d2d6b49d752df87da5548b",
+    "scripts/adoption_fs.py": "798d8e6653204f6498288683c6d1d487742e8fb0a2929c809e9b3c2279749dbe",
+    "scripts/adoption_acl.ps1": "93567c2cf3357d4f7672bca9040aada950df7daf57a7fc0df12490440dd03466",
+    "tests/test_execution_storage_diagnostics.py": "8f776ccc8445d57329b297b5d9974088f18882ce8e20e0789765d6d7949c2514"
+  },
+  "source_hash_scope": "current implementation; native local metadata preflight observed with these source versions; not runtime approval",
+  "operator_context": "local_desktop_preflight_passed",
+  "tests": {
+    "adapter_and_sandbox": {
+      "passed": 38
+    },
+    "process_supervisor": {
+      "passed": 11,
+      "skipped": 1
+    },
+    "full_suite": "interrupted_after_supervisor_observation_failure",
+    "mission_regressions": {
+      "total": 132,
+      "passed": 130,
+      "skipped": 1,
+      "errors": 1,
+      "error": "git_rev_parse_timeout_15s",
+      "isolated_recheck": "passed"
+    },
+    "final_storage_diagnostics": {
+      "passed": 7
+    },
+    "final_sbx": {
+      "passed": 17
+    },
+    "final_sandbox": {
+      "passed": 21
+    },
+    "private_temporary": {
+      "passed": 9,
+      "native_open_handle_acl": true,
+      "adapter_tests_passed": 17
+    },
+    "credential_session_classification": {
+      "passed": 18,
+      "native_docker_calls": 0,
+      "saved_receipt_offline_classification": "passed",
+      "sandbox_tests_passed": 21
+    }
+  },
+  "remote_storage_refusal": {
+    "error": "execution_storage_unprotected",
+    "cause_confirmed": true,
+    "correction_cycle": 2,
+    "remote_confirmation_pending": false,
+    "existing_permissions_changed": false,
+    "phase": "temporary_evidence",
+    "reason": "owner_mismatch",
+    "previous_receipt_bytes_unchanged": true,
+    "local_product_preflight": "passed",
+    "remote_product_storage": "passed"
+  },
+  "remote_credential_failure": {
+    "observed_at": "2026-10-07T04:46:36.100266+00:00",
+    "receipt_sha256": "b193757bd5029b19f3344e4c78c4e8e9ae2da4a2a2ae5dbf74602d9835f0a340",
+    "executable_sha256": "a2c8d68f3a16851a65e1d43f7330ae6860c5a2f07df8f22fab5dae7a4a232780",
+    "version": "0.46.0",
+    "failed_phase": "secret_inventory",
+    "exit_code": 1,
+    "stdout_bytes": 0,
+    "stderr_bytes": 127,
+    "stderr_sha256": "1f3d84920d9bb5b9d5b89c0052f3105723bb38e72014df1ee74c4361d44c20d8",
+    "original_reason": "command_failed",
+    "derived_reason": "credential_session_unavailable",
+    "derivation": "offline classification of captured stderr; receipt unchanged",
+    "remote_session_hint": true,
+    "windows_logon_type": null,
+    "numeric_win32_error_observed": null,
+    "credential_inventory_empty": null,
+    "daemon_observed": true,
+    "docker_changes": 0,
+    "model_calls": 0,
+    "historical_failures_attributed": false,
+    "next_action": "preflight in a Windows session with credential-set access; no repeat in the failed context",
+    "classifier_sources_sha256": {
+      "scripts/mission_sbx.py": "34a6fc595e35688da2477c0f8fa58c6d265b9578b2bfe51d15731d6db0088cb2",
+      "scripts/mission_sandbox.py": "e1cc66400fa33a45e944d233dd2452bacf0482bdca1dd26e2ce099ebd6063278",
+      "tests/test_mission_sbx.py": "17f478da49396c8048f46f8823a385167732ccbd67465c9e528626a487112458"
+    },
+    "classification_checked_at": "2026-10-07T04:54:35.465919+00:00",
+    "operator_reported_transport": "Termius over VPN",
+    "operator_reported_authentication": "SSH public key",
+    "password_ssh_support_verified": false,
+    "password_session_preflight_verified": false
+  },
+  "operator_local_preflight": {
+    "observed_at": "2026-10-07T05:01:55.478707+00:00",
+    "receipt_sha256": "47af9baec8cb8285eab6b82ff7b25cb75b73d42def46618636ba35208e764571",
+    "attachment_sha256": "1f65b603926ace18a5ca0701bfb4a5e64244a7c2656204d27713fb52983c0649",
+    "version": "0.46.0",
+    "executable_sha256": "a2c8d68f3a16851a65e1d43f7330ae6860c5a2f07df8f22fab5dae7a4a232780",
+    "query_count": 11,
+    "all_queries_observed": true,
+    "raw_evidence_hashes_verified": true,
+    "credential_inventory_empty": true,
+    "remote_session_hint": false,
+    "ready": true,
+    "effects_allowed": false,
+    "model_calls": 0,
+    "gaps": [
+      "runtime_profile_unverified"
+    ],
+    "scope": "operator local desktop metadata preflight; not OAuth or isolation acceptance",
+    "commands": [
+      {
+        "phase": "daemon_before",
+        "exit_code": 0,
+        "reason": "observed",
+        "elapsed_seconds": 0.659843
+      },
+      {
+        "phase": "secret_inventory",
+        "exit_code": 0,
+        "reason": "observed",
+        "elapsed_seconds": 0.606599
+      },
+      {
+        "phase": "sandbox_inventory",
+        "exit_code": 0,
+        "reason": "observed",
+        "elapsed_seconds": 0.797664
+      },
+      {
+        "phase": "setting_proxy_sandbox",
+        "exit_code": 0,
+        "reason": "observed",
+        "elapsed_seconds": 0.461175
+      },
+      {
+        "phase": "setting_no_proxy_sandbox",
+        "exit_code": 0,
+        "reason": "observed",
+        "elapsed_seconds": 0.427129
+      },
+      {
+        "phase": "setting_proxy",
+        "exit_code": 0,
+        "reason": "observed",
+        "elapsed_seconds": 0.963846
+      },
+      {
+        "phase": "setting_no_proxy",
+        "exit_code": 0,
+        "reason": "observed",
+        "elapsed_seconds": 0.4586
+      },
+      {
+        "phase": "setting_proxy_daemon",
+        "exit_code": 0,
+        "reason": "observed",
+        "elapsed_seconds": 1.235921
+      },
+      {
+        "phase": "setting_no_proxy_daemon",
+        "exit_code": 0,
+        "reason": "observed",
+        "elapsed_seconds": 0.462701
+      },
+      {
+        "phase": "setting_proxy_integratedAuth",
+        "exit_code": 0,
+        "reason": "observed",
+        "elapsed_seconds": 0.485247
+      },
+      {
+        "phase": "daemon_after",
+        "exit_code": 0,
+        "reason": "observed",
+        "elapsed_seconds": 0.455061
+      }
+    ]
+  },
+  "operator_local_preflight_repeat": {
+    "observed_at": "2026-10-07T05:12:29.887402+00:00",
+    "receipt_sha256": "d2bf83e67bfb3ce9b367d0d2215b46e7652ea775391f45c04125b0f2ce461633",
+    "attachment_sha256": "17a76626433903b8264ae34e90b5601867152fa0281bdf86104fd0938020acb3",
+    "query_count": 11,
+    "ready": true,
+    "effects_allowed": false,
+    "model_calls": 0,
+    "credential_inventory_empty": true,
+    "query_outputs_identical_to_first_operator_local_run": true,
+    "gaps": [
+      "runtime_profile_unverified"
+    ]
+  },
+  "candidate_preflight": {
+    "captured_at": "2026-10-07T05:29:25.894705+00:00",
+    "receipt_sha256": "3acd4bd3c0e4f08fcf12f797f8b6c1f0f65b1c76740e75553ae4ec0b5044b190",
+    "scope": "candidate_metadata",
+    "ready": true,
+    "effects_allowed": false,
+    "model_calls": 0,
+    "docker_mutations": 0,
+    "native_queries": 29,
+    "docker_queries": 27,
+    "windows_process_queries": 2,
+    "candidate": {
+      "id": "3a4a47a2-6dbd-4196-a7a8-a481f65bdd85",
+      "name": "yc-package-471e336723f7",
+      "image_digest": "sha256:3e6a380a46840656b9e724694ef2964e2d13471bc3dd0fe92ae66492217dfe2f",
+      "cpus": 2,
+      "memory_mib": 4096,
+      "mcp_gateway": true
+    },
+    "pending": [
+      "exclusive_use_reservation",
+      "daemon_log_capture",
+      "inner_candidate_identity",
+      "integrated_isolation_proof",
+      "authenticated_clients"
+    ],
+    "native_before_final_review_fixes": true,
+    "final_offline_verification": {
+      "verification": "offline_replay_of_native_capture",
+      "receipt_sha256": "3acd4bd3c0e4f08fcf12f797f8b6c1f0f65b1c76740e75553ae4ec0b5044b190",
+      "commands_replayed": 29,
+      "ready": true,
+      "effects_allowed": false,
+      "model_calls": 0,
+      "docker_commands_executed": 0,
+      "baseline_sha256": "21093df5fd7151a6ad0915847318daf5be46723f5f4a04d82de0ba8569bfbbda",
+      "source_sha256": {
+        "scripts\\mission_sbx.py": "e425f06c75ddc7b20d9bd374443adbde0caf3f2d02e1bfe6e996c258cd9bc83e",
+        "scripts\\mission_sandbox.py": "395f023523fc41d0e1d445b3bb0129e35b4c860e49a0f58fb29d06fae5ec8d45",
+        "scripts\\missions.py": "026550b795a2e06ef0e7fc666b688edb4e92ca6a44a1a7dfffae678b5de6635d"
+      }
+    },
+    "tests": [
+      {
+        "suite": "candidate-final-tests.log",
+        "passed": 29,
+        "log_sha256": "ab86c006102bcf670f8b3fa9102b72794ade821d1d1a5048bd8d3dbef9b01189"
+      },
+      {
+        "suite": "candidate-sandbox-tests.log",
+        "passed": 22,
+        "log_sha256": "4e8b40e3d94600061f1bdae1b98257de255b4d61cc1cf67a4968c6bbbd6e2d9b"
+      }
+    ],
+    "review": {
+      "agent": "storage_diagnostic_review",
+      "blocking_findings_remaining": 0
+    }
+  },
+  "restricted_relay": {
+    "checked_at": "2026-10-07T05:57:56.105408+00:00",
+    "scope": "local contracts and loopback sockets; no native isolation acceptance",
+    "tests": {
+      "total": 43,
+      "guardian": 17,
+      "launcher": 15,
+      "relay": 11,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 23.481,
+      "log_sha256": "7c59b8ed57f7a8cefaecc2a4568e72ef5fa70ba1efb5fb9f6f614300e0b3fa38"
+    },
+    "sources_sha256": {
+      "runtime/sbx/guardian.py": "136b00f154508180707e2353251796d0af142900c3bc5cb647c9416e36d5c2e1",
+      "runtime/sbx/launcher.py": "8ece607c94eb30940afbfaebccc7516e49a5a8313cd19c3e154f5d4f3b650906",
+      "runtime/sbx/relay.py": "c0bf304c53ed0b60014cf0dccee30283cc93c7f237efe04b670d1c258aa08316",
+      "runtime/sbx/youngcrow.dockerfile": "e2043b3bc9e8c8cf54ded5ddc0c916b32b3558c0ce05443f64f3ddf6d23cb7f9",
+      "tests/test_mission_guardian.py": "8114a1c154fa3a2120fe1cd136faaec0d70a40e81776a637a607a7ec32c3ac7b",
+      "tests/test_mission_launcher.py": "456344291189e620857b2499d8a95014ccfb187b43475f732f1101d4a70d5fe0",
+      "tests/test_mission_relay.py": "c7668899308db3240fffc1d479a97ab82ee6c29161375dede71d46e366ae6414"
+    },
+    "reviews": {
+      "agents": [
+        "audit_executor_foundations",
+        "storage_diagnostic_review"
+      ],
+      "resolved_findings": 4,
+      "remaining_findings": 0,
+      "scope": "read_only_increment"
+    },
+    "general_suite": {
+      "state": "interrupted_during_adoption",
+      "accepted": false,
+      "log_sha256": "701fb0b2f1e04e7be090bb805eca62f12196b96f711dfc8b448b5edee639e0c4",
+      "fixture_cleanup": "automatic_review_rejected_recursive_removal; private disposable fixture preserved"
+    },
+    "configuration_writes": 0,
+    "docker_commands": 0,
+    "model_calls": 0,
+    "native_trials": 0,
+    "correction_cycles_used": 2,
+    "candidate_rebuilt": false,
+    "real_tls_verified": false,
+    "linux_firewall_verified": false,
+    "authenticated_clients_proven": false,
+    "runtime_profiles_enabled": false,
+    "pending": [
+      "exclusive_reservation",
+      "post_docker_destination_guard",
+      "candidate_package_and_digest",
+      "integrated_A_B_A2",
+      "recovery",
+      "authenticated_claude_and_codex",
+      "adoption"
+    ],
+    "verification": {
+      "vault_notes": 407,
+      "vault_issues": 0,
+      "git_diff_check": "passed",
+      "test_processes_remaining": 0
+    }
+  },
+  "shared_reservation_and_egress": {
+    "checked_at": "2026-10-07T06:23:41.422043+00:00",
+    "scope": "internal reservation and destination transport; environment status and setup; no native Docker acceptance",
+    "tests": {
+      "total": 74,
+      "reservation": 13,
+      "destination_guard": 8,
+      "adapter": 29,
+      "sandbox": 22,
+      "setup": 2,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 65.004,
+      "log_sha256": "a16d82eae02bc117c36914dbcd5b7063fbd425d35b0caba2550bbce97f454a12"
+    },
+    "sources_sha256": {
+      "scripts/mission_execution.py": "7663eb7c1f4156e66d9c97277fc9a62a7d0b6de2c95da1f108e56ed126975ffd",
+      "scripts/mission_egress.py": "20b27afc0186a2f9c2a610afdb7b4c1ce58a7253eaa6f2e23a475795a9f27928",
+      "scripts/mission_sandbox.py": "44756ecbf3c3806159962743bd8e1d3f7b37560d72f99c98c1af3376d3ba3858",
+      "setup.sh": "7b2312eae4573fe9186555c8f2c3864da2919b6a6825ff1bec8689da3fe5d388",
+      "tests/test_mission_execution.py": "58a497e35ead5719369b50bc0f0a95fd63281509f8f080be2f83a92ad5db1168",
+      "tests/test_mission_egress.py": "c8bd851231d89dcb02ba15fa4b4f1a43db76bb7be334ca9d350ee2e4e587784f",
+      "tests/test_setup.py": "8d8876a6001e523769d1b8a32f0f9d8c53ce8adcaa6dc433c8f62967c32334cd"
+    },
+    "reviews": {
+      "agents": [
+        "storage_diagnostic_review",
+        "exclusive_egress_review"
+      ],
+      "resolved_findings": 2,
+      "remaining_findings": 0,
+      "scope": "read_only_increment"
+    },
+    "additional_regressions": [
+      "storage_inspection_timeout_sanitized",
+      "arbitrary_exception_text_not_emitted"
+    ],
+    "native_windows_permissions_fixture": true,
+    "real_user_store_created": false,
+    "configuration_writes": 0,
+    "docker_commands": 0,
+    "external_requests": 0,
+    "model_calls": 0,
+    "native_trials": 0,
+    "correction_cycles_used": 2,
+    "runtime_profiles_enabled": false,
+    "pending": [
+      "supervised_launcher_event_channel",
+      "durable_phase_dispatch",
+      "native_restore_and_reservation_close",
+      "candidate_package_and_digest",
+      "integrated_A_B_A2",
+      "authenticated_claude_and_codex",
+      "adoption_acceptance"
+    ],
+    "verification": {
+      "vault_notes": 407,
+      "vault_issues": 0,
+      "git_diff_check": "passed",
+      "native_test_run_finished": true,
+      "empty_fixture_roots_removed": 4
+    }
+  }
+}

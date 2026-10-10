@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-04T20:11:57.913973+00:00",
+  "status": "partial_R1",
+  "sbx_version": "0.46.0",
+  "host": "Windows 11 AMD64",
+  "engine_version": "29.8.1",
+  "python": "3.14.4",
+  "vm_image_digest": "sha256:5bbe8539825fe1cace6dda2fb66919ef819324d905bea2795b8516aee0198222",
+  "inner_image_digest": "sha256:3d93d69beb5b52ad1a190de216179df2b9be9df34d041a1d118c297b13cc951b",
+  "model_calls": 0,
+  "native_profiles": [],
+  "linux_unit_tests": 6,
+  "source_sha256": {
+    "runtime/sbx/launcher.py": "d58ca1a32557d0e04c5bf69e43b79066e7cc024d2501dc45ba3dcf18f9b74b7d",
+    "runtime/sbx/guardian.py": "a2dd03e7e379f77292c9ea79040b63c50bcd7c2c767f3273715332c1d0d651a3",
+    "tests/test_mission_launcher.py": "a8ebc8c587c4e19860737f9dfa4a350714482cf0ca92eff7810a551427895c1a",
+    "tests/smoke_mission_launcher.py": "90223218807d3c5fcf6a05c1e4dcb3706bd3f72cdde61caaef0fa1128c731a07"
+  },
+  "cases": [
+    {
+      "mode": "complete",
+      "elapsed_seconds": 0.678417,
+      "exit_code": 0,
+      "final_pid": 0,
+      "running": false,
+      "repeated_start": "refused_without_start",
+      "assertions_passed": true
+    },
+    {
+      "mode": "deadline",
+      "elapsed_seconds": 5.070303,
+      "exit_code": 124,
+      "final_pid": 0,
+      "running": false,
+      "repeated_start": "refused_without_start",
+      "assertions_passed": true
+    },
+    {
+      "mode": "transport-loss",
+      "elapsed_seconds": 0.552391,
+      "exit_code": 125,
+      "final_pid": 0,
+      "running": false,
+      "repeated_start": "refused_without_start",
+      "assertions_passed": true
+    }
+  ],
+  "kit": {
+    "built": false,
+    "validation": "v3 load path has no builder configured",
+    "default_builder_memory": "8192m",
+    "host_maximum": "5.765GiB",
+    "explicit_builder_memory": "4g",
+    "explicit_builder_create_exit": 0,
+    "startup_warning_exit": 32,
+    "kernel": "7.0.14",
+    "binfmt_registered": false,
+    "binfmt_config": "m",
+    "modules_directory": false,
+    "final_state": "stopped",
+    "source_sha256": {
+      ".dockerignore": "2aa65063da3b58f9ae5c4c7a3e1beae67f783ed4a6a16125a3adde8d2db40d89",
+      "youngcrow.yaml": "b3c36ff6a3401ceb66d4f5f1bdb0b664b4aae70345c866dd5dc8453987a5d997",
+      "youngcrow.dockerfile": "075c5b56c4404c5f03a33eee7161ca3a00f6c689954cf87c9eb1b9a3d8a35656"
+    },
+    "candidate_inspection": {
+      "checked_at": "2026-10-04T21:00:23.809582+00:00",
+      "version": "0.47.0-rc2",
+      "prerelease": true,
+      "installed": false,
+      "asset_url": "https://github.com/docker/sbx-releases/releases/download/v0.47.0-rc2/DockerSandboxes.msi",
+      "msi_sha256": "7ad0234090622d8407d67836b47de8a0ccbb6863feb953090d6c6f1bbb76b6be",
+      "kernels": [
+        {
+          "artifact": "installed",
+          "sha256": "ee7877107ca754b22ef37e455293ff05edc87fac2a204d9630621ba3f3440916",
+          "bytes": 36993544,
+          "binfmt": [
+            "CONFIG_BINFMT_MISC=m"
+          ]
+        },
+        {
+          "artifact": "candidate",
+          "sha256": "ee7877107ca754b22ef37e455293ff05edc87fac2a204d9630621ba3f3440916",
+          "bytes": 36993544,
+          "binfmt": [
+            "CONFIG_BINFMT_MISC=m"
+          ]
+        }
+      ],
+      "identical_kernel": true,
+      "rootfs_sha256": "0e0aaa048dd13a260ba4f8c01f7f1302476fcc740aea24c00ee34e18e6a8c294",
+      "rootfs_inspection": "inconclusive: unsupported by 7-Zip; read-only mount failed to set up loop device",
+      "compatibility": "not_established",
+      "sbom_subject": "sandboxes-v0.47.0-rc2.windows-amd64.tar.gz",
+      "builder_digest": "sha256:4ec245bdff7f7b5f923a31175dab0501d020a6b5b213e35e2b23d442ccb5cd07"
+    },
+    "subsequent_build_evidence": "native-kit-build.json"
+  },
+  "mcp": {
+    "amendment": "approved",
+    "outer_gateway": true,
+    "client_isolation_proven": false
+  },
+  "pending": [
+    "official builder compatibility and reproducible package",
+    "provider networking and denied sentinels",
+    "MCP inaccessibility with provider networking",
+    "active daemon restart and whole-host suspension",
+    "R2 reservation/reconciliation",
+    "OAuth and authenticated Claude/Codex diagnostics"
+  ],
+  "windows_suites": [
+    {
+      "suite": "test_mission_sandbox.py",
+      "exit_code": 0,
+      "tests": 17,
+      "skipped": 0
+    },
+    {
+      "suite": "test_mission_launcher.py",
+      "exit_code": 0,
+      "tests": 6,
+      "skipped": 0
+    },
+    {
+      "suite": "test_mission_guardian.py",
+      "exit_code": 0,
+      "tests": 9,
+      "skipped": 0
+    },
+    {
+      "suite": "test_missions.py",
+      "exit_code": 0,
+      "tests": 27,
+      "skipped": 0
+    },
+    {
+      "suite": "test_capabilities.py",
+      "exit_code": 0,
+      "tests": 23,
+      "skipped": 1
+    }
+  ],
+  "vault_notes_checked": 241,
+  "vault_issues": [],
+  "full_repository_suite": "not_run_this_checkpoint",
+  "host_loss_probe": {
+    "measured_at": "2026-10-04T21:00:23.809582+00:00",
+    "deadline_seconds": 5,
+    "cases": [
+      {
+        "mode": "transport-loss",
+        "deadline_ms": 1791147410946,
+        "started_at": "2026-10-04T20:56:46.7685508Z",
+        "finished_at": "2026-10-04T20:56:47.355054Z",
+        "lifetime_seconds": 0.586504,
+        "exit_code": 125,
+        "final_pid": 0,
+        "running": false,
+        "ended_before_deadline": true,
+        "repeated_start": "refused_without_start",
+        "transport_alive_before_cleanup": false,
+        "private_receipt_sha256": "800232e01fafc534d6f5593c49b53567000da018b8b414445c4f16c84379e587"
+      },
+      {
+        "mode": "coordinator-loss",
+        "deadline_ms": 1791147419505,
+        "started_at": "2026-10-04T20:56:55.2029717Z",
+        "finished_at": "2026-10-04T20:56:55.6388055Z",
+        "lifetime_seconds": 0.435834,
+        "exit_code": 125,
+        "final_pid": 0,
+        "running": false,
+        "ended_before_deadline": true,
+        "repeated_start": "refused_without_start",
+        "transport_alive_before_cleanup": false,
+        "private_receipt_sha256": "577b9cc7841f3eb8e3e8734010dbb4ea23589b3bce5c009e0459a03a2d0cff66"
+      }
+    ],
+    "model_calls": 0,
+    "experiment_sha256": "444064d9b9bf52c81340d962b5cf1eb85bdc14b4dd2c62cc3dfeeb1a3630b5c1",
+    "scope": "manual unpaid Windows host process failure; not SQLite recovery, daemon restart or suspension",
+    "verification": {
+      "vault_notes": 244,
+      "vault_issues": 0,
+      "public_links": 244,
+      "source_hashes": 7,
+      "owned_vms_stopped": 3,
+      "full_suite_rerun": false,
+      "production": "not_published"
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "checked_at": "2026-10-06T04:13:08.991189+00:00",
+  "status": "controller_integration_verified_offline",
+  "tests": {
+    "aggregate": 106,
+    "passed": 106,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "integration_cases": 15,
+    "command": "python -B -m unittest discover -s .superpowers/sdd/2026-10-04-isolated-executor -p 'test_*egress.py' -v"
+  },
+  "review": {
+    "critical": 0,
+    "important": 2,
+    "minor": 0,
+    "original_verdict": "requires_fixes",
+    "important_resolved_by_regression": 2,
+    "second_review": false
+  },
+  "coverage": [
+    "existing run_native A/B/A2 and cleanup with external fixtures",
+    "absent refusal stops before A2 and reaches cleanup",
+    "durable control/evidence references",
+    "consumed operation and phase refuse replay",
+    "recovery does not dispatch or capture",
+    "daemon transition cause preserved",
+    "interrupted A2 postcheck remains inconclusive after recovery"
+  ],
+  "fixtures": {
+    "b_event": "preserved real Windows daemon event",
+    "positive_replies": "synthetic",
+    "policy_snapshots": "synthetic",
+    "docker_and_cleanup": "mocked"
+  },
+  "effects": {
+    "native_operation_created": false,
+    "docker_commands": 0,
+    "external_requests": 0,
+    "daemon_restarts": 0,
+    "executor_model_calls": 0,
+    "product_profiles_enabled": false
+  },
+  "preserved": {
+    "old_bundle": true,
+    "old_native_receipts": true,
+    "old_native_verdict": "inconclusive",
+    "native_a2_executed": false
+  },
+  "artifacts_sha256": {
+    "integrated_egress.py": "3a5a6f365c3cef6dc18437b278c8a068b3eeb138aaf51467f7571918ac65b62b",
+    "test_integrated_egress.py": "7c226217284a76cd55b8a145493203446220d76636da132640cd915fa6d0d3a6",
+    "integrated-egress-red.log": "d5f4c4ff4fb1fe4d2beb7d34fcbba9cbcc1098bd1832e0b1797ccbc52d8aae99",
+    "integrated-egress-postcheck-red-confirmed.log": "9b6c35cfe8ad295d6ee964a9ed491f7c46374bd5653e1924964d4c81bf6cd9dd",
+    "integrated-egress-review-red.log": "3b9551a34afd2093c65e3db3991bb583cec3c7b9b0f6791d7d4efd2e14b4d1f3",
+    "integrated-egress-suite-final.log": "afa6532497f7c59434fb054ec0a0a3074716f288235d5878ed9e5943f61ef906",
+    "integrated-egress-review.md": "cd283cf224c5b2b1b166c10fb44e6d82aca4a54a80bf7fcb3b20d7d4e629a415"
+  },
+  "next_step": "Prepare a separately bounded native A/B/A2 entry with final hashes; native acceptance remains pending.",
+  "documentation": {
+    "local_file_links": 414,
+    "readme_visuals": 52,
+    "readme_visuals_unchanged": true,
+    "vault_notes": 351,
+    "vault_issues": 0
+  }
+}

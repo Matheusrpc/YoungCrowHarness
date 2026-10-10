@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "front": "YC-206 partial",
+  "base_commit": "8897bb98e16b595785f4c02462b9d160c27a6fcb",
+  "scope": "restricted_pm_priority_proposal",
+  "model_calls": 0,
+  "docker_calls": 0,
+  "store_schema_changed": false,
+  "tests": {
+    "focused": {
+      "passed": 10,
+      "seconds": 10.489
+    },
+    "egress": {
+      "passed": 21,
+      "seconds": 4.993
+    },
+    "full_suite": {
+      "state": "passed",
+      "total": 750,
+      "passed": 730,
+      "skipped": 20,
+      "failed": 0,
+      "seconds": 534.883
+    }
+  },
+  "installed_smoke": {
+    "client": "both",
+    "modes": [
+      "new",
+      "existing"
+    ],
+    "passed": true,
+    "trial_restored": true,
+    "restricted_priority": true,
+    "read_only_preview": true,
+    "scope_preserved": true,
+    "model_calls": 0
+  },
+  "review": {
+    "remaining_material_findings": 0
+  },
+  "catalog": {
+    "affected_capabilities": 5,
+    "changed_contracts": 1,
+    "changed_content_hashes": 10,
+    "permissions_unchanged": true
+  },
+  "windows_base_ci": {
+    "pr_run": 38057222872,
+    "state": "failed",
+    "reason": "WinError32 during fixture cleanup",
+    "same_step_passed_in_push_run": 38057219087,
+    "production_supervision_changed": false,
+    "new_ci_confirmation": "pending"
+  },
+  "markdown_paths": {
+    "local_paths_checked": 546,
+    "missing": []
+  },
+  "vault_check": {
+    "schema_version": 1,
+    "notes_checked": 63,
+    "issues": []
+  },
+  "code_sha256": {
+    "scripts/missions.py": "8e0a93210246837123ee1f1dea4d661c6762e47d9a28b5867af24840f7b91f5d",
+    "tests/test_mission_priority.py": "09ee0829840918410d4b526e5403bd708d1736c6a1a41ebd05e77ca4651b9a2d",
+    "tests/smoke_mission_foundation.py": "a7a705a36c00ebe0a267561bedee550bce3ac496ef137756c9d7bb61021c289e",
+    "tests/test_mission_egress.py": "224189378b1c1959ae99842b1e991128a76bf82ca67a7bd4298faefe4878efbd"
+  },
+  "evidence_sha256": {
+    ".runtime/priority-red.log": "b870e83b4a0f120ec9f0f2a8fec33a6cdce1efb534b1276505ca57e5c5d914c5",
+    ".runtime/priority-focused.log": "e7e736d9996b9b4e0f3e5b50cf019dbf6d5aa87a0fd9544ac979371daf389db2",
+    ".runtime/priority-egress.log": "6031567788956269a5f258cb970cc49a8d2a1758b5edea18e7de4f2c4cb30ff1",
+    ".runtime/priority-installed.log": "c6de97b53ae89c362d01d645eccf6e22a2832b41cccbfc811151ae6579f25b85",
+    ".runtime/priority-full.log": "d45f6e8b44f7c4615f0bd03b63be12ed95cffdcc40c97f4b55310a8efaa2f334",
+    ".runtime/priority-base-ci.json": "eb6c589e39305676a54dc8d3a6ee483f0173a52655a873729701c26b5d3d10c9"
+  }
+}

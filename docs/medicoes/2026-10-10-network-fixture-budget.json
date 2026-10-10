@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "front": "Windows CI network fixture budget",
+  "base_commit": "44cd90fc9e0afbaa8f6717f41962d7346aa4658e",
+  "product_changed": false,
+  "model_calls": 0,
+  "docker_calls": 0,
+  "native_client_calls": 0,
+  "fixture_watchdog_seconds": {
+    "before": 15,
+    "after": 30
+  },
+  "plan_seconds_unchanged": 30,
+  "reproduction": {
+    "delay_seconds": 16,
+    "before": {
+      "state": "timeout",
+      "elapsed_seconds": 15.376318,
+      "tree_reaped": true
+    },
+    "after": {
+      "state": "completed",
+      "exit_code": 0,
+      "elapsed_seconds": 18.222804,
+      "tree_reaped": true,
+      "journal_events": 30,
+      "network_events": 21,
+      "recovered": true
+    }
+  },
+  "tests": {
+    "network": {
+      "total": 28,
+      "passed": 28,
+      "skipped": 0,
+      "seconds": 13.347
+    },
+    "process": {
+      "total": 12,
+      "passed": 10,
+      "skipped": 2,
+      "seconds": 6.92
+    },
+    "full_suite": "not_repeated_for_test_only_change"
+  },
+  "review": {
+    "remaining_material_findings": 0
+  },
+  "code_sha256": {
+    "tests/test_mission_network.py": "79a063a92f3a44a2a60f6760ad71989115bc2fafec4b62c292ad9d904477f5f7"
+  },
+  "evidence_sha256": {
+    ".runtime/probe-network-budget.py": "6b729f215a520b62369adfbf71be81d15be4e10a0053d3f3c5174d54ce77ff58",
+    ".runtime/network-budget-red.log": "68303cdbb6fb7bfa0d2941988e4176804a69545ca4923a8011a6c34079d66416",
+    ".runtime/network-budget-green.log": "e3b8c36b9aadb7c674070e5344ff5df9221cd994e5f7c69e65ee6de7e184c938",
+    ".runtime/network-budget-network.log": "8b02b88212ef5171df87898d034df23ba861e60d27755360f36a987f21defd19",
+    ".runtime/network-budget-process.log": "44e706853d4074bbc82e0ca5841672a55d403f2893d027db8c7cc8cc1e75a670",
+    ".runtime/windows-44cd-job.log": "1ff1356e876dc2d208c3ecc331637c0450a9ea336b7b71f57d4fa6c0b09ed65c",
+    ".runtime/windows-44cd-job.json": "fa7e505558cc442c05ce7cb7032ff42d3b3db786c055b156ba3dd28c57714927",
+    ".runtime/windows-44cd-pr-job.json": "1e951cbdd9635c096feecd292f7d918e4019e0855c22a807f1538aa802ff20ff",
+    ".runtime/next-44cd-ci.json": "a0f4925a2c76df60fad3c416baaaae61817d89b7abd85b355281a2242ae1a544"
+  },
+  "markdown_paths": {
+    "local_paths_checked": 558,
+    "missing": []
+  },
+  "vault_check": {
+    "schema_version": 1,
+    "notes_checked": 67,
+    "issues": []
+  }
+}

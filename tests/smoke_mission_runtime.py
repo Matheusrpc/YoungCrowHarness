@@ -43,6 +43,17 @@ def runtime_smoke(root, client):
     outcomes = []
 
     def exercise(project, case, env, mission_id):
+        before_environment = {p.relative_to(project).as_posix(): p.read_bytes()
+                              for p in project.rglob('*') if p.is_file()}
+        environment = json.loads(run([sys.executable, '-B', 'scripts/missions.py', 'client',
+                                      'environment', '--executable', str(project / 'missing-sbx.exe'),
+                                      '--json'], env=env, cwd=project, expected=1))
+        check({'runtime_missing', 'runtime_profile_unverified'} <= set(environment['gaps']),
+              'environment_false_ready')
+        check(environment['profile_ids'] == [], 'environment_enabled_profile')
+        after_environment = {p.relative_to(project).as_posix(): p.read_bytes()
+                             for p in project.rglob('*') if p.is_file()}
+        check(before_environment == after_environment, 'environment_wrote_project')
         manifest = dict(schema_version=1, mission_id=mission_id, mission_revision=1, role='pm',
                         operation_id=str(uuid.uuid4()), authorization_ref='Authorized deterministic adoption smoke',
                         agent_seconds=60, max_runs=1, api_budget_usd=None, fixture_id='echo-v1')
@@ -83,6 +94,13 @@ def runtime_smoke(root, client):
         manifest.update(operation_id=str(uuid.uuid4()), agent_seconds=5)
         timeout = check_client('child', expected=1)
         check(timeout['state'] == 'uncertain' and timeout['reason'] == 'timeout', 'timeout_not_enforced')
+        before_status = {p.relative_to(project).as_posix(): p.read_bytes()
+                         for p in (project / 'vault').rglob('*') if p.is_file()}
+        blocked = json.loads(run([sys.executable, '-B', 'scripts/missions.py', '--json', 'status', mission_id], env=env, cwd=project))
+        check(blocked['next_action'] == 'review_reconciliation' and not blocked['check_available'], 'status_missed_reconciliation')
+        check(blocked['blocking_runs'][0]['run_id'] == timeout['id'], 'status_changed_run_identity')
+        check(before_status == {p.relative_to(project).as_posix(): p.read_bytes()
+                                for p in (project / 'vault').rglob('*') if p.is_file()}, 'status_wrote_project')
         reconcile(timeout)
         manifest.update(operation_id=str(uuid.uuid4()), agent_seconds=60)
         invoke('coordinator-crash', expected=9)
@@ -101,7 +119,7 @@ def runtime_smoke(root, client):
         check(not status['runnable'] and status['check_available'], 'mission_execution_enabled')
         outcomes.append(dict(mode=case, diagnostic='succeeded', replay='same_run', dispatches=1,
                              read_only=True, timeout='uncertain', crash='uncertain', reconciliation='interrupted',
-                             runtime_available=False))
+                             runtime_available=False, environment='read_only_unverified'))
 
     return dict(mission_smoke(root, client, extra_check=exercise), diagnostics=outcomes)
 

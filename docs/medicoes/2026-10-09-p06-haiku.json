@@ -1,0 +1,50 @@
+{
+  "operation_id": "4c9999a6-8c3a-4ec7-abc8-b187360d0b35",
+  "evidence_kind": "operator_supplied_selected_receipt_and_events",
+  "recorded_at": "2026-10-09T20:57:44.170418+00:00",
+  "state": "failed",
+  "native_prompt_count": 1,
+  "supervision": {
+    "reason": "completed",
+    "exit_code": 1,
+    "tree_reaped": true,
+    "effect_started": true,
+    "elapsed_seconds": 4.102774,
+    "started_at": "2026-10-09T20:52:21.547313+00:00",
+    "ended_at": "2026-10-09T20:52:25.650902+00:00"
+  },
+  "temporary_credential_removed": true,
+  "original_auth_unchanged": true,
+  "error": "execution_not_successful",
+  "observed_initialization_model": "claude-haiku-5-5",
+  "terminal": {
+    "type": "result",
+    "subtype": "success",
+    "is_error": true,
+    "result": "Failed to authenticate: OAuth session expired and could not be refreshed",
+    "usage": {
+      "input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "output_tokens": 0
+    }
+  },
+  "inference_acceptance_confirmed": false,
+  "oauth_refresh_failure_cause": "unknown",
+  "retry_authorized": false,
+  "front": "P06 Haiku OAuth failure",
+  "code_revision": "6481a9174070e9c2fbc65fc66950381089136758",
+  "setup_sha256": "cd0d823117287399cb2db5fe88abf6f94f9db7b9a3f91790364fe27bc2a5cd79",
+  "source_note": "Run details reported directly by operator in chat; full raw events not received",
+  "prior_preparation": {
+    "operator_attachment_sha256": "c64ccbfb63b21a1ec1f2c18f052081d0f30770ee265ca723477f9b022cabc1ae",
+    "bytes": 5875,
+    "state": "prepared_no_model_prompt",
+    "native_prompt_count": 0,
+    "elapsed_seconds": 2.842149,
+    "temporary_credential_removed": true,
+    "original_auth_unchanged": true
+  },
+  "runner_modified": false,
+  "new_model_call_from_cloud": false
+}

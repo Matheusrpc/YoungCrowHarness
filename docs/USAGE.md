@@ -11,16 +11,38 @@ detalha decisões, pausas e retomada.
 See the [usage diagrams](../README.md#process-en) for new projects, adoption, daily work, source intake and memory retrieval.
 The [complete process](PROCESS.md#english) includes decisions, pauses and resumption.
 
+Para continuar o desenvolvimento do executor na cloud, use a branch `feat/isolated-executor`
+e leia o [contexto de transição](HANDOFF-CLOUD-2026-10-07.md). Credenciais e estado operacional
+não acompanham o clone. Os perfis de execução continuam bloqueados até as provas pendentes.
+O [registro da publicação cloud](relatorios/2026-10-07-cloud-publication.md) identifica
+o checkpoint anterior enviado ao PR #24. O [incremento de reserva e recuperação](relatorios/2026-10-07-reservation-recovery.md)
+registra o estado atual e a próxima task 203.6.
+
+To continue executor development in the cloud, use branch `feat/isolated-executor` and read the
+[handoff](HANDOFF-CLOUD-2026-10-07.md). Credentials and operational state are not part of the clone.
+Execution profiles remain blocked until the pending proofs pass.
+The [cloud publication record](relatorios/2026-10-07-cloud-publication.md) identifies
+the previous checkpoint pushed to PR #24. The [reservation/recovery increment](relatorios/2026-10-07-reservation-recovery.md)
+records current scope and the next task, 203.6.
+
 [Abra a demonstração](https://matheusrpc.github.io/YoungCrowHarness/) ou siga o [roteiro do piloto](../examples/delivery-board/README.md), que reúne esses percursos em um exemplo com
 vault próprio. A página e os filtros foram verificados localmente, incluindo teclado e tela estreita.
 O roteiro explica início do zero, migração e saída; os dois consumidores passaram pela prova de retorno no Windows e no Linux.
-A [prova de retomada](relatorios/2026-10-03-public-pilot.md) passou no Codex; Claude aguarda renovação de login.
+A retomada passou no Codex e foi [confirmada no Claude](relatorios/2026-10-09-p06-offline-review.md) em uma
+sessão Haiku. O verificador original recusou a navegação; a reavaliação
+offline dos mesmos arquivos passou com a correção e a revisão do conteúdo.
+O recibo original permanece intacto. P06 está verificado no piloto; não é preciso
+repetir o teste. O [guia](P06-CLAUDE.md) conserva o histórico e os limites.
 O README do exemplo explica como gerar e servir somente o pacote permitido, em um destino novo.
 
 [Open the demonstration](https://matheusrpc.github.io/YoungCrowHarness/) or follow the [pilot recipe](../examples/delivery-board/README.md), which brings these paths together in an example
 with its own vault. The page and filters were checked locally, including keyboard navigation and a narrow viewport.
 The recipe covers a new project, migration and exit; both consumers passed restoration on Windows and Linux.
-The [retrieval proof](relatorios/2026-10-03-public-pilot.md) passed in Codex; Claude needs a renewed login.
+Retrieval passed in Codex and was [confirmed in Claude](relatorios/2026-10-09-p06-offline-review.md) in one
+Haiku session. The original verifier rejected navigation; offline
+re-evaluation of the same files passed with the fix and semantic review.
+The original receipt remains intact. Pilot P06 is verified; no repeat is needed.
+The [guide](P06-CLAUDE.md) preserves the history and limits.
 The example README explains how to build and serve only the allowed package, using a new destination.
 
 Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;
@@ -74,6 +96,13 @@ Hashes verify bytes, not human approval. Applying changes follows the operator's
 <a id="portugues"></a>
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Antes de começar
+
+O [tutorial animado](media/youngcrow-guide/README.md) preserva o percurso de 118 segundos
+da instalação à missão preparada e acrescenta três minutos de um agente de atendimento de clínica fictício,
+com features, vault e troca manual Codex/Claude. Há layouts horizontal e vertical e uma
+transcrição com comandos. As telas encenadas não substituem as condições e verificações deste guia.
+
+Downloads em MP4: [16:9](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4) e [9:16](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4), ambos com 4min58s.
 
 <a id="adocao-reversivel-pt"></a>
 
@@ -247,13 +276,32 @@ Execute uma instalação por destino de cada vez. O preflight recusa links em ca
 
 **Trocar de cliente:** finalize ou registre o estado da frente, encerre o escritor atual e abra o outro cliente no mesmo projeto. Peça que leia `AGENTS.md`, `CLAUDE.md` e o relato atual. Não opere dois escritores no mesmo checkout.
 
-O teste opcional `tests/smoke_clients.py` usa os clientes reais com configuração temporária: valida descoberta de skills/hooks/configuração no Codex e leitura de MCP pendente de aprovação no Claude. Não executa uma conversa de modelo, plugins reais ou chamadas MCP. Rode com Python 3.11+ e os caminhos dos executáveis:
+O teste opcional `tests/smoke_clients.py` usa os clientes reais com configuração temporária: valida descoberta de skills/hooks/configuração no Codex e leitura de MCP pendente de aprovação no Claude. O modo completo inclui uma requisição Codex à fixture de modelo em loopback, sem fornecedor pago, plugins reais ou chamadas MCP. Rode com Python 3.11+ e os caminhos dos executáveis:
 
 ```bash
 python3 tests/smoke_clients.py --codex /caminho/codex --claude /caminho/claude
 ```
 
 No Windows, use os `.exe` reais, não os wrappers `.ps1`/`.cmd` do npm. O teste termina seus processos e mantém sua configuração pessoal fora da fixture.
+
+
+Para conferir só a descoberta das quatro skills de missão em um cliente, sem enviar
+prompt, use um caminho novo para o recibo. A pasta de destino deve existir:
+
+```bash
+python3 -B tests/smoke_clients.py --discovery-only --codex /caminho/codex --report .runtime/descoberta-codex.json
+```
+
+Para Claude, troque `--codex` por `--claude` e indique o executável nativo. Também
+é possível fornecer ambos; a sequência para na primeira falha. O cliente omitido
+fica `not_run`. Um recibo existente é preservado e impede repetir esse comando
+sobre o mesmo arquivo. O resultado registra versão, plataforma, hash do binário,
+nomes encontrados e hashes das quatro skills e suas entradas instaladas.
+`passed` comprova descoberta, não aplicação em uma missão. O teste usa um consumidor
+e perfil temporários, sem copiar seu login. [Codex/Linux e Claude/Windows passaram](relatorios/2026-10-09-client-skill-discovery.md).
+YC-011 continua parcial pela aplicação nativa pendente.
+Para o PC Windows usado na prova P06, siga o [preparo e a consulta sem prompt](YC011-CLAUDE-DISCOVERY.md).
+O roteiro usa uma cópia nova e preserva os recibos anteriores.
 
 <a id="operar-pt"></a>
 
@@ -631,6 +679,18 @@ git diff --check
 
 Os testes usam Git local e simulam chamadas de rede/plugins, com um diretório de usuário temporário. Não acessam MCPs reais. Veja a [matriz de verificação](../README.md#verificacao).
 
+<a id="ci-fixture-diagnostics"></a>
+
+Nos testes de egress executados com `GITHUB_ACTIONS=true`, exceções antes do recibo
+normal geram uma anotação `fixture`. O campo `reason` informa a última etapa alcançada:
+`fixture_setup`, `fixture_supervise` ou `fixture_cleanup`. `failure` publica uma
+categoria permitida ou `other`; nunca a mensagem, traceback ou caminho. Se o supervisor
+já retornou, seus estados e contagens permitidos acompanham a anotação.
+Uma exceção durante a saída do contexto pode substituir outra anterior: a etapa não
+determina a causa. O teste continua falhando; erro de escrita da anotação não substitui
+a exceção da fixture. Sem `GITHUB_ACTIONS=true`, não há anotação adicional.
+[Prova e limites](relatorios/2026-10-10-ci-fixture-diagnostics.md).
+
 <img src="../assets/vidro.svg" alt="" width="100%">
 
 <a id="protection-pt"></a>
@@ -778,6 +838,13 @@ passe o `.exe`, não o lançador `.ps1` ou `.cmd`. Resultado pendente retorna 2;
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Before you start
 
+The [animated tutorial](media/youngcrow-guide/README.md) preserves the 118-second introduction
+and adds a three-minute fictional clinic reception agent example, including features, the vault and a manual
+Codex/Claude handoff. It is in Portuguese, with landscape and portrait layouts and copyable
+commands. The staged screens do not replace the conditions and checks in this guide.
+
+MP4 downloads: [16:9](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4) and [9:16](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4), each lasting 4min58s.
+
 <a id="reversible-adoption-en"></a>
 
 Use `--trial` on first setup to save the pre-adoption state. The initial profile covers regular files, empty directories
@@ -916,7 +983,26 @@ Claude marketplace plugins are installed when `claude` is available, unless `--n
 
 When switching clients, save the workstream state, end the current writer, then ask the next client to read `AGENTS.md`, `CLAUDE.md` and the current report. Use one writer per checkout.
 
-Optional real-client check (Python 3.11+): `python3 tests/smoke_clients.py --codex /path/to/codex --claude /path/to/claude`. On Windows use actual `.exe` files. It checks Codex skill/hook/config discovery and Claude MCP configuration pending approval, in temporary configuration. It makes no model calls or MCP connections, does not run real plugins, and terminates its processes.
+Optional real-client check (Python 3.11+): `python3 tests/smoke_clients.py --codex /path/to/codex --claude /path/to/claude`. On Windows use actual `.exe` files. It checks Codex skill/hook/config discovery and Claude MCP configuration pending approval, in temporary configuration. Its full mode includes one Codex request to a loopback model fixture, with no paid provider, real plugin execution or MCP connection; it terminates its direct processes.
+
+
+To check only the four mission skills in one client without sending a prompt, use
+a new receipt path whose parent directory already exists:
+
+```bash
+python3 -B tests/smoke_clients.py --discovery-only --codex /path/to/codex --report .runtime/codex-discovery.json
+```
+
+For Claude, replace `--codex` with `--claude` and supply the native executable.
+Both may be supplied; the sequence stops at the first failure. An omitted client
+is `not_run`. Existing receipts are preserved and cannot be overwritten. The receipt
+records version, platform, executable hash, discovered names and hashes of the four
+skills and their installed entries. `passed` proves discovery, not application in
+a mission. The disposable consumer/profile does not copy personal login data.
+[Codex/Linux and Claude/Windows passed](relatorios/2026-10-09-client-skill-discovery.md).
+YC-011 remains partial because native application is still pending.
+For the Windows PC used in P06, follow the [preparation and metadata-only probe](YC011-CLAUDE-DISCOVERY.md).
+The recipe uses a new checkout and preserves previous receipts.
 
 <a id="operate-en"></a>
 
@@ -1302,6 +1388,15 @@ git diff --check
 
 Tests use local Git, simulated network/plugin calls and an isolated temporary home. See the [verification matrix](../README.md#verification).
 
+With `GITHUB_ACTIONS=true`, egress fixture exceptions before the normal receipt emit a
+`fixture` annotation. `reason` identifies the last stage reached: `fixture_setup`,
+`fixture_supervise` or `fixture_cleanup`. `failure` is an allowed category or `other`,
+never the exception message, traceback or path. Available supervisor results retain
+only allowed states and counts. An exception while unwinding may replace an earlier
+one, so the stage does not establish root cause. The test still fails, and annotation
+output errors do not replace the fixture exception. Without `GITHUB_ACTIONS=true`, no extra annotation is emitted.
+[Evidence and limits](relatorios/2026-10-10-ci-fixture-diagnostics.md#english-overview).
+
 <a id="memory-en"></a>
 
 ## Memory: query selected notes
@@ -1570,6 +1665,7 @@ python3 -B scripts/missions.py --json config validate --input vault/local/agents
 python3 -B scripts/missions.py --json config apply --input vault/local/agents-draft.json --expected-digest absent
 python3 -B scripts/missions.py --json backlog import --note vault/local/product/epics/EPIC_UUID/index.md --expected-revision 0 --operation-id OPERATION_UUID --actor-id current-session --actor-role pm
 python3 -B scripts/missions.py --json prepare --input vault/local/mission-request.json --operation-id OPERATION_UUID --actor-id current-session --actor-role pm
+python3 -B scripts/missions.py --json list
 python3 -B scripts/missions.py --json status M001
 python3 -B scripts/missions.py --json repair M001
 ```
@@ -1579,6 +1675,13 @@ para PBIs, use `--actor-role tech_lead`. Cada importação tem seu próprio UUID
 O papel é uma atribuição declarada, sem autenticação de identidade. Uma nota importada recebe
 código E/F/P e revisão. Importar uma edição exige a revisão atual em `--expected-revision`.
 Para alterar os padrões, substitua `absent` pelo digest retornado por `config show`.
+
+Para descobrir o código ao retomar, use `list`. O campo `missions` contém código, UUID,
+título, revisão atual salva e estado registrado (`draft` ou `prepared`) de cada missão.
+Esse estado não revalida fontes, projeções ou recibos: use `status CODIGO` para consultar
+os impedimentos atuais. A listagem lê o banco mesmo se uma projeção da nota falhou;
+não repara nem inicializa arquivos. Sem banco ou com banco vazio, retorna `missions: []`.
+Armazenamento incompatível ou pertencente a outro projeto continua recusado.
 
 O pedido da missão contém exatamente:
 
@@ -1608,6 +1711,57 @@ datas de desenvolvimento, QA ou produção.
 
 Uma falha de projeção mantém o evento confirmado no banco. Repita a mesma operação ou use
 `repair`; conflito com edição humana exige conciliar essa nota, sem apagar seu conteúdo.
+
+<a id="mission-input-consistency"></a>
+
+`prepare` e `revise` comparam os hashes congelados com cada nota e referência importada.
+Se um arquivo mudar entre a leitura do contrato e o congelamento, a missão fica `draft`
+com `stale_input:CAMINHO` em `gaps`. `status.stale_inputs` também inclui esses caminhos,
+inclusive em snapshots antigos cujo estado salvo ainda é `prepared`. Nesses casos,
+`check_available=false` e a prévia não indica candidato.
+
+Confira a edição, importe novamente os itens afetados com suas revisões atuais e use
+`revise` na missão. Para uma referência compartilhada, reimporte todos os itens que a
+referenciam. A consulta não troca hashes, repara notas nem altera eventos antigos.
+Fila, novas decisões, contexto, diagnóstico de cliente e novo workspace recusam fontes
+inconsistentes. A conferência não trava editores externos; mudanças posteriores continuam
+sujeitas à verificação de atualidade de cada operação.
+
+`next_action` prioriza recibos abertos no repositório, depois conflitos/projeções pendentes,
+fontes alteradas e lacunas de planejamento. `blocking_runs` identifica os recibos que impedem
+um novo diagnóstico, inclusive de outra missão, com UUID da missão, execução e operação,
+revisão e estado. `client_runs` continua limitado à missão consultada.
+
+| Próxima ação | O que fazer em uma operação separada e autorizada |
+|---|---|
+| `inspect_client_run` | Conferir o recibo reservado/em execução; status não verifica se o processo continua vivo |
+| `review_reconciliation` | Revisar a evidência de encerramento e efeito externo antes de `client reconcile` |
+| `review_integrated_recovery` | Revisar a recuperação do plano integrado; `client reconcile` não serve para esse recibo e o adaptador nativo continua bloqueado |
+| `review_projection_conflict` | Preservar a edição humana e decidir como conciliar a nota |
+| `repair_projection` | Pedir reparo explícito da projeção pendente |
+| `revise_inputs` / `complete_gaps` | Atualizar as fontes ou completar o planejamento e preparar outra revisão |
+| `runtime_not_available` | Aguardar o aceite do executor; planejamento completo não habilita execução |
+
+`check_available=false` sinaliza um desses impedimentos conhecidos. `true` não é autorização
+nem confirmação de orçamento, autenticação ou compatibilidade: o manifesto e o preflight
+continuam obrigatórios. A consulta não executa nenhuma das ações sugeridas.
+
+`queue_preview` apresenta a entrada inicial do backlog (`scope: initial_backlog`).
+`items` segue a prioridade salva e contém UUID, código, título, revisão e UUIDs das
+dependências de cada PBI. `first_candidate_id` aponta o primeiro item sem dependências,
+somente se a preparação estiver consistente. Lacunas, fontes/revisões alteradas,
+projeções pendentes/conflitantes ou recibos abertos deixam esse campo `null`.
+A prévia considera que nenhum PBI foi integrado. O [ensaio da fila](#queue-rehearsal)
+aparece separadamente em `queue_sessions`. A prévia não calcula vagas disponíveis nem
+a ordem entre trabalho em andamento, QA e decisões dos líderes; não reserva ou despacha.
+Mesmo com um candidato, `next_action` conserva os impedimentos e a execução segue bloqueada.
+
+Se a nota de missão ou item foi gravada antes da interrupção e houve outra revisão,
+o reparo reconhece os bytes exatos da escrita não confirmada pelo histórico durável.
+Ele mantém a revisão mais recente, sem criar eventos ou repetir execuções. Alterações
+humanas e restauração manual de uma revisão antiga já confirmada continuam em conflito.
+Essa recuperação histórica cobre notas agregadas de missão/backlog; não as notas de
+execução de clientes, cujo histórico guarda outro formato.
 Saída 0 significa pedido válido (inclusive rascunho), 1 conflito ou falha operacional e 2 entrada
 inválida. Não edite o banco diretamente; guarde também esse arquivo em seu backup privado.
 Após uma interrupção com journal SQLite pendente, `status` pode retornar `invalid_store` sem alterar
@@ -1622,6 +1776,13 @@ retry an interrupted request with its original UUID. Import epics, features and 
 `tech_lead`; other items and mission preparation use `pm`. These are declared roles, not authenticated identities.
 Updating an item requires its current revision; changing defaults requires the current configuration digest.
 
+Use `list` to discover mission codes when resuming. Its `missions` array contains each
+mission's code, UUID, title, latest saved revision and recorded state (`draft` or `prepared`).
+It does not revalidate sources, projections or receipts; use `status CODE` for current
+blockers. Listing reads the database even when a note projection failed, without repairing
+or initializing files. An absent or empty database returns `missions: []`; incompatible
+storage or a database belonging to another project remains rejected.
+
 A request selects one or more feature UUIDs and lists every imported PBI in priority order. Empty criteria,
 unresolved dependencies or missing choices produce `draft`; complete planning produces `prepared`.
 Runtime remains unavailable. Three active PBIs is the future execution default, not a mission size limit.
@@ -1632,6 +1793,46 @@ and reports changed inputs. Import edits, then use `revise` with the current rev
 UUID. Global defaults never rewrite a mission; revision inherits frozen choices plus explicit overrides.
 Event times record import/refinement, without inventing development, QA or production dates.
 Retry or `repair` recovers a failed projection. Human edits are preserved and reported as conflicts.
+
+`prepare` and `revise` compare frozen hashes with every imported note and reference.
+A change between contract reading and input freezing produces a `draft` with
+`stale_input:PATH` in `gaps`. `status.stale_inputs` includes internally inconsistent paths,
+including older snapshots still recorded as `prepared`; `check_available` becomes false
+and the preview withholds its candidate. Review the edit, reimport affected items at their
+current revisions, then explicitly revise the mission. Shared references require reimporting
+each referring item. Reads preserve hashes, notes and history. Queue admission/advancement,
+new planning decisions, context, client checks and new workspaces refuse inconsistent inputs.
+This check does not lock external editors; subsequent changes remain subject to each operation's
+freshness checks.
+
+`next_action` prioritizes unresolved repository runs, projection conflicts/pending writes,
+changed sources and planning gaps. `blocking_runs` identifies unresolved receipts from any
+mission in this repository by mission/run/operation UUID, revision, state and next action;
+`client_runs` remains limited to the requested mission. `inspect_client_run` asks for inspection
+of a reserved/running receipt without probing process liveness. `review_reconciliation` requires
+reviewing termination and external-effect evidence before a separate `client reconcile`.
+`review_integrated_recovery` directs review to the integrated plan; legacy reconciliation cannot
+close it and native recovery remains gated. Projection actions are `review_projection_conflict`
+(preserve human edits) and `repair_projection` (explicit repair). `revise_inputs`, `complete_gaps`
+and `runtime_not_available` retain their planning meanings.
+`check_available=false` indicates a known blocker; `true` does not authorize a call or validate
+budget, authentication or compatibility. Manifest/preflight checks remain mandatory. Status
+performs none of the suggested actions.
+
+`queue_preview` describes the initial backlog (`scope: initial_backlog`). The
+[queue rehearsal](#queue-rehearsal) is reported separately in `queue_sessions`. Its `items`
+follow saved priority and include each PBI's UUID, code, title, revision and dependency
+UUIDs. `first_candidate_id` selects the first item without dependencies only when
+preparation is current. Gaps, changed sources/revisions, pending/conflicting projections
+or unresolved runs leave it null. No PBI is assumed integrated. The preview does not
+compute available slots, ongoing-work/QA/leader ordering, reserve resources or dispatch.
+An initial candidate does not change `next_action` or enable execution.
+
+If a mission or item note was written before interruption and another revision followed,
+repair recognizes the exact unconfirmed bytes from durable history. It keeps the latest
+revision without adding events or repeating execution. Human edits and manual restoration
+of an older confirmed revision still conflict. This historical recovery covers aggregated
+mission/backlog notes; client-run notes use a different history format and are outside its scope.
 Exit 0 includes valid drafts; 1 means conflict or operational failure; 2 means invalid input. Include the
 database in private backups; do not edit it directly. After an interruption with a pending SQLite
 journal, `status` can return `invalid_store` without writing. Explicit `repair` allows SQLite recovery
@@ -1704,6 +1905,22 @@ Hard links usados por instaladores são aceitos para leitura; o hash é conferid
 da chamada. A inspeção não altera o binário. Backups e arquivos de adoção continuam recusando
 hard links. Um catálogo legível pode retornar `native_profile_unverified` e manter a execução bloqueada.
 
+Objetos de resposta e listas de esforços malformados retornam `client_protocol_error`
+em JSON, com código 2, sem traceback ou conteúdo bruto do cliente. Confira a versão
+e a resposta de descoberta do cliente antes de tentar novamente; campos opcionais
+de esforço ausentes continuam representados por lista vazia. `environment show --json`
+também classifica falhas de Git na primeira consulta: um timeout retorna
+`execution_storage_unprotected`, fase `git_boundary`, motivo `git_query_timeout`.
+A consulta conserva o projeto e indica a causa para corrigir o acesso ao Git.
+
+Malformed response objects and effort lists return JSON `client_protocol_error`,
+exit code 2, without a traceback or raw client output. Check the installed client
+version and discovery response before retrying; missing optional effort fields still
+produce an empty list. `environment show --json` also classifies Git failures on the
+first query: a timeout returns `execution_storage_unprotected`, phase `git_boundary`,
+reason `git_query_timeout`. The query preserves the project and identifies the Git
+access failure.
+
 Crie `vault/local/client-check.json` com os UUIDs e a revisão reais. `authorization_ref` registra a
 autorização que você concedeu; o texto do modelo não pode concedê-la. Este exemplo usa até 120
 segundos, desde que a configuração congelada tenha esse limite. Cada execução nova precisa de
@@ -1753,6 +1970,169 @@ capabilities are rejected. Requested, resolved and observed model values remain 
 Missing effort or cost stays null. Client-reported cost does not confirm a bill. Subscription
 authentication never silently changes to an API connection.
 
+<a id="synthetic-admission"></a>
+
+### Admissão sintética / Synthetic admission
+
+O mesmo `client check` aceita `fixture_id: "isolated-egress-v1"` no manifesto acima.
+Todos os demais campos continuam obrigatórios; `api_budget_usd` deve ser `null` e
+`max_runs` deve ser `1`. Missão preparada, revisão, autorização, papel e limites são
+conferidos antes da gravação. Essa variante entra antes da inspeção de Claude/Codex.
+
+Nesta versão, o resultado é sempre um recibo `purpose: "isolated_egress_check"`,
+`state: "failed"`, `reason: "controller_pending"`, `model_calls: 0` e
+`effects_allowed: false`. O comando retorna código `1`. Não consulta o executável
+informado em `--executable`, que continua obrigatório na sintaxe compartilhada,
+nem inicia processos ou reserva o Docker. O recibo não contém observações de modelo,
+autenticação, baseline ou candidato.
+
+A tentativa fica em `client runs` e no vault local. Ela consome uma entrada de
+`max_agent_runs` e reserva os segundos declarados no orçamento acumulado da missão,
+mesmo bloqueada. Repetir o manifesto inteiro devolve o mesmo recibo, sem novo consumo;
+alterar seu conteúdo com o mesmo UUID causa `operation_conflict`. Uma versão futura
+do controlador não poderá reativar esse UUID.
+
+A admissão não executa A/B/A2. O coordenador interno já persiste esse plano e o baseline
+na reserva global. A entrada pública aguarda integração do egress e da restauração
+global em 203.6, seguida de prova nativa. Os perfis nativos continuam bloqueados. Consulte o
+[handoff](HANDOFF-CLOUD-2026-10-07.md#102-integrar-uma-variante-sintética-em-client-check).
+
+The same `client check` accepts `fixture_id: "isolated-egress-v1"` in the manifest
+above. All other fields remain required; `api_budget_usd` must be `null` and
+`max_runs` must be `1`. Admission checks the prepared mission, revision, authorization,
+role and limits before writing, and branches before Claude/Codex inspection.
+
+This version always returns a receipt with `purpose: "isolated_egress_check"`,
+`state: "failed"`, `reason: "controller_pending"`, `model_calls: 0` and
+`effects_allowed: false`, with exit code `1`. It does not inspect the executable
+passed through the still-required shared `--executable` option, start processes or
+reserve Docker. The receipt contains no model, authentication, baseline or candidate
+observations.
+
+The attempt appears in `client runs` and the local vault. It consumes one
+`max_agent_runs` entry and its declared seconds in the mission's cumulative budget,
+even though blocked. Replaying the entire manifest returns the same receipt without
+further consumption; changing its contents with the same UUID raises
+`operation_conflict`. A future controller cannot reactivate that UUID.
+
+Admission does not execute A/B/A2. The internal coordinator persists this plan and
+baseline in the global reservation. Public execution awaits egress and global
+restoration integration in 203.6, followed by native proof. Native profiles remain blocked.
+
+<a id="internal-controller"></a>
+
+### Controlador e fixture internos / Internal controller and fixture
+
+`scripts/mission_controller.py` mantém o canal do launcher sob o supervisor existente.
+Confere identidade e namespace, registra intenção e autorização antes de cada efeito
+e espera `ready` após a inicialização. Aceita somente o comando fixo da fixture e
+metadados limitados. A fixture `runtime/sbx/fixture.py` inicializa sem rede e faz uma
+GET ao relay local. O contrato v4 confere o hash esperado de um valor fictício distinto
+do placeholder; v3 preserva somente a semântica histórica de eco. Está incluída no contexto de build
+da imagem; o instalador distribui o controlador e preserva cópias locais existentes.
+
+São componentes internos, sem novo comando público de execução. O `client check`
+continua retornando o bloqueio descrito acima. `mission_transaction.py` vincula a
+missão ao plano v2, v3 ou v4 no mesmo ledger global. Guarda baseline completo, três identidades
+distintas, digests e diário anterior aos efeitos. As fases compartilham até 120 segundos,
+limitados pelo orçamento admitido. A execução pública aguarda o contrato de credenciais, adaptador e prova nativa. O controlador retorna sempre
+`proof_accepted=false` e `workload_reaped=false`; `observed` indica apenas que o
+protocolo da fase foi concluído. Em B, saída 126 continua `blocked_unattributed`;
+uma resposta permitida vira `unexpected_allow`.
+
+`scripts/mission_controller.py` keeps the launcher pipe open inside the existing
+supervisor. It checks identity and namespace, records intent and authorization before
+each effect, and waits for `ready` after initialization. Commands are fixed to the
+fixture and results are bounded metadata. `runtime/sbx/fixture.py` initializes without
+network and makes one GET through the loopback relay. V4 checks the expected hash of
+a dummy value distinct from the placeholder; v3 keeps its historical echo semantics. The
+image build context includes it; setup distributes the controller while preserving
+existing local copies.
+
+These are internal components with no new public execution command. `client check`
+still returns the block above. `mission_transaction.py` binds the mission to a v2, v3 or v4
+plan in the same global ledger, storing baseline values, three distinct identities,
+digests and a journal before effects. Phases share up to 120 seconds, bounded by
+the admitted budget. Public execution awaits the credential contract, native adapter and proof. Controller results always keep `proof_accepted=false` and
+`workload_reaped=false`; `observed` only confirms a completed phase protocol. In B,
+exit 126 stays `blocked_unattributed`; a successful response becomes `unexpected_allow`.
+
+O plano v3 acrescenta `mission_network.py`, hash do guard e do Python, resolvedor do
+sistema e IPs proibidos. O helper recebe configuração somente após persistir seu PID;
+os recibos de destino precisam de confirmação durável antes de encaminhar bytes.
+Somente `proxy.sandbox` e `no_proxy.sandbox` podem mudar. A recuperação exige cargas/VM
+paradas, proprietário e porta ausentes, preserva mudanças externas e observa respostas
+perdidas sem repetir mutações. Registros v1/v2 conservam seus contratos.
+
+O adaptador interno deve implementar `setting(key, target, *, expected)` como uma
+comparação e escrita indivisíveis. A ativação fornece o setting original completo;
+a restauração fornece o setting aplicado, incluindo origem, tipo e default. Se o
+estado mudou, a operação deve recusar sem escrita. Uma consulta seguida de `set`
+não satisfaz esse contrato. Não há fallback para adaptadores sem `expected`.
+A intenção permanece consumida após conflito; observar resposta perdida não repete
+a mutação. O suporte atômico do sbx local ainda não foi comprovado, e o adaptador
+nativo continua recusando efeitos. [Correção e evidências](relatorios/2026-10-07-conditional-settings.md).
+
+O plano e os manifestos v4 acrescentam `relay.injection_sha256`, recebido pelo
+`build_plan(..., injection_sha256=...)` interno junto à configuração de rede.
+Placeholder, hash esperado, proxy e CA são iguais em A/B/A2; UUIDs e nonces são
+distintos, com prazo compartilhado. Manifesto, argv e recibos contêm apenas o hash do
+valor fictício. Não passar credenciais reais a essa interface sintética.
+
+A fixture exige um único header de texto, diferente do placeholder, cujo SHA-256
+coincida com o hash imutável. Retorna `schema_version=2`, `injection_matches=true`
+e `injected_value_sha256`; não retorna o valor nem o corpo. Hash do próprio placeholder,
+comandos alterados ou resposta legada são recusados. O resultado schema 1 de eco
+continua válido somente no contrato antigo e não certifica injeção.
+
+Os testes ligam fixture, relay e guard com processos e sockets locais reais; sbx,
+TLS e substituição no upstream são simulados. O adaptador nativo recusa set/restart.
+A API Cloud documenta `uid`, `etag` e remoção com `If-Match`; ainda falta comprovar
+endpoint, armazenamento e operação atômica compatíveis no sbx local 0.46.0. Docker TLS,
+MCP e recusa nativa atribuída continuam sem prova; perfis seguem vazios.
+[Escopo, fontes e provas](relatorios/2026-10-07-injection-proof.md).
+
+The v3 plan adds `mission_network.py`, guard/Python hashes, the system resolver and
+forbidden IPs. Configuration follows the durable helper PID receipt; destination
+metadata must be acknowledged before forwarding bytes. Only the two sandbox proxy
+settings may change. Recovery requires stopped workloads/VM and absent owner/port,
+preserves external changes and observes lost replies without repeating mutations.
+Internal `setting(key, target, *, expected)` must compare the complete setting and
+write the target indivisibly. Activation supplies the original state; restoration
+supplies the applied state, including source, type and default. A mismatch must
+refuse without writing. A read followed by `set` is insufficient; adapters without
+`expected` receive no unconditional fallback. Intent stays consumed after conflict.
+Native atomic support remains unproven, so the native adapter continues to refuse effects.
+Legacy v1/v2 contracts remain intact. V4 adds `relay.injection_sha256`, supplied to
+internal `build_plan(..., injection_sha256=...)` together with network configuration.
+A/B/A2 share placeholder, expected hash, proxy, CA and deadline, keeping separate identities.
+Only the hash of the dummy value enters manifests, argv and receipts. This synthetic
+interface must not receive real credentials.
+
+The fixture requires exactly one string header, distinct from the placeholder and
+matching the immutable hash. Result schema 2 reports `injection_matches=true` and
+`injected_value_sha256`, never the value or body. The placeholder's hash, changed
+commands and legacy responses are rejected. Schema 1 echo results remain historical.
+Tests connect the fixture, relay and guard with real local processes and sockets;
+sbx, TLS and upstream substitution are simulated. Native set/restart remains blocked.
+The Cloud API documents `uid`, `etag` and `If-Match` deletion, but its endpoint/store
+and atomic semantics are unproven for local sbx 0.46.0. Docker TLS, MCP and attributable
+native refusal remain unproven; profiles stay empty.
+
+Testes locais / Local tests:
+
+```bash
+python3 -B -m unittest discover -s tests -p 'test_mission_controller.py' -v
+python3 -B -m unittest discover -s tests -p 'test_mission_transaction.py' -v
+python3 -B -m unittest discover -s tests -p 'test_mission_network.py' -v
+python3 -B -m unittest discover -s tests -p 'test_mission_egress.py' -v
+python3 -B -m unittest discover -s tests -p 'test_isolated_fixture.py' -v
+python3 -B -m unittest discover -s tests -p 'test_mission_relay.py' -v
+```
+
+Esses testes não usam Docker, fornecedor externo ou modelo. / These tests use no
+Docker, external provider or model. [Evidência / Evidence](relatorios/2026-10-07-controller-channel.md).
+
 Para reproduzir a recusa de isolamento encontrada no Codex, consulte a
 [prova local](relatorios/2026-10-03-native-client-verification.md). Ela usa uma imagem fictícia
 e um fornecedor simulado em loopback, sem conta ou modelo real. Esse teste não libera um perfil.
@@ -1766,27 +2146,749 @@ resposta permitida, leitura recusada e gravações internas dos clientes. Um JSO
 processo com código zero não prova isolamento. Os perfis continuam bloqueados; a proposta de
 ambiente separado ainda não tem setup disponível. Não altere a lista de perfis para forçar a execução.
 
-O [desenho em revisão](superpowers/specs/2026-10-04-isolated-executor-design.md) prevê preparação
+O [desenho aprovado](superpowers/specs/2026-10-04-isolated-executor-design.md) prevê preparação
 única do Docker Sandboxes local e login separado. O runtime exige conta Docker; o uso local é
 gratuito conforme a documentação consultada, com o consumo dos modelos tratado pela conta escolhida.
 No Windows, será necessário Windows 11 x64 e Windows Hypervisor Platform habilitado. A preparação
 nunca reinicia o computador automaticamente. O rollback do trial restaura os arquivos do projeto;
 runtime do sistema e logins terão um procedimento de remoção separado. Não há comando YoungCrow
 de instalação desse executor disponível nesta versão.
+O [plano de implementação](superpowers/plans/2026-10-04-isolated-executor.md) organiza a prova
+de ambiente, a recuperação e os dois diagnósticos autenticados; foi aprovado e está em execução.
 
 The [permission controls](relatorios/2026-10-04-native-permission-controls.md#english-overview)
 also checked an allowed response, denied reads and internal client writes. A correct JSON response
 or zero exit code does not prove isolation. Profiles remain blocked; the proposed separate
 environment has no setup command yet. Do not edit the profile allowlist to force execution.
 
-The [design under review](superpowers/specs/2026-10-04-isolated-executor-design.md) proposes one-time
+The [approved design](superpowers/specs/2026-10-04-isolated-executor-design.md) proposes one-time
 local Docker Sandboxes preparation and separate sign-in. It requires a Docker account; the cited
 vendor documentation states local runtime use is free, with model usage handled by the chosen account.
 Windows requires Windows 11 x64 and Windows Hypervisor Platform. Setup will not restart the host
 automatically. Trial rollback restores project files; system runtime and logins will have a separate
 removal procedure. This version has no YoungCrow command for installing that executor.
+The [implementation plan](superpowers/plans/2026-10-04-isolated-executor.md) covers environment
+proof, recovery and both authenticated diagnostics; it is approved and implementation has started.
+
+<a id="sandbox-environment"></a>
+### Diagnóstico do ambiente / Environment diagnostic
+
+Para investigar consultas do Docker, acrescente `--preflight` ao comando abaixo.
+Essa opção salva evidência sensível em `.operacao-local/execution/sbx-UUID.json`,
+com permissões privadas verificadas antes das consultas. Não publique esse arquivo:
+ele pode conter valores ou fragmentos de credenciais. O JSON exibido contém apenas
+metadados, hashes e categorias de erro; `evidence_path` aponta para a cópia privada.
+
+Cada consulta tem prazo de 15 segundos e limite conjunto de saída de 64 KiB.
+O comando para na primeira falha, sem repetir a consulta. `ready: true` significa
+que as consultas preparatórias responderam; `effects_allowed: false` mantém o
+bloqueio de execução. Se o daemon estiver parado, o preflight para antes das consultas
+dependentes. Nenhum comando de criação, reinício, escrita de configuração ou modelo
+é emitido. A verificação de permissões do arquivo é separada e pode levar até 120s.
+
+`permission_denied` indica mensagem explícita de permissão; `credential_store_error`
+indica referência ao armazenamento de credenciais. `command_failed` exige examinar
+a evidência privada antes de concluir a causa. `empty_output`, `invalid_json`,
+`contract_incompatible` e `timeout` distinguem os demais casos. Os roteiros antigos
+permanecem como evidência e não devem ser reexecutados.
+
+`credential_session_unavailable` reconhece a mensagem de conjunto de credenciais
+indisponível na sessão Windows, capturada em `secret ls --json`. O inventário permanece
+desconhecido. Execute o mesmo diagnóstico na sessão de desktop do seu usuário quando
+ela estiver disponível; confirme o preflight antes de qualquer alteração Docker.
+Abrir outro shell dentro do Termius mantém a sessão SSH; a VPN fornece conectividade,
+mas não muda o conjunto de credenciais disponível. O tipo de logon observado não foi medido.
+O Docker usa o [Gerenciador de Credenciais do Windows](https://docs.docker.com/ai/sandboxes/configuration/credentials/),
+cujo conjunto depende da [sessão de logon do token atual](https://learn.microsoft.com/en-us/windows/win32/api/wincred/nf-wincred-credenumeratea).
+
+Se o servidor já aceitar senha, outra possibilidade é criar uma conexão separada no
+Termius com o mesmo host e usuário, usando a senha do Windows e sem selecionar a chave
+nessa cópia. Preserve a conexão original. Digite a senha apenas no Termius. Se conectar,
+execute somente o preflight; se o login for recusado, pare sem reconfigurar o servidor.
+Essa alternativa ainda precisa de prova: o [OpenSSH distingue os contextos de senha e chave](https://github.com/PowerShell/Win32-OpenSSH/wiki/SSH-remote-sessions-on-Windows),
+mas essa documentação não garante acesso ao Docker nesse host.
+
+Na prova seguinte, executada diretamente no PowerShell do mantenedor em 7 de outubro,
+as 11 consultas passaram: `ready: true`, `effects_allowed: false`, inventário Docker
+vazio. Somente `runtime_profile_unverified` permaneceu. Esse resultado resolve o acesso
+às consultas naquele contexto; não comprova autenticação Claude/Codex ou isolamento.
+
+Para conferir uma sandbox existente antes da integração, use as duas opções juntas:
+
+```bash
+python scripts/missions.py client environment --executable CAMINHO_SBX --preflight --sandbox NOME --json
+```
+
+No Windows, esse modo observa PID e criação do daemon, inventário completo de credenciais,
+VMs paradas, configurações, políticas e log de política. Confere novamente os dados para
+detectar alterações durante a leitura. Saídas brutas ficam no recibo privado. `scope:
+candidate_metadata` e `ready: true` confirmam a coleta; `pending` enumera o que ainda
+falta para executar. O campo `effects_allowed` continua falso.
+
+`daemon_identity_changed` indica troca do processo; `configuration_changed`, diferença
+nos dados comparados. O tempo de atividade do daemon é preservado no recibo, mas não
+entra na comparação da inspeção. Campos desconhecidos continuam sendo comparados.
+`active_consumer` impede prosseguir com VM em uso. Credenciais personalizadas e fontes
+de ambiente também contam no inventário: `secrets: []` sozinho não comprova ausência.
+Esse modo passou em 29 consultas locais: 27 do Docker e duas do Windows. A identificação
+do processo no runner Linux ainda precisa ser implementada e validada.
+
+O relay de desenvolvimento está ligado ao guardian/launcher e permite um único eco
+por operação. Seu manifesto v3 fixa a origem e vincula por hash uma cópia pública
+da CA do proxy, guardada no controle privado. A intenção é permitir ao cliente
+somente a porta local do relay; o supervisor acessa o endereço exato do proxy.
+Os contratos e sockets locais passaram nos testes. Aplicação do firewall Linux,
+TLS real e A/B/A2 ainda precisam de prova no novo pacote. `client check` permanece
+bloqueado: não há comando adicional de operação nem perfil liberado por esse incremento.
+
+`client environment` também lê `execution_reservation`, sem criar a reserva ou
+liberar efeitos. `available` indica ausência de operação pendente nesse registro;
+`reserved` ou `consumed` acrescenta `execution_reserved` às lacunas. `unknown`
+acrescenta `execution_reservation_unknown`; consulte `reason` e preserve o registro.
+O armazenamento é comum aos projetos da conta: `YoungCrowExecution` na pasta local
+de dados do Windows obtida pelo sistema, ou na pasta pessoal da conta POSIX.
+Não há opção de trocar esse caminho por projeto. Apagar o registro ou alterar suas
+permissões não é um procedimento de recuperação.
+
+A reserva v1 consumida permanece bloqueada. O coordenador interno v2 pode recuperar
+cargas identificadas e parar a VM, com prazo próprio de até 60 segundos. Observa o
+estado após resposta perdida, conserva intenções consumidas e nunca inicia uma VM
+parada para inspecioná-la. Uma VM parada sem recibo terminal da carga mantém a reserva.
+A recuperação compara configurações e exige identidade do daemon estável durante a
+tentativa, aceitando reinício legítimo anterior. Divergência global permanece intacta
+e bloqueia encerramento; sua restauração e os helpers/portas entram em 203.6.
+Nenhum prazo vencido libera a reserva. [Escopo e provas](relatorios/2026-10-07-reservation-recovery.md).
+
+Se aparecer `execution_storage_unprotected`, consulte `diagnostic.phase` e
+`diagnostic.reason`. `temporary_evidence` identifica a verificação do temporário
+antes de gravar saídas sensíveis; `existing_storage` identifica a área existente.
+`owner_mismatch` aponta proprietário diferente do usuário; `acl_not_private`, acesso
+incompatível; `git_exclusion_missing`, exclusão Git ausente. Timeouts distinguem Git
+de permissões. Preserve os recibos e informe esses campos; não aplique mudanças
+recursivas de proprietário ou permissões para contornar a recusa.
+
+No Windows, o comando define proprietário e ACL privada somente no novo temporário
+vazio que ele próprio criou. Confere sua identidade, o diretório e as permissões
+antes de gravar dados. Recibos anteriores e o proprietário padrão da sessão são
+preservados. Se essa proteção falhar, a operação para sem tentar novamente.
+
+Add `--preflight` to investigate Docker queries. It saves sensitive output under
+`.operacao-local/execution/` after checking private permissions; never publish that
+file. Displayed results contain metadata, hashes and error categories. Queries have
+a 15-second deadline and a combined 64 KiB output limit, stop at the first failure,
+and are not retried. File permission checks have a separate 120-second limit.
+`ready` describes readable metadata; `effects_allowed: false` keeps execution blocked.
+No lifecycle, configuration-write or model command is issued. Preserve historical
+proof scripts and receipts instead of rerunning them.
+
+`credential_session_unavailable` identifies the Windows credential-set error captured
+from `secret ls --json`. The inventory remains unknown. Run the same diagnostic from
+your signed-in Windows desktop session when available; confirm preflight before
+changing Docker. Opening another shell in Termius retains the SSH session. VPN
+connectivity does not change its available credential set; the logon type was not measured.
+Docker uses [Windows Credential Manager](https://docs.docker.com/ai/sandboxes/configuration/credentials/);
+its credential set depends on the [current token's logon session](https://learn.microsoft.com/en-us/windows/win32/api/wincred/nf-wincred-credenumeratea).
+
+If the server already accepts password authentication, another option is a separate
+Termius connection to the same host and user, using the Windows password without a
+key selected in that copy. Preserve the original connection and enter the password
+only in Termius. If login succeeds, run only preflight; if refused, stop without
+reconfiguring the server. This option still needs validation: [OpenSSH documents different credential contexts](https://github.com/PowerShell/Win32-OpenSSH/wiki/SSH-remote-sessions-on-Windows),
+but does not guarantee Docker access on this host.
+
+The maintainer's subsequent local PowerShell run on October 7 passed all 11 queries:
+`ready: true`, `effects_allowed: false`, empty Docker credential inventory. Only
+`runtime_profile_unverified` remained. This confirms query access in that context;
+Claude/Codex authentication and isolation acceptance remain pending.
+
+Use `--preflight --sandbox NAME` together to inspect a candidate before integration.
+On Windows, this adds daemon PID/creation time, complete credential metadata, stopped-VM
+inventory, settings, policies and policy-log access. It reads the baseline again to
+detect drift. The first local run passed 27 Docker and two Windows queries.
+`scope: candidate_metadata` and `ready: true` describe collection only; `pending` lists
+the remaining execution gates and `effects_allowed` stays false. Raw output remains
+private. Only the observed `daemon_uptime` field is excluded from inspection comparison;
+unknown fields still participate. Custom credentials and environment sources count,
+so `secrets: []` alone does not establish an empty inventory. Linux daemon identity
+still needs implementation and native validation.
+
+The development relay is connected to guardian/launcher and permits one echo per
+operation. Its v3 manifest fixes the origin and binds a public proxy-CA snapshot
+by hash inside private control storage. The intended boundary permits the client
+only the local relay port and the supervisor only the exact proxy address.
+Contract and local-socket tests passed. Linux firewall enforcement, real TLS and
+A/B/A2 still need proof in the new package. `client check` remains blocked; this
+increment adds no operator command and enables no execution profile.
+
+`client environment` also reads `execution_reservation` without creating a reservation
+or authorizing effects. `available` means this ledger has no pending operation;
+`reserved` or `consumed` adds `execution_reserved` to the gaps. `unknown` adds
+`execution_reservation_unknown`; inspect `reason` and preserve the ledger.
+Storage is shared across the account's projects: `YoungCrowExecution` under the
+Windows local application-data folder resolved by the OS, or the POSIX account's
+home directory. Projects cannot override that location. Deleting the ledger or
+changing its permissions is not a recovery procedure.
+
+A consumed v1 reservation remains blocked. The internal v2 coordinator can recover
+identified workloads and stop the VM within a separate deadline of up to 60 seconds.
+It observes state after lost replies, preserves consumed intents and never starts a
+stopped VM to inspect it. A stopped VM without a terminal workload receipt retains
+the reservation. Recovery compares configuration and requires a stable daemon identity
+during the attempt while accepting a legitimate earlier restart. Global drift remains
+untouched and blocks closure; restoration and helper/port recovery belong to 203.6.
+An expired deadline never releases ownership.
+
+For `execution_storage_unprotected`, inspect `diagnostic.phase` and `diagnostic.reason`.
+`temporary_evidence` identifies the temporary-file check before sensitive output is
+written; `existing_storage` identifies the existing area. Reasons distinguish owner
+mismatch, non-private ACLs, missing Git exclusions and Git or permission timeouts.
+Preserve receipts and report those fields. Do not recursively change ownership or
+permissions to bypass the refusal.
+
+On Windows, the command sets private ownership and ACLs only on its newly created,
+empty temporary file. Identity, directory and permissions are checked before data
+is written. Existing receipts and the session's default owner remain unchanged.
+A protection failure stops the operation without an automatic retry.
+
+Na raiz do projeto, indique o caminho absoluto do `sbx` instalado:
+
+```bash
+python3 -B scripts/missions.py client environment --executable /caminho/absoluto/sbx --json
+```
+
+No Windows, use `python` e o caminho do `sbx.exe`, entre aspas se houver espaços.
+O comando consulta a versão e o hash do executável e os pré-requisitos do sistema.
+Não instala componentes, altera configurações, cria VM, faz login ou chama modelos.
+O resultado inclui `gaps` com as pendências e retorna código 1 enquanto houver alguma.
+`runtime_missing` indica binário ausente; `whp_disabled` indica o recurso do Windows
+desabilitado. `whp_unknown` indica que a consulta não confirmou seu estado.
+Se a ativação do recurso retornar `RestartNeeded: True`, salve o trabalho e reinicie
+o Windows antes da prova real, mesmo que `whp_state` já seja 1.
+Esse campo confirma a configuração do recurso, não uma VM em funcionamento.
+`runtime_profile_unverified` permanece em todos os ambientes nesta etapa: versão
+detectada e pré-requisitos presentes não comprovam isolamento ou prazo de execução.
+Completar `sbx login` também não remove essa pendência. A [prova sintética do supervisor](relatorios/2026-10-04-supervisor-spike.md)
+usou uma microVM sem workspace e um contêiner interno, com prazo de cinco segundos.
+Ela confirmou parte dos controles; ainda não habilita `client check` com modelos reais.
+O ensaio foi preparação manual de desenvolvimento, fora do setup dos projetos consumidores.
+O [protocolo do guardian](relatorios/2026-10-04-guardian-protocol.md) já tem prova sintética
+em Python: descoberta e diagnóstico compartilham o mesmo prazo, com consumo persistido antes
+de cada fase. Uma operação consumida não deve ser reaberta apagando seus marcadores.
+Não há novo comando de produção nesta etapa. No checkout de desenvolvimento do harness,
+verifique a lógica sem Docker ou modelo:
+
+```bash
+python -B -m unittest discover -s tests -p test_mission_guardian.py -v
+```
+
+No Windows, esse teste não comprova permissões ou sincronização de diretórios Linux.
+O relatório descreve a prova separada na microVM e os controles ainda pendentes.
+Para inspecionar uma sandbox existente sem iniciá-la, acrescente `--sandbox NOME`:
+
+```bash
+python3 -B scripts/missions.py client environment --executable /caminho/absoluto/sbx --sandbox NOME --json
+```
+
+A versão observada usa `ls/inspect/ls` para conferir UUID, nome, imagem e executável.
+`mcp_isolation_unverified` significa que ainda falta provar a inacessibilidade do gateway
+pelo cliente, inclusive com rede de fornecedor permitida. Nenhum perfil é liberado por
+esse comando. A [prova do launcher](relatorios/2026-10-04-launcher-boundary.md) registra
+três cenários dentro da VM e duas provas de queda no Windows: coordenador e transporte
+`sbx`. O [build nativo](relatorios/2026-10-04-native-kit-build.md) produziu e importou a
+imagem sem depender do builder gerenciado que falhou. O resolvedor ainda exige um registry
+HTTPS confiável para criar a sandbox; importar o arquivo não basta, mesmo com `--pull never`.
+O ensaio com `--pull missing` [criou a sandbox pelo digest esperado](relatorios/2026-10-04-native-package-proof.md),
+com 2 CPUs/4 GiB e sem montagem do projeto. O certificado temporário foi retirado e o
+inventário original restaurado; origem e portas também voltaram ao estado anterior.
+Arquivos protegidos, recusa sem coordenador e três casos do launcher foram comprovados
+nessa VM. O [reinício durante trabalho sintético](relatorios/2026-10-04-shutdown-reserve.md)
+terminou 3,8935 ms após o limite e permanece reprovado. A candidata reserva um segundo do
+prazo para encerramento; recusa criação, início e despacho quando resta apenas essa janela.
+O prazo original e o teto de 120 segundos permanecem. Nove cenários sintéticos passaram;
+um novo reinício com a candidata terminou 993,6312 ms antes do limite e recusou outro início.
+O [ensaio de rede](relatorios/2026-10-04-network-boundary.md) encontrou uma rota MCP pelo
+proxy do Docker. A alternativa com saída direta restrita ao IP público do provedor passou
+nos casos testados para OpenAI e Anthropic, incluindo processos filhos. Isso comprova
+transporte TLS, sem autenticação ou chamada de modelo. A [integração no launcher](relatorios/2026-10-04-network-launcher.md)
+passou em oito cenários nativos e nos dois ensaios de provedor. O reinício ativo v2
+foi executado e a verificação de prazo falhou. A reconciliação encontrou desligamento
+da VM antes do limite e novo boot durante a consulta. A nova prova deve registrar
+`ls`/`inspect` com identidade, imagem e horário antes de qualquer `exec`, que pode
+iniciar uma VM parada. Um `FinishedAt` recuperado com saída 255 não comprova sozinho
+quando a tarefa terminou. O recibo anterior permanece reprovado. O novo ensaio
+observou a VM parada 3,756s antes do deadline, conferiu PID0 e recusou repetição após
+a retomada. Ambos estão consumidos; não repita nem apague seus recibos. Rotas restantes,
+pacote e suspensão continuam pendentes.
+O perfil continua bloqueado; não substitua esse gate por uma liberação manual de rede.
+Recibos consumidos não devem ser apagados nem reexecutados. As duas provas de
+reinício estão preservadas; a candidata usa código separado do pacote anterior.
+As exceções de confiança usadas no diagnóstico ficam fora do setup consumidor. A receita em `runtime/sbx/`
+continua restrita ao desenvolvimento do harness; não está no setup dos projetos consumidores.
+No Windows avaliado, iniciar o serviço pelo PowerShell normal permitiu criar as VMs após
+falhas nos sockets quando o serviço partia pelo terminal do agente. Essa comparação não
+prova recuperação automática. Não repita login, instalação ou reinício do Windows para
+resolver `runtime_profile_unverified`: consulte as pendências do relatório.
+Ao migrar, o setup preserva um `mission_sandbox.py` existente, inclusive com `--force`.
+Se aparecer `incompatible_helper`, compare os helpers preservados com a versão do harness
+e mescle as alterações antes de repetir o diagnóstico.
+A CLI verifica o contrato de observação do helper de sandbox antes de consultar o host,
+inclusive quando o helper anterior ainda fornece uma função de diagnóstico utilizável.
+
+From the project root, pass the absolute path to the installed `sbx` executable.
+On Windows, use `python` and the path to `sbx.exe`, quoted if it contains spaces.
+The command reads the executable version and hash and checks system prerequisites.
+It does not install components, change settings, create a VM, sign in or call models.
+The result lists pending checks in `gaps` and exits with code 1 while any remain.
+`runtime_missing` means the binary is absent; `whp_disabled` means the Windows feature
+is disabled; `whp_unknown` means its state could not be confirmed.
+If enabling the feature returns `RestartNeeded: True`, save your work and restart
+Windows before the real proof, even when `whp_state` already reports 1.
+That field confirms feature configuration, not a working VM.
+Every environment currently reports `runtime_profile_unverified`: discovering a version
+and prerequisites does not prove isolation or enforcement of the execution deadline.
+Completing `sbx login` does not clear that gap either. The [synthetic supervisor probe](relatorios/2026-10-04-supervisor-spike.md#english-overview)
+used a mountless microVM and a nested container with a five-second deadline.
+It confirmed some controls; it does not enable `client check` with real models.
+This was manual development preparation, separate from consumer-project setup.
+The [guardian protocol](relatorios/2026-10-04-guardian-protocol.md#english-overview) now has a
+synthetic Python proof: discovery and diagnostics share one deadline, with consumption persisted
+before each phase. Do not reopen a consumed operation by deleting its markers.
+There is no new production command at this stage. Run the unit-test command above from the
+harness development checkout, without Docker or model calls. On Windows, it does not prove Linux permissions
+or directory synchronization; the report records the separate microVM proof and remaining checks.
+Add `--sandbox NAME`, as shown above, to inspect an existing sandbox without starting it.
+The observed runtime uses `ls/inspect/ls` to check UUID, name, image and executable.
+`mcp_isolation_unverified` means client access to the gateway still needs to be ruled out,
+including with provider networking enabled. This command never enables a profile.
+The [launcher proof](relatorios/2026-10-04-launcher-boundary.md#english-overview) records three
+in-VM scenarios and two Windows crash cases: coordinator and `sbx` transport loss.
+The [native build](relatorios/2026-10-04-native-kit-build.md#english-overview) produced and imported
+the image without the failing managed builder. Sandbox creation still requires a trusted HTTPS
+registry; loading the archive is insufficient, even with `--pull never`. Using `--pull missing`
+[created the sandbox from the expected digest](relatorios/2026-10-04-native-package-proof.md#english-overview),
+with 2 CPUs/4 GiB and no project mount. Certificate inventory, source settings and ports were
+restored. Protected files, refusal without the coordinator and three launcher cases passed
+in that VM. The [active restart test](relatorios/2026-10-04-shutdown-reserve.md#english-overview)
+recorded termination 3.8935 ms past the deadline and remains failed. The candidate reserves
+one second within that deadline for shutdown and refuses creation, start or dispatch when
+only this window remains. The original deadline and 120-second ceiling stay unchanged.
+Nine synthetic scenarios passed. During a new restart, the candidate finished 993.6312 ms
+early and refused another start. The [network probe](relatorios/2026-10-04-network-boundary.md#english-overview)
+found an MCP route through Docker's proxy. Restricted direct egress passed the tested
+OpenAI and Anthropic cases, including child processes. This proves TLS transport without
+authentication or model calls. The [launcher integration](relatorios/2026-10-04-network-launcher.md#english-overview)
+passed eight native cases and both provider probes. Its active restart failed the
+deadline check. Host logs show shutdown before the limit and another boot during
+inspection. The replacement proof must capture `ls`/`inspect`, identity, image and
+time before any `exec`, which may start a stopped VM. Recovered exit 255 and
+`FinishedAt` alone cannot establish the task termination time. Preserve the failed
+receipt. The replacement observed the VM stopped 3.756s before the deadline, verified
+PID0 and refused replay after boot. Both scripts are consumed; do not replay or erase
+their receipts. Remaining routes, package rebuilding and suspension still need proof. The profile stays blocked; do not replace
+this gate with a manual network allowance. Keep all consumed receipts; the candidate uses
+code separate from the earlier package. Global trust changes are outside consumer setup.
+The recipe under `runtime/sbx/`
+remains limited to harness development and is not installed in consumer projects.
+On the tested Windows host, starting the daemon from ordinary PowerShell allowed VM
+creation after socket failures when the daemon was launched by the agent terminal.
+That comparison does not prove automatic recovery. Do not repeat sign-in, installation
+or a Windows reboot to resolve `runtime_profile_unverified`; consult the report's remaining checks.
+During migration, setup preserves an existing `mission_sandbox.py`, including with `--force`.
+If `incompatible_helper` appears, compare preserved helpers with the harness version
+and merge the changes before repeating the diagnostic.
+The CLI checks the sandbox helper's observation contract before querying the host,
+including when the older helper still exports a working diagnostic function.
+
+### Rede do launcher em desenvolvimento / Development launcher networking
+
+O manifesto v1 usa `network none`. No v2, `network` contém um único `host` e `ipv4`
+público fixados por operação. O controlador confiável prepara e inicia o contêiner,
+executa `launcher.py network OPERATION_ID NONCE initialize` e só então envia a mensagem
+`initialize`. Antes de enviar `dispatch`, executa o mesmo comando com a fase `dispatch`.
+Esse segundo passo confere as regras existentes; não as repara.
+
+Ambos os comandos exigem root na VM e gravam um claim antes do efeito. O guardian
+recusa iniciar o cliente sem recibo privado correspondente à identidade, fase e namespace.
+Uma tentativa interrompida fica consumida: preserve os registros para reconciliação.
+Esses comandos pertencem ao teste do runtime, sem liberação de perfil ou instalação
+no projeto consumidor. Não reutilize IPs de relatórios como configuração permanente.
+
+No checkout do harness, `python3 -m unittest discover -s tests -p 'test_mission_launcher.py' -v`
+verifica o contrato sem Docker ou chamadas de modelo. `tests/smoke_mission_network.py`
+exige Linux, root, imagem e launcher previamente preparados numa VM própria; seus oito
+casos não alteram a política `sbx` nem chamam provedores. A medição registra as provas
+externas separadamente. Testes unitários no Windows não certificam permissões Linux.
+
+A [prova com sentinelas Windows](relatorios/2026-10-05-gateway-endpoints.md) cobriu os
+endereços observados do gateway/host com os provedores acessíveis. Foram 124 tentativas
+TCP sem conexão e zero acessos às sentinelas; as portas temporárias foram fechadas e
+as políticas restauradas. Falha de DNS e erro genérico IPv6 não certificam filtragem.
+Esses recibos estão consumidos. A [investigação seguinte](relatorios/2026-10-05-proxy-resolution.md)
+mediu DNS direto e proteção dos arquivos de resolução, mas não comprovou o destino final.
+O caminho atual também não usa a injeção de credenciais do proxy explícito. Autenticação
+e bloqueio de MCP precisam ser resolvidos juntos; perfis continuam bloqueados. A [prova conjunta](relatorios/2026-10-05-auth-egress-spike.md)
+passou somente em simulação, com credenciais falsas e destinos locais. Na [prova com o proxy real](relatorios/2026-10-05-native-proxy-compatibility.md),
+a substituição funcionou por domínio; o caminho por IP foi recusado em dois serviços de eco.
+O candidato ainda não pode ser integrado. A [prova A/B/A](relatorios/2026-10-05-hostname-cidr-proof.md)
+recebeu HTTP 200 com credencial fictícia nas três etapas, inclusive com negação de
+todos os IPs. O Docker documenta essa separação entre domínio e CIDR. Regras CIDR
+não suprem o controle do endereço resolvido nesse caminho. O [desenho do modo exclusivo](superpowers/specs/2026-10-05-exclusive-egress-decision.md)
+documenta ativação e retorno para uma instalação do Docker Sandboxes reservada ao
+YoungCrow; quem precisar compartilhá-la usaria um runner dedicado. O modo local foi
+aprovado, assim como o [plano da prova](superpowers/plans/2026-10-05-exclusive-egress-proof.md).
+O [ensaio nativo](relatorios/2026-10-05-exclusive-egress-proof.md) parou na ativação, antes de
+GETs ou partidas de VM: a origem real do setting é `override`, enquanto o código esperava `user`.
+A suíte passou em 60 testes. A recuperação foi concluída após um reinício pelo mantenedor
+e uma conferência final somente leitura: configurações restauradas, cinco VMs paradas,
+guard ausente e permissões preservadas. Dois IDs de uma regra automática do kit mudaram
+no reinício; essa diferença está registrada. Não há outro comando de recuperação pendente.
+`run-exclusive-egress-proof.ps1 -Reconcile` recupera somente a operação existente, sem GET;
+seu sucesso não aprova a prova de rede. O recibo permanece consumido. Uma nova prova precisa
+de operação e autorização próprias; não há comando de ativação no produto. OAuth, DNS final
+e isolamento seguem pendentes.
+O operador executou v2; houve `TimeoutExpired` antes da criação do recibo e das alterações
+no Docker. A consulta exata que excedeu o prazo não ficou registrada. A conferência posterior
+encontrou o mesmo daemon, cinco VMs paradas e configurações, políticas e credenciais preservadas.
+Não há recibo v2 para `-Reconcile` recuperar. O roteiro `run-exclusive-egress-v2.ps1` e sua
+entrada Python estão bloqueados pelo encerramento do ciclo; nenhum modo inicia uma nova prova.
+Não execute outro comando desse ensaio. O resultado de rede permanece inconclusivo.
+Não repita os scripts consumidos nem use a fixture como executor.
+
+A [prova observada](relatorios/2026-10-06-observed-egress-proof.md) foi executada e parou
+antes das GETs em `settings_readback_failed`. O roteiro exigia `override` ao gravar o
+valor padrão de `no_proxy.sandbox`; o Docker remove o override nesse caso. A correção
+passou em 75 testes locais. Configurações, regras, inventário de credenciais e porta
+temporária foram conferidos após a restauração. Não há limpeza pendente: não repita
+`-RunApprovedProbe` nem execute `-Reconcile` para essa saída. Os recibos e a fonte executada
+foram preservados. Os hashes do roteiro consumido não foram atualizados; uma operação
+futura precisa de escopo e autorização próprios. A prova de rede permanece pendente.
+
+A [continuação corrigida](relatorios/2026-10-06-corrected-egress-proof.md) foi executada.
+A passou com HTTP 200 e credencial fictícia correspondente. B recebeu `RemoteDisconnected`,
+sem evidência suficiente da recusa do upstream; A2 não foi executada. Limpeza confirmada
+por leitura independente. Preserve `corrected-egress-proof/`; não repita o roteiro nem use
+`-Reconcile` para essa saída. Não há limpeza pendente. A análise posterior encontrou a recusa na porta do guard no
+log do daemon, com sandbox e horário correspondentes. O coletor não reconheceu essa
+evidência; A2 continua não executada. Um [coletor separado](relatorios/2026-10-06-captured-egress-evidence.md)
+passou em onze testes offline, com snapshots completos e a mensagem real do daemon.
+A [ligação com o controlador](relatorios/2026-10-06-integrated-egress-controller.md) foi
+validada offline: o fluxo grava B, condiciona A2 ao aceite e recupera sem repetir trabalho.
+A entrada da nova prova está preparada, com hashes conferidos e 113 testes locais
+aprovados. O resultado nativo continua pendente. Não execute os roteiros consumidos.
+[Panorama consolidado](relatorios/2026-10-06-panorama-executor.md).
+
+#### Entrada do ensaio integrado: somente mantenedor
+
+A tentativa `integrated-egress-proof/` está consumida. As cinco consultas iniciais
+passaram, mas `unsupported_permissions` interrompeu a execução antes de criar
+`control.json` ou alterar o Docker. A pasta tinha o usuário como proprietário;
+os três arquivos criados pela sessão remota tinham o grupo Administradores.
+A validação exige o usuário também nos arquivos. Não repita o roteiro, não altere
+as permissões dos recibos e não execute `-Reconcile`: não há restauração do Docker
+pendente para essa tentativa.
+
+O contexto pelo terminal remoto foi conferido com o comando abaixo. Não é necessário repeti-lo:
+
+```cmd
+C:\Python314\python.exe -I -B "C:\Users\rmfon\YoungCrowHarness-review-20261001\.superpowers\sdd\2026-10-04-isolated-executor\check_mobile_owner.py" --check
+```
+
+Esse diagnóstico privado reutiliza `tests/windows_fixture_runner.py`. O auxiliar
+ajusta o proprietário padrão do processo para o usuário atual e restaura esse valor
+no `finally`. Cria um arquivo temporário, exige as mesmas validações de permissão e
+remove o arquivo e sua pasta vazia. Os hashes dos auxiliares e dos três registros
+anteriores são conferidos antes e depois. Não há comando Docker, requisição externa,
+reinício ou chamada de IA; as ACLs existentes e a política do Windows são preservadas.
+
+O operador confirmou `owner_context_verified` com `adjusted: true` na sessão do
+celular. A verificação local também passou, com `adjusted: false`. Esse resultado
+comprova a criação de arquivos privados nesse contexto; a prova de rede continua pendente.
+
+A entrada `run-mobile-egress-proof.ps1` passou pela verificação de proprietário, mas a
+tentativa `mobile-egress-proof/` foi consumida por `JSONDecodeError` na primeira consulta
+`sbx daemon status --json`. O comando retornou zero; o registro não guardou sua resposta.
+Não existem `control.json` ou `receipt.json`; a falha ocorreu antes de alterar o Docker.
+Não repita essa entrada nem execute `-Reconcile`: não há limpeza pendente nessa tentativa.
+
+O diagnóstico concluído consultou somente esse status, uma vez, com prazo de 15 segundos.
+Reutiliza o contexto de proprietário, salva stdout/stderr originais em uma pasta privada
+e registra o resultado da interpretação. Não inicia a prova A/B/A2, não faz GETs nem
+reinicia o serviço. A consulta passou localmente com e sem o auxiliar. O operador também
+confirmou a captura no terminal remoto: 180 bytes, JSON válido, daemon em execução e
+stderr vazio. Os bytes são idênticos aos locais. Comando já executado, sem necessidade de repetir:
+
+```cmd
+C:\Python314\python.exe -I -B "C:\Users\rmfon\YoungCrowHarness-review-20261001\.superpowers\sdd\2026-10-04-isolated-executor\check_mobile_status.py" --check
+```
+
+O JSON final informa `evidence_dir`, onde ficam `status.stdout`, `status.stderr` e
+`status-observation.json`. São registros privados de diagnóstico; preserve a saída.
+O auxiliar de proprietário mantém suas verificações de ACL com timeout de 120 segundos.
+A etapa inicial original, com seu registrador de comandos, passou depois nas cinco
+consultas somente leitura executadas daqui. Todas as sandboxes estavam paradas.
+A falha anterior não foi reproduzida; sua resposta original não pode ser recuperada
+desses recibos. A nova entrada `captured_mobile_egress.py` integra a captura ao ensaio:
+guarda stdout/stderr do comando exato de status antes de devolvê-los ao interpretador.
+Cada resposta fica vinculada ao identificador do comando em `status-responses/`.
+Os arquivos ficam privados. Comandos de credenciais e outros comandos continuam sem
+argumentos ou conteúdo das respostas no registro. JSON inválido e timeout continuam
+recusados, sem repetição automática. Respostas maiores que 64 KiB por fluxo deixam
+prefixo e hash registrados e interrompem a execução.
+
+A preparação passou em 129 testes, incluindo nove novos. A revisão daquela entrada
+não encontrou defeitos acionáveis, mas não cobriu a divergência de identificador no
+controlador. **A operação `captured-mobile-egress-proof/` já foi consumida. Não repita
+o roteiro.** Suas 24 consultas terminaram antes de qualquer GET, reinício ou alteração
+no Docker. Quatro respostas de status foram guardadas e interpretadas corretamente.
+O resultado `policy_baseline_changed` veio da comparação literal de um identificador
+recriado pela limpeza anterior; as permissões da regra continuavam iguais.
+`cleanup.restored=true`, sem erros: não há recuperação por `-Reconcile` pendente.
+
+A correção está ligada à captura e ao controlador por `policy_egress_entry.py`, uma
+entrada usada por importação nos testes, com execução direta bloqueada. A sequência
+inicial completa passou por status, sete configurações, identidade da VM, políticas e
+inventário fictício de credenciais até a primeira ação com efeito externo. As respostas
+externas foram simuladas; nenhum comando Docker foi executado. Passaram 12 testes dessa
+entrada e 83 do controlador, comparação e fases seguintes. A entrada nativa abaixo
+liga essa integração ao adaptador Windows. O aceite real A/B/A2 continua pendente.
+O [relatório](relatorios/2026-10-06-integrated-egress-controller.md#comparação-da-política-falha-do-controlador)
+separa a causa confirmada do aceite A/B/A2 que continua pendente.
+
+**Entrada consumida em 06/10, às 21h50:** `run-policy-egress-proof.ps1`
+chegou ao inventário de credenciais e parou porque `sbx secret ls --json` retornou 1.
+A operação `policy-mobile-egress-proof/` registrou 25 consultas e nenhuma alteração,
+GET externo, reinício ou chamada de IA. Proprietário, configurações e comparação de
+políticas passaram. `cleanup.restored=true`, sem erros: não há limpeza pendente.
+Preserve os arquivos; não execute novamente nem use `-Reconcile` nessa operação.
+
+A consulta isolada passou duas vezes no terminal local, uma delas pelo mesmo auxiliar
+Windows e diretório temporário privado. Isso não reproduz a sessão remota: o auxiliar
+registrou `adjusted=False` aqui e `adjusted=True` no celular. O roteiro não guardou
+o stderr da consulta de credenciais; os registros existentes não explicam a causa.
+O próximo diagnóstico deve capturar somente o erro dessa consulta no contexto
+remoto, sem rodar A/B/A2 ou alterar o Docker. Não há novo comando de ensaio preparado.
+
+Os 102 testes anteriores continuam como evidência da preparação com respostas
+simuladas. O aceite nativo e a habilitação do executor permanecem pendentes.
+[Diagnóstico](relatorios/2026-10-06-integrated-egress-controller.md#consulta-de-credenciais-falhou-na-sessão-remota) ·
+[Medição atualizada](medicoes/native-policy-egress-entry.json).
+
+Os limites da operação consumida eram: até três GETs para `postman-echo.com`, com
+credencial fictícia, e até dois reinícios do serviço Docker Sandboxes, com VMs paradas.
+O preflight faz até cinco consultas de 15 segundos. Preparação e limpeza têm 180
+segundos cada; o ensaio tem 120 segundos, com até 10 por GET. Antes disso, o auxiliar
+verifica o contexto Windows; suas verificações de ACL têm timeout próprio de 120 segundos.
+Não há chamada de IA, certificado novo ou reinício do Windows.
+
+Só `viable_within_probe` aceita um ensaio nativo; esse aceite não libera o executor do
+produto. Esta operação não recebeu esse aceite e já confirmou sua restauração.
+Preserve a saída e a pasta; não repita o roteiro nem use `-Reconcile` neste caso.
+O auxiliar restaura o proprietário padrão do processo ao sair; a pasta privada de
+arquivos temporários permanece como artefato local. O roteiro não integra o setup distribuído.
+
+Manifest v1 uses `network none`. Version 2 binds one public IPv4 and hostname to the
+operation. After preparing and starting the container, the trusted controller runs
+`launcher.py network OPERATION_ID NONCE initialize` before sending `initialize`.
+It runs the same command with phase `dispatch` before dispatching; that phase verifies
+existing rules without repairing them. Both root-only commands consume a durable claim
+before effects, and the guardian requires the matching private receipt. Interrupted
+attempts stay consumed. These are development commands, with no profile activation
+or consumer installation. Never reuse report IPs as permanent configuration.
+
+The unit command above runs without Docker or models. The native smoke requires a
+prepared owned Linux VM and image; it neither changes `sbx` policy nor calls providers.
+The [report](relatorios/2026-10-04-network-launcher.md#english-overview) distinguishes
+unit tests, native cases, external transport checks and remaining proof.
+
+The [Windows sentinel proof](relatorios/2026-10-05-gateway-endpoints.md#english-overview)
+covered observed gateway/host addresses while provider TLS remained reachable:
+124 TCP attempts did not connect and no unexpected connection reached a sentinel.
+Temporary listeners closed and policies were restored. DNS failure and generic IPv6
+errors do not prove filtering. These receipts are consumed. The [next investigation](relatorios/2026-10-05-proxy-resolution.md#english-overview)
+tested direct DNS and resolver-file protection but did not establish the final destination.
+The current path also lacks forward-proxy credential injection. Authentication and MCP
+isolation need a joint solution; native profiles remain blocked. The [joint probe](relatorios/2026-10-05-auth-egress-spike.md#english-overview)
+passed only in simulation with fake credentials and local destinations. In the [real-proxy probe](relatorios/2026-10-05-native-proxy-compatibility.md#english-overview),
+substitution worked through hostname CONNECT, while the IP path was rejected on two echo
+services. The candidate is not ready for integration. The [A/B/A probe](relatorios/2026-10-05-hostname-cidr-proof.md#english-overview)
+returned HTTP 200 with the dummy credential in all three phases, including under
+universal IP denial. Docker documents this separation between hostname and CIDR.
+CIDR rules do not enforce the resolved address on this path. The [exclusive-mode design](superpowers/specs/2026-10-05-exclusive-egress-decision.md#english-overview)
+describes activation and teardown for a Docker Sandboxes installation reserved for
+YoungCrow; shared local use would require a dedicated runner. Exclusive local scope
+and the [proof plan](superpowers/plans/2026-10-05-exclusive-egress-proof.md) are approved.
+The [native attempt](relatorios/2026-10-05-exclusive-egress-proof.md#english-overview) stopped during
+activation, before GETs or VM starts: Docker reports `override`, while the code expected `user`.
+The suite passed 60 tests. Recovery completed after one maintainer-initiated restart and
+final read-only verification: settings restored, five VMs stopped, guard absent and permissions
+preserved. Two IDs in an automatic kit rule changed during restart; that difference is recorded.
+No recovery command remains pending. `run-exclusive-egress-proof.ps1 -Reconcile` only recovers
+the existing operation, without a GET; its success does not approve the network proof. The receipt
+remains consumed. A new proof needs its own operation and authorization; no product activation
+command is available. OAuth, final DNS and isolation remain unverified. Do not repeat consumed
+scripts or use the fixture as an executor.
+The operator ran v2; `TimeoutExpired` occurred before receipt creation or Docker changes.
+The exact timed-out query was not recorded. Follow-up observation found the same daemon,
+five stopped VMs and unchanged settings, policies and credentials. No v2 receipt needs
+`-Reconcile`. Both `run-exclusive-egress-v2.ps1` and its Python entry point are blocked by
+cycle closure; no mode starts another proof. No further command is required. Network results
+remain inconclusive; the closed probe must not be replayed.
+
+The [observed proof](relatorios/2026-10-06-observed-egress-proof.md#english-overview) ran
+and stopped before any GET with `settings_readback_failed`. The script expected an
+override when assigning the default `no_proxy.sandbox` value; Docker removes the override.
+The correction passed 75 local tests. Settings, rules, credential inventory and the
+temporary port were checked after restoration. No cleanup remains: do not repeat
+`-RunApprovedProbe` or run `-Reconcile` for this result. Receipts and executed source were
+preserved; the consumed wrapper was not repinned. A future operation needs its own scope
+and authorization. Network enforcement remains unverified.
+
+The [corrected continuation](relatorios/2026-10-06-corrected-egress-proof.md#english-overview)
+ran once. A passed with HTTP 200 and the matching dummy credential. B received
+RemoteDisconnected without enough evidence of upstream refusal; A2 did not run. Cleanup
+was independently verified. Preserve `corrected-egress-proof/`; do not repeat the script
+or run `-Reconcile` for this result. No cleanup remains. Later daemon-log analysis attributed the disconnect to guard-port
+refusal in the same sandbox and time window. A2 did not run. A [separate collector](relatorios/2026-10-06-captured-egress-evidence.md#english-overview)
+passed eleven offline tests with full snapshots and the real daemon event.
+[Controller integration](relatorios/2026-10-06-integrated-egress-controller.md#english-overview)
+was validated offline, including persistent B evidence, conditional A2 and recovery without
+replay. Its 113 local tests passed, but the native attempt stopped after five metadata
+queries because its files were owned by Administrators rather than the current user.
+No control record, GET, Docker restart or settings change occurred. Preserve the consumed
+attempt; no Docker reconciliation is needed. The earlier `check_mobile_owner.py` diagnostic
+checked current-user file creation through the existing process-owner fixture adapter,
+without Docker or network calls. It retained permission checks and restored the process
+token's default owner on exit. Local verification passed with `adjusted: false`; the operator
+confirmed `adjusted: true` in the remote session. The separate native entry reused this
+adapter, verifies a private file before reservation and keeps existing controller and
+cleanup behavior. It records a new single-use `mobile-egress-proof/` operation. Bounds:
+three dummy GETs, two service restarts with stopped VMs, five initial queries of 15 seconds,
+180 seconds each for preparation and cleanup, and 120 seconds for the probe with 10 per
+GET. The preceding owner adapter retains its own 120-second ACL helper timeouts.
+Preserve output and receipts; reconcile only pending cleanup. Native acceptance remains
+pending and product profiles stay disabled. The subsequent mobile attempt passed the
+owner check but failed while parsing the first daemon-status reply, despite exit code
+zero. The raw reply was not retained. No control record, Docker changes or cleanup
+occurred. Do not repeat that attempt or reconcile it. The current command above captures
+one read-only status reply, with a 15-second timeout, under the owner adapter. Both local
+status queries passed. The remote capture then passed too: 180 bytes, valid JSON,
+running daemon and empty stderr, matching the local output byte for byte. All five
+original preflight queries also passed locally through the command recorder, with
+every sandbox stopped. No replay of the diagnostic is needed. The historical failure
+remains unexplained. The separate captured entry now retains exact daemon-status replies
+before parsing, correlated by command ID under private `status-responses/`. Other command
+payloads remain unrecorded. Timeout and JSON failures still refuse; there are no automatic
+retries. A 64 KiB limit per stream preserves a prefix/hash and refuses oversized replies.
+The preparation suite passed 129 tests, including nine new cases. That entry's review
+did not cover the controller's rule-ID mismatch. The operation has now been consumed:
+24 queries, four valid captured status replies, no GET, restart or Docker changes.
+It stopped on `policy_baseline_changed` because earlier cleanup regenerated a rule ID
+without changing its permissions. Cleanup is verified; no replay or reconciliation
+is needed. The correction is now connected to capture and recovery through an import-only
+entry; its direct CLI remains disabled. Twelve tests exercise the full initial sequence
+through seven settings, VM identity, policies and a synthetic credential inventory,
+stopping at the first external-effect boundary. Another 83 controller/comparison/phase
+tests passed. External replies were simulated; no Docker command was executed. The new
+`run-policy-egress-proof.ps1` entry now connects this integration to the Windows owner
+adapter and the separate `policy-mobile-egress-proof/` operation. It pins Python, sources
+and prior receipts; SHA-256 uses .NET rather than requiring `Get-FileHash`. The actual
+owner adapter reached the full initial sequence in tests with simulated Docker replies.
+The operator has now consumed this entry. It stopped when `sbx secret ls --json`
+exited 1 after ownership, settings and policy checks passed. All 25 commands were
+read-only, with no external GET, restart or Docker mutation. Cleanup is verified;
+do not replay or reconcile this operation. Two local queries passed, one through
+the existing owner helper, but the local owner required no adjustment whereas the
+remote owner did. The controller did not retain the failed query's stderr, so its
+cause remains unknown. The next diagnostic must obtain only that query's error in
+the remote context before another full probe is prepared. No new probe command is available.
+Native A/B/A2 acceptance is still pending.
+[Consolidated overview](relatorios/2026-10-06-panorama-executor.md#english-overview).
+
+### Destinos de execução previstos / Planned execution locations
+
+O [escopo aprovado](superpowers/specs/2026-10-05-local-and-dedicated-execution.md) mantém
+duas opções: execução local como padrão para quem abre o projeto no VS Code e runner
+dedicado opcional, em outra máquina ou servidor. A mesma esteira deve atender Claude Code
+e Codex em ambos. O setup aceita `--execution-location local|dedicated`; omitir a flag
+preserva uma escolha anterior e usa local apenas quando não há registro.
+O [desenho aprovado](superpowers/specs/2026-10-05-execution-setup-design.md) usa o VS Code
+Remote SSH para abrir o projeto do runner e executar o harness naquele host. O
+[plano](superpowers/plans/2026-10-05-execution-setup.md) foi implementado nesta branch.
+As oito combinações de adoção/restauração passaram; consulte o
+[relatório e os limites da prova](relatorios/2026-10-05-execution-setup.md). O
+[guia instalado PT/EN](../skills/personalizer/references/execution.md) cobre projeto novo,
+migração, troca autorizada por digest e diagnóstico com limites por etapa.
+
+O destino local depende da disponibilidade da máquina do desenvolvedor. O runner exige
+ambiente e autenticação próprios; a transferência prevista em YC-208/209 conserva um
+único responsável e exclui credenciais. Dev Container será uma opção de padronização de
+dependências, sem substituir as provas de isolamento. Nenhum perfil autônomo foi liberado.
+
+The [approved scope](superpowers/specs/2026-10-05-local-and-dedicated-execution.md#english-overview)
+retains two locations: local execution by default for VS Code users, and an optional
+dedicated machine or server. The same pipeline must support Claude Code and Codex in both.
+Setup accepts `--execution-location local|dedicated`. Omitting it preserves an existing
+choice and defaults to local only when no record exists.
+The [approved design](superpowers/specs/2026-10-05-execution-setup-design.md#english-overview)
+uses VS Code Remote SSH to open the runner's workspace and run the harness on that host.
+The [plan](superpowers/plans/2026-10-05-execution-setup.md) is implemented on this branch.
+All eight adoption/restore combinations passed; see the
+[evidence and limitations](relatorios/2026-10-05-execution-setup.md#english-overview). The
+[installed guide](../skills/personalizer/references/execution.md#english) covers new/existing
+projects, authorized digest-based changes and bounded phase diagnostics.
+
+Local execution requires the developer's machine to remain available. A runner needs its
+own environment and authentication. Planned YC-208/209 transfer preserves a single owner
+and excludes credentials. An optional Dev Container can standardize dependencies without
+replacing isolation evidence. No autonomous execution profile has been enabled.
 
 ### Interrupção e recuperação / Interruption and recovery
+
+Consulte primeiro a seleção e o diagnóstico / Read selection and diagnostics first:
+
+```bash
+python3 -B scripts/missions.py environment show --json
+python3 -B scripts/missions.py environment configure --location dedicated --expected-digest DIGEST --json
+python3 -B scripts/missions.py client environment --executable /path/to/sbx --json
+```
+
+Use o digest de `show`; `none` vale só para arquivo ausente. Consulta não cria arquivo,
+banco ou nota. Mudança de preferência não transfere missões. Um lock ocupado exige nova
+consulta, sem apagar estado. Use the current digest; `none` applies only to an absent
+record. Read-only queries create no state. Selection changes do not transfer missions.
+
+A consulta e a troca do destino usam o mesmo lock da seleção. Se outra operação
+estiver usando esse lock, `environment show` ou `configure` retorna
+`execution_selection_busy`; consulte novamente depois que ela terminar. Não apague
+`reclaim.lock`: o arquivo permanece após a liberação pelo sistema operacional.
+Um digest antigo retorna `execution_selection_conflict`, sem uma segunda gravação.
+A consulta aceita lock vazio ou somente leitura e não o modifica. Proteção inválida
+continua sendo recusada; esse controle cobre a seleção, não todos os recibos da área.
+
+Selection reads and updates use the same lock. If another operation holds it,
+`environment show` or `configure` returns `execution_selection_busy`; query again
+after that operation finishes. Keep `reclaim.lock`: its file persists after the OS
+releases the lock. A stale digest returns `execution_selection_conflict` without a
+second write. Queries leave empty or read-only locks unchanged. Unsafe storage is
+still rejected. This coordination covers selection, not every receipt in the area.
+
+Exemplo abreviado de fixture sintética / Abbreviated synthetic fixture example:
+
+```json
+{"id":"virtualization","started_at":"2026-10-05T00:00:00+00:00","ended_at":"2026-10-05T00:00:30+00:00","elapsed_seconds":30.01,"timeout_seconds":30,"output_limit_bytes":8388608,"state":"timeout","reason":"timeout"}
+```
+
+A consulta de versão ainda pode passar; `runtime_profile_unverified` mantém o bloqueio.
+Essa saída não comprova falha de rede nem execução em runner real. As fases não incluem
+stdout, ambiente ou credenciais. Helpers preservados incompatíveis exigem comparação e
+mesclagem. Um trial com restaurador antigo incompatível deve ser encerrado pelo runner
+original antes de uma nova adoção, sem substituir seus arquivos.
+
+The independent version query can still pass; `runtime_profile_unverified` keeps execution
+blocked. This fixture proves neither network failure nor a real runner. Phases omit raw
+stdout, environment and credentials. Preserved incompatible helpers need comparison and
+merging. Exit an incompatible older trial using its original restore runner before adopting
+again; keep its files unchanged.
 
 `client runs` e `status` só leem. Não migram o banco, não corrigem notas nem iniciam processos.
 O primeiro diagnóstico autorizado migra o esquema 1 para 2 numa transação aditiva. Uma falha
@@ -1813,10 +2915,16 @@ use `.txt` para evidência em texto simples.
 python3 -B scripts/missions.py client reconcile --run UUID_DO_RUN --evidence vault/local/client-evidence.json --expected-revision REVISAO_ATUAL --operation-id UUID_DA_RECONCILIACAO --json
 ```
 
+Runs ligadas ao plano global v2 recusam esse comando com `integrated_recovery_required`;
+seu encerramento exige observação interna e preserva os limites reservados.
+
 Hash prova a identidade do arquivo, não a veracidade do relato. A reconciliação exige também
 que o processo registrado esteja encerrado; nunca mata um PID fornecido pelo operador. O
 resultado é `interrupted`, conservando tentativa, reserva de tempo e custo desconhecido.
 Os limites contam reservas anteriores, inclusive falhas. Criar outro UUID não renova o orçamento.
+
+Runs bound to a global v2 plan reject this command with `integrated_recovery_required`;
+closure requires internal observations and preserves reserved limits.
 
 `client runs` and `status` only read: no migration, repair or process launch. The first authorized
 check migrates schema 1 to 2 atomically. Repeating a manifest repairs a pending projection without
@@ -1862,3 +2970,750 @@ failed or uncertain runs and projection conflicts; reconciliation to `interrupte
 Exit 2 means rejected input/combination. Always read the JSON. Profiles bind the client, OS, version
 and executable hash; a client update can require a new isolation proof. API, macOS and unverified
 architectures remain blocked. See the [delivery matrix](relatorios/2026-10-03-mission-runtime-adapters.md).
+
+<a id="tests-windows"></a>
+
+### Testes do harness no Windows / Harness tests on Windows
+
+No checkout de desenvolvimento, use o runner de testes para conferir proprietário e permissões
+das fixtures. Python, Git e Git Bash precisam estar instalados. Escolha um diretório curto,
+gravável e fora de qualquer repositório Git para `RUNNER_TEMP`; o runner cria uma subpasta privada
+exclusiva e imprime o caminho. Não use a raiz do projeto como pasta temporária.
+
+In the development checkout, use the test runner to verify fixture ownership and permissions.
+Install Python, Git and Git Bash. Set `RUNNER_TEMP` to a short writable directory outside Git;
+the runner creates a unique private child and prints its path. Do not use the project root.
+
+```powershell
+# Exemplo / Example: perfil curto, fora de Git / short profile path, outside Git.
+$previousTestTemp = $env:RUNNER_TEMP
+try {
+    $env:RUNNER_TEMP = $env:USERPROFILE
+    python -X utf8 -B tests/windows_fixture_runner.py -m unittest discover -s tests -v
+    if ($LASTEXITCODE -ne 0) { throw 'Harness tests failed' }
+} finally {
+    $env:RUNNER_TEMP = $previousTestTemp
+}
+```
+
+Se o perfil também tiver caminho longo, escolha outro diretório existente com permissão de escrita.
+No host avaliado, a reserva de trial projetava 256 unidades UTF-16 usando o TEMP padrão e 237
+com a raiz curta; a adoção exige menos de 248. O runner mantém a validação de ACL e o produto
+continua recusando caminhos excessivos antes da escrita. Nenhuma política global do Windows é alterada.
+
+A fixture MCP publica o PID depois de fechar sua gravação, sem substituir registro existente.
+Se houver publicação pendente, a limpeza fica incompleta. Esses testes são sintéticos e não
+chamam modelos. Resultados e limites: [relatório de QA](relatorios/2026-10-04-qa-fixtures.md).
+
+If the profile path is also long, choose another existing writable directory. On the evaluated
+host, the projected trial path measured 256 UTF-16 units under the default TEMP and 237 under
+the short root; adoption requires fewer than 248. ACL checks and path refusal before writes
+remain active. No global Windows policy changes. The synthetic MCP fixture publishes its PID
+after closing the write, without replacing an existing record. Pending publication means
+incomplete cleanup. These tests make no model calls. See the [QA evidence](relatorios/2026-10-04-qa-fixtures.md#english-overview).
+
+### Diagnóstico de testes no GitHub Actions / Test diagnostics in GitHub Actions
+
+A etapa de missões Windows usa o wrapper de ACL existente e a entrada abaixo:
+
+```powershell
+python -B tests/windows_fixture_runner.py tests/ci_unittest.py discover -s tests -p "test_mission*.py" -v
+```
+
+Com `GITHUB_ACTIONS=true`, `ci_unittest.py` publica um identificador por teste falho,
+com erro ou sucesso inesperado nas anotações da etapa. Subtestes usam o ID do teste pai;
+mensagens de exceção e valores de parâmetros não entram nessas anotações. IDs fora do
+formato convencional viram `test_identifier_unavailable`. A saída normal e o código de
+saída continuam sob controle do unittest; localmente, sem essa variável, não há anotações.
+
+As anotações exigem a conclusão da suíte. Cancelamento, timeout ou falha no wrapper
+antes do unittest exigem consultar o log da etapa com acesso ao GitHub. O CI de
+`da28f00` falhou nessa etapa; a causa ainda está em diagnóstico. Veja a
+[evidência](relatorios/2026-10-07-windows-ci-diagnostics.md). Essa suíte usa fixtures;
+não executa um ciclo de aceite nativo do sbx.
+
+The Windows mission step keeps the existing ACL wrapper and uses the entry point
+above. With `GITHUB_ACTIONS=true`, it annotates failure/error/unexpected-success test
+IDs, deduplicating subtests under their parent and excluding exception messages and
+parameter values. Nonstandard IDs become `test_identifier_unavailable`. Standard
+unittest output and exit status remain unchanged; local runs emit no annotations
+without that variable. Annotations require suite completion, so cancellation, timeout
+or earlier wrapper failure still requires access to step logs. CI at `da28f00` failed
+in this step and remains under diagnosis. These fixture tests do not run a native
+sbx acceptance cycle.
+
+
+Os testes integrados de rede também publicam uma anotação por caso com estados e
+códigos de uma lista fixa, duração, código de saída e contagens. Saída dos processos,
+texto de exceções, caminhos e identidades ficam fora da projeção. Valores desconhecidos
+viram `other`. A anotação roda depois que a fixture restaura o ambiente do chamador.
+O workflow executa primeiro os quatro casos `NetworkBindingTests` e o caso de encerramento
+abrupto; a suíte completa permanece depois deles. Se o diagnóstico falhar, os passos
+seguintes ficam pulados e o job continua falho. Não interpretar a rodada focal como
+execução de toda a suíte Windows.
+
+Integrated network tests also publish one notice per case with allowlisted states,
+elapsed time, exit code and counts. Process output, exception text, paths and identities
+are excluded; unknown codes become `other`. The notice runs after fixture environment
+restoration. The workflow first runs the four NetworkBinding cases and the abrupt
+shutdown case, retaining the full suite afterwards. A focused failure skips later
+steps and keeps the job failed; focused execution is not full Windows coverage.
+
+
+A sonda local de B registra apenas a classe de uma exceção inesperada em arquivo da
+fixture e a propaga. A anotação aceita nomes de uma lista fixa; não inclui mensagem,
+endereço ou conteúdo de processo. Uma exceção continua falhando o teste.
+The local B probe records only an unexpected exception class in its fixture and
+re-raises it. Annotations allow only fixed class names, excluding messages, addresses
+and process content. The exception still fails the test.
+
+
+No percurso local v3, B só é reconhecida quando a conexão recebe
+`ConnectionRefusedError`. O CI confirmou que o corte anterior de um segundo podia
+produzir `TimeoutError` no Windows. A sonda usa agora o prazo restante do manifesto,
+com a reserva de encerramento do controlador. Timeout e conexão bem-sucedida
+continuam falhando. O supervisor do teste integrado usa os mesmos 30 s declarados
+no manifesto, contados após a admissão; o prazo absoluto do plano não muda. O corte
+anterior de 15 s podia encerrar A2 ainda dentro do prazo útil. Não há repetição
+automática ou aceite de resultado parcial. [Reprodução](relatorios/2026-10-10-network-fixture-budget.md).
+
+In the local v3 flow, B is recognized only after `ConnectionRefusedError`. CI confirmed
+that the previous one-second cutoff could produce `TimeoutError` on Windows. The
+probe now uses the manifest's remaining deadline, preserving the controller's shutdown
+reserve. Timeout and successful connection still fail. The integrated test supervisor
+uses the manifest's existing 30-second budget, starting after admission; the plan's
+absolute deadline is unchanged. Its previous 15-second cutoff could kill A2 while
+time remained. There is no automatic retry or acceptance of partial results.
+
+
+Mesmo sem stdout após timeout, o diagnóstico tenta ler o ledger persistido. Publica
+contagens e listas de tempos relativos ao início do supervisor para cada fase, em
+milissegundos. Aceita no máximo 60 inteiros de 0 a 3.600.000 por lista; não publica
+timestamps absolutos, payloads ou identidades. Falha na coleta preserva o assert original.
+
+After a timeout with no stdout, diagnostics still attempt to read the durable ledger.
+Per-phase lists report event times relative to supervisor start in milliseconds. Each
+list accepts at most 60 integers from 0 to 3,600,000, excluding absolute timestamps,
+payloads and identities. Collection failures preserve the original assertion.
+
+
+Checkpoint `e674a83`: suíte pública local com 618 testes, 598 aprovados e 20 pulados;
+cinco focais Windows passaram nos runs de push e PR. A suíte Windows completa ainda
+estava em andamento. Um focal verde não encerra a investigação dos timeouts anteriores.
+
+Checkpoint `e674a83`: 618 local public tests, 598 passes and 20 skips; all five focused
+Windows cases passed on push and PR. Full Windows CI was still running. A focused
+pass does not resolve the earlier intermittent timeout investigation.
+
+
+### Verificação das regras privadas / Private ignore verification
+
+As consultas de missão e memória verificam novamente os caminhos privados antes
+de ler o armazenamento. O preflight consulta as três regras de ignore em uma só
+chamada Git e exige correspondência para todas. Remover uma regra, rastrear um
+arquivo privado ou receber erro do Git continua bloqueando a operação. A consulta
+não corrige `.gitignore` e não reutiliza resultados de chamadas anteriores.
+
+Mission and memory queries recheck private paths before reading storage. Preflight
+checks all three ignore rules in one Git invocation and requires every path to
+match. Removing a rule, tracking a private file or receiving a Git error still
+blocks the operation. Verification neither repairs `.gitignore` nor caches earlier
+results. See the [measurement](relatorios/2026-10-08-git-preflight-cost.md#english-overview).
+
+Para uma missão existente, `missions.py status` faz três leituras do banco: missão, revisões/eventos/projeções
+e execuções do cliente. As consultas SQL adjacentes compartilham uma conexão; cada
+leitura mantém o preflight atual. O banco é reaberto após os arquivos de entrada.
+Remover o banco nesse intervalo retorna `invalid_store`; trocar o banco ou mudar
+uma revisão pode marcar `stale_inputs`. A consulta continua sem escrita e sem cache.
+
+Nos testes de rede, o observador fica no controlador. A recusa recebe um payload
+antecipado e precisa comprovar zero bytes até EOF, após encerrar o guard e coletar
+a thread. O controle positivo exige 13 bytes. Essa prova usa sockets locais e não
+substitui o aceite nativo do executor. [Relatório](relatorios/2026-10-08-mission-read-stability.md).
+Uma observação incompleta continua reprovando o teste. No CI, a anotação expõe
+somente os booleanos `accepted`, `eof`, `complete`, a contagem limitada de bytes
+e um código de erro permitido. O negativo faz oito tentativas independentes para
+exercitar o encerramento concorrente do helper.
+O controlador fecha a entrada do helper e permite até 100 ms para limpeza
+cooperativa. Essa espera usa o saldo dos 200 ms já destinados a `terminate` e
+respeita o prazo restante. Com prazo expirado, segue direto ao encerramento
+forçado; `kill` e a coleta da árvore continuam disponíveis.
+
+For an existing mission, `missions.py status` reads the database three times: mission, item revisions/events/
+projections, and client runs. Adjacent SQL queries share a connection; each read
+retains current preflight checks. The database reopens after input files. Removal
+during that interval returns `invalid_store`; replacement or a changed item revision
+can mark `stale_inputs`. Status remains read-only and uncached.
+
+Network tests keep the observer in the controller. Refusal receives an early
+payload and must establish zero bytes through EOF after guard shutdown and thread
+collection. The positive control requires 13 bytes. This local socket proof does
+not replace native executor acceptance. [Report](relatorios/2026-10-08-mission-read-stability.md#english-overview).
+Incomplete observations still fail the test. CI annotations expose only the
+`accepted`, `eof`, `complete` booleans, a bounded byte count and an allowed error
+code. The negative case performs eight independent attempts to exercise concurrent
+helper shutdown.
+The controller closes helper input and allows up to 100 ms for cooperative cleanup.
+This wait uses the remaining portion of the existing 200 ms termination stage and
+respects the execution deadline. Expired deadlines skip grace; forced shutdown,
+`kill` and process-tree collection remain available.
+
+<a id="queue-rehearsal"></a>
+## Ensaio persistente da fila / Persistent queue rehearsal
+
+O ensaio usa os PBIs de uma missão preparada, na prioridade congelada dessa missão.
+Ele registra etapas e resultados no SQLite privado. Executa um PBI por vez: prioriza
+seu QA e suas correções e então escolhe o primeiro item pendente cujos
+predecessores concluíram o ensaio na mesma sessão. Ciclos ou dependências ausentes
+continuam impedindo o preparo válido da missão.
+O executor determinístico calcula um resultado local; o QA simulado confere seu hash.
+Não há chamada de modelo, edição de código, worktree ou aprovação real de entrega.
+
+Use `list` e `status M001` para escolher a missão e conferir sua revisão. Para cada
+novo comando de escrita, gere um UUID (por exemplo, `python3 -c "import uuid; print(uuid.uuid4())"`).
+Guarde o UUID junto com os argumentos. No Windows, use `python` no lugar de `python3`.
+Substitua os nomes em maiúsculas abaixo pelos valores obtidos:
+
+```bash
+python3 -B scripts/missions.py --json queue start M001 --expected-revision 1 --operation-id UUID_INICIO --actor-id operador
+python3 -B scripts/missions.py --json status M001
+python3 -B scripts/missions.py --json queue step UUID_SESSAO --expected-revision 1 --operation-id UUID_DEV --actor-id operador
+python3 -B scripts/missions.py --json queue step UUID_SESSAO --expected-revision 2 --operation-id UUID_QA --actor-id operador
+python3 -B scripts/missions.py --json status M001
+```
+
+O exemplo acima cobre um PBI. Com vários, continue `queue step` usando a revisão
+retornada após cada comando até a sessão atingir `fixture_completed` ou `waiting`.
+Em `waiting`, consulte os bloqueios e cancele o ensaio quando necessário. No cenário padrão,
+são dois avanços por PBI. O QA de um item pode devolver `dev_pending` com o próximo PBI selecionado.
+
+Para exercitar reprovações, escolha `--fixture-scenario` no comando `queue start`:
+
+| Cenário | Comportamento do primeiro PBI elegível |
+|---|---|
+| `pass` (padrão) | Aprova o primeiro QA |
+| `qa-retry` | Reprova o primeiro QA e aprova após uma correção |
+| `qa-exhaust` | Reprova o primeiro QA e as três correções; bloqueia o PBI |
+
+O cenário e o PBI alvo ficam congelados na sessão. Os demais PBIs usam aprovação inicial.
+A opção só existe em `start`; ela não permite fornecer um resultado ou executar comandos.
+Um cenário diferente exige outro ensaio, não uma alteração no ensaio em curso.
+
+`correction_pending` pede outro `step` para despachar a correção simulada. O campo
+`items[].correction_cycles` começa em zero e aumenta nesse despacho, não na reprovação.
+Cada ciclo inclui a correção e seu QA. Após a terceira correção reprovada, o item vira
+`blocked`; os independentes podem avançar. Se não houver item elegível e restarem itens
+não concluídos, a sessão vira `waiting`. O status orienta `inspect_rehearsal_blockers`
+com motivo `correction_limit_reached`. A espera ocupa a vaga da sessão, recusa `step`
+e permite `cancel`; nenhum processo fica suspenso esperando uma resposta.
+
+O contador pertence à sessão sintética: reinício, replay e falha transacional não o
+renovam. Novos ensaios são independentes. Este incremento não implementa o ledger real
+de autocorreção entre missões, revisões ou IDs; YC-303 continua pendente.
+
+O primeiro `--expected-revision` é a revisão da missão. Nos avanços, é a revisão da
+sessão retornada em `session.revision`. O UUID da sessão está em `session.id`.
+`status.queue_sessions` mostra escopo, resultados, histórico de recibos, próximo papel
+e `next_action`. Em sessões v2/v3, `items` lista estado e `waiting_on` de cada PBI,
+na prioridade congelada. Os campos `pbi_id`, `pbi_code` e `pbi_revision` identificam
+o candidato atual e ficam nulos ao concluir todos os itens ou entrar em espera.
+`dependency_basis: rehearsal_results` limita a liberação de dependências à simulação.
+Por exemplo, prioridade `[C(depende de B), D, B(depende de A), A]` executa
+`D → A → B → C`, com Dev e QA de cada um. `fixture_completed` conclui apenas o ensaio; desenvolvimento, QA,
+integração e produção reais conservam seus estados anteriores.
+
+Após perder a resposta ou interromper o processo, repita o comando com os mesmos
+argumentos e UUID. A mesma operação devolve o recibo original, mesmo que a sessão já
+esteja mais adiantada; consulte `status` para o estado atual. UUID com pedido diferente
+ou revisão antiga em uma nova operação é conflito. Uma queda antes do commit pode
+repetir cálculo puro, mas não cria dois resultados persistidos. Isso não demonstra
+execução externa exatamente uma vez.
+
+Há uma sessão ativa por repositório e uma sessão por revisão da missão. Para encerrá-la
+antes do fim, use `queue cancel UUID_SESSAO --expected-revision REVISAO_SESSAO
+--operation-id UUID_CANCELAMENTO --actor-id operador` com os mesmos prefixos dos comandos
+acima. O cancelamento mantém o histórico e funciona mesmo se a missão mudou.
+Outro ensaio da mesma missão exige uma revisão nova, preparada explicitamente.
+
+Lacunas, fontes alteradas, projeções pendentes/conflitantes e diagnósticos nativos abertos
+impedem avançar. A orientação aparece na própria sessão. `cancel_stale_rehearsal` pede
+encerrar um ensaio ligado à revisão anterior da missão. O cancelamento não altera ou
+libera diagnósticos nativos. A prévia `initial_backlog` continua independente dos resultados
+sintéticos; nenhum deles satisfaz uma dependência integrada.
+
+A primeira nova escrita aceita da fila migra bancos antigos para o esquema 5, sem criar
+novas tabelas nesse incremento. Quando o banco já está no esquema 6, ele é preservado. O índice de sessão ativa passa a incluir correções e espera.
+Leituras e replay exato conservam o esquema anterior. Sessões v1/v2
+continuam pelo fluxo original; seus recibos não são reescritos. Atualize em conjunto
+`missions.py`, `mission_store.py`, `mission_runs.py` e `mission_queue.py`; o instalador
+preserva helpers existentes para comparação e conciliação. Uma mistura incompatível
+retorna `incompatible_helper`. Versões antigas do harness não devem abrir o banco migrado.
+Leituras de status nunca migram o banco. O arquivo permanece em
+`vault/local/operations/state.sqlite3` e precisa acompanhar o backup privado do projeto.
+
+The commands above run a persistent deterministic rehearsal. Multiple PBIs run
+serially: QA of the active item precedes new development; saved priority selects
+the next item whose predecessors completed this same rehearsal. `items` exposes
+per-PBI state and `waiting_on`. This simulated dependency basis never grants real
+integration. Repeat `step` with the returned session revision until `fixture_completed`
+or `waiting`. In `waiting`, inspect blockers and cancel the rehearsal when needed.
+The default scenario takes two steps per PBI. `start` expects
+the mission revision; `step` and `cancel` expect the session revision. Each new command
+needs its own operation UUID. Repeating the exact request recovers its original receipt;
+`status` reports the current state, next role, blockers and receipt history.
+
+Choose `--fixture-scenario pass|qa-retry|qa-exhaust` only at `queue start`. The scenario
+and first eligible PBI are frozen in the session; all other PBIs pass their initial QA.
+`qa-retry` rejects initial QA and passes one correction. `qa-exhaust` rejects initial QA
+and all three corrections. A rejected QA schedules `correction_pending`; the next
+`step` dispatches the pure fixture correction and increments `items[].correction_cycles`.
+Each cycle includes revalidation. Exhaustion marks the PBI `blocked` and permits
+independent PBIs to continue without releasing the blocked item's dependents.
+When no eligible item remains, incomplete work enters `waiting`, holds the session slot,
+and allows cancel but not step. Status reports `inspect_rehearsal_blockers` and
+`correction_limit_reached`. Counts survive restart, replay and crashes within the same
+synthetic session. New rehearsals are independent; the real correction ledger across
+missions, revisions and IDs remains YC-303 roadmap work.
+
+The fixture hashes frozen input and its simulated QA checks that result. It invokes no
+model and changes no worktree. `fixture_completed` grants no real development, QA,
+integration or production acceptance. A crash before commit can repeat pure computation,
+but cannot duplicate the persisted transition. External exactly-once execution is unproven.
+Only one rehearsal may be active per repository; one session is allowed per mission
+revision. Cancel preserves history and remains available after mission revision changes.
+
+New accepted queue writes migrate older private SQLite stores to schema 5 (retaining schema 6 when present) while retaining native
+client diagnostics and blockers. Update the four helpers named above together; existing
+helpers are preserved by the installer for explicit comparison and reconciliation. Reads
+and exact replay never migrate storage. Existing v1/v2 sessions keep their original
+behavior and receipts. The active-session index includes correction and waiting states;
+schema 5 prevents old writers from misinterpreting v3 sessions. Native dispatch remains
+gated by YC-203. Concurrent scheduling, leader decisions, real agents and product release/deployment remain roadmap work.
+Explicit local worktree preparation is available through the [separate workspace commands](#pbi-workspaces).
+
+<a id="pbi-workspaces"></a>
+
+## Diretório Git por PBI / PBI Git workspaces
+
+**PT:** YC-205 oferece preparo local explícito. Use uma missão preparada e atual,
+o UUID de um PBI selecionado e o SHA completo de um commit disponível no repositório.
+O pedido fixa essas revisões e cria uma branch `youngcrow/pNNN-UUID` com worktree em
+`.runtime/workspaces/UUID`. Até três PBIs podem manter reservas; o mesmo PBI não recebe
+uma segunda reserva ativa. Esse teto limita diretórios preparados; não consome os limites
+de PBIs em execução ou agentes. Isso organiza diretórios Git; não isola permissões nem inicia agentes.
+A fila determinística continua independente.
+
+Execute na raiz original do projeto com Python 3 (`python` no Windows):
+
+```bash
+python3 -B scripts/missions.py --json workspace prepare M001 --pbi PBI_UUID --base SHA_COMPLETO --expected-revision 1 --operation-id UUID_PREPARO --actor-id operador
+python3 -B scripts/missions.py --json workspace status UUID_PREPARO
+python3 -B scripts/missions.py --json workspace release UUID_PREPARO --expected-revision 1 --operation-id UUID_LIBERACAO --actor-id operador
+```
+
+Substitua os exemplos pelos valores reais. Guarde o UUID e o pedido antes de executar.
+`prepare` espera a revisão da missão; `release`, a revisão retornada do workspace.
+`status M001` também lista `workspaces`. A consulta lê o estado salvo, sem inspecionar
+novamente a integridade Git. `prepared` significa diretório preparado, com desenvolvimento,
+QA e produção ainda sem aceite. Nenhum modelo é chamado por esses comandos.
+
+O retorno de preparo informa `path`, `branch`, `base`, `id` e `revision`. Abra o caminho
+retornado para trabalhar. Ele contém os arquivos do commit fixado. Alterações staged,
+unstaged e arquivos novos do checkout original permanecem lá; configurações locais não versionadas,
+credenciais e a instalação local do cliente não são copiadas para o novo diretório.
+
+Para liberar, encerre editores e outros clientes que escrevam nesse worktree. Preserve
+mudanças por commit ou outra ação deliberada antes de chamar `release`. O comando recusa
+arquivos alterados, staged, não rastreados ou ignorados; também recusa HEAD destacado,
+branch trocada, flags de índice que escondam alterações e identidade divergente. A remoção
+usa `git worktree remove` sem força e mantém branch/commits, registrando `last_commit`.
+O lock coordena apenas estes comandos do harness: não existe exclusão global de outros
+clientes Git. O uso exige ausência de escritores externos durante preparo/liberação.
+
+Após interrupção, repita **o mesmo pedido, UUID e revisão**. A intenção é persistida antes
+do Git; branch e referência de propriedade são criadas na mesma transação Git. A retomada
+verifica identidade do diretório, metadados, branch e checkout completo. Uma operação de
+preparo já admitida mantém sua revisão congelada mesmo que a missão seja revisada depois.
+O replay concluído devolve o recibo original; não recria um workspace liberado.
+
+Uma queda entre criar o diretório vazio e salvar sua identidade permanece ambígua. Checkout
+parcial, recurso substituído ou lock nativo remanescente também exigem diagnóstico. Preserve
+os recursos e recibos; não use `--force`, `reset`, `clean`, `prune` ou novo UUID para contornar
+uma reserva. A recuperação só continua automaticamente quando consegue confirmar o recurso.
+
+Perfil coberto: repositório Git local independente, checkout completo, Linux x86-64 ou Windows
+com o supervisor disponível. Links/hardlinks em destinos Git, submódulos, shallow/partial clone,
+sparse checkout, includes e filtros externos configurados são recusados. Hooks, fsmonitor,
+fetch implícito e manutenção automática ficam desativados nos comandos desta operação.
+`.runtime/workspaces/` precisa estar ignorado e sem arquivos rastreados; o setup atualizado
+acrescenta essa regra. O comando não altera `.gitignore` para corrigir uma instalação antiga.
+
+Worktree ativo impede o dry-run de retorno do trial. Libere os worktrees próprios e limpos,
+conserve as branches e peça o preview novamente. Worktrees alheios continuam impedindo retorno;
+a restauração genérica não foi ampliada. Um retorno completo ao baseline reverte o repositório
+inteiro, incluindo branches posteriores: preserve entregas que deseja manter antes de aprová-lo.
+
+Atualize juntos `missions.py`, `mission_store.py`, `mission_runs.py`, `mission_queue.py` e
+`mission_workspace.py`, além das instruções/catálogo do pacote. O instalador preserva helpers
+existentes para comparação. A primeira reserva aceita migra SQLite para esquema 6; leitores
+antigos recusam o banco. Filas/diagnósticos anteriores permanecem legíveis. Status e replay
+concluído não migram nem reparam o armazenamento. Não há integração, push ou aceite nativo.
+
+**EN:** YC-205 now supports explicitly requested local preparation for a PBI in a current
+prepared mission. Use its PBI UUID, full local commit SHA, mission revision and a saved operation
+UUID with `workspace prepare` above. `workspace status` reads the stored record;
+`workspace release` expects the workspace revision and a new operation UUID. Replace the
+Portuguese placeholders with actual values. On Windows use `python` for Python 3.
+
+The result identifies the dedicated branch, directory, base and revision. Up to three PBIs can
+hold workspace reservations, with one active reservation per PBI. This preparation cap is
+separate from active-PBI and agent execution limits. The directory contains the pinned commit;
+uncommitted work, untracked local client setup and credentials stay in the original checkout. No agent runs,
+QA, integration or production acceptance follow from preparing it. Worktrees are not security sandboxes.
+
+Stop external writers before prepare/release. Release refuses staged/unstaged, untracked and
+ignored content, hidden index flags, detached HEAD, changed branch or ownership. It uses native
+non-force worktree removal and retains branch/commits, recording the last commit. The coordinator
+lock does not exclude other Git clients; this is not a globally atomic deletion guarantee.
+
+After interruption, repeat the exact request, UUID and expected revision. Pending preparation
+uses its frozen intent even after mission changes. Recovery verifies ownership and a complete
+checkout; completed replay returns the original receipt and never recreates a released workspace.
+A crash between directory creation and identity persistence, partial checkout, replacement or
+leftover native locks requires diagnosis. Keep the files and receipts; do not force removal,
+reset/clean/prune or bypass a reservation with a new UUID. Status reports saved state only.
+
+Supported profile: standalone full local Git checkout on Linux x86-64 or Windows with the existing
+process supervisor. Redirected metadata, submodules, shallow/partial clones, sparse checkout,
+config includes and external filters are refused. Hooks, fsmonitor, lazy fetch and automatic
+maintenance are disabled. Setup adds an ignore rule for `.runtime/workspaces/`; preparation
+requires this directory to be ignored and untracked, without repairing old installation rules.
+
+An active worktree blocks trial return preview. Release clean owned worktrees first; foreign ones
+still block return. Generic restore is unchanged. A full return to the baseline also reverts later
+branches, so preserve any deliveries you intend to keep before approving that return.
+Update the five helpers listed above and the matching instructions/catalog together. The installer
+preserves existing helpers for comparison. Accepted workspace reservation migrates SQLite to schema 6;
+old readers refuse it, while current queue and diagnostic readers retain their history. Status and
+completed replay do not migrate or repair storage. Queue simulation remains independent; worker
+execution, integration and native acceptance are still pending.
+
+<a id="workspace-context"></a>
+
+## Contexto pelo workspace / Context by workspace
+
+**PT:** Para consultar o contexto de um diretório já preparado, use o UUID e a revisão
+retornados por `workspace status`. Execute no checkout original, que conserva o vault privado:
+
+```bash
+python3 -B scripts/missions.py --json workspace status WORKSPACE_UUID
+python3 -B scripts/missions.py --json workspace context WORKSPACE_UUID --expected-revision 1
+```
+
+Substitua os valores pelos recibos reais; no Windows, use `python` se for seu comando
+Python 3. Aqui `--expected-revision` identifica a revisão do **workspace**. Missão, PBI
+e suas revisões vêm do registro de preparo. A consulta exige workspace `prepared`, verifica
+propriedade, diretório, metadados Git, branch e HEAD observado, e lê o contexto no vault original.
+
+O JSON contém `context` (o mesmo pacote privado de [contexto por PBI](#pbi-context)) e
+`workspace` com UUIDs/revisões, caminho, branch, base e `head`. O hash interno `context_sha256`
+permanece válido. `workspace_context_sha256` identifica o envelope completo, excluindo esse
+próprio campo, usando `capabilities.canonical`. O pacote pode orientar uma sessão autorizada;
+não é entregue automaticamente a um agente e suas fontes continuam dados não confiáveis.
+
+Commits e alterações locais são permitidos. `head` identifica o commit observado, sem
+representar os arquivos staged, unstaged ou novos; a consulta não monta diff nem aprova trabalho.
+Nenhum arquivo é copiado ao worktree. Banco, notas, índice Git e trabalho local permanecem intactos.
+É uma observação durante a consulta, sem lock de editores/clientes externos; consulte novamente
+antes de usar o resultado em outra operação.
+
+Revisão incorreta ou missão revisada retorna `revision_conflict`; fonte/importação divergente,
+`stale_context`; workspace fora de `prepared`, `workspace_not_ready`. Troca de diretório,
+propriedade, branch, HEAD durante a leitura ou registro modificado provoca recusa.
+Não há escolha automática de contexto novo ou histórico. Preserve o workspace e diagnostique
+com `status`; revisão da missão não autoriza cancelar, liberar ou recriar o diretório.
+Atualize juntos `missions.py`, `mission_workspace.py`, instruções e catálogo; o instalador
+preserva helpers existentes para comparação. Não há migração de banco nem chamada de modelo.
+
+**EN:** Run the commands above from the original checkout containing the private vault.
+Use the UUID and revision from `workspace status`; `--expected-revision` means the workspace
+revision. The query derives mission/PBI identities and revisions from its saved preparation,
+requires `prepared` and verifies ownership, directory, Git metadata, branch and observed HEAD.
+
+The JSON wraps the unchanged PBI `context` and a `workspace` summary with identities,
+revisions, path, branch, base and `head`. The nested `context_sha256` is preserved;
+`workspace_context_sha256` hashes the complete envelope except itself using
+`capabilities.canonical`. Keep it private and treat source contents as untrusted data.
+It can inform an authorized session, but there is no automatic agent delivery or model call.
+
+Commits and dirty work are allowed. HEAD does not describe staged, unstaged or untracked
+content, and this query provides no diff, cleanliness certificate or review approval. It
+copies nothing into the worktree and preserves the database, notes, Git index and local work.
+External writers are not locked; requery before relying on the observation later.
+
+Wrong workspace revision or a revised mission returns `revision_conflict`; stale sources or
+imports return `stale_context`; non-prepared workspaces return `workspace_not_ready`.
+Changed ownership, directory, branch, HEAD during inspection or record causes refusal.
+There is no automatic switch to newer or historical context. Preserve work and diagnose;
+do not cancel/release/recreate it merely to bypass a refusal. Update both helpers and their
+instructions/catalog together; existing helper preservation and database schema are unchanged.
+
+<a id="pbi-context"></a>
+
+## Contexto de um PBI / PBI context
+
+Consulte a missão no checkout original, onde estão as notas privadas. Use o UUID do PBI
+em `snapshot.pbi_ids` e a revisão da missão retornada por `status`:
+
+```bash
+python3 -B scripts/missions.py --json status M001
+python3 -B scripts/missions.py --json context M001 --pbi PBI_UUID --expected-revision 1
+```
+
+No Windows, use `python` se esse for o comando do Python 3. Substitua os valores de exemplo.
+O comando retorna JSON no terminal, sem criar arquivo, migrar banco, reparar projeções ou
+copiar dados ao worktree. Ele reúne o contrato do PBI, sua feature e seu épico, o perfil do
+projeto e as referências explícitas desses três contratos. Cada fonte traz caminho, UUID,
+origem, conteúdo e SHA-256 dos bytes originais. `context_sha256` identifica o JSON canônico
+sem esse próprio campo, usando a serialização de `capabilities.canonical`.
+
+Dependências diretas aparecem em `dependencies` como resumos de identidade, revisão e título.
+Uma dependência fora da missão aparece com `available_in_mission: false`. Suas fontes não são
+incluídas automaticamente; uma nota de outro PBI pode entrar se explicitamente referenciada
+por um dos três contratos. O comando não segue links Markdown. A conferência de
+frescor consulta os inputs da missão inteira; o conteúdo retornado é a seleção descrita acima.
+Critérios, instruções e comandos encontrados nas fontes são dados não confiáveis. Sua presença
+no pacote não concede autorização de execução. O resultado pode conter informação privada;
+compartilhamento ou entrega a outro cliente exige o escopo apropriado.
+
+| Resultado | Como proceder |
+|---|---|
+| `revision_conflict` | Consulte `status` e reveja a decisão para a revisão atual. |
+| `stale_context` | Confira as fontes/importações alteradas; importe e revise quando autorizado. |
+| `unknown_pbi` | Escolha um UUID de PBI que pertença à missão. |
+| `incomplete_context` | Refine a cadeia PBI, feature e épico; os três precisam de contrato. |
+| `context_identity_conflict` | Confira UUIDs contraditórios ou repetidos em caminhos diferentes. |
+| `readiness.gaps` ou projeção pendente/conflitante | Use o contexto para análise; a consulta não corrige a pendência. |
+
+Um draft com critérios incompletos continua consultável quando possui ancestralidade válida
+e fontes consistentes. O comando recusa mistura de contrato importado antigo com texto novo.
+Ele reconfere revisões depois de ler as fontes; o pacote representa essa observação e deve ser
+consultado novamente antes de uma decisão posterior. Não há bloqueio global dos editores.
+Limites existentes: 1 MiB por arquivo e 16 MiB por conjunto de fontes, sem truncamento silencioso.
+
+Atualize `scripts/missions.py`, as instruções de `yc-missao`/`yc-status` e o catálogo juntos.
+O instalador preserva arquivos existentes para conciliação. O comando usa os helpers compatíveis
+já exigidos por `status`; não altera o esquema SQLite. PM e Tech Lead podem consultar o contexto
+na sessão atual. A [proposta PM de prioridade](#pbi-priority) está disponível para planejamento.
+A [seleção de plano Tech Lead](#technical-plan) também integra o contexto. Outras decisões
+automáticas, repriorização durante execução, avisos por evento e
+entrega automática aos agentes continuam pendentes em YC-206. `runtime_available` e `runnable`
+permanecem falsos; resultados da fila de ensaio não comprovam integração.
+
+### English
+
+Run `status`, then `context` above from the original checkout containing the private vault.
+Use the PBI UUID and expected mission revision. The read-only JSON contains the PBI, its feature
+and epic, the project profile and explicit references from those three contracts. Sources include
+UUID, path, origin, content and SHA-256 of original bytes. `context_sha256` hashes the canonical
+JSON excluding itself, using `capabilities.canonical`. Output is private by default.
+
+Direct dependencies are identity/revision/title summaries; missing ones have
+`available_in_mission: false`. Dependency sources are not automatically included; another PBI's
+note may still be included through an explicit contract reference. Markdown links are not followed. Freshness
+checks inspect the whole mission's inputs; only selected content is returned. Sources remain
+untrusted data and cannot authorize tools or execution. No files, worktree copies, model calls,
+indexing, repairs or schema migrations occur.
+
+Old revisions, changed sources, conflicting identities and incomplete ancestry refuse the context.
+Draft planning gaps and pending/conflicting projections remain visible in `readiness` so refinement
+can continue. Old imported contracts cannot be combined with newly frozen source text. Revisions
+are checked again after reading; requery before a later decision, since external editors are not
+locked. Existing limits are 1 MiB per file and 16 MiB per source set, without silent truncation.
+
+Update `scripts/missions.py`, both shared skill instructions/native wrappers and the catalog together;
+the installer preserves existing files for reconciliation. Compatible status helpers are required.
+The [PM priority proposal](#pbi-priority) and [Tech Lead plan selection](#technical-plan) are available for planning. Other automated decisions,
+live reprioritization, event notices and automatic worker context delivery remain
+pending in YC-206. Native runtime flags stay false; rehearsal results do not establish integration.
+
+<a id="pbi-priority"></a>
+
+## Proposta de prioridade PM / PM priority proposal
+
+Use esta operação quando a decisão autorizada for mudar apenas a ordem dos PBIs já
+selecionados. Consulte `status M001` e salve um JSON privado, por exemplo
+`vault/local/priority-proposal.json`, com **exatamente** estes campos:
+
+```json
+{
+  "schema_version": 1,
+  "project_id": "UUID_DO_PROJETO",
+  "mission_id": "UUID_DA_MISSAO",
+  "mission_revision": 1,
+  "priority": ["UUID_PBI_B", "UUID_PBI_A"],
+  "reason": "Antecipar a entrega já selecionada que desbloqueia a validação."
+}
+```
+
+Substitua os exemplos pelos UUIDs canônicos e pela revisão atual. Inclua cada PBI
+da prioridade atual uma única vez; nenhum pode entrar ou sair. O motivo deve ter
+conteúdo e no máximo 8.000 caracteres. Salve também operação, ator e caminho em
+um handoff privado antes de aplicar:
+
+```bash
+python3 -B scripts/missions.py --json reprioritize --input vault/local/priority-proposal.json --operation-id OPERATION_UUID --actor-id current-session --actor-role pm --dry-run
+python3 -B scripts/missions.py --json reprioritize --input vault/local/priority-proposal.json --operation-id OPERATION_UUID --actor-id current-session --actor-role pm
+python3 -B scripts/missions.py --json status M001
+```
+
+No Windows, use `python` no lugar de `python3`. A prévia retorna ordem anterior,
+ordem proposta e `protected_pbi_ids`; não grava, repara ou reserva nada. Aplicar
+confere novamente os limites, incrementa a revisão e guarda o motivo em
+`snapshot.last_planning_decision`. O evento guarda ator, data e revisões; projeções
+e histórico conservam a decisão. `--actor-role pm` atribui o papel, sem autenticar
+um agente nativo.
+
+A missão precisa estar preparada, com fontes/importações atuais, projeções íntegras
+e sem diagnóstico pendente. Desenvolvimento e QA continuam `not_started`, produção
+`not_verified` e flags nativas falsas. Uma fila ativa da missão bloqueia a alteração,
+inclusive se pertence a uma revisão anterior. Qualquer PBI com histórico de workspace
+conserva sua posição absoluta, mesmo após release ou se foi preparado em outra missão.
+Esse histórico não prova se houve execução; o diretório pode conter trabalho.
+
+| Resultado | Próximo passo |
+|---|---|
+| `revision_conflict` | Releia status; reveja a proposta e use uma nova operação para outra decisão. |
+| `invalid_priority` | Preserve todos os PBIs selecionados, sem duplicar ou acrescentar IDs. |
+| `priority_locked` | Mantenha as posições de PBIs com histórico de workspace. Release não remove esse histórico. |
+| `queue_busy` | Preserve a fila. A repriorização não a cancela; conclua ou cancele apenas conforme a decisão autorizada. |
+| `mission_not_ready` | Consulte fontes, lacunas, projeções e diagnósticos em status. Não contorne o bloqueio. |
+| `operation_conflict` | A operação já identifica outro pedido/ator; preserve seu recibo. |
+
+Depois de interrupção, repita os mesmos bytes semânticos do JSON, operação e ator.
+Uma aplicação já concluída retorna o recibo original, mesmo se as fontes mudaram
+depois; pode reparar sua projeção pendente. Em dry-run, `already_applied` apenas lê
+o recibo e não repara. A prévia pode perder validade antes da aplicação.
+
+O comando preserva contratos, critérios, referências, configuração e workspaces.
+Não importa notas, cria PBIs, chama modelos ou inicia desenvolvimento. `revise` continua
+sendo o fluxo mais amplo para refinamento autorizado; não o use para contornar um
+bloqueio desta operação. [Selecionar plano técnico](#technical-plan) tem seu próprio comando.
+Prioridade durante execução, outras propostas Tech Lead e avisos
+automáticos continuam pendentes.
+
+**English.** Use the exact JSON fields and commands above for an authorized PM decision
+that only reorders existing selected PBIs. Replace placeholders with canonical UUIDs and
+the current mission revision; include every current PBI once and a nonblank reason of
+at most 8,000 characters. Persist the proposal, operation UUID and actor before applying.
+On Windows, use `python`. Role attribution does not authenticate a native agent.
+
+Dry-run returns the old/new order and protected PBI IDs without writing, repairing or
+reserving anything. Apply rechecks the current state, increments the mission revision and
+stores the reason in `snapshot.last_planning_decision`; the event retains actor/time/revisions.
+The mission must be prepared, fresh, with intact projections and no unresolved diagnostic.
+An active queue at any revision of this mission blocks the change. Any workspace history
+pins that PBI's absolute position, including released workspaces or those in another mission.
+Workspace history cannot establish whether execution happened.
+
+Repeat the exact semantic request, operation and actor after interruption. Completed replay
+returns the original receipt and can repair a pending projection even if sources later changed.
+Dry-run of a completed operation returns `already_applied` without repair. Changed requests
+under the same operation conflict; a preview does not reserve a revision. Inspect status and
+resolve each refusal within authorization; do not cancel queues or rewrite scope to bypass it.
+Contracts, scope, criteria, configuration and workspaces remain frozen. No model or worker is
+started. Development/QA remain `not_started`, production `not_verified`, native flags false.
+Tech Lead [plan selection](#technical-plan) has its own command. Other Tech Lead proposals,
+live reprioritization and automatic notices remain pending.
+
+<a id="technical-plan"></a>
+
+## Selecionar o plano técnico / Select a technical plan
+
+O Tech Lead pode indicar qual nota já referenciada por um PBI orientará sua implementação.
+Leia `status M001` e `context` antes da escolha. Copie o UUID e a revisão do PBI e uma
+entrada de `snapshot.items[].snapshot.references` pertencente a ele. Referência exclusiva
+da feature, épico ou outro PBI não basta. A nota precisa estar no contrato e nos inputs
+congelados, com o mesmo UUID, caminho e SHA-256.
+
+Salve `vault/local/technical-proposal.json` com exatamente estes oito campos:
+
+```json
+{
+  "schema_version": 1,
+  "project_id": "UUID_DO_PROJETO",
+  "mission_id": "UUID_DA_MISSAO",
+  "mission_revision": 1,
+  "pbi_id": "UUID_DO_PBI",
+  "pbi_revision": 1,
+  "plan_reference": {
+    "note_id": "UUID_DA_NOTA",
+    "path": "vault/local/plans/implementation.md",
+    "sha256": "HASH_EXATO_DA_REFERENCIA"
+  },
+  "reason": "Escolha técnica para atender aos critérios já definidos."
+}
+```
+
+Substitua os exemplos pelos valores reais. O motivo precisa ter conteúdo e até 8.000
+caracteres. Guarde também o UUID da operação e o ator no handoff privado:
+
+```bash
+python3 -B scripts/missions.py --json technical-plan --input vault/local/technical-proposal.json --operation-id OPERATION_UUID --actor-id current-session --actor-role tech_lead --dry-run
+python3 -B scripts/missions.py --json technical-plan --input vault/local/technical-proposal.json --operation-id OPERATION_UUID --actor-id current-session --actor-role tech_lead
+python3 -B scripts/missions.py --json status M001
+python3 -B scripts/missions.py --json context M001 --pbi PBI_UUID --expected-revision 2
+```
+
+No Windows use `python`. A revisão 2 acima é apenas exemplo; use a retornada pela
+aplicação. Dry-run mostra a decisão anterior e a proposta, sem escrever, reparar ou
+reservar. Aplicar incrementa a revisão da missão e grava `snapshot.technical_decisions`
+por UUID do PBI, com referência, motivo e revisão do item. Os eventos guardam ator,
+data e histórico. A nota e o contrato permanecem intactos.
+
+`context.technical_decision` retorna somente a escolha daquele PBI, ou `null` quando
+não há seleção. O conteúdo da nota já vem em `sources`, com seus hashes conferidos.
+Essa decisão participa de `context_sha256`. O papel informado não autentica um agente;
+o comando valida vínculos e estado, não a qualidade semântica ou a aprovação do plano.
+Conteúdo recuperado permanece dado não confiável e não concede execução.
+
+A missão precisa estar preparada e atual, com projeções íntegras e sem diagnóstico
+pendente. Qualquer fila ativa da missão bloqueia a escolha, inclusive de revisão antiga.
+`technical_plan_locked` indica histórico de workspace do PBI, mesmo liberado ou criado
+em outra missão. Histórico de outro PBI não bloqueia esta escolha. `invalid_plan_reference`
+indica referência fora do contrato direto ou hash incompatível; `revision_conflict`
+exige reler as revisões antes de formular outra decisão. Os demais bloqueios seguem o
+[fluxo de prioridade](#pbi-priority). Não use outra operação para contornar esses limites.
+
+Repetir proposta, operação e ator exatos recupera o recibo original, mesmo após mudança
+posterior da fonte, e pode reparar a projeção. Dry-run de operação concluída retorna
+`already_applied` sem reparar. Uma nova escolha usa novo UUID e revisão atual; a antiga
+continua nos eventos. `reprioritize` conserva os planos, pois mantém os contratos.
+`revise` refaz o planejamento e remove todas as escolhas atuais: selecione novamente
+após a revisão, se autorizado. Isso não apaga o histórico.
+
+Para uma nota ainda não referenciada, use primeiro o fluxo autorizado de autoria/ingestão,
+referência no contrato, importação do PBI e revisão da missão. `technical-plan` não adiciona
+fontes, critérios, dependências ou PBIs. Não faz decomposição, revisão de código, QA,
+despacho ou chamada de modelo; essas etapas continuam pendentes.
+
+**English.** The Tech Lead selects an existing direct PBI reference as its implementation
+plan. Read status/context; copy the project/mission/PBI identities, their current revisions
+and the exact `note_id/path/sha256` reference into the eight-field JSON above. A reference
+only belonging to another item is refused. Use `python` on Windows and a nonblank reason
+of at most 8,000 characters. Persist operation and actor before applying.
+
+Dry-run neither writes nor reserves. Apply rechecks state, increments the mission revision
+and records the binding/reason under `snapshot.technical_decisions`; events retain actor,
+time and history. Context returns only the requested PBI's `technical_decision`, or `null`,
+and hashes it with the response. Source content is already included and verified in `sources`.
+The operation validates identity/state, not plan quality, approval or native authentication.
+
+A prepared/fresh mission with intact projections and no unresolved diagnostic is required.
+Any active queue for this mission blocks the operation. Any workspace history for the target
+PBI, including released workspaces or another mission, blocks selection. Other PBIs' history
+does not. Exact replay returns the original receipt and can repair projections; dry-run never
+repairs. A new decision requires a new operation/current revision. Reprioritization preserves
+plans; broad `revise` clears all current selections while retaining their event history.
+New references must enter through the authorized note/import/revise workflow first. No scope,
+criteria, dependency, note or PBI is changed; automated decomposition, review and dispatch remain pending.

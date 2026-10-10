@@ -72,6 +72,15 @@ for name in ('capabilities', 'integrations'):
         fixture.root, fixture.store = project, document_store
         fixture.project_id = json.loads((project / 'vault/project.json').read_text())['project_id']
         paths = fixture.tree(features=2, pbis=2)
+        from integrations import note
+        plan_path = 'vault/local/technical-plan.md'
+        plan_bytes = note(fixture.project_id, plan_path, 'decision', 'Synthetic technical plan', 'index.md',
+                          '# Synthetic plan\n\n[Index](index.md)\n\nImplement within the existing criteria.\n',
+                          '2026-10-10T00:00:00+00:00').encode()
+        write(project / plan_path, plan_bytes)
+        document_store.append_link(project, 'vault/local/index.md', '[Technical plan](technical-plan.md)')
+        first_pbi_path = next(p for p in paths if '/pbis/' in p)
+        fixture.contract(first_pbi_path, references=[dict(note_id=fixture.item_id(plan_path), path=plan_path)])
         if mode == 'existing':
             paths.append('vault/features/legacy/index.md')
         for path in paths:
@@ -101,7 +110,83 @@ for name in ('capabilities', 'integrations'):
         many = cli('status', second['code'])
         check(many['state'] == 'prepared' and len(many['snapshot']['pbi_ids']) == 4, 'multi_feature_failed')
         check(many['snapshot']['config']['limits']['max_active_pbis'] == 3, 'wip_is_not_total')
+        check([p['id'] for p in many['queue_preview']['items']] == pbis, 'preview_priority_incorrect')
+        check(many['queue_preview']['scope'] == 'initial_backlog' and
+              many['queue_preview']['first_candidate_id'] == pbis[0], 'initial_candidate_incorrect')
         check(len(many['events']) == 1, 'duplicate_mission_event')
+        inventory_before = fixture.snapshot()
+        inventory = cli('list')
+        check([entry['id'] for entry in inventory['missions']] == [first['record_id'], second['record_id']],
+              'mission_inventory_incorrect')
+        discovered = inventory['missions'][1]
+        check(cli('status', discovered['code'])['id'] == discovered['id'], 'mission_discovery_failed')
+        check(fixture.snapshot() == inventory_before, 'mission_discovery_wrote_files')
+        context = cli('context', second['code'], '--pbi', pbis[0], '--expected-revision', '1')
+        check([item['kind'] for item in context['items']] == ['epic', 'feature', 'pbi'], 'context_ancestry_incorrect')
+        check(context['pbi_id'] == pbis[0] and not context['runnable'], 'context_scope_incorrect')
+        expected_sources = {r['snapshot']['note_path'] for r in context['items']} | {'vault/product/profile.md', plan_path}
+        check({source['path'] for source in context['sources']} == expected_sources, 'context_leaked_other_items')
+        for source in context['sources']:
+            check(source['content'].encode('utf-8') == (project / source['path']).read_bytes() and
+                  source['sha256'] == digest(project / source['path']), 'context_source_mismatch')
+        check(cli('context', second['code'], '--pbi', pbis[0], '--expected-revision', '2', expected=1)
+              ['error'] == 'revision_conflict', 'context_accepted_wrong_revision')
+        check(fixture.snapshot() == inventory_before, 'context_wrote_files')
+        proposal_path = 'vault/local/priority-proposal.json'
+        proposal = dict(schema_version=1, project_id=fixture.project_id, mission_id=second['record_id'],
+                        mission_revision=1, priority=list(reversed(pbis)), reason='Synthetic planning priority')
+        write(project / proposal_path, json.dumps(proposal).encode())
+        priority_args = ('reprioritize', '--input', proposal_path, '--operation-id', str(uuid.uuid4()), *actor)
+        before_priority = fixture.snapshot()
+        preview = cli(*priority_args, '--dry-run')
+        check(preview['state'] == 'preview' and fixture.snapshot() == before_priority, 'priority_preview_wrote_files')
+        priority_receipt = cli(*priority_args)
+        check(priority_receipt['revision'] == 2 and cli(*priority_args) == priority_receipt, 'priority_replay_failed')
+        reordered = cli('status', second['code'])
+        changed = dict(reordered['snapshot'])
+        check(changed.pop('last_planning_decision') == dict(action='reprioritize', reason=proposal['reason']) and
+              changed.pop('priority') == proposal['priority'], 'priority_decision_incorrect')
+        check(changed == {k: v for k, v in many['snapshot'].items() if k != 'priority'}, 'priority_changed_scope')
+        check(len(reordered['events']) == 2 and not reordered['runnable'], 'priority_started_runtime')
+        technical = dict(schema_version=1, project_id=fixture.project_id, mission_id=second['record_id'],
+                         mission_revision=2, pbi_id=pbis[0], pbi_revision=1, reason='Synthetic plan selection',
+                         plan_reference=dict(note_id=fixture.item_id(plan_path), path=plan_path, sha256=digest(project / plan_path)))
+        technical_path = 'vault/local/technical-proposal.json'
+        write(project / technical_path, json.dumps(technical).encode())
+        technical_args = ('technical-plan', '--input', technical_path, '--operation-id', str(uuid.uuid4()),
+                          '--actor-id', 'fixture-tl', '--actor-role', 'tech_lead')
+        before_plan = fixture.snapshot()
+        check(cli(*technical_args, '--dry-run')['state'] == 'preview' and fixture.snapshot() == before_plan,
+              'technical_preview_wrote_files')
+        technical_receipt = cli(*technical_args)
+        check(technical_receipt['revision'] == 3 and cli(*technical_args) == technical_receipt, 'technical_replay_failed')
+        selected = cli('context', second['code'], '--pbi', pbis[0], '--expected-revision', '3')
+        check(selected['technical_decision']['plan_reference'] == technical['plan_reference'], 'technical_context_missing')
+        check(cli('context', second['code'], '--pbi', pbis[1], '--expected-revision', '3')['technical_decision'] is None,
+              'technical_context_wrong_pbi')
+        after_plan = cli('status', second['code'])['snapshot']
+        after_plan.pop('technical_decisions')
+        check(after_plan == reordered['snapshot'] and (project / plan_path).read_bytes() == plan_bytes, 'technical_plan_changed_scope')
+        git = shutil.which('git')
+        if mode == 'new':
+            run([git, '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                 'commit', '--allow-empty', '-qm', 'Synthetic workspace base'], env=env, cwd=project)
+        base = run([git, 'rev-parse', 'HEAD'], env=env, cwd=project).decode().strip()
+        git_before = [run([git, *args], env=env, cwd=project) for args in
+                      (('status', '--porcelain=v1', '-uall'), ('diff',), ('diff', '--cached'))]
+        workspace = cli('workspace', 'prepare', second['code'], '--pbi', pbis[0], '--base', base,
+                        '--expected-revision', '3', '--operation-id', str(uuid.uuid4()), '--actor-id', 'fixture')
+        before_read = fixture.snapshot()
+        bound = cli('workspace', 'context', workspace['id'], '--expected-revision', str(workspace['revision']))
+        check(bound['context'] == selected and bound['workspace']['head'] == base and
+              bound['workspace']['pbi_id'] == pbis[0], 'workspace_context_not_bound')
+        check(fixture.snapshot() == before_read and not (Path(workspace['path']) / 'vault/local').exists(),
+              'workspace_context_copied_or_changed_files')
+        cli('workspace', 'release', workspace['id'], '--expected-revision', str(workspace['revision']),
+            '--operation-id', str(uuid.uuid4()), '--actor-id', 'fixture')
+        check(git_before == [run([git, *args], env=env, cwd=project) for args in
+                           (('status', '--porcelain=v1', '-uall'), ('diff',), ('diff', '--cached'))],
+              'workspace_changed_original_checkout')
         defaults = cli('config', 'show')
         updated = defaults['config']
         updated['agents']['pm']['model'] = 'fixture-b'
@@ -126,6 +211,7 @@ print(json.dumps(result))
         before_read = fixture.snapshot()
         pending_status = cli('status', pending['code'], expected=1)
         check(pending_status['projection_state'] == 'pending' and fixture.snapshot() == before_read, 'status_wrote_files')
+        check(pending_status['queue_preview']['first_candidate_id'] is None, 'pending_projection_selected_candidate')
         recovered = prepare(recovery_operation)
         check(recovered['event_id'] == pending['event_id'] and recovered['projection_state'] == 'current', 'recovery_failed')
         repaired = cli('repair', recovered['code'])
@@ -139,13 +225,50 @@ print(json.dumps(result))
                     check(digest(project / name) == retained[name], 'legacy_content_changed')
         if extra_check:
             extra_check(project, case, env, first['record_id'])
+        freezing = '''import json, sys
+from pathlib import Path
+from unittest.mock import patch
+sys.path.insert(0, 'scripts')
+import missions
+root = Path.cwd()
+profile = root / 'vault/product/profile.md'
+original_bytes = profile.read_bytes()
+original_freeze = missions.frozen_inputs
+def changed(root, items):
+    profile.write_bytes(original_bytes + b'\\nChanged during prepare\\n')
+    return original_freeze(root, items)
+try:
+    with patch('missions.frozen_inputs', side_effect=changed):
+        result = missions.prepare_mission(root, json.loads(Path(sys.argv[1]).read_text()),
+                                          sys.argv[2], dict(id='fixture', role='pm'))
+finally:
+    profile.write_bytes(original_bytes)
+print(json.dumps(result))
+'''
+        raced = json.loads(run([sys.executable, '-B', '-c', freezing, mission_path, str(uuid.uuid4())], env=env, cwd=project))
+        before_read = fixture.snapshot()
+        inconsistent = cli('status', raced['code'])
+        check(inconsistent['state'] == 'draft' and not inconsistent['check_available'] and
+              inconsistent['stale_inputs'] == ['vault/product/profile.md'] and
+              'stale_input:vault/product/profile.md' in inconsistent['gaps'], 'mixed_input_mission_accepted')
+        check(inconsistent['queue_preview']['first_candidate_id'] is None and fixture.snapshot() == before_read,
+              'mixed_input_status_changed_state')
+        cli('revise', raced['code'], '--input', mission_path, '--expected-revision', '1',
+            '--operation-id', str(uuid.uuid4()), *actor)
+        check(cli('status', raced['code'])['check_available'], 'explicit_consistent_revision_failed')
         vault = json.loads(run([sys.executable, '-B', 'scripts/vault.py', 'check', '--json'], env=env, cwd=project))
         check(vault['issues'] == [], 'vault_invalid')
         outcomes.append(dict(mode=mode, project_id=fixture.project_id, features=2, pbis=4,
                              mission_codes=[first['code'], second['code'], recovered['code']],
                              existing_hashes_preserved=mode == 'existing', legacy_hashes=retained if mode == 'existing' else {},
                              snapshots_frozen=True, replay_without_duplicate=True,
-                             read_only_status=True, projection_recovered=True, vault_notes=vault['notes_checked'],
+                             read_only_status=True, read_only_discovery=True, initial_queue_preview=True,
+                             selected_pbi_context=True, context_without_writes=True,
+                             restricted_pm_priority=True, priority_preview_without_writes=True,
+                             selected_technical_plan=True, technical_preview_without_writes=True,
+                             inconsistent_inputs_blocked=True, explicit_consistent_revision=True,
+                             workspace_context_bound=True, workspace_context_without_writes=True,
+                             projection_recovered=True, vault_notes=vault['notes_checked'],
                              state='prepared', runtime_available=False))
 
     result = smoke(root, client, prepare_existing=prepare_existing, exercise=exercise, cases=('absent', 'dirty-git'))

@@ -21,6 +21,7 @@ INTEGRATION_FILES = ('scripts/integrations.py', 'skills/integrate-from-docs/SKIL
           '.claude/agents/integration-specialist.md', '.codex/agents/integration-specialist.toml')
 PERSONALIZER_FILES = ('scripts/personalize.py', 'skills/personalizer/SKILL.md',
                       'skills/personalizer/references/interview.md',
+                      'skills/personalizer/references/execution.md',
                       '.claude/skills/personalizer/SKILL.md', '.agents/skills/personalizer/SKILL.md')
 FILES += INTEGRATION_FILES + PERSONALIZER_FILES + ('scripts/vault.py', 'scripts/document_store.py')
 FILES += ('scripts/documents.py', 'scripts/docling_worker.py', 'requirements/docling.txt')
@@ -34,8 +35,9 @@ FILES += ('scripts/capabilities.py', 'skills/govern-capabilities/SKILL.md',
           '.claude/skills/govern-capabilities/SKILL.md', '.agents/skills/govern-capabilities/SKILL.md')
 FILES += ('scripts/adoption.py', 'scripts/adoption_fs.py', 'scripts/adoption_acl.ps1')
 FILES += tuple(f'scripts/{name}.py' for name in
-               ('mission_config', 'mission_backlog', 'mission_store', 'mission_vault', 'missions',
-                'mission_clients', 'mission_process', 'mission_runs'))
+               ('mission_config', 'mission_backlog', 'mission_store', 'mission_vault', 'missions', 'mission_queue', 'mission_workspace',
+                'mission_clients', 'mission_process', 'mission_runs', 'mission_sandbox', 'mission_environment', 'mission_sbx',
+                'mission_execution','mission_egress', 'mission_controller', 'mission_transaction', 'mission_network'))
 FILES += tuple(f'{base}/{name}/SKILL.md' for base in ('skills', '.claude/skills', '.agents/skills')
                for name in ('yc-personalizer', 'yc-config', 'yc-missao', 'yc-status'))
 
@@ -68,11 +70,109 @@ def fake_git(args):
 
 
 class SetupTests(unittest.TestCase):
+    def test_execution_guide_and_commands_are_distributed_for_both_clients(self):
+        for client in ('claude', 'codex'):
+            self.target = self.base / ('guide-' + client)
+            result = self.run_setup('--client', client, '--no-plugins')
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertTrue((self.target / 'skills/personalizer/references/execution.md').is_file())
+            self.assertTrue((self.target / 'scripts/mission_queue.py').is_file())
+            self.assertTrue((self.target / 'scripts/mission_workspace.py').is_file())
+            before = snapshot_bytes(self.target)
+            probe = subprocess.run([sys.executable, '-B', str(self.target / 'scripts/missions.py'),
+                                    '--root', str(self.target), 'environment', 'show', '--json'],
+                                   capture_output=True, text=True, timeout=30)
+            self.assertEqual(probe.returncode, 0, probe.stdout + probe.stderr)
+            self.assertEqual(json.loads(probe.stdout)['location'], 'local')
+            self.assertEqual(snapshot_bytes(self.target), before)
+
+    def selection(self):
+        return json.loads((self.target / '.operacao-local/execution/selection.json').read_bytes())
+
+    def test_execution_location_default_and_explicit_preserve(self):
+        for requested in (None, 'dedicated'):
+            self.target = self.base / ('execution ' + str(requested))
+            args = ('--client', 'both', '--no-plugins')
+            first = self.run_setup(*args, *(('--execution-location', requested) if requested else ()))
+            self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+            self.assertEqual(self.selection()['location'], requested or 'local')
+            original = (self.target / '.operacao-local/execution/selection.json').read_bytes()
+            for extra in ((), ('--force',)):
+                repeat = self.run_setup(*args, *extra)
+                self.assertEqual(repeat.returncode, 0, repeat.stdout + repeat.stderr)
+                self.assertEqual((self.target / '.operacao-local/execution/selection.json').read_bytes(), original)
+            before, home = snapshot_bytes(self.target), snapshot_bytes(self.home)
+            conflict = self.run_setup(*args, '--execution-location', 'local' if requested else 'dedicated')
+            self.assertNotEqual(conflict.returncode, 0)
+            self.assertEqual(snapshot_bytes(self.target), before)
+            self.assertEqual(snapshot_bytes(self.home), home)
+
+    def test_execution_invalid_option_and_preserved_helper(self):
+        before, home = snapshot_bytes(self.target), snapshot_bytes(self.home)
+        bad = self.run_setup('--execution-location', 'remote')
+        self.assertNotEqual(bad.returncode, 0)
+        self.assertEqual(snapshot_bytes(self.target), before)
+        self.assertEqual(snapshot_bytes(self.home), home)
+        write(self.target / 'scripts/mission_environment.py', '# human helper\n')
+        result = self.run_setup('--client', 'both', '--no-plugins', '--force')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual((self.target / 'scripts/mission_environment.py').read_text(), '# human helper\n')
+        before = snapshot_bytes(self.target)
+        probe = subprocess.run([sys.executable, '-B', str(self.target / 'scripts/missions.py'),
+                                '--root', str(self.target), 'environment', 'show', '--json'],
+                               capture_output=True, text=True, timeout=30)
+        self.assertEqual(probe.returncode, 2, probe.stdout + probe.stderr)
+        self.assertEqual(json.loads(probe.stdout)['error'], 'incompatible_helper')
+        self.assertEqual(snapshot_bytes(self.target), before)
+
+    def test_execution_trial_propagates_and_preserves_baseline(self):
+        write(self.target / 'human.txt', 'baseline')
+        args = ('--trial', '--backup-root', shell_path(self.base / 'backups'), '--client', 'codex')
+        first = self.run_setup(*args, '--execution-location', 'dedicated')
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        self.assertEqual(self.selection()['location'], 'dedicated')
+        baseline = self.adoption_status()['baseline_digest']
+        for extra in (('--execution-location', 'local'), ('--force',)):
+            result = self.run_setup(*args, *extra)
+            self.assertEqual(result.returncode == 0, extra == ('--force',), result.stdout + result.stderr)
+            self.assertEqual(self.adoption_status()['baseline_digest'], baseline)
+            self.assertEqual(self.selection()['location'], 'dedicated')
+
+    def test_sandbox_environment_installs_without_activating_runtime(self):
+        result = self.run_setup('--client', 'both', '--no-plugins')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue((self.target / 'scripts/mission_sandbox.py').is_file())
+        for name in ('mission_execution','mission_egress', 'mission_controller', 'mission_transaction', 'mission_network'):
+            self.assertTrue((self.target / f'scripts/{name}.py').is_file())
+        before = snapshot_bytes(self.target)
+        probe = subprocess.run([sys.executable, '-B', str(self.target / 'scripts/missions.py'),
+                                '--root', str(self.target), 'client', 'environment',
+                                '--executable', str(self.target / 'missing-sbx.exe'), '--json'],
+                               capture_output=True, text=True, timeout=45)
+        self.assertEqual(probe.returncode, 1, probe.stdout + probe.stderr)
+        self.assertIn('runtime_missing', json.loads(probe.stdout)['gaps'])
+        self.assertFalse(json.loads(probe.stdout)['execution_reservation']['effects_allowed'])
+        self.assertEqual(snapshot_bytes(self.target), before)
+
     def test_runtime_helpers_preserve_existing_install(self):
         write(self.target / 'scripts/mission_runs.py', '# human adapter\n')
+        write(self.target / 'scripts/mission_sandbox.py', '# human environment probe\n')
+        write(self.target / 'scripts/mission_execution.py', '# human reservation\n')
+        write(self.target / 'scripts/mission_egress.py', '# human egress\n')
+        write(self.target / 'scripts/mission_controller.py', '# human controller\n')
+        write(self.target / 'scripts/mission_transaction.py', '# human transaction\n')
+        write(self.target / 'scripts/mission_network.py', '# human network\n')
+        write(self.target / 'scripts/mission_workspace.py', '# human workspace\n')
         result = self.run_setup('--client', 'both', '--no-plugins', '--force', timeout=180)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual((self.target / 'scripts/mission_runs.py').read_text(), '# human adapter\n')
+        self.assertEqual((self.target / 'scripts/mission_sandbox.py').read_text(), '# human environment probe\n')
+        self.assertEqual((self.target / 'scripts/mission_execution.py').read_text(), '# human reservation\n')
+        self.assertEqual((self.target / 'scripts/mission_egress.py').read_text(), '# human egress\n')
+        self.assertEqual((self.target / 'scripts/mission_controller.py').read_text(), '# human controller\n')
+        self.assertEqual((self.target / 'scripts/mission_transaction.py').read_text(), '# human transaction\n')
+        self.assertEqual((self.target / 'scripts/mission_network.py').read_text(), '# human network\n')
+        self.assertEqual((self.target / 'scripts/mission_workspace.py').read_text(), '# human workspace\n')
         for name in ('mission_clients', 'mission_process'):
             self.assertTrue((self.target / f'scripts/{name}.py').is_file())
         self.assertFalse((self.target / 'vault/local/operations/state.sqlite3').exists())
@@ -124,7 +224,7 @@ class SetupTests(unittest.TestCase):
             self.assertEqual((self.target / name).read_text(), content)
 
     def test_mission_setup_rejects_missing_dependency(self):
-        helper = self.source / 'scripts/mission_store.py'
+        helper = self.source / 'scripts/mission_workspace.py'
         helper.unlink(missing_ok=True)
         before = snapshot_bytes(self.target)
         result = self.run_setup('--client', 'both', '--no-plugins')

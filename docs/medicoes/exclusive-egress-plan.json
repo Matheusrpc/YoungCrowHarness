@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-05T11:56:11.865581+00:00",
+  "front": "isolated-executor",
+  "state": "written_spec_approved_plan_awaiting_review",
+  "operator_approval": "aprovado",
+  "selected_scope": "exclusive_local_docker_sandboxes",
+  "execution_method": "inline_previously_selected",
+  "tasks_within_R1": 3,
+  "scope_changes_activated": false,
+  "native_probe_executed": false,
+  "model_calls": 0,
+  "settings_changes": 0,
+  "vm_starts": 0,
+  "daemon_restarts": 0,
+  "profile_ids": [],
+  "production_published": false,
+  "plan_path": "docs/superpowers/plans/2026-10-05-exclusive-egress-proof.md",
+  "spec_path": "docs/superpowers/specs/2026-10-05-exclusive-egress-decision.md",
+  "sources": [
+    {
+      "url": "https://www.rfc-editor.org/rfc/rfc1928.html",
+      "source_id": "f4ac883c-288a-4b9e-8062-9295ec8db774",
+      "revision": "3574ae0a7c36b6248149b42a9e1f85f13eb3b4007e322ed350bcb47fbeb979ff",
+      "note_path": "vault/local/sources/f4ac883c-288a-4b9e-8062-9295ec8db774/content-3574ae0a7c36b6248149b42a9e1f85f13eb3b4007e322ed350bcb47fbeb979ff.md",
+      "note_id": "70c274ea-ff27-5c84-90aa-a918ffe65d40",
+      "note_sha256": "05eae8b42d8ce50a3e36f3e948161680fc5ca13e99e42d91da0fda39eb8465ed",
+      "evidence": "SOCKS Protocol Version 5"
+    },
+    {
+      "url": "https://docs.python.org/3.14/library/ipaddress.html",
+      "source_id": "091804ce-5b13-494e-bcfb-062271f6846b",
+      "revision": "0b16a064b99c39038db9342e33d54bc500806d6ee8e5417e4bf1ad803c2098ab",
+      "note_path": "vault/local/sources/091804ce-5b13-494e-bcfb-062271f6846b/content-0b16a064b99c39038db9342e33d54bc500806d6ee8e5417e4bf1ad803c2098ab.md",
+      "note_id": "da5fc824-85b3-5ec3-bfed-d3e9b5df75f2",
+      "note_sha256": "2ccb34d249c8b059a7c56a1431598d2e8ad925f1d6a99c8c62370b5527715ad4",
+      "evidence": "not globally reachable"
+    }
+  ],
+  "cli_help_receipts": [
+    {
+      "command": "sbx settings get --help",
+      "receipt": "exclusive-plan-help-get.txt",
+      "sha256": "453a61c78de32162505e2fd7f8e82e5c31621d6f40ec5c10c6b8b0f6ed361c81"
+    },
+    {
+      "command": "sbx settings unset --help",
+      "receipt": "exclusive-plan-help-unset.txt",
+      "sha256": "02cc654fdc5424643855c3840c54486e817e8c2e2f99bd72caf5a20c3123ab1e"
+    },
+    {
+      "command": "sbx daemon restart --help",
+      "receipt": "exclusive-plan-help-restart.txt",
+      "sha256": "9e8441d93c6bd4e62f7e8908fc625e47a9c77a683a0fc381051ec2372a8f3bcd"
+    }
+  ],
+  "openssl": {
+    "version": "3.5.6",
+    "sha256": "063e62dcc027fc5dbb1343de631f02a9291f8b1df0b4e37012e49a03d525aad4",
+    "purpose": "future_local_TLS_fixture_only"
+  },
+  "next_action": "Review revised R1 plan; preserve inline execution method.",
+  "plan_sha256": "dc002426cf24f72ac54b40e08473fda93cbb87c9eea17fb16f91a0c258caa6d8",
+  "spec_sha256": "4fce8b552ea06cce107458ea92bf692e9b3024a4e6d11aaf4d62216dd4dacabb",
+  "product_runtime_sha256": {
+    "runtime/sbx/guardian.py": "5b26f23f407a1e1f589e222b7f7ad04cd54e36567c11a761825d9af765d60add",
+    "runtime/sbx/launcher.py": "dcd1198c097dcc0e19dda958f5a9aaf1962cec163003948da52648e494885afe"
+  },
+  "source_acquisition": {
+    "source_url": "https://www.rfc-editor.org/rfc/rfc1928.html",
+    "content_type": "text/html",
+    "source_sha256": "eb15db0808873fb4a2b764d470280f67751520e0113dc1365b89a8fd9de1e0b0",
+    "transformation": "none; original HTML downloaded for local Docling intake",
+    "created_at": "2026-10-05T11:53:02.003300+00:00"
+  },
+  "original_rfc_intake": {
+    "source_id": "b7ff2a25-a5cd-4e24-9cfb-8dd2d1362842",
+    "state": "unsupported",
+    "recovered_via_local_html_source": "f4ac883c-288a-4b9e-8062-9295ec8db774"
+  }
+}

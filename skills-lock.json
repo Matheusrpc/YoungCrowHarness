@@ -179,8 +179,8 @@
       "expected": {
         "contract_sha256": "882ba9355ba6bc988420f44e8aceb7c47e018bda01b68622a90d3299984110b2",
         "files_sha256": {
-          "claude": "125b149cfd098757800a8d0728c892cfe2113c947a39044b59d65535712c6da2",
-          "codex": "3592f2eb31bc4cf69a48e1ff3b6c5232718b38426871a840009528f55b270704"
+          "claude": "e8b61a20d805cb084f7d86eec4875680085664a64589f8e1fa64327240027d33",
+          "codex": "85ba1410036a082d85163e76724b46ae7cf785236bb8e2e2a26ec70518b2eb9d"
         }
       },
       "legacy_ref": "skills_de_projeto/retrieve-memory"
@@ -241,8 +241,8 @@
       "expected": {
         "contract_sha256": "f62691940874fb27919977a6856d54691bdfc627e117d10e4c6ac2e77aaa731c",
         "files_sha256": {
-          "claude": "609cc75a10c8a0977e135348df3c799a6d5f8e17e11f576b18d0030fa2be42d2",
-          "codex": "c42223d52efab4da4de9ec87fcdf98abc41cdff6edbac2a0c684ca314783b56b"
+          "claude": "66ec7f30ea8426a9a236f72d0d20e0a05030ffc4191c63549f593f349ef91219",
+          "codex": "ad9770baa7fbd8c9aab0ce746efa08804f8058e8f74ca1813228c85f5c7907ac"
         }
       },
       "legacy_ref": "skills_de_projeto/ingest-source"
@@ -288,7 +288,18 @@
           "scripts/capabilities.py",
           "scripts/mission_clients.py",
           "scripts/mission_process.py",
-          "scripts/mission_runs.py"
+          "scripts/mission_runs.py",
+          "scripts/mission_controller.py",
+          "scripts/mission_transaction.py",
+          "scripts/mission_sandbox.py",
+          "scripts/mission_environment.py",
+          "skills/personalizer/references/execution.md",
+          "scripts/mission_sbx.py",
+          "scripts/mission_execution.py",
+          "scripts/mission_egress.py",
+          "scripts/mission_network.py",
+          "scripts/mission_queue.py",
+          "scripts/mission_workspace.py"
         ],
         "claude": [
           ".claude/skills/personalizer/SKILL.md"
@@ -314,10 +325,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "9d548412c3761352bf5bf3e0b64d88c8d6c2d8fe54d7886f757df4fcd69cc5d7",
+        "contract_sha256": "4ed02a5e2e4d82e34d37823fab9b30ed144d950fb42b6e488ffae4499a4932a4",
         "files_sha256": {
-          "claude": "a5d92e1c3a579431fa326bb9ec7d6c4f8917211fda0d3d05baa22d40412fd495",
-          "codex": "4cc6192a1dba8b7d6e93230b72faa396009e8b0c172ddc4799a3f144bde1d86b"
+          "claude": "522ba40d99366fa717d98c2cb2900bae630fcb92cb4030247c5dce097aa5b5cc",
+          "codex": "e5328007a5f234a9f63728b7e334aa0714bb7e6e3838fdbd6c2d3a0f725a46ce"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -373,8 +384,8 @@
       "expected": {
         "contract_sha256": "6bb2ddf73fce434b60a2572aa09a4e770840ebaab2f9d4c24bd948fe91f99b38",
         "files_sha256": {
-          "claude": "a5f9e4d6b74e618cd0f148852e4bd46634a2c465ebd2eb185dc70fa88e498d9a",
-          "codex": "c251fd132be15a95bed24a3a491914229ff545407256ca4a254ac603b08452c9"
+          "claude": "429946d1b5719ac1cf8d8f22c837f5866312bdd87f159b51f09f5c2a815b1188",
+          "codex": "5130af4e934422b58c1afb67ffd11bb37bed7b61967099029edb1a69386f7545"
         }
       },
       "legacy_ref": "skills_de_projeto/integrate-from-docs"
@@ -430,8 +441,8 @@
       "expected": {
         "contract_sha256": "b5f565af982866d606c8761dde8aea3e65ead88a29389a3a9764daaa6e07f4b2",
         "files_sha256": {
-          "claude": "ae30e98a9bf30c21bff2f82cfef254c1cdbe669a22b0c7b9914c96ce449f96f8",
-          "codex": "1fd01db2b4e528155ad97e7cde940bc74490db05b728828abbd1dc9853ac6407"
+          "claude": "c8b21b17fdee40911121c1ac391bffb12ad04494ad60367b54f0f8b359b02407",
+          "codex": "af35592ddaf621c8ec4d2543106e0f444a889aa00a8a3e34fbf810db89d7334e"
         }
       },
       "legacy_ref": "skills_de_projeto/govern-capabilities"
@@ -1200,7 +1211,18 @@
           "scripts/adoption_acl.ps1",
           "scripts/mission_clients.py",
           "scripts/mission_process.py",
-          "scripts/mission_runs.py"
+          "scripts/mission_runs.py",
+          "scripts/mission_controller.py",
+          "scripts/mission_transaction.py",
+          "scripts/mission_sandbox.py",
+          "scripts/mission_environment.py",
+          "skills/personalizer/references/execution.md",
+          "scripts/mission_sbx.py",
+          "scripts/mission_execution.py",
+          "scripts/mission_egress.py",
+          "scripts/mission_network.py",
+          "scripts/mission_queue.py",
+          "scripts/mission_workspace.py"
         ],
         "claude": [
           ".claude/skills/yc-personalizer/SKILL.md"
@@ -1226,10 +1248,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "ec50021c4efaf5fdfdbdc2005c998dedbc92364ed2e9bc48aabfacd48e5a43ca",
+        "contract_sha256": "cc7f0be1bbc77eba45aa6c320fe24acb39039eb463827e3af8b104fc39d7014e",
         "files_sha256": {
-          "claude": "2da6b521fe500b5417be7c2d8eafb9788057909a26cba3015be829a24ccec0b0",
-          "codex": "b424a43e62c50a0d53e10677c4787e60a705fc120be0ab757eb8d7f5c0e64bda"
+          "claude": "35f31c1912b7b7abb06e431f9c00c1c88c78d230e844e45533c452db08e29a50",
+          "codex": "be6be5a7b071645a50082c9e039174bebdbbcee2ddf91ee53e16331a9d08cd45"
         }
       }
     },
@@ -1275,7 +1297,20 @@
           "scripts/adoption_fs.py",
           "scripts/mission_clients.py",
           "scripts/mission_process.py",
-          "scripts/mission_runs.py"
+          "scripts/mission_runs.py",
+          "scripts/mission_controller.py",
+          "scripts/mission_transaction.py",
+          "scripts/mission_sandbox.py",
+          "scripts/mission_environment.py",
+          "scripts/adoption.py",
+          "scripts/adoption_acl.ps1",
+          "skills/personalizer/references/execution.md",
+          "scripts/mission_sbx.py",
+          "scripts/mission_execution.py",
+          "scripts/mission_egress.py",
+          "scripts/mission_network.py",
+          "scripts/mission_queue.py",
+          "scripts/mission_workspace.py"
         ],
         "claude": [
           ".claude/skills/yc-config/SKILL.md"
@@ -1305,10 +1340,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "af04e7ed3abf98f4b4bfce3867b6f7fb296c568fd6822fc503c1c5e2665cac17",
+        "contract_sha256": "7badfa4acfe7638f7326e93e94506a3b291d44cfb3d635bcee2a90884f9dcc08",
         "files_sha256": {
-          "claude": "c2c944d9a5bd2620eb1abf3b3840f1a5fb243c274b16a5c189aaf761335f556d",
-          "codex": "d437e28d3ffa2f263e568d110d84adbfbc93de52ff38522cbaf75c63793a4256"
+          "claude": "068351b9c85d8bdb86a5a037e5eeb2d7c35acdb864b8afbeeb9a4dbfc0ddfd20",
+          "codex": "42e2c7a8bb3422cc55c3b35ffa9c79b680f77ff10ef2ffb794f7ff0458a09d17"
         }
       }
     },
@@ -1316,10 +1351,10 @@
       "id": "yc-missao",
       "kind": "skill",
       "purpose": {
-        "when": "Refine backlog and prepare or revise one to N features",
-        "inputs": "Selected contracts, references and priorities",
-        "outputs": "Private mission snapshot, events and recovery receipt",
-        "limits": "Offline preparation only; no autonomous workers or deployment"
+        "when": "Refine backlog, propose restricted PM priority changes, select PBI technical plans, assemble PBI context, prepare missions or explicitly prepare/release a PBI Git workspace",
+        "inputs": "Selected contracts, references, priorities and explicit pinned Git base",
+        "outputs": "Private mission snapshots, revision-bound priority and technical-plan decisions, events, read-only PBI context and workspace recovery receipts",
+        "limits": "Local explicit preparation/release; no autonomous workers, integration, push or deployment"
       },
       "clients": [
         "claude",
@@ -1354,7 +1389,20 @@
           "scripts/adoption_fs.py",
           "scripts/mission_clients.py",
           "scripts/mission_process.py",
-          "scripts/mission_runs.py"
+          "scripts/mission_runs.py",
+          "scripts/mission_controller.py",
+          "scripts/mission_transaction.py",
+          "scripts/mission_sandbox.py",
+          "scripts/mission_environment.py",
+          "scripts/adoption.py",
+          "scripts/adoption_acl.ps1",
+          "skills/personalizer/references/execution.md",
+          "scripts/mission_sbx.py",
+          "scripts/mission_execution.py",
+          "scripts/mission_egress.py",
+          "scripts/mission_network.py",
+          "scripts/mission_queue.py",
+          "scripts/mission_workspace.py"
         ],
         "claude": [
           ".claude/skills/yc-missao/SKILL.md"
@@ -1367,11 +1415,13 @@
         "read": [
           "project instructions",
           "selected vault notes",
-          "project configuration"
+          "project configuration",
+          "selected local Git repository metadata and pinned base commit"
         ],
         "write": [
           "authorized project files",
-          "vault/local"
+          "vault/local",
+          "operator-authorized PBI branches, Git worktree metadata and owned directories under .runtime/workspaces"
         ],
         "network": [],
         "data": [],
@@ -1380,10 +1430,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "1006c21c1c4f4bec48c28500cc99dc893dacaea46049fc4972cf097d7c9e262a",
+        "contract_sha256": "665134baae0553d4a05dfd7d0a920c2626c3fea34e7614b28a313b4f4733d07d",
         "files_sha256": {
-          "claude": "ab307f83b998cbe88cc9fa25023c801fa87b63e3cba2b45481637d2ac3846edf",
-          "codex": "a436774c576f7c720dca4c5e2ff01d1e463aa44b46dd2c6af09657be32f3a770"
+          "claude": "1edcff770709fb6064f64b1b63e350768a49580031cad9a747813f01c0d411c8",
+          "codex": "c22a0b90ae400d0fe0daf5266d7d44792c9070291f0c9aaf2c3a00d5affeea9f"
         }
       }
     },
@@ -1392,8 +1442,8 @@
       "kind": "skill",
       "purpose": {
         "when": "Read mission state and pending work",
-        "inputs": "Mission UUID or code",
-        "outputs": "Read-only history, freshness and planning gaps",
+        "inputs": "Mission UUID/code; PBI UUID and mission revision, or owned workspace UUID and workspace revision for context",
+        "outputs": "Read-only history, freshness, planning gaps, PBI context with its technical plan, saved workspace state or context bound to observed workspace Git metadata",
         "limits": "Offline preparation only; no autonomous workers or deployment"
       },
       "clients": [
@@ -1429,7 +1479,20 @@
           "scripts/adoption_fs.py",
           "scripts/mission_clients.py",
           "scripts/mission_process.py",
-          "scripts/mission_runs.py"
+          "scripts/mission_runs.py",
+          "scripts/mission_controller.py",
+          "scripts/mission_transaction.py",
+          "scripts/mission_sandbox.py",
+          "scripts/mission_environment.py",
+          "scripts/adoption.py",
+          "scripts/adoption_acl.ps1",
+          "skills/personalizer/references/execution.md",
+          "scripts/mission_sbx.py",
+          "scripts/mission_execution.py",
+          "scripts/mission_egress.py",
+          "scripts/mission_network.py",
+          "scripts/mission_queue.py",
+          "scripts/mission_workspace.py"
         ],
         "claude": [
           ".claude/skills/yc-status/SKILL.md"
@@ -1442,7 +1505,8 @@
         "read": [
           "project instructions",
           "selected vault notes",
-          "project configuration"
+          "project configuration",
+          "owned PBI workspace Git metadata"
         ],
         "write": [],
         "network": [],
@@ -1452,10 +1516,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "1438f51c4862501eacc8d43187a2bbbec0e182293ccd7d282bce0ccec0ee6187",
+        "contract_sha256": "8c4bc48810e24529420e14e3df6ee3c6cccfb38db7821759a7934ceab73d7bba",
         "files_sha256": {
-          "claude": "201dd4c6318cb174a534c2252d7995beed8996305b17266ca5a45fed45114284",
-          "codex": "1e8b594e999d500726a0c1826c3ea550f6d3551134a6552bdfbf3a0e03ad5165"
+          "claude": "98b9200f918872cfa99e211159aa3861dcfe831736513c70677105996d7f7d3a",
+          "codex": "3681003906a3bc46798ac1aed975e6b1fd70fed66867dd0c61776f11d7c06f19"
         }
       }
     }

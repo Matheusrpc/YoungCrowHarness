@@ -1,6 +1,6 @@
 ---
 name: yc-status
-description: Use when consulting YoungCrow mission history, planning gaps or source freshness.
+description: Use when consulting YoungCrow mission history, PBI or owned-workspace context, planning gaps or source freshness.
 ---
 
 Read [the shared yc-status reference](../../../skills/yc-status/SKILL.md) before acting.

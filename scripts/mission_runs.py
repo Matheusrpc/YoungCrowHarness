@@ -14,6 +14,7 @@ import mission_clients as clients
 import mission_process as processes
 import mission_store as store
 
+STORE_SCHEMA = 6
 UNRESOLVED = ('reserved', 'running', 'uncertain')
 TERMINAL = ('succeeded', 'failed', 'interrupted')
 MANIFEST = {'schema_version', 'mission_id', 'mission_revision', 'role', 'operation_id',
@@ -38,15 +39,17 @@ def migrate(conn):
 
 
 def has_runs(conn):
-    return conn is not None and conn.execute('SELECT schema_version FROM metadata').fetchone()[0] == 2
+    return conn is not None and conn.execute('SELECT schema_version FROM metadata').fetchone()[0] in (2, 3, 4, 5, 6)
 
 
-def list_runs(root: Path, mission_id: str) -> list[dict]:
+def list_runs(root: Path, mission_id: str, *, include_unresolved=False) -> list[dict]:
     with store.reader(root) as conn:
         if not has_runs(conn):
             return []
         row = conn.execute('SELECT id FROM records WHERE kind=? AND (id=? OR code=?)', ('mission', mission_id, mission_id)).fetchone()
-        return [json.loads(r[0]) for r in conn.execute('SELECT snapshot FROM agent_runs WHERE mission_id=? ORDER BY rowid', (row[0],))] if row else []
+        return [json.loads(r[0]) for r in conn.execute(
+            'SELECT snapshot FROM agent_runs WHERE mission_id=? OR (? AND state IN (?,?,?)) ORDER BY rowid',
+            (row[0], include_unresolved, *UNRESOLVED))] if row else []
 
 
 def find_run(conn, run_id):
@@ -62,10 +65,12 @@ def manifest_valid(manifest):
         identity(manifest[key])
     for key in ('mission_revision', 'agent_seconds', 'max_runs'):
         require(type(manifest[key]) is int and manifest[key] > 0, 'invalid_manifest')
-    require(manifest['max_runs'] == 1 and manifest['fixture_id'] == 'echo-v1', 'invalid_manifest')
+    require(manifest['max_runs'] == 1 and manifest['fixture_id'] in ('echo-v1', 'isolated-egress-v1'), 'invalid_manifest')
     require(text(manifest['authorization_ref'], 1000) and manifest['authorization_ref'].strip(), 'invalid_manifest')
     require(isinstance(manifest['role'], str), 'invalid_manifest')
     budget = manifest['api_budget_usd']
+    if manifest['fixture_id'] == 'isolated-egress-v1':
+        require(budget is None, 'invalid_manifest')
     if budget is not None:
         import re
         require(isinstance(budget, str) and len(budget) <= 64 and re.fullmatch(r'\d+(?:\.\d+)?', budget)
@@ -113,6 +118,8 @@ def save_event(conn, run, event, revision, operation_id):
 
 
 def reserve_check(root: Path, manifest: dict, observation: dict) -> dict:
+    manifest_valid(manifest)
+    require(manifest['fixture_id'] == 'echo-v1', 'invalid_manifest')
     repeated = existing(root, manifest)
     if repeated:
         return repeated
@@ -120,12 +127,23 @@ def reserve_check(root: Path, manifest: dict, observation: dict) -> dict:
     plan = clients.build_check(agent, observation, manifest)
     require(not plan['execution_gaps'], 'unsupported_policy')
     # The model's diagnostic profile is separate from process-tree containment.
+    details = dict(purpose='client_check', state='reserved', reason=None,
+                   observed_model=None, observed_effort=None,
+                   capabilities_requested=agent['capabilities'], tools_observed=[],
+                   **{k: plan[k] for k in ('client', 'connection', 'version', 'requested_model', 'resolved_model',
+                                          'requested_effort', 'policy_digest', 'executable_sha256')})
+    return _record_check(root, manifest, config, details)
+
+
+def _record_check(root, manifest, config, details, *, run_id=None, with_new=False):
+    """Persist one closed check variant with the same mission limits and UUID CAS."""
     with store.transaction(root) as conn:
         migrate(conn)
         row = conn.execute('SELECT request_hash,snapshot FROM agent_runs WHERE operation_id=?', (manifest['operation_id'],)).fetchone()
         if row:
             require(row[0] == digest_manifest(manifest), 'operation_conflict')
-            return json.loads(row[1])
+            result = json.loads(row[1])
+            return (False, result) if with_new else result
         require(not conn.execute("SELECT 1 FROM agent_runs WHERE state IN ('reserved','running','uncertain') LIMIT 1").fetchone(), 'unresolved_run')
         current = conn.execute('SELECT revision FROM records WHERE id=?', (manifest['mission_id'],)).fetchone()
         require(current and current[0] == manifest['mission_revision'], 'revision_conflict')
@@ -135,20 +153,21 @@ def reserve_check(root: Path, manifest: dict, observation: dict) -> dict:
         if manifest['api_budget_usd'] is not None:
             used = sum(Decimal(r['manifest']['api_budget_usd'] or '0') for r in previous)
             require(used + Decimal(manifest['api_budget_usd']) <= Decimal(config['limits']['api_budget_usd']), 'limit_exceeded')
-        run = dict(schema_version=1, id=str(uuid.uuid4()), mission_id=manifest['mission_id'],
+        created = now()
+        run = dict(schema_version=1, id=run_id or str(uuid.uuid4()), mission_id=manifest['mission_id'],
                    mission_revision=manifest['mission_revision'], operation_id=manifest['operation_id'],
-                   manifest=manifest, purpose='client_check', state='reserved', revision=0,
-                   created_at=now(), started_at=None, ended_at=None, owner=None, reason=None,
+                   manifest=manifest, revision=0,
+                   created_at=created, ended_at=created if details['state'] in TERMINAL else None,
+                   started_at=None, owner=None,
                    coordinator_pid=os.getpid(),
                    config_digest=config_digest(config),
                    reserved_seconds=manifest['agent_seconds'], attempts=1, cost_usd=None, usage={},
-                   observed_model=None, observed_effort=None, elapsed_seconds=None, exit_code=None,
-                   capabilities_requested=agent['capabilities'], tools_observed=[],
-                   **{k: plan[k] for k in ('client', 'connection', 'version', 'requested_model', 'resolved_model',
-                                          'requested_effort', 'policy_digest', 'executable_sha256')})
+                   elapsed_seconds=None, exit_code=None, **details)
         conn.execute('INSERT INTO agent_runs VALUES(?,?,?,?,?,?,?,?)',
-                     (run['id'], run['mission_id'], run['mission_revision'], run['operation_id'], digest_manifest(manifest), 0, 'reserved', canonical(run).decode()))
-        return save_event(conn, run, dict(kind='reserved'), 0, manifest['operation_id'])
+                     (run['id'], run['mission_id'], run['mission_revision'], run['operation_id'], digest_manifest(manifest), 0, run['state'], canonical(run).decode()))
+        event = dict(kind='reserved') if run['state'] == 'reserved' else dict(kind='blocked', reason=run['reason'])
+        result = save_event(conn, run, event, 0, manifest['operation_id'])
+        return (True, result) if with_new else result
 
 
 def transition_run(root: Path, run_id: str, event: dict, expected_revision: int, operation_id: str) -> dict:
@@ -202,7 +221,14 @@ def check_client(root: Path, manifest: dict, executable: Path) -> dict:
         if repeated['state'] == 'reserved' or (repeated['state'] == 'running' and processes.owner_gone(repeated['owner'])):
             repeated = transition_run(root, repeated['id'], dict(kind='uncertain'), repeated['revision'], str(uuid.uuid4()))
         return project(root, repeated)
-    agent, _ = mission_agent(root, manifest)
+    agent, config = mission_agent(root, manifest)
+    if manifest['fixture_id'] == 'isolated-egress-v1':
+        # Admission only. Native ownership needs the controller and verified recovery.
+        # Consuming this UUID cannot grant effects now or after a future upgrade.
+        run = _record_check(root, manifest, config,
+                            dict(purpose='isolated_egress_check', state='failed',
+                                 reason='controller_pending', model_calls=0, effects_allowed=False))
+        return project(root, run)
     observation = clients.inspect_client(root, agent['client'], executable)
     run = reserve_check(root, manifest, observation)
     # Another coordinator may have won the same reservation; revision alone is insufficient.
@@ -248,6 +274,10 @@ def check_client(root: Path, manifest: dict, executable: Path) -> dict:
 
 
 def reconcile_check(root: Path, run_id: str, evidence: dict, expected_revision: int, operation_id: str) -> dict:
+    with store.reader(root) as conn:
+        require(has_runs(conn), 'unknown_run')
+        run = find_run(conn, run_id)
+        require('execution_plan_sha256' not in run, 'integrated_recovery_required')
     require(isinstance(evidence, dict) and set(evidence) == {'authorization_ref', 'termination', 'external_effect'}, 'insufficient_evidence')
     require(text(evidence['authorization_ref'], 1000) and evidence['authorization_ref'].strip(), 'insufficient_evidence')
     # Explicit operator-reviewed files, bound to exact bytes. Never execute their contents.

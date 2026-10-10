@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "front": "YC-206 partial: workspace-bound PBI context",
+  "base_commit": "77f6e378099487e0f7c6c99d205f97f9f328bede",
+  "scope": "read_only_owned_workspace_context",
+  "model_calls": 0,
+  "docker_calls": 0,
+  "store_schema_changed": false,
+  "tests": {
+    "red": {
+      "tests": 4,
+      "subcase_failures": 7
+    },
+    "focused": {
+      "passed": 6,
+      "seconds": 8.706
+    },
+    "suite": {
+      "state": "passed",
+      "total": 767,
+      "passed": 747,
+      "skipped": 20,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 525.57
+    }
+  },
+  "installed_smoke": {
+    "state": "passed",
+    "client": "both",
+    "modes": [
+      "new",
+      "existing"
+    ],
+    "workspace_context_bound": true,
+    "workspace_context_without_writes": true,
+    "trial_restored": true,
+    "global_profile_preserved": true,
+    "model_calls": 0
+  },
+  "review": {
+    "code_remaining_material_findings": 0,
+    "documentation_remaining_material_findings": 0
+  },
+  "catalog": {
+    "affected_capabilities": 5,
+    "changed_contracts": 1,
+    "changed_content_hashes": 10,
+    "added_read_permission": {
+      "yc-status": "owned PBI workspace Git metadata"
+    },
+    "new_write_or_network_permissions": false
+  },
+  "base_ci": {
+    "passed": 8,
+    "push_run": 38061225355,
+    "pull_request_run": 38061229317
+  },
+  "external_blocker": {
+    "issue": "https://github.com/docker/sbx-releases/issues/690",
+    "state": "open",
+    "comments": 0
+  },
+  "code_sha256": {
+    "scripts/mission_workspace.py": "18114bc1860effd6645117e54f532bd1fbcd187704c7a4e9f6c699348f24131e",
+    "scripts/missions.py": "608003af2b2c81d70800cdc43bf607982ece766068aeede17964502a9c1ca8cf",
+    "tests/test_mission_workspace.py": "47f7a19fea25a312516aa293799b4864fa812d80b0bf97423bf8921463b4e452",
+    "tests/smoke_mission_foundation.py": "7d00a1cb347ed78e2d2d72b803613b21f4c2b9a025f8ad2f35c1d5053548d38a"
+  },
+  "vault_check": {
+    "schema_version": 1,
+    "notes_checked": 66,
+    "issues": []
+  },
+  "markdown_paths": {
+    "local_paths_checked": 559,
+    "missing": []
+  },
+  "evidence_sha256": {
+    ".runtime/workspace-context-red.log": "b0726978be97966a9b932e8b17ffbde3665eab4c34e1580b33405ef6b207525b",
+    ".runtime/workspace-context-focused.log": "00715cd18060a48cee7b18866f12c7d53c3c9da665626777ec34ce6c1c8d1c44",
+    ".runtime/workspace-context-full.log": "24adcacc83540219967b2435e3f333fd6dcd07355b8a235a13371c6d819e4852",
+    ".runtime/workspace-context-installed.log": "8406c9ebe397f84574bf89f3318e499e8a6b18e0d87edf9e444295aa1b08ed8b",
+    ".runtime/workspace-context-vault.json": "b690dbdebe177c121a4a65cc406272ad562c3c33a418bad3a8125ea78a46ab98",
+    ".runtime/workspace-context-markdown-paths.json": "f8f439902620d220c6d7942acee953406fc9d4974a81bf72dd2f32e9accd28a9",
+    ".runtime/workspace-context-catalog.json": "5913bd36f30e5e0dee745741606c765a4b7f2ca55d2995a19deaaa9f1558a3d0",
+    ".runtime/next-77f6-ci.json": "aed02d557cfa4aae700e7334e86d823f10a78e833f57241457de5ae2377f7474",
+    ".runtime/next-docker-690.json": "8b3c39fe81904bd57532c60494479490f2eb81bb8a9dd0c5cf5fabb3485f2cad",
+    ".runtime/next-docker-690-comments.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "repository": "Matheusrpc/YoungCrowHarness",
+  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
+  "head": "b801bec963e8af4af921b8c5473d3884ee5a7a03",
+  "base": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+  "changed_files": 125,
+  "remote_head_rechecked": true,
+  "handoff_hashes": [
+    {
+      "path": "scripts/mission_execution.py",
+      "expected": "7663eb7c1f4156e66d9c97277fc9a62a7d0b6de2c95da1f108e56ed126975ffd",
+      "actual": "7663eb7c1f4156e66d9c97277fc9a62a7d0b6de2c95da1f108e56ed126975ffd",
+      "status": "match"
+    },
+    {
+      "path": "scripts/mission_egress.py",
+      "expected": "20b27afc0186a2f9c2a610afdb7b4c1ce58a7253eaa6f2e23a475795a9f27928",
+      "actual": "20b27afc0186a2f9c2a610afdb7b4c1ce58a7253eaa6f2e23a475795a9f27928",
+      "status": "match"
+    },
+    {
+      "path": "scripts/mission_sbx.py",
+      "expected": "e425f06c75ddc7b20d9bd374443adbde0caf3f2d02e1bfe6e996c258cd9bc83e",
+      "actual": "e425f06c75ddc7b20d9bd374443adbde0caf3f2d02e1bfe6e996c258cd9bc83e",
+      "status": "match"
+    },
+    {
+      "path": "scripts/mission_sandbox.py",
+      "expected": "44756ecbf3c3806159962743bd8e1d3f7b37560d72f99c98c1af3376d3ba3858",
+      "actual": "44756ecbf3c3806159962743bd8e1d3f7b37560d72f99c98c1af3376d3ba3858",
+      "status": "match"
+    },
+    {
+      "path": "runtime/sbx/guardian.py",
+      "expected": "136b00f154508180707e2353251796d0af142900c3bc5cb647c9416e36d5c2e1",
+      "actual": "136b00f154508180707e2353251796d0af142900c3bc5cb647c9416e36d5c2e1",
+      "status": "match"
+    },
+    {
+      "path": "runtime/sbx/launcher.py",
+      "expected": "8ece607c94eb30940afbfaebccc7516e49a5a8313cd19c3e154f5d4f3b650906",
+      "actual": "8ece607c94eb30940afbfaebccc7516e49a5a8313cd19c3e154f5d4f3b650906",
+      "status": "match"
+    },
+    {
+      "path": "runtime/sbx/relay.py",
+      "expected": "c0bf304c53ed0b60014cf0dccee30283cc93c7f237efe04b670d1c258aa08316",
+      "actual": "c0bf304c53ed0b60014cf0dccee30283cc93c7f237efe04b670d1c258aa08316",
+      "status": "match"
+    },
+    {
+      "path": "runtime/sbx/youngcrow.dockerfile",
+      "expected": "e2043b3bc9e8c8cf54ded5ddc0c916b32b3558c0ce05443f64f3ddf6d23cb7f9",
+      "actual": "e2043b3bc9e8c8cf54ded5ddc0c916b32b3558c0ce05443f64f3ddf6d23cb7f9",
+      "status": "match"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-07-executor-consolidation.md",
+      "expected": "d3b7c787dd339661b09a81c77e66c8167c0625358c328630a603d66b0df3028e",
+      "actual": "d3b7c787dd339661b09a81c77e66c8167c0625358c328630a603d66b0df3028e",
+      "status": "match"
+    }
+  ],
+  "tests": {
+    "command": "python3 -B -m unittest discover -s tests -v",
+    "total": 494,
+    "passed": 474,
+    "skipped": 20,
+    "failed": 0,
+    "seconds": 214.826
+  },
+  "node_tests": {
+    "passed": 8,
+    "failed": 0
+  },
+  "vault": {
+    "notes_checked": 3,
+    "issues": []
+  },
+  "installed_setup": {
+    "cases": 8,
+    "native_execution": "not_run",
+    "dedicated_proof": "selection_only"
+  },
+  "installed_runtime": {
+    "cases": 2,
+    "diagnostics": 2,
+    "native_execution": "not_run"
+  },
+  "new_findings": {
+    "reservation_umask_022": {
+      "error": "execution_storage_unprotected",
+      "lock_mode": "0o644",
+      "ledger_exists": false,
+      "retry_with_private_umask": "execution_storage_unprotected"
+    },
+    "reservation_umask_077_control": {
+      "state": "reserved",
+      "new": true,
+      "lock_mode": "0o600",
+      "ledger_exists": true
+    },
+    "first_read_git_timeout": {
+      "exception": "TimeoutExpired",
+      "cli_output": "",
+      "exception_contains_command": true
+    },
+    "existing_storage_timeout_control": {
+      "exit_code": 2,
+      "output": {
+        "schema_version": 1,
+        "error": "execution_storage_unprotected",
+        "guidance": "Check Git access and the exclusion of .operacao-local/execution/, including temporary files. Preserve evidence; do not force-add it to Git.",
+        "diagnostic": {
+          "phase": "git_boundary",
+          "reason": "git_query_timeout"
+        }
+      }
+    },
+    "docker_commands": 0,
+    "model_calls": 0
+  },
+  "prior_findings": {
+    "projection_after_interruption": {
+      "first": "pending",
+      "after_revision": "conflict",
+      "repair": "conflict",
+      "replay": "conflict",
+      "database_revision": 2,
+      "old_note_unchanged": true
+    },
+    "repair_before_revision_control": {
+      "first": "pending",
+      "after_revision": "current",
+      "repair": "current",
+      "replay": "current",
+      "database_revision": 2,
+      "old_note_unchanged": false
+    },
+    "malformed_catalog": {
+      "exception": "AttributeError",
+      "cli_output": "",
+      "input": "supportedReasoningEfforts: [null]"
+    },
+    "model_calls": 0
+  },
+  "finding_references": [
+    {
+      "id": "PR24-F1",
+      "severity": "P2",
+      "path": "scripts/mission_execution.py",
+      "line": 104
+    },
+    {
+      "id": "PR24-F2",
+      "severity": "P2",
+      "path": "scripts/mission_environment.py",
+      "line": 114
+    }
+  ],
+  "ci": {
+    "state": "unverified",
+    "graphql": "Forbidden",
+    "rest_check_runs": "Forbidden"
+  },
+  "native_runtime": {
+    "sbx_installed": false,
+    "kvm_present": false,
+    "validated": false,
+    "model_calls": 0,
+    "docker_operations": 0
+  },
+  "tracked_source_modified": false,
+  "publication_performed": false,
+  "evidence_sha256": {
+    "unittest.log": "bff9afbfbb46df7a5cbfc230d71f9c993fd0ebf554264343dfc0fe6d98d953c4",
+    "reproduce_new_findings.py": "46df06055d123d879823f5c860579baeedf522dc23ae6ff04a9fb3a7c2a8c211",
+    "new-findings.json": "28c4ef712b63bced25e21327692a86a7ab8431cb1c997d9de619faf4286969fe",
+    "previous-findings.json": "f0e5e5e46d2a079d3f22e82b2cc01d858a717719c9ac6ac4f7ddb0e5d3b77212",
+    "handoff-hashes.json": "c5b1d6e882f94cce143ff8a779f22e0d038054526e39731d660f9be585e62094",
+    "execution-setup.json": "014e408969ee51b33197492c441968a8afe89240202cf2b798b5017c6c0d291c",
+    "mission-runtime.json": "4bb4cf165920850ec63d604c8d20398d9b43c72fb62e8dcc31a7327126284e7c"
+  }
+}

@@ -152,6 +152,16 @@ def frozen_inputs(root, items):
     return {p: hashlib.sha256(value).hexdigest() for p, value in data.items()}
 
 
+def conflicting_inputs(items, inputs):
+    """Paths whose frozen bytes disagree with an imported note or reference."""
+    conflicts = set()
+    for record in items:
+        item = record['snapshot']
+        refs = [dict(path=item['note_path'], sha256=item['note_sha256']), *item['references']]
+        conflicts.update(ref['path'] for ref in refs if inputs.get(ref['path']) != ref['sha256'])
+    return conflicts
+
+
 def build_mission(root, request, defaults):
     records = {r['id']: r for r in store.list_records(root, None) if r['kind'] != 'mission'}
     for feature in request['feature_ids']:
@@ -184,9 +194,11 @@ def build_mission(root, request, defaults):
     gaps.extend(config_gaps(config))
     observations, cap_gaps = capability_snapshot(root, config)
     gaps.extend(cap_gaps)
+    inputs = frozen_inputs(root, items)
+    gaps.extend('stale_input:' + path for path in conflicting_inputs(items, inputs))
     return dict(title=request['title'], feature_ids=request['feature_ids'], pbi_ids=pbis, priority=request['priority'],
                 scope_reference=request['scope_reference'], overrides=request['overrides'], config=config,
-                config_digest=config_digest(config), inputs=frozen_inputs(root, items), items=items,
+                config_digest=config_digest(config), inputs=inputs, items=items,
                 capabilities=observations, gaps=sorted(set(gaps)), state='draft' if gaps else 'prepared',
                 runtime_available=False, runnable=False, development='not_started', qa='not_started', production='not_verified')
 
@@ -222,6 +234,176 @@ def revise_mission(root, mission_id, request, expected_revision, operation_id, a
     return commit(root, dict(id=existing['id'], kind='mission', snapshot=snapshot, _request=intent), expected_revision, operation_id, actor)
 
 
+def reprioritize_mission(root, proposal, operation_id, actor, *, dry_run=False):
+    """Apply a PM planning proposal without rebuilding scope or dispatching an agent."""
+    return _planning_decision(root, proposal, operation_id, actor, 'reprioritize', dry_run=dry_run)
+
+
+def set_technical_plan(root, proposal, operation_id, actor, *, dry_run=False):
+    """Select an already referenced note as this PBI's technical plan."""
+    return _planning_decision(root, proposal, operation_id, actor, 'technical_plan', dry_run=dry_run)
+
+
+def _planning_decision(root, proposal, operation_id, actor, action, *, dry_run):
+    check_helpers()
+    fields = {'schema_version', 'project_id', 'mission_id', 'mission_revision', 'reason'}
+    fields |= {'priority'} if action == 'reprioritize' else {'pbi_id', 'pbi_revision', 'plan_reference'}
+    require(isinstance(proposal, dict) and set(proposal) == fields, 'invalid_proposal')
+    require(type(proposal['schema_version']) is int and proposal['schema_version'] == 1, 'invalid_proposal')
+    require(text(proposal['reason'], 8000) and proposal['reason'].strip(), 'invalid_proposal')
+    identity(proposal['project_id'])
+    identity(proposal['mission_id'])
+    revision = proposal['mission_revision']
+    require(type(revision) is int and revision > 0, 'invalid_revision')
+    if action == 'reprioritize':
+        priority = proposal['priority']
+        require(isinstance(priority, list) and len(priority) <= 5000, 'invalid_priority')
+        for pbi in priority:
+            identity(pbi)
+        require(len(set(priority)) == len(priority), 'invalid_priority')
+    else:
+        identity(proposal['pbi_id'])
+        require(type(proposal['pbi_revision']) is int and proposal['pbi_revision'] > 0, 'invalid_revision')
+        require(isinstance(proposal['plan_reference'], dict) and
+                set(proposal['plan_reference']) == {'note_id', 'path', 'sha256'}, 'invalid_proposal')
+    store.actor_valid(actor)
+    require(actor['role'] == ('pm' if action == 'reprioritize' else 'tech_lead'), 'invalid_actor')
+    require(proposal['project_id'] == project_id(root), 'foreign_project')
+    intent = dict(action=action, proposal=proposal)
+    digest = store.request_hash(dict(intent, operation_id=operation_id), actor, revision)
+    existing = store.get_record(root, proposal['mission_id'])
+    require(existing is not None and existing['kind'] == 'mission', 'unknown_mission')
+    # Preview must not initialize storage or repair projections. Apply holds the
+    # same writer transaction across replay, queue/workspace guards and revision CAS.
+    with (store.reader(root) if dry_run else store.transaction(root)) as conn:
+        require(conn is not None, 'invalid_store')
+        require(conn.execute('SELECT project_id FROM metadata').fetchone()[0] == proposal['project_id'], 'foreign_project')
+        receipt = store.find_operation(conn, operation_id, digest)
+        if receipt is not None and dry_run:
+            return dict(schema_version=1, state='already_applied', receipt=receipt,
+                        runtime_available=False, runnable=False)
+        if receipt is None:
+            status = mission_status(root, proposal['mission_id'])
+            require(status.get('revision') == revision, 'revision_conflict')
+            snapshot = status['snapshot']
+            require(not any(s['state'] in queue_helper().ACTIVE for s in
+                            queue_helper().read_sessions(conn, status['id'])), 'queue_busy')
+            require(status['check_available'] and snapshot['state'] == 'prepared' and
+                    snapshot['development'] == snapshot['qa'] == 'not_started' and
+                    snapshot['production'] == 'not_verified' and
+                    snapshot['runtime_available'] is False and snapshot['runnable'] is False, 'mission_not_ready')
+            admitted = set()
+            if conn.execute('SELECT schema_version FROM metadata').fetchone()[0] == 6:
+                admitted = {row[0] for row in conn.execute('SELECT pbi_id FROM workspaces')}
+            if action == 'reprioritize':
+                require(set(priority) == set(snapshot['priority']), 'invalid_priority')
+                protected = [pbi for pbi in snapshot['priority'] if pbi in admitted]
+                require(all(old == new or (old not in admitted and new not in admitted)
+                            for old, new in zip(snapshot['priority'], priority)), 'priority_locked')
+                preview = dict(previous_priority=snapshot['priority'], priority=priority, protected_pbi_ids=protected)
+                changed = dict(snapshot, priority=priority,
+                               last_planning_decision=dict(action=action, reason=proposal['reason']))
+            else:
+                pbi_id = proposal['pbi_id']
+                record = next((r for r in snapshot['items'] if r['id'] == pbi_id and r['kind'] == 'pbi'), None)
+                require(pbi_id in snapshot['pbi_ids'] and record is not None, 'unknown_pbi')
+                require(record['revision'] == proposal['pbi_revision'], 'revision_conflict')
+                require(proposal['plan_reference'] in record['snapshot']['references'], 'invalid_plan_reference')
+                require(proposal['plan_reference']['sha256'] == snapshot['inputs'].get(proposal['plan_reference']['path']),
+                        'invalid_plan_reference')
+                require(pbi_id not in admitted, 'technical_plan_locked')
+                decisions = dict(snapshot.get('technical_decisions', {}))
+                decision = dict(pbi_revision=proposal['pbi_revision'], plan_reference=proposal['plan_reference'],
+                                reason=proposal['reason'])
+                preview = dict(pbi_id=pbi_id, previous_technical_decision=decisions.get(pbi_id), technical_decision=decision)
+                decisions[pbi_id] = decision
+                changed = dict(snapshot, technical_decisions=decisions)
+            if dry_run:
+                return dict(schema_version=1, state='preview', project_id=proposal['project_id'],
+                            mission_id=status['id'], mission_revision=revision, reason=proposal['reason'], **preview,
+                            runtime_available=False, runnable=False)
+            receipt = store.commit_record(conn,
+                record=dict(id=status['id'], kind='mission', snapshot=changed, _request=intent),
+                expected_revision=revision, operation_id=operation_id, actor=actor, now=utc_now())
+    return project_result(root, receipt)
+
+
+def list_missions(root):
+    check_helpers()
+    summaries = [dict(id=record['id'], code=record['code'], revision=record['revision'],
+                      title=record['snapshot']['title'], state=record['snapshot']['state'])
+                 for record in store.list_records(root, 'mission')]
+    return dict(schema_version=1, missions=summaries, runtime_available=False, runnable=False)
+
+
+def mission_context(root, mission_id, pbi_id, expected_revision):
+    """Selected private context as data, never a prompt, dispatch or approval."""
+    from vault import metadata
+    identity(pbi_id)
+    require(type(expected_revision) is int and expected_revision > 0, 'invalid_revision')
+    status = mission_status(root, mission_id)
+    require('id' in status, 'unknown_mission')
+    require(status['revision'] == expected_revision, 'revision_conflict')
+    require(not status['stale_inputs'], 'stale_context')
+    snapshot = status['snapshot']
+    records = {r['id']: r for r in snapshot['items']}
+    require(pbi_id in snapshot['pbi_ids'] and records[pbi_id]['kind'] == 'pbi', 'unknown_pbi')
+    selected, key = [], pbi_id
+    for kind in ('pbi', 'feature', 'epic'):
+        record = records.get(key)
+        require(record is not None and record['kind'] == kind and record['snapshot']['contract'] is not None,
+                'incomplete_context')
+        selected.append(record)
+        key = record['snapshot']['contract']['parent_id']
+    selected.reverse()
+    profile = 'vault/product/profile.md'
+    pinned = [dict(path=profile, note_id=None, sha256=snapshot['inputs'][profile])]
+    for record in selected:
+        item = record['snapshot']
+        pinned.append(dict(path=item['note_path'], note_id=record['id'], sha256=item['note_sha256']))
+        pinned.extend(item['references'])
+    paths = sorted({ref['path'] for ref in pinned})
+    require(all(p.startswith('vault/') and p.endswith('.md') for p in paths), 'invalid_context_source')
+    data = read_inputs(root, paths)
+    sources = {}
+    identities = {}
+    for path, raw in data.items():
+        digest = hashlib.sha256(raw).hexdigest()
+        require(digest == snapshot['inputs'].get(path), 'stale_context')
+        fields, _ = metadata(raw.decode('utf-8-sig'))
+        note_id = identity(fields['id'])
+        require(note_id not in identities or identities[note_id] == path, 'context_identity_conflict')
+        identities[note_id] = path
+        sources[path] = dict(path=path, note_id=note_id, sha256=digest, origin=fields['origin'],
+                             updated=fields['updated'], title=fields['title'], content=raw.decode('utf-8'))
+    for ref in pinned:
+        source = sources[ref['path']]
+        require(ref['sha256'] == source['sha256'], 'stale_context')
+        require(ref['note_id'] is None or ref['note_id'] == source['note_id'], 'context_identity_conflict')
+    dependencies = []
+    for dependency in records[pbi_id]['snapshot']['contract']['dependencies']:
+        record = records.get(dependency)
+        summary = dict(id=dependency, available_in_mission=record is not None and record['kind'] == 'pbi')
+        if summary['available_in_mission']:
+            summary.update(code=record['code'], revision=record['revision'], title=record['snapshot']['title'])
+        dependencies.append(summary)
+    # Observe revisions again after reading bytes; this query never migrates or repairs.
+    with store.reader(root) as conn:
+        require(conn is not None, 'invalid_store')
+        project = conn.execute('SELECT project_id FROM metadata').fetchone()[0]
+        current = {r[0]: r[1] for r in conn.execute('SELECT id,revision FROM records')}
+        require(current.get(status['id']) == expected_revision, 'revision_conflict')
+        require(all(current.get(r['id']) == r['revision'] for r in snapshot['items']), 'stale_context')
+    result = dict(schema_version=1, project_id=project, pbi_id=pbi_id,
+        mission=dict(id=status['id'], code=status['code'], revision=expected_revision,
+                     title=snapshot['title'], scope_reference=snapshot['scope_reference']),
+        items=selected, dependencies=dependencies, sources=list(sources.values()),
+        technical_decision=snapshot.get('technical_decisions', {}).get(pbi_id),
+        readiness={k: status[k] for k in ('state', 'gaps', 'projection_state', 'check_available', 'next_action')},
+        source_trust='untrusted_data', runtime_available=False, runnable=False)
+    return dict(result, context_sha256=hashlib.sha256(canonical(result)).hexdigest())
+
+
 def mission_status(root, mission_id):
     check_helpers()
     existing = store.get_record(root, mission_id)
@@ -231,22 +413,28 @@ def mission_status(root, mission_id):
                     runtime_available=False, runnable=False)
     require(existing['kind'] == 'mission', 'unknown_mission')
     snapshot = existing['snapshot']
-    stale = []
+    stale = conflicting_inputs(snapshot['items'], snapshot['inputs'])
     for path, expected in snapshot['inputs'].items():
         try:
             if hashlib.sha256(read_inputs(root, [path])[path]).hexdigest() != expected:
-                stale.append(path)
+                stale.add(path)
         except (OSError, ValueError):
-            stale.append(path)
-    current_records = {r['id']: r for r in store.list_records(root, None)}
-    for record in snapshot['items']:
-        current = current_records.get(record['id'])
-        if current is None or current['revision'] != record['revision']:
-            stale.append('revision:' + record['id'])
-    history = store.events(root, existing['id'])
-    state = 'conflict' if any(e['projection_state'] == 'conflict' for e in history) else 'pending' if any(e['projection_state'] != 'current' for e in history) else 'current'
+            stale.add(path)
     with store.reader(root) as conn:
+        require(conn is not None, 'invalid_store')
+        current_records = {r[0]: store.record_dict(r) for r in conn.execute('SELECT * FROM records').fetchall()}
+        for record in snapshot['items']:
+            current = current_records.get(record['id'])
+            if current is None or current['revision'] != record['revision']:
+                stale.add('revision:' + record['id'])
+        history = [store.event_dict(r) for r in conn.execute('SELECT * FROM events WHERE record_id=? ORDER BY seq', (existing['id'],)).fetchall()]
         projections = conn.execute('SELECT p.path,p.sha256 FROM projections p JOIN events e ON e.seq=p.sequence WHERE e.record_id=?', (existing['id'],)).fetchall()
+        queue_sessions = queue_helper().read_sessions(conn, existing['id'])
+        workspaces = []
+        if conn.execute('SELECT schema_version FROM metadata').fetchone()[0] == 6:
+            workspaces = [json.loads(row[0]) for row in conn.execute('SELECT snapshot FROM workspaces ORDER BY rowid')
+                          if json.loads(row[0])['mission_id'] == existing['id']]
+    state = 'conflict' if any(e['projection_state'] == 'conflict' for e in history) else 'pending' if any(e['projection_state'] != 'current' for e in history) else 'current'
     for path, expected in projections:
         try:
             if projection_hash(root, path) != expected:
@@ -256,20 +444,60 @@ def mission_status(root, mission_id):
                 state = 'pending'
         except (OSError, ValueError):
             state = 'conflict'
-    runs = runtime_helpers()[1].list_runs(root, existing['id'])
-    return dict(schema_version=1, id=existing['id'], code=existing['code'], revision=existing['revision'],
+    # Keep the independent final read after checking input and projection files.
+    run_store = runtime_helpers()[1]
+    observed_runs = run_store.list_runs(root, existing['id'], include_unresolved=True)
+    runs = [run for run in observed_runs if run['mission_id'] == existing['id']]
+    blocking_runs = []
+    for run in observed_runs:
+        if run['state'] in run_store.UNRESOLVED:
+            action = ('review_integrated_recovery' if 'execution_plan_sha256' in run else
+                      'review_reconciliation' if run['state'] == 'uncertain' else 'inspect_client_run')
+            blocking_runs.append(dict(run_id=run['id'], mission_id=run['mission_id'],
+                operation_id=run['operation_id'], revision=run['revision'], state=run['state'], next_action=action))
+    next_action = (blocking_runs[0]['next_action'] if blocking_runs else
+                   'review_projection_conflict' if state == 'conflict' else
+                   'repair_projection' if state == 'pending' else
+                   'revise_inputs' if stale else 'complete_gaps' if snapshot['gaps'] else 'runtime_not_available')
+    check_available = not (blocking_runs or state != 'current' or stale or snapshot['gaps'])
+    pbis = {r['id']: r for r in snapshot['items'] if r['kind'] == 'pbi'}
+    preview = []
+    for pbi_id in snapshot['priority']:
+        record = pbis[pbi_id]
+        item = record['snapshot']
+        preview.append(dict(id=pbi_id, code=record['code'], revision=record['revision'], title=item['title'],
+                            dependencies=(item['contract'] or {}).get('dependencies', [])))
+    # Initial backlog only: no PBI integration or live execution capacity is inferred.
+    first_candidate = next((p['id'] for p in preview if not p['dependencies']), None) if check_available else None
+    result = dict(schema_version=1, id=existing['id'], code=existing['code'], revision=existing['revision'],
                 state=snapshot['state'], snapshot=snapshot, gaps=snapshot['gaps'], stale_inputs=sorted(stale),
                 events=[{k: v for k, v in e.items() if k not in ('record', 'request_hash')} for e in history],
                 projection_state=state, compatibility={role: 'not_verified' for role in snapshot['config']['agents']},
-                runtime_available=False, runnable=False, check_available=True, client_runs=runs,
-                next_action='revise_inputs' if stale else 'complete_gaps' if snapshot['gaps'] else 'runtime_not_available')
+                runtime_available=False, runnable=False,
+                check_available=check_available,
+                queue_preview=dict(scope='initial_backlog', items=preview, first_candidate_id=first_candidate),
+                client_runs=runs, blocking_runs=blocking_runs, next_action=next_action)
+    result['queue_sessions'] = queue_helper().view(queue_sessions, result)
+    result['workspaces'] = workspaces
+    return result
+
+
+def queue_helper():
+    try:
+        import mission_queue
+        require(getattr(mission_queue, 'QUEUE_VERSION', None) == 3 and
+                getattr(mission_queue, 'STORE_SCHEMA', None) == 6, 'incompatible_helper')
+        return mission_queue
+    except (ImportError, SyntaxError, AttributeError):
+        raise ValueError('incompatible_helper') from None
 
 
 def runtime_helpers():
     try:
         import mission_clients
         import mission_runs
-        require(getattr(store, 'RUNTIME_SCHEMA', None) == 2, 'incompatible_helper')
+        require(getattr(store, 'RUNTIME_SCHEMA', None) == 6 and
+                getattr(mission_runs, 'STORE_SCHEMA', None) == 6, 'incompatible_helper')
         require(all(callable(getattr(mission_clients, name, None)) for name in
                     ('inspect_client', 'build_check', 'decode_result')), 'incompatible_helper')
         require(all(callable(getattr(mission_runs, name, None)) for name in
@@ -306,6 +534,12 @@ def parser():
     p.add_argument('--root', type=Path, default=Path.cwd())
     p.add_argument('--json', action='store_true')
     subs = p.add_subparsers(dest='command', required=True)
+    selection = subs.add_parser('environment').add_subparsers(dest='action', required=True)
+    selection.add_parser('show').add_argument('--json', action='store_true')
+    configure = selection.add_parser('configure')
+    configure.add_argument('--location', choices=('local', 'dedicated'), required=True)
+    configure.add_argument('--expected-digest', required=True)
+    configure.add_argument('--json', action='store_true')
     config = subs.add_parser('config').add_subparsers(dest='action', required=True)
     config.add_parser('show')
     for name in ('validate', 'apply'):
@@ -320,15 +554,52 @@ def parser():
     revise = subs.add_parser('revise')
     revise.add_argument('identifier')
     revise.add_argument('--expected-revision', type=int, required=True)
-    for sub in (prepare, revise):
+    reprioritize = subs.add_parser('reprioritize', help='PM order-only planning proposal; no native dispatch')
+    reprioritize.add_argument('--dry-run', action='store_true')
+    technical_plan = subs.add_parser('technical-plan', help='Select an existing PBI reference as its technical plan')
+    technical_plan.add_argument('--dry-run', action='store_true')
+    for sub in (prepare, revise, reprioritize, technical_plan):
         sub.add_argument('--input', required=True)
-    for sub in (prepare, revise, backlog):
+    for sub in (prepare, revise, reprioritize, technical_plan, backlog):
         sub.add_argument('--operation-id', required=True)
         sub.add_argument('--actor-id', required=True)
         sub.add_argument('--actor-role', choices=('pm', 'tech_lead'), required=True)
+    subs.add_parser('list', help='List saved mission summaries; use status CODE for current blockers')
     for name in ('status', 'repair'):
         subs.add_parser(name).add_argument('identifier')
+    context = subs.add_parser('context', help='Read selected PBI context; no agent dispatch or file writes')
+    context.add_argument('identifier')
+    context.add_argument('--pbi', required=True)
+    context.add_argument('--expected-revision', type=int, required=True)
+    queue = subs.add_parser('queue', help='Serial deterministic rehearsal with bounded corrections; no native dispatch').add_subparsers(dest='action', required=True)
+    for name in ('start', 'step', 'cancel'):
+        entry = queue.add_parser(name)
+        entry.add_argument('identifier')
+        entry.add_argument('--expected-revision', type=int, required=True)
+        entry.add_argument('--operation-id', required=True)
+        entry.add_argument('--actor-id', required=True)
+        if name == 'start':
+            entry.add_argument('--fixture-scenario', choices=('pass', 'qa-retry', 'qa-exhaust'), default='pass',
+                               help='Closed QA scenario for the first eligible PBI; other PBIs pass')
+    workspace = subs.add_parser('workspace', help='Explicit local Git directory; no agent dispatch').add_subparsers(dest='action', required=True)
+    workspace.add_parser('status').add_argument('identifier')
+    workspace_context = workspace.add_parser('context', help='Read vault context bound to an owned workspace')
+    workspace_context.add_argument('identifier')
+    workspace_context.add_argument('--expected-revision', type=int, required=True)
+    for name in ('prepare', 'release'):
+        entry = workspace.add_parser(name)
+        entry.add_argument('identifier')
+        entry.add_argument('--expected-revision', type=int, required=True)
+        entry.add_argument('--operation-id', required=True)
+        entry.add_argument('--actor-id', required=True)
+        if name == 'prepare':
+            entry.add_argument('--pbi', required=True)
+            entry.add_argument('--base', required=True, help='Full local commit SHA')
     client = subs.add_parser('client').add_subparsers(dest='action', required=True)
+    environment = client.add_parser('environment')
+    environment.add_argument('--executable', type=Path, required=True)
+    environment.add_argument('--sandbox', help='Inspect an existing sandbox without starting it')
+    environment.add_argument('--preflight', action='store_true', help='Query sbx prerequisites and save private diagnostic evidence')
     inspect = client.add_parser('inspect')
     inspect.add_argument('--client', choices=('codex', 'claude'), required=True)
     inspect.add_argument('--executable', type=Path, required=True)
@@ -342,12 +613,14 @@ def parser():
     reconcile.add_argument('--evidence', required=True)
     reconcile.add_argument('--expected-revision', type=int, required=True)
     reconcile.add_argument('--operation-id', required=True)
-    for entry in (inspect, check, runs, reconcile):
+    for entry in (environment, inspect, check, runs, reconcile):
         entry.add_argument('--json', action='store_true')
     return p
 
 
-CONFLICTS = {'operation_conflict', 'revision_conflict', 'config_conflict', 'identity_conflict', 'store_busy', 'invalid_store'}
+CONFLICTS = {'operation_conflict', 'revision_conflict', 'config_conflict', 'identity_conflict', 'store_busy', 'invalid_store',
+             'queue_busy', 'queue_already_started', 'workspace_busy', 'workspace_collision', 'workspace_changed',
+             'workspace_dirty', 'workspace_uncertain', 'locked', 'priority_locked', 'technical_plan_locked'}
 SAFE_ERRORS = CONFLICTS | {'invalid_config', 'invalid_request', 'invalid_arguments', 'invalid_digest', 'invalid_actor',
                          'invalid_revision', 'invalid_identity', 'invalid_priority', 'unknown_mission', 'unknown_feature',
                          'unknown_record', 'foreign_project', 'invalid_contract', 'incompatible_helper',
@@ -357,7 +630,13 @@ SAFE_ERRORS = CONFLICTS | {'invalid_config', 'invalid_request', 'invalid_argumen
                          'unsupported_probe_capabilities', 'client_discovery_failed', 'client_discovery_timeout',
                          'client_protocol_error', 'client_output_limit', 'client_catalog_limit', 'unsupported_client',
                          'limit_exceeded', 'mission_not_ready', 'unresolved_run', 'unknown_run', 'insufficient_evidence',
-                         'invalid_transition'}
+                         'invalid_transition', 'invalid_execution_selection', 'execution_selection_conflict',
+                         'unsupported_queue_scope', 'unknown_queue_session', 'invalid_fixture_result', 'invalid_queue_state',
+                         'execution_location_conflict', 'execution_selection_busy', 'execution_storage_unprotected',
+                         'unknown_workspace', 'unsupported_workspace_repository', 'invalid_base', 'workspace_git_failed'}
+SAFE_ERRORS |= {'unknown_pbi', 'stale_context', 'incomplete_context', 'context_identity_conflict', 'invalid_context_source'}
+SAFE_ERRORS |= {'invalid_proposal', 'invalid_plan_reference'}
+SAFE_ERRORS |= {'workspace_not_ready'}
 
 
 def main(argv=None):
@@ -365,9 +644,84 @@ def main(argv=None):
         check_helpers()
         args = parser().parse_args(argv)
         root = args.root.resolve(strict=True)
-        if args.command == 'client':
+        if args.command == 'environment':
+            try:
+                import mission_environment as environment
+            except (ImportError, SyntaxError):
+                raise ValueError('incompatible_helper') from None
+            require(getattr(environment, 'SELECTION_VERSION', None) == 1 and
+                    all(callable(getattr(environment, name, None)) for name in ('read_selection', 'configure_selection')),
+                    'incompatible_helper')
+            result = (environment.read_selection(root) if args.action == 'show' else
+                      environment.configure_selection(root, args.location,
+                                                      None if args.expected_digest == 'none' else args.expected_digest))
+        elif args.command == 'queue':
+            runtime_helpers()
+            result = queue_helper().apply(root, args.action, args.identifier, args.expected_revision,
+                                          args.operation_id, args.actor_id,
+                                          fixture_scenario=getattr(args, 'fixture_scenario', 'pass'))
+        elif args.command == 'workspace':
+            runtime_helpers()
+            try:
+                import mission_workspace as workspace
+            except (ImportError, SyntaxError):
+                raise ValueError('incompatible_helper') from None
+            require(getattr(workspace, 'WORKSPACE_VERSION', None) == 1 and
+                    all(callable(getattr(workspace, name, None)) for name in ('prepare', 'status', 'release')),
+                    'incompatible_helper')
+            if args.action == 'status':
+                result = workspace.status(root, args.identifier)
+            elif args.action == 'context':
+                require(callable(getattr(workspace, 'context', None)), 'incompatible_helper')
+                result = workspace.context(root, args.identifier, args.expected_revision)
+            elif args.action == 'prepare':
+                result = workspace.prepare(root, mission=args.identifier, pbi=args.pbi, base=args.base,
+                    expected_revision=args.expected_revision, operation_id=args.operation_id, actor_id=args.actor_id)
+            else:
+                result = workspace.release(root, args.identifier, expected_revision=args.expected_revision,
+                    operation_id=args.operation_id, actor_id=args.actor_id)
+        elif args.command == 'client':
             clients, runs = runtime_helpers()
-            if args.action == 'inspect':
+            if args.action == 'environment':
+                try:
+                    import mission_sandbox as sandbox
+                except (ImportError, SyntaxError):
+                    raise ValueError('incompatible_helper') from None
+                require(getattr(sandbox, 'ENVIRONMENT_OBSERVATION_VERSION', None) == 1 and
+                        callable(getattr(sandbox, 'inspect_environment', None)), 'incompatible_helper')
+                if args.sandbox:
+                    require(callable(getattr(sandbox, 'inspect_sandbox', None)), 'incompatible_helper')
+                result = sandbox.inspect_environment(root, args.executable)
+                if args.preflight:
+                    try:
+                        import mission_sbx
+                    except (ImportError, SyntaxError):
+                        raise ValueError('incompatible_helper') from None
+                    require(getattr(mission_sbx, 'ADAPTER_VERSION', None) == 1 and
+                            callable(getattr(mission_sbx, 'inspect_preflight', None)), 'incompatible_helper')
+                    if args.sandbox:
+                        require(getattr(mission_sbx, 'CANDIDATE_PREFLIGHT_VERSION', None) == 1,
+                                'incompatible_helper')
+                    if result.get('version') == '0.46.0':
+                        options = {'sandbox': args.sandbox} if args.sandbox else {}
+                        result['preflight'] = mission_sbx.inspect_preflight(root, args.executable, result['version'], **options)
+                        if not result['preflight']['ready']:
+                            result['gaps'].append('sbx_preflight_failed')
+                    else:
+                        result['preflight'] = dict(ready=False, reason='contract_incompatible', commands=[])
+                if args.sandbox and not args.preflight:
+                    if result.get('version') == '0.46.0':
+                        observation = sandbox.inspect_sandbox(root, args.executable, args.sandbox)
+                        result['runtime'] = observation['runtime']
+                        result['gaps'] = sorted(set(result['gaps'] + observation['gaps']))
+                        result['phases'] = [p for p in result.get('phases', [])
+                                            if not p['id'].startswith('sandbox_')] + observation.get('phases', [])
+                    else:
+                        result['gaps'].append('runtime_metadata_unsupported')
+                        for phase in result.get('phases', []):
+                            if phase['id'].startswith('sandbox_'):
+                                phase['reason'] = 'precondition_failed'
+            elif args.action == 'inspect':
                 result = clients.inspect_client(root, args.client, args.executable)
             elif args.action == 'runs':
                 result = dict(schema_version=1, runs=runs.list_runs(root, args.mission), runtime_available=False)
@@ -382,14 +736,22 @@ def main(argv=None):
             else:
                 raw = load_input(root, args.input)
                 result = config_report(normalize_config(raw)) if args.action == 'validate' else apply_config(root, raw, None if args.expected_digest == 'absent' else args.expected_digest)
-        elif args.command in ('prepare', 'revise', 'backlog'):
+        elif args.command in ('prepare', 'revise', 'backlog', 'reprioritize', 'technical-plan'):
             actor = dict(id=args.actor_id, role=args.actor_role)
             if args.command == 'backlog':
                 result = import_item(root, args.note, args.expected_revision, args.operation_id, actor)
             elif args.command == 'prepare':
                 result = prepare_mission(root, load_input(root, args.input), args.operation_id, actor)
+            elif args.command == 'reprioritize':
+                result = reprioritize_mission(root, load_input(root, args.input), args.operation_id, actor, dry_run=args.dry_run)
+            elif args.command == 'technical-plan':
+                result = set_technical_plan(root, load_input(root, args.input), args.operation_id, actor, dry_run=args.dry_run)
             else:
                 result = revise_mission(root, args.identifier, load_input(root, args.input), args.expected_revision, args.operation_id, actor)
+        elif args.command == 'list':
+            result = list_missions(root)
+        elif args.command == 'context':
+            result = mission_context(root, args.identifier, args.pbi, args.expected_revision)
         else:
             result = mission_status(root, args.identifier) if args.command == 'status' else repair(root, args.identifier)
         print(json.dumps(result, ensure_ascii=True, indent=2))
@@ -399,7 +761,12 @@ def main(argv=None):
         return 1 if failed else 0
     except (ValueError, OSError, TypeError, KeyError) as error:
         code = str(error) if str(error) in SAFE_ERRORS else 'invalid_input'
-        print(json.dumps(dict(schema_version=1, error=code, guidance='Review local inputs, durable client receipts and the mission usage guide before retrying.')))
+        failure = dict(schema_version=1, error=code, guidance='Review local inputs, durable client receipts and the mission usage guide before retrying.')
+        if code == 'execution_storage_unprotected':
+            import mission_environment
+            if isinstance(error, getattr(mission_environment, 'StorageError', ())):
+                failure.update(diagnostic=error.diagnostic, guidance=error.guidance)
+        print(json.dumps(failure))
         return 1 if code in CONFLICTS else 2
 
 

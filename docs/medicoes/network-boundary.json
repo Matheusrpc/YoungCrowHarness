@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-05T02:04:13.328392+00:00",
+  "front": "2A-R1",
+  "status": "network_candidate_partial_not_released",
+  "runtime": {
+    "sbx_version": "0.46.0",
+    "platform": "Windows AMD64",
+    "executable_sha256": "a2c8d68f3a16851a65e1d43f7330ae6860c5a2f07df8f22fab5dae7a4a232780"
+  },
+  "model_calls": 0,
+  "mcp_rpc_calls": 0,
+  "forward_proxy": {
+    "status": "rejected",
+    "mcp_head_status": 405,
+    "processes_observed": 2,
+    "policy": "scoped deny **"
+  },
+  "direct_egress": [
+    {
+      "provider": "api.openai.com",
+      "status": "synthetic_transport_passed",
+      "http_status": 421,
+      "processes_checked": 2,
+      "negative_network_attempts": 20,
+      "tls_hostname_verified": true,
+      "inner_bridge_sentinel_connections": 0,
+      "deadline_margin_ms": "36274.8434000",
+      "image": "sha256:7cb0ad24f41749abdd93cbe23f7317076ece921970ded9c4cba67634d67ad91f",
+      "source_sha256": "536f75d16959cf3a382b0f7f8b14eb638c2ea98993b5c8f5d1444c4b7f885462",
+      "final_vm_state": "stopped",
+      "scoped_policy_equivalent": true,
+      "global_and_other_policies_unchanged": true
+    },
+    {
+      "provider": "api.anthropic.com",
+      "status": "synthetic_transport_passed",
+      "http_status": 404,
+      "processes_checked": 2,
+      "negative_network_attempts": 20,
+      "tls_hostname_verified": true,
+      "inner_bridge_sentinel_connections": 0,
+      "deadline_margin_ms": "33230.5128000",
+      "image": "sha256:6ce3136dae0a5064a5a4452d07e8d1e5c7742a4a7d89595fdaa9556c0bdb2baf",
+      "source_sha256": "29bb4eb2efcc662de924825b2d5d7b4f57ad5c5a34a87ab0cdfbef4c7cc082a1",
+      "final_vm_state": "stopped",
+      "scoped_policy_equivalent": true,
+      "global_and_other_policies_unchanged": true
+    }
+  ],
+  "negative_network_attempts": 40,
+  "provider_tls_responses": 4,
+  "historical_attempts": {
+    "mcp_dns_failure": "preserved",
+    "first_direct_421_assertion": "failed_preserved",
+    "cleanup_rule_cardinality_error": "reconciled_by_recorded_ids",
+    "scoped_rule_identity": "new_id_same_semantics"
+  },
+  "production_code_changed": false,
+  "unchanged_runtime_sha256": {
+    "runtime/sbx/guardian.py": "819b0abf6a7b92a9019132c12af04b8d212546bd97a483e8edc154c07f38e92f",
+    "runtime/sbx/launcher.py": "0f610599d9153acd43e8b72478ed358989691aee7da0495ddfe829a836061acf"
+  },
+  "profile_ids": [],
+  "preflight_gaps": [
+    "authentication_unverified",
+    "inner_runtime_unverified",
+    "mcp_isolation_unverified",
+    "network_policy_unverified",
+    "runtime_profile_unverified",
+    "runtime_resources_unverified",
+    "sharing_controls_unverified"
+  ],
+  "remaining": [
+    "durable_launcher_network_integration",
+    "failure_recovery_with_network",
+    "gateway_address_variants",
+    "physical_host_sentinel",
+    "dns_changes_and_redirects",
+    "transparent_proxy_resolution",
+    "corrected_package_rebuild",
+    "whole_host_suspend",
+    "authenticated_native_clients",
+    "Ubuntu"
+  ],
+  "sources": [
+    {
+      "label": "policy",
+      "source_id": "3d59a57e-e8b7-4ef6-89de-e7c9472cfabb",
+      "revision": "11fee80ff04b8acd6dcdd34607fcb965152d68fb5e150bd1704e1e5f5558e165",
+      "note_path": "vault/local/sources/3d59a57e-e8b7-4ef6-89de-e7c9472cfabb/content-11fee80ff04b8acd6dcdd34607fcb965152d68fb5e150bd1704e1e5f5558e165.md",
+      "note_sha256": "00b2487a258d7a6708045950da426a21680b79ad32f6dc8febab88ca0f1172b5",
+      "evidence": "Changes take effect immediately."
+    },
+    {
+      "label": "isolation",
+      "source_id": "8b953de1-e29a-48a2-bdaf-81e198593451",
+      "revision": "f9fc3fd80e25a952c10e3942717552a7e29335d8ed2b041470184b81dc5f71ee",
+      "note_path": "vault/local/sources/8b953de1-e29a-48a2-bdaf-81e198593451/content-f9fc3fd80e25a952c10e3942717552a7e29335d8ed2b041470184b81dc5f71ee.md",
+      "note_sha256": "a0f217d2e82def375cb271864782f803bf71feb64dea0617cca78ce12c75494e",
+      "evidence": "The sandbox routes traffic through either a forward proxy or a transparent proxy"
+    },
+    {
+      "label": "mcp",
+      "source_id": "2e3cb536-6ca9-4797-b6e3-413995a45ead",
+      "revision": "9279ac623ce246d4fcc87e6b1546d96ebc0c6ebfd1c48e73f8a6a60bffd2a323",
+      "note_path": "vault/local/sources/2e3cb536-6ca9-4797-b6e3-413995a45ead/content-9279ac623ce246d4fcc87e6b1546d96ebc0c6ebfd1c48e73f8a6a60bffd2a323.md",
+      "note_sha256": "b98619713387416bfd4e5eb5bbfb778b5fa520383c9c9b1c8cb04b15df545fc4",
+      "evidence": "Every sandbox starts an MCP gateway."
+    },
+    {
+      "label": "concepts",
+      "source_id": "a7420c52-716b-4685-8026-2da9fb632711",
+      "revision": "549d7535a59ef18c75cdc707fa838027e90be013adee688e47d35a69bae9d0c0",
+      "note_path": "vault/local/sources/a7420c52-716b-4685-8026-2da9fb632711/content-549d7535a59ef18c75cdc707fa838027e90be013adee688e47d35a69bae9d0c0.md",
+      "note_sha256": "6dbf4943fc7f7646df82fba8fa77fcc346f59e65dc099daff41ae9c9da199c76",
+      "evidence": "HTTP rules never match it"
+    },
+    {
+      "label": "iptables",
+      "source_id": "492ed38d-90ac-40c0-abd4-12ac9690ba29",
+      "revision": "2e32e339a8f0f32cf5d6f9c1b814675de492c5e5594f0fd7ede5125b8ab4a437",
+      "note_path": "vault/local/sources/492ed38d-90ac-40c0-abd4-12ac9690ba29/content-2e32e339a8f0f32cf5d6f9c1b814675de492c5e5594f0fd7ede5125b8ab4a437.md",
+      "note_sha256": "6c5fccf17184c829075b83bd100a3fbbfb875bbf80d516fcc1eff7bab0d64037",
+      "evidence": "Docker creates iptables rules in the host's network namespace for bridge networks."
+    },
+    {
+      "label": "netns",
+      "source_id": "354fdc8f-9b60-4b89-8a66-c18e4d2a4ee8",
+      "revision": "7a09032e3309fdcb3655f9cea6016c604c8d890ebfda4861343db34ffa1e49a2",
+      "note_path": "vault/local/sources/354fdc8f-9b60-4b89-8a66-c18e4d2a4ee8/content-7a09032e3309fdcb3655f9cea6016c604c8d890ebfda4861343db34ffa1e49a2.md",
+      "note_sha256": "c3075f8bc0a98e2b9e20643dccf17bc8ee2807994dce662e3485fb386e74f4cf",
+      "evidence": "firewall rules"
+    },
+    {
+      "label": "nsenter",
+      "source_id": "0d84d35a-b885-494b-aaa1-aa7f630c77f8",
+      "revision": "94617777d7269bdd3beb75b45100810050c68991af1b41fb75d7de724152125e",
+      "note_path": "vault/local/sources/0d84d35a-b885-494b-aaa1-aa7f630c77f8/content-94617777d7269bdd3beb75b45100810050c68991af1b41fb75d7de724152125e.md",
+      "note_sha256": "685a0d0358752559df0f6d40e4a5ee813a7bef6617076d8f7f2a29aa9d15cb77",
+      "evidence": "Enter the network namespace. If no argument is specified,"
+    }
+  ],
+  "private_receipt_sha256": {
+    "network-inventory.json": "b98d8c048cf954ec46f13b371815874774131b261f30f42f898374cb19608394",
+    "network-namespace-proof.json": "f8ae304f166dc755e47ccdee7394ea75edb13562e6f24116c5ade577cec81203",
+    "network-namespace-proof-2.json": "fe7b403072e437f96cae3f9c9dfe2c479ca5ecddc3645d7f866c71246112ec07",
+    "network-direct-proof.json": "2dacbec08f104490d0bf3763e46d4c546e20e25a82a6149d0cc42e1507556691",
+    "provider-head-baseline.json": "e7843aea61f4a5ddf4bc651e1311525ef2520b0bd4e2989ef742cdc71a016989",
+    "network-direct-v2-api.openai.com.json": "59c6f39535660ae8a13aad03f70aaa1ad0fbe903aebf1f1a49d8b89f5c4dc069",
+    "network-direct-v2-api.anthropic.com.json": "2fa609c109de7be9815a61919c84d996db7a95e86cde6447af6a48bf03ab314d",
+    "network-final-preflight.json": "b54577c51078af771edc7dfa631438ed80b4121cea5ad3a13961e3f6c3dec73a",
+    "network-final-sandboxes.json": "b20d2401dc40eb70de6c32ab7c6e53e982dc6bfe37dff8e2a42a539abc4137e0",
+    "network-direct-v2-api.openai.com-vm.py": "b842ec23708136cd8b2fae874770b838d2dac8e9f39e8fe7e7d7f15e9e71f11a",
+    "network-direct-v2-api.anthropic.com-vm.py": "449ae73967a5dcb7257d1c5050b8f5603c3871be9688be9eb261d2edf1c5a596",
+    "network-final-vault-check.json": "45ce1e9043595ef6d59bcf4302abcd059a5bf0f9957fafc64c7f7950974ada5c"
+  },
+  "verification": {
+    "all_owned_vms_stopped": 5,
+    "profiles_empty": true,
+    "runtime_hashes_unchanged": true,
+    "public_local_links": 266,
+    "vault_notes": 293,
+    "vault_issues": 0,
+    "diff_check": "clean",
+    "source_hashes_verified": 7,
+    "receipt_hashes_verified": 11,
+    "final_policy_verified": true
+  }
+}

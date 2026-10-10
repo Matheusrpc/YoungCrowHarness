@@ -36,6 +36,168 @@ O `ingest-source` conduz documentos e mídia até o vault local, com origem, rev
 **Navegue:** [arquitetura](#arquitetura-pt) · [começar ou migrar](#setup-pt) · [processo](#processo-pt) ·
 [memória](#memoria-pt) · [próximas entregas](#evolucao-pt).
 
+**Continuidade do executor:** a branch `feat/isolated-executor` reúne o código em desenvolvimento,
+testes e relatórios revisados para continuar em outro ambiente. Comece pelo
+[contexto completo](docs/HANDOFF-CLOUD-2026-10-07.md) e pela
+[verificação deste checkpoint](docs/relatorios/2026-10-07-cloud-checkpoint.md).
+O executor ainda depende de prova integrada de rede e dos dois clientes autenticados; seus perfis permanecem bloqueados.
+
+O pacote privado da captura de B foi recuperado na cloud. Seus 26 testes offline
+passaram com 17 hashes fixados conferidos e os 635 arquivos preservados. A suíte
+usa transporte e efeitos nativos simulados; o aceite nativo continua pendente.
+[Recuperação e reprodução da suíte](docs/relatorios/2026-10-08-b-source-recovery.md).
+
+A [revisão do ciclo de configuração](docs/relatorios/2026-10-08-executor-lifecycle-review.md)
+identificou uma alternativa com proxy fixo entre missões. Ela pode reduzir escritas,
+mas ainda depende de proteção do endpoint e recuperação das credenciais; não foi
+implementada. O contrato atual e os bloqueios permanecem.
+A [comparação das alternativas](docs/relatorios/2026-10-09-executor-alternatives.md)
+recebeu o inventário do PC: a candidata via função Hyper-V fica pausada no Windows
+Home. Isso não reprova o sbx/WHP existente nem resolve o contrato Docker. Nenhum
+novo backend foi implementado.
+
+A consulta ao Docker está publicada na [issue #690](https://github.com/docker/sbx-releases/issues/690),
+aberta pelo mantenedor em 9/out. A publicação e o texto foram conferidos pela API;
+aguardamos resposta sobre o contrato local. O aceite do executor e a fila 2B continuam pendentes.
+A [revisão da versão 0.47.0](docs/relatorios/2026-10-10-sbx-047-contract-review.md)
+identificou correções de credenciais, mas não encontrou o contrato condicional
+necessário nas fontes consultadas. A versão ainda não tem aceite neste adaptador.
+
+A entrega independente melhora `yc-status`: mostra o recibo que bloqueia novos diagnósticos, inclusive de outra
+missão do projeto, e indica revisão de recuperação ou reparo de notas antes de refinar
+entradas. A consulta permanece somente leitura. [Uso e limites](docs/USAGE.md#mission-workflow).
+[Verificação da entrega](docs/relatorios/2026-10-08-mission-status-guidance.md).
+
+Para retomar sem lembrar o código, `python3 -B scripts/missions.py --json list` lista
+as missões salvas com título, código, UUID, revisão e estado registrado. Depois use
+`status CODIGO` para consultar impedimentos atuais. A listagem funciona mesmo quando
+a projeção da nota está pendente e não altera arquivos.
+[Uso](docs/USAGE.md#mission-workflow) · [Verificação](docs/relatorios/2026-10-09-mission-discovery.md).
+
+O [refinamento da fila YC-204](docs/superpowers/specs/2026-10-09-queue-eligibility-refinement.md)
+detalha decisões de prioridade, espera e capacidade. A política aprovada para a futura
+fila prioriza etapas elegíveis do trabalho iniciado antes de admitir novos PBIs,
+com ordem de entrada compartilhada por todos os papéis. O desenho operacional está
+em refinamento; o despacho nativo continua dependente do aceite do executor.
+
+Já é possível antecipar a leitura da fila: `status CODIGO` retorna `queue_preview`
+com PBIs na prioridade salva, dependências e o primeiro candidato inicial quando a
+preparação está consistente. Essa consulta usa o snapshot da missão e não executa agentes.
+[Contrato e limites](docs/USAGE.md#mission-workflow).
+
+O coordenador oferece um [ensaio persistente com vários PBIs](docs/USAGE.md#queue-rehearsal):
+`queue start`, `queue step` e `queue cancel` registram etapas simuladas e recibos.
+`status` mostra a etapa, o próximo papel e as dependências ainda pendentes no ensaio.
+A fila prioriza QA e correções do PBI ativo. O ensaio pode reprovar QA, aprovar após
+uma correção ou esgotar o limite de três. Itens bloqueados conservam seus dependentes
+em espera; os independentes seguem pela prioridade salva. O contador sobrevive a reinícios
+da mesma sessão sintética. A autocorreção de agentes reais continua no roadmap.
+Repetir uma operação recupera seu recibo. O ensaio não chama modelos nem aprova entrega real.
+[Provas e limites](docs/relatorios/2026-10-10-queue-corrections.md).
+
+O [preparo de um diretório Git por PBI](docs/USAGE.md#pbi-workspaces) já está disponível:
+`workspace prepare/status/release` fixa o commit de base e mantém recibos para retomada.
+O checkout original conserva suas alterações. A liberação exige um worktree próprio e limpo,
+preserva branch/commits e permite pedir novamente o preview de retorno do trial.
+É preparo local explícito; agentes reais e integração seguem pendentes.
+
+O [contexto por PBI](docs/USAGE.md#pbi-context) reúne critérios, feature, épico e fontes
+explicitamente vinculadas, com UUIDs, revisões e hashes. `context` consulta o vault do
+checkout original e retorna JSON privado, sem alterar notas ou iniciar agentes.
+Fontes divergentes são recusadas; lacunas de planejamento aparecem no resultado.
+
+O PM pode [propor outra ordem para os PBIs selecionados](docs/USAGE.md#pbi-priority).
+`reprioritize --dry-run` mostra a mudança sem escrever; a aplicação guarda motivo,
+autor e revisão, preservando escopo e configuração. Fila ativa bloqueia a mudança;
+PBIs com histórico de workspace conservam suas posições. É uma decisão de planejamento.
+
+O Tech Lead pode [selecionar o plano técnico de um PBI](docs/USAGE.md#technical-plan)
+entre suas referências diretas. A escolha registra motivo, revisão e hash da nota;
+`context` entrega esse plano junto aos critérios, preservando o contrato do PBI.
+
+O preparo também confere se os hashes congelados correspondem às notas e referências
+importadas. Divergência deixa a missão em rascunho; `status` bloqueia snapshots antigos
+inconsistentes e orienta importar as edições e revisar a missão. [Detalhes](docs/USAGE.md#mission-input-consistency).
+
+Para retomar um diretório de trabalho, [consulte pelo UUID do workspace](docs/USAGE.md#workspace-context).
+`workspace context` confere a identidade Git e reúne o contexto do PBI na revisão
+fixada pelo preparo. Preserva o trabalho em andamento e retorna JSON privado no terminal.
+
+O checkpoint `77f6e37` passou nos oito jobs de CI entre push e PR, incluindo Windows.
+[Resultados conferidos](docs/relatorios/2026-10-10-workspace-context.md).
+Em `44cd90f`, o CI Windows expôs um corte de 15 s no teste de rede, cujo plano admite
+30 s. O supervisor da fixture agora usa esse prazo; [prova e confirmação pendente](docs/relatorios/2026-10-10-network-fixture-budget.md).
+O aceite nativo do executor continua pendente.
+
+As próximas provas estão reunidas em uma [campanha com aprovação por lote](docs/TEST-RUN-2026-10-10.md),
+com sequência, limites e critérios de parada. Os bloqueios nativos permanecem.
+
+**Checkpoint anterior de 7/out:** admissão sintética, controlador/fixture e correções da auditoria
+chegaram ao [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
+O pacote público passou em 516 testes, com 20 pulados; naquela rodada, o CI não pôde ser consultado.
+Veja o [registro da publicação](docs/relatorios/2026-10-07-cloud-publication.md).
+
+`client check` reconhece o manifesto `isolated-egress-v1` e registra um bloqueio
+`controller_pending`, com `model_calls=0`. A tentativa conserva os limites e o UUID da
+missão, sem consultar clientes ou Docker. Veja o [contrato e seus limites](docs/USAGE.md#synthetic-admission)
+e a [continuidade na cloud](docs/relatorios/2026-10-07-synthetic-admission.md).
+
+O plano v4 exige que a resposta contenha um valor fictício diferente do placeholder,
+com o hash esperado fixado antes da execução. A prova interna usa fixture, relay e
+guard com processos e sockets locais; também recusa o percurso sem substituição.
+A/B/A2 compartilham a configuração e mantêm identidades próprias. Planos v2/v3
+continuam legíveis para recuperação, sem transformar eco antigo em prova de injeção.
+**203.6 permanece parcial:** a API Cloud documenta remoção condicionada à versão da
+credencial, mas falta comprovar esse contrato no `sbx` local 0.46.0. O adaptador e
+os perfis nativos seguem bloqueados; B ainda exige atribuição nativa.
+Veja a [prova de injeção](docs/relatorios/2026-10-07-injection-proof.md).
+
+A ativação e a recuperação agora exigem escrita condicionada ao estado completo do
+setting. Nos testes, uma mudança externa após a intenção é preservada e impede o
+reinício; a recuperação mantém a reserva bloqueada. O contrato atômico do sbx local
+continua sem prova. Validação local: 592 testes aprovados e 20 pulados.
+[Correção e bloqueio nativo](docs/relatorios/2026-10-07-conditional-settings.md).
+
+O CI de `da28f00` falhou em `adoption-windows`, na suíte de missões, tanto no push
+quanto no PR. Os outros três jobs passaram. O runner dessa etapa agora publica
+identificadores e estados permitidos dos testes nas anotações do GitHub, preservando
+a saída e o resultado do unittest. O CI identificou dois percursos de rede e um caso
+de encerramento do controlador. A rodada focal confirmou `TimeoutError` na sonda B
+v3, que limitava a conexão a um segundo. A fixture agora usa o prazo restante da fase
+e continua exigindo recusa explícita. Os cinco casos focais passaram no push; no PR,
+v3 e v4 atingiram o limite externo de 15 s. Com o diagnóstico de tempos em `e674a83`,
+os cinco casos passaram em ambos os runs. A suíte completa local passou com 598
+aprovados e 20 pulados; naquele checkpoint, o CI Windows completo ainda estava em andamento.
+O CI seguinte, em `63bb229`, registrou novos timeouts no fim de A2.
+[Estado do CI e próxima ação](docs/relatorios/2026-10-07-windows-ci-diagnostics.md).
+
+A verificação de armazenamento consulta as três regras de ignore em uma chamada
+Git e exige confirmação de todas. Isso reduz de cinco para três os processos por
+verificação, mantendo a leitura atual das regras em cada etapa. A confirmação local
+passou com 602 testes aprovados e 20 pulados. Em `25ee51d`, os cinco focais Windows
+passaram no push e no PR; os dois jobs Windows completos também passaram. [Medição e regressões](docs/relatorios/2026-10-08-git-preflight-cost.md).
+
+A seleção do destino agora protege consultas e alterações com o mesmo lock. Um
+processo concorrente recebe `execution_selection_busy`; depois da gravação, um digest
+antigo continua sendo recusado. Consultar a seleção não cria nem inicializa o lock.
+[Correção e provas de concorrência](docs/relatorios/2026-10-08-selection-concurrency.md).
+
+A consulta de uma missão existente agrupa leituras SQL adjacentes e usa nove processos Git,
+mantendo a reabertura do banco após os arquivos de entrada e a leitura final
+independente. O teste de recusa de rede mede bytes em um observador que permanece
+ativo após encerrar o guard. [Medição e regressões](docs/relatorios/2026-10-08-mission-read-stability.md).
+O diagnóstico Windows confirmou reset durante o encerramento do helper. O
+controlador agora permite até 100 ms para ele fechar após EOF, dentro dos 200 ms
+já reservados antes de `kill`. Filhos resistentes continuam sujeitos ao encerramento
+forçado. [Correção e validação](docs/relatorios/2026-10-08-guard-cooperative-close.md).
+O CI de `9cb3729` passou em sete dos oito jobs: Windows do PR completo aprovado,
+com timeout v4 no push daquela revisão. Os testes de EOF e recusa passaram nos dois.
+
+As correções da auditoria recuperam notas de missão/backlog interrompidas
+mesmo após outra revisão, preservando edições humanas. Catálogos malformados e falhas
+de Git na primeira consulta de ambiente retornam JSON sanitizado.
+Veja [correções e regressões](docs/relatorios/2026-10-07-audit-fixes.md).
+
 <a id="arquitetura-pt"></a>
 
 ## <img src="assets/gema-turquesa.svg" height="24" alt=""> Arquitetura e estado atual
@@ -74,6 +236,14 @@ bash YoungCrowHarness/setup.sh meu-projeto --trial --client both --nome "Meu Pro
 ```
 
 **Passo a passo:** [repo do zero](docs/USAGE.md#zero-pt) · [migrar repo existente](docs/USAGE.md#migrar-pt) · [como operar](docs/USAGE.md#operar-pt).
+
+[Tutorial animado em PT-BR](docs/media/youngcrow-guide/README.md): dois capítulos com o visual
+de vitrais, lettering e movimentos em Three.js. Inclui layouts 16:9 e 9:16, apresentação
+interativa e exportação local de MP4. O tutorial é seguido por um agente de atendimento de clínica fictício:
+features, vault, Codex, checkpoint e retomada no Claude. As telas são encenadas e a coordenação
+das sessões é manual; a execução autônoma segue em desenvolvimento.
+
+Baixar o vídeo completo: [16:9 para computador](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4) · [9:16 para celular](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4).
 
 Requer Bash, Git e `python3` funcionando no mesmo terminal. No Windows, use Git Bash.
 Para experimentar, use `--trial`: ele guarda um ponto privado antes da primeira escrita,
@@ -231,7 +401,12 @@ O [piloto público](https://matheusrpc.github.io/YoungCrowHarness/) demonstra o 
 um quadro de entregas para acompanhar projeto novo, migração, testes, memória e publicação.
 O [exemplo](examples/delivery-board/README.md) tem página com filtros, critérios e um vault próprio.
 O percurso local foi verificado por teclado e em tela estreita. No Windows e no Linux, projeto novo e migração
-passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do trial. O site publicado teve revisão, hashes e uso conferidos. A retomada passou no Codex; no Claude, aguarda renovação de login.
+passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do trial. O site publicado teve revisão, hashes e uso conferidos. A retomada passou no Codex e foi
+[confirmada no Claude](docs/relatorios/2026-10-09-p06-offline-review.md): uma sessão
+Haiku recuperou a memória em 39,35 s. O verificador original recusou a navegação;
+a correção foi conferida offline sobre os mesmos eventos e arquivos, seguida de
+revisão do conteúdo, sem outra chamada ao modelo. O recibo de falha foi preservado.
+Essa prova do piloto não libera o executor Docker nem comprova descoberta automática de skills.
 Veja as [provas e limites](docs/relatorios/2026-10-03-public-pilot.md).
 O pacote usa uma lista explícita de arquivos e um manifesto de hashes; o CI do piloto valida dados, testes e navegação do vault.
 
@@ -313,14 +488,126 @@ O [backlog completo](docs/BACKLOG.md) acompanha dependências e critérios de ac
 [2A: executor e adaptadores](docs/relatorios/2026-10-03-mission-runtime-adapters.md) está parcial:
 o mecanismo existe, mas os perfis de permissões de Codex e Claude ainda bloqueiam chamadas reais.
 Descobrir um modelo não comprova sua execução. API permanece indisponível nesta etapa.
-Na [verificação nativa](docs/relatorios/2026-10-03-native-client-verification.md), a inspeção do
-Claude passou a aceitar o executável com hard link usado pelo instalador. A prova local do Codex
-reproduziu acesso a uma imagem fora da pasta de trabalho; o diagnóstico real continua bloqueado.
-Os [controles complementares](docs/relatorios/2026-10-04-native-permission-controls.md) confirmaram
-que as flags atuais não isolam o estado interno dos clientes. O caminho de ambiente separado
-foi escolhido. O [desenho do executor isolado](docs/superpowers/specs/2026-10-04-isolated-executor-design.md)
-propõe Docker Sandboxes local, cópia sanitizada e controle de duração independente do coordenador.
-O desenho detalhado está em revisão; instalação e execução ainda não estão implementadas.
+O [executor isolado](docs/superpowers/specs/2026-10-04-isolated-executor-design.md) usa
+Docker Sandboxes local, uma microVM sem montagem do projeto e um contêiner interno para
+separar o cliente do coordenador. O [plano aprovado](docs/superpowers/plans/2026-10-04-isolated-executor.md)
+tem três PBIs: prova do ambiente, adaptador/recuperação e adoção autenticada nos dois clientes.
+R1 está em desenvolvimento; R2/R3 ainda não começaram.
+
+O guardian grava o consumo antes de iniciar cada fase, recusa repetição e conserva um
+prazo independente do coordenador. O [launcher com rede restrita](docs/relatorios/2026-10-04-network-launcher.md)
+exige recibos privados antes de inicializar ou despachar. Ele instala a negação de rede
+antes de conectar a interface e limita o destino TCP dentro do contêiner ao IP público
+e à porta selecionados. Isso não comprova o destino final depois dos proxies externos.
+O cliente e seus filhos ficam sem privilégios para alterar essa fronteira.
+
+Oito cenários nativos passaram nesta versão, incluindo preparação interrompida, regras
+alteradas, repetição, perda de transporte e prazo. OpenAI e Anthropic responderam aos testes
+TLS, com 40 tentativas negativas de rede no cliente e nos filhos. Foram requisições HEAD,
+sem autenticação ou inferência. A suíte geral executou 390 testes: 379 passaram, 11 foram ignorados por requisitos de ambiente, sem falhas ou erros.
+Consulte as [provas e limitações](docs/relatorios/2026-10-04-network-launcher.md) e o
+[guia de testes Windows](docs/USAGE.md#tests-windows).
+
+O diagnóstico `client environment --executable CAMINHO --json` verifica o binário e os
+pré-requisitos. A opção `--preflight` registra consultas do Docker e preserva suas saídas
+em arquivo privado local, com etapa, prazo e erro classificados. As 11 consultas passaram
+no terminal local em 7 de outubro. No celular, o diagnóstico confirmou que a sessão
+do Windows não disponibilizou seu conjunto de credenciais ao Docker.
+Esse resultado não libera execução de IA. Veja a [consolidação do executor](docs/relatorios/2026-10-07-executor-consolidation.md).
+Uma consulta posterior pelo celular foi recusada na proteção do armazenamento.
+O diagnóstico confirmou proprietário divergente no temporário. No Windows, o comando
+agora protege esse arquivo ainda vazio antes de gravar evidências; arquivos e permissões
+existentes são preservados. A correção passou na sessão remota e permitiu capturar a
+falha de credenciais. `credential_session_unavailable` orienta usar uma sessão do
+Windows com acesso ao Gerenciador de Credenciais; o inventário permanece desconhecido.
+No PowerShell local do mantenedor, as 11 consultas passaram, com o mesmo binário.
+O inventário Docker estava vazio; autenticação e execução isolada continuam pendentes.
+Com `--preflight --sandbox NOME`, o diagnóstico também confere políticas, imagem,
+recursos e a identidade do serviço antes e depois da coleta. A primeira execução
+local passou nas 29 consultas. O resultado descreve metadados estáveis; a reserva
+exclusiva e a prova integrada de rede ainda são necessárias para executar clientes.
+O relay restrito já está ligado ao guardian e ao launcher em desenvolvimento.
+Ele reconstrói o destino autorizado, preserva respostas em streaming e encerra a
+conexão no prazo da operação. Passaram 43 testes locais, com revisão independente.
+O contrato v4 acrescenta verificação por hash de um valor diferente do placeholder.
+Docker integrado e Claude/Codex autenticados ainda precisam de prova. Consulte a
+[prova interna atual](docs/relatorios/2026-10-07-injection-proof.md).
+O diagnóstico também mostra `execution_reservation`, compartilhada pelos projetos
+da mesma conta. A reserva persiste após queda do coordenador; recibo ausente ou
+corrompido mantém o bloqueio. O filtro de saída já confere DNS e IP antes de conectar,
+com destino sintético limitado a `postman-echo.com:443`. Esses componentes passaram
+nos testes locais; sua ligação ao despacho e à recuperação do Docker ainda está pendente.
+Veja [reserva e saída](docs/relatorios/2026-10-07-executor-consolidation.md#reserva-compartilhada-e-filtro-de-saída).
+`--sandbox NOME` observa uma VM existente sem iniciá-la. O [passo a passo](docs/USAGE.md#sandbox-environment)
+explica os resultados. O [reinício ativo](docs/relatorios/2026-10-04-network-launcher.md#reinício-ativo-e-reconciliação)
+comprovou a VM parada 3,756 segundos antes do prazo e recusou repetir a operação após
+a retomada para inspeção. O recibo anterior, com falha de medição, foi preservado.
+R1 ainda depende das rotas restantes, pacote, suspensão e autenticação. Os perfis continuam bloqueados.
+Os [ensaios dos endereços do gateway e do Windows](docs/relatorios/2026-10-05-gateway-endpoints.md)
+registraram 124 tentativas TCP sem conexão, com TLS dos provedores acessível e nenhum
+acesso às sentinelas Windows. A [investigação de DNS e proxy](docs/relatorios/2026-10-05-proxy-resolution.md)
+confirmou a proteção dos arquivos de resolução, mas não comprovou o destino final.
+A saída atual também não oferece a injeção de credenciais prevista. A [prova conjunta](docs/relatorios/2026-10-05-auth-egress-spike.md)
+encerrou três ciclos e encontrou um candidato com IP e identidade do fornecedor fixos.
+A [prova nativa](docs/relatorios/2026-10-05-native-proxy-compatibility.md) confirmou TLS nos provedores,
+mas a credencial descartável funcionou somente por domínio; o Docker recusou o caminho por IP
+nos serviços de eco. A [prova de negação CIDR](docs/relatorios/2026-10-05-hostname-cidr-proof.md)
+confirmou que o domínio permitido continua acessível mesmo com todos os IPs negados,
+conforme documentado pelo Docker. Essa combinação foi reprovada para o nosso requisito;
+a [arquitetura aprovada](docs/superpowers/specs/2026-10-05-exclusive-egress-decision.md)
+coloca esse controle após a injeção de credenciais, em uma instalação do Docker Sandboxes
+reservada ao YoungCrow. O [plano da prova](docs/superpowers/plans/2026-10-05-exclusive-egress-proof.md)
+foi aprovado. O protótipo passou em 60 testes locais. O [ciclo nativo](docs/relatorios/2026-10-05-exclusive-egress-proof.md)
+terminou inconclusivo: a primeira operação foi recuperada; a v2 excedeu o prazo antes
+de criar o recibo e alterar o Docker. Configurações e permissões foram conferidas,
+com cinco VMs paradas. Não há recuperação pendente. O roteiro v2 está bloqueado;
+o produto seguirá com [execução local por padrão e runner dedicado opcional](docs/superpowers/specs/2026-10-05-local-and-dedicated-execution.md).
+O setup aceita a própria máquina ou um runner aberto pelo VS Code Remote SSH. A seleção
+é privada e preservada na reinstalação. A saída de rede ainda depende de aceite e os perfis
+de execução seguem bloqueados.
+Na [retomada de R1](docs/relatorios/2026-10-06-observed-egress-proof.md), a prova parou
+antes das GETs: o roteiro esperava `override` ao gravar um valor padrão, mas o Docker
+remove esse override. A correção passou em 75 testes locais. A restauração foi confirmada
+por leitura, sem pendência de limpeza. A operação foi consumida; a rede segue sem aceite.
+A [prova corrigida](docs/relatorios/2026-10-06-corrected-egress-proof.md) passou no acesso
+permitido, mas a falha com o controlador desligado ainda não comprovou o bloqueio esperado.
+O diagnóstico posterior encontrou a recusa no log do daemon; o coletor não a reconheceu.
+A2 não executada, conjunto inconclusivo e limpeza confirmada. Veja o [panorama de resultados](docs/relatorios/2026-10-06-panorama-executor.md).
+Um [coletor separado](docs/relatorios/2026-10-06-captured-egress-evidence.md) passou em onze
+testes offline com a mensagem real. Ele preserva os snapshots completos e verifica
+origem, porta e horário da recusa. A [integração com o controlador](docs/relatorios/2026-10-06-integrated-egress-controller.md)
+também foi validada offline, incluindo A/B/A2 e recuperação sem repetição. A entrada
+nativa passou em uma suíte de 120 testes, incluindo sete da entrada remota. O
+[guia do ensaio](docs/USAGE.md#entrada-do-ensaio-integrado-somente-mantenedor) registra
+a execução pelo mantenedor. A tentativa parou por proprietário incompatível dos
+arquivos, após cinco consultas e antes de alterar o Docker. O ajuste de proprietário
+passou na sessão remota. A entrada separada passou pela verificação de proprietário,
+mas parou ao interpretar o primeiro status do Docker (`JSONDecodeError`). Não houve
+alteração no Docker nem limpeza pendente. A captura posterior passou no celular,
+com resposta idêntica à local; as cinco consultas iniciais também passaram daqui.
+A causa histórica continua sem comprovação. A entrada com captura passou em 129 testes;
+na execução seguinte, guardou quatro respostas válidas e parou por `policy_baseline_changed`.
+O roteiro confundiu um identificador recriado pela limpeza anterior com mudança de
+permissão. Houve 24 consultas, sem GET, reinício ou alteração no Docker. A correção
+agora está integrada a uma entrada local, com captura e recuperação. Passaram 102 testes:
+sete da entrada Windows, 12 da sequência inicial e 83 do controlador, comparação e fases.
+As respostas externas foram simuladas; isso não certifica a rede real.
+A entrada corrigida foi executada e parou na consulta `sbx secret ls --json`, com
+código 1. Foram 25 consultas, sem GET, reinício ou alteração no Docker; a limpeza foi
+confirmada. A mesma consulta passou localmente, inclusive com o auxiliar Windows,
+mas a causa da falha remota continua desconhecida: sua mensagem não foi capturada.
+O [guia registra a tentativa encerrada](docs/USAGE.md#entrada-do-ensaio-integrado-somente-mantenedor).
+Não há novo ensaio completo preparado. O aceite real de A/B/A2 continua pendente.
+O [desenho aprovado de setup](docs/superpowers/specs/2026-10-05-execution-setup-design.md) detalha
+seleção, diagnóstico por etapa e acesso ao runner pelo VS Code Remote SSH. O
+[plano com três PBIs](docs/superpowers/plans/2026-10-05-execution-setup.md) foi implementado nesta branch.
+A [validação do setup](docs/relatorios/2026-10-05-execution-setup.md) cobriu oito combinações
+de adoção/restauração e 414 testes: 403 aprovados e 11 skips por requisitos do ambiente.
+Os resultados finais incluem a repetição do módulo guardian após corrigir sua fixture de relógio.
+Use `--execution-location local|dedicated` no setup e
+`python3 -B scripts/missions.py environment show --json` para consultar a escolha.
+O [guia instalado](skills/personalizer/references/execution.md) explica primeiro uso, migração
+e diagnóstico por etapa. Configurar o destino não habilita agentes autônomos.
 Os limites de três PBIs e três agentes serão aplicados pela fila da entrega seguinte.
 
 | Próxima entrega | O que falta para a esteira completa |
@@ -405,6 +692,167 @@ The `ingest-source` skill brings documents and media into the local vault with s
 **Navigate:** [architecture](#architecture-en) · [setup and adoption](#setup-en) · [process](#process-en) ·
 [memory](#memory-en) · [next deliveries](#roadmap-en).
 
+**Executor handoff:** branch `feat/isolated-executor` contains the work in progress, tests and
+reviewed reports for continuing in another environment. Start with the
+[full context](docs/HANDOFF-CLOUD-2026-10-07.md) and the
+[checkpoint verification](docs/relatorios/2026-10-07-cloud-checkpoint.md).
+Integrated network proof and both authenticated clients are still pending; execution profiles remain blocked.
+
+The private B capture bundle was recovered in the cloud. All 26 offline tests passed,
+17 pinned hashes matched, and all 635 files remained unchanged. The suite mocks
+transport and native effects; native acceptance is still pending.
+[Recovery and suite replay](docs/relatorios/2026-10-08-b-source-recovery.md#english-overview).
+
+The [configuration lifecycle review](docs/relatorios/2026-10-08-executor-lifecycle-review.md#english-overview)
+identified a fixed proxy between missions as a way to reduce writes. Endpoint ownership
+and credential recovery remain unresolved; the alternative is not implemented.
+The current contract and gates remain.
+The [alternatives review](docs/relatorios/2026-10-09-executor-alternatives.md#english-overview)
+received the PC inventory: the Hyper-V role candidate is paused on Windows Home.
+This does not establish an existing sbx/WHP incompatibility or resolve Docker's
+local contract. No new backend has been implemented.
+
+The maintainer published the Docker inquiry as [issue #690](https://github.com/docker/sbx-releases/issues/690)
+on Oct 9. Publication and body were verified through the API; a response about the
+local contract is pending. Executor acceptance and the 2B queue remain pending.
+The [0.47.0 review](docs/relatorios/2026-10-10-sbx-047-contract-review.md#english-overview)
+identified credential fixes, but the reviewed sources do not specify the required
+conditional contract. This version has not been accepted for the adapter.
+
+The independent delivery improves `yc-status`: it identifies receipts blocking new diagnostics, including other
+missions in the project, and directs recovery review or note repair before input
+refinement. Status remains read-only. [Usage and limits](docs/USAGE.md#mission-workflow).
+[Delivery verification](docs/relatorios/2026-10-08-mission-status-guidance.md#english-overview).
+
+To resume without remembering a code, `python3 -B scripts/missions.py --json list`
+shows saved missions with title, code, UUID, revision and recorded state. Then use
+`status CODE` to check current blockers. Listing also finds missions with pending
+note projections and leaves files unchanged.
+[Usage](docs/USAGE.md#mission-workflow) · [Verification](docs/relatorios/2026-10-09-mission-discovery.md#english-overview).
+
+The [YC-204 queue refinement](docs/superpowers/specs/2026-10-09-queue-eligibility-refinement.md#english-overview)
+details priority, waiting and capacity decisions. The approved policy serves eligible
+ongoing stages before new PBIs, with the same readiness order for every role.
+Operational design remains in refinement; native dispatch depends on executor acceptance.
+
+The initial backlog can already be inspected: `status CODE` returns `queue_preview`
+with saved PBI priority, dependencies and the first initial candidate when preparation
+is current. This read-only view uses the mission snapshot and does not execute agents.
+[Contract and limits](docs/USAGE.md#mission-workflow).
+
+The coordinator supports a [persistent multi-PBI rehearsal](docs/USAGE.md#queue-rehearsal):
+`queue start`, `queue step` and `queue cancel` record simulated stages and receipts.
+`status` shows the stage, next role and pending rehearsal dependencies. QA and corrections
+of the active PBI take precedence. The rehearsal can reject QA, pass after one correction,
+or exhaust three corrections. Blocked items keep their dependents waiting while independent
+items follow saved priority. Counts survive restarts of the same synthetic session.
+Correction by real agents remains roadmap work.
+Replaying an operation recovers its receipt. No models or real delivery acceptance are involved.
+[Evidence and limits](docs/relatorios/2026-10-10-queue-corrections.md#english-overview).
+
+[Explicit PBI Git workspace preparation](docs/USAGE.md#pbi-workspaces) is now available through
+`workspace prepare/status/release`, with a pinned base and recoverable receipts. Original checkout
+changes are preserved. Release requires a clean owned worktree and retains its branch/commits,
+allowing a new trial return preview. Real workers and integration remain pending.
+
+The [PBI context query](docs/USAGE.md#pbi-context) collects criteria, feature, epic and
+explicitly linked sources with UUIDs, revisions and hashes. `context` reads the original
+checkout's vault and returns private JSON without changing notes or launching agents.
+Changed sources are refused; planning gaps remain visible in the result.
+
+The PM can [propose a new order for selected PBIs](docs/USAGE.md#pbi-priority).
+`reprioritize --dry-run` previews without writing; applying records the reason,
+actor and revision while preserving scope and configuration. An active queue blocks
+the change; PBIs with workspace history retain their positions. This is a planning decision.
+
+The Tech Lead can [select a PBI's technical plan](docs/USAGE.md#technical-plan) from
+its direct references. The choice records a reason, revision and note hash;
+`context` delivers that plan alongside the criteria while preserving the PBI contract.
+
+Preparation also checks frozen hashes against imported notes and references. A mismatch
+leaves a draft; `status` blocks inconsistent older snapshots and directs explicit import
+and mission revision. [Details](docs/USAGE.md#mission-input-consistency).
+
+To resume a working directory, [query its workspace UUID](docs/USAGE.md#workspace-context).
+`workspace context` verifies Git identity and returns the PBI context at the revision
+pinned during preparation. Existing work is preserved; the private JSON goes to the terminal.
+
+Checkpoint `77f6e37` passed all eight push/PR CI jobs, including Windows.
+[Verified results](docs/relatorios/2026-10-10-workspace-context.md).
+On `44cd90f`, Windows CI exposed a 15-second network-test cutoff despite its 30-second
+plan. The fixture supervisor now uses that budget; [evidence and pending CI confirmation](docs/relatorios/2026-10-10-network-fixture-budget.md).
+Native executor acceptance remains pending.
+
+Upcoming proofs are grouped in a [campaign with batch approval](docs/TEST-RUN-2026-10-10.md),
+with ordered stages, limits and stop conditions. Native blockers remain in place.
+
+**Previous Oct 7 checkpoint:** synthetic admission, controller/fixture and audit fixes
+are now in [PR #24](https://github.com/Matheusrpc/YoungCrowHarness/pull/24).
+The public package passed 516 tests, with 20 skipped; CI could not be queried in that round.
+See the [publication record](docs/relatorios/2026-10-07-cloud-publication.md).
+
+`client check` recognizes `isolated-egress-v1` manifests and records a
+`controller_pending` block with `model_calls=0`. The attempt preserves mission limits
+and its UUID without querying clients or Docker. See the [contract and limits](docs/USAGE.md#synthetic-admission)
+and the [cloud continuation report](docs/relatorios/2026-10-07-synthetic-admission.md).
+
+The v4 plan requires a dummy value different from the placeholder, checked against
+a hash fixed before execution. The internal proof uses the fixture, relay and guard
+with real local processes and sockets; the path without substitution is rejected.
+A/B/A2 share configuration with distinct identities. V2/v3 plans remain readable for
+recovery without turning historical echo results into injection proof.
+**203.6 remains partial:** the Cloud API documents version-conditional credential
+deletion, but that contract is unproven for local `sbx` 0.46.0. The native adapter and
+profiles remain blocked; B still requires native attribution.
+See the [injection proof](docs/relatorios/2026-10-07-injection-proof.md#english-overview).
+
+Activation and recovery now require a write conditional on the full setting state.
+Tests preserve an external change made after intent persistence and prevent restart;
+recovery keeps the reservation blocked. The local sbx atomic contract remains unproven.
+Local validation: 592 tests passed and 20 were skipped.
+See the [fix and native blocker](docs/relatorios/2026-10-07-conditional-settings.md#english-overview).
+
+CI for `da28f00` failed in `adoption-windows`, during mission tests, on both push
+and PR runs. The other three jobs passed. That step's runner now publishes
+test identifiers and allowlisted fixture states in GitHub annotations, preserving
+unittest output and status. CI identified two network flows and one controller
+shutdown case. Focused execution confirmed `TimeoutError` in the v3 B probe, which
+limited its connection to one second. The fixture now uses the remaining phase
+deadline and still requires explicit refusal. All five focused cases passed on push;
+v3 and v4 hit the outer 15-second limit on the PR run. With event timing diagnostics
+at `e674a83`, all five cases passed on both runs. The full local suite passed with
+598 successes and 20 skips; full Windows CI was still running at that checkpoint.
+Subsequent CI at `63bb229` recorded further timeouts near A2 completion.
+[CI evidence and next action](docs/relatorios/2026-10-07-windows-ci-diagnostics.md#english-overview).
+
+Private-storage verification checks all three ignore rules in one Git invocation
+and requires every path to match. This reduces processes per check from five to
+three while reading current rules at each boundary. Local confirmation passed
+602 tests with 20 skips. At `25ee51d`, all five focused Windows cases passed on
+push and PR; both full Windows jobs also passed.
+[Measurements and regressions](docs/relatorios/2026-10-08-git-preflight-cost.md#english-overview).
+
+Execution-location reads and updates now use the same lock. A competing operation
+receives `execution_selection_busy`; after publication, a stale digest is still
+rejected. Reading the selection never creates or initializes its lock.
+[Concurrency fix and evidence](docs/relatorios/2026-10-08-selection-concurrency.md#english-overview).
+
+Status for an existing mission groups adjacent SQL reads into nine Git processes per query,
+while reopening the database after input files and keeping the independent final
+read. The network refusal test measures bytes with an observer that survives
+guard shutdown. [Measurement and regressions](docs/relatorios/2026-10-08-mission-read-stability.md#english-overview).
+Windows diagnostics confirmed a reset during helper shutdown. The controller now
+allows up to 100 ms for EOF cleanup within its existing 200 ms stage before `kill`.
+Unresponsive children remain subject to forced shutdown.
+[Fix and validation](docs/relatorios/2026-10-08-guard-cooperative-close.md#english-overview).
+CI at `9cb3729` passed seven of eight jobs: PR Windows passed fully, while a v4
+timeout occurred on that push. EOF/refusal tests passed on both Windows runs.
+
+Audit fixes recover interrupted mission/backlog notes even after another
+revision, preserving human edits. Malformed catalogs and Git failures during the
+first environment query return sanitized JSON.
+See [fixes and regressions](docs/relatorios/2026-10-07-audit-fixes.md).
+
 <a id="architecture-en"></a>
 
 ## <img src="assets/gema-turquesa.svg" height="24" alt=""> Architecture and current state
@@ -442,6 +890,15 @@ bash YoungCrowHarness/setup.sh my-project --trial --client both --name "My Proje
 ```
 
 **Step by step:** [new repository](docs/USAGE.md#new-en) · [adopt an existing repo](docs/USAGE.md#migrate-en) · [daily operation](docs/USAGE.md#operate-en).
+
+[Animated tutorial in Brazilian Portuguese](docs/media/youngcrow-guide/README.md): two
+chapters with stained glass artwork, animated lettering and Three.js motion. Includes 16:9
+and 9:16 layouts, interactive playback and local MP4 export. It covers current preparation;
+the appended fictional clinic reception agent example shows features, the vault, Codex, a checkpoint and
+continuation in Claude. Screens are staged and sessions are manually coordinated;
+autonomous execution remains under development.
+
+Download the complete video: [16:9 landscape](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-16x9.mp4) · [9:16 mobile](https://github.com/Matheusrpc/YoungCrowHarness/raw/refs/heads/feat/isolated-executor/docs/media/youngcrow-guide/downloads/YoungCrow-9x16.mp4).
 
 Requires Bash, Git and a working `python3` in the same terminal. On Windows, use Git Bash.
 For a first try, use `--trial`: it saves a private baseline before the first write, outside every
@@ -601,7 +1058,12 @@ The [public pilot](https://matheusrpc.github.io/YoungCrowHarness/) demonstrates 
 a delivery board covering a new project, adoption, tests, memory and publication.
 The [example](examples/delivery-board/README.md) has a page with filters, acceptance criteria and its own vault.
 The local flow was checked with keyboard navigation and a narrow viewport. On Windows and Linux, new and existing
-projects passed real setup and returned to their initial state while retaining trial work. The published site passed revision, hash and interaction checks. Retrieval passed in Codex; Claude needs a renewed login.
+projects passed real setup and returned to their initial state while retaining trial work. The published site passed revision, hash and interaction checks. Retrieval passed in Codex and was
+[confirmed in Claude](docs/relatorios/2026-10-09-p06-offline-review.md): one Haiku
+session retrieved memory in 39.35 seconds. The original verifier rejected navigation;
+the fix was checked offline against the same events and files, followed by semantic
+review, without another model call. The failed receipt is preserved. This pilot
+proof does not enable the Docker executor or prove automatic skill discovery.
 See the [evidence and limits](docs/relatorios/2026-10-03-public-pilot.md).
 The package uses an explicit file list and hash manifest; the pilot CI checks data, tests and vault navigation.
 
@@ -683,14 +1145,125 @@ The [full backlog](docs/BACKLOG.md#english-overview) tracks dependencies and acc
 [2A: executor and adapters](docs/relatorios/2026-10-03-mission-runtime-adapters.md) is partial:
 the mechanism exists, but Codex and Claude permission profiles still block live calls.
 Discovering a model does not verify execution. API connections remain unavailable in this stage.
-The [native verification](docs/relatorios/2026-10-03-native-client-verification.md) confirmed Claude
-inspection with its installer's hard-linked executable. The local Codex probe reproduced image
-access outside the working directory; live diagnostics remain blocked.
-The [additional controls](docs/relatorios/2026-10-04-native-permission-controls.md#english-overview)
-confirmed that the current flags do not isolate client runtime state. A separate environment
-was selected. The [isolated executor design](docs/superpowers/specs/2026-10-04-isolated-executor-design.md)
-proposes local Docker Sandboxes, sanitized input and a deadline independent of the coordinator.
-The detailed design is under review; setup and execution have not been implemented.
+The [isolated executor](docs/superpowers/specs/2026-10-04-isolated-executor-design.md)
+uses local Docker Sandboxes, a microVM without a project mount and an inner container
+separating the client from its coordinator. The [approved plan](docs/superpowers/plans/2026-10-04-isolated-executor.md)
+has three PBIs: environment proof, adapter/recovery and authenticated adoption with both
+clients. R1 is in development; R2/R3 have not started.
+
+The guardian persists consumption before each phase, refuses replay and keeps a deadline
+independent of the coordinator. The [restricted-network launcher](docs/relatorios/2026-10-04-network-launcher.md#english-overview)
+requires private receipts before initialization or dispatch. It installs deny rules before
+connecting the interface and limits TCP destinations inside the container to the selected
+public IP and port. This does not establish the final destination beyond external proxies.
+The client and its descendants lack privileges to change that boundary.
+
+Eight native cases passed with this version, including interrupted setup, changed rules,
+replay, transport loss and the deadline. OpenAI and Anthropic responded to TLS probes,
+with 40 negative network attempts across client and child processes. These were HEAD
+requests without authentication or inference. The full suite ran 390 tests: 379 passed and 11 were skipped for environment requirements, with no failures or errors.
+See the [evidence and limits](docs/relatorios/2026-10-04-network-launcher.md#english-overview)
+and the [Windows test guide](docs/USAGE.md#tests-windows).
+
+The `client environment --executable PATH --json` diagnostic checks the binary and local
+prerequisites. Adding `--preflight` records Docker queries and preserves their output in a
+private local file, with stage, deadline and classified errors. All 11 queries passed in
+the local terminal on October 7. On the phone, the diagnostic confirmed that the Windows
+logon session did not provide its credential set to Docker.
+This does not enable AI execution. See the [consolidation report](docs/relatorios/2026-10-07-executor-consolidation.md).
+A later query from the phone was refused at the storage protection check.
+The diagnostic confirmed an owner mismatch on the temporary file. On Windows, the
+command now protects that empty file before writing evidence, preserving existing
+files and permissions. The correction passed remotely and captured the credential
+failure. `credential_session_unavailable` directs the operator to a Windows session
+with Credential Manager access; the credential inventory remains unknown.
+All 11 queries then passed in the maintainer's local PowerShell session with the same
+binary. The Docker credential inventory was empty; authentication and isolation acceptance remain pending.
+With `--preflight --sandbox NAME`, the diagnostic also checks policies, image,
+resources and the daemon's process identity before and after collection. The first
+local run passed all 29 queries. This establishes stable metadata; exclusive reservation
+and the integrated network proof are still required before running clients.
+The restricted relay is connected to guardian and launcher in development.
+It reconstructs the authorized destination, preserves streaming responses and closes
+connections within the operation deadline. All 43 local tests passed, with independent
+review. The v4 contract adds hash verification of a value distinct from the placeholder.
+Integrated Docker and authenticated Claude/Codex still need proof. See the
+[current internal proof](docs/relatorios/2026-10-07-injection-proof.md#english-overview).
+The diagnostic also reports `execution_reservation`, shared across projects using
+the same account. Reservations survive coordinator loss; missing or corrupt records
+keep execution blocked. The destination guard checks DNS and IPs before connecting,
+currently limited to synthetic `postman-echo.com:443` traffic. These components passed
+local tests; wiring them to Docker dispatch and recovery remains pending.
+See [reservation and egress](docs/relatorios/2026-10-07-executor-consolidation.md#reserva-compartilhada-e-filtro-de-saída).
+`--sandbox NAME` observes an existing VM without starting it. The [walkthrough](docs/USAGE.md#sandbox-environment)
+explains results. The [active restart](docs/relatorios/2026-10-04-network-launcher.md#english-overview)
+confirmed the VM stopped 3.756 seconds before the deadline and refused another run
+after booting for inspection. The earlier measurement failure remains recorded.
+Remaining routes, package rebuilding, suspension and authentication still need
+validation. Native profiles remain blocked.
+The [gateway-address and Windows probes](docs/relatorios/2026-10-05-gateway-endpoints.md#english-overview)
+recorded 124 unsuccessful TCP attempts while provider TLS remained reachable and
+Windows sentinels received no unexpected connections. The [DNS and proxy investigation](docs/relatorios/2026-10-05-proxy-resolution.md#english-overview)
+confirmed resolver-file protection but did not establish the final destination.
+The current egress path also lacks the planned credential-injection mechanism. The [joint probe](docs/relatorios/2026-10-05-auth-egress-spike.md#english-overview)
+finished three cycles and found a candidate with fixed provider IP and identity. The [native probe](docs/relatorios/2026-10-05-native-proxy-compatibility.md#english-overview)
+confirmed provider TLS, but disposable credential injection worked only through hostname
+CONNECT; Docker rejected the IP path on the echo services. The [CIDR-deny probe](docs/relatorios/2026-10-05-hostname-cidr-proof.md#english-overview)
+confirmed that the allowed hostname remains reachable when all IPs are denied, as
+Docker documents. This combination fails our requirement. The [approved design](docs/superpowers/specs/2026-10-05-exclusive-egress-decision.md#english-overview)
+places enforcement after credential injection, in a Docker Sandboxes installation
+reserved for YoungCrow. The [proof plan](docs/superpowers/plans/2026-10-05-exclusive-egress-proof.md)
+is approved. The prototype passed 60 local tests. The [native cycle](docs/relatorios/2026-10-05-exclusive-egress-proof.md#english-overview)
+ended inconclusively: the first operation was recovered; v2 timed out before creating its
+receipt or changing Docker. Settings and permissions were verified, with five VMs stopped.
+No recovery remains pending. The v2 entry point is blocked. The product will offer
+[local execution by default and an optional dedicated runner](docs/superpowers/specs/2026-10-05-local-and-dedicated-execution.md#english-overview).
+VS Code users will be able to run the same pipeline on their own machine or a selected
+machine/server. Setup now records a private selection and preserves it on reinstallation.
+Network egress still requires acceptance and product profiles stay blocked.
+The [R1 continuation](docs/relatorios/2026-10-06-observed-egress-proof.md#english-overview)
+stopped before any GET: the script expected an override when assigning a default value,
+but Docker removes that override. The correction passed 75 local tests. Restoration was
+verified through read-only checks, with no cleanup pending. The operation is consumed;
+network enforcement remains unverified.
+The [corrected proof](docs/relatorios/2026-10-06-corrected-egress-proof.md#english-overview)
+passed its positive control; the disconnect with the guard absent did not establish the
+intended refusal automatically. Later daemon-log analysis attributed the disconnect to
+upstream refusal; A2 did not run. Overall inconclusive, cleanup verified. See the [results overview](docs/relatorios/2026-10-06-panorama-executor.md#english-overview).
+A [separate collector](docs/relatorios/2026-10-06-captured-egress-evidence.md#english-overview)
+passed eleven offline tests using the real event. It preserves full snapshots and checks
+the refusal source, endpoint and time. [Controller integration](docs/relatorios/2026-10-06-integrated-egress-controller.md#english-overview)
+was also validated offline, including A/B/A2 and recovery without replay. The native
+entry passed 120 tests, including seven remote-entry tests. The
+[probe guide](docs/USAGE.md#entrada-do-ensaio-integrado-somente-mantenedor) covers the
+maintainer's execution. The attempt stopped on incompatible file ownership after
+five queries and before Docker changes. The owner adjustment passed in the remote
+session. The separate entry passed its owner check but stopped while parsing the first
+Docker status reply (`JSONDecodeError`). No Docker changes or cleanup were needed.
+The later remote capture matched the local response byte for byte; all five initial
+queries also passed locally. The original failure remains unexplained. The captured
+entry passed 129 tests; its subsequent native run retained four valid status replies
+but stopped on `policy_baseline_changed`. The controller mistook a rule ID regenerated
+by earlier cleanup for a permission change. It made 24 queries, with no GET, restart
+or Docker change. The correction is now integrated into an import-only entry with capture
+and recovery. All 102 tests passed: seven for the Windows entry, 12 for the full initial
+sequence and 83 for the controller, comparison and downstream phases. External replies were simulated;
+this does not certify real networking. The corrected native entry was consumed and
+stopped when `sbx secret ls --json` exited 1. All 25 commands were reads, with no
+external GET, restart or Docker mutation; cleanup was verified. The same query passed
+locally, including through the Windows helper. The remote cause remains unknown
+because its error message was not captured. The [guide records the closed attempt](docs/USAGE.md#entrada-do-ensaio-integrado-somente-mantenedor).
+No new full probe is prepared. Native A/B/A2 acceptance remains pending.
+The [approved setup design](docs/superpowers/specs/2026-10-05-execution-setup-design.md#english-overview)
+details selection, phase-specific diagnostics and VS Code Remote SSH access to the runner.
+Its [three-PBI implementation plan](docs/superpowers/plans/2026-10-05-execution-setup.md)
+is implemented on this branch. [Setup validation](docs/relatorios/2026-10-05-execution-setup.md#english-overview)
+covered eight adoption/restore combinations and 414 tests: 403 passed and 11 were skipped
+for environment requirements. Final results include a guardian-module rerun after its
+test clock was corrected. Use `--execution-location local|dedicated` during setup and
+`python3 -B scripts/missions.py environment show --json` to read the choice.
+The [installed guide](skills/personalizer/references/execution.md#english) covers first use,
+migration and phase diagnostics. Selection does not enable autonomous agents.
 The following queue delivery will enforce the separate limits of three PBIs and three agents.
 
 | Next delivery | Remaining work for the complete pipeline |
@@ -771,6 +1344,12 @@ and resolved review conversations. Deletion and force pushes are blocked, with n
 With one maintainer, a second approval is not required. See the
 [configuration and adoption steps](docs/USAGE.md#protection-en); setup does not change GitHub rules.
 
+O CI de egress também anota exceções durante o preparo, supervisor e limpeza da fixture,
+com a última etapa alcançada e a categoria do erro. Mensagens e caminhos ficam fora da anotação.
+[Como interpretar / How to interpret](docs/USAGE.md#ci-fixture-diagnostics).
+Egress CI also annotates fixture setup, supervision and cleanup exceptions, reporting the
+last stage reached and an error category. Annotations exclude exception messages and paths.
+
 ```bash
 python3 -m unittest discover -s tests -v  # Python 3.11+
 bash -n setup.sh
@@ -787,7 +1366,12 @@ Os testes cobrem instalação, preservação, caminhos, índices e retomada. Cas
 o teste de junction nativa é exclusivo de Windows. A suíte usa Git local, usuário temporário e chamadas
 de plugins simuladas. Execute um setup por destino de cada vez.
 O teste opcional [smoke_clients.py](tests/smoke_clients.py) confere skills e agente nos clientes reais.
-O Codex envia uma requisição a um modelo fictício em loopback; o Claude carrega metadados pelo SDK.
+Com `--discovery-only`, pode consultar um cliente por vez e salvar recibo sem prompt.
+As quatro skills de missão foram [descobertas no Codex/Linux e Claude/Windows](docs/relatorios/2026-10-09-client-skill-discovery.md),
+com zero prompts. A aplicação nativa continua pendente em YC-011.
+O [roteiro Windows](docs/YC011-CLAUDE-DISCOVERY.md) prepara uma cópia pequena e consulta
+o Claude sem prompt, preservando os pacotes P06.
+No modo completo, o Codex envia uma requisição a um modelo fictício em loopback; o Claude carrega metadados pelo SDK.
 Não há chamada de modelo pago, execução de plugins reais ou conexão MCP. Confira o
 [guia dos clientes](docs/USAGE.md#clientes-pt) para confiança e ativação.
 
@@ -795,6 +1379,11 @@ Tests cover installation, preservation, paths, indices and resumption. Symlink c
 the native junction test runs on Windows. The optional smoke check uses real client loaders, a
 loopback model fixture for Codex and SDK metadata initialization for Claude. It makes no paid model
 calls or MCP connections and does not prove third-party plugin execution.
+`--discovery-only` checks one client at a time and saves a receipt without a prompt.
+The four mission skills were [discovered in Codex/Linux and Claude/Windows](docs/relatorios/2026-10-09-client-skill-discovery.md),
+with zero prompts. Native application remains pending under YC-011.
+The [Windows recipe](docs/YC011-CLAUDE-DISCOVERY.md) prepares a small checkout and queries
+Claude without a model prompt, preserving P06 packages.
 
 <p align="center">
   <img src="assets/assinatura.svg" alt="☧ Ora et labora ☧ et coda &lt;/&gt;" width="100%">

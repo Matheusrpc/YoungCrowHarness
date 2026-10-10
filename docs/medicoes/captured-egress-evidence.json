@@ -1,0 +1,56 @@
+{
+  "checked_at": "2026-10-06T03:57:57.120234+00:00",
+  "scope": "offline_candidate_only",
+  "tests": {
+    "candidate": 11,
+    "aggregate": 91,
+    "passed": 91,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "command": "python -B -m unittest discover -s .superpowers/sdd/2026-10-04-isolated-executor -p 'test_*egress.py' -v"
+  },
+  "native": {
+    "verdict": "inconclusive",
+    "a2_executed": false,
+    "profiles_enabled": false,
+    "old_receipts_unchanged": true,
+    "old_bundle_unchanged": true
+  },
+  "new_native_effects": {
+    "docker_commands": 0,
+    "external_requests": 0,
+    "daemon_restarts": 0,
+    "executor_model_calls": 0
+  },
+  "review": {
+    "critical": 0,
+    "important": 1,
+    "minor": 0,
+    "important_resolved_by_regression": true,
+    "second_review": false,
+    "finding": "Final fsync failure could leave an acceptance manifest; now flush pending file before rename."
+  },
+  "fixture": {
+    "daemon_event": "preserved_real_event",
+    "transport_window": "recorded",
+    "policy_snapshots": "synthetic_original_unavailable"
+  },
+  "artifact_sha256": {
+    "captured_egress.py": "cd4394082e8da687efeff9bd835169163a540385e80faaacec8dc06b8fb7531c",
+    "test_captured_egress.py": "6945516531eaa08b0bdb89c31f257f26b10919ec2a481311069af5b5ae55330c",
+    "captured-egress-red.log": "940553d68b2f2a969753df5161f47e76c618ba199567465b059e0b05e5af0033",
+    "captured-egress-review-red.log": "25ee769db1fe2bcc9e1288eb0e08a9b15229fe2e3427176a6408db522143eca6",
+    "captured-egress-suite-final.log": "30542fd97bd76fb7dfcb31ac07e3aa9462570ce9b2da02683367dc13d6740170",
+    "captured-egress-review.md": "724b98cf02bbfbd5cff06135e0ba95ec93065b4c8d088a4f8984f7d8ceb9ce09"
+  },
+  "next_step": "Wire into a separate controller and verify offline; distinct native A/B/A2 still pending.",
+  "documentation_checks": {
+    "local_file_links": 400,
+    "readme_visuals": 52,
+    "readme_visuals_unchanged": true,
+    "vault_notes": 351,
+    "vault_issues": 0
+  },
+  "status": "offline_candidate_verified_native_wiring_pending"
+}

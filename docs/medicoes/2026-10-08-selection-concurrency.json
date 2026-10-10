@@ -1,0 +1,351 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-08T04:18:04.476567+00:00",
+  "scope": "Serialize environment-selection inspection, reads and updates without writing during queries",
+  "base_commit": "d6fdfdaefa2eed8c534e912c7d76881c1e745fa4",
+  "tested_public_tree": "1351dd4937ed0fb27c63a3ba361b9eb3ef89470d",
+  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
+  "source_sha256": {
+    "scripts/adoption.py": "0aff363b93f95dedd0742f925d5a56ed22de3d8ee39e1ad325b7938b66ae1454",
+    "scripts/mission_environment.py": "c4f14e971341c840238468b2a1f22772c4f0b9c426feaa548d648e5e3207e9b2",
+    "tests/test_mission_environment.py": "9cca81b40ce4b549b7d6279852600b07de2310769b818cf6e31ccef5228fe176",
+    "skills-lock.json": "f44dc48edf9d11d16b12cc1fff2653f8dea22929f7c0530e70b662d4c8847706",
+    ".github/workflows/test.yml": "e4abca0e26ea1ecf6b00912bc92cd8f7c810f3a477b7f8797ab5d6f414c098b8"
+  },
+  "archive_scope": "Code, tests and catalog tested in public archive; workflow adds the same seven-test focused command verified separately",
+  "tests": {
+    "initial_red": {
+      "total": 4,
+      "failures": 4,
+      "errors": 0,
+      "seconds": 0.375
+    },
+    "expanded_red_on_baseline": {
+      "total": 19,
+      "passed": 12,
+      "failures": 6,
+      "errors": 0,
+      "skipped": 1,
+      "seconds": 1.017
+    },
+    "selection": {
+      "total": 19,
+      "passed": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "seconds": 0.88
+    },
+    "focused": {
+      "total": 7,
+      "passed": 7,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": 6.882
+    },
+    "repeated_two_writers": {
+      "total": 30,
+      "passed": 30,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 2.906
+    },
+    "full_suite": {
+      "total": 630,
+      "passed": 610,
+      "skipped": 20,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 249.942,
+      "exit_code": 0
+    }
+  },
+  "private_log_sha256": {
+    "red.log": "435c2b539defff672812a9046f3d7780bc7f2cfecb0c1ac4eabd9101e93f4cc1",
+    "expanded-red.log": "7ba2933afc6519ece56d92d5c0f33b9fa6d6686f181224f86b34c582402dcf4a",
+    "environment-green.log": "2fb22ce82cef267b7a09d6cf24553fb3a660c4563e1ec7a83a4b5a672fecd7f6",
+    "focused.log": "69f8ac3560d10741dfed5b3ffae0a5740f09fd621084d71abfbe5d3ecc3e60b1",
+    "repeated-writers.log": "0dd713548f85a353dc3a67bc5d11242b64cf0885934d2f256b526e348fdaf840",
+    "full-suite.log": "685a2c01c49b9e0ce7f677d35e4ed560905342697fab1e13b01a111d4046b1c5",
+    "capability-audit.json": "1a7d0aa7ac33dc972a409efceba8906942ab823ae5b30d7c3eb3e7965ad0cff1"
+  },
+  "catalog_refresh": {
+    "changes": [
+      {
+        "id": "personalizer",
+        "client": "claude",
+        "before": "02daf7dca79af81aca746bdcfb8b15dbac4aebb349a821492eb88150b2558b95",
+        "after": "da69115c42f9d5a39f69d94f3464159056d09819a02d855e504ce700522ff09f"
+      },
+      {
+        "id": "personalizer",
+        "client": "codex",
+        "before": "888f696ac6562714b62827dda52aa258262fd6865b0ba47faefa24118687edfa",
+        "after": "b538e299118aece9a66cda51beaec70ab365ed77ef924685ec3da943b64b84e8"
+      },
+      {
+        "id": "yc-personalizer",
+        "client": "claude",
+        "before": "928a0b5c37db16ae0f35f4963ccde6a31af4ff706f4d45cf69c9f536e1192250",
+        "after": "b450394122f4a00d23448f9af7373b941204f65cdc5df580d3cb69463d07280e"
+      },
+      {
+        "id": "yc-personalizer",
+        "client": "codex",
+        "before": "696b5a00b273c7d42ac389e99fefeec667790a3c75b783e488510c535d816f29",
+        "after": "89cd9d48ffd715db20c5156d20fc167c021c2aff4df4cb06fa755e9b77c1d201"
+      },
+      {
+        "id": "yc-config",
+        "client": "claude",
+        "before": "c5ceb8797b462d342143b3e705af1d0a36118c04bb558cda12591a07a264ef69",
+        "after": "3a1117ed8ec0282cfb3915ffb9886902b62d3aad525df9237e1616ee5c9286b6"
+      },
+      {
+        "id": "yc-config",
+        "client": "codex",
+        "before": "ae667ba9e200cb38c7f8008b231dbe937790fe0754b9625551b6d727e65c2e74",
+        "after": "bc76e1bc9438369088970f5d885b2675eb48d9940581844a7b409ccae07c1e16"
+      },
+      {
+        "id": "yc-missao",
+        "client": "claude",
+        "before": "b7a0531b1667132d0479c768b13f04f6fd9cfcac203d5895df6f39b45feaba4f",
+        "after": "e0c2c043f1ce3cc121ed0578a62772bd622efb2e5bd0e410e37ad1d57a8eeb8a"
+      },
+      {
+        "id": "yc-missao",
+        "client": "codex",
+        "before": "2928a394027faad8f00ecd353a45f5ac1abb6e299233cedf1fbd6b2a851dc42e",
+        "after": "bbff020b57b8b153948c99670807e6b6e6ed93d8ca7f99b0d07c149d08d54305"
+      },
+      {
+        "id": "yc-status",
+        "client": "claude",
+        "before": "fbe12aa064eadb0ecf1ac556dc8fb2c8cddffc341a9f42be6d199e63220086f0",
+        "after": "071ee2adb6e630c5c8c90d198bbe22dd7b4a01a90c70dc2b286ac422298c0e36"
+      },
+      {
+        "id": "yc-status",
+        "client": "codex",
+        "before": "fac2acbb012a6b3eaae2ecfdfb0584d4668014c3022d8d7a74a591417e1cc94d",
+        "after": "8a66c1ce4be8692e15badc8cb60dd37ab2a4f0f2297fe7e0d2c2d62af3c209e3"
+      }
+    ],
+    "count": 10,
+    "contracts_and_permissions_unchanged": true,
+    "unverified_entries_preserved": true,
+    "before_sha256": "13657ee5728287888bb2eb7960440eb60921b23222744614a1fd990631a7dae1",
+    "after_sha256": "f44dc48edf9d11d16b12cc1fff2653f8dea22929f7c0530e70b662d4c8847706"
+  },
+  "capability_audit": {
+    "exit_code": 0,
+    "matched": 20,
+    "unverified": 30,
+    "null_digests_preserved": 26
+  },
+  "reviews": [
+    {
+      "agent": "review_windows_timeline",
+      "scope": "code and deterministic regressions",
+      "blocking_findings": 0,
+      "resolved": "existing lock now opens O_RDONLY/rb",
+      "tests_executed": false
+    },
+    {
+      "agent": "review_git_preflight_batch",
+      "scope": "10 content digests; unchanged contracts/permissions/nulls",
+      "blocking_findings": 0,
+      "tests_executed": false
+    },
+    {
+      "agent": "review_git_preflight_batch",
+      "scope": "documentation, evidence and two added Windows focused cases",
+      "blocking_findings": 0,
+      "tests_executed": false
+    }
+  ],
+  "previous_preflight_ci": {
+    "commit": "25ee51d69cb87d8f944c91e7347240ec8af96c0f",
+    "observed_at": "2026-10-08T04:16:19.634373+00:00",
+    "windows": [
+      {
+        "event": "push",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724707270/job/113140122154",
+        "html_sha256": "1b3c099c8d60faaaadb7c9088b34d29d4b3c0e1dd4632b86763c8635c7c23a16",
+        "all_steps": "success",
+        "completed_at": "2026-10-08T04:12:03Z",
+        "positive_flows": [
+          {
+            "case": "Verify mission diagnostics and process recovery test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 10.297,
+              "stdout_bytes": 4015,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
+          },
+          {
+            "case": "Verify mission diagnostics and process recovery test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 10.656,
+              "stdout_bytes": 3819,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
+          },
+          {
+            "case": "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 9.984,
+              "stdout_bytes": 4015,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
+          },
+          {
+            "case": "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 9.938,
+              "stdout_bytes": 3819,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
+          }
+        ]
+      },
+      {
+        "event": "pr",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37724712042/job/113140137322",
+        "html_sha256": "22693a4fd40e686dbc4cc340b1476d1bd6ed532296ef19d1460e922fe521e780",
+        "all_steps": "success",
+        "completed_at": "2026-10-08T04:09:17Z",
+        "positive_flows": [
+          {
+            "case": "Verify mission diagnostics and process recovery test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 8.625,
+              "stdout_bytes": 4015,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
+          },
+          {
+            "case": "Verify mission diagnostics and process recovery test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 8.844,
+              "stdout_bytes": 3819,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
+          },
+          {
+            "case": "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 9.641,
+              "stdout_bytes": 4015,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
+          },
+          {
+            "case": "Diagnose Windows network and controller cleanup test_mission_network.NetworkBindingTests.test_real_guards_same_port_B_absent_and_recovery_after_owner_exit",
+            "supervisor": {
+              "reason": "completed",
+              "exit_code": 0,
+              "tree_reaped": true,
+              "elapsed_seconds": 10.016,
+              "stdout_bytes": 3819,
+              "stderr_bytes": 0
+            },
+            "recovery": {
+              "state": "recovered",
+              "reason": "resources_observed"
+            },
+            "journal_events": 30,
+            "network_events": 21
+          }
+        ]
+      }
+    ]
+  },
+  "publication": {
+    "state": "ready_for_push",
+    "branch": "feat/isolated-executor"
+  },
+  "current_windows_validation": "pending",
+  "limits": {
+    "native_cycles_used": 2,
+    "native_cycle_limit": 3,
+    "model_calls": 0,
+    "native_proof_accepted": false,
+    "profiles_enabled": false,
+    "supervisor_seconds": 15,
+    "plan_seconds": 30
+  },
+  "limitations": [
+    "OS-specific read-only/empty-file locking requires Windows CI",
+    "Sbx.persist and other evidence writers do not participate in the selection lock",
+    "Native sbx0.46 credential/settings contract and original B evidence remain blocked"
+  ],
+  "vault_check": {
+    "notes_checked": 26,
+    "issues": 0
+  }
+}

@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-07T23:09:33.184379+00:00",
+  "base_head": "ef88edcd243d0846b0e5b650827139c27b076112",
+  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/24",
+  "changes_published": true,
+  "scope": {
+    "203.6": "partial_internal_injection_proof_native_local_credential_contract_blocked"
+  },
+  "tested_public_tree": "3a4fefe9e0213d799045df00c9e2aad746b8d1e9",
+  "product_tests_setup_catalog_match_tested_tree": true,
+  "full_suite": {
+    "total": 607,
+    "passed": 587,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 250.427,
+    "log_sha256": "35d5a49849ec245329919336b60d40e2625e92eb87d9718228b8c1fe763c60e9",
+    "skips": [
+      "test_private_unrelated_directory_still_refuses_reinstall (test_adoption.AdoptionTests.test_private_unrelated_directory_still_refuses_reinstall) ... skipped 'Windows private ACL boundary'",
+      "test_open_file_prevents_exchange_without_losing_trial (test_adoption.RestoreTests.test_open_file_prevents_exchange_without_losing_trial) ... skipped 'real Windows non-share-delete handle'",
+      "test_posix_secondary_groups_survive_return (test_adoption.RestoreTests.test_posix_secondary_groups_survive_return) ... skipped 'requires an existing secondary group; Linux CI must exercise this'",
+      "test_acl_helper_does_not_write_user_profile (test_adoption_storage.StorageTests.test_acl_helper_does_not_write_user_profile) ... skipped 'native Windows profile cache'",
+      "test_alternate_data_stream_is_refused (test_adoption_storage.StorageTests.test_alternate_data_stream_is_refused) ... skipped 'Windows ADS proof'",
+      "test_directory_stream_is_not_silently_omitted (test_adoption_storage.StorageTests.test_directory_stream_is_not_silently_omitted) ... skipped 'Windows directory ADS proof'",
+      "test_not_indexed_attribute_is_preserved (test_adoption_storage.StorageTests.test_not_indexed_attribute_is_preserved) ... skipped 'Windows file attributes'",
+      "test_private_acl_write_refuses_streams_without_changing_permissions (test_adoption_storage.StorageTests.test_private_acl_write_refuses_streams_without_changing_permissions) ... skipped 'Windows streams before native ACL writes'",
+      "test_timeout_still_kills_child_after_parent_exits (test_documents.MediaTests.test_timeout_still_kills_child_after_parent_exits) ... skipped 'Windows process-tree regression'",
+      "test_junction_private_root_is_rejected (test_documents.StorageTests.test_junction_private_root_is_rejected) ... skipped 'Windows junction'",
+      "test_new_empty_temporary_gets_private_acl_before_data (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_new_empty_temporary_gets_private_acl_before_data) ... skipped 'Windows private file creation'",
+      "test_unsafe_temporary_never_changes_permissions (test_execution_storage_diagnostics.StorageDiagnosticsTests.test_unsafe_temporary_never_changes_permissions) ... skipped 'Windows private file creation'",
+      "test_junction_selection_never_reads_or_writes_external_directory (test_mission_environment.ExecutionEnvironmentTests.test_junction_selection_never_reads_or_writes_external_directory) ... skipped 'Windows junction boundary'",
+      "test_private_reservation_survives_reopen_with_native_permissions (test_mission_execution.NativeReservationTests.test_private_reservation_survives_reopen_with_native_permissions) ... skipped 'native ACL fixture is explicitly selected through windows_fixture_runner'",
+      "test_discovery_descendant_cannot_hold_stdout_past_deadline (test_mission_process.ProcessTests.test_discovery_descendant_cannot_hold_stdout_past_deadline) ... skipped 'Discovery regression contained by an outer Windows Job'",
+      "test_failed_job_assignment_reaps_the_unassigned_bootstrap (test_mission_process.ProcessTests.test_failed_job_assignment_reaps_the_unassigned_bootstrap) ... skipped 'Windows Job Object boundary'",
+      "test_real_windows_metadata_does_not_write_profile (test_mission_sandbox.SandboxEnvironmentTests.test_real_windows_metadata_does_not_write_profile) ... skipped 'native Windows metadata and profile cache'",
+      "test_junction_without_python312_helper_blocks_setup (test_setup.SetupTests.test_junction_without_python312_helper_blocks_setup) ... skipped 'Windows junction behavior'",
+      "test_trial_deep_backup_is_refused_before_first_write (test_setup.SetupTests.test_trial_deep_backup_is_refused_before_first_write) ... skipped 'native PowerShell path limit'",
+      "test_junction_root_is_rejected_on_windows (test_vault.VaultTests.test_junction_root_is_rejected_on_windows) ... skipped 'Windows junction behavior'"
+    ],
+    "command": "python3 -B -m unittest discover -s tests -v",
+    "scope": "git archive of staged public tree; only documentation updated afterwards"
+  },
+  "focused": {
+    "fixture": {
+      "total": 8,
+      "passed": 8,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.018,
+      "log_sha256": "8e593b15da83d5181eca56caad44f6ed6e3e181edd45e82c16e6bef4f218ece5",
+      "skips": []
+    },
+    "controller": {
+      "total": 14,
+      "passed": 14,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 6.236,
+      "log_sha256": "ee3639ec39014d26e5c02f971a0fb0bdd1744095bef8b4f29e564973e7ff73db",
+      "skips": []
+    },
+    "guardian": {
+      "total": 18,
+      "passed": 18,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.089,
+      "log_sha256": "27e67a7eb9c940f2de627bdd479aa425cd532d0e28fc1f6484443cd03cd9ec9a",
+      "skips": []
+    },
+    "launcher": {
+      "total": 22,
+      "passed": 22,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.086,
+      "log_sha256": "f1a47bca2369b123e2afc75a322abf5641e2e71b166b0aa89e0c0466a00a00de",
+      "skips": []
+    },
+    "relay": {
+      "total": 13,
+      "passed": 13,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 1.087,
+      "log_sha256": "fc0782cae385447763d150d4638e699526623bb80943f16bbe1766038c009ace",
+      "skips": []
+    },
+    "network": {
+      "total": 23,
+      "passed": 23,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 8.586,
+      "log_sha256": "1ecf9a17eb3738fc684e357ab5f7431a5c72ea22663e9be8b90316cb9e69b338",
+      "skips": []
+    },
+    "transaction": {
+      "total": 23,
+      "passed": 23,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 6.213,
+      "log_sha256": "e4762894b8f80e98c9840c29b578a25887690ab89616bb3d7662aa93cdb3f8d4",
+      "skips": []
+    },
+    "catalog": {
+      "total": 23,
+      "passed": 23,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 1.059,
+      "log_sha256": "a958b5eec91af32f62369f21539941bd509b6dd3627377da9990c1d8a3dd4aad",
+      "skips": []
+    }
+  },
+  "catalog": {
+    "observations": [
+      {
+        "id": "personalizer",
+        "client": "claude",
+        "content_state": "matched",
+        "sha256": "da0fd3537d11fe65a2941c2578f80279e18f74aca6308237d0f3ab460f41ff34"
+      },
+      {
+        "id": "personalizer",
+        "client": "codex",
+        "content_state": "matched",
+        "sha256": "9a604dee8e4726dee2d98f52aa13e7ba73ba12300f5b99bed05cb5e1367d2d1f"
+      },
+      {
+        "id": "yc-personalizer",
+        "client": "claude",
+        "content_state": "matched",
+        "sha256": "8941d739804cd70469ff78f8ec103999fb0dcff2cc850bc7cc8347ea2eb5bdff"
+      },
+      {
+        "id": "yc-personalizer",
+        "client": "codex",
+        "content_state": "matched",
+        "sha256": "5d54b53995f3479c2b38611003c937d2c4c45207ffbc2e17dda7d9dc94bc615d"
+      },
+      {
+        "id": "yc-config",
+        "client": "claude",
+        "content_state": "matched",
+        "sha256": "51ab2345e27299ff518fa7f5e279d4b479c13357ebcb8ce25a7acf0b9742d4cf"
+      },
+      {
+        "id": "yc-config",
+        "client": "codex",
+        "content_state": "matched",
+        "sha256": "504f88e919788438fd53a8ccb74d48d89a36c18745429d97164c183aa93a4ba4"
+      },
+      {
+        "id": "yc-missao",
+        "client": "claude",
+        "content_state": "matched",
+        "sha256": "dc48b090f3f97caa2ab8b6342eaf7b16925d7ed36faa76eee890f11d861ab71f"
+      },
+      {
+        "id": "yc-missao",
+        "client": "codex",
+        "content_state": "matched",
+        "sha256": "192f30896c6c92b3c7071ee9d18781300f5e02f075122cf0918ce3faad3b2e9a"
+      },
+      {
+        "id": "yc-status",
+        "client": "claude",
+        "content_state": "matched",
+        "sha256": "6467704723b3ebd698ec76989c6b9583158e7f151cff882de5537906c388b9e0"
+      },
+      {
+        "id": "yc-status",
+        "client": "codex",
+        "content_state": "matched",
+        "sha256": "48e410d313468943718eac831dfde07d8f93f0b1ff9398989259aaf1a192a7a2"
+      }
+    ],
+    "contracts_changed": false,
+    "permissions_changed": false
+  },
+  "review": {
+    "agents": [
+      "credential_contract_sources",
+      "injection_proof_design",
+      "injection_final_review"
+    ],
+    "critical_or_important_pending": 0,
+    "independent_tests_passed": 121,
+    "documentation_correction": "A/B/A2 have distinct UUIDs/nonces and a shared deadline"
+  },
+  "source_sha256": {
+    "runtime/sbx/fixture.py": "4e16d80f5f9adbd522116cc9f4b2f31114b443aeb2eab5186c2c840c3fe90c01",
+    "runtime/sbx/guardian.py": "1f3f73d63bbc9706009973609d0ecec2b7225f8775047a9f075f72edbf9d75f7",
+    "runtime/sbx/launcher.py": "d1539047675206f66263d11d93f96c37d1749da286d21a69d45b9e39c7b39637",
+    "scripts/mission_controller.py": "eb6b9421aaa0d9b09db56affe0e7777d05c15f274fd7b9f4df6c6c0274a14675",
+    "scripts/mission_network.py": "24c43b5c3505a20e6a32724d6f87b64d68b0fafd9c0141e38222dd9429e0f21f",
+    "scripts/mission_transaction.py": "935bc018847da7ecbbd3c14ea41a34d380a7fba29b94b05868c4a3c88294cb5c",
+    "skills-lock.json": "535315e8daa0ef2fdf2d2cca5d481da9840564cd489f9c02fa7612da3f477653",
+    "tests/fixtures/egress_controller.py": "9997dd2703cb3d49376b839ba3b5e7f2ace6a997bd9829b06c229756360610ce",
+    "tests/fixtures/isolated_controller.py": "08d80ab72a07883e06cbed382fd8605b4ac41053713778589120f2226bbd768b",
+    "tests/fixtures/network_controller.py": "e4cf46cb42d7212f2a0d0d0c19b85083764a550644867c9bf42b7feaa7bae69e",
+    "tests/test_isolated_fixture.py": "732dd9a620c43d76313820281130b092925e0b6353f02b73b7ba995ea5322445",
+    "tests/test_mission_controller.py": "cc629de85b70c49798fa47e82a30d3497523a86a882e5213272a788aae7eb12c",
+    "tests/test_mission_guardian.py": "decf84fbd25dc9d3730f33b8d8fee348d5dbe75cb5174e0f83559106c94509fb",
+    "tests/test_mission_launcher.py": "eac1debc6db30a39027df29714ba4887051db08c884afbdfd751d135845cca7d",
+    "tests/test_mission_network.py": "3c219a2e78e08eebbd65885ff7a1c2fda8a01586693d1c2d047f4fe41b0d7140",
+    "tests/test_mission_relay.py": "e4dd66cad6dd3603bc6831d0ca1282a1c7591a3647baa9611c1f10c1f4e117dc"
+  },
+  "documentation": {
+    "consulted": "2026-10-07",
+    "sources": [
+      {
+        "file": "api-index.md",
+        "url": "https://raw.githubusercontent.com/docker/docs/7ba25eeb0c4c594f79e6efadad1af5eaca0500a8/content/reference/api/sandboxes/_index.md",
+        "sha256": "3e3323ce626fd42e10627c4c071ffca46e079aa87ec66ad7cd061c053bba8260",
+        "bytes": 170
+      },
+      {
+        "file": "local-vs-cloud.md",
+        "url": "https://raw.githubusercontent.com/docker/docs/7ba25eeb0c4c594f79e6efadad1af5eaca0500a8/content/manuals/ai/sandboxes/cloud/local-vs-cloud.md",
+        "sha256": "4aef30bece4c8cf4ccf820bcbd19d54e54577e3256cbeb99b2284cb22e65dc5d",
+        "bytes": 7059
+      },
+      {
+        "file": "set-custom.yaml",
+        "url": "https://raw.githubusercontent.com/docker/docs/7ba25eeb0c4c594f79e6efadad1af5eaca0500a8/data/sbx_cli/sbx_secret_set-custom.yaml",
+        "sha256": "3b2ae7bf28a37d14813236e87542e205051bcb7304f762497547211048405202",
+        "bytes": 5046
+      },
+      {
+        "file": "release-readme.md",
+        "url": "https://raw.githubusercontent.com/docker/sbx-releases/2329d12106fee653c0890152947fdd827e00cfd0/README.md",
+        "sha256": "863a02a0f430c31c738e0fc443659244f7d3311a4b84794d36a21df94e6de6a4",
+        "bytes": 4121
+      },
+      {
+        "file": "provenance.json",
+        "url": "https://github.com/docker/sbx-releases/releases/download/v0.46.0/DockerSandboxes-windows-amd64.provenance.json",
+        "sha256": "046350a15c0c8004098f493421a2aa6bbaacda4fbe365926970a7656d5ced5e7",
+        "bytes": 117383
+      },
+      {
+        "file": "api.yaml",
+        "url": "https://raw.githubusercontent.com/docker/docs/7ba25eeb0c4c594f79e6efadad1af5eaca0500a8/content/reference/api/sandboxes/api.yaml",
+        "sha256": "e57c2e2d328a3fde9d906ba051cf310ab484b2bdaf98d29501d038f5aeae29ce",
+        "bytes": 360745
+      }
+    ],
+    "ingestion": "direct text reading; Docling conversion pending/runtime_missing"
+  },
+  "environment": {
+    "native_docker_executed": false,
+    "model_calls": 0,
+    "native_cycles_used": 2,
+    "native_cycle_limit": 3,
+    "windows_native": "unverified",
+    "configuration_changes": "none_required"
+  },
+  "limitations": [
+    "local sbx 0.46.0 endpoint/store compatibility with documented Cloud API is unproven",
+    "native setting/restart adapter deliberately refuses",
+    "tests simulate sbx, TLS and upstream substitution; no native injection or deletion proof",
+    "B blocked_unattributed",
+    "Docker TLS, MCP/host/private bypass refusal and authenticated clients unverified",
+    "native forbidden-IP provenance pending",
+    "nonce is not SOCKS authentication"
+  ],
+  "public_client_check": "failed/controller_pending",
+  "native_profiles_empty": true,
+  "ci": "unverified; API Forbidden earlier in session",
+  "publication": {
+    "branch": "feat/isolated-executor",
+    "main_before": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+    "state": "published_to_draft_pr",
+    "code_commit": "61bdc7bf8f15ffddaea686e1b30817d627374c8b",
+    "verified_at": "2026-10-07T23:10:06.268049+00:00",
+    "refs": {
+      "refs/heads/feat/isolated-executor": "61bdc7bf8f15ffddaea686e1b30817d627374c8b",
+      "refs/heads/main": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+      "refs/pull/24/head": "61bdc7bf8f15ffddaea686e1b30817d627374c8b"
+    }
+  }
+}

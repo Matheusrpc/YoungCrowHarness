@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "measured_at_utc": "2026-10-08T11:35:25.331820+00:00",
+  "scope": "Bounded cooperative EOF before forced helper termination",
+  "base_commit": "f3e091de5ffb63b132e8721b83d3748e6324d3be",
+  "source_sha256": {
+    "scripts/mission_controller.py": "c73beeb693213a8db54094dcca8bf76879f38e8899bd43211abc03b4f421fb21",
+    "tests/test_mission_controller.py": "fa84e2cf82a72a34bb2a840d5cd266525a8117e362a99cf490df01948cf36d53",
+    "tests/fixtures/channel_shutdown.py": "cf25945e7e1e5c80dac1a637ca960be0cd808d09a53ae86fd78110b473c484ba",
+    "skills-lock.json": "d780554cfc78aa852a82b4c5e76da341cccb1517dc8ddf59f4e28ec6714097ec",
+    ".github/workflows/test.yml": "d837609c5c71392cd4bb8d41905a2ad849c3aa15dd51e3e5977475f1aa0c7265"
+  },
+  "ci_diagnosis": {
+    "head": "f3e091de5ffb63b132e8721b83d3748e6324d3be",
+    "linux_jobs_passed": 6,
+    "windows_jobs_failed": 2,
+    "push_run": 37769831009,
+    "pr_run": 37769835804,
+    "failed_observations": {
+      "push": 5,
+      "pr": 3
+    },
+    "observation": {
+      "accepted": true,
+      "eof": false,
+      "complete": false,
+      "bytes": 0,
+      "failure": "ConnectionResetError"
+    },
+    "private_summary_sha256": "a6253360cfbca3cbf9cea83bc9f71ed09d54e9dba581eeba54186647ce4c4adf"
+  },
+  "shutdown_budget": {
+    "grace_max_seconds": 0.1,
+    "termination_stage_seconds": 0.2,
+    "grace_consumes_termination_stage": true,
+    "grace_bounded_by_execution_deadline": true,
+    "kill_wait_seconds": 0.2,
+    "reader_join_seconds": 0.1,
+    "supervisor_timeout_changed": false
+  },
+  "regression": {
+    "cooperative_child_failed_before_change": true,
+    "baseline_exit_code": -15,
+    "baseline_cleanup_marker": false,
+    "private_red_log_sha256": "26c825fe9bc77cb322470396197624e7b67201546b7a7301433d60a9845c44e6"
+  },
+  "validation": {
+    "full_suite": {
+      "command": "python3 -B -m unittest discover -s tests -v",
+      "tests": 640,
+      "passed": 620,
+      "skipped": 20,
+      "failures": 0,
+      "errors": 0,
+      "elapsed_seconds": 262.122,
+      "exit_code": 0,
+      "private_log_sha256": "6eb27e9c3829b7f34529b12e86dd9b58ef251b8db207a6ef1398d44c740f59d5"
+    },
+    "focused_controller": {
+      "tests": 16,
+      "passed": 16
+    },
+    "focused_egress": {
+      "tests": 17,
+      "passed": 17,
+      "refusal_attempts": 8
+    }
+  },
+  "catalog": {
+    "content_hashes_updated": 10,
+    "observations_matched": 10,
+    "contracts_and_permissions_unchanged": true,
+    "private_refresh_sha256": "1102691e60d073fceb4cde9f20fc9e182e96d6dc4ba641d7ede25624872db7c6"
+  },
+  "ci_correction": {
+    "head": "9cb37296324d7cbcdeaf8b82222c02974c3dd839",
+    "linux_jobs_passed": 6,
+    "windows_push": {
+      "run": 37771064158,
+      "job": 113290466905,
+      "conclusion": "failure",
+      "failed_test": "test_mission_network.NetworkBindingTests.test_v4_fixture_relay_guard_journal_and_recovery_with_local_injection",
+      "supervisor": {
+        "reason": "timeout",
+        "elapsed_seconds": 15.047,
+        "tree_reaped": true,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      "egress_refusal_and_channel_shutdown_tests_passed": true,
+      "v4_phase_A_ms": {
+        "dispatch_authorization": 3671,
+        "guard_request": 10769,
+        "guard_destination": 10878,
+        "guard_finished": 11045,
+        "observed": 11149,
+        "guard_closed": 11253,
+        "guard_reaped": 11367
+      },
+      "authorization_to_request_ms": 7098,
+      "cause": "unconfirmed; delay precedes channel close",
+      "html_sha256": "cada07ae7f7188c4c240ee1ed485de81ef6463b3bf265b620e8079fec6f4d15f"
+    },
+    "windows_pr": {
+      "run": 37771069579,
+      "job": 113290484551,
+      "focal_conclusion": "success",
+      "focal_tests": 14,
+      "focal_elapsed_seconds": 65,
+      "conclusion": "success",
+      "mission_suite_elapsed_seconds": 421,
+      "final_adoption_elapsed_seconds": 167,
+      "html_sha256": "fabb48decbdb8873b5e6b5124059b0e0a411ac179e02efca436972c0cddfa7cd",
+      "v3_v4_positive_elapsed_seconds": [
+        9.329,
+        9.453,
+        9.516,
+        9.516
+      ]
+    },
+    "observed_until_utc": "2026-10-08T11:58:19.802288+00:00",
+    "passed_jobs": 7,
+    "failed_jobs": 1,
+    "private_summary_sha256": "72aeb521387bcff6b5be6bd51bc17bda2307f2337fb6cff010f083dd1cca1b61",
+    "remaining_work": "Locate the v4 delay before the first recorded SOCKS request; preserve deadlines and incomplete-observation refusal.",
+    "private_final_summary_sha256": "0b6f39593db0bca20c9d7700ec4b5483471ad1039a48b8c6f6c734d287dbe491"
+  },
+  "native": {
+    "new_cycles": 0,
+    "used_cycles": 2,
+    "max_cycles": 3,
+    "model_calls": 0,
+    "proof_accepted": false,
+    "profiles_enabled": false
+  },
+  "reviewers": [
+    "windows_recovery_review",
+    "egress_windows_receipt_review"
+  ]
+}

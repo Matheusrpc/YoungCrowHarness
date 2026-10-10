@@ -10,6 +10,8 @@ pgdata/
 # caches
 __pycache__/
 *.pyc
+/docs/medicoes/setup-audit-*/
+/%SystemDrive%/
 node_modules/
 .playwright-cli/
 
@@ -35,6 +37,7 @@ node_modules/
 /.operacao-local/docling/
 /.operacao-local/memory/
 /.operacao-local/capabilities/
+/.operacao-local/execution/
 !.agents/skills/ingest-source/
 
 !.agents/skills/retrieve-memory/

@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-10T02:10:31.001667+00:00",
+  "base_commit": "6ff88e80026a507784dc1784b9099ea22ffabe7b",
+  "scope": "deterministic_rehearsal",
+  "native_model_calls": 0,
+  "proof_accepted": false,
+  "code_sha256": {
+    "scripts/mission_queue.py": "61f237a046e08cca59e37f4f86496c0bcc2353a5a6ccc548902c9e2fb7f7934e",
+    "scripts/mission_store.py": "489359527d67614f8ffea638d29ce950b1f5f4a25b9ea94dc98a6991fb2e3877",
+    "scripts/mission_runs.py": "0ea1b89aa97c97884c1f6603f537b5303ce150d3cf3cb488798f8e02f047a0e0",
+    "scripts/missions.py": "6188b9e2dacbeba22575e2187db2033d5dc85cebdfa288c9cb40fb0326efb60e",
+    "setup.sh": "44b6612a3f05b4a7ea531ea926e32c44b17cf261e30188c79b8c458cf5f95ac9",
+    "skills-lock.json": "9a1fd2a8e6f368c58357cab93240b455f1d1944a874577e85ba8993d45e26c27",
+    "tests/test_mission_queue.py": "3e42b7b83aa91e9b271e994f017bd87e83eb15e665513d985999962da57b8727",
+    "tests/test_setup.py": "fb3aa7da9d1b9a7acca3d59e6dc6638eb913598f40a9a123aa4a7b21793c320b"
+  },
+  "private_logs_sha256": {
+    ".runtime/queue-red.log": "14403a027c0fa98a8d556647add1b319e6f15cafa1a9197b4073ff34fb078fe3",
+    ".runtime/queue-green.log": "713977f55ca823d9c428d6dff71fc6c045ec81be2ccac46a3dcb7800c1dd0cc7",
+    ".runtime/queue-qa-red.log": "24b99988bb5531a55244d8d0fd67ee5949abf955485cf2b38e4e36ce9d714f26",
+    ".runtime/queue-missions.log": "0966c648d33494171944d70f701637e9277a9151a0b2a307a6d82c0dfe2147df",
+    ".runtime/queue-focused.log": "98c55e8afa679e5dffc33dbbdab27dc783b8c9a0873dd5835919406206825513",
+    ".runtime/queue-final-focused.log": "29b3969c20afa36a4cde016d6707e7d980176bb4f79531168beb2917bb9d84d6",
+    ".runtime/queue-catalog.log": "a0ac108727ab46bb267894012da6baeffcb1a3db40c78b71a9790073929b8579",
+    ".runtime/queue-catalog-final.log": "d58aac23928b4b5c357a3853914eaf81c2443ab3ddf71afd454854c885d154d1",
+    ".runtime/queue-installed-smoke.log": "f5821f68e472bc7ee20cacdfd95e90273c7c86f268b28fb47e43ed3bb34b65d1",
+    ".runtime/queue-installed-smoke-final.log": "c2841fa77f3e7fdf3f342e2e7ffaf2dff8abb3eb3d5f9296531fda1de023f1e4",
+    ".runtime/queue-installed-smoke-final2.log": "775234a1c3e2259ace65265e4bab6e71e5e525c9e6d61e9f21a55d281b72162d",
+    ".runtime/queue-installed-smoke-final3.log": "6bc28f732ec7aab019c34fe7edc05710666bf4b3aaec5925cdc68a2358ab76e4",
+    ".runtime/queue-full.log": "0c90602f3c738e19cc0d24324bcd96e2cda1e0527d75ae59f2891c589e77808a",
+    ".runtime/queue-full-final.log": "62c3e721f6604ca23ff3f2e6d92de79802a567d0517f41e4a3f14297187f02a3"
+  },
+  "focused": {
+    "count": 77,
+    "passed": 77,
+    "seconds": 66.818
+  },
+  "queue_final": {
+    "count": 13,
+    "passed": 13,
+    "seconds": 6.701
+  },
+  "catalog_final": {
+    "count": 23,
+    "passed": 23,
+    "seconds": 3.623
+  },
+  "installed_smoke": {
+    "installed_clients": "both",
+    "trial": true,
+    "stages": [
+      "dev_pending",
+      "qa_pending",
+      "fixture_completed"
+    ],
+    "session_revision": 3,
+    "events": 3,
+    "results": 2,
+    "replay_identical": true,
+    "status_read_only": true,
+    "native_calls": 0,
+    "mission_development": "not_started",
+    "mission_qa": "not_started",
+    "mission_production": "not_verified"
+  },
+  "full_suite": {
+    "state": "passed",
+    "count": 693,
+    "passed": 673,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 423.028,
+    "exit_code": 0
+  },
+  "review": {
+    "agent": "review_queue_rehearsal",
+    "read_only": true,
+    "material_findings": 0,
+    "crash_coverage_suggestion": "incorporated"
+  },
+  "first_full_suite": {
+    "count": 693,
+    "passed": 672,
+    "failures": 1,
+    "skipped": 20,
+    "seconds": 422.539,
+    "failure": "test_mission_catalog_has_explicit_diagnostic_permissions",
+    "cause": "catalog file hashes not yet refreshed",
+    "resolution": "catalog refreshed; 23 capability tests and final full suite passed"
+  },
+  "vault_check": {
+    "schema_version": 1,
+    "notes_checked": 58,
+    "issues": []
+  },
+  "base_ci": {
+    "commit": "6ff88e80026a507784dc1784b9099ea22ffabe7b",
+    "passed_jobs": 7,
+    "failed_jobs": 1,
+    "failed_job": 114099458431,
+    "failure": "test_mission_controller.ControllerTests.test_deadline_reaps_descendants_in_the_existing_supervisor",
+    "cause": "unverified"
+  },
+  "markdown_links": {
+    "checked": 527,
+    "missing": []
+  }
+}

@@ -37,6 +37,15 @@ Use the actual mode and a lowercase execution ID. This command prepares notes; i
 
 ## Interview and audit
 
+Use the installed [execution guide](references/execution.md) for local/dedicated setup and
+diagnostics. After the adoption baseline (when trial), read `python3 -B scripts/missions.py environment show --json`
+before asking where agents should run. Reuse a configured selection; `origin: default` is a
+suggestion, not a prior operator answer. Record confirmed location, source and date in the
+profile. Use `environment configure` with the current digest only for an authorized change.
+Preserve client/model/effort answers; do not collect credentials. Commands act on the opened
+host without provisioning or connecting to a runner. `runtime_profile_unverified` blocks
+execution while authorized planning can continue.
+
 Use [the interview guide](references/interview.md) for missing decisions. Ask a small coherent round whose questions have no unresolved prerequisites; one question is enough when a decision branches the rest. Follow the owner's preferred pace. Don't optimize for a fixed count. Save answers, sources, open questions, dependencies and the next question after every round. If asked to pause, save and end; elapsed time is not an answer.
 
 In an existing project, inspect code/dependencies, actual scripts, tests, design references, instructions, skills/MCPs/hooks, docs and memory. Record findings in `vault/product/audit.md`: observed behavior, documented intent, unknowns and conflicts separately. Confirm a command exists and inspect its side effects before running authorized checks. A README claim is not test evidence; local code does not establish production state.

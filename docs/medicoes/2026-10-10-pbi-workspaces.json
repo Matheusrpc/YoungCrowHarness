@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "front": "YC-205 partial",
+  "base_commit": "1cb1fb285b4bb6e69449c6ed9103a2cd8453b7c1",
+  "scope": "explicit_local_git_workspace",
+  "store_schema": 6,
+  "max_workspace_reservations": 3,
+  "model_calls": 0,
+  "docker_calls": 0,
+  "tests": {
+    "workspace": {
+      "passed": 20,
+      "seconds": 21.493
+    },
+    "full_suite": {
+      "state": "passed",
+      "total": 724,
+      "passed": 704,
+      "skipped": 20,
+      "failed": 0,
+      "seconds": 428.775,
+      "scope": "broad run started before final old-queue helper compatibility guard; final delta validated separately"
+    },
+    "final_compatibility": {
+      "state": "passed",
+      "passed": 96,
+      "seconds": 46.652,
+      "modules": [
+        "test_missions",
+        "test_mission_queue",
+        "test_capabilities"
+      ]
+    }
+  },
+  "installed_smoke": {
+    "mixed_old_queue_helper_refused": true,
+    "installed_clients": "both",
+    "trial": true,
+    "original_work_preserved": true,
+    "prepare_release_replay": true,
+    "commits_retained": true,
+    "trial_preview_after_release": true,
+    "queue_schema5_migrated_resumed": true,
+    "old_reader_refused": true,
+    "missing_incomplete_helper_refused": true,
+    "status_read_only": true,
+    "real_delivery_unchanged": true,
+    "model_calls": 0,
+    "docker_calls": 0
+  },
+  "review": {
+    "corrected_code_findings": 3,
+    "remaining_material_findings": 0,
+    "final_compatibility_gap_corrected": true,
+    "permissions_expanded_only_for_explicit_yc_missao_git_scope": true
+  },
+  "code_sha256": {
+    "scripts/mission_workspace.py": "ab2bf405333a78c9ce1aad9784fe6f124a3ee5ac0997d6db3e4b24159c25969f",
+    "scripts/mission_store.py": "09b6a6062414f95670d187994a3933a16ac56532fcb6f2507fbf83aea028c451",
+    "scripts/mission_runs.py": "77912685948d380b573b7fdea4d096685e65ce6ec4ddeb62b491767472ad68e1",
+    "scripts/mission_queue.py": "c08d300504573f1516d8c10cc00c3654da67d7347f7d4be2a84735e18cec19c5",
+    "scripts/missions.py": "37c145cdc4c6479fa4bc10fd6ae3a422d7a6914db79d3817c00a4428e48dc7e9",
+    "setup.sh": "a925c84ff0b8c086c53cf0caf498c0db64ef15b0114b904d88974441dcbbac9b",
+    "tests/test_mission_workspace.py": "81aa8f16a32c543d96066939aceee827bf79991357accbd7e044d44c6419502e"
+  },
+  "evidence_sha256": {
+    ".runtime/workspace-full.log": "c902ba52edd2542ba5fd51d2d4cc13fd7d7432a8eaf0ce39af07103b8644246f",
+    ".runtime/workspace-final-focused.log": "9cd871704cf38b94b61af5e6d7af9d59cfbd3427b7b89ee353af389a5da81141",
+    ".runtime/workspace-installed-smoke-final.log": "94542e63b7e67737871a5e71f6ed2794f1dcd46bdcdf9eafe55ab3f0008becc1",
+    ".runtime/workspace-final-compatibility.log": "26f9e3ad625c3c40a765889c179f1d560245964f5a1d87ae443a84f62dbccf75"
+  },
+  "markdown_paths": {
+    "local_paths_checked": 534,
+    "missing": []
+  },
+  "vault_check": {
+    "schema_version": 1,
+    "notes_checked": 61,
+    "issues": []
+  }
+}

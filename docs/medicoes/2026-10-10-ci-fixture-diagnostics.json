@@ -1,0 +1,99 @@
+{
+  "front": "CI egress fixture diagnostics",
+  "base_commit": "35fe0f9dd0c86e6c60570b63c4be680e322097c8",
+  "measured_at_utc": "2026-10-10T01:34:37.335418+00:00",
+  "outcome": "final_focused_checks_passed",
+  "tests": {
+    "missing_annotation_red": {
+      "tests": 1,
+      "seconds": 0.016,
+      "failures": 4,
+      "skipped": 0,
+      "exit_code": 1,
+      "log_sha256": "07babe395a02d47dad334cae402e515854bcb6ebf29c8ad60ea8f16e3ec048b4"
+    },
+    "annotation_green": {
+      "tests": 1,
+      "seconds": 0.017,
+      "failures": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "log_sha256": "c3b72d0b4f74f52678c8c931c96a041b9a9d27fdbbab3742527665d728e81af9"
+    },
+    "output_failure_red": {
+      "tests": 1,
+      "seconds": 0.015,
+      "failures": 1,
+      "skipped": 0,
+      "exit_code": 1,
+      "log_sha256": "21e2caa309f11b2b6f10e6cdfa3b502b35eaa5cb237e16f3040389e117d75325"
+    },
+    "output_failure_green": {
+      "tests": 1,
+      "seconds": 0.018,
+      "failures": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "log_sha256": "e0838fd51ea1897a6cc6985448c3ba7d9e0b1ae549dfb9f89d77ad036ac19dd6"
+    },
+    "full_suite_before_final_io_fix": {
+      "tests": 679,
+      "seconds": 460.642,
+      "failures": 0,
+      "skipped": 20,
+      "exit_code": 0,
+      "log_sha256": "985a415505b13d114349c37cebb82883ecce11d43b2d43e82001919c645e596e",
+      "scope": "Started before the final annotation-output protection change; not a full-suite claim for the final bytes.",
+      "command": "GITHUB_ACTIONS=true python3 -B tests/ci_unittest.py discover -s tests -v"
+    },
+    "final_focused": {
+      "tests": 26,
+      "seconds": 12.731,
+      "failures": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "log_sha256": "f01db8c41c30b9305afa2efd9db8b6447a681a107e3754a501e96a1990b44177",
+      "command": "GITHUB_ACTIONS=true python3 -B tests/ci_unittest.py discover -s tests -p 'test*.py' -k CIRunnerTests -k EgressTests -v"
+    }
+  },
+  "source_sha256": {
+    "tests/ci_unittest.py": "f0932b3a38e33f146ac9ae04c14bae537e5124dd1b5b50d643f0528284b33bea",
+    "tests/test_mission_egress.py": "16f423b399401da17e2fee04daabcbb000b3d46758602ee185340ccf94d235a3",
+    "scripts/mission_process.py": "1e8ef085b5bac1571b995309f1c1a7b80d20e7f129507c8e755ad079ff6fa227",
+    "scripts/mission_egress.py": "dfe2b6c9cfd7b2293d5aeab0c35926b0be24c7ddacf44ad0e4c4c6c829fd6a0f"
+  },
+  "review": {
+    "agent": "review_queue_dependency_boundary",
+    "read_only": true,
+    "finding": "annotation output OSError could replace fixture exception",
+    "finding_resolved": true,
+    "remaining_findings": 0
+  },
+  "limits": {
+    "product_code_changed": false,
+    "workflow_changed": false,
+    "deadlines_changed": false,
+    "native_runs": 0,
+    "model_calls": 0,
+    "profiles_enabled": false,
+    "native_correction_cycles_used": 2,
+    "native_correction_cycle_limit": 3,
+    "historical_windows_root_cause_identified": false,
+    "historical_annotations_recovered": false
+  },
+  "base_ci": {
+    "head": "35fe0f9dd0c86e6c60570b63c4be680e322097c8",
+    "runs": [
+      38009923394,
+      38009926863
+    ],
+    "checks_passed": 8,
+    "applies_to_new_commit": false
+  },
+  "next_action": "Inspect emitted fixture annotations if a subsequent CI run fails; keep native acceptance pending.",
+  "documentation": {
+    "local_markdown_links_checked": 512,
+    "missing": 0,
+    "source_hashes_match": true
+  }
+}

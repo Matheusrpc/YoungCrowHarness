@@ -1,0 +1,154 @@
+{
+  "front": "YC-010/P06 native memory evidence reviewed offline",
+  "base_commit": "f3374622eaf1790d7ae97e7411bf279b5489ed33",
+  "observed_at": "2026-10-09T23:01:41.788283+00:00",
+  "evidence_kind": "operator_supplied_native_windows_artifact_reverified_on_linux",
+  "outcome": "native_memory_retrieval_verified_offline_after_semantic_review",
+  "archive": {
+    "name": "p06-auditoria-20261009-194520.zip",
+    "bytes": 83548,
+    "sha256": "f66667f784b0e9ce15357733d479e858877badd8fe2b2ed64a8ab06807990c74",
+    "extracted_files": 34,
+    "context_files": 30,
+    "context_matches_prepared_hashes": true,
+    "all_original_files_unchanged_after_review": true
+  },
+  "input_sha256": {
+    "run-events.jsonl": "050012a3cbe1c89ff1a8b6b34e34ec51be2331a54321120f41fa283337c81d42",
+    "run-receipt.json": "805e60ec19ff6a3535519f4c2a099fdd3fc08422c87ee924e35d8a7fb5f97768",
+    "setup.json": "45ec8706433bbe3866c17d79d963df7e3617eaaf224ca15f4c27a24e87ea8ac4",
+    "prepare-receipt.json": "a1c41888f4b2d9a099eebe555bb3babd60d7768ddfaae501079e313339f9e160"
+  },
+  "operation_id": "164e5438-0cac-4089-845c-f1e3cc60db04",
+  "native_source_revision": "47a81504deeafe59920036d3cf39a422a7317f81",
+  "native_session": {
+    "client_version": "2.1.220",
+    "model": "claude-haiku-5-5",
+    "auth": "existing_subscription",
+    "prompt_count": 1,
+    "session_count": 1,
+    "tool_calls": 18,
+    "tools": {
+      "Read": 12,
+      "Glob": 4,
+      "Grep": 1,
+      "Bash": 1
+    },
+    "event_count": 142,
+    "elapsed_seconds": 39.351451,
+    "started_at": "2026-10-09T22:26:46.478812+00:00",
+    "ended_at": "2026-10-09T22:27:25.830582+00:00",
+    "exit_code": 0,
+    "tree_reaped": true,
+    "temporary_credential_removed": true,
+    "original_auth_unchanged": true,
+    "terminal_is_error": false,
+    "original_receipt_state": "failed",
+    "original_receipt_error": "missing_memory_navigation",
+    "original_receipt_rewritten": false
+  },
+  "reported_tokens": {
+    "input_tokens": 14,
+    "cache_creation_input_tokens": 29691,
+    "cache_read_input_tokens": 99660,
+    "output_tokens": 6939,
+    "billing_verified": false
+  },
+  "corrected_verifier": {
+    "state": "evidence_verified_pending_semantic_review",
+    "tool_calls": 18,
+    "observed_models": [
+      "claude-haiku-5-5"
+    ],
+    "verification_details": {
+      "skill_mirrors": [
+        ".claude/skills/karpathy/SKILL.md",
+        ".claude/skills/ponytail/SKILL.md",
+        ".claude/skills/retrieve-memory/SKILL.md"
+      ],
+      "project_identity": "grep_with_hash",
+      "result_format": "json_code_fence"
+    },
+    "new_model_calls": 0,
+    "native_windows_rerun": false,
+    "runtime_admission_changed": false
+  },
+  "semantic_review": {
+    "verdict": "passed",
+    "independent_read_only_review": true,
+    "reviewer": "p06_readonly_evidence_review",
+    "note_ids_and_hashes_checked": 6,
+    "project_and_feature_identity_match": true,
+    "development_and_historical_production_distinguished": true,
+    "next_action_matches_frozen_historical_snapshot": true,
+    "next_action_is_current_retry_instruction": false,
+    "format_deviation": "one JSON code fence instead of requested plain JSON"
+  },
+  "regressions": {
+    "red": {
+      "tests": 20,
+      "failures": 3,
+      "errors": 0,
+      "seconds": 3.432
+    },
+    "grep_mode_red": {
+      "tests": 20,
+      "failed_subcases": 2,
+      "errors": 0,
+      "seconds": 3.235
+    },
+    "green": {
+      "tests": 20,
+      "passed": 20,
+      "seconds": 3.14
+    },
+    "after_current_vault_notes_update": {
+      "tests": 20,
+      "passed": 20,
+      "seconds": 3.394
+    }
+  },
+  "full_suite": {
+    "command": "python3 -B -m unittest discover -s tests -v",
+    "tests": 671,
+    "passed": 651,
+    "skipped": 20,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 337.515
+  },
+  "vault_checks": {
+    "example_notes": 21,
+    "root_notes": 54,
+    "issues": 0
+  },
+  "source_sha256": {
+    "tests/pilot_claude.py": "55727e926476851eb791f35ac80f1079d012f03c22e7410a249824cec7c74ad9",
+    "tests/test_pilot_claude.py": "100ee129bafebf53e73ad3d8215e831804413ca639ab04c2b316acb8213ffa44"
+  },
+  "log_sha256": {
+    "red.log": "ea1e18f3b9002d09faac8360c086f435a4fbcde36bd7fc7f6abe9fda95552dfb",
+    "grep-mode-red.log": "70ce9e83661c6d523dab350af93a80a0170f637a7967fc504a19f66c9bc3a2da",
+    "green.log": "004772eb0e0e02f9922ea3dd854ee3d40968fdbfe67f4465b7d3970c88731d52",
+    "full-suite.log": "8fb9d3b606a962107c72b1408db5041e59c9b189c536796f9ab3947ddd7ee98d",
+    "post-doc-focused.log": "d74b71d47ba120f639b5c905da6955585a7dd0d0b0d70852e5886cb1e236c374"
+  },
+  "limits": {
+    "automatic_skill_discovery_proven": false,
+    "p06_initialized_skills": [],
+    "YC_011_closed": false,
+    "YC_203_closed": false,
+    "docker_profiles_enabled": false,
+    "oauth_refresh_proven": false,
+    "new_native_run_authorized": false,
+    "site_reobserved": false,
+    "deployment_performed": false,
+    "current_example_notes_equal_historical_snapshot": false
+  },
+  "documentation_checks": {
+    "local_markdown_links_checked": 551,
+    "missing_files": 0,
+    "source_hashes_match": true,
+    "git_diff_check": "passed"
+  }
+}

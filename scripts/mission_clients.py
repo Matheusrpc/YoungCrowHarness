@@ -59,14 +59,26 @@ def hash_executable(path):
     return digest.hexdigest()
 
 
-def _exchange(executable, args, cwd, requests=None, *, merge_stderr=False):
+DISCOVERY_OBSERVATION_VERSION = 1
+
+
+def _exchange(executable, args, cwd, requests=None, *, merge_stderr=False, system_probe=False, observation=None):
     """Bounded local metadata, owned by the same supervisor as diagnostics."""
     from mission_process import supervise
     result = supervise(dict(argv=[str(executable), *args], cwd=str(cwd), stdin=b'', exchange_requests=requests,
                             timeout_seconds=DISCOVERY_SECONDS, output_limit_bytes=OUTPUT_LIMIT,
                             connection='authenticated', client='metadata', credential_env=None,
-                            merge_stderr=merge_stderr),
+                            merge_stderr=merge_stderr, system_probe=system_probe),
                        on_started=lambda _: None, stop_requested=lambda: False)
+    if observation is not None:
+        reason = result['reason'] if result['reason'] in ('completed', 'timeout', 'output_limit', 'spawn_failed', 'cancelled') else 'observation_failed'
+        if not result['tree_reaped']:
+            reason = 'unsupported_containment'
+        elif reason == 'completed' and result['exit_code'] != 0:
+            reason = 'client_discovery_failed'
+        observation.update(started_at=result['started_at'], ended_at=result['ended_at'],
+                           elapsed_seconds=result['elapsed_seconds'], timeout_seconds=DISCOVERY_SECONDS,
+                           output_limit_bytes=OUTPUT_LIMIT, reason=reason)
     require(result['tree_reaped'], 'unsupported_containment')
     require(result['reason'] != 'timeout', 'client_discovery_timeout')
     require(result['reason'] != 'output_limit', 'client_output_limit')
@@ -102,6 +114,7 @@ def discover(executable, client, root):
                 ({'method': 'initialized'}, None),
                 ({'id': 2, 'method': 'model/list', 'params': {'limit': 100, 'includeHidden': False, 'cursor': cursor}}, 2)])[-1]
             result = response.get('result', {})
+            require(isinstance(result, dict), 'client_protocol_error')
             require(isinstance(result.get('data'), list), 'client_protocol_error')
             pages.extend(result['data'])
             next_cursor = result.get('nextCursor')
@@ -118,8 +131,11 @@ def discover(executable, client, root):
                            '--output-format', 'stream-json', '--verbose', *CLAUDE_PROFILE], root, [
             ({'type': 'control_request', 'request_id': 'init', 'request': {'subtype': 'initialize'}}, 'init')])[0]
         response = result.get('response', {})
+        require(isinstance(response, dict), 'client_protocol_error')
         require(response.get('subtype') == 'success', 'client_discovery_failed')
-        models = response.get('response', {}).get('models')
+        payload = response.get('response', {})
+        require(isinstance(payload, dict), 'client_protocol_error')
+        models = payload.get('models')
         require(isinstance(models, list), 'client_protocol_error')
     auth = 'unknown'
     try:
@@ -146,8 +162,13 @@ def model_catalog(client, entries):
         name = entry.get('model') if client == 'codex' else entry.get('resolvedModel', entry.get('value'))
         alias = name if client == 'codex' else entry.get('value')
         require(safe_name(name) and safe_name(alias), 'client_protocol_error')
-        efforts = ([v.get('reasoningEffort') for v in entry.get('supportedReasoningEfforts', [])]
-                   if client == 'codex' else entry.get('supportedEffortLevels', []))
+        if client == 'codex':
+            efforts = entry.get('supportedReasoningEfforts', [])
+            require(isinstance(efforts, list) and all(isinstance(v, dict) for v in efforts),
+                    'client_protocol_error')
+            efforts = [v.get('reasoningEffort') for v in efforts]
+        else:
+            efforts = entry.get('supportedEffortLevels', [])
         require(isinstance(efforts, list) and all(safe_name(v) for v in efforts), 'client_protocol_error')
         default = entry.get('isDefault', False) if client == 'codex' else alias == 'default'
         require(type(default) is bool, 'client_protocol_error')

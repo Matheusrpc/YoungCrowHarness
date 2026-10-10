@@ -55,6 +55,18 @@ class CatalogTests(CapabilityCase):
         selected = [cap for cap in caps.load_catalog(ROOT) if cap['id'] in names]
         self.assertEqual({cap['id'] for cap in selected}, names)
         for cap in selected:
+            self.assertIn('scripts/mission_sandbox.py', cap['files']['common'])
+            self.assertIn('scripts/mission_environment.py', cap['files']['common'])
+            self.assertIn('scripts/mission_workspace.py', cap['files']['common'])
+            if cap['id'] == 'yc-status':
+                self.assertEqual(cap['permissions']['write'], [])
+            if cap['id'] == 'yc-missao':
+                self.assertIn('operator-authorized PBI branches, Git worktree metadata and owned directories under .runtime/workspaces', cap['permissions']['write'])
+            for helper in ('mission_sbx.py', 'mission_execution.py', 'mission_egress.py', 'mission_controller.py', 'mission_transaction.py'):
+                self.assertIn('scripts/' + helper, cap['files']['common'])
+            self.assertIn('scripts/adoption.py', cap['files']['common'])
+            self.assertIn('scripts/adoption_acl.ps1', cap['files']['common'])
+            self.assertIn('skills/personalizer/references/execution.md', cap['files']['common'])
             expected = ['explicitly authorized native client diagnostic'] if cap['id'] == 'yc-config' else []
             self.assertEqual(cap['permissions']['network'], expected)
             self.assertEqual(cap['permissions']['credential_env'], [])

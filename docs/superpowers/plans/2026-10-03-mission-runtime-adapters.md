@@ -16,6 +16,11 @@ continuam abertas e as chamadas reais estão bloqueadas. Nenhum turno foi enviad
 Método: implementação inline, um escritor e revisão independente ao final. Resultados e desvios
 estão no [relatório da entrega](../../relatorios/2026-10-03-mission-runtime-adapters.md).
 
+Continuação de YC-203: o [desenho do executor isolado](../specs/2026-10-04-isolated-executor-design.md)
+foi aprovado, com [plano próprio aprovado](2026-10-04-isolated-executor.md). Ele substitui a
+premissa de execução direta no host para essa continuação. A proibição de instalar infraestrutura
+para contornar as provas deste plano permanece no histórico; o novo ambiente exige suas próprias provas.
+
 ## Global Constraints
 
 - “Três PBIs por padrão, configurável.” “Três simultâneas por padrão, configurável e separado do limite de PBIs.” Esta entrega prova uma execução por vez; a fila e suas reservas concorrentes pertencem a 2B.

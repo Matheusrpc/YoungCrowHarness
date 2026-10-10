@@ -16,6 +16,11 @@ do probe conferem com `058be40`. O CI dessa revisão passou nos oito jobs de pus
 Preservar os recibos; não repetir P06 ou a descoberta. Próxima ação: retomar YC-203
 quando houver evidência aplicável ao contrato local Docker. Aplicação nativa das
 skills, fila e agentes continuam na sequência aprovada, sem habilitação antecipada.
+O mantenedor pediu avanço após a explicação do bloqueio; iniciou-se uma
+[revisão de alternativas](relatorios/2026-10-09-executor-alternatives.md). Próxima
+ação dessa revisão: receber o inventário Windows somente leitura do roteiro.
+Comparação concluída; VM de controle e instalação estável são hipóteses sem aceite,
+não substituições aprovadas. Nenhum novo ciclo nativo, instalação ou provisionamento.
 Os parágrafos seguintes preservam a sequência histórica e suas decisões na ocasião.
 
 Checkpoint conferido em 9/out: `a0af931` passou nos oito jobs de push e PR, incluindo

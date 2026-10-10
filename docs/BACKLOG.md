@@ -47,6 +47,14 @@ Architecture review: a fixed proxy between missions could reduce writes, but end
 ownership and credential recovery remain unresolved. Exclusive installation was already
 approved. No replacement was implemented; a vendor issue remains optional.
 
+A [revisão seguinte](relatorios/2026-10-09-executor-alternatives.md) compara instalação
+estável e VM de controle própria. Próxima ação: inventário somente leitura do Windows
+para avaliar a infraestrutura disponível. Não há backend novo, instalação ou aceite;
+YC-203 e o contador de dois ciclos consumidos permanecem.
+The [follow-up review](relatorios/2026-10-09-executor-alternatives.md#english-overview)
+compares a stable installation with an isolated control VM. Next: a read-only Windows
+inventory. No backend replacement, provisioning or native acceptance has occurred.
+
 Histórico de 8/out: leituras de missão e observação independente de egress, publicado
 em `b106bc5`. Passaram 616 testes locais, com 20 pulados; adoção com diagnóstico em
 consumidor novo/existente também passou. Os 12 focais Windows passaram no push e no PR;

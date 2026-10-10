@@ -255,6 +255,7 @@ def mission_status(root, mission_id):
                 stale.append('revision:' + record['id'])
         history = [store.event_dict(r) for r in conn.execute('SELECT * FROM events WHERE record_id=? ORDER BY seq', (existing['id'],)).fetchall()]
         projections = conn.execute('SELECT p.path,p.sha256 FROM projections p JOIN events e ON e.seq=p.sequence WHERE e.record_id=?', (existing['id'],)).fetchall()
+        queue_sessions = queue_helper().read_sessions(conn, existing['id'])
     state = 'conflict' if any(e['projection_state'] == 'conflict' for e in history) else 'pending' if any(e['projection_state'] != 'current' for e in history) else 'current'
     for path, expected in projections:
         try:
@@ -290,7 +291,7 @@ def mission_status(root, mission_id):
                             dependencies=(item['contract'] or {}).get('dependencies', [])))
     # Initial backlog only: no PBI integration or live execution capacity is inferred.
     first_candidate = next((p['id'] for p in preview if not p['dependencies']), None) if check_available else None
-    return dict(schema_version=1, id=existing['id'], code=existing['code'], revision=existing['revision'],
+    result = dict(schema_version=1, id=existing['id'], code=existing['code'], revision=existing['revision'],
                 state=snapshot['state'], snapshot=snapshot, gaps=snapshot['gaps'], stale_inputs=sorted(stale),
                 events=[{k: v for k, v in e.items() if k not in ('record', 'request_hash')} for e in history],
                 projection_state=state, compatibility={role: 'not_verified' for role in snapshot['config']['agents']},
@@ -298,13 +299,25 @@ def mission_status(root, mission_id):
                 check_available=check_available,
                 queue_preview=dict(scope='initial_backlog', items=preview, first_candidate_id=first_candidate),
                 client_runs=runs, blocking_runs=blocking_runs, next_action=next_action)
+    result['queue_sessions'] = queue_helper().view(queue_sessions, result)
+    return result
+
+
+def queue_helper():
+    try:
+        import mission_queue
+        require(getattr(mission_queue, 'QUEUE_VERSION', None) == 1, 'incompatible_helper')
+        return mission_queue
+    except (ImportError, SyntaxError, AttributeError):
+        raise ValueError('incompatible_helper') from None
 
 
 def runtime_helpers():
     try:
         import mission_clients
         import mission_runs
-        require(getattr(store, 'RUNTIME_SCHEMA', None) == 2, 'incompatible_helper')
+        require(getattr(store, 'RUNTIME_SCHEMA', None) == 3 and
+                getattr(mission_runs, 'STORE_SCHEMA', None) == 3, 'incompatible_helper')
         require(all(callable(getattr(mission_clients, name, None)) for name in
                     ('inspect_client', 'build_check', 'decode_result')), 'incompatible_helper')
         require(all(callable(getattr(mission_runs, name, None)) for name in
@@ -370,6 +383,13 @@ def parser():
     subs.add_parser('list', help='List saved mission summaries; use status CODE for current blockers')
     for name in ('status', 'repair'):
         subs.add_parser(name).add_argument('identifier')
+    queue = subs.add_parser('queue', help='One-PBI deterministic rehearsal; no native dispatch').add_subparsers(dest='action', required=True)
+    for name in ('start', 'step', 'cancel'):
+        entry = queue.add_parser(name)
+        entry.add_argument('identifier')
+        entry.add_argument('--expected-revision', type=int, required=True)
+        entry.add_argument('--operation-id', required=True)
+        entry.add_argument('--actor-id', required=True)
     client = subs.add_parser('client').add_subparsers(dest='action', required=True)
     environment = client.add_parser('environment')
     environment.add_argument('--executable', type=Path, required=True)
@@ -393,7 +413,8 @@ def parser():
     return p
 
 
-CONFLICTS = {'operation_conflict', 'revision_conflict', 'config_conflict', 'identity_conflict', 'store_busy', 'invalid_store'}
+CONFLICTS = {'operation_conflict', 'revision_conflict', 'config_conflict', 'identity_conflict', 'store_busy', 'invalid_store',
+             'queue_busy', 'queue_already_started'}
 SAFE_ERRORS = CONFLICTS | {'invalid_config', 'invalid_request', 'invalid_arguments', 'invalid_digest', 'invalid_actor',
                          'invalid_revision', 'invalid_identity', 'invalid_priority', 'unknown_mission', 'unknown_feature',
                          'unknown_record', 'foreign_project', 'invalid_contract', 'incompatible_helper',
@@ -404,6 +425,7 @@ SAFE_ERRORS = CONFLICTS | {'invalid_config', 'invalid_request', 'invalid_argumen
                          'client_protocol_error', 'client_output_limit', 'client_catalog_limit', 'unsupported_client',
                          'limit_exceeded', 'mission_not_ready', 'unresolved_run', 'unknown_run', 'insufficient_evidence',
                          'invalid_transition', 'invalid_execution_selection', 'execution_selection_conflict',
+                         'unsupported_queue_scope', 'unknown_queue_session', 'invalid_fixture_result',
                          'execution_location_conflict', 'execution_selection_busy', 'execution_storage_unprotected'}
 
 
@@ -423,6 +445,10 @@ def main(argv=None):
             result = (environment.read_selection(root) if args.action == 'show' else
                       environment.configure_selection(root, args.location,
                                                       None if args.expected_digest == 'none' else args.expected_digest))
+        elif args.command == 'queue':
+            runtime_helpers()
+            result = queue_helper().apply(root, args.action, args.identifier, args.expected_revision,
+                                          args.operation_id, args.actor_id)
         elif args.command == 'client':
             clients, runs = runtime_helpers()
             if args.action == 'environment':

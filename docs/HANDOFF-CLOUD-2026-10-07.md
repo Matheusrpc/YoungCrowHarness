@@ -4,6 +4,18 @@ Frente: produto YoungCrowHarness, com trabalho ativo no executor isolado.
 
 Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra sessão consiga continuar sem receber toda a conversa. Reúne decisões do mantenedor, estado do código, resultados observados, falhas, limites e próximos passos. Os caminhos de arquivos, salvo indicação contrária, são relativos à raiz do repositório.
 
+**YC-204 antecipado (10/out):** o mantenedor aprovou um coordenador persistente com
+executor determinístico, após o panorama do produto. [Uso](USAGE.md#queue-rehearsal)
+e [evidência](relatorios/2026-10-10-queue-rehearsal.md). Comandos `queue start/step/cancel`,
+um PBI sem dependências, etapas simuladas de desenvolvimento/QA e recibos recuperáveis.
+`status.queue_sessions` distingue o ensaio do estado real da missão. Esquema SQLite 3;
+helpers antigos precisam ser conciliados antes de usar a atualização. O bloqueio de
+YC-203 permanece para chamadas nativas. Fila com vários PBIs e agentes reais continua
+pendente; preservar P06 concluído e as tentativas nativas consumidas.
+CI da base `6ff88e8`: sete jobs passaram; Windows do push falhou no teste
+`test_deadline_reaps_descendants_in_the_existing_supervisor`. O job Windows do PR
+passou. Causa não estabelecida pelas anotações; a fila não corrige essa falha.
+
 **Estado atual de P06 (9/out):** [memória Claude verificada](relatorios/2026-10-09-p06-offline-review.md)
 na sessão Haiku `164e5438`, por reavaliação offline dos eventos e arquivos originais
 com o verificador corrigido e revisão semântica. O recibo original de falha permanece;

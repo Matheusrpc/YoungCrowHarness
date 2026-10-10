@@ -35,7 +35,7 @@ FILES += ('scripts/capabilities.py', 'skills/govern-capabilities/SKILL.md',
           '.claude/skills/govern-capabilities/SKILL.md', '.agents/skills/govern-capabilities/SKILL.md')
 FILES += ('scripts/adoption.py', 'scripts/adoption_fs.py', 'scripts/adoption_acl.ps1')
 FILES += tuple(f'scripts/{name}.py' for name in
-               ('mission_config', 'mission_backlog', 'mission_store', 'mission_vault', 'missions',
+               ('mission_config', 'mission_backlog', 'mission_store', 'mission_vault', 'missions', 'mission_queue',
                 'mission_clients', 'mission_process', 'mission_runs', 'mission_sandbox', 'mission_environment', 'mission_sbx',
                 'mission_execution','mission_egress', 'mission_controller', 'mission_transaction', 'mission_network'))
 FILES += tuple(f'{base}/{name}/SKILL.md' for base in ('skills', '.claude/skills', '.agents/skills')
@@ -76,6 +76,7 @@ class SetupTests(unittest.TestCase):
             result = self.run_setup('--client', client, '--no-plugins')
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertTrue((self.target / 'skills/personalizer/references/execution.md').is_file())
+            self.assertTrue((self.target / 'scripts/mission_queue.py').is_file())
             before = snapshot_bytes(self.target)
             probe = subprocess.run([sys.executable, '-B', str(self.target / 'scripts/missions.py'),
                                     '--root', str(self.target), 'environment', 'show', '--json'],

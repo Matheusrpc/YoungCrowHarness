@@ -3,6 +3,9 @@
 Frente: preparação da fila de desenvolvimento. Estado: desenho operacional em refinamento;
 política de ordenação aprovada pelo mantenedor em 2026-10-09.
 Este documento não habilita o despacho de 2B nem substitui o aceite de YC-203.
+Atualização de 10/out: o mantenedor autorizou antecipar o [coordenador com executor
+determinístico](2026-10-10-queue-rehearsal-design.md), limitado a um PBI. Essa prova
+local não implementa a política de múltiplas candidaturas descrita abaixo.
 Uma prévia inicial somente leitura foi antecipada com autorização do mantenedor;
 não há migração, novo comando ou chamada de modelo.
 

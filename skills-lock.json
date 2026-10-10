@@ -297,7 +297,8 @@
           "scripts/mission_sbx.py",
           "scripts/mission_execution.py",
           "scripts/mission_egress.py",
-          "scripts/mission_network.py"
+          "scripts/mission_network.py",
+          "scripts/mission_queue.py"
         ],
         "claude": [
           ".claude/skills/personalizer/SKILL.md"
@@ -323,10 +324,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "c38d18cc94d776206e5430e29966ef9af88c434a61638a562b70980c3255312f",
+        "contract_sha256": "d49543b24f1d65a5e22c56f43ecb3776a114a779712d82dd68ac7006c0f2e1e5",
         "files_sha256": {
-          "claude": "856e5734261242b0454e9efa6764ae22afbde6f6f4249f3a2219cc03ffd221e5",
-          "codex": "8a0355941b1352a0d4055d5296e2bcb2be72f5fdf8469ba4274cbbc48bb56c07"
+          "claude": "5eecc0e2cce4e6e2957c8c65fa41d469dc44059442ae1745c4e6aeba799224f1",
+          "codex": "251d9ef627c6ab7457fd2399f6f220ec620ef3bce4da895ebdd0649d3b9fe73f"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1218,7 +1219,8 @@
           "scripts/mission_sbx.py",
           "scripts/mission_execution.py",
           "scripts/mission_egress.py",
-          "scripts/mission_network.py"
+          "scripts/mission_network.py",
+          "scripts/mission_queue.py"
         ],
         "claude": [
           ".claude/skills/yc-personalizer/SKILL.md"
@@ -1244,10 +1246,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "b1f7ca3947ff0dc2643eabb3945a2e33d857d4b0f7b3ea6ae9663c680a71849c",
+        "contract_sha256": "dee74a9270c78fa204d3e3a067fb9c6e16ac884b6c9e28acc2d127d54fe61769",
         "files_sha256": {
-          "claude": "8f8aad4ae91ab805d49d0affa1ba8e0f3499346c4f010287f3b8938e506da84f",
-          "codex": "bd04f0dc1b83bf37053d1afd8f10e297a157d1cc388459d149f3509ed2b6448f"
+          "claude": "702ef32400008460e92635bf081cec4c9f87083fe20168b02aca728e88fda576",
+          "codex": "3408517ebcfa5481dc49850a5da20bcc6db06bd848c60258585618d4c414c701"
         }
       }
     },
@@ -1304,7 +1306,8 @@
           "scripts/mission_sbx.py",
           "scripts/mission_execution.py",
           "scripts/mission_egress.py",
-          "scripts/mission_network.py"
+          "scripts/mission_network.py",
+          "scripts/mission_queue.py"
         ],
         "claude": [
           ".claude/skills/yc-config/SKILL.md"
@@ -1334,10 +1337,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "7e0637e85ae775ff8b498cb375c1cf924ace04f6e7f72db059d16c855097b14c",
+        "contract_sha256": "9831d381d15c58f23a6792de08847b88148ad05760fb1668ded760870f36c593",
         "files_sha256": {
-          "claude": "d18362d3e59226595667ee3af18efcde486b3d581faa3ebbffcd786b2058b721",
-          "codex": "1c8b5243f02f370385d32f355913b5ca662aeed66b9e0ccb8ffd79f19f26ad25"
+          "claude": "f5f192fb93a3fdc8246031912ba460f56e13815d9a81f62bbb8fa995b8a45c11",
+          "codex": "4d9bde332dcc044631641495055eab44a5859282a0652860edb350d7d68346ce"
         }
       }
     },
@@ -1394,7 +1397,8 @@
           "scripts/mission_sbx.py",
           "scripts/mission_execution.py",
           "scripts/mission_egress.py",
-          "scripts/mission_network.py"
+          "scripts/mission_network.py",
+          "scripts/mission_queue.py"
         ],
         "claude": [
           ".claude/skills/yc-missao/SKILL.md"
@@ -1420,10 +1424,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "f0e59eb0bbb8c9c0ec5864ccfa6cdc21efdc7a7df54193f999c96e7c5a3a6c8f",
+        "contract_sha256": "74708ada6482a89f4b2412f68d1e916b01896c91f8aa3844f864662c68f2ea97",
         "files_sha256": {
-          "claude": "7e0e8fae14208933bd05bc9e21e0ebdda4048bd01557469e7e4152815663b98f",
-          "codex": "92065622d960165b98699796a8701e151d82b3a2148fdfd4192c1b95be699d10"
+          "claude": "a103e73212b52c15a086549749d65477aa6c9d477098541cbe6ef3ed726df5b3",
+          "codex": "36a9aef2a6a25c5534cd79e3d023ce9ed5c5a509963a97cb0756336545a9e50c"
         }
       }
     },
@@ -1480,7 +1484,8 @@
           "scripts/mission_sbx.py",
           "scripts/mission_execution.py",
           "scripts/mission_egress.py",
-          "scripts/mission_network.py"
+          "scripts/mission_network.py",
+          "scripts/mission_queue.py"
         ],
         "claude": [
           ".claude/skills/yc-status/SKILL.md"
@@ -1503,10 +1508,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "2e0ff0e535052f51ec48054875a14ec611978775bc783272de20311c116829ba",
+        "contract_sha256": "fdbc93eaed5957f84f67301789b8e7bb2ea9c3b0731a782db92863f3b60cac1c",
         "files_sha256": {
-          "claude": "a7f192aa67aaffc8ea033e47e3fda6ecac43f64562c04e29729ab0a29dd6f06c",
-          "codex": "20e0956c4223f2316fd292d9cb37b190dbc34586ccf877321e59e514121fd572"
+          "claude": "d5ac0fd36db1d2a65294f7f7bcf577d40c18f2e6671ec68c0218acf505166f62",
+          "codex": "5d15aac1168091c3bf4de06b2dff47aeaeb2a28a31624b670781248907db4df1"
         }
       }
     }

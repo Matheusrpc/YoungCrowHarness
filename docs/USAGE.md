@@ -1736,7 +1736,8 @@ continuam obrigatórios. A consulta não executa nenhuma das ações sugeridas.
 dependências de cada PBI. `first_candidate_id` aponta o primeiro item sem dependências,
 somente se a preparação estiver consistente. Lacunas, fontes/revisões alteradas,
 projeções pendentes/conflitantes ou recibos abertos deixam esse campo `null`.
-A prévia considera que nenhum PBI foi integrado. Não calcula vagas disponíveis nem
+A prévia considera que nenhum PBI foi integrado. O [ensaio da fila](#queue-rehearsal)
+aparece separadamente em `queue_sessions`. A prévia não calcula vagas disponíveis nem
 a ordem entre trabalho em andamento, QA e decisões dos líderes; não reserva ou despacha.
 Mesmo com um candidato, `next_action` conserva os impedimentos e a execução segue bloqueada.
 
@@ -1792,7 +1793,8 @@ and `runtime_not_available` retain their planning meanings.
 budget, authentication or compatibility. Manifest/preflight checks remain mandatory. Status
 performs none of the suggested actions.
 
-`queue_preview` describes the initial backlog (`scope: initial_backlog`). Its `items`
+`queue_preview` describes the initial backlog (`scope: initial_backlog`). The
+[queue rehearsal](#queue-rehearsal) is reported separately in `queue_sessions`. Its `items`
 follow saved priority and include each PBI's UUID, code, title, revision and dependency
 UUIDs. `first_candidate_id` selects the first item without dependencies only when
 preparation is current. Gaps, changed sources/revisions, pending/conflicting projections
@@ -3124,3 +3126,74 @@ The controller closes helper input and allows up to 100 ms for cooperative clean
 This wait uses the remaining portion of the existing 200 ms termination stage and
 respects the execution deadline. Expired deadlines skip grace; forced shutdown,
 `kill` and process-tree collection remain available.
+
+<a id="queue-rehearsal"></a>
+## Ensaio persistente da fila / Persistent queue rehearsal
+
+O ensaio usa uma missão preparada com exatamente um PBI sem dependências. Ele registra
+as etapas `dev_pending`, `qa_pending` e `fixture_completed` no SQLite privado existente.
+O executor determinístico calcula um resultado local; o QA simulado confere seu hash.
+Não há chamada de modelo, edição de código, worktree ou aprovação real de entrega.
+
+Use `list` e `status M001` para escolher a missão e conferir sua revisão. Para cada
+novo comando de escrita, gere um UUID (por exemplo, `python3 -c "import uuid; print(uuid.uuid4())"`).
+Guarde o UUID junto com os argumentos. No Windows, use `python` no lugar de `python3`.
+Substitua os nomes em maiúsculas abaixo pelos valores obtidos:
+
+```bash
+python3 -B scripts/missions.py --json queue start M001 --expected-revision 1 --operation-id UUID_INICIO --actor-id operador
+python3 -B scripts/missions.py --json status M001
+python3 -B scripts/missions.py --json queue step UUID_SESSAO --expected-revision 1 --operation-id UUID_DEV --actor-id operador
+python3 -B scripts/missions.py --json queue step UUID_SESSAO --expected-revision 2 --operation-id UUID_QA --actor-id operador
+python3 -B scripts/missions.py --json status M001
+```
+
+O primeiro `--expected-revision` é a revisão da missão. Nos avanços, é a revisão da
+sessão retornada em `session.revision`. O UUID da sessão está em `session.id`.
+`status.queue_sessions` mostra escopo, resultados, histórico de recibos, próximo papel
+e `next_action`. `fixture_completed` conclui apenas o ensaio; desenvolvimento, QA,
+integração e produção reais conservam seus estados anteriores.
+
+Após perder a resposta ou interromper o processo, repita o comando com os mesmos
+argumentos e UUID. A mesma operação devolve o recibo original, mesmo que a sessão já
+esteja mais adiantada; consulte `status` para o estado atual. UUID com pedido diferente
+ou revisão antiga em uma nova operação é conflito. Uma queda antes do commit pode
+repetir cálculo puro, mas não cria dois resultados persistidos. Isso não demonstra
+execução externa exatamente uma vez.
+
+Há uma sessão ativa por repositório e uma sessão por revisão da missão. Para encerrá-la
+antes do fim, use `queue cancel UUID_SESSAO --expected-revision REVISAO_SESSAO
+--operation-id UUID_CANCELAMENTO --actor-id operador` com os mesmos prefixos dos comandos
+acima. O cancelamento mantém o histórico e funciona mesmo se a missão mudou.
+Outro ensaio da mesma missão exige uma revisão nova, preparada explicitamente.
+
+Lacunas, fontes alteradas, projeções pendentes/conflitantes e diagnósticos nativos abertos
+impedem avançar. A orientação aparece na própria sessão. `cancel_stale_rehearsal` pede
+encerrar um ensaio ligado à revisão anterior da missão. O cancelamento não altera ou
+libera diagnósticos nativos. A prévia `initial_backlog` continua independente dos resultados
+sintéticos; nenhum deles satisfaz uma dependência integrada.
+
+A primeira escrita aceita da fila migra o banco para o esquema 3. Atualize em conjunto
+`missions.py`, `mission_store.py`, `mission_runs.py` e `mission_queue.py`; o instalador
+preserva helpers existentes para comparação e conciliação. Uma mistura incompatível
+retorna `incompatible_helper`. Versões antigas do harness não devem abrir o banco migrado.
+Leituras de status nunca migram o banco. O arquivo permanece em
+`vault/local/operations/state.sqlite3` e precisa acompanhar o backup privado do projeto.
+
+The commands above run a persistent, single-PBI deterministic rehearsal. `start` expects
+the mission revision; `step` and `cancel` expect the session revision. Each new command
+needs its own operation UUID. Repeating the exact request recovers its original receipt;
+`status` reports the current state, next role, blockers and receipt history.
+
+The fixture hashes frozen input and its simulated QA checks that result. It invokes no
+model and changes no worktree. `fixture_completed` grants no real development, QA,
+integration or production acceptance. A crash before commit can repeat pure computation,
+but cannot duplicate the persisted transition. External exactly-once execution is unproven.
+Only one rehearsal may be active per repository; one session is allowed per mission
+revision. Cancel preserves history and remains available after mission revision changes.
+
+Accepted queue writes migrate the private SQLite store to schema 3 while retaining native
+client diagnostics and blockers. Update the four helpers named above together; existing
+helpers are preserved by the installer for explicit comparison and reconciliation. Reads
+never migrate storage. Native dispatch remains gated by YC-203. Multi-PBI scheduling,
+real agents, worktrees and release remain separate roadmap items.

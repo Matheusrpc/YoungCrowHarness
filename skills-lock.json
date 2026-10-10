@@ -298,7 +298,8 @@
           "scripts/mission_execution.py",
           "scripts/mission_egress.py",
           "scripts/mission_network.py",
-          "scripts/mission_queue.py"
+          "scripts/mission_queue.py",
+          "scripts/mission_workspace.py"
         ],
         "claude": [
           ".claude/skills/personalizer/SKILL.md"
@@ -324,10 +325,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "d49543b24f1d65a5e22c56f43ecb3776a114a779712d82dd68ac7006c0f2e1e5",
+        "contract_sha256": "4ed02a5e2e4d82e34d37823fab9b30ed144d950fb42b6e488ffae4499a4932a4",
         "files_sha256": {
-          "claude": "70b8781f2e44807357f107c8a5fb5e369c9f1b635599961eac2998abcb057bbb",
-          "codex": "adf2089eaccc29b8a4feb30fe0049c7e4d4e77072be16f7007debeeee16aaf78"
+          "claude": "f35fbe0f737419710b0262dc0ff580e80fed3c7999990783fa981a3a7f528807",
+          "codex": "85e2c6d6243742269d76dc1e78aef32d0d1a3b3d4379dae7546374f597de5214"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1220,7 +1221,8 @@
           "scripts/mission_execution.py",
           "scripts/mission_egress.py",
           "scripts/mission_network.py",
-          "scripts/mission_queue.py"
+          "scripts/mission_queue.py",
+          "scripts/mission_workspace.py"
         ],
         "claude": [
           ".claude/skills/yc-personalizer/SKILL.md"
@@ -1246,10 +1248,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "dee74a9270c78fa204d3e3a067fb9c6e16ac884b6c9e28acc2d127d54fe61769",
+        "contract_sha256": "cc7f0be1bbc77eba45aa6c320fe24acb39039eb463827e3af8b104fc39d7014e",
         "files_sha256": {
-          "claude": "218beb7610ce500c2b343ba54a903bdf00be249d04f11f9578595ad0cd668943",
-          "codex": "b6f03e07938c55f03a8e1713e34a209b708c5935811a9e76639dc7cab7f90a70"
+          "claude": "1de73f71a7e99b656f392d4ccc6a7dfa71285bc1219b6820eb0b3cc045e6a694",
+          "codex": "c5ad2a8e79b1003b62c98490d9f0632376b32baf0b9694dfce06af976f600681"
         }
       }
     },
@@ -1307,7 +1309,8 @@
           "scripts/mission_execution.py",
           "scripts/mission_egress.py",
           "scripts/mission_network.py",
-          "scripts/mission_queue.py"
+          "scripts/mission_queue.py",
+          "scripts/mission_workspace.py"
         ],
         "claude": [
           ".claude/skills/yc-config/SKILL.md"
@@ -1337,10 +1340,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "9831d381d15c58f23a6792de08847b88148ad05760fb1668ded760870f36c593",
+        "contract_sha256": "7badfa4acfe7638f7326e93e94506a3b291d44cfb3d635bcee2a90884f9dcc08",
         "files_sha256": {
-          "claude": "729f20bc530699ae3f0d8e812bf10cb1bec315281257dff9d51f5f643f1106fa",
-          "codex": "3841f3f6e987ebc185ae5c3f5a2c517ebe5a2856a0cf9e370ec71cb79480d046"
+          "claude": "fec1615723fae505cbc78c47423fb5fc67cb5b953083fc583bd872eab47ce975",
+          "codex": "e1ad88566e59ec64fad493cfff404f62f621679d4eaaf96e58d0c05a3913abe9"
         }
       }
     },
@@ -1348,10 +1351,10 @@
       "id": "yc-missao",
       "kind": "skill",
       "purpose": {
-        "when": "Refine backlog and prepare or revise one to N features",
-        "inputs": "Selected contracts, references and priorities",
-        "outputs": "Private mission snapshot, events and recovery receipt",
-        "limits": "Offline preparation only; no autonomous workers or deployment"
+        "when": "Refine backlog, prepare missions or explicitly prepare/release a PBI Git workspace",
+        "inputs": "Selected contracts, references, priorities and explicit pinned Git base",
+        "outputs": "Private mission snapshot, events and workspace recovery receipts",
+        "limits": "Local explicit preparation/release; no autonomous workers, integration, push or deployment"
       },
       "clients": [
         "claude",
@@ -1398,7 +1401,8 @@
           "scripts/mission_execution.py",
           "scripts/mission_egress.py",
           "scripts/mission_network.py",
-          "scripts/mission_queue.py"
+          "scripts/mission_queue.py",
+          "scripts/mission_workspace.py"
         ],
         "claude": [
           ".claude/skills/yc-missao/SKILL.md"
@@ -1411,11 +1415,13 @@
         "read": [
           "project instructions",
           "selected vault notes",
-          "project configuration"
+          "project configuration",
+          "selected local Git repository metadata and pinned base commit"
         ],
         "write": [
           "authorized project files",
-          "vault/local"
+          "vault/local",
+          "operator-authorized PBI branches, Git worktree metadata and owned directories under .runtime/workspaces"
         ],
         "network": [],
         "data": [],
@@ -1424,10 +1430,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "74708ada6482a89f4b2412f68d1e916b01896c91f8aa3844f864662c68f2ea97",
+        "contract_sha256": "f8c7d9d09ce3d7a11a40349eb5b6490e32adce5a5af8d602973a32571aa99c9e",
         "files_sha256": {
-          "claude": "ab8c70342d33168a16a7057e4ef5d7f1978f3ac631f950724a21d21e5a75c673",
-          "codex": "402f5d6bd422a974cc52f83adc4de5485e07c5405b522dd3db27858badbb5701"
+          "claude": "94cb7a3e29882442092629b27dda0e931379be868fa68ba7c017069bb9529606",
+          "codex": "6e6d0c2d18698a0ed64a21f9d723c6f21e91670a0c5c7c55feb2f515be680344"
         }
       }
     },
@@ -1437,7 +1443,7 @@
       "purpose": {
         "when": "Read mission state and pending work",
         "inputs": "Mission UUID or code",
-        "outputs": "Read-only history, freshness and planning gaps",
+        "outputs": "Read-only history, freshness, planning gaps and saved workspace state",
         "limits": "Offline preparation only; no autonomous workers or deployment"
       },
       "clients": [
@@ -1485,7 +1491,8 @@
           "scripts/mission_execution.py",
           "scripts/mission_egress.py",
           "scripts/mission_network.py",
-          "scripts/mission_queue.py"
+          "scripts/mission_queue.py",
+          "scripts/mission_workspace.py"
         ],
         "claude": [
           ".claude/skills/yc-status/SKILL.md"
@@ -1508,10 +1515,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "fdbc93eaed5957f84f67301789b8e7bb2ea9c3b0731a782db92863f3b60cac1c",
+        "contract_sha256": "b33febfbe7579cb91337dc9e87ac784469218d8eaaffe6cf130c5a471f972584",
         "files_sha256": {
-          "claude": "4ac4aeae40e5b1b689e0a860f9c6dca1b4844c55019976483a228a3ec2cf20eb",
-          "codex": "5cb4eea114c2e2fd0f358da998a552e838a8425808edbcec88efe9611741ac2d"
+          "claude": "58f253cf6b63df3cbe43b3f8fe580a6a08a610acd1c43abb237a8866472af408",
+          "codex": "a77b5d77e85b2444e58bcc5ac1c605a0eb7128f8be68d0e618d5329664685bed"
         }
       }
     }

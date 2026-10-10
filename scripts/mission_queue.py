@@ -10,6 +10,7 @@ import mission_runs
 import mission_store as store
 
 QUEUE_VERSION = 3
+STORE_SCHEMA = 6
 EXECUTABLE = ('dev_pending', 'qa_pending', 'correction_pending')
 ACTIVE = EXECUTABLE + ('waiting',)
 FIXTURE_SCENARIOS = ('pass', 'qa-retry', 'qa-exhaust')
@@ -34,7 +35,7 @@ def migrate(conn):
 
 
 def available(conn):
-    return conn is not None and conn.execute('SELECT schema_version FROM metadata').fetchone()[0] in (3, 4, 5)
+    return conn is not None and conn.execute('SELECT schema_version FROM metadata').fetchone()[0] in (3, 4, 5, 6)
 
 
 def sessions(root, mission_id):

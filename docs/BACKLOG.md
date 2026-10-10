@@ -288,7 +288,7 @@ Até ela existir, esses ritos são conduzidos nas sessões autorizadas.
 | YC-202 | 2A: execução limitada e recibos duráveis | YC-201 | Reservar operação antes de chamar; impor tempo e quantidade, registrar consumo observado, encerrar processos próprios e conservar resultado incerto sem repetir | Verificado com simuladores: limites, recuperação e recibos; chamadas nativas bloqueadas |
 | YC-203 | 2A: instalação, consulta e provas dos adaptadores | YC-202 | Provar cliente autenticado e API explícita quando houver acesso, em matriz por ambiente; consulta sem escrita e adoção preservada. Cada combinação sem prova permanece indisponível | Parcial; inspeção Claude corrigida. Prova local reproduz falha de isolamento do Codex; chamadas reais bloqueadas. [Evidência atual](relatorios/2026-10-03-native-client-verification.md) |
 | YC-204 | 2B: coordenador e fila priorizada | YC-203 para despacho | Uma missão ativa por repositório; três PBIs e três execuções como limites distintos; dependências e ordem persistidas. Sem item elegível, persistir espera | Prévia inicial e ensaio serial com vários PBIs, [reprovação, correções limitadas e espera](relatorios/2026-10-10-queue-corrections.md) implementados. Concorrência, agentes reais e despacho pendentes; [ordenação aprovada](superpowers/specs/2026-10-09-queue-eligibility-refinement.md) |
-| YC-205 | 2B: branches e worktrees por PBI | YC-204 | Um escritor por checkout, base registrada, alterações do usuário preservadas, limpeza apenas de recursos próprios e recuperação após criação interrompida | Planejado |
+| YC-205 | 2B: branches e worktrees por PBI | YC-204 | Um escritor por checkout, base registrada, alterações do usuário preservadas, limpeza apenas de recursos próprios e recuperação após criação interrompida | Parcial: [preparo/liberação local explícitos](USAGE.md#pbi-workspaces), retomada verificável e branches preservadas; conexão com execução real pendente |
 | YC-206 | 2B: decisões de PM/Tech Lead e contexto dos agentes | YC-204, YC-205 | Validar propostas estruturadas e revisões; repriorizar somente PBIs não iniciados; avisar líderes uma vez por evento. Contexto reúne referências necessárias, sem ampliar escopo | Planejado |
 | YC-207 | 2C: pausa, retomada e cancelamento | YC-206 | Encerrar despachos/processos, persistir consumo e tentativas, reconciliar efeito incerto e retomar sem repetição. Cancelamento explícito libera a vaga e conserva o trabalho | Planejado |
 | YC-208 | 2C: pacote privado e troca de responsável | YC-207 | Transferir Git, estado, notas e evidências com hashes; excluir credenciais; importar pausado. Origem perde direito de retomar a geração entregue | Planejado |
@@ -611,7 +611,8 @@ R1 remains partial, without relay integration.
 OAuth, relay isolation, real DNS/redirects, package rebuilding
 and whole-host suspension remain pending.
 The outer MCP gateway requires proof that the client cannot reach it even with provider networking enabled.
-R2/R3 have not started. Next come the priority queue and isolated workspaces (2B), pause/resume/transfer
+R2/R3 have not started. The priority queue has a persistent deterministic rehearsal; explicit local
+Git workspace preparation/release is available. Real worker scheduling/integration (2B), pause/resume/transfer
 (2C), independent QA and integration (3), and protected release with verified production (4).
 The short temporary root and complete PID publication passed 17 focused tests; the new full
 suite ran 384 tests without failures or errors, with 11 skips. The [QA report](relatorios/2026-10-04-qa-fixtures.md#english-overview) preserves

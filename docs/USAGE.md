@@ -3210,8 +3210,8 @@ encerrar um ensaio ligado à revisão anterior da missão. O cancelamento não a
 libera diagnósticos nativos. A prévia `initial_backlog` continua independente dos resultados
 sintéticos; nenhum deles satisfaz uma dependência integrada.
 
-A primeira nova escrita aceita da fila migra o banco para o esquema 5, sem criar
-novas tabelas. O índice de sessão ativa passa a incluir correções e espera.
+A primeira nova escrita aceita da fila migra bancos antigos para o esquema 5, sem criar
+novas tabelas nesse incremento. Quando o banco já está no esquema 6, ele é preservado. O índice de sessão ativa passa a incluir correções e espera.
 Leituras e replay exato conservam o esquema anterior. Sessões v1/v2
 continuam pelo fluxo original; seus recibos não são reescritos. Atualize em conjunto
 `missions.py`, `mission_store.py`, `mission_runs.py` e `mission_queue.py`; o instalador
@@ -3251,11 +3251,118 @@ but cannot duplicate the persisted transition. External exactly-once execution i
 Only one rehearsal may be active per repository; one session is allowed per mission
 revision. Cancel preserves history and remains available after mission revision changes.
 
-New accepted queue writes migrate the private SQLite store to schema 5 while retaining native
+New accepted queue writes migrate older private SQLite stores to schema 5 (retaining schema 6 when present) while retaining native
 client diagnostics and blockers. Update the four helpers named above together; existing
 helpers are preserved by the installer for explicit comparison and reconciliation. Reads
 and exact replay never migrate storage. Existing v1/v2 sessions keep their original
 behavior and receipts. The active-session index includes correction and waiting states;
 schema 5 prevents old writers from misinterpreting v3 sessions. Native dispatch remains
-gated by YC-203. Concurrent scheduling, leader decisions, real agents, worktrees and
-release remain roadmap work.
+gated by YC-203. Concurrent scheduling, leader decisions, real agents and product release/deployment remain roadmap work.
+Explicit local worktree preparation is available through the [separate workspace commands](#pbi-workspaces).
+
+<a id="pbi-workspaces"></a>
+
+## Diretório Git por PBI / PBI Git workspaces
+
+**PT:** YC-205 oferece preparo local explícito. Use uma missão preparada e atual,
+o UUID de um PBI selecionado e o SHA completo de um commit disponível no repositório.
+O pedido fixa essas revisões e cria uma branch `youngcrow/pNNN-UUID` com worktree em
+`.runtime/workspaces/UUID`. Até três PBIs podem manter reservas; o mesmo PBI não recebe
+uma segunda reserva ativa. Esse teto limita diretórios preparados; não consome os limites
+de PBIs em execução ou agentes. Isso organiza diretórios Git; não isola permissões nem inicia agentes.
+A fila determinística continua independente.
+
+Execute na raiz original do projeto com Python 3 (`python` no Windows):
+
+```bash
+python3 -B scripts/missions.py --json workspace prepare M001 --pbi PBI_UUID --base SHA_COMPLETO --expected-revision 1 --operation-id UUID_PREPARO --actor-id operador
+python3 -B scripts/missions.py --json workspace status UUID_PREPARO
+python3 -B scripts/missions.py --json workspace release UUID_PREPARO --expected-revision 1 --operation-id UUID_LIBERACAO --actor-id operador
+```
+
+Substitua os exemplos pelos valores reais. Guarde o UUID e o pedido antes de executar.
+`prepare` espera a revisão da missão; `release`, a revisão retornada do workspace.
+`status M001` também lista `workspaces`. A consulta lê o estado salvo, sem inspecionar
+novamente a integridade Git. `prepared` significa diretório preparado, com desenvolvimento,
+QA e produção ainda sem aceite. Nenhum modelo é chamado por esses comandos.
+
+O retorno de preparo informa `path`, `branch`, `base`, `id` e `revision`. Abra o caminho
+retornado para trabalhar. Ele contém os arquivos do commit fixado. Alterações staged,
+unstaged e arquivos novos do checkout original permanecem lá; configurações locais não versionadas,
+credenciais e a instalação local do cliente não são copiadas para o novo diretório.
+
+Para liberar, encerre editores e outros clientes que escrevam nesse worktree. Preserve
+mudanças por commit ou outra ação deliberada antes de chamar `release`. O comando recusa
+arquivos alterados, staged, não rastreados ou ignorados; também recusa HEAD destacado,
+branch trocada, flags de índice que escondam alterações e identidade divergente. A remoção
+usa `git worktree remove` sem força e mantém branch/commits, registrando `last_commit`.
+O lock coordena apenas estes comandos do harness: não existe exclusão global de outros
+clientes Git. O uso exige ausência de escritores externos durante preparo/liberação.
+
+Após interrupção, repita **o mesmo pedido, UUID e revisão**. A intenção é persistida antes
+do Git; branch e referência de propriedade são criadas na mesma transação Git. A retomada
+verifica identidade do diretório, metadados, branch e checkout completo. Uma operação de
+preparo já admitida mantém sua revisão congelada mesmo que a missão seja revisada depois.
+O replay concluído devolve o recibo original; não recria um workspace liberado.
+
+Uma queda entre criar o diretório vazio e salvar sua identidade permanece ambígua. Checkout
+parcial, recurso substituído ou lock nativo remanescente também exigem diagnóstico. Preserve
+os recursos e recibos; não use `--force`, `reset`, `clean`, `prune` ou novo UUID para contornar
+uma reserva. A recuperação só continua automaticamente quando consegue confirmar o recurso.
+
+Perfil coberto: repositório Git local independente, checkout completo, Linux x86-64 ou Windows
+com o supervisor disponível. Links/hardlinks em destinos Git, submódulos, shallow/partial clone,
+sparse checkout, includes e filtros externos configurados são recusados. Hooks, fsmonitor,
+fetch implícito e manutenção automática ficam desativados nos comandos desta operação.
+`.runtime/workspaces/` precisa estar ignorado e sem arquivos rastreados; o setup atualizado
+acrescenta essa regra. O comando não altera `.gitignore` para corrigir uma instalação antiga.
+
+Worktree ativo impede o dry-run de retorno do trial. Libere os worktrees próprios e limpos,
+conserve as branches e peça o preview novamente. Worktrees alheios continuam impedindo retorno;
+a restauração genérica não foi ampliada. Um retorno completo ao baseline reverte o repositório
+inteiro, incluindo branches posteriores: preserve entregas que deseja manter antes de aprová-lo.
+
+Atualize juntos `missions.py`, `mission_store.py`, `mission_runs.py`, `mission_queue.py` e
+`mission_workspace.py`, além das instruções/catálogo do pacote. O instalador preserva helpers
+existentes para comparação. A primeira reserva aceita migra SQLite para esquema 6; leitores
+antigos recusam o banco. Filas/diagnósticos anteriores permanecem legíveis. Status e replay
+concluído não migram nem reparam o armazenamento. Não há integração, push ou aceite nativo.
+
+**EN:** YC-205 now supports explicitly requested local preparation for a PBI in a current
+prepared mission. Use its PBI UUID, full local commit SHA, mission revision and a saved operation
+UUID with `workspace prepare` above. `workspace status` reads the stored record;
+`workspace release` expects the workspace revision and a new operation UUID. Replace the
+Portuguese placeholders with actual values. On Windows use `python` for Python 3.
+
+The result identifies the dedicated branch, directory, base and revision. Up to three PBIs can
+hold workspace reservations, with one active reservation per PBI. This preparation cap is
+separate from active-PBI and agent execution limits. The directory contains the pinned commit;
+uncommitted work, untracked local client setup and credentials stay in the original checkout. No agent runs,
+QA, integration or production acceptance follow from preparing it. Worktrees are not security sandboxes.
+
+Stop external writers before prepare/release. Release refuses staged/unstaged, untracked and
+ignored content, hidden index flags, detached HEAD, changed branch or ownership. It uses native
+non-force worktree removal and retains branch/commits, recording the last commit. The coordinator
+lock does not exclude other Git clients; this is not a globally atomic deletion guarantee.
+
+After interruption, repeat the exact request, UUID and expected revision. Pending preparation
+uses its frozen intent even after mission changes. Recovery verifies ownership and a complete
+checkout; completed replay returns the original receipt and never recreates a released workspace.
+A crash between directory creation and identity persistence, partial checkout, replacement or
+leftover native locks requires diagnosis. Keep the files and receipts; do not force removal,
+reset/clean/prune or bypass a reservation with a new UUID. Status reports saved state only.
+
+Supported profile: standalone full local Git checkout on Linux x86-64 or Windows with the existing
+process supervisor. Redirected metadata, submodules, shallow/partial clones, sparse checkout,
+config includes and external filters are refused. Hooks, fsmonitor, lazy fetch and automatic
+maintenance are disabled. Setup adds an ignore rule for `.runtime/workspaces/`; preparation
+requires this directory to be ignored and untracked, without repairing old installation rules.
+
+An active worktree blocks trial return preview. Release clean owned worktrees first; foreign ones
+still block return. Generic restore is unchanged. A full return to the baseline also reverts later
+branches, so preserve any deliveries you intend to keep before approving that return.
+Update the five helpers listed above and the matching instructions/catalog together. The installer
+preserves existing helpers for comparison. Accepted workspace reservation migrates SQLite to schema 6;
+old readers refuse it, while current queue and diagnostic readers retain their history. Status and
+completed replay do not migrate or repair storage. Queue simulation remains independent; worker
+execution, integration and native acceptance are still pending.

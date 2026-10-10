@@ -1,6 +1,6 @@
 ---
 name: yc-status
-description: Use when finding saved YoungCrow missions or consulting their revisions, planning gaps, source freshness, history or pending projections without changing the project.
+description: Use when finding saved YoungCrow missions or consulting their revisions, planning gaps, source freshness, history, saved PBI workspaces or pending projections without changing the project.
 ---
 
 # Read mission status
@@ -45,3 +45,11 @@ For missing or stale evidence, name the next action without performing it. Docum
 For an explicitly requested repair, continue with `yc-missao`, whose reference covers adoption
 and repair. Keep this consultation read-only and report pending/conflict honestly. A read-only
 request does not authorize a repair, even when the next action seems obvious.
+
+
+Mission status includes `workspaces`. To read one saved workspace receipt, use
+`python3 -B scripts/missions.py --json workspace status WORKSPACE_UUID`.
+This is persisted state, not a fresh Git integrity or cleanliness check. Report its mission/PBI
+revisions, pinned base, branch/path and preparing/prepared/releasing/released state separately from
+real delivery progress. Do not resume prepare or release as part of status. A pending operation
+needs its exact saved request/UUID through `yc-missao` when recovery is requested.

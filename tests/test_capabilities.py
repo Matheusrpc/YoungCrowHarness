@@ -57,6 +57,11 @@ class CatalogTests(CapabilityCase):
         for cap in selected:
             self.assertIn('scripts/mission_sandbox.py', cap['files']['common'])
             self.assertIn('scripts/mission_environment.py', cap['files']['common'])
+            self.assertIn('scripts/mission_workspace.py', cap['files']['common'])
+            if cap['id'] == 'yc-status':
+                self.assertEqual(cap['permissions']['write'], [])
+            if cap['id'] == 'yc-missao':
+                self.assertIn('operator-authorized PBI branches, Git worktree metadata and owned directories under .runtime/workspaces', cap['permissions']['write'])
             for helper in ('mission_sbx.py', 'mission_execution.py', 'mission_egress.py', 'mission_controller.py', 'mission_transaction.py'):
                 self.assertIn('scripts/' + helper, cap['files']['common'])
             self.assertIn('scripts/adoption.py', cap['files']['common'])

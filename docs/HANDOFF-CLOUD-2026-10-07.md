@@ -4,6 +4,20 @@ Frente: produto YoungCrowHarness, com trabalho ativo no executor isolado.
 
 Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra sessão consiga continuar sem receber toda a conversa. Reúne decisões do mantenedor, estado do código, resultados observados, falhas, limites e próximos passos. Os caminhos de arquivos, salvo indicação contrária, são relativos à raiz do repositório.
 
+**YC-205 parcial (10/out):** preparo/liberação explícitos de worktree Git por PBI,
+com commit base fixado, branch própria, recibos e retomada do pedido congelado.
+[Uso e limites](USAGE.md#pbi-workspaces) e [provas](relatorios/2026-10-10-pbi-workspaces.md). Diretório contém o commit, sem copiar alterações
+locais/configurações. Release exige recurso próprio e limpo, preserva branch/commits;
+worktree ativo continua bloqueando retorno do trial. Alterações Git externas não obedecem
+o lock; encerrar outros escritores antes da operação. Ambiguidade não autoriza limpeza.
+SQLite 6 mantém fila/diagnósticos e recusa leitores antigos; atualizar os cinco helpers
+indicados no guia e catálogo/instruções. A fila fixture não aciona estes comandos.
+YC-205 continua parcial; não liberar agentes, integração ou runtime nativo.
+CI da base `1cb1fb2` aprovado nos oito checks, incluindo Windows, runs
+[push 38048920216](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38048920216) e
+[PR 38048924603](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38048924603).
+Conferir o CI do novo incremento separadamente. Os checkpoints seguintes são históricos.
+
 **YC-204 com correções limitadas (10/out):** o [ensaio de QA reprovado](relatorios/2026-10-10-queue-corrections.md)
 acrescenta cenários fechados no primeiro PBI elegível: aprovação inicial, uma correção
 ou esgotamento das três correções. O contador começa no despacho simulado da correção,
@@ -849,7 +863,7 @@ Fonte: `docs/BACKLOG.md`. IDs são planejamento público; não são PBIs automat
 | YC-202 | Limites, recibos e recuperação de processo | Simuladores verificados; integração isolada pendente |
 | YC-203 | Perfis nativos, instalação e provas autenticadas | Frente ativa, parcial |
 | YC-204 | Coordenador e fila por prioridade | Depois de YC-203 |
-| YC-205 | Branches/worktrees por PBI | Depois da fila |
+| YC-205 | Branches/worktrees por PBI | Preparo/liberação explícitos disponíveis; integração com agentes pendente |
 | YC-206 | Decisões dos agentes PM/Tech Lead e contexto de trabalho | Depois de fila e worktrees |
 | YC-207 | Pausar, retomar e cancelar | Planejado |
 | YC-208 | Pacote privado e transferência de responsabilidade | Planejado |

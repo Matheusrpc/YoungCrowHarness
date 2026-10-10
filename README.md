@@ -92,6 +92,13 @@ da mesma sessão sintética. A autocorreção de agentes reais continua no roadm
 Repetir uma operação recupera seu recibo. O ensaio não chama modelos nem aprova entrega real.
 [Provas e limites](docs/relatorios/2026-10-10-queue-corrections.md).
 
+O [preparo de um diretório Git por PBI](docs/USAGE.md#pbi-workspaces) já está disponível:
+`workspace prepare/status/release` fixa o commit de base e mantém recibos para retomada.
+O checkout original conserva suas alterações. A liberação exige um worktree próprio e limpo,
+preserva branch/commits e permite pedir novamente o preview de retorno do trial.
+É preparo local explícito; agentes reais e integração seguem pendentes.
+
+
 O checkpoint `a0af931` passou nos oito jobs de CI entre push e PR, incluindo Windows.
 [Publicação e resultados](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
 O aceite nativo do executor continua pendente.
@@ -713,6 +720,12 @@ items follow saved priority. Counts survive restarts of the same synthetic sessi
 Correction by real agents remains roadmap work.
 Replaying an operation recovers its receipt. No models or real delivery acceptance are involved.
 [Evidence and limits](docs/relatorios/2026-10-10-queue-corrections.md#english-overview).
+
+[Explicit PBI Git workspace preparation](docs/USAGE.md#pbi-workspaces) is now available through
+`workspace prepare/status/release`, with a pinned base and recoverable receipts. Original checkout
+changes are preserved. Release requires a clean owned worktree and retains its branch/commits,
+allowing a new trial return preview. Real workers and integration remain pending.
+
 
 Checkpoint `a0af931` passed all eight push/PR CI jobs, including Windows.
 [Publication and results](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).

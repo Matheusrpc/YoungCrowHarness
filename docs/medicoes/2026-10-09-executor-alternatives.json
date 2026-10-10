@@ -2,7 +2,7 @@
   "front": "YC-203 architecture alternatives",
   "base_commit": "715c8db795d41a1387c4ce4fa2f8c2b1bb6cc2a7",
   "reviewed_at_utc": "2026-10-10T00:30:34.063646+00:00",
-  "outcome": "comparison_complete_readonly_windows_inventory_pending",
+  "outcome": "inventory_received_hyperv_role_candidate_paused_on_windows_home",
   "source_sha256": {
     "scripts/mission_network.py": "d98a0df50082e6006426242ef27c784bd4b9cfe136f45d590f603645931176fa",
     "scripts/mission_transaction.py": "935bc018847da7ecbbd3c14ea41a34d380a7fba29b94b05868c4a3c88294cb5c",
@@ -12,7 +12,8 @@
     "docs/superpowers/specs/2026-10-04-isolated-executor-design.md": "ae083335022cce9787e9a6c90fb84502d586d61ad23fed6b98031cf273c3917a",
     "docs/superpowers/specs/2026-10-05-local-and-dedicated-execution.md": "9170177c48e445a9e986b5357256cac1b8f7d21fd3f5a4606e3a23fee6d11c7a",
     "docs/superpowers/specs/2026-10-05-exclusive-egress-decision.md": "4fce8b552ea06cce107458ea92bf692e9b3024a4e6d11aaf4d62216dd4dacabb",
-    "docs/superpowers/plans/2026-10-07-executor-consolidation.md": "d3b7c787dd339661b09a81c77e66c8167c0625358c328630a603d66b0df3028e"
+    "docs/superpowers/plans/2026-10-07-executor-consolidation.md": "d3b7c787dd339661b09a81c77e66c8167c0625358c328630a603d66b0df3028e",
+    "scripts/mission_sandbox.py": "44756ecbf3c3806159962743bd8e1d3f7b37560d72f99c98c1af3376d3ba3858"
   },
   "independent_reviews": [
     {
@@ -30,19 +31,65 @@
     "product_code_changed": false,
     "native_runs": 0,
     "model_calls": 0,
-    "windows_inventory_executed": false,
+    "windows_inventory_executed": true,
     "replacement_approved": false,
     "profile_enabled": false,
     "native_correction_cycles_used": 2,
-    "native_correction_cycle_limit": 3
+    "native_correction_cycle_limit": 3,
+    "windows_inventory_origin": "operator_report"
   },
-  "next_action": "Receive selected Windows metadata; assess feasibility before proposing a replacement implementation.",
+  "next_action": "Read the failed Windows CI traceback after the saved additive network draft is applied; Docker local contract remains pending.",
   "validation": {
     "markdown_links_checked": 383,
     "missing": 0,
     "source_hashes_match": true,
     "executable_files_changed": false,
-    "powershell_executed": false,
-    "independent_report_review": "no_blocking_findings"
+    "independent_report_review": "no_blocking_findings",
+    "powershell_executed_in_cloud": false
+  },
+  "windows_inventory": {
+    "kind": "operator_message_transcribed_fields",
+    "original_output_file_received": false,
+    "inventory": {
+      "host": {
+        "OsName": "Microsoft Windows 11 Home Single Language",
+        "OsVersion": "10.0.26200",
+        "WindowsEditionId": "CoreSingleLanguage",
+        "CsTotalPhysicalMemory": 8253427712,
+        "HyperVisorPresent": true,
+        "HyperVRequirementDataExecutionPreventionAvailable": null,
+        "HyperVRequirementSecondLevelAddressTranslation": null,
+        "HyperVRequirementVirtualizationFirmwareEnabled": null,
+        "HyperVRequirementVMMonitorModeExtensions": null
+      },
+      "hyperv_module_available": false
+    },
+    "memory_gib": 7.686603546142578,
+    "official_source": {
+      "url": "https://github.com/MicrosoftDocs/windowsserverdocs/blob/a67a8c2abcdc729692a24f904778f0b5e8f67773/WindowsServerDocs/virtualization/hyper-v/get-started/Install-Hyper-V.md",
+      "commit": "a67a8c2abcdc729692a24f904778f0b5e8f67773",
+      "blob_sha": "529a9e324efc358654029bf64710b57132bb8fbf",
+      "sha256": "1c571e85e43992b5b522fbdb45adbf74d83aed1c4558168a3163ff913454b47f",
+      "quote": "The Hyper-V role **can't** be installed on Windows 10 Home or Windows 11 Home."
+    },
+    "local_sbx_whp_compatibility_established_by_this_inventory": false,
+    "hyperv_control_vm_path": "paused_on_this_home_edition",
+    "upgrade_recommended": false
+  },
+  "ci_failure": {
+    "commit": "136469e49f828f74e56e9f21300ed56dda1dd286",
+    "run": 38009453104,
+    "job": 114085811768,
+    "step": "Diagnose Windows network, selection locks and cleanup",
+    "test": "test_mission_egress.EgressTests.test_abrupt_controller_exit_before_config_reaps_the_waiting_guard",
+    "same_commit_push_diagnostic": "passed",
+    "same_commit_push_run": 38009448689,
+    "traceback_retrieved": false,
+    "cause": "undetermined",
+    "log_host": "productionresultssa3.blob.core.windows.net",
+    "network_addition_saved_as_draft": true,
+    "network_change_verified_applied": false,
+    "retry_performed": false,
+    "product_fix_attempted": false
   }
 }

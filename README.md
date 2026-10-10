@@ -52,8 +52,9 @@ identificou uma alternativa com proxy fixo entre missões. Ela pode reduzir escr
 mas ainda depende de proteção do endpoint e recuperação das credenciais; não foi
 implementada. O contrato atual e os bloqueios permanecem.
 A [comparação das alternativas](docs/relatorios/2026-10-09-executor-alternatives.md)
-detalha os contratos que mudariam e propõe conferir a infraestrutura do Windows por
-leitura antes de escolher uma substituição. Nenhum novo backend foi implementado.
+recebeu o inventário do PC: a candidata via função Hyper-V fica pausada no Windows
+Home. Isso não reprova o sbx/WHP existente nem resolve o contrato Docker. Nenhum
+novo backend foi implementado.
 
 A consulta ao Docker está publicada na [issue #690](https://github.com/docker/sbx-releases/issues/690),
 aberta pelo mantenedor em 9/out. A publicação e o texto foram conferidos pela API;
@@ -664,8 +665,9 @@ identified a fixed proxy between missions as a way to reduce writes. Endpoint ow
 and credential recovery remain unresolved; the alternative is not implemented.
 The current contract and gates remain.
 The [alternatives review](docs/relatorios/2026-10-09-executor-alternatives.md#english-overview)
-details the contract changes and proposes a read-only Windows inventory before
-choosing a replacement. No new backend has been implemented.
+received the PC inventory: the Hyper-V role candidate is paused on Windows Home.
+This does not establish an existing sbx/WHP incompatibility or resolve Docker's
+local contract. No new backend has been implemented.
 
 The maintainer published the Docker inquiry as [issue #690](https://github.com/docker/sbx-releases/issues/690)
 on Oct 9. Publication and body were verified through the API; a response about the

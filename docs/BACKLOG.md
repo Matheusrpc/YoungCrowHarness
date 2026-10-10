@@ -48,12 +48,16 @@ ownership and credential recovery remain unresolved. Exclusive installation was 
 approved. No replacement was implemented; a vendor issue remains optional.
 
 A [revisão seguinte](relatorios/2026-10-09-executor-alternatives.md) compara instalação
-estável e VM de controle própria. Próxima ação: inventário somente leitura do Windows
-para avaliar a infraestrutura disponível. Não há backend novo, instalação ou aceite;
-YC-203 e o contador de dois ciclos consumidos permanecem.
+estável e VM de controle própria. Inventário recebido: a candidata via função
+Hyper-V fica pausada no Windows Home do operador; sbx/WHP não foi reprovado por
+essa consulta. Não há backend novo, instalação ou aceite; YC-203 e o contador de
+dois ciclos consumidos permanecem. Uma falha independente do CI Windows aguarda
+traceback completo, cujo download está bloqueado pela rede da cloud.
 The [follow-up review](relatorios/2026-10-09-executor-alternatives.md#english-overview)
-compares a stable installation with an isolated control VM. Next: a read-only Windows
-inventory. No backend replacement, provisioning or native acceptance has occurred.
+compares a stable installation with an isolated control VM. The received Windows
+Home inventory pauses the Hyper-V role candidate on this PC, without establishing
+an sbx/WHP incompatibility. No replacement, provisioning or native acceptance has
+occurred. A separate Windows CI failure awaits its network-blocked traceback.
 
 Histórico de 8/out: leituras de missão e observação independente de egress, publicado
 em `b106bc5`. Passaram 616 testes locais, com 20 pulados; adoção com diagnóstico em

@@ -4,6 +4,32 @@ Frente: YC-203, revisão de arquitetura solicitada após a descoberta nos dois c
 Base: `715c8db795d41a1387c4ce4fa2f8c2b1bb6cc2a7`. Proposta em avaliação;
 nenhuma substituição de backend aprovada ou implementada nesta rodada.
 
+**Inventário recebido:** Windows 11 Home Single Language, hipervisor detectado e
+módulo Hyper-V ausente. A candidata de VM de controle usando a função Hyper-V fica
+pausada nesse PC. A consulta está concluída; não é necessário repeti-la.
+
+## Resultado do inventário Windows
+
+O operador enviou estes campos no terminal, transcritos na medição:
+
+| Campo | Observação | Interpretação |
+|---|---|---|
+| Sistema | Windows 11 Home Single Language, `CoreSingleLanguage`, `10.0.26200` | A função Hyper-V não é suportada nessa edição |
+| Módulo Hyper-V | Ausente | Coerente com a edição; não diagnostica o processador |
+| Hipervisor | `HyperVisorPresent: true` | Há hipervisor detectado; não prova gerenciamento de VMs nem virtualização aninhada |
+| Requisitos Hyper-V | Quatro valores `null` | Indeterminados; não significam virtualização desativada ou CPU incompatível |
+| Memória física total | 8.253.427.712 bytes, aproximadamente 7,69 GiB | Não mede memória livre nem demonstra inviabilidade de uma carga |
+
+A [documentação da Microsoft](https://github.com/MicrosoftDocs/windowsserverdocs/blob/a67a8c2abcdc729692a24f904778f0b5e8f67773/WindowsServerDocs/virtualization/hyper-v/get-started/Install-Hyper-V.md)
+declara: “The Hyper-V role **can't** be installed on Windows 10 Home or Windows 11 Home.”
+Fonte lida na revisão fixa acima; hash e trecho preservados na medição.
+
+Essa conclusão se aplica à função Hyper-V usada na alternativa proposta. O preflight
+atual do YoungCrow consulta `HypervisorPlatform` (WHP) em `mission_sandbox._host_facts`.
+O inventário recebido não mediu esse recurso e não permite reprovar o sbx existente.
+Outras plataformas continuam sem avaliação. Não há recomendação de compra, mudança
+de edição ou instalação forçada; isso não resolveria o contrato local Docker por si só.
+
 O objetivo permanece executar Claude Code e Codex por assinatura, com credenciais
 fora da VM de trabalho, prazo imposto, recuperação e preservação do estado alheio.
 Execução local continua sendo o padrão; runner dedicado é opcional. A
@@ -62,15 +88,14 @@ Continuariam necessárias provas de rede, endpoint, perda do coordenador, expira
 suspensão e retomada. Estado salvo, clones ou checkpoints não podem reativar uma
 operação vencida. A VM não substitui o guard nem certifica esses comportamentos.
 
-## Recomendação e próxima ação concreta
+## Consulta executada
 
-Preservar o executor atual e a consulta ao Docker. Antes de escolher uma substituição,
-conferir se o PC oferece a infraestrutura nativa para avaliar a VM de controle.
-Essa consulta é menor que implementar um serviço permanente ou um backend de VMs
-sem conhecer a plataforma. Não construir hipervisor, distribuição, OAuth próprio,
-framework de provisionamento ou nova camada remota nesta etapa.
+Antes de escolher uma substituição, foi consultada a infraestrutura nativa do PC.
+O resultado acima pausa a candidata Hyper-V nessa edição, preservando o executor
+atual e a consulta ao Docker. Não foi construído hipervisor, distribuição, OAuth
+próprio, framework de provisionamento ou nova camada remota.
 
-No PowerShell do PC original, executar uma vez:
+O bloco abaixo registra a consulta já executada no PowerShell do PC original:
 
 ```powershell
 & {
@@ -84,10 +109,11 @@ No PowerShell do PC original, executar uma vez:
 }
 ```
 
-Enviar o JSON para análise. O comando consulta versão/edição do Windows, memória,
+O JSON foi recebido e analisado. O comando consulta versão/edição do Windows, memória,
 indicadores de virtualização e presença do módulo Hyper-V. Não enumera VMs, não
 imprime identificadores da máquina ou credenciais, não instala recursos e não
-inicia Docker, clientes ou modelos. Foi revisado, mas não executado nesta cloud Linux.
+inicia Docker, clientes ou modelos. Foi executado pelo operador; a cloud conferiu
+os campos recebidos e a documentação oficial, sem repetir a consulta.
 
 Um módulo presente não prova suporte a virtualização aninhada. Indicadores nulos
 ou falsos com hipervisor ativo também não demonstram incompatibilidade. A análise
@@ -95,9 +121,22 @@ deve separar o que foi observado do que ainda falta: permissões, hipervisor,
 sistema convidado, KVM e sbx nessa combinação. Não instalar nem habilitar Hyper-V
 automaticamente para obter um resultado positivo.
 
-O retorno desta consulta orienta a proposta seguinte. Ainda não há plano de
-provisionamento, novo ensaio A/B/A2 ou substituição aprovada. Permanecem os dois
-ciclos consumidos de três, perfis bloqueados e recuperação dos recibos antigos.
+Não há plano de provisionamento, novo ensaio A/B/A2 ou substituição aprovada.
+Permanecem os dois ciclos consumidos de três, perfis bloqueados e recuperação dos
+recibos antigos. O contrato local Docker continua sendo o bloqueio do caminho vigente.
+
+## Falha independente do CI
+
+No commit documental `136469e`, o [job Windows do PR](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38009453104/job/114085811768)
+falhou no teste `test_abrupt_controller_exit_before_config_reaps_the_waiting_guard`.
+O mesmo diagnóstico passou no job de push da mesma revisão. Os fontes executáveis
+não mudaram desde `058be40`. Isso não identifica a causa nem autoriza ampliar prazos.
+
+As anotações identificam o teste, mas não trazem o traceback. O download do log foi
+bloqueado pela rede da cloud no host de armazenamento dos Actions. A adição desse
+host foi salva no rascunho do ambiente; aplicação e leitura do log ainda precisam
+ser confirmadas. O próximo diagnóstico é obter esse traceback, sem repetir o ensaio
+do operador ou alterar código com base apenas no nome do teste.
 
 ## Evidência da revisão
 
@@ -114,10 +153,17 @@ persistent endpoint and a different proof contract. An additional control VM cou
 isolate the entire sbx control plane, but requires nested virtualization, ownership,
 network and shutdown evidence. Neither alternative is implemented or certified.
 
-The next step is the read-only Windows inventory above. It neither changes system
-features nor runs a client or model. Its result will inform a concrete proposal;
-module presence alone does not prove nested sbx support. Preserve local-first use,
-provider-managed subscription login, old recovery contracts and the 2/3 cycle count.
-No new native attempt, provisioning or backend replacement is approved by this review.
+The operator supplied the read-only inventory: Windows 11 Home Single Language,
+Hyper-V module absent, hypervisor detected, null requirement fields and 7.69 GiB of
+total physical memory. Microsoft's pinned documentation excludes the Hyper-V role
+on Home editions, so that control-VM candidate is paused on this PC. This does not
+establish a WHP/sbx incompatibility, CPU failure or insufficient memory. No upgrade,
+installation or repeat inventory is requested. Preserve local-first use, subscription
+login, old recovery contracts and the 2/3 cycle count.
 
-ATRASO: revisão preparada | inventário Windows pendente | executor nativo bloqueado.
+Separately, the PR Windows CI failed the abrupt-controller-exit test; the same
+diagnostic passed on push. Cause is unverified without its traceback. The log-storage
+host is blocked by cloud network policy; an additive draft change is saved, not yet
+verified in the running environment. No product-code fix or native retry was performed.
+
+ATRASO: inventário 0 | alternativa Hyper-V pausada | diagnóstico CI pendente | executor bloqueado.

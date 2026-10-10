@@ -17,10 +17,16 @@ Preservar os recibos; não repetir P06 ou a descoberta. Próxima ação: retomar
 quando houver evidência aplicável ao contrato local Docker. Aplicação nativa das
 skills, fila e agentes continuam na sequência aprovada, sem habilitação antecipada.
 O mantenedor pediu avanço após a explicação do bloqueio; iniciou-se uma
-[revisão de alternativas](relatorios/2026-10-09-executor-alternatives.md). Próxima
-ação dessa revisão: receber o inventário Windows somente leitura do roteiro.
-Comparação concluída; VM de controle e instalação estável são hipóteses sem aceite,
-não substituições aprovadas. Nenhum novo ciclo nativo, instalação ou provisionamento.
+[revisão de alternativas](relatorios/2026-10-09-executor-alternatives.md). Inventário
+recebido: Windows 11 Home Single Language, hipervisor detectado, módulo Hyper-V ausente
+e 7,69 GiB de RAM total. A função Hyper-V não é suportada nessa edição; candidata
+pausada nesse PC. Não repetir inventário, recomendar upgrade ou reprovar sbx/WHP
+com esses campos. Nenhuma substituição, instalação ou novo ciclo nativo aprovado.
+Falha independente: CI Windows do PR em `136469e`, teste de queda abrupta do
+controlador. Mesmo diagnóstico passou no push; causa ainda sem traceback. Próxima
+ação: aplicar a adição salva no rascunho de rede e obter o log completo. A leitura
+é bloqueada em `productionresultssa3.blob.core.windows.net`; não ajustar prazos ou
+reexecutar por suposição. Docker #690 permanece sem resposta no último checkpoint.
 Os parágrafos seguintes preservam a sequência histórica e suas decisões na ocasião.
 
 Checkpoint conferido em 9/out: `a0af931` passou nos oito jobs de push e PR, incluindo

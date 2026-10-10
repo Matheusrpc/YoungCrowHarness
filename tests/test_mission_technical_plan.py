@@ -142,9 +142,9 @@ class TechnicalPlanTests(MissionCase):
             return original(root, items)
         with patch.object(missions, 'frozen_inputs', side_effect=changed_source):
             mission = missions.prepare_mission(self.root, self.request, str(uuid.uuid4()), PM)
-        self.assertTrue(missions.mission_status(self.root, mission['code'])['check_available'])
+        self.assertFalse(missions.mission_status(self.root, mission['code'])['check_available'])
         before = self.snapshot()
-        with self.assertRaisesRegex(ValueError, 'invalid_plan_reference'):
+        with self.assertRaisesRegex(ValueError, 'mission_not_ready'):
             self.apply(dict(self.proposal, mission_id=mission['record_id']))
         self.assertEqual(self.snapshot(), before)
 

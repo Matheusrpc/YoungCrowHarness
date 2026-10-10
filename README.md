@@ -112,6 +112,9 @@ O Tech Lead pode [selecionar o plano técnico de um PBI](docs/USAGE.md#technical
 entre suas referências diretas. A escolha registra motivo, revisão e hash da nota;
 `context` entrega esse plano junto aos critérios, preservando o contrato do PBI.
 
+O preparo também confere se os hashes congelados correspondem às notas e referências
+importadas. Divergência deixa a missão em rascunho; `status` bloqueia snapshots antigos
+inconsistentes e orienta importar as edições e revisar a missão. [Detalhes](docs/USAGE.md#mission-input-consistency).
 
 O checkpoint `a0af931` passou nos oito jobs de CI entre push e PR, incluindo Windows.
 [Publicação e resultados](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
@@ -754,6 +757,9 @@ The Tech Lead can [select a PBI's technical plan](docs/USAGE.md#technical-plan) 
 its direct references. The choice records a reason, revision and note hash;
 `context` delivers that plan alongside the criteria while preserving the PBI contract.
 
+Preparation also checks frozen hashes against imported notes and references. A mismatch
+leaves a draft; `status` blocks inconsistent older snapshots and directs explicit import
+and mission revision. [Details](docs/USAGE.md#mission-input-consistency).
 
 Checkpoint `a0af931` passed all eight push/PR CI jobs, including Windows.
 [Publication and results](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).

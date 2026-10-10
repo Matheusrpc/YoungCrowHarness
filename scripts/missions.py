@@ -152,6 +152,16 @@ def frozen_inputs(root, items):
     return {p: hashlib.sha256(value).hexdigest() for p, value in data.items()}
 
 
+def conflicting_inputs(items, inputs):
+    """Paths whose frozen bytes disagree with an imported note or reference."""
+    conflicts = set()
+    for record in items:
+        item = record['snapshot']
+        refs = [dict(path=item['note_path'], sha256=item['note_sha256']), *item['references']]
+        conflicts.update(ref['path'] for ref in refs if inputs.get(ref['path']) != ref['sha256'])
+    return conflicts
+
+
 def build_mission(root, request, defaults):
     records = {r['id']: r for r in store.list_records(root, None) if r['kind'] != 'mission'}
     for feature in request['feature_ids']:
@@ -184,9 +194,11 @@ def build_mission(root, request, defaults):
     gaps.extend(config_gaps(config))
     observations, cap_gaps = capability_snapshot(root, config)
     gaps.extend(cap_gaps)
+    inputs = frozen_inputs(root, items)
+    gaps.extend('stale_input:' + path for path in conflicting_inputs(items, inputs))
     return dict(title=request['title'], feature_ids=request['feature_ids'], pbi_ids=pbis, priority=request['priority'],
                 scope_reference=request['scope_reference'], overrides=request['overrides'], config=config,
-                config_digest=config_digest(config), inputs=frozen_inputs(root, items), items=items,
+                config_digest=config_digest(config), inputs=inputs, items=items,
                 capabilities=observations, gaps=sorted(set(gaps)), state='draft' if gaps else 'prepared',
                 runtime_available=False, runnable=False, development='not_started', qa='not_started', production='not_verified')
 
@@ -401,20 +413,20 @@ def mission_status(root, mission_id):
                     runtime_available=False, runnable=False)
     require(existing['kind'] == 'mission', 'unknown_mission')
     snapshot = existing['snapshot']
-    stale = []
+    stale = conflicting_inputs(snapshot['items'], snapshot['inputs'])
     for path, expected in snapshot['inputs'].items():
         try:
             if hashlib.sha256(read_inputs(root, [path])[path]).hexdigest() != expected:
-                stale.append(path)
+                stale.add(path)
         except (OSError, ValueError):
-            stale.append(path)
+            stale.add(path)
     with store.reader(root) as conn:
         require(conn is not None, 'invalid_store')
         current_records = {r[0]: store.record_dict(r) for r in conn.execute('SELECT * FROM records').fetchall()}
         for record in snapshot['items']:
             current = current_records.get(record['id'])
             if current is None or current['revision'] != record['revision']:
-                stale.append('revision:' + record['id'])
+                stale.add('revision:' + record['id'])
         history = [store.event_dict(r) for r in conn.execute('SELECT * FROM events WHERE record_id=? ORDER BY seq', (existing['id'],)).fetchall()]
         projections = conn.execute('SELECT p.path,p.sha256 FROM projections p JOIN events e ON e.seq=p.sequence WHERE e.record_id=?', (existing['id'],)).fetchall()
         queue_sessions = queue_helper().read_sessions(conn, existing['id'])

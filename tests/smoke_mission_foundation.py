@@ -205,6 +205,37 @@ print(json.dumps(result))
                     check(digest(project / name) == retained[name], 'legacy_content_changed')
         if extra_check:
             extra_check(project, case, env, first['record_id'])
+        freezing = '''import json, sys
+from pathlib import Path
+from unittest.mock import patch
+sys.path.insert(0, 'scripts')
+import missions
+root = Path.cwd()
+profile = root / 'vault/product/profile.md'
+original_bytes = profile.read_bytes()
+original_freeze = missions.frozen_inputs
+def changed(root, items):
+    profile.write_bytes(original_bytes + b'\\nChanged during prepare\\n')
+    return original_freeze(root, items)
+try:
+    with patch('missions.frozen_inputs', side_effect=changed):
+        result = missions.prepare_mission(root, json.loads(Path(sys.argv[1]).read_text()),
+                                          sys.argv[2], dict(id='fixture', role='pm'))
+finally:
+    profile.write_bytes(original_bytes)
+print(json.dumps(result))
+'''
+        raced = json.loads(run([sys.executable, '-B', '-c', freezing, mission_path, str(uuid.uuid4())], env=env, cwd=project))
+        before_read = fixture.snapshot()
+        inconsistent = cli('status', raced['code'])
+        check(inconsistent['state'] == 'draft' and not inconsistent['check_available'] and
+              inconsistent['stale_inputs'] == ['vault/product/profile.md'] and
+              'stale_input:vault/product/profile.md' in inconsistent['gaps'], 'mixed_input_mission_accepted')
+        check(inconsistent['queue_preview']['first_candidate_id'] is None and fixture.snapshot() == before_read,
+              'mixed_input_status_changed_state')
+        cli('revise', raced['code'], '--input', mission_path, '--expected-revision', '1',
+            '--operation-id', str(uuid.uuid4()), *actor)
+        check(cli('status', raced['code'])['check_available'], 'explicit_consistent_revision_failed')
         vault = json.loads(run([sys.executable, '-B', 'scripts/vault.py', 'check', '--json'], env=env, cwd=project))
         check(vault['issues'] == [], 'vault_invalid')
         outcomes.append(dict(mode=mode, project_id=fixture.project_id, features=2, pbis=4,
@@ -215,6 +246,7 @@ print(json.dumps(result))
                              selected_pbi_context=True, context_without_writes=True,
                              restricted_pm_priority=True, priority_preview_without_writes=True,
                              selected_technical_plan=True, technical_preview_without_writes=True,
+                             inconsistent_inputs_blocked=True, explicit_consistent_revision=True,
                              projection_recovered=True, vault_notes=vault['notes_checked'],
                              state='prepared', runtime_available=False))
 

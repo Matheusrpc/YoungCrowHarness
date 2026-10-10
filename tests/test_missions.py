@@ -217,6 +217,98 @@ class MissionTests(MissionCase):
         self.assertFalse(status['stale_inputs'])
         self.assertEqual(self.m.prepare_mission(self.root, request, self.op_id, actor)['sequence'], receipt['sequence'])
 
+    def test_input_consistency_prepare_detects_changes_during_freeze(self):
+        request, actor = self.prepared_fixture()
+        original = self.m.frozen_inputs
+        # Change real bytes after read_item, before inputs are frozen. Cover each
+        # contract level and a reference shared by two PBIs.
+        for relative in [*self.paths, 'vault/product/profile.md']:
+            with self.subTest(path=relative):
+                path = self.root / relative
+                old = path.read_bytes()
+                def changed(root, items):
+                    path.write_bytes(old + b'\nChanged while preparing\n')
+                    return original(root, items)
+                operation = str(uuid.uuid4())
+                with patch.object(self.m, 'frozen_inputs', side_effect=changed):
+                    receipt = self.m.prepare_mission(self.root, request, operation, actor)
+                status = self.m.mission_status(self.root, receipt['code'])
+                observed = path.read_bytes()
+                path.write_bytes(old)
+                self.assertEqual(status['state'], 'draft')
+                self.assertIn('stale_input:' + relative, status['gaps'])
+                self.assertEqual(status['stale_inputs'], [relative])
+                self.assertFalse(status['check_available'])
+                self.assertIsNone(status['queue_preview']['first_candidate_id'])
+                self.assertEqual(self.m.prepare_mission(self.root, request, operation, actor), receipt)
+                self.assertEqual(len(self.db.events(self.root, receipt['record_id'])), 1)
+                self.assertEqual(observed, old + b'\nChanged while preparing\n')
+
+    def test_input_consistency_revision_requires_explicit_reimport_and_revision(self):
+        request, actor = self.prepared_fixture()
+        first = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        original = self.m.frozen_inputs
+        relative = self.paths[-1]
+        path = self.root / relative
+        def changed(root, items):
+            path.write_bytes(path.read_bytes() + b'\nUpdated PBI prose\n')
+            return original(root, items)
+        with patch.object(self.m, 'frozen_inputs', side_effect=changed):
+            second = self.m.revise_mission(self.root, first['code'], request, 1, str(uuid.uuid4()), actor)
+        status = self.m.mission_status(self.root, first['code'])
+        self.assertEqual((status['state'], status['revision']), ('draft', 2))
+        self.assertIn('stale_input:' + relative, status['gaps'])
+        self.m.import_item(self.root, relative, 1, str(uuid.uuid4()), TL)
+        self.assertFalse(self.m.mission_status(self.root, first['code'])['check_available'])
+        third = self.m.revise_mission(self.root, first['code'], request, 2, str(uuid.uuid4()), actor)
+        current = self.m.mission_status(self.root, third['code'])
+        self.assertTrue(current['check_available'])
+        self.assertEqual(current['stale_inputs'], [])
+        self.assertEqual(current['gaps'], [])
+        self.assertEqual([e['revision'] for e in current['events']], [1, 2, 3])
+        self.assertIn('stale_input:' + relative,
+                      self.db.events(self.root, second['record_id'])[1]['record']['snapshot']['gaps'])
+
+    def test_input_consistency_legacy_snapshot_blocks_admission_without_repair(self):
+        import hashlib
+        import mission_queue
+        import mission_runs
+        import mission_workspace
+        request, actor = self.prepared_fixture()
+        first = self.m.prepare_mission(self.root, request, self.op_id, actor)
+        self.git('add', '--', '.gitignore')
+        self.git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'base')
+        base = self.git('rev-parse', 'HEAD').stdout.decode().strip()
+        for relative in (self.paths[-1], 'vault/product/profile.md'):
+            with self.subTest(path=relative):
+                # Persist exactly the inconsistent shape accepted by old writers:
+                # current bytes in inputs, old bytes in imported item hashes, no gaps.
+                snapshot = copy.deepcopy(self.db.get_record(self.root, first['record_id'])['snapshot'])
+                path = self.root / relative
+                old = path.read_bytes()
+                path.write_bytes(old + b'\nLegacy race\n')
+                snapshot['inputs'][relative] = hashlib.sha256(path.read_bytes()).hexdigest()
+                legacy = self.m.commit(self.root, dict(id=str(uuid.uuid4()), kind='mission', snapshot=snapshot,
+                    _request=dict(action='legacy-fixture')), 0, str(uuid.uuid4()), actor)
+                before = self.snapshot()
+                status = self.m.mission_status(self.root, legacy['code'])
+                self.assertEqual(status['state'], 'prepared')  # History is preserved.
+                self.assertFalse(status['check_available'])
+                self.assertIn(relative, status['stale_inputs'])
+                self.assertEqual(status['next_action'], 'revise_inputs')
+                self.assertIsNone(status['queue_preview']['first_candidate_id'])
+                with self.assertRaisesRegex(ValueError, 'mission_not_ready'):
+                    mission_queue.apply(self.root, 'start', legacy['code'], 1, str(uuid.uuid4()), 'fixture')
+                with self.assertRaisesRegex(ValueError, 'mission_not_ready'):
+                    mission_workspace.prepare(self.root, mission=legacy['code'], pbi=request['priority'][0],
+                        base=base, expected_revision=1, operation_id=str(uuid.uuid4()), actor_id='fixture')
+                with self.assertRaisesRegex(ValueError, 'mission_not_ready'):
+                    mission_runs.mission_agent(self.root, dict(mission_id=legacy['record_id'], mission_revision=1,
+                        role='developer', agent_seconds=1, api_budget_usd=None))
+                self.assertEqual(self.snapshot(), before)
+                self.assertFalse((self.root / '.runtime/workspaces').exists())
+                path.write_bytes(old)
+
     def test_revision_and_operation_conflicts_are_read_only(self):
         request, actor = self.prepared_fixture()
         receipt = self.m.prepare_mission(self.root, request, self.op_id, actor)

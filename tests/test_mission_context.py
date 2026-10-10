@@ -161,7 +161,7 @@ class ContextTests(MissionCase):
         path.write_bytes(path.read_bytes() + b'\nNot imported\n')
         missions.revise_mission(self.root, self.mission['code'], self.request, 1,
                                 str(uuid.uuid4()), dict(id='fixture', role='pm'))
-        self.assertEqual(missions.mission_status(self.root, self.mission['code'])['stale_inputs'], [])
+        self.assertEqual(missions.mission_status(self.root, self.mission['code'])['stale_inputs'], [self.pbi])
         with self.assertRaisesRegex(ValueError, 'stale_context'):
             self.context(revision=2)
 

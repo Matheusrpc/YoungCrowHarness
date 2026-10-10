@@ -1712,6 +1712,21 @@ datas de desenvolvimento, QA ou produção.
 Uma falha de projeção mantém o evento confirmado no banco. Repita a mesma operação ou use
 `repair`; conflito com edição humana exige conciliar essa nota, sem apagar seu conteúdo.
 
+<a id="mission-input-consistency"></a>
+
+`prepare` e `revise` comparam os hashes congelados com cada nota e referência importada.
+Se um arquivo mudar entre a leitura do contrato e o congelamento, a missão fica `draft`
+com `stale_input:CAMINHO` em `gaps`. `status.stale_inputs` também inclui esses caminhos,
+inclusive em snapshots antigos cujo estado salvo ainda é `prepared`. Nesses casos,
+`check_available=false` e a prévia não indica candidato.
+
+Confira a edição, importe novamente os itens afetados com suas revisões atuais e use
+`revise` na missão. Para uma referência compartilhada, reimporte todos os itens que a
+referenciam. A consulta não troca hashes, repara notas nem altera eventos antigos.
+Fila, novas decisões, contexto, diagnóstico de cliente e novo workspace recusam fontes
+inconsistentes. A conferência não trava editores externos; mudanças posteriores continuam
+sujeitas à verificação de atualidade de cada operação.
+
 `next_action` prioriza recibos abertos no repositório, depois conflitos/projeções pendentes,
 fontes alteradas e lacunas de planejamento. `blocking_runs` identifica os recibos que impedem
 um novo diagnóstico, inclusive de outra missão, com UUID da missão, execução e operação,
@@ -1778,6 +1793,17 @@ and reports changed inputs. Import edits, then use `revise` with the current rev
 UUID. Global defaults never rewrite a mission; revision inherits frozen choices plus explicit overrides.
 Event times record import/refinement, without inventing development, QA or production dates.
 Retry or `repair` recovers a failed projection. Human edits are preserved and reported as conflicts.
+
+`prepare` and `revise` compare frozen hashes with every imported note and reference.
+A change between contract reading and input freezing produces a `draft` with
+`stale_input:PATH` in `gaps`. `status.stale_inputs` includes internally inconsistent paths,
+including older snapshots still recorded as `prepared`; `check_available` becomes false
+and the preview withholds its candidate. Review the edit, reimport affected items at their
+current revisions, then explicitly revise the mission. Shared references require reimporting
+each referring item. Reads preserve hashes, notes and history. Queue admission/advancement,
+new planning decisions, context, client checks and new workspaces refuse inconsistent inputs.
+This check does not lock external editors; subsequent changes remain subject to each operation's
+freshness checks.
 
 `next_action` prioritizes unresolved repository runs, projection conflicts/pending writes,
 changed sources and planning gaps. `blocking_runs` identifies unresolved receipts from any

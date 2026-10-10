@@ -7,6 +7,14 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
+Correção de 10/out: [coerência dos inputs de missão](USAGE.md#mission-input-consistency).
+Preparo e revisão detectam hashes divergentes entre itens importados e fontes congeladas;
+status bloqueia também snapshots antigos inconsistentes. Histórico preservado, recuperação
+por importação/revisão explícitas. [Provas](relatorios/2026-10-10-mission-input-consistency.md).
+Frozen inputs are checked against imported note/reference hashes during preparation and
+revision; read-only status also blocks inconsistent older snapshots. Explicit import/revision
+restores consistency while retaining history. This does not advance native acceptance or close YC-206.
+
 Checkpoint validado: `a0af931`, com oito jobs aprovados entre push e PR, incluindo
 Windows. A prévia inicial da fila está publicada; o próximo aceite do executor
 depende do contrato sbx local. [Publicação e CI](relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).

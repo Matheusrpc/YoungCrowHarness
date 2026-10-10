@@ -4,6 +4,13 @@ Frente: produto YoungCrowHarness, com trabalho ativo no executor isolado.
 
 Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra sessão consiga continuar sem receber toda a conversa. Reúne decisões do mantenedor, estado do código, resultados observados, falhas, limites e próximos passos. Os caminhos de arquivos, salvo indicação contrária, são relativos à raiz do repositório.
 
+**Coerência de inputs (10/out).** Preparo/revisão passam a comparar hashes de notas e
+referências importadas com os arquivos congelados. Uma divergência produz `draft` e
+`stale_input:CAMINHO`; status também bloqueia snapshots antigos inconsistentes, preservando
+seus estados e eventos salvos. Recuperação por importação e revisão explícitas.
+[Uso](USAGE.md#mission-input-consistency) e [provas](relatorios/2026-10-10-mission-input-consistency.md).
+Não altera a etapa de aceite nativo nem implementa avisos ou despacho de agentes.
+
 **YC-206 parcial: plano técnico (10/out).** `technical-plan` seleciona uma nota já
 referenciada diretamente pelo PBI, com projeto, revisões de missão/PBI e hash conferidos.
 Prévia sem escrita; aplicação conserva contratos e registra escolha/motivo. `context`

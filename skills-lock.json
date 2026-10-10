@@ -327,8 +327,8 @@
       "expected": {
         "contract_sha256": "4ed02a5e2e4d82e34d37823fab9b30ed144d950fb42b6e488ffae4499a4932a4",
         "files_sha256": {
-          "claude": "071b41a7b2439a1aacf3c929444d329f464d3a9cb6c3791fd5d43476db9d24c5",
-          "codex": "f7005ca6076b5921b48660a7987faf98b0e339ce74847c186c6ae7a8ddab2ed2"
+          "claude": "522ba40d99366fa717d98c2cb2900bae630fcb92cb4030247c5dce097aa5b5cc",
+          "codex": "e5328007a5f234a9f63728b7e334aa0714bb7e6e3838fdbd6c2d3a0f725a46ce"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1250,8 +1250,8 @@
       "expected": {
         "contract_sha256": "cc7f0be1bbc77eba45aa6c320fe24acb39039eb463827e3af8b104fc39d7014e",
         "files_sha256": {
-          "claude": "1e8fe0a16fee7913da9f5f71f7fe80a713bca39fd86548522de83813a273dbfe",
-          "codex": "8505f6ca416d3ea3c3202d4b447ee49bc900bc46d0909a47610f61370ef044d1"
+          "claude": "35f31c1912b7b7abb06e431f9c00c1c88c78d230e844e45533c452db08e29a50",
+          "codex": "be6be5a7b071645a50082c9e039174bebdbbcee2ddf91ee53e16331a9d08cd45"
         }
       }
     },
@@ -1342,8 +1342,8 @@
       "expected": {
         "contract_sha256": "7badfa4acfe7638f7326e93e94506a3b291d44cfb3d635bcee2a90884f9dcc08",
         "files_sha256": {
-          "claude": "2e6011ba2b9185aa86921b5d6625398eef1bb0ffc2025c9dd01b1798df1c743f",
-          "codex": "ab2ffd4918e3f9b5ff83e52cf238ef8f55ecbe0f00926bf58e8458eac32a17a4"
+          "claude": "068351b9c85d8bdb86a5a037e5eeb2d7c35acdb864b8afbeeb9a4dbfc0ddfd20",
+          "codex": "42e2c7a8bb3422cc55c3b35ffa9c79b680f77ff10ef2ffb794f7ff0458a09d17"
         }
       }
     },
@@ -1432,8 +1432,8 @@
       "expected": {
         "contract_sha256": "665134baae0553d4a05dfd7d0a920c2626c3fea34e7614b28a313b4f4733d07d",
         "files_sha256": {
-          "claude": "28f1b26798bdb2b120b3798d56b29511e68c9ce064adc752802d63f7ceb6fbed",
-          "codex": "172bdc557d60ac50a795d52a470eb1d7129223feaf856b505a4e72e31bff6e35"
+          "claude": "1edcff770709fb6064f64b1b63e350768a49580031cad9a747813f01c0d411c8",
+          "codex": "c22a0b90ae400d0fe0daf5266d7d44792c9070291f0c9aaf2c3a00d5affeea9f"
         }
       }
     },
@@ -1442,8 +1442,8 @@
       "kind": "skill",
       "purpose": {
         "when": "Read mission state and pending work",
-        "inputs": "Mission UUID or code; PBI UUID and expected mission revision for context",
-        "outputs": "Read-only history, freshness, planning gaps, selected PBI context with its technical-plan decision, and saved workspace state",
+        "inputs": "Mission UUID/code; PBI UUID and mission revision, or owned workspace UUID and workspace revision for context",
+        "outputs": "Read-only history, freshness, planning gaps, PBI context with its technical plan, saved workspace state or context bound to observed workspace Git metadata",
         "limits": "Offline preparation only; no autonomous workers or deployment"
       },
       "clients": [
@@ -1505,7 +1505,8 @@
         "read": [
           "project instructions",
           "selected vault notes",
-          "project configuration"
+          "project configuration",
+          "owned PBI workspace Git metadata"
         ],
         "write": [],
         "network": [],
@@ -1515,10 +1516,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "19e8878a7028ebd00fc097cd8ca2b845226d1f32fb7362985b8e91dea2ca50a0",
+        "contract_sha256": "8c4bc48810e24529420e14e3df6ee3c6cccfb38db7821759a7934ceab73d7bba",
         "files_sha256": {
-          "claude": "b73909866b869d963971f5644ff154db5dc6c68a034d32df8d2481a0e841f43f",
-          "codex": "b9da9fad3f165348951ccb24b04ec9c5713b3b579e3e24f9433d08cc722d1ef1"
+          "claude": "98b9200f918872cfa99e211159aa3861dcfe831736513c70677105996d7f7d3a",
+          "codex": "3681003906a3bc46798ac1aed975e6b1fd70fed66867dd0c61776f11d7c06f19"
         }
       }
     }

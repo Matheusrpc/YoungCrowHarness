@@ -102,6 +102,34 @@ def status(root, workspace_id):
         return find(conn, workspace_id)
 
 
+def context(root, workspace_id, expected_revision):
+    """Read the original vault using an owned workspace's pinned mission/PBI."""
+    from missions import mission_context
+    require(type(expected_revision) is int and expected_revision > 0, 'revision_conflict')
+    record = status(root, workspace_id)
+    require(record['revision'] == expected_revision, 'revision_conflict')
+    require(record['state'] == 'prepared', 'workspace_not_ready')
+    owned(root, record)
+    _, head = inspect_worktree(root, record)
+    selected = mission_context(root, record['mission_id'], record['pbi_id'], record['mission_revision'])
+    pbi = next(item for item in selected['items'] if item['id'] == record['pbi_id'])
+    require(pbi['revision'] == record['pbi_revision'], 'revision_conflict')
+    owned(root, record)
+    require(inspect_worktree(root, record)[1] == head, 'workspace_changed')
+    with store.reader(root) as conn:
+        require(available(conn), 'unknown_workspace')
+        conn.execute('BEGIN')
+        require(find(conn, workspace_id) == record, 'workspace_changed')
+        revisions = dict(conn.execute('SELECT id,revision FROM records'))
+        require(revisions.get(record['mission_id']) == record['mission_revision'], 'revision_conflict')
+        require(all(revisions.get(item['id']) == item['revision'] for item in selected['items']), 'stale_context')
+    observed = {key: record[key] for key in ('id', 'revision', 'mission_id', 'mission_revision',
+                                           'pbi_id', 'pbi_revision', 'path', 'branch', 'base')}
+    result = dict(schema_version=1, context=selected, workspace=dict(observed, head=head),
+                  runtime_available=False, runnable=False)
+    return dict(result, workspace_context_sha256=hashlib.sha256(canonical(result)).hexdigest())
+
+
 def save(root, record):
     with store.transaction(root) as conn:
         conn.execute('UPDATE workspaces SET state=?,snapshot=? WHERE id=?',

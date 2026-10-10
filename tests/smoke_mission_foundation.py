@@ -167,6 +167,26 @@ for name in ('capabilities', 'integrations'):
         after_plan = cli('status', second['code'])['snapshot']
         after_plan.pop('technical_decisions')
         check(after_plan == reordered['snapshot'] and (project / plan_path).read_bytes() == plan_bytes, 'technical_plan_changed_scope')
+        git = shutil.which('git')
+        if mode == 'new':
+            run([git, '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                 'commit', '--allow-empty', '-qm', 'Synthetic workspace base'], env=env, cwd=project)
+        base = run([git, 'rev-parse', 'HEAD'], env=env, cwd=project).decode().strip()
+        git_before = [run([git, *args], env=env, cwd=project) for args in
+                      (('status', '--porcelain=v1', '-uall'), ('diff',), ('diff', '--cached'))]
+        workspace = cli('workspace', 'prepare', second['code'], '--pbi', pbis[0], '--base', base,
+                        '--expected-revision', '3', '--operation-id', str(uuid.uuid4()), '--actor-id', 'fixture')
+        before_read = fixture.snapshot()
+        bound = cli('workspace', 'context', workspace['id'], '--expected-revision', str(workspace['revision']))
+        check(bound['context'] == selected and bound['workspace']['head'] == base and
+              bound['workspace']['pbi_id'] == pbis[0], 'workspace_context_not_bound')
+        check(fixture.snapshot() == before_read and not (Path(workspace['path']) / 'vault/local').exists(),
+              'workspace_context_copied_or_changed_files')
+        cli('workspace', 'release', workspace['id'], '--expected-revision', str(workspace['revision']),
+            '--operation-id', str(uuid.uuid4()), '--actor-id', 'fixture')
+        check(git_before == [run([git, *args], env=env, cwd=project) for args in
+                           (('status', '--porcelain=v1', '-uall'), ('diff',), ('diff', '--cached'))],
+              'workspace_changed_original_checkout')
         defaults = cli('config', 'show')
         updated = defaults['config']
         updated['agents']['pm']['model'] = 'fixture-b'
@@ -247,6 +267,7 @@ print(json.dumps(result))
                              restricted_pm_priority=True, priority_preview_without_writes=True,
                              selected_technical_plan=True, technical_preview_without_writes=True,
                              inconsistent_inputs_blocked=True, explicit_consistent_revision=True,
+                             workspace_context_bound=True, workspace_context_without_writes=True,
                              projection_recovered=True, vault_notes=vault['notes_checked'],
                              state='prepared', runtime_available=False))
 

@@ -4,6 +4,14 @@ Frente: produto YoungCrowHarness, com trabalho ativo no executor isolado.
 
 Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra sessão consiga continuar sem receber toda a conversa. Reúne decisões do mantenedor, estado do código, resultados observados, falhas, limites e próximos passos. Os caminhos de arquivos, salvo indicação contrária, são relativos à raiz do repositório.
 
+**YC-206 parcial: contexto por workspace (10/out).** `workspace context UUID
+--expected-revision N` deriva missão/PBI do recibo, confere identidade Git e lê o contexto
+no vault original. N é a revisão do workspace. Retorna envelope com hash próprio, preservando
+o hash interno do contexto. Permite trabalho local, sem copiar notas; missão revisada e fontes
+divergentes recusam a consulta. [Uso](USAGE.md#workspace-context) e
+[provas](relatorios/2026-10-10-workspace-context.md). O CI da base `77f6e37` passou nos oito checks,
+incluindo Windows; Docker #690 segue aberta sem comentários no checkpoint desta entrega.
+
 **Coerência de inputs (10/out).** Preparo/revisão passam a comparar hashes de notas e
 referências importadas com os arquivos congelados. Uma divergência produz `draft` e
 `stale_input:CAMINHO`; status também bloqueia snapshots antigos inconsistentes, preservando

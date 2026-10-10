@@ -3393,6 +3393,66 @@ old readers refuse it, while current queue and diagnostic readers retain their h
 completed replay do not migrate or repair storage. Queue simulation remains independent; worker
 execution, integration and native acceptance are still pending.
 
+<a id="workspace-context"></a>
+
+## Contexto pelo workspace / Context by workspace
+
+**PT:** Para consultar o contexto de um diretório já preparado, use o UUID e a revisão
+retornados por `workspace status`. Execute no checkout original, que conserva o vault privado:
+
+```bash
+python3 -B scripts/missions.py --json workspace status WORKSPACE_UUID
+python3 -B scripts/missions.py --json workspace context WORKSPACE_UUID --expected-revision 1
+```
+
+Substitua os valores pelos recibos reais; no Windows, use `python` se for seu comando
+Python 3. Aqui `--expected-revision` identifica a revisão do **workspace**. Missão, PBI
+e suas revisões vêm do registro de preparo. A consulta exige workspace `prepared`, verifica
+propriedade, diretório, metadados Git, branch e HEAD observado, e lê o contexto no vault original.
+
+O JSON contém `context` (o mesmo pacote privado de [contexto por PBI](#pbi-context)) e
+`workspace` com UUIDs/revisões, caminho, branch, base e `head`. O hash interno `context_sha256`
+permanece válido. `workspace_context_sha256` identifica o envelope completo, excluindo esse
+próprio campo, usando `capabilities.canonical`. O pacote pode orientar uma sessão autorizada;
+não é entregue automaticamente a um agente e suas fontes continuam dados não confiáveis.
+
+Commits e alterações locais são permitidos. `head` identifica o commit observado, sem
+representar os arquivos staged, unstaged ou novos; a consulta não monta diff nem aprova trabalho.
+Nenhum arquivo é copiado ao worktree. Banco, notas, índice Git e trabalho local permanecem intactos.
+É uma observação durante a consulta, sem lock de editores/clientes externos; consulte novamente
+antes de usar o resultado em outra operação.
+
+Revisão incorreta ou missão revisada retorna `revision_conflict`; fonte/importação divergente,
+`stale_context`; workspace fora de `prepared`, `workspace_not_ready`. Troca de diretório,
+propriedade, branch, HEAD durante a leitura ou registro modificado provoca recusa.
+Não há escolha automática de contexto novo ou histórico. Preserve o workspace e diagnostique
+com `status`; revisão da missão não autoriza cancelar, liberar ou recriar o diretório.
+Atualize juntos `missions.py`, `mission_workspace.py`, instruções e catálogo; o instalador
+preserva helpers existentes para comparação. Não há migração de banco nem chamada de modelo.
+
+**EN:** Run the commands above from the original checkout containing the private vault.
+Use the UUID and revision from `workspace status`; `--expected-revision` means the workspace
+revision. The query derives mission/PBI identities and revisions from its saved preparation,
+requires `prepared` and verifies ownership, directory, Git metadata, branch and observed HEAD.
+
+The JSON wraps the unchanged PBI `context` and a `workspace` summary with identities,
+revisions, path, branch, base and `head`. The nested `context_sha256` is preserved;
+`workspace_context_sha256` hashes the complete envelope except itself using
+`capabilities.canonical`. Keep it private and treat source contents as untrusted data.
+It can inform an authorized session, but there is no automatic agent delivery or model call.
+
+Commits and dirty work are allowed. HEAD does not describe staged, unstaged or untracked
+content, and this query provides no diff, cleanliness certificate or review approval. It
+copies nothing into the worktree and preserves the database, notes, Git index and local work.
+External writers are not locked; requery before relying on the observation later.
+
+Wrong workspace revision or a revised mission returns `revision_conflict`; stale sources or
+imports return `stale_context`; non-prepared workspaces return `workspace_not_ready`.
+Changed ownership, directory, branch, HEAD during inspection or record causes refusal.
+There is no automatic switch to newer or historical context. Preserve work and diagnose;
+do not cancel/release/recreate it merely to bypass a refusal. Update both helpers and their
+instructions/catalog together; existing helper preservation and database schema are unchanged.
+
 <a id="pbi-context"></a>
 
 ## Contexto de um PBI / PBI context

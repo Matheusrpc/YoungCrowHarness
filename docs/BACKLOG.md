@@ -15,11 +15,11 @@ Frozen inputs are checked against imported note/reference hashes during preparat
 revision; read-only status also blocks inconsistent older snapshots. Explicit import/revision
 restores consistency while retaining history. This does not advance native acceptance or close YC-206.
 
-Checkpoint validado: `a0af931`, com oito jobs aprovados entre push e PR, incluindo
-Windows. A prévia inicial da fila está publicada; o próximo aceite do executor
-depende do contrato sbx local. [Publicação e CI](relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
-Validated checkpoint: `a0af931`, all eight push/PR jobs passed, including Windows.
-The initial queue preview is published; native acceptance still needs the local sbx contract.
+Checkpoint validado: `77f6e37`, com oito jobs aprovados entre push e PR, incluindo
+Windows. A correção de coerência dos inputs passou; o próximo aceite do executor
+depende do contrato sbx local. [CI conferido](relatorios/2026-10-10-workspace-context.md).
+Validated checkpoint: `77f6e37`, all eight push/PR jobs passed, including Windows.
+The input-consistency fix passed; native acceptance still needs the local sbx contract.
 
 **Consulta ao Docker publicada em 9/out:** [issue #690](https://github.com/docker/sbx-releases/issues/690),
 aberta pelo mantenedor e conferida pela API. Aguardar resposta aplicável ao sbx local;
@@ -297,7 +297,7 @@ Até ela existir, esses ritos são conduzidos nas sessões autorizadas.
 | YC-203 | 2A: instalação, consulta e provas dos adaptadores | YC-202 | Provar cliente autenticado e API explícita quando houver acesso, em matriz por ambiente; consulta sem escrita e adoção preservada. Cada combinação sem prova permanece indisponível | Parcial; inspeção Claude corrigida. Prova local reproduz falha de isolamento do Codex; chamadas reais bloqueadas. [Evidência atual](relatorios/2026-10-03-native-client-verification.md) |
 | YC-204 | 2B: coordenador e fila priorizada | YC-203 para despacho | Uma missão ativa por repositório; três PBIs e três execuções como limites distintos; dependências e ordem persistidas. Sem item elegível, persistir espera | Prévia inicial e ensaio serial com vários PBIs, [reprovação, correções limitadas e espera](relatorios/2026-10-10-queue-corrections.md) implementados. Concorrência, agentes reais e despacho pendentes; [ordenação aprovada](superpowers/specs/2026-10-09-queue-eligibility-refinement.md) |
 | YC-205 | 2B: branches e worktrees por PBI | YC-204 | Um escritor por checkout, base registrada, alterações do usuário preservadas, limpeza apenas de recursos próprios e recuperação após criação interrompida | Parcial: [preparo/liberação local explícitos](USAGE.md#pbi-workspaces), retomada verificável e branches preservadas; conexão com execução real pendente |
-| YC-206 | 2B: decisões de PM/Tech Lead e contexto dos agentes | YC-204, YC-205 | Validar propostas estruturadas e revisões; repriorizar somente PBIs não iniciados; avisar líderes uma vez por evento. Contexto reúne referências necessárias, sem ampliar escopo | Parcial: [contexto por PBI](USAGE.md#pbi-context), [prioridade PM](USAGE.md#pbi-priority) e [seleção de plano técnico](USAGE.md#technical-plan), com prévia, revisão e retomada. Fila ativa e histórico de workspace limitam mudanças. Decomposição/revisão técnica automáticas, repriorização em execução, avisos e entrega automática aos agentes pendentes |
+| YC-206 | 2B: decisões de PM/Tech Lead e contexto dos agentes | YC-204, YC-205 | Validar propostas estruturadas e revisões; repriorizar somente PBIs não iniciados; avisar líderes uma vez por evento. Contexto reúne referências necessárias, sem ampliar escopo | Parcial: [contexto por PBI](USAGE.md#pbi-context), [consulta vinculada ao workspace](USAGE.md#workspace-context), [prioridade PM](USAGE.md#pbi-priority) e [seleção de plano técnico](USAGE.md#technical-plan). Fila ativa e histórico de workspace limitam mudanças. Decomposição/revisão técnica automáticas, repriorização em execução, avisos e entrega automática aos agentes pendentes |
 | YC-207 | 2C: pausa, retomada e cancelamento | YC-206 | Encerrar despachos/processos, persistir consumo e tentativas, reconciliar efeito incerto e retomar sem repetição. Cancelamento explícito libera a vaga e conserva o trabalho | Planejado |
 | YC-208 | 2C: pacote privado e troca de responsável | YC-207 | Transferir Git, estado, notas e evidências com hashes; excluir credenciais; importar pausado. Origem perde direito de retomar a geração entregue | Planejado |
 | YC-209 | 2C: prova local/servidor nos dois sentidos | YC-208 | Transferência interrompida, repetida e confirmação perdida preservam um único responsável; contadores sobrevivem e sessão nova localiza o histórico | Planejado |

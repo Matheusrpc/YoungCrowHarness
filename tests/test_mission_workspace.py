@@ -36,6 +36,123 @@ class WorkspaceTests(RuntimeCase):
         args.update(kwargs)
         return self.ws.release(self.root, record['id'], **args)
 
+    def context(self, record, revision=None):
+        self.assertTrue(callable(getattr(self.ws, 'context', None)), 'missing workspace context query')
+        return self.ws.context(self.root, record['id'], record['revision'] if revision is None else revision)
+
+    def test_context_cli_binds_vault_to_owned_workspace_without_writing(self):
+        import hashlib
+        from capabilities import canonical
+        record = self.prepare()
+        path = Path(record['path'])
+        (path / 'app.txt').write_text('delivery\n')
+        self.git('-C', str(path), 'add', 'app.txt')
+        self.git('-C', str(path), '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'delivery')
+        head = self.git('-C', str(path), 'rev-parse', 'HEAD').stdout.decode().strip()
+        (path / 'app.txt').write_text('unfinished work\n')
+        (path / 'private.txt').write_text('unrelated private draft\n')
+        expected = missions.mission_context(self.root, record['mission_id'], record['pbi_id'], record['mission_revision'])
+        before = self.snapshot()
+        index = Path(record['admin']['path']) / 'index'
+        index_bytes = index.read_bytes()
+        result = subprocess.run([sys.executable, '-B', str(Path(missions.__file__)), '--root', str(self.root),
+            '--json', 'workspace', 'context', record['id'], '--expected-revision', '1'],
+            capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        package = json.loads(result.stdout)
+        self.assertEqual(package['context'], expected)
+        self.assertEqual(package['workspace'], {**{k: record[k] for k in
+            ('id', 'revision', 'mission_id', 'mission_revision', 'pbi_id', 'pbi_revision', 'path', 'branch', 'base')}, 'head': head})
+        digest = package.pop('workspace_context_sha256')
+        self.assertEqual(digest, hashlib.sha256(canonical(package)).hexdigest())
+        self.assertFalse(package['runtime_available'])
+        self.assertFalse(package['runnable'])
+        self.assertEqual(self.snapshot(), before)
+        self.assertEqual(index.read_bytes(), index_bytes)
+        self.assertFalse((path / 'vault/local').exists())
+        self.assertNotIn('unrelated private draft', result.stdout)
+
+    def test_context_refuses_stale_source_and_mission_revision_without_repair(self):
+        record = self.prepare()
+        profile = self.root / 'vault/product/profile.md'
+        old = profile.read_bytes()
+        profile.write_bytes(old + b'\nNew source\n')
+        before = self.snapshot()
+        with self.assertRaisesRegex(ValueError, 'stale_context'):
+            self.context(record)
+        self.assertEqual(self.snapshot(), before)
+        profile.write_bytes(old)
+        saved = store.get_record(self.root, record['mission_id'])['snapshot']
+        request = {k: saved[k] for k in ('title', 'feature_ids', 'priority', 'overrides', 'scope_reference')}
+        missions.revise_mission(self.root, record['mission_id'], request, 1, str(uuid.uuid4()), dict(id='fixture', role='pm'))
+        before = self.snapshot()
+        with self.assertRaisesRegex(ValueError, 'revision_conflict'):
+            self.context(record)
+        self.assertEqual(self.snapshot(), before)
+        self.assertEqual(self.release(record)['state'], 'released')
+
+    def test_context_refuses_wrong_revision_released_and_replaced_workspaces(self):
+        record = self.prepare()
+        before = self.snapshot()
+        for revision in (0, True, 2):
+            with self.subTest(revision=revision), self.assertRaisesRegex(ValueError, 'revision_conflict'):
+                self.context(record, revision)
+        self.assertEqual(self.snapshot(), before)
+        released = self.release(record)
+        with self.assertRaisesRegex(ValueError, 'workspace_not_ready'):
+            self.context(released)
+        self.op = str(uuid.uuid4())
+        record = self.prepare()
+        path = Path(record['path'])
+        path.rename(path.with_name('retained-original'))
+        path.mkdir()
+        (path / 'human.txt').write_text('preserve replacement\n')
+        before = self.snapshot()
+        with self.assertRaisesRegex(ValueError, 'workspace_changed'):
+            self.context(record)
+        self.assertEqual(self.snapshot(), before)
+
+    def test_context_rechecks_mission_after_last_git_inspection(self):
+        record = self.prepare()
+        original = self.ws.inspect_worktree
+        calls = []
+        def changed(root, workspace, **kwargs):
+            result = original(root, workspace, **kwargs)
+            calls.append(True)
+            if len(calls) == 2:
+                saved = store.get_record(root, record['mission_id'])['snapshot']
+                request = {k: saved[k] for k in ('title', 'feature_ids', 'priority', 'overrides', 'scope_reference')}
+                missions.revise_mission(root, record['mission_id'], request, 1, str(uuid.uuid4()), dict(id='fixture', role='pm'))
+            return result
+        with patch.object(self.ws, 'inspect_worktree', side_effect=changed):
+            with self.assertRaisesRegex(ValueError, 'revision_conflict'):
+                self.context(record)
+        self.assertEqual(store.get_record(self.root, record['mission_id'])['revision'], 2)
+
+    def test_context_refuses_changed_branch_without_adopting_it(self):
+        record = self.prepare()
+        self.git('-C', record['path'], 'checkout', '-qb', 'human-context-branch')
+        before = self.snapshot()
+        with self.assertRaisesRegex(ValueError, 'workspace_changed'):
+            self.context(record)
+        self.assertEqual(self.snapshot(), before)
+        self.assertEqual(self.git('-C', record['path'], 'branch', '--show-current').stdout.strip(), b'human-context-branch')
+
+    def test_context_rechecks_workspace_changed_during_vault_read(self):
+        record = self.prepare()
+        original = missions.mission_context
+        def changed(*args, **kwargs):
+            result = original(*args, **kwargs)
+            self.ws.save(self.root, dict(record, state='releasing'))
+            return result
+        with patch.object(missions, 'mission_context', side_effect=changed):
+            with self.assertRaisesRegex(ValueError, 'workspace_changed'):
+                self.context(record)
+        current = self.ws.status(self.root, record['id'])
+        self.assertEqual(current['state'], 'releasing')
+        with self.assertRaisesRegex(ValueError, 'workspace_not_ready'):
+            self.context(current)
+
     def test_prepare_preserves_original_and_release_keeps_commits(self):
         (self.root / 'app.txt').write_text('staged\n')
         self.git('add', 'app.txt')

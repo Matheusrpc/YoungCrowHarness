@@ -583,6 +583,9 @@ def parser():
                                help='Closed QA scenario for the first eligible PBI; other PBIs pass')
     workspace = subs.add_parser('workspace', help='Explicit local Git directory; no agent dispatch').add_subparsers(dest='action', required=True)
     workspace.add_parser('status').add_argument('identifier')
+    workspace_context = workspace.add_parser('context', help='Read vault context bound to an owned workspace')
+    workspace_context.add_argument('identifier')
+    workspace_context.add_argument('--expected-revision', type=int, required=True)
     for name in ('prepare', 'release'):
         entry = workspace.add_parser(name)
         entry.add_argument('identifier')
@@ -633,6 +636,7 @@ SAFE_ERRORS = CONFLICTS | {'invalid_config', 'invalid_request', 'invalid_argumen
                          'unknown_workspace', 'unsupported_workspace_repository', 'invalid_base', 'workspace_git_failed'}
 SAFE_ERRORS |= {'unknown_pbi', 'stale_context', 'incomplete_context', 'context_identity_conflict', 'invalid_context_source'}
 SAFE_ERRORS |= {'invalid_proposal', 'invalid_plan_reference'}
+SAFE_ERRORS |= {'workspace_not_ready'}
 
 
 def main(argv=None):
@@ -667,6 +671,9 @@ def main(argv=None):
                     'incompatible_helper')
             if args.action == 'status':
                 result = workspace.status(root, args.identifier)
+            elif args.action == 'context':
+                require(callable(getattr(workspace, 'context', None)), 'incompatible_helper')
+                result = workspace.context(root, args.identifier, args.expected_revision)
             elif args.action == 'prepare':
                 result = workspace.prepare(root, mission=args.identifier, pbi=args.pbi, base=args.base,
                     expected_revision=args.expected_revision, operation_id=args.operation_id, actor_id=args.actor_id)

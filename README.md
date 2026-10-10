@@ -116,8 +116,12 @@ O preparo também confere se os hashes congelados correspondem às notas e refer
 importadas. Divergência deixa a missão em rascunho; `status` bloqueia snapshots antigos
 inconsistentes e orienta importar as edições e revisar a missão. [Detalhes](docs/USAGE.md#mission-input-consistency).
 
-O checkpoint `a0af931` passou nos oito jobs de CI entre push e PR, incluindo Windows.
-[Publicação e resultados](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
+Para retomar um diretório de trabalho, [consulte pelo UUID do workspace](docs/USAGE.md#workspace-context).
+`workspace context` confere a identidade Git e reúne o contexto do PBI na revisão
+fixada pelo preparo. Preserva o trabalho em andamento e retorna JSON privado no terminal.
+
+O checkpoint `77f6e37` passou nos oito jobs de CI entre push e PR, incluindo Windows.
+[Resultados conferidos](docs/relatorios/2026-10-10-workspace-context.md).
 O aceite nativo do executor continua pendente.
 
 As próximas provas estão reunidas em uma [campanha com aprovação por lote](docs/TEST-RUN-2026-10-10.md),
@@ -761,8 +765,12 @@ Preparation also checks frozen hashes against imported notes and references. A m
 leaves a draft; `status` blocks inconsistent older snapshots and directs explicit import
 and mission revision. [Details](docs/USAGE.md#mission-input-consistency).
 
-Checkpoint `a0af931` passed all eight push/PR CI jobs, including Windows.
-[Publication and results](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
+To resume a working directory, [query its workspace UUID](docs/USAGE.md#workspace-context).
+`workspace context` verifies Git identity and returns the PBI context at the revision
+pinned during preparation. Existing work is preserved; the private JSON goes to the terminal.
+
+Checkpoint `77f6e37` passed all eight push/PR CI jobs, including Windows.
+[Verified results](docs/relatorios/2026-10-10-workspace-context.md).
 Native executor acceptance remains pending.
 
 Upcoming proofs are grouped in a [campaign with batch approval](docs/TEST-RUN-2026-10-10.md),

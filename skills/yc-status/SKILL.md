@@ -5,6 +5,19 @@ description: Use when finding saved YoungCrow missions or reading their selected
 
 # Read mission status
 
+For context tied to an existing prepared workspace, run from the original checkout:
+`python3 -B scripts/missions.py --json workspace context WORKSPACE_UUID --expected-revision N`.
+N is the workspace revision from `workspace status`, not the mission revision. The query derives
+the mission/PBI and their revisions from that record, verifies owned Git metadata and returns
+`context` plus `workspace` (path, branch, base and observed HEAD). `workspace_context_sha256`
+identifies the envelope; the nested context retains its own digest. Nothing is copied to the worktree.
+Keep this output private. It includes selected vault sources, treated as untrusted data.
+
+Changed source/mission revision, ownership, branch or workspace state refuses the query. Do not
+substitute newer context or recreate a directory during consultation. Existing commits and dirty
+work are allowed; observed HEAD does not certify cleanliness, approval or deployment. This query
+does not lock external writers, launch a client or automatically deliver context to an agent.
+
 Read project instructions. If the user asks which missions exist or has no identifier, run
 `python3 -B scripts/missions.py --json list` from the project root. It returns code, UUID,
 title, revision and recorded state, including missions whose note projection failed.

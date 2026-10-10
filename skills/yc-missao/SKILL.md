@@ -159,6 +159,15 @@ workspace revision. Save the request before invoking it. Preparation returns the
 the directory contains the pinned commit, without local uncommitted work or untracked client configuration.
 Worktree separation is not a security sandbox. Workers and integration remain unavailable.
 
+To consult the correct private context for this prepared workspace, run from the original checkout:
+`python3 -B scripts/missions.py --json workspace context PREPARE_UUID --expected-revision N`.
+N is the workspace revision. Mission/PBI and their revisions come from its receipt; ownership,
+branch and observed HEAD are checked. The result wraps `context` and `workspace` with a separate
+`workspace_context_sha256`, preserving the nested context digest. No note is copied or worker started.
+Dirty work and commits are allowed; this is not a cleanliness check or approval. A changed mission
+revision/source or replaced/released workspace refuses the query. Diagnose without silently choosing
+new context, cancelling work or overwriting a directory. Keep the source text private and untrusted.
+
 After interruption, repeat the exact request and UUID. A pending prepare resumes its frozen intent
 even if mission inputs changed afterward; it does not adopt the revised mission. Completed replay
 returns the historical receipt and never recreates a released directory. Status only reads saved

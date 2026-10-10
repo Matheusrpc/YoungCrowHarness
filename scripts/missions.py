@@ -224,8 +224,18 @@ def revise_mission(root, mission_id, request, expected_revision, operation_id, a
 
 def reprioritize_mission(root, proposal, operation_id, actor, *, dry_run=False):
     """Apply a PM planning proposal without rebuilding scope or dispatching an agent."""
+    return _planning_decision(root, proposal, operation_id, actor, 'reprioritize', dry_run=dry_run)
+
+
+def set_technical_plan(root, proposal, operation_id, actor, *, dry_run=False):
+    """Select an already referenced note as this PBI's technical plan."""
+    return _planning_decision(root, proposal, operation_id, actor, 'technical_plan', dry_run=dry_run)
+
+
+def _planning_decision(root, proposal, operation_id, actor, action, *, dry_run):
     check_helpers()
-    fields = {'schema_version', 'project_id', 'mission_id', 'mission_revision', 'priority', 'reason'}
+    fields = {'schema_version', 'project_id', 'mission_id', 'mission_revision', 'reason'}
+    fields |= {'priority'} if action == 'reprioritize' else {'pbi_id', 'pbi_revision', 'plan_reference'}
     require(isinstance(proposal, dict) and set(proposal) == fields, 'invalid_proposal')
     require(type(proposal['schema_version']) is int and proposal['schema_version'] == 1, 'invalid_proposal')
     require(text(proposal['reason'], 8000) and proposal['reason'].strip(), 'invalid_proposal')
@@ -233,15 +243,21 @@ def reprioritize_mission(root, proposal, operation_id, actor, *, dry_run=False):
     identity(proposal['mission_id'])
     revision = proposal['mission_revision']
     require(type(revision) is int and revision > 0, 'invalid_revision')
-    priority = proposal['priority']
-    require(isinstance(priority, list) and len(priority) <= 5000, 'invalid_priority')
-    for pbi in priority:
-        identity(pbi)
-    require(len(set(priority)) == len(priority), 'invalid_priority')
+    if action == 'reprioritize':
+        priority = proposal['priority']
+        require(isinstance(priority, list) and len(priority) <= 5000, 'invalid_priority')
+        for pbi in priority:
+            identity(pbi)
+        require(len(set(priority)) == len(priority), 'invalid_priority')
+    else:
+        identity(proposal['pbi_id'])
+        require(type(proposal['pbi_revision']) is int and proposal['pbi_revision'] > 0, 'invalid_revision')
+        require(isinstance(proposal['plan_reference'], dict) and
+                set(proposal['plan_reference']) == {'note_id', 'path', 'sha256'}, 'invalid_proposal')
     store.actor_valid(actor)
-    require(actor['role'] == 'pm', 'invalid_actor')
+    require(actor['role'] == ('pm' if action == 'reprioritize' else 'tech_lead'), 'invalid_actor')
     require(proposal['project_id'] == project_id(root), 'foreign_project')
-    intent = dict(action='reprioritize', proposal=proposal)
+    intent = dict(action=action, proposal=proposal)
     digest = store.request_hash(dict(intent, operation_id=operation_id), actor, revision)
     existing = store.get_record(root, proposal['mission_id'])
     require(existing is not None and existing['kind'] == 'mission', 'unknown_mission')
@@ -258,7 +274,6 @@ def reprioritize_mission(root, proposal, operation_id, actor, *, dry_run=False):
             status = mission_status(root, proposal['mission_id'])
             require(status.get('revision') == revision, 'revision_conflict')
             snapshot = status['snapshot']
-            require(set(priority) == set(snapshot['priority']), 'invalid_priority')
             require(not any(s['state'] in queue_helper().ACTIVE for s in
                             queue_helper().read_sessions(conn, status['id'])), 'queue_busy')
             require(status['check_available'] and snapshot['state'] == 'prepared' and
@@ -268,16 +283,33 @@ def reprioritize_mission(root, proposal, operation_id, actor, *, dry_run=False):
             admitted = set()
             if conn.execute('SELECT schema_version FROM metadata').fetchone()[0] == 6:
                 admitted = {row[0] for row in conn.execute('SELECT pbi_id FROM workspaces')}
-            protected = [pbi for pbi in snapshot['priority'] if pbi in admitted]
-            require(all(old == new or (old not in admitted and new not in admitted)
-                        for old, new in zip(snapshot['priority'], priority)), 'priority_locked')
+            if action == 'reprioritize':
+                require(set(priority) == set(snapshot['priority']), 'invalid_priority')
+                protected = [pbi for pbi in snapshot['priority'] if pbi in admitted]
+                require(all(old == new or (old not in admitted and new not in admitted)
+                            for old, new in zip(snapshot['priority'], priority)), 'priority_locked')
+                preview = dict(previous_priority=snapshot['priority'], priority=priority, protected_pbi_ids=protected)
+                changed = dict(snapshot, priority=priority,
+                               last_planning_decision=dict(action=action, reason=proposal['reason']))
+            else:
+                pbi_id = proposal['pbi_id']
+                record = next((r for r in snapshot['items'] if r['id'] == pbi_id and r['kind'] == 'pbi'), None)
+                require(pbi_id in snapshot['pbi_ids'] and record is not None, 'unknown_pbi')
+                require(record['revision'] == proposal['pbi_revision'], 'revision_conflict')
+                require(proposal['plan_reference'] in record['snapshot']['references'], 'invalid_plan_reference')
+                require(proposal['plan_reference']['sha256'] == snapshot['inputs'].get(proposal['plan_reference']['path']),
+                        'invalid_plan_reference')
+                require(pbi_id not in admitted, 'technical_plan_locked')
+                decisions = dict(snapshot.get('technical_decisions', {}))
+                decision = dict(pbi_revision=proposal['pbi_revision'], plan_reference=proposal['plan_reference'],
+                                reason=proposal['reason'])
+                preview = dict(pbi_id=pbi_id, previous_technical_decision=decisions.get(pbi_id), technical_decision=decision)
+                decisions[pbi_id] = decision
+                changed = dict(snapshot, technical_decisions=decisions)
             if dry_run:
                 return dict(schema_version=1, state='preview', project_id=proposal['project_id'],
-                            mission_id=status['id'], mission_revision=revision, previous_priority=snapshot['priority'],
-                            priority=priority, reason=proposal['reason'], protected_pbi_ids=protected,
+                            mission_id=status['id'], mission_revision=revision, reason=proposal['reason'], **preview,
                             runtime_available=False, runnable=False)
-            changed = dict(snapshot, priority=priority,
-                           last_planning_decision=dict(action='reprioritize', reason=proposal['reason']))
             receipt = store.commit_record(conn,
                 record=dict(id=status['id'], kind='mission', snapshot=changed, _request=intent),
                 expected_revision=revision, operation_id=operation_id, actor=actor, now=utc_now())
@@ -354,6 +386,7 @@ def mission_context(root, mission_id, pbi_id, expected_revision):
         mission=dict(id=status['id'], code=status['code'], revision=expected_revision,
                      title=snapshot['title'], scope_reference=snapshot['scope_reference']),
         items=selected, dependencies=dependencies, sources=list(sources.values()),
+        technical_decision=snapshot.get('technical_decisions', {}).get(pbi_id),
         readiness={k: status[k] for k in ('state', 'gaps', 'projection_state', 'check_available', 'next_action')},
         source_trust='untrusted_data', runtime_available=False, runnable=False)
     return dict(result, context_sha256=hashlib.sha256(canonical(result)).hexdigest())
@@ -511,9 +544,11 @@ def parser():
     revise.add_argument('--expected-revision', type=int, required=True)
     reprioritize = subs.add_parser('reprioritize', help='PM order-only planning proposal; no native dispatch')
     reprioritize.add_argument('--dry-run', action='store_true')
-    for sub in (prepare, revise, reprioritize):
+    technical_plan = subs.add_parser('technical-plan', help='Select an existing PBI reference as its technical plan')
+    technical_plan.add_argument('--dry-run', action='store_true')
+    for sub in (prepare, revise, reprioritize, technical_plan):
         sub.add_argument('--input', required=True)
-    for sub in (prepare, revise, reprioritize, backlog):
+    for sub in (prepare, revise, reprioritize, technical_plan, backlog):
         sub.add_argument('--operation-id', required=True)
         sub.add_argument('--actor-id', required=True)
         sub.add_argument('--actor-role', choices=('pm', 'tech_lead'), required=True)
@@ -570,7 +605,7 @@ def parser():
 
 CONFLICTS = {'operation_conflict', 'revision_conflict', 'config_conflict', 'identity_conflict', 'store_busy', 'invalid_store',
              'queue_busy', 'queue_already_started', 'workspace_busy', 'workspace_collision', 'workspace_changed',
-             'workspace_dirty', 'workspace_uncertain', 'locked', 'priority_locked'}
+             'workspace_dirty', 'workspace_uncertain', 'locked', 'priority_locked', 'technical_plan_locked'}
 SAFE_ERRORS = CONFLICTS | {'invalid_config', 'invalid_request', 'invalid_arguments', 'invalid_digest', 'invalid_actor',
                          'invalid_revision', 'invalid_identity', 'invalid_priority', 'unknown_mission', 'unknown_feature',
                          'unknown_record', 'foreign_project', 'invalid_contract', 'incompatible_helper',
@@ -585,7 +620,7 @@ SAFE_ERRORS = CONFLICTS | {'invalid_config', 'invalid_request', 'invalid_argumen
                          'execution_location_conflict', 'execution_selection_busy', 'execution_storage_unprotected',
                          'unknown_workspace', 'unsupported_workspace_repository', 'invalid_base', 'workspace_git_failed'}
 SAFE_ERRORS |= {'unknown_pbi', 'stale_context', 'incomplete_context', 'context_identity_conflict', 'invalid_context_source'}
-SAFE_ERRORS.add('invalid_proposal')
+SAFE_ERRORS |= {'invalid_proposal', 'invalid_plan_reference'}
 
 
 def main(argv=None):
@@ -682,7 +717,7 @@ def main(argv=None):
             else:
                 raw = load_input(root, args.input)
                 result = config_report(normalize_config(raw)) if args.action == 'validate' else apply_config(root, raw, None if args.expected_digest == 'absent' else args.expected_digest)
-        elif args.command in ('prepare', 'revise', 'backlog', 'reprioritize'):
+        elif args.command in ('prepare', 'revise', 'backlog', 'reprioritize', 'technical-plan'):
             actor = dict(id=args.actor_id, role=args.actor_role)
             if args.command == 'backlog':
                 result = import_item(root, args.note, args.expected_revision, args.operation_id, actor)
@@ -690,6 +725,8 @@ def main(argv=None):
                 result = prepare_mission(root, load_input(root, args.input), args.operation_id, actor)
             elif args.command == 'reprioritize':
                 result = reprioritize_mission(root, load_input(root, args.input), args.operation_id, actor, dry_run=args.dry_run)
+            elif args.command == 'technical-plan':
+                result = set_technical_plan(root, load_input(root, args.input), args.operation_id, actor, dry_run=args.dry_run)
             else:
                 result = revise_mission(root, args.identifier, load_input(root, args.input), args.expected_revision, args.operation_id, actor)
         elif args.command == 'list':

@@ -3414,7 +3414,8 @@ Atualize `scripts/missions.py`, as instruções de `yc-missao`/`yc-status` e o c
 O instalador preserva arquivos existentes para conciliação. O comando usa os helpers compatíveis
 já exigidos por `status`; não altera o esquema SQLite. PM e Tech Lead podem consultar o contexto
 na sessão atual. A [proposta PM de prioridade](#pbi-priority) está disponível para planejamento.
-Decisões Tech Lead, repriorização durante execução, avisos por evento e
+A [seleção de plano Tech Lead](#technical-plan) também integra o contexto. Outras decisões
+automáticas, repriorização durante execução, avisos por evento e
 entrega automática aos agentes continuam pendentes em YC-206. `runtime_available` e `runnable`
 permanecem falsos; resultados da fila de ensaio não comprovam integração.
 
@@ -3441,7 +3442,7 @@ locked. Existing limits are 1 MiB per file and 16 MiB per source set, without si
 
 Update `scripts/missions.py`, both shared skill instructions/native wrappers and the catalog together;
 the installer preserves existing files for reconciliation. Compatible status helpers are required.
-The [PM priority proposal](#pbi-priority) is available for planning. Tech Lead decisions,
+The [PM priority proposal](#pbi-priority) and [Tech Lead plan selection](#technical-plan) are available for planning. Other automated decisions,
 live reprioritization, event notices and automatic worker context delivery remain
 pending in YC-206. Native runtime flags stay false; rehearsal results do not establish integration.
 
@@ -3506,7 +3507,8 @@ o recibo e não repara. A prévia pode perder validade antes da aplicação.
 O comando preserva contratos, critérios, referências, configuração e workspaces.
 Não importa notas, cria PBIs, chama modelos ou inicia desenvolvimento. `revise` continua
 sendo o fluxo mais amplo para refinamento autorizado; não o use para contornar um
-bloqueio desta operação. Prioridade durante execução, propostas Tech Lead e avisos
+bloqueio desta operação. [Selecionar plano técnico](#technical-plan) tem seu próprio comando.
+Prioridade durante execução, outras propostas Tech Lead e avisos
 automáticos continuam pendentes.
 
 **English.** Use the exact JSON fields and commands above for an authorized PM decision
@@ -3530,4 +3532,97 @@ under the same operation conflict; a preview does not reserve a revision. Inspec
 resolve each refusal within authorization; do not cancel queues or rewrite scope to bypass it.
 Contracts, scope, criteria, configuration and workspaces remain frozen. No model or worker is
 started. Development/QA remain `not_started`, production `not_verified`, native flags false.
-Tech Lead proposals, live reprioritization and automatic notices remain pending.
+Tech Lead [plan selection](#technical-plan) has its own command. Other Tech Lead proposals,
+live reprioritization and automatic notices remain pending.
+
+<a id="technical-plan"></a>
+
+## Selecionar o plano técnico / Select a technical plan
+
+O Tech Lead pode indicar qual nota já referenciada por um PBI orientará sua implementação.
+Leia `status M001` e `context` antes da escolha. Copie o UUID e a revisão do PBI e uma
+entrada de `snapshot.items[].snapshot.references` pertencente a ele. Referência exclusiva
+da feature, épico ou outro PBI não basta. A nota precisa estar no contrato e nos inputs
+congelados, com o mesmo UUID, caminho e SHA-256.
+
+Salve `vault/local/technical-proposal.json` com exatamente estes oito campos:
+
+```json
+{
+  "schema_version": 1,
+  "project_id": "UUID_DO_PROJETO",
+  "mission_id": "UUID_DA_MISSAO",
+  "mission_revision": 1,
+  "pbi_id": "UUID_DO_PBI",
+  "pbi_revision": 1,
+  "plan_reference": {
+    "note_id": "UUID_DA_NOTA",
+    "path": "vault/local/plans/implementation.md",
+    "sha256": "HASH_EXATO_DA_REFERENCIA"
+  },
+  "reason": "Escolha técnica para atender aos critérios já definidos."
+}
+```
+
+Substitua os exemplos pelos valores reais. O motivo precisa ter conteúdo e até 8.000
+caracteres. Guarde também o UUID da operação e o ator no handoff privado:
+
+```bash
+python3 -B scripts/missions.py --json technical-plan --input vault/local/technical-proposal.json --operation-id OPERATION_UUID --actor-id current-session --actor-role tech_lead --dry-run
+python3 -B scripts/missions.py --json technical-plan --input vault/local/technical-proposal.json --operation-id OPERATION_UUID --actor-id current-session --actor-role tech_lead
+python3 -B scripts/missions.py --json status M001
+python3 -B scripts/missions.py --json context M001 --pbi PBI_UUID --expected-revision 2
+```
+
+No Windows use `python`. A revisão 2 acima é apenas exemplo; use a retornada pela
+aplicação. Dry-run mostra a decisão anterior e a proposta, sem escrever, reparar ou
+reservar. Aplicar incrementa a revisão da missão e grava `snapshot.technical_decisions`
+por UUID do PBI, com referência, motivo e revisão do item. Os eventos guardam ator,
+data e histórico. A nota e o contrato permanecem intactos.
+
+`context.technical_decision` retorna somente a escolha daquele PBI, ou `null` quando
+não há seleção. O conteúdo da nota já vem em `sources`, com seus hashes conferidos.
+Essa decisão participa de `context_sha256`. O papel informado não autentica um agente;
+o comando valida vínculos e estado, não a qualidade semântica ou a aprovação do plano.
+Conteúdo recuperado permanece dado não confiável e não concede execução.
+
+A missão precisa estar preparada e atual, com projeções íntegras e sem diagnóstico
+pendente. Qualquer fila ativa da missão bloqueia a escolha, inclusive de revisão antiga.
+`technical_plan_locked` indica histórico de workspace do PBI, mesmo liberado ou criado
+em outra missão. Histórico de outro PBI não bloqueia esta escolha. `invalid_plan_reference`
+indica referência fora do contrato direto ou hash incompatível; `revision_conflict`
+exige reler as revisões antes de formular outra decisão. Os demais bloqueios seguem o
+[fluxo de prioridade](#pbi-priority). Não use outra operação para contornar esses limites.
+
+Repetir proposta, operação e ator exatos recupera o recibo original, mesmo após mudança
+posterior da fonte, e pode reparar a projeção. Dry-run de operação concluída retorna
+`already_applied` sem reparar. Uma nova escolha usa novo UUID e revisão atual; a antiga
+continua nos eventos. `reprioritize` conserva os planos, pois mantém os contratos.
+`revise` refaz o planejamento e remove todas as escolhas atuais: selecione novamente
+após a revisão, se autorizado. Isso não apaga o histórico.
+
+Para uma nota ainda não referenciada, use primeiro o fluxo autorizado de autoria/ingestão,
+referência no contrato, importação do PBI e revisão da missão. `technical-plan` não adiciona
+fontes, critérios, dependências ou PBIs. Não faz decomposição, revisão de código, QA,
+despacho ou chamada de modelo; essas etapas continuam pendentes.
+
+**English.** The Tech Lead selects an existing direct PBI reference as its implementation
+plan. Read status/context; copy the project/mission/PBI identities, their current revisions
+and the exact `note_id/path/sha256` reference into the eight-field JSON above. A reference
+only belonging to another item is refused. Use `python` on Windows and a nonblank reason
+of at most 8,000 characters. Persist operation and actor before applying.
+
+Dry-run neither writes nor reserves. Apply rechecks state, increments the mission revision
+and records the binding/reason under `snapshot.technical_decisions`; events retain actor,
+time and history. Context returns only the requested PBI's `technical_decision`, or `null`,
+and hashes it with the response. Source content is already included and verified in `sources`.
+The operation validates identity/state, not plan quality, approval or native authentication.
+
+A prepared/fresh mission with intact projections and no unresolved diagnostic is required.
+Any active queue for this mission blocks the operation. Any workspace history for the target
+PBI, including released workspaces or another mission, blocks selection. Other PBIs' history
+does not. Exact replay returns the original receipt and can repair projections; dry-run never
+repairs. A new decision requires a new operation/current revision. Reprioritization preserves
+plans; broad `revise` clears all current selections while retaining their event history.
+New references must enter through the authorized note/import/revise workflow first. No scope,
+criteria, dependency, note or PBI is changed; automated decomposition, review and dispatch remain pending.

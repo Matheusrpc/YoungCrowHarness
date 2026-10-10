@@ -4,4 +4,4 @@ description: Use when preparing or refining YoungCrow missions, epics, features,
 ---
 
 Read [the shared yc-missao reference](../../../skills/yc-missao/SKILL.md) before acting.
-Resolve its references from that shared directory. This entry covers mission contracts, restricted PM priority proposals and explicitly requested Git workspace preparation/release.
+Resolve its references from that shared directory. This entry covers mission contracts, restricted PM priority proposals, Tech Lead plan selection and explicitly requested Git workspace preparation/release.

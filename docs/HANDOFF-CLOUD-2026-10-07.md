@@ -4,13 +4,23 @@ Frente: produto YoungCrowHarness, com trabalho ativo no executor isolado.
 
 Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra sessão consiga continuar sem receber toda a conversa. Reúne decisões do mantenedor, estado do código, resultados observados, falhas, limites e próximos passos. Os caminhos de arquivos, salvo indicação contrária, são relativos à raiz do repositório.
 
+**YC-206 parcial: plano técnico (10/out).** `technical-plan` seleciona uma nota já
+referenciada diretamente pelo PBI, com projeto, revisões de missão/PBI e hash conferidos.
+Prévia sem escrita; aplicação conserva contratos e registra escolha/motivo. `context`
+retorna apenas a decisão do PBI consultado. `reprioritize` preserva as escolhas;
+`revise` as remove da revisão atual, mantendo o histórico. Fila ativa bloqueia;
+histórico de workspace do PBI também, inclusive liberado/em outra missão.
+[Uso](USAGE.md#technical-plan) e [provas](relatorios/2026-10-10-technical-plan.md).
+Não valida a qualidade semântica da nota nem aprova execução. Decomposição/revisão
+técnica automáticas, avisos e despacho continuam pendentes; contador nativo 2/3 intacto.
+
 **YC-206 parcial — prioridade PM (10/out):** `reprioritize` aceita proposta JSON
 restrita à ordem dos PBIs já selecionados. Prévia sem escrita, revisão esperada,
 motivo e ator no histórico; retomada usa a mesma operação. Preserva snapshot de
 escopo/configuração, bloqueia fila ativa de qualquer revisão e mantém posições dos
 PBIs com histórico de workspace, inclusive liberado/em outra missão.
 [Uso](USAGE.md#pbi-priority) e [provas](relatorios/2026-10-10-pm-priority.md).
-É planejamento; decisões Tech Lead, prioridade durante execução, avisos e despacho
+É planejamento; a seleção de plano Tech Lead está descrita acima. Prioridade durante execução, avisos e despacho
 continuam pendentes. Não repetir pilotos nativos; contador 2/3 preservado.
 CI da base `8897bb9`: falha de cleanup Windows no run do PR; mesma etapa passou
 no push. Fixture ajustada com repetição limitada do erro 32; confirmação no novo CI.
@@ -21,7 +31,7 @@ UUIDs, revisões e hashes, sem escrita/migração ou entrega automática ao work
 [Uso](USAGE.md#pbi-context) e [provas](relatorios/2026-10-10-pbi-context.md).
 Recusa fontes/revisões divergentes e ancestralidade incompleta; gaps e pendências
 operacionais continuam visíveis para refinamento. Propostas PM limitadas à ordem estão
-descritas acima; decisões Tech Lead, repriorização em execução e avisos permanecem pendentes.
+descritas acima, assim como a seleção de plano técnico; outras decisões automáticas, repriorização em execução e avisos permanecem pendentes.
 Base `ded7ac5` aprovada nos oito checks, incluindo Windows, runs
 [push 38053689598](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38053689598) e
 [PR 38053692382](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38053692382).

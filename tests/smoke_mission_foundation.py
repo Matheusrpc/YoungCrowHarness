@@ -72,6 +72,15 @@ for name in ('capabilities', 'integrations'):
         fixture.root, fixture.store = project, document_store
         fixture.project_id = json.loads((project / 'vault/project.json').read_text())['project_id']
         paths = fixture.tree(features=2, pbis=2)
+        from integrations import note
+        plan_path = 'vault/local/technical-plan.md'
+        plan_bytes = note(fixture.project_id, plan_path, 'decision', 'Synthetic technical plan', 'index.md',
+                          '# Synthetic plan\n\n[Index](index.md)\n\nImplement within the existing criteria.\n',
+                          '2026-10-10T00:00:00+00:00').encode()
+        write(project / plan_path, plan_bytes)
+        document_store.append_link(project, 'vault/local/index.md', '[Technical plan](technical-plan.md)')
+        first_pbi_path = next(p for p in paths if '/pbis/' in p)
+        fixture.contract(first_pbi_path, references=[dict(note_id=fixture.item_id(plan_path), path=plan_path)])
         if mode == 'existing':
             paths.append('vault/features/legacy/index.md')
         for path in paths:
@@ -115,7 +124,7 @@ for name in ('capabilities', 'integrations'):
         context = cli('context', second['code'], '--pbi', pbis[0], '--expected-revision', '1')
         check([item['kind'] for item in context['items']] == ['epic', 'feature', 'pbi'], 'context_ancestry_incorrect')
         check(context['pbi_id'] == pbis[0] and not context['runnable'], 'context_scope_incorrect')
-        expected_sources = {r['snapshot']['note_path'] for r in context['items']} | {'vault/product/profile.md'}
+        expected_sources = {r['snapshot']['note_path'] for r in context['items']} | {'vault/product/profile.md', plan_path}
         check({source['path'] for source in context['sources']} == expected_sources, 'context_leaked_other_items')
         for source in context['sources']:
             check(source['content'].encode('utf-8') == (project / source['path']).read_bytes() and
@@ -139,6 +148,25 @@ for name in ('capabilities', 'integrations'):
               changed.pop('priority') == proposal['priority'], 'priority_decision_incorrect')
         check(changed == {k: v for k, v in many['snapshot'].items() if k != 'priority'}, 'priority_changed_scope')
         check(len(reordered['events']) == 2 and not reordered['runnable'], 'priority_started_runtime')
+        technical = dict(schema_version=1, project_id=fixture.project_id, mission_id=second['record_id'],
+                         mission_revision=2, pbi_id=pbis[0], pbi_revision=1, reason='Synthetic plan selection',
+                         plan_reference=dict(note_id=fixture.item_id(plan_path), path=plan_path, sha256=digest(project / plan_path)))
+        technical_path = 'vault/local/technical-proposal.json'
+        write(project / technical_path, json.dumps(technical).encode())
+        technical_args = ('technical-plan', '--input', technical_path, '--operation-id', str(uuid.uuid4()),
+                          '--actor-id', 'fixture-tl', '--actor-role', 'tech_lead')
+        before_plan = fixture.snapshot()
+        check(cli(*technical_args, '--dry-run')['state'] == 'preview' and fixture.snapshot() == before_plan,
+              'technical_preview_wrote_files')
+        technical_receipt = cli(*technical_args)
+        check(technical_receipt['revision'] == 3 and cli(*technical_args) == technical_receipt, 'technical_replay_failed')
+        selected = cli('context', second['code'], '--pbi', pbis[0], '--expected-revision', '3')
+        check(selected['technical_decision']['plan_reference'] == technical['plan_reference'], 'technical_context_missing')
+        check(cli('context', second['code'], '--pbi', pbis[1], '--expected-revision', '3')['technical_decision'] is None,
+              'technical_context_wrong_pbi')
+        after_plan = cli('status', second['code'])['snapshot']
+        after_plan.pop('technical_decisions')
+        check(after_plan == reordered['snapshot'] and (project / plan_path).read_bytes() == plan_bytes, 'technical_plan_changed_scope')
         defaults = cli('config', 'show')
         updated = defaults['config']
         updated['agents']['pm']['model'] = 'fixture-b'
@@ -186,6 +214,7 @@ print(json.dumps(result))
                              read_only_status=True, read_only_discovery=True, initial_queue_preview=True,
                              selected_pbi_context=True, context_without_writes=True,
                              restricted_pm_priority=True, priority_preview_without_writes=True,
+                             selected_technical_plan=True, technical_preview_without_writes=True,
                              projection_recovered=True, vault_notes=vault['notes_checked'],
                              state='prepared', runtime_available=False))
 

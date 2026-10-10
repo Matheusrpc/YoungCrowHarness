@@ -327,8 +327,8 @@
       "expected": {
         "contract_sha256": "4ed02a5e2e4d82e34d37823fab9b30ed144d950fb42b6e488ffae4499a4932a4",
         "files_sha256": {
-          "claude": "92307d7d2e28581cbb188b7804c6b30b5c9b51d225ad9e780c9e08ff3407b49f",
-          "codex": "3523972e3cb7bef85097eb601a2c4388ac00b48bcda000de90d7f0f45f5fd254"
+          "claude": "b4113e64caad796619e61b132fda71c10907d80e901e9ceda467185b7a51b7e8",
+          "codex": "fa2fa1150edfc7ba7dceaec053bf46314117146e06aefb1cdfbffa584b0c8fe7"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1250,8 +1250,8 @@
       "expected": {
         "contract_sha256": "cc7f0be1bbc77eba45aa6c320fe24acb39039eb463827e3af8b104fc39d7014e",
         "files_sha256": {
-          "claude": "d376e3bfbae304236f9f407f456496d8bed0f9762655e06d44a3dac9b25535c4",
-          "codex": "76aa4df483c6efd325f2d609276577466fd5f393391c91964aaa9d579f1dc413"
+          "claude": "43f9bbf34c9f95aaad0005741fe6a55326287a56ba03f08d2d7e240e4f7af2d8",
+          "codex": "13e82c035bb1aa3da7a14ed6dc7f1dc97c9346b450a3e6240a553e5264ad7afc"
         }
       }
     },
@@ -1342,8 +1342,8 @@
       "expected": {
         "contract_sha256": "7badfa4acfe7638f7326e93e94506a3b291d44cfb3d635bcee2a90884f9dcc08",
         "files_sha256": {
-          "claude": "ef0d8ee39de75f89c1705be5417c7809c03469e742c9c15fa8c8103fc6cdef09",
-          "codex": "d4330f412f53ded4a295086b9b7f4eda08f1324e40f4c2d3c6e018d7a27f5959"
+          "claude": "fb55ba1656f1ca154fb0ba2aa35eec72a50ace611c7b544e364399357b126b36",
+          "codex": "b52faab0f3f6cd63ea378228341c705d27c1e17c399b57dae34a8c7b5e418f0e"
         }
       }
     },
@@ -1351,9 +1351,9 @@
       "id": "yc-missao",
       "kind": "skill",
       "purpose": {
-        "when": "Refine backlog, propose restricted PM priority changes, assemble selected PBI context, prepare missions or explicitly prepare/release a PBI Git workspace",
+        "when": "Refine backlog, propose restricted PM priority changes, select PBI technical plans, assemble PBI context, prepare missions or explicitly prepare/release a PBI Git workspace",
         "inputs": "Selected contracts, references, priorities and explicit pinned Git base",
-        "outputs": "Private mission snapshots, revision-bound priority decisions, events, selected read-only PBI context and workspace recovery receipts",
+        "outputs": "Private mission snapshots, revision-bound priority and technical-plan decisions, events, read-only PBI context and workspace recovery receipts",
         "limits": "Local explicit preparation/release; no autonomous workers, integration, push or deployment"
       },
       "clients": [
@@ -1430,10 +1430,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "5aa9825ed87a89e3969005dcd63de834ef6f5ed4ff3608687508fc287d6eb372",
+        "contract_sha256": "665134baae0553d4a05dfd7d0a920c2626c3fea34e7614b28a313b4f4733d07d",
         "files_sha256": {
-          "claude": "aeccda3efbf467b5ebdebdf39340bebfae2cfd560fa4e9cdb002752d01b64d23",
-          "codex": "1fc8bf26415388de92abb5d4ef6bcfbc51de706bce5ccd693c4acdcabf1b51ba"
+          "claude": "0fbf5dc29958d39eceeff7337012400252d5ee07f477497c0c2d39f0eb66981c",
+          "codex": "ab531868a7f78017d0a333b7c9c6c4b7d9814d991c478082a27f45401e15aa91"
         }
       }
     },
@@ -1443,7 +1443,7 @@
       "purpose": {
         "when": "Read mission state and pending work",
         "inputs": "Mission UUID or code; PBI UUID and expected mission revision for context",
-        "outputs": "Read-only history, freshness, planning gaps, selected PBI context and saved workspace state",
+        "outputs": "Read-only history, freshness, planning gaps, selected PBI context with its technical-plan decision, and saved workspace state",
         "limits": "Offline preparation only; no autonomous workers or deployment"
       },
       "clients": [
@@ -1515,10 +1515,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "7178919bceaf2d9573235e775babdc3e8a38200e4c2cf815f890d499ceeaba6e",
+        "contract_sha256": "19e8878a7028ebd00fc097cd8ca2b845226d1f32fb7362985b8e91dea2ca50a0",
         "files_sha256": {
-          "claude": "ab934f2017c2cc5cf88178ff7e15ac1e41adf521c1b7cf97cf6fe5877fcfc8ad",
-          "codex": "f4d8c5e9570867d6f9ea535479afa424b76afbfc379049c322d657a7fea1f86f"
+          "claude": "76e1f3d460c91a83d569723a27e736c8347bc15b76155c5c07e228167127b163",
+          "codex": "624a8dcca34910738dff2217426bc0244e7c77e2445e062ecaa96fd680e5aced"
         }
       }
     }

@@ -108,6 +108,10 @@ O PM pode [propor outra ordem para os PBIs selecionados](docs/USAGE.md#pbi-prior
 autor e revisão, preservando escopo e configuração. Fila ativa bloqueia a mudança;
 PBIs com histórico de workspace conservam suas posições. É uma decisão de planejamento.
 
+O Tech Lead pode [selecionar o plano técnico de um PBI](docs/USAGE.md#technical-plan)
+entre suas referências diretas. A escolha registra motivo, revisão e hash da nota;
+`context` entrega esse plano junto aos critérios, preservando o contrato do PBI.
+
 
 O checkpoint `a0af931` passou nos oito jobs de CI entre push e PR, incluindo Windows.
 [Publicação e resultados](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
@@ -745,6 +749,10 @@ The PM can [propose a new order for selected PBIs](docs/USAGE.md#pbi-priority).
 `reprioritize --dry-run` previews without writing; applying records the reason,
 actor and revision while preserving scope and configuration. An active queue blocks
 the change; PBIs with workspace history retain their positions. This is a planning decision.
+
+The Tech Lead can [select a PBI's technical plan](docs/USAGE.md#technical-plan) from
+its direct references. The choice records a reason, revision and note hash;
+`context` delivers that plan alongside the criteria while preserving the PBI contract.
 
 
 Checkpoint `a0af931` passed all eight push/PR CI jobs, including Windows.

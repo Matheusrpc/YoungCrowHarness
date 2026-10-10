@@ -3131,8 +3131,8 @@ respects the execution deadline. Expired deadlines skip grace; forced shutdown,
 ## Ensaio persistente da fila / Persistent queue rehearsal
 
 O ensaio usa os PBIs de uma missão preparada, na prioridade congelada dessa missão.
-Ele registra etapas `dev_pending`, `qa_pending` e `fixture_completed` no SQLite privado.
-Executa um PBI por vez: termina seu QA e então escolhe o primeiro item pendente cujos
+Ele registra etapas e resultados no SQLite privado. Executa um PBI por vez: prioriza
+seu QA e suas correções e então escolhe o primeiro item pendente cujos
 predecessores concluíram o ensaio na mesma sessão. Ciclos ou dependências ausentes
 continuam impedindo o preparo válido da missão.
 O executor determinístico calcula um resultado local; o QA simulado confere seu hash.
@@ -3152,15 +3152,40 @@ python3 -B scripts/missions.py --json status M001
 ```
 
 O exemplo acima cobre um PBI. Com vários, continue `queue step` usando a revisão
-retornada após cada comando até a sessão atingir `fixture_completed`. São dois avanços
-por PBI. O QA de um item pode devolver `dev_pending` com o próximo PBI selecionado.
+retornada após cada comando até a sessão atingir `fixture_completed` ou `waiting`.
+Em `waiting`, consulte os bloqueios e cancele o ensaio quando necessário. No cenário padrão,
+são dois avanços por PBI. O QA de um item pode devolver `dev_pending` com o próximo PBI selecionado.
+
+Para exercitar reprovações, escolha `--fixture-scenario` no comando `queue start`:
+
+| Cenário | Comportamento do primeiro PBI elegível |
+|---|---|
+| `pass` (padrão) | Aprova o primeiro QA |
+| `qa-retry` | Reprova o primeiro QA e aprova após uma correção |
+| `qa-exhaust` | Reprova o primeiro QA e as três correções; bloqueia o PBI |
+
+O cenário e o PBI alvo ficam congelados na sessão. Os demais PBIs usam aprovação inicial.
+A opção só existe em `start`; ela não permite fornecer um resultado ou executar comandos.
+Um cenário diferente exige outro ensaio, não uma alteração no ensaio em curso.
+
+`correction_pending` pede outro `step` para despachar a correção simulada. O campo
+`items[].correction_cycles` começa em zero e aumenta nesse despacho, não na reprovação.
+Cada ciclo inclui a correção e seu QA. Após a terceira correção reprovada, o item vira
+`blocked`; os independentes podem avançar. Se não houver item elegível e restarem itens
+não concluídos, a sessão vira `waiting`. O status orienta `inspect_rehearsal_blockers`
+com motivo `correction_limit_reached`. A espera ocupa a vaga da sessão, recusa `step`
+e permite `cancel`; nenhum processo fica suspenso esperando uma resposta.
+
+O contador pertence à sessão sintética: reinício, replay e falha transacional não o
+renovam. Novos ensaios são independentes. Este incremento não implementa o ledger real
+de autocorreção entre missões, revisões ou IDs; YC-303 continua pendente.
 
 O primeiro `--expected-revision` é a revisão da missão. Nos avanços, é a revisão da
 sessão retornada em `session.revision`. O UUID da sessão está em `session.id`.
 `status.queue_sessions` mostra escopo, resultados, histórico de recibos, próximo papel
-e `next_action`. Em sessões v2, `items` lista estado e `waiting_on` de cada PBI,
+e `next_action`. Em sessões v2/v3, `items` lista estado e `waiting_on` de cada PBI,
 na prioridade congelada. Os campos `pbi_id`, `pbi_code` e `pbi_revision` identificam
-o candidato atual e ficam nulos ao concluir todos os itens.
+o candidato atual e ficam nulos ao concluir todos os itens ou entrar em espera.
 `dependency_basis: rehearsal_results` limita a liberação de dependências à simulação.
 Por exemplo, prioridade `[C(depende de B), D, B(depende de A), A]` executa
 `D → A → B → C`, com Dev e QA de cada um. `fixture_completed` conclui apenas o ensaio; desenvolvimento, QA,
@@ -3185,9 +3210,10 @@ encerrar um ensaio ligado à revisão anterior da missão. O cancelamento não a
 libera diagnósticos nativos. A prévia `initial_backlog` continua independente dos resultados
 sintéticos; nenhum deles satisfaz uma dependência integrada.
 
-A primeira nova escrita aceita da fila migra o banco para o esquema 4, sem criar
-novas tabelas. Leituras e replay exato conservam o esquema anterior. Sessões v1
-continuam pelo fluxo original de um PBI; seus recibos não são reescritos. Atualize em conjunto
+A primeira nova escrita aceita da fila migra o banco para o esquema 5, sem criar
+novas tabelas. O índice de sessão ativa passa a incluir correções e espera.
+Leituras e replay exato conservam o esquema anterior. Sessões v1/v2
+continuam pelo fluxo original; seus recibos não são reescritos. Atualize em conjunto
 `missions.py`, `mission_store.py`, `mission_runs.py` e `mission_queue.py`; o instalador
 preserva helpers existentes para comparação e conciliação. Uma mistura incompatível
 retorna `incompatible_helper`. Versões antigas do harness não devem abrir o banco migrado.
@@ -3198,11 +3224,25 @@ The commands above run a persistent deterministic rehearsal. Multiple PBIs run
 serially: QA of the active item precedes new development; saved priority selects
 the next item whose predecessors completed this same rehearsal. `items` exposes
 per-PBI state and `waiting_on`. This simulated dependency basis never grants real
-integration. Repeat `step` with the returned session revision until all items finish.
-The example shows one PBI; each additional PBI requires two more steps. `start` expects
+integration. Repeat `step` with the returned session revision until `fixture_completed`
+or `waiting`. In `waiting`, inspect blockers and cancel the rehearsal when needed.
+The default scenario takes two steps per PBI. `start` expects
 the mission revision; `step` and `cancel` expect the session revision. Each new command
 needs its own operation UUID. Repeating the exact request recovers its original receipt;
 `status` reports the current state, next role, blockers and receipt history.
+
+Choose `--fixture-scenario pass|qa-retry|qa-exhaust` only at `queue start`. The scenario
+and first eligible PBI are frozen in the session; all other PBIs pass their initial QA.
+`qa-retry` rejects initial QA and passes one correction. `qa-exhaust` rejects initial QA
+and all three corrections. A rejected QA schedules `correction_pending`; the next
+`step` dispatches the pure fixture correction and increments `items[].correction_cycles`.
+Each cycle includes revalidation. Exhaustion marks the PBI `blocked` and permits
+independent PBIs to continue without releasing the blocked item's dependents.
+When no eligible item remains, incomplete work enters `waiting`, holds the session slot,
+and allows cancel but not step. Status reports `inspect_rehearsal_blockers` and
+`correction_limit_reached`. Counts survive restart, replay and crashes within the same
+synthetic session. New rehearsals are independent; the real correction ledger across
+missions, revisions and IDs remains YC-303 roadmap work.
 
 The fixture hashes frozen input and its simulated QA checks that result. It invokes no
 model and changes no worktree. `fixture_completed` grants no real development, QA,
@@ -3211,10 +3251,11 @@ but cannot duplicate the persisted transition. External exactly-once execution i
 Only one rehearsal may be active per repository; one session is allowed per mission
 revision. Cancel preserves history and remains available after mission revision changes.
 
-New accepted queue writes migrate the private SQLite store to schema 4 while retaining native
+New accepted queue writes migrate the private SQLite store to schema 5 while retaining native
 client diagnostics and blockers. Update the four helpers named above together; existing
 helpers are preserved by the installer for explicit comparison and reconciliation. Reads
-and exact replay never migrate storage. Existing v1 sessions keep their original
-one-PBI behavior and receipts. Schema 4 prevents old writers from misinterpreting
-v2 sessions. Native dispatch remains gated by YC-203. Concurrent scheduling, leader
-decisions, corrections, real agents, worktrees and release remain roadmap work.
+and exact replay never migrate storage. Existing v1/v2 sessions keep their original
+behavior and receipts. The active-session index includes correction and waiting states;
+schema 5 prevents old writers from misinterpreting v3 sessions. Native dispatch remains
+gated by YC-203. Concurrent scheduling, leader decisions, real agents, worktrees and
+release remain roadmap work.

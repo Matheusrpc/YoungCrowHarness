@@ -326,8 +326,8 @@
       "expected": {
         "contract_sha256": "d49543b24f1d65a5e22c56f43ecb3776a114a779712d82dd68ac7006c0f2e1e5",
         "files_sha256": {
-          "claude": "5e3a948fa0d0c33ed9449056406fe740a8c44e27918ce4b496d779f6bd796a81",
-          "codex": "713f174c0373fd582d7cf5acbf74f82f6cc73ddb3af8bfc00216879a705c341a"
+          "claude": "70b8781f2e44807357f107c8a5fb5e369c9f1b635599961eac2998abcb057bbb",
+          "codex": "adf2089eaccc29b8a4feb30fe0049c7e4d4e77072be16f7007debeeee16aaf78"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1248,8 +1248,8 @@
       "expected": {
         "contract_sha256": "dee74a9270c78fa204d3e3a067fb9c6e16ac884b6c9e28acc2d127d54fe61769",
         "files_sha256": {
-          "claude": "0d32c5230c36a6016f720323bd7fdf4f61169f7d7b8318e7721f359dc6d888a6",
-          "codex": "20e0bda90e53e67c9157a92d85a361459cf7dc08733e74b25e5a17aeecdae305"
+          "claude": "218beb7610ce500c2b343ba54a903bdf00be249d04f11f9578595ad0cd668943",
+          "codex": "b6f03e07938c55f03a8e1713e34a209b708c5935811a9e76639dc7cab7f90a70"
         }
       }
     },
@@ -1339,8 +1339,8 @@
       "expected": {
         "contract_sha256": "9831d381d15c58f23a6792de08847b88148ad05760fb1668ded760870f36c593",
         "files_sha256": {
-          "claude": "52ac938d81fc9be153aab900b612b2864a9233d530c739fb2eb3afaf24e60376",
-          "codex": "6aa0542d272d62ff74a2d006ec3e1e9ec7073a23efb0cd0c9010e959353c9930"
+          "claude": "729f20bc530699ae3f0d8e812bf10cb1bec315281257dff9d51f5f643f1106fa",
+          "codex": "3841f3f6e987ebc185ae5c3f5a2c517ebe5a2856a0cf9e370ec71cb79480d046"
         }
       }
     },
@@ -1426,8 +1426,8 @@
       "expected": {
         "contract_sha256": "74708ada6482a89f4b2412f68d1e916b01896c91f8aa3844f864662c68f2ea97",
         "files_sha256": {
-          "claude": "b42baba181c5aa7d98a7310575b6abdb4036258e9081ab91f4869c7ecfce6340",
-          "codex": "9e87102667d2944018c83e31bccd9a34417f84edc62fc83041af3de57b3e8e64"
+          "claude": "ab8c70342d33168a16a7057e4ef5d7f1978f3ac631f950724a21d21e5a75c673",
+          "codex": "402f5d6bd422a974cc52f83adc4de5485e07c5405b522dd3db27858badbb5701"
         }
       }
     },
@@ -1510,8 +1510,8 @@
       "expected": {
         "contract_sha256": "fdbc93eaed5957f84f67301789b8e7bb2ea9c3b0731a782db92863f3b60cac1c",
         "files_sha256": {
-          "claude": "a1216fa62f0824cb01914667154d7bee63db3f87c7a362948d90dccc2237f300",
-          "codex": "e1a0404932387c7db502239d671f61cdecc18a4dd0d66d001428c15e345338cf"
+          "claude": "4ac4aeae40e5b1b689e0a860f9c6dca1b4844c55019976483a228a3ec2cf20eb",
+          "codex": "5cb4eea114c2e2fd0f358da998a552e838a8425808edbcec88efe9611741ac2d"
         }
       }
     }

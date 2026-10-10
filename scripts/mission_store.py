@@ -11,7 +11,7 @@ from document_store import safe_path, prepare_storage, verify_private_storage
 from mission_backlog import identity, project_id, require
 
 DB_PATH = 'vault/local/operations/state.sqlite3'
-RUNTIME_SCHEMA = 4
+RUNTIME_SCHEMA = 5
 PREFIXES = dict(epic='E', feature='F', pbi='P', mission='M')
 SCHEMA = (
     'CREATE TABLE metadata (schema_version INTEGER NOT NULL, project_id TEXT NOT NULL)',
@@ -35,7 +35,7 @@ def preflight(root):
 
 def validate_database(conn, project):
     metadata = conn.execute('SELECT schema_version, project_id FROM metadata').fetchall()
-    require(metadata in ([(1, project)], [(2, project)], [(3, project)], [(4, project)]), 'invalid_store')
+    require(metadata in ([(1, project)], [(2, project)], [(3, project)], [(4, project)], [(5, project)]), 'invalid_store')
     conn.execute('SELECT id,kind,code,revision,snapshot FROM records LIMIT 0')
     conn.execute('SELECT seq,id,operation_id,request_hash,record_id,actor,created_at,old_revision,new_revision,snapshot,projection_state FROM events LIMIT 0')
     conn.execute('SELECT path,sha256,sequence FROM projections LIMIT 0')

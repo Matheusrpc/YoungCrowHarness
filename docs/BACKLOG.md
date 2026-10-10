@@ -36,11 +36,14 @@ Preparação antecipada de YC-204: `status` apresenta `queue_preview`, com prior
 dependências e primeiro candidato inicial. Usa dados existentes e preserva o bloqueio
 de execução. O [ensaio persistente com vários PBIs](relatorios/2026-10-10-queue-multi.md)
 foi antecipado em 10/out: execução serial por prioridade e dependências simuladas.
-Coordenação nativa, vagas concorrentes, líderes e correções continuam pendentes.
+O [ensaio de correções](relatorios/2026-10-10-queue-corrections.md) acrescenta reprovação,
+limite de três correções por sessão e espera persistida. Coordenação nativa, vagas
+concorrentes, líderes e autocorreção real continuam pendentes.
 Early YC-204 preparation: `status` exposes `queue_preview` with priority, dependencies
 and the first initial candidate. A persistent multi-PBI deterministic rehearsal was
-added on Oct 10: serial priority scheduling with simulated dependencies. Native dispatch,
-concurrent slots, leader decisions and correction workflows remain pending.
+added on Oct 10: serial priority scheduling with simulated dependencies. The correction
+rehearsal adds QA rejection, three corrections per session and persistent waiting.
+Native dispatch, concurrent slots, leader decisions and real correction workflows remain pending.
 
 Revisão de arquitetura em 8/out: proxy fixo entre missões pode reduzir escritas, mas
 ainda exige proteção do endpoint e recuperação verificável de credenciais. A instalação
@@ -284,7 +287,7 @@ Até ela existir, esses ritos são conduzidos nas sessões autorizadas.
 | YC-201 | 2A: preflight e compatibilidade dos clientes | Frente 1 | Conferir cliente, versão, modelo/effort, autenticação selecionada e capacidades. Configuração desconhecida fica bloqueada, sem fallback ou chamada de modelo | Implementado; catálogo dinâmico e recusas testados. Perfis nativos continuam sem aceite de execução |
 | YC-202 | 2A: execução limitada e recibos duráveis | YC-201 | Reservar operação antes de chamar; impor tempo e quantidade, registrar consumo observado, encerrar processos próprios e conservar resultado incerto sem repetir | Verificado com simuladores: limites, recuperação e recibos; chamadas nativas bloqueadas |
 | YC-203 | 2A: instalação, consulta e provas dos adaptadores | YC-202 | Provar cliente autenticado e API explícita quando houver acesso, em matriz por ambiente; consulta sem escrita e adoção preservada. Cada combinação sem prova permanece indisponível | Parcial; inspeção Claude corrigida. Prova local reproduz falha de isolamento do Codex; chamadas reais bloqueadas. [Evidência atual](relatorios/2026-10-03-native-client-verification.md) |
-| YC-204 | 2B: coordenador e fila priorizada | YC-203 para despacho | Uma missão ativa por repositório; três PBIs e três execuções como limites distintos; dependências e ordem persistidas. Sem item elegível, persistir espera | Prévia inicial e [ensaio serial com vários PBIs](relatorios/2026-10-10-queue-multi.md) implementados. Concorrência, agentes reais e despacho pendentes; [ordenação aprovada](superpowers/specs/2026-10-09-queue-eligibility-refinement.md) |
+| YC-204 | 2B: coordenador e fila priorizada | YC-203 para despacho | Uma missão ativa por repositório; três PBIs e três execuções como limites distintos; dependências e ordem persistidas. Sem item elegível, persistir espera | Prévia inicial e ensaio serial com vários PBIs, [reprovação, correções limitadas e espera](relatorios/2026-10-10-queue-corrections.md) implementados. Concorrência, agentes reais e despacho pendentes; [ordenação aprovada](superpowers/specs/2026-10-09-queue-eligibility-refinement.md) |
 | YC-205 | 2B: branches e worktrees por PBI | YC-204 | Um escritor por checkout, base registrada, alterações do usuário preservadas, limpeza apenas de recursos próprios e recuperação após criação interrompida | Planejado |
 | YC-206 | 2B: decisões de PM/Tech Lead e contexto dos agentes | YC-204, YC-205 | Validar propostas estruturadas e revisões; repriorizar somente PBIs não iniciados; avisar líderes uma vez por evento. Contexto reúne referências necessárias, sem ampliar escopo | Planejado |
 | YC-207 | 2C: pausa, retomada e cancelamento | YC-206 | Encerrar despachos/processos, persistir consumo e tentativas, reconciliar efeito incerto e retomar sem repetição. Cancelamento explícito libera a vaga e conserva o trabalho | Planejado |
@@ -435,7 +438,7 @@ diagnóstico; o início autônomo de missões depende de 2B. Transferência depe
 |---|---|---|---|---|
 | YC-301 | Revisão técnica e QA por PBI | YC-206 | Sessões independentes do implementador examinam diff, critérios, testes/build/análise pertinentes e resultados reais; defeito conhecido é reprovado | Planejado |
 | YC-302 | QA visual e operacional por Playwright | YC-301 | Testar localhost, teclado, formulários e tamanhos relevantes contra referência aprovada; registrar capturas e ações; zero processos próprios restantes. Projetos sem interface registram não aplicável | Planejado |
-| YC-303 | Autocorreção com limite de três ciclos | YC-301 | Implementação inicial mais até três correções; terceira reprovação bloqueia e avisa líderes. Falha operacional tem estado próprio; pausa, transferência ou novo ID não renovam tentativas | Planejado |
+| YC-303 | Autocorreção com limite de três ciclos | YC-301 | Implementação inicial mais até três correções; terceira reprovação bloqueia e avisa líderes. Falha operacional tem estado próprio; pausa, transferência ou novo ID não renovam tentativas | Planejado. O ensaio de YC-204 cobre contador por sessão sintética; agentes, notificações e ledger real entre missões/revisões/IDs permanecem pendentes |
 | YC-304 | Integração serial e aprovações por revisão | YC-205, YC-301, YC-303 | Integrar um PBI por vez; rejeitar conflito, base alterada e aprovação antiga; vincular pareceres ao commit, árvore, critérios e evidências | Planejado |
 | YC-305 | Validação conjunta e aceite da versão | YC-302, YC-304 | Uma ou várias features formam uma versão; PM, Tech Lead e QA aprovam o conjunto. Defeito integrado retorna ao item responsável sem apagar histórico | Planejado |
 

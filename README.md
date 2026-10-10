@@ -85,9 +85,12 @@ preparação está consistente. Essa consulta usa o snapshot da missão e não e
 O coordenador oferece um [ensaio persistente com vários PBIs](docs/USAGE.md#queue-rehearsal):
 `queue start`, `queue step` e `queue cancel` registram etapas simuladas e recibos.
 `status` mostra a etapa, o próximo papel e as dependências ainda pendentes no ensaio.
-A fila conclui Dev e QA de cada PBI e escolhe o próximo elegível pela prioridade salva.
+A fila prioriza QA e correções do PBI ativo. O ensaio pode reprovar QA, aprovar após
+uma correção ou esgotar o limite de três. Itens bloqueados conservam seus dependentes
+em espera; os independentes seguem pela prioridade salva. O contador sobrevive a reinícios
+da mesma sessão sintética. A autocorreção de agentes reais continua no roadmap.
 Repetir uma operação recupera seu recibo. O ensaio não chama modelos nem aprova entrega real.
-[Provas e limites](docs/relatorios/2026-10-10-queue-multi.md).
+[Provas e limites](docs/relatorios/2026-10-10-queue-corrections.md).
 
 O checkpoint `a0af931` passou nos oito jobs de CI entre push e PR, incluindo Windows.
 [Publicação e resultados](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
@@ -703,10 +706,13 @@ is current. This read-only view uses the mission snapshot and does not execute a
 
 The coordinator supports a [persistent multi-PBI rehearsal](docs/USAGE.md#queue-rehearsal):
 `queue start`, `queue step` and `queue cancel` record simulated stages and receipts.
-`status` shows the stage, next role and pending rehearsal dependencies. Each PBI
-finishes development and QA before the next eligible item is selected by saved priority.
+`status` shows the stage, next role and pending rehearsal dependencies. QA and corrections
+of the active PBI take precedence. The rehearsal can reject QA, pass after one correction,
+or exhaust three corrections. Blocked items keep their dependents waiting while independent
+items follow saved priority. Counts survive restarts of the same synthetic session.
+Correction by real agents remains roadmap work.
 Replaying an operation recovers its receipt. No models or real delivery acceptance are involved.
-[Evidence and limits](docs/relatorios/2026-10-10-queue-multi.md#english-overview).
+[Evidence and limits](docs/relatorios/2026-10-10-queue-corrections.md#english-overview).
 
 Checkpoint `a0af931` passed all eight push/PR CI jobs, including Windows.
 [Publication and results](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).

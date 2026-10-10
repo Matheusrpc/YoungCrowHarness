@@ -7,8 +7,10 @@ Atualização de 10/out: o mantenedor autorizou antecipar o [coordenador com exe
 determinístico](2026-10-10-queue-rehearsal-design.md), limitado a um PBI. Essa prova
 local não implementa a política de múltiplas candidaturas descrita abaixo.
 Depois, o mantenedor autorizou o [ensaio serial com vários PBIs](../../relatorios/2026-10-10-queue-multi.md):
-prioridade congelada e dependências simuladas. Concorrência, líderes e correções
-ainda exigem os critérios completos desta política.
+prioridade congelada e dependências simuladas. O próximo incremento autorizado cobre
+[QA reprovado e correções limitadas](../../relatorios/2026-10-10-queue-corrections.md):
+contador por sessão sintética, bloqueio após três correções e espera persistida.
+Concorrência, líderes e a autocorreção real ainda exigem os critérios completos desta política.
 Uma prévia inicial somente leitura foi antecipada com autorização do mantenedor;
 não há migração, novo comando ou chamada de modelo.
 

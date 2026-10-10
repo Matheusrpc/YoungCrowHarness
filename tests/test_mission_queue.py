@@ -127,19 +127,31 @@ q.store.transaction = interrupted
 
     def test_concurrent_processes_cannot_advance_same_revision_twice(self):
         session = self.apply('start')['session']
+        self.assert_concurrent_step(session)
+
+    def test_concurrent_corrections_count_only_one_cycle(self):
+        session = self.start_scenario('qa-retry')
+        for revision in (1, 2):
+            session = self.apply('step', session['id'], revision=revision)['session']
+        current = self.assert_concurrent_step(session)
+        self.assertEqual(current['items'][0]['correction_cycles'], 1)
+
+    def assert_concurrent_step(self, session):
         processes = []
         try:
             for _ in range(2):
                 processes.append(subprocess.Popen([sys.executable, '-B', str(Path(missions.__file__)),
                     '--root', str(self.root), '--json', 'queue', 'step', session['id'],
-                    '--expected-revision', '1', '--operation-id', str(uuid.uuid4()), '--actor-id', 'operator'],
+                    '--expected-revision', str(session['revision']), '--operation-id', str(uuid.uuid4()), '--actor-id', 'operator'],
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True))
             outputs = [p.communicate(timeout=30) for p in processes]
             self.assertEqual(sorted(p.returncode for p in processes), [0, 1], outputs)
             errors = [json.loads(out)['error'] for p, (out, _) in zip(processes, outputs) if p.returncode]
             self.assertEqual(errors, ['revision_conflict'])
             current = self.queue.sessions(self.root, self.mission['record_id'])[0]
-            self.assertEqual((current['revision'], len(current['results'])), (2, 1))
+            self.assertEqual((current['revision'], len(current['results'])),
+                             (session['revision'] + 1, len(session['results']) + 1))
+            return current
         finally:
             for process in processes:
                 if process.poll() is None:
@@ -349,7 +361,7 @@ q.store.transaction = interrupted
         self.assertEqual([r['fixture_id'] for r in current['results']], ['queue-v1', 'queue-v1'])
         self.assertEqual(self.apply('start', operation=operation), legacy)
         with store.reader(self.root) as conn:
-            self.assertEqual(conn.execute('SELECT schema_version FROM metadata').fetchone()[0], 4)
+            self.assertEqual(conn.execute('SELECT schema_version FROM metadata').fetchone()[0], 5)
 
     def test_completed_session_cannot_advance_or_restart_same_mission_revision(self):
         session = self.apply('start')['session']
@@ -359,3 +371,122 @@ q.store.transaction = interrupted
             self.apply('step', session['id'], revision=3)
         with self.assertRaisesRegex(ValueError, 'queue_already_started'):
             self.apply('start')
+
+    def start_scenario(self, scenario, revision=1):
+        return self.cli('queue', 'start', self.mission['code'], '--expected-revision', str(revision),
+                        '--operation-id', str(uuid.uuid4()), '--actor-id', 'operator',
+                        '--fixture-scenario', scenario)['session']
+
+    def test_rejected_qa_counts_only_dispatched_corrections_across_processes(self):
+        session = self.start_scenario('qa-retry')
+        states = []
+        for _ in range(4):
+            args = ('queue', 'step', session['id'], '--expected-revision', str(session['revision']),
+                    '--operation-id', str(uuid.uuid4()), '--actor-id', 'operator')
+            receipt = self.cli(*args)
+            self.assertEqual(self.cli(*args), receipt)
+            session = receipt['session']
+            states.append((session['state'], session['items'][0]['correction_cycles']))
+            before = self.snapshot()
+            observed = self.cli('status', self.mission['code'])['queue_sessions'][0]
+            self.assertEqual(observed['items'][0]['correction_cycles'], states[-1][1])
+            self.assertEqual(self.snapshot(), before)
+        self.assertEqual(states, [('qa_pending', 0), ('correction_pending', 0),
+                                  ('qa_pending', 1), ('fixture_completed', 1)])
+        results = session['results']
+        self.assertEqual([r['outcome'] for r in results if r['role'] == 'qa'], ['rejected', 'accepted'])
+        self.assertEqual(len({r['candidate_id'] for r in results}), 4)
+        self.assertEqual(results[2]['previous_output_sha256'], results[1]['output_sha256'])
+        status = self.cli('status', self.mission['code'])
+        self.assertEqual(status['snapshot']['qa'], 'not_started')
+        self.assertFalse(status['runtime_available'])
+        self.assertEqual(status['client_runs'], [])
+
+    def test_exhaustion_keeps_dependents_waiting_but_finishes_independent_pbi(self):
+        a, b, c, d = self.multiple_pbis()
+        saved = store.get_record(self.root, self.mission['record_id'])['snapshot']
+        request = {key: saved[key] for key in ('title', 'feature_ids', 'priority', 'overrides', 'scope_reference')}
+        request['priority'] = [c, b, a, d]
+        missions.revise_mission(self.root, self.mission['code'], request, 2, str(uuid.uuid4()), dict(id='operator', role='pm'))
+        session = self.start_scenario('qa-exhaust', revision=3)
+        self.assertEqual(session['fixture_pbi_id'], a)
+        for _ in range(8):
+            self.assertEqual(session['pbi_id'], a)
+            session = self.apply('step', session['id'], revision=session['revision'])['session']
+        by_id = {p['id']: p for p in session['items']}
+        self.assertEqual((by_id[a]['state'], by_id[a]['correction_cycles']), ('blocked', 3))
+        self.assertEqual(session['pbi_id'], d)
+        self.assertEqual([r['correction_cycle'] for r in session['results']], [0, 0, 1, 1, 2, 2, 3, 3])
+        for _ in range(2):
+            session = self.apply('step', session['id'], revision=session['revision'])['session']
+        self.assertEqual(session['state'], 'waiting')
+        self.assertIsNone(session['candidate_id'])
+        before = self.snapshot()
+        observed = self.cli('status', self.mission['code'])['queue_sessions'][0]
+        self.assertEqual(observed['next_action'], 'inspect_rehearsal_blockers')
+        self.assertEqual(observed['blocked_reason'], 'correction_limit_reached')
+        by_id = {p['id']: p for p in observed['items']}
+        self.assertEqual(by_id[b]['waiting_on'], [a])
+        self.assertEqual(by_id[c]['waiting_on'], [b])
+        self.assertEqual(by_id[d]['state'], 'fixture_completed')
+        with self.assertRaisesRegex(ValueError, 'invalid_transition'):
+            self.apply('step', session['id'], revision=session['revision'])
+        self.assertEqual(self.snapshot(), before)
+        second = missions.prepare_mission(self.root, request, str(uuid.uuid4()), dict(id='operator', role='pm'))
+        with self.assertRaisesRegex(ValueError, 'queue_busy'):
+            self.apply('start', second['code'])
+        # The SQLite constraint also excludes a concurrent writer that omits the application check.
+        import sqlite3
+        with store.transaction(self.root) as conn:
+            with self.assertRaisesRegex(sqlite3.IntegrityError, 'UNIQUE constraint failed'):
+                conn.execute('INSERT INTO queue_sessions VALUES(?,?,?,?,?,?)',
+                             (str(uuid.uuid4()), second['record_id'], 1, 1, 'dev_pending', '{}'))
+        cancelled = self.apply('cancel', session['id'], revision=session['revision'])['session']
+        self.assertEqual(cancelled['state'], 'cancelled')
+        self.assertEqual(cancelled['items'], session['items'])
+        self.assertEqual(self.apply('start', second['code'])['session']['state'], 'dev_pending')
+
+    def test_correction_crash_and_lost_ack_do_not_consume_or_duplicate_cycle(self):
+        session = self.start_scenario('qa-retry')
+        for revision in (1, 2):
+            session = self.apply('step', session['id'], revision=revision)['session']
+        self.assertEqual(session['state'], 'correction_pending')
+        self.assert_crash_recovery(session)
+        current = self.queue.sessions(self.root, self.mission['record_id'])[0]
+        self.assertEqual((current['state'], current['items'][0]['correction_cycles']), ('qa_pending', 1))
+
+    def test_exhaustion_crash_does_not_partially_enter_waiting(self):
+        session = self.start_scenario('qa-exhaust')
+        for _ in range(7):
+            session = self.apply('step', session['id'], revision=session['revision'])['session']
+        self.assertEqual((session['state'], session['items'][0]['correction_cycles']), ('qa_pending', 3))
+        self.assert_crash_recovery(session)
+        current = self.queue.sessions(self.root, self.mission['record_id'])[0]
+        self.assertEqual((current['state'], current['items'][0]['state']), ('waiting', 'blocked'))
+
+    def test_qa_rejects_result_from_previous_correction_cycle(self):
+        session = self.start_scenario('qa-retry')
+        for revision in (1, 2, 3):
+            session = self.apply('step', session['id'], revision=revision)['session']
+        session['results'][-1] = session['results'][0]
+        with store.transaction(self.root) as conn:
+            conn.execute('UPDATE queue_sessions SET snapshot=? WHERE id=?', (json.dumps(session), session['id']))
+        before = self.snapshot()
+        with self.assertRaisesRegex(ValueError, 'invalid_fixture_result'):
+            self.apply('step', session['id'], revision=4)
+        self.assertEqual(self.snapshot(), before)
+
+    def test_fixture_scenario_is_frozen_and_legacy_default_digest_is_preserved(self):
+        operation = str(uuid.uuid4())
+        first = self.apply('start', operation=operation)
+        self.assertEqual(self.queue.apply(self.root, 'start', self.mission['code'], 1, operation,
+                                         'operator', fixture_scenario='pass'), first)
+        before = self.snapshot()
+        with self.assertRaisesRegex(ValueError, 'operation_conflict'):
+            self.queue.apply(self.root, 'start', self.mission['code'], 1, operation,
+                             'operator', fixture_scenario='qa-exhaust')
+        for action, target in (('start', self.mission['code']), ('step', first['session']['id'])):
+            with self.assertRaisesRegex(ValueError, 'invalid_arguments'):
+                self.queue.apply(self.root, action, target, 1, str(uuid.uuid4()),
+                                 'operator', fixture_scenario='unknown' if action == 'start' else 'qa-retry')
+        self.assertEqual(self.snapshot(), before)

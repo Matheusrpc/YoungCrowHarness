@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "front": "YC-204",
+  "base_commit": "00cd0dfb8f09fbea55e2b6660e36fb03234e08d7",
+  "scope": "deterministic_rehearsal",
+  "session_schema": 3,
+  "store_schema": 5,
+  "correction_limit": 3,
+  "counter_scope": "single_synthetic_session",
+  "native_calls": 0,
+  "tests": {
+    "queue": {
+      "passed": 25,
+      "seconds": 21.623
+    },
+    "catalog": {
+      "passed": 23,
+      "seconds": 2.345
+    },
+    "full_suite": {
+      "state": "passed",
+      "total": 705,
+      "passed": 685,
+      "skipped": 20,
+      "failed": 0,
+      "seconds": 397.901
+    }
+  },
+  "installed_smoke": {
+    "installed_clients": "both",
+    "trial": true,
+    "native_calls": 0,
+    "cases": [
+      {
+        "mode": "qa-retry",
+        "state": "fixture_completed",
+        "correction_cycles": 1,
+        "results": 10,
+        "receipts": 11,
+        "replay_identical": true,
+        "status_read_only": true,
+        "old_writer_refused": true,
+        "real_delivery_unchanged": true
+      },
+      {
+        "mode": "qa-exhaust",
+        "state": "waiting",
+        "correction_cycles": 3,
+        "results": 10,
+        "receipts": 11,
+        "replay_identical": true,
+        "status_read_only": true,
+        "old_writer_refused": true,
+        "real_delivery_unchanged": true
+      },
+      {
+        "mode": "legacy-v1",
+        "actual_old_revision": "71d3ae1",
+        "resumed": true,
+        "original_replay": true,
+        "read_only": true,
+        "old_reader_refused": true
+      },
+      {
+        "mode": "legacy-v2",
+        "actual_old_revision": "00cd0df",
+        "resumed": true,
+        "original_replay": true,
+        "read_only": true,
+        "old_reader_refused": true
+      }
+    ]
+  },
+  "review": {
+    "findings": 0,
+    "legacy_v2_equal_results": 192,
+    "legacy_v1_equal_results": 2
+  },
+  "code_sha256": {
+    "scripts/mission_queue.py": "c3da4c1436b11ce33ea78db85a4e1875785fb8048adfa8cd1c4f2c516b85de52",
+    "scripts/mission_store.py": "b52a64128fb2bd768045140a755adcb5482d77b592362f1410ef671d792c6936",
+    "scripts/mission_runs.py": "744b9f79322febaf81b5d073a01c45d91d9193eba69bffd503edd6f566619f80",
+    "scripts/missions.py": "818e5f9bad3155ee9fd2f8e311f7a2058c56a173205629cd5514b24d8a74370a",
+    "tests/test_mission_queue.py": "3b1979fd1f95b3fbf049b9039ae84b6224428c029817f8bf7d50e3efc5602a49"
+  },
+  "markdown_paths": {
+    "local_paths_checked": 529,
+    "missing": []
+  },
+  "vault_check": {
+    "notes_checked": 60,
+    "issues": []
+  }
+}

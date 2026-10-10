@@ -14,7 +14,7 @@ import mission_clients as clients
 import mission_process as processes
 import mission_store as store
 
-STORE_SCHEMA = 4
+STORE_SCHEMA = 5
 UNRESOLVED = ('reserved', 'running', 'uncertain')
 TERMINAL = ('succeeded', 'failed', 'interrupted')
 MANIFEST = {'schema_version', 'mission_id', 'mission_revision', 'role', 'operation_id',
@@ -39,7 +39,7 @@ def migrate(conn):
 
 
 def has_runs(conn):
-    return conn is not None and conn.execute('SELECT schema_version FROM metadata').fetchone()[0] in (2, 3, 4)
+    return conn is not None and conn.execute('SELECT schema_version FROM metadata').fetchone()[0] in (2, 3, 4, 5)
 
 
 def list_runs(root: Path, mission_id: str, *, include_unresolved=False) -> list[dict]:

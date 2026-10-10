@@ -4,6 +4,20 @@ Frente: produto YoungCrowHarness, com trabalho ativo no executor isolado.
 
 Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra sessão consiga continuar sem receber toda a conversa. Reúne decisões do mantenedor, estado do código, resultados observados, falhas, limites e próximos passos. Os caminhos de arquivos, salvo indicação contrária, são relativos à raiz do repositório.
 
+**YC-204 com correções limitadas (10/out):** o [ensaio de QA reprovado](relatorios/2026-10-10-queue-corrections.md)
+acrescenta cenários fechados no primeiro PBI elegível: aprovação inicial, uma correção
+ou esgotamento das três correções. O contador começa no despacho simulado da correção,
+persiste na sessão e não libera dependentes de um item bloqueado. Os independentes
+seguem; sem elegíveis, a sessão persiste `waiting`, ocupa a vaga e permite cancelamento.
+Sessões novas v3 e SQLite 5; sessões v1/v2 e recibos mantêm seu comportamento.
+O contador é do ensaio, não um ledger real entre missões/revisões/IDs. YC-303 e aceite
+nativo continuam pendentes. Atualizar os quatro helpers juntos; preservar P06 e o
+contador nativo 2/3. Nenhuma chamada de modelo, novo ensaio Docker ou merge autorizado.
+A base `00cd0df` passou nos oito checks, incluindo Windows, nos runs
+[push 38044351081](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38044351081) e
+[PR 38044354253](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38044354253).
+Conferir separadamente o CI do novo commit de correções. Os checkpoints abaixo são históricos.
+
 **YC-204 com vários PBIs (10/out):** o mantenedor autorizou continuar a fila.
 O [incremento serial](relatorios/2026-10-10-queue-multi.md) usa a prioridade salva,
 conclui Dev/QA antes de abrir outro PBI e resolve dependências apenas dentro do ensaio.

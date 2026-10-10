@@ -306,7 +306,7 @@ def mission_status(root, mission_id):
 def queue_helper():
     try:
         import mission_queue
-        require(getattr(mission_queue, 'QUEUE_VERSION', None) == 2, 'incompatible_helper')
+        require(getattr(mission_queue, 'QUEUE_VERSION', None) == 3, 'incompatible_helper')
         return mission_queue
     except (ImportError, SyntaxError, AttributeError):
         raise ValueError('incompatible_helper') from None
@@ -316,8 +316,8 @@ def runtime_helpers():
     try:
         import mission_clients
         import mission_runs
-        require(getattr(store, 'RUNTIME_SCHEMA', None) == 4 and
-                getattr(mission_runs, 'STORE_SCHEMA', None) == 4, 'incompatible_helper')
+        require(getattr(store, 'RUNTIME_SCHEMA', None) == 5 and
+                getattr(mission_runs, 'STORE_SCHEMA', None) == 5, 'incompatible_helper')
         require(all(callable(getattr(mission_clients, name, None)) for name in
                     ('inspect_client', 'build_check', 'decode_result')), 'incompatible_helper')
         require(all(callable(getattr(mission_runs, name, None)) for name in
@@ -383,13 +383,16 @@ def parser():
     subs.add_parser('list', help='List saved mission summaries; use status CODE for current blockers')
     for name in ('status', 'repair'):
         subs.add_parser(name).add_argument('identifier')
-    queue = subs.add_parser('queue', help='One-PBI deterministic rehearsal; no native dispatch').add_subparsers(dest='action', required=True)
+    queue = subs.add_parser('queue', help='Serial deterministic rehearsal with bounded corrections; no native dispatch').add_subparsers(dest='action', required=True)
     for name in ('start', 'step', 'cancel'):
         entry = queue.add_parser(name)
         entry.add_argument('identifier')
         entry.add_argument('--expected-revision', type=int, required=True)
         entry.add_argument('--operation-id', required=True)
         entry.add_argument('--actor-id', required=True)
+        if name == 'start':
+            entry.add_argument('--fixture-scenario', choices=('pass', 'qa-retry', 'qa-exhaust'), default='pass',
+                               help='Closed QA scenario for the first eligible PBI; other PBIs pass')
     client = subs.add_parser('client').add_subparsers(dest='action', required=True)
     environment = client.add_parser('environment')
     environment.add_argument('--executable', type=Path, required=True)
@@ -448,7 +451,8 @@ def main(argv=None):
         elif args.command == 'queue':
             runtime_helpers()
             result = queue_helper().apply(root, args.action, args.identifier, args.expected_revision,
-                                          args.operation_id, args.actor_id)
+                                          args.operation_id, args.actor_id,
+                                          fixture_scenario=getattr(args, 'fixture_scenario', 'pass'))
         elif args.command == 'client':
             clients, runs = runtime_helpers()
             if args.action == 'environment':

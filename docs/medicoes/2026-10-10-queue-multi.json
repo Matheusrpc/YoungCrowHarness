@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-10T10:07:52.152845+00:00",
+  "base_commit": "71d3ae1855c68e014f13f089abb5edb2afe5c51c",
+  "scope": "deterministic_rehearsal",
+  "dependency_basis": "rehearsal_results",
+  "native_model_calls": 0,
+  "proof_accepted": false,
+  "code_sha256": {
+    "scripts/mission_queue.py": "ad5dba4a98e7a2379aa8cc071217c010b1cb3e69857990eb96cf5d029e06a25e",
+    "scripts/mission_store.py": "d5f101b7210e3d3a34317a497648ca7356f69b4a8521d26dd7ed784be9c12161",
+    "scripts/mission_runs.py": "88758e4dde33b99caf1d94a2e404f4dc73bc4698eb374f02df609fe9fe0404e3",
+    "scripts/missions.py": "b891a3cbc9cc99834f6e21c39db8463a522064ed150cc676b53e7caa8e42f14a",
+    "tests/test_mission_queue.py": "2a1fdb92ceef858f7dc98d5da6e10c61c1e53121fa0b2b9dd5279d2c27c1c191",
+    "skills-lock.json": "8f89f8c033e8c43a362ec4d05884817497db61b6656778ce28adc7c2ec191425",
+    "tests/test_mission_controller.py": "89bb25d8fa34f7b003da72cf2721e06d7a099bf19a747ec9fdb1252ee5e16527"
+  },
+  "private_logs_sha256": {
+    ".runtime/queue-multi-red.log": "234c2fb2406db6f84a74ec1a2d61be25095016866cd50ed60a7f668417f84a93",
+    ".runtime/queue-multi-compat-red.log": "e5f8d79ad4956f622cfc0689eb91ca3837f28a4e04bdfd6ddfb7b467783173e0",
+    ".runtime/queue-multi-green.log": "f6bf5789338f46bf8d4b041c8e10f12c9fbecb880f611f0520b29843de3d6c64",
+    ".runtime/queue-multi-catalog.log": "9b399e6c87060a158fef8086bd34fbfce981923c1f2df25f439301515c255d4f",
+    ".runtime/queue-multi-installed-smoke.log": "fb24e13307ec99127ad5db385200d731f762bc71efef367357855db1164aa043",
+    ".runtime/queue-multi-full.log": "e792fb8b0adc56f07cdc34f07b273fdec48683f0b78f44a39811459929dd6f26",
+    ".runtime/queue-multi-deadline-probe.log": "dc03f3d38f6eae85ecd09e36b0f6639d0ad8dfdfd7b2c5e34e7bee014b457756",
+    ".runtime/queue-multi-deadline-probe.json": "c60d95780ac6af21697806c3298bf4152984b75103507aab9bdc929b8e8c02c2",
+    ".runtime/queue-multi-controller-fixed.log": "fa1b28f72cbe7cb3a69fbb5a3d2beeac3965df64d6153030182c56a740d38c02"
+  },
+  "queue_tests": {
+    "count": 18,
+    "passed": 18,
+    "seconds": 19.023
+  },
+  "catalog_tests": {
+    "count": 23,
+    "passed": 23,
+    "seconds": 1.766
+  },
+  "full_suite": {
+    "state": "failed_before_fixture_correction",
+    "count": 698,
+    "passed": 677,
+    "skipped": 20,
+    "failures": 1,
+    "errors": 0,
+    "seconds": 568.288,
+    "exit_code": 1,
+    "failure": "test_mission_controller.ControllerTests.test_deadline_reaps_descendants_in_the_existing_supervisor",
+    "assertion": "helper.pid missing",
+    "final_revision_full_suite": "pending_ci"
+  },
+  "installed_smoke": {
+    "old_reader_and_writer_refused": true,
+    "pbi_order": [
+      "D",
+      "A",
+      "B",
+      "C"
+    ],
+    "installed_clients": "both",
+    "trial": true,
+    "stages": [
+      "dev_pending",
+      "qa_pending",
+      "dev_pending",
+      "qa_pending",
+      "dev_pending",
+      "qa_pending",
+      "dev_pending",
+      "qa_pending",
+      "fixture_completed"
+    ],
+    "session_revision": 9,
+    "events": 9,
+    "results": 8,
+    "replay_identical": true,
+    "status_read_only": true,
+    "native_calls": 0,
+    "mission_development": "not_started",
+    "mission_qa": "not_started",
+    "mission_production": "not_verified"
+  },
+  "review": {
+    "agent": "review_queue_multi",
+    "read_only": true,
+    "material_findings": 0,
+    "legacy_code_probe_passed": true
+  },
+  "base_ci": {
+    "passed_jobs": 8,
+    "failed_jobs": 0,
+    "runs": [
+      38016008023,
+      38016011187
+    ]
+  },
+  "controller_after_fixture_correction": {
+    "count": 16,
+    "passed": 16,
+    "seconds": 18.316,
+    "exit_code": 0,
+    "change": "remove shortened 1800ms deadline; retain existing fixture default 5000ms and supervisor 6s",
+    "review": {
+      "agent": "review_ci_guard_failure",
+      "read_only": true,
+      "material_findings": 0,
+      "residual_limit": "startup must still complete within the effective 4s fixture deadline"
+    }
+  },
+  "deadline_probe": {
+    "observations": [
+      {
+        "injected_start_delay_seconds": 0,
+        "supervisor": {
+          "reason": "completed",
+          "exit_code": 0,
+          "tree_reaped": true,
+          "elapsed_seconds": 1.927293
+        },
+        "controller": {
+          "reason": "deadline",
+          "state": "refused",
+          "proof_accepted": false
+        },
+        "files": {
+          "run_intent.json": 1791626746294235603,
+          "prepared.json": 1791626746294198628,
+          "launch.json": 1791626746294123041,
+          "prepare_intent.json": 1791626746294067386,
+          "owner.json": 1791626745654791923
+        },
+        "assertion": "False is not true"
+      },
+      {
+        "injected_start_delay_seconds": 1,
+        "supervisor": {
+          "reason": "completed",
+          "exit_code": 0,
+          "tree_reaped": true,
+          "elapsed_seconds": 2.001894
+        },
+        "controller": {
+          "reason": "invalid_manifest",
+          "state": "refused",
+          "proof_accepted": false
+        },
+        "files": {
+          "owner.json": 1791626748762433588
+        },
+        "assertion": "'invalid_manifest' != 'deadline'\n- invalid_manifest\n+ deadline\n"
+      }
+    ],
+    "unchanged_from_base": {
+      "tests/test_mission_controller.py": true,
+      "tests/fixtures/isolated_controller.py": true,
+      "scripts/mission_controller.py": true,
+      "scripts/mission_process.py": true,
+      "scripts/capabilities.py": true
+    }
+  },
+  "vault_check": {
+    "schema_version": 1,
+    "notes_checked": 59,
+    "issues": []
+  },
+  "markdown_links": {
+    "checked": 528,
+    "missing": []
+  }
+}

@@ -4,6 +4,24 @@ Frente: produto YoungCrowHarness, com trabalho ativo no executor isolado.
 
 Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra sessão consiga continuar sem receber toda a conversa. Reúne decisões do mantenedor, estado do código, resultados observados, falhas, limites e próximos passos. Os caminhos de arquivos, salvo indicação contrária, são relativos à raiz do repositório.
 
+**YC-204 com vários PBIs (10/out):** o mantenedor autorizou continuar a fila.
+O [incremento serial](relatorios/2026-10-10-queue-multi.md) usa a prioridade salva,
+conclui Dev/QA antes de abrir outro PBI e resolve dependências apenas dentro do ensaio.
+Sessões v2 registram `items` e `dependency_basis: rehearsal_results`; esquema SQLite 4
+impede escritores antigos. Sessões v1 e recibos continuam consultáveis/retomáveis.
+Atualizar os quatro helpers de missão juntos. Não habilitar despacho nativo, repetir
+P06 ou tentativas Docker. Concorrência, líderes e correções permanecem pendentes.
+CI confirmado de `71d3ae1`: oito jobs aprovados, incluindo Windows, nos runs
+[push 38016008023](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38016008023) e
+[PR 38016011187](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38016011187).
+Isso não estabelece a causa da falha histórica Windows da base anterior.
+Na rodada local desta extensão, o mesmo teste de deadline falhou por `helper.pid`
+ausente. Diagnóstico reproduziu expiração antes dos gates de inicialização; o override
+que deixava só 800 ms úteis foi removido do teste, conservando o padrão de 5 s da fixture.
+Os 16 testes do controlador passaram; conferir a suíte completa no CI da revisão nova.
+Supervisor, executor e aceites nativos não foram alterados por essa correção.
+Os parágrafos abaixo registram os checkpoints anteriores.
+
 **YC-204 antecipado (10/out):** o mantenedor aprovou um coordenador persistente com
 executor determinístico, após o panorama do produto. [Uso](USAGE.md#queue-rehearsal)
 e [evidência](relatorios/2026-10-10-queue-rehearsal.md). Comandos `queue start/step/cancel`,

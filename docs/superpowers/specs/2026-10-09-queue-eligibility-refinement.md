@@ -6,6 +6,9 @@ Este documento não habilita o despacho de 2B nem substitui o aceite de YC-203.
 Atualização de 10/out: o mantenedor autorizou antecipar o [coordenador com executor
 determinístico](2026-10-10-queue-rehearsal-design.md), limitado a um PBI. Essa prova
 local não implementa a política de múltiplas candidaturas descrita abaixo.
+Depois, o mantenedor autorizou o [ensaio serial com vários PBIs](../../relatorios/2026-10-10-queue-multi.md):
+prioridade congelada e dependências simuladas. Concorrência, líderes e correções
+ainda exigem os critérios completos desta política.
 Uma prévia inicial somente leitura foi antecipada com autorização do mantenedor;
 não há migração, novo comando ou chamada de modelo.
 

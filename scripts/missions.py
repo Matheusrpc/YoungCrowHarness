@@ -306,7 +306,7 @@ def mission_status(root, mission_id):
 def queue_helper():
     try:
         import mission_queue
-        require(getattr(mission_queue, 'QUEUE_VERSION', None) == 1, 'incompatible_helper')
+        require(getattr(mission_queue, 'QUEUE_VERSION', None) == 2, 'incompatible_helper')
         return mission_queue
     except (ImportError, SyntaxError, AttributeError):
         raise ValueError('incompatible_helper') from None
@@ -316,8 +316,8 @@ def runtime_helpers():
     try:
         import mission_clients
         import mission_runs
-        require(getattr(store, 'RUNTIME_SCHEMA', None) == 3 and
-                getattr(mission_runs, 'STORE_SCHEMA', None) == 3, 'incompatible_helper')
+        require(getattr(store, 'RUNTIME_SCHEMA', None) == 4 and
+                getattr(mission_runs, 'STORE_SCHEMA', None) == 4, 'incompatible_helper')
         require(all(callable(getattr(mission_clients, name, None)) for name in
                     ('inspect_client', 'build_check', 'decode_result')), 'incompatible_helper')
         require(all(callable(getattr(mission_runs, name, None)) for name in
@@ -425,7 +425,7 @@ SAFE_ERRORS = CONFLICTS | {'invalid_config', 'invalid_request', 'invalid_argumen
                          'client_protocol_error', 'client_output_limit', 'client_catalog_limit', 'unsupported_client',
                          'limit_exceeded', 'mission_not_ready', 'unresolved_run', 'unknown_run', 'insufficient_evidence',
                          'invalid_transition', 'invalid_execution_selection', 'execution_selection_conflict',
-                         'unsupported_queue_scope', 'unknown_queue_session', 'invalid_fixture_result',
+                         'unsupported_queue_scope', 'unknown_queue_session', 'invalid_fixture_result', 'invalid_queue_state',
                          'execution_location_conflict', 'execution_selection_busy', 'execution_storage_unprotected'}
 
 

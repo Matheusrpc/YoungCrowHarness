@@ -138,9 +138,6 @@ class ControllerTests(unittest.TestCase):
 
     def test_deadline_reaps_descendants_in_the_existing_supervisor(self):
         manifest = self.manifest()
-        manifest['deadline_ms'] = int(time.time()*1000)+1800
-        # Regenerate the fixed argv along with the changed deadline.
-        manifest['dispatch_prefix'][-1] = str(manifest['deadline_ms'])
         result = self.run_controller(manifest, 'hang')
         self.assertEqual(result['reason'], 'deadline')
         self.assertFalse((self.root/'dispatches').exists())

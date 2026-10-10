@@ -34,11 +34,13 @@ revision and recorded state, including pending projections. `status CODE` checks
 
 Preparação antecipada de YC-204: `status` apresenta `queue_preview`, com prioridade,
 dependências e primeiro candidato inicial. Usa dados existentes e preserva o bloqueio
-de execução. O [ensaio persistente de um PBI](relatorios/2026-10-10-queue-rehearsal.md)
-foi antecipado em 10/out. Coordenação nativa, vagas e ordenação de vários itens continuam pendentes.
+de execução. O [ensaio persistente com vários PBIs](relatorios/2026-10-10-queue-multi.md)
+foi antecipado em 10/out: execução serial por prioridade e dependências simuladas.
+Coordenação nativa, vagas concorrentes, líderes e correções continuam pendentes.
 Early YC-204 preparation: `status` exposes `queue_preview` with priority, dependencies
-and the first initial candidate. A persistent one-PBI deterministic rehearsal was
-added on Oct 10. Native dispatch, slots and multi-item scheduling remain pending.
+and the first initial candidate. A persistent multi-PBI deterministic rehearsal was
+added on Oct 10: serial priority scheduling with simulated dependencies. Native dispatch,
+concurrent slots, leader decisions and correction workflows remain pending.
 
 Revisão de arquitetura em 8/out: proxy fixo entre missões pode reduzir escritas, mas
 ainda exige proteção do endpoint e recuperação verificável de credenciais. A instalação
@@ -242,7 +244,7 @@ permitir verificar o executor antes de lhe dar uma fila de desenvolvimento e tra
 |---|---|---|---|
 | 1 | Fundação das missões | Personalizar, configurar, preparar e consultar | Publicada |
 | 2A | Executor limitado e adaptadores | Inspecionar o cliente e provar uma execução delimitada, com recibo e recuperação | Parcial: mecanismo implementado; perfis nativos bloqueados. [Provas e pendências](relatorios/2026-10-03-mission-runtime-adapters.md) |
-| 2B | Fila e desenvolvimento | Puxar PBIs por prioridade, com três PBIs/três agentes e branches próprias | Parcial: ensaio persistente de um PBI antecipado; despacho nativo depende de 2A |
+| 2B | Fila e desenvolvimento | Puxar PBIs por prioridade, com três PBIs/três agentes e branches próprias | Parcial: ensaio serial de vários PBIs antecipado; despacho nativo depende de 2A |
 | 2C | Continuidade | Pausar, retomar e transferir local/servidor sem duplicar responsabilidade | Planejada; depende de 2B |
 | 3 | QA e integração | Revisão independente, testes, Playwright, correções e versão integrada | Planejada; depende de 2B; aceite conjunto inclui 2C |
 | 4 | Release e operação | PR protegido, deploy manual/automático e produção verificada | Planejada; depende de 3 e 2C |
@@ -250,7 +252,7 @@ permitir verificar o executor antes de lhe dar uma fila de desenvolvimento e tra
 
 A implementação de `YC-201` e `YC-202` está entregue no incremento 2A parcial. O próximo aceite
 é concluir `YC-203`, comprovando os perfis nativos antes de habilitar o despacho real da fila. O mantenedor
-autorizou antecipar o coordenador em um ensaio determinístico de um PBI, sem chamadas nativas. As provas pendentes
+autorizou antecipar o coordenador em um ensaio determinístico, ampliado para vários PBIs em sequência, sem chamadas nativas. As provas pendentes
 da base exigem acesso e limites explícitos; o backlog não autoriza chamadas por si só.
 
 ## Pendências de prova da base
@@ -282,7 +284,7 @@ Até ela existir, esses ritos são conduzidos nas sessões autorizadas.
 | YC-201 | 2A: preflight e compatibilidade dos clientes | Frente 1 | Conferir cliente, versão, modelo/effort, autenticação selecionada e capacidades. Configuração desconhecida fica bloqueada, sem fallback ou chamada de modelo | Implementado; catálogo dinâmico e recusas testados. Perfis nativos continuam sem aceite de execução |
 | YC-202 | 2A: execução limitada e recibos duráveis | YC-201 | Reservar operação antes de chamar; impor tempo e quantidade, registrar consumo observado, encerrar processos próprios e conservar resultado incerto sem repetir | Verificado com simuladores: limites, recuperação e recibos; chamadas nativas bloqueadas |
 | YC-203 | 2A: instalação, consulta e provas dos adaptadores | YC-202 | Provar cliente autenticado e API explícita quando houver acesso, em matriz por ambiente; consulta sem escrita e adoção preservada. Cada combinação sem prova permanece indisponível | Parcial; inspeção Claude corrigida. Prova local reproduz falha de isolamento do Codex; chamadas reais bloqueadas. [Evidência atual](relatorios/2026-10-03-native-client-verification.md) |
-| YC-204 | 2B: coordenador e fila priorizada | YC-203 para despacho | Uma missão ativa por repositório; três PBIs e três execuções como limites distintos; dependências e ordem persistidas. Sem item elegível, persistir espera | Prévia inicial e [ensaio persistente de um PBI](relatorios/2026-10-10-queue-rehearsal.md) implementados. Coordenação com vários PBIs, agentes reais e despacho pendentes; [ordenação aprovada](superpowers/specs/2026-10-09-queue-eligibility-refinement.md) |
+| YC-204 | 2B: coordenador e fila priorizada | YC-203 para despacho | Uma missão ativa por repositório; três PBIs e três execuções como limites distintos; dependências e ordem persistidas. Sem item elegível, persistir espera | Prévia inicial e [ensaio serial com vários PBIs](relatorios/2026-10-10-queue-multi.md) implementados. Concorrência, agentes reais e despacho pendentes; [ordenação aprovada](superpowers/specs/2026-10-09-queue-eligibility-refinement.md) |
 | YC-205 | 2B: branches e worktrees por PBI | YC-204 | Um escritor por checkout, base registrada, alterações do usuário preservadas, limpeza apenas de recursos próprios e recuperação após criação interrompida | Planejado |
 | YC-206 | 2B: decisões de PM/Tech Lead e contexto dos agentes | YC-204, YC-205 | Validar propostas estruturadas e revisões; repriorizar somente PBIs não iniciados; avisar líderes uma vez por evento. Contexto reúne referências necessárias, sem ampliar escopo | Planejado |
 | YC-207 | 2C: pausa, retomada e cancelamento | YC-206 | Encerrar despachos/processos, persistir consumo e tentativas, reconciliar efeito incerto e retomar sem repetição. Cancelamento explícito libera a vaga e conserva o trabalho | Planejado |

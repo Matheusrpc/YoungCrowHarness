@@ -3130,8 +3130,11 @@ respects the execution deadline. Expired deadlines skip grace; forced shutdown,
 <a id="queue-rehearsal"></a>
 ## Ensaio persistente da fila / Persistent queue rehearsal
 
-O ensaio usa uma missão preparada com exatamente um PBI sem dependências. Ele registra
-as etapas `dev_pending`, `qa_pending` e `fixture_completed` no SQLite privado existente.
+O ensaio usa os PBIs de uma missão preparada, na prioridade congelada dessa missão.
+Ele registra etapas `dev_pending`, `qa_pending` e `fixture_completed` no SQLite privado.
+Executa um PBI por vez: termina seu QA e então escolhe o primeiro item pendente cujos
+predecessores concluíram o ensaio na mesma sessão. Ciclos ou dependências ausentes
+continuam impedindo o preparo válido da missão.
 O executor determinístico calcula um resultado local; o QA simulado confere seu hash.
 Não há chamada de modelo, edição de código, worktree ou aprovação real de entrega.
 
@@ -3148,10 +3151,19 @@ python3 -B scripts/missions.py --json queue step UUID_SESSAO --expected-revision
 python3 -B scripts/missions.py --json status M001
 ```
 
+O exemplo acima cobre um PBI. Com vários, continue `queue step` usando a revisão
+retornada após cada comando até a sessão atingir `fixture_completed`. São dois avanços
+por PBI. O QA de um item pode devolver `dev_pending` com o próximo PBI selecionado.
+
 O primeiro `--expected-revision` é a revisão da missão. Nos avanços, é a revisão da
 sessão retornada em `session.revision`. O UUID da sessão está em `session.id`.
 `status.queue_sessions` mostra escopo, resultados, histórico de recibos, próximo papel
-e `next_action`. `fixture_completed` conclui apenas o ensaio; desenvolvimento, QA,
+e `next_action`. Em sessões v2, `items` lista estado e `waiting_on` de cada PBI,
+na prioridade congelada. Os campos `pbi_id`, `pbi_code` e `pbi_revision` identificam
+o candidato atual e ficam nulos ao concluir todos os itens.
+`dependency_basis: rehearsal_results` limita a liberação de dependências à simulação.
+Por exemplo, prioridade `[C(depende de B), D, B(depende de A), A]` executa
+`D → A → B → C`, com Dev e QA de cada um. `fixture_completed` conclui apenas o ensaio; desenvolvimento, QA,
 integração e produção reais conservam seus estados anteriores.
 
 Após perder a resposta ou interromper o processo, repita o comando com os mesmos
@@ -3173,14 +3185,21 @@ encerrar um ensaio ligado à revisão anterior da missão. O cancelamento não a
 libera diagnósticos nativos. A prévia `initial_backlog` continua independente dos resultados
 sintéticos; nenhum deles satisfaz uma dependência integrada.
 
-A primeira escrita aceita da fila migra o banco para o esquema 3. Atualize em conjunto
+A primeira nova escrita aceita da fila migra o banco para o esquema 4, sem criar
+novas tabelas. Leituras e replay exato conservam o esquema anterior. Sessões v1
+continuam pelo fluxo original de um PBI; seus recibos não são reescritos. Atualize em conjunto
 `missions.py`, `mission_store.py`, `mission_runs.py` e `mission_queue.py`; o instalador
 preserva helpers existentes para comparação e conciliação. Uma mistura incompatível
 retorna `incompatible_helper`. Versões antigas do harness não devem abrir o banco migrado.
 Leituras de status nunca migram o banco. O arquivo permanece em
 `vault/local/operations/state.sqlite3` e precisa acompanhar o backup privado do projeto.
 
-The commands above run a persistent, single-PBI deterministic rehearsal. `start` expects
+The commands above run a persistent deterministic rehearsal. Multiple PBIs run
+serially: QA of the active item precedes new development; saved priority selects
+the next item whose predecessors completed this same rehearsal. `items` exposes
+per-PBI state and `waiting_on`. This simulated dependency basis never grants real
+integration. Repeat `step` with the returned session revision until all items finish.
+The example shows one PBI; each additional PBI requires two more steps. `start` expects
 the mission revision; `step` and `cancel` expect the session revision. Each new command
 needs its own operation UUID. Repeating the exact request recovers its original receipt;
 `status` reports the current state, next role, blockers and receipt history.
@@ -3192,8 +3211,10 @@ but cannot duplicate the persisted transition. External exactly-once execution i
 Only one rehearsal may be active per repository; one session is allowed per mission
 revision. Cancel preserves history and remains available after mission revision changes.
 
-Accepted queue writes migrate the private SQLite store to schema 3 while retaining native
+New accepted queue writes migrate the private SQLite store to schema 4 while retaining native
 client diagnostics and blockers. Update the four helpers named above together; existing
 helpers are preserved by the installer for explicit comparison and reconciliation. Reads
-never migrate storage. Native dispatch remains gated by YC-203. Multi-PBI scheduling,
-real agents, worktrees and release remain separate roadmap items.
+and exact replay never migrate storage. Existing v1 sessions keep their original
+one-PBI behavior and receipts. Schema 4 prevents old writers from misinterpreting
+v2 sessions. Native dispatch remains gated by YC-203. Concurrent scheduling, leader
+decisions, corrections, real agents, worktrees and release remain roadmap work.

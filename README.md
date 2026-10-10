@@ -82,11 +82,12 @@ com PBIs na prioridade salva, dependências e o primeiro candidato inicial quand
 preparação está consistente. Essa consulta usa o snapshot da missão e não executa agentes.
 [Contrato e limites](docs/USAGE.md#mission-workflow).
 
-O coordenador ganhou um [ensaio persistente de um PBI](docs/USAGE.md#queue-rehearsal):
+O coordenador oferece um [ensaio persistente com vários PBIs](docs/USAGE.md#queue-rehearsal):
 `queue start`, `queue step` e `queue cancel` registram etapas simuladas e recibos.
-`status` mostra a etapa e o próximo papel. Repetir a mesma operação recupera o recibo;
-o ensaio não chama modelos nem aprova desenvolvimento ou QA reais.
-[Provas e limites](docs/relatorios/2026-10-10-queue-rehearsal.md).
+`status` mostra a etapa, o próximo papel e as dependências ainda pendentes no ensaio.
+A fila conclui Dev e QA de cada PBI e escolhe o próximo elegível pela prioridade salva.
+Repetir uma operação recupera seu recibo. O ensaio não chama modelos nem aprova entrega real.
+[Provas e limites](docs/relatorios/2026-10-10-queue-multi.md).
 
 O checkpoint `a0af931` passou nos oito jobs de CI entre push e PR, incluindo Windows.
 [Publicação e resultados](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).
@@ -700,11 +701,12 @@ with saved PBI priority, dependencies and the first initial candidate when prepa
 is current. This read-only view uses the mission snapshot and does not execute agents.
 [Contract and limits](docs/USAGE.md#mission-workflow).
 
-The coordinator now supports a [persistent one-PBI rehearsal](docs/USAGE.md#queue-rehearsal):
+The coordinator supports a [persistent multi-PBI rehearsal](docs/USAGE.md#queue-rehearsal):
 `queue start`, `queue step` and `queue cancel` record simulated stages and receipts.
-`status` shows the stage and next role. Replaying an operation recovers its receipt;
-the rehearsal calls no models and grants no real development or QA acceptance.
-[Evidence and limits](docs/relatorios/2026-10-10-queue-rehearsal.md#english-overview).
+`status` shows the stage, next role and pending rehearsal dependencies. Each PBI
+finishes development and QA before the next eligible item is selected by saved priority.
+Replaying an operation recovers its receipt. No models or real delivery acceptance are involved.
+[Evidence and limits](docs/relatorios/2026-10-10-queue-multi.md#english-overview).
 
 Checkpoint `a0af931` passed all eight push/PR CI jobs, including Windows.
 [Publication and results](docs/relatorios/2026-10-09-queue-preview.md#publicação-e-ci-conferidos).

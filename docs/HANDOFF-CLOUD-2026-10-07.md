@@ -4,6 +4,15 @@ Frente: produto YoungCrowHarness, com trabalho ativo no executor isolado.
 
 Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra sessão consiga continuar sem receber toda a conversa. Reúne decisões do mantenedor, estado do código, resultados observados, falhas, limites e próximos passos. Os caminhos de arquivos, salvo indicação contrária, são relativos à raiz do repositório.
 
+**CI Windows: prazo da fixture de rede (10/out).** Em `44cd90f`, seis checks Linux
+passaram; o push Windows cortou o teste v4 aos 15 s, depois de A/B e antes da conclusão
+de A2. O plano da fixture já previa 30 s. O supervisor do teste passa a usar esse
+mesmo orçamento, sem alterar o produto ou seus prazos absolutos. Reprodução com
+atraso controlado de 16 s falhou antes e passou depois; 28 testes de rede e 10 de
+processos passaram, com dois casos Windows pulados no Linux. [Provas](relatorios/2026-10-10-network-fixture-budget.md).
+Conferir o CI do novo commit antes de avançar; o Windows do PR da base ainda não
+havia terminado no checkpoint. Nenhum piloto nativo ou repetição paga nesta correção.
+
 **YC-206 parcial: contexto por workspace (10/out).** `workspace context UUID
 --expected-revision N` deriva missão/PBI do recibo, confere identidade Git e lê o contexto
 no vault original. N é a revisão do workspace. Retorna envelope com hash próprio, preservando

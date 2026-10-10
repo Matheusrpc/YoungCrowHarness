@@ -122,6 +122,8 @@ fixada pelo preparo. Preserva o trabalho em andamento e retorna JSON privado no 
 
 O checkpoint `77f6e37` passou nos oito jobs de CI entre push e PR, incluindo Windows.
 [Resultados conferidos](docs/relatorios/2026-10-10-workspace-context.md).
+Em `44cd90f`, o CI Windows expôs um corte de 15 s no teste de rede, cujo plano admite
+30 s. O supervisor da fixture agora usa esse prazo; [prova e confirmação pendente](docs/relatorios/2026-10-10-network-fixture-budget.md).
 O aceite nativo do executor continua pendente.
 
 As próximas provas estão reunidas em uma [campanha com aprovação por lote](docs/TEST-RUN-2026-10-10.md),
@@ -771,6 +773,8 @@ pinned during preparation. Existing work is preserved; the private JSON goes to 
 
 Checkpoint `77f6e37` passed all eight push/PR CI jobs, including Windows.
 [Verified results](docs/relatorios/2026-10-10-workspace-context.md).
+On `44cd90f`, Windows CI exposed a 15-second network-test cutoff despite its 30-second
+plan. The fixture supervisor now uses that budget; [evidence and pending CI confirmation](docs/relatorios/2026-10-10-network-fixture-budget.md).
 Native executor acceptance remains pending.
 
 Upcoming proofs are grouped in a [campaign with batch approval](docs/TEST-RUN-2026-10-10.md),

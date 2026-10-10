@@ -7,6 +7,14 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
+CI de `44cd90f`: seis checks Linux aprovados, timeout na fixture de rede do push
+Windows; o job Windows do PR passou essa etapa inicial e segue sem conclusão neste
+checkpoint. [Correção do prazo externo do teste](relatorios/2026-10-10-network-fixture-budget.md)
+validada localmente, aguardando novo CI. Não avança o aceite nativo.
+CI on `44cd90f`: six Linux checks passed; the push Windows fixture timed out. The PR
+Windows job passed that initial step but was still running. The test watchdog fix
+passed locally; new CI confirmation and native acceptance remain separate.
+
 Correção de 10/out: [coerência dos inputs de missão](USAGE.md#mission-input-consistency).
 Preparo e revisão detectam hashes divergentes entre itens importados e fontes congeladas;
 status bloqueia também snapshots antigos inconsistentes. Histórico preservado, recuperação

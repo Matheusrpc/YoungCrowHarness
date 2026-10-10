@@ -3072,13 +3072,18 @@ No percurso local v3, B só é reconhecida quando a conexão recebe
 `ConnectionRefusedError`. O CI confirmou que o corte anterior de um segundo podia
 produzir `TimeoutError` no Windows. A sonda usa agora o prazo restante do manifesto,
 com a reserva de encerramento do controlador. Timeout e conexão bem-sucedida
-continuam falhando. Os limites do supervisor (15 s) e do plano (30 s) permanecem.
+continuam falhando. O supervisor do teste integrado usa os mesmos 30 s declarados
+no manifesto, contados após a admissão; o prazo absoluto do plano não muda. O corte
+anterior de 15 s podia encerrar A2 ainda dentro do prazo útil. Não há repetição
+automática ou aceite de resultado parcial. [Reprodução](relatorios/2026-10-10-network-fixture-budget.md).
 
 In the local v3 flow, B is recognized only after `ConnectionRefusedError`. CI confirmed
 that the previous one-second cutoff could produce `TimeoutError` on Windows. The
 probe now uses the manifest's remaining deadline, preserving the controller's shutdown
-reserve. Timeout and successful connection still fail. Supervisor (15 s) and plan
-(30 s) limits remain unchanged.
+reserve. Timeout and successful connection still fail. The integrated test supervisor
+uses the manifest's existing 30-second budget, starting after admission; the plan's
+absolute deadline is unchanged. Its previous 15-second cutoff could kill A2 while
+time remained. There is no automatic retry or acceptance of partial results.
 
 
 Mesmo sem stdout após timeout, o diagnóstico tenta ler o ledger persistido. Publica

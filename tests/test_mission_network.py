@@ -350,9 +350,11 @@ class NetworkBindingTests(RuntimeCase):
         self.enterContext(registry_storage(registry.base))
         op=plan['manifest']['operation_id']
         tx.admit(self.root,registry,plan)
+        # Let the fixture's 30-second plan expire before outer process collection.
+        # A shorter watchdog can kill A2 while the shared deadline still permits it.
         command=dict(argv=[sys.executable,'-I','-B',str(Path(__file__).parent/'fixtures/network_controller.py')],
             cwd=str(self.root),stdin=json.dumps(dict(root=str(self.root),registry=str(registry.base),
-                operation_id=op,mode=mode)).encode(),timeout_seconds=15,output_limit_bytes=32768,
+                operation_id=op,mode=mode)).encode(),timeout_seconds=plan['manifest']['agent_seconds'],output_limit_bytes=32768,
                 client='metadata',connection='native')
         result=mission_process.supervise(command,on_started=lambda owner:tx.claim(self.root,registry,op,owner),
                                          stop_requested=lambda:False)

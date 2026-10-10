@@ -7,6 +7,13 @@ Checkpoint para continuidade na cloud: `feat/isolated-executor`.
 [verificação da publicação](relatorios/2026-10-07-cloud-checkpoint.md).
 YC-203 continua parcial; versionar o progresso não conclui o aceite do executor.
 
+YC-203, consulta de 10/out: [Docker Sandboxes 0.47.0](relatorios/2026-10-10-sbx-047-contract-review.md)
+traz correções de credenciais; as fontes consultadas não especificam o contrato
+condicional exigido. Issue #690 sem resposta no checkpoint. Pin/perfis preservados;
+próximo avanço exige contrato aplicável e revisão da versão antes da prova nativa.
+YC-203, Oct 10: 0.47.0 includes credential fixes, but the reviewed sources do not
+specify the required conditional contract. Version acceptance and native proof remain pending.
+
 CI de `44cd90f`: seis checks Linux aprovados, timeout na fixture de rede do push
 Windows; o job Windows do PR passou essa etapa inicial e segue sem conclusão neste
 checkpoint. [Correção do prazo externo do teste](relatorios/2026-10-10-network-fixture-budget.md)

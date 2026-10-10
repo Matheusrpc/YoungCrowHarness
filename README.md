@@ -59,6 +59,9 @@ novo backend foi implementado.
 A consulta ao Docker está publicada na [issue #690](https://github.com/docker/sbx-releases/issues/690),
 aberta pelo mantenedor em 9/out. A publicação e o texto foram conferidos pela API;
 aguardamos resposta sobre o contrato local. O aceite do executor e a fila 2B continuam pendentes.
+A [revisão da versão 0.47.0](docs/relatorios/2026-10-10-sbx-047-contract-review.md)
+identificou correções de credenciais, mas não encontrou o contrato condicional
+necessário nas fontes consultadas. A versão ainda não tem aceite neste adaptador.
 
 A entrega independente melhora `yc-status`: mostra o recibo que bloqueia novos diagnósticos, inclusive de outra
 missão do projeto, e indica revisão de recuperação ou reparo de notas antes de refinar
@@ -712,6 +715,9 @@ local contract. No new backend has been implemented.
 The maintainer published the Docker inquiry as [issue #690](https://github.com/docker/sbx-releases/issues/690)
 on Oct 9. Publication and body were verified through the API; a response about the
 local contract is pending. Executor acceptance and the 2B queue remain pending.
+The [0.47.0 review](docs/relatorios/2026-10-10-sbx-047-contract-review.md#english-overview)
+identified credential fixes, but the reviewed sources do not specify the required
+conditional contract. This version has not been accepted for the adapter.
 
 The independent delivery improves `yc-status`: it identifies receipts blocking new diagnostics, including other
 missions in the project, and directs recovery review or note repair before input

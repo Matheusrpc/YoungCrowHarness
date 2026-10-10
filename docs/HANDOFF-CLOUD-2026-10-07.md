@@ -4,6 +4,15 @@ Frente: produto YoungCrowHarness, com trabalho ativo no executor isolado.
 
 Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra sessão consiga continuar sem receber toda a conversa. Reúne decisões do mantenedor, estado do código, resultados observados, falhas, limites e próximos passos. Os caminhos de arquivos, salvo indicação contrária, são relativos à raiz do repositório.
 
+**YC-203: fornecedor e computador novo (10/out).** O operador confirmou Windows 11
+Home Single Language também no PC novo. A função Hyper-V permanece fora dessa
+candidata; WHP/sbx não foram reprovados por essa informação. A
+[consulta da versão 0.47.0](relatorios/2026-10-10-sbx-047-contract-review.md) encontrou
+correções de credenciais, mas não as precondições necessárias ao adaptador. Docker
+#690 sem resposta no checkpoint. Não atualizar o pin para simular compatibilidade;
+obter contrato aplicável, revisar versão/plano e só então preparar prova autorizada.
+Nenhum backend novo ou teste nativo nesta consulta; contador 2/3 preservado.
+
 **CI Windows: prazo da fixture de rede (10/out).** Em `44cd90f`, seis checks Linux
 passaram; o push Windows cortou o teste v4 aos 15 s, depois de A/B e antes da conclusão
 de A2. O plano da fixture já previa 30 s. O supervisor do teste passa a usar esse

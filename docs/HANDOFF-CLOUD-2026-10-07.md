@@ -8,13 +8,14 @@ Data de corte: 7 de outubro de 2026. Este documento foi preparado para que outra
 na sessão Haiku `164e5438`, por reavaliação offline dos eventos e arquivos originais
 com o verificador corrigido e revisão semântica. O recibo original de falha permanece;
 não repetir a inferência. YC-011 e o executor Docker continuam pendentes.
-**YC-011:** [descoberta no Codex/Linux verificada](relatorios/2026-10-09-client-skill-discovery.md),
-sem prompt; smoke separado por cliente com recibo. Claude não foi executado aqui,
-e a aplicação nativa em ambos continua pendente. O CI de `5fa0c65` passou nos oito
-jobs de push/PR; esse resultado antecede o incremento de descoberta.
-Próxima ação: executar o [roteiro Claude/Windows sem prompt](YC011-CLAUDE-DISCOVERY.md),
-que fixa `058be40` em uma cópia nova e preserva P06. A seleção de fontes e o
-instalador da fixture foram conferidos na cloud; o recibo nativo Windows está pendente.
+**YC-011:** [descoberta verificada no Codex/Linux e Claude/Windows](relatorios/2026-10-09-client-skill-discovery.md),
+com zero prompts. O operador executou o [roteiro Windows](YC011-CLAUDE-DISCOVERY.md)
+às 21h15 de Brasília em 9/out; o JSON enviado registra Claude 2.1.220, quatro skills,
+limpeza confirmada e aplicação não verificada. Os oito hashes das skills e o hash
+do probe conferem com `058be40`. O CI dessa revisão passou nos oito jobs de push/PR.
+Preservar os recibos; não repetir P06 ou a descoberta. Próxima ação: retomar YC-203
+quando houver evidência aplicável ao contrato local Docker. Aplicação nativa das
+skills, fila e agentes continuam na sequência aprovada, sem habilitação antecipada.
 Os parágrafos seguintes preservam a sequência histórica e suas decisões na ocasião.
 
 Checkpoint conferido em 9/out: `a0af931` passou nos oito jobs de push e PR, incluindo
@@ -784,7 +785,7 @@ Fonte: `docs/BACKLOG.md`. IDs são planejamento público; não são PBIs automat
 | ID | Entrega | Estado resumido |
 |---|---|---|
 | YC-010 | Retomar piloto público em nova sessão Claude | Verificado no piloto: sessão real, reavaliação offline e revisão semântica; recibo original preservado |
-| YC-011 | Provar as quatro skills de preparação nos clientes atuais | Descoberta Codex/Linux verificada; descoberta Claude e aplicação em ambos pendentes, esta ligada a YC-203 |
+| YC-011 | Provar as quatro skills de preparação nos clientes atuais | Descoberta Codex/Linux e Claude/Windows verificadas; aplicação em ambos pendente, ligada a YC-203 |
 | YC-201 | Preflight, catálogo e compatibilidade | Mecanismo implementado; execução nativa não certificada |
 | YC-202 | Limites, recibos e recuperação de processo | Simuladores verificados; integração isolada pendente |
 | YC-203 | Perfis nativos, instalação e provas autenticadas | Frente ativa, parcial |

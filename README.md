@@ -1268,8 +1268,8 @@ o teste de junction nativa é exclusivo de Windows. A suíte usa Git local, usu�
 de plugins simuladas. Execute um setup por destino de cada vez.
 O teste opcional [smoke_clients.py](tests/smoke_clients.py) confere skills e agente nos clientes reais.
 Com `--discovery-only`, pode consultar um cliente por vez e salvar recibo sem prompt.
-As quatro skills de missão foram [descobertas pelo Codex nesta cloud](docs/relatorios/2026-10-09-client-skill-discovery.md);
-a descoberta Claude e a aplicação nativa continuam pendentes em YC-011.
+As quatro skills de missão foram [descobertas no Codex/Linux e Claude/Windows](docs/relatorios/2026-10-09-client-skill-discovery.md),
+com zero prompts. A aplicação nativa continua pendente em YC-011.
 O [roteiro Windows](docs/YC011-CLAUDE-DISCOVERY.md) prepara uma cópia pequena e consulta
 o Claude sem prompt, preservando os pacotes P06.
 No modo completo, o Codex envia uma requisição a um modelo fictício em loopback; o Claude carrega metadados pelo SDK.
@@ -1281,8 +1281,8 @@ the native junction test runs on Windows. The optional smoke check uses real cli
 loopback model fixture for Codex and SDK metadata initialization for Claude. It makes no paid model
 calls or MCP connections and does not prove third-party plugin execution.
 `--discovery-only` checks one client at a time and saves a receipt without a prompt.
-The four mission skills were [discovered by Codex in this cloud](docs/relatorios/2026-10-09-client-skill-discovery.md);
-Claude discovery and native application remain pending under YC-011.
+The four mission skills were [discovered in Codex/Linux and Claude/Windows](docs/relatorios/2026-10-09-client-skill-discovery.md),
+with zero prompts. Native application remains pending under YC-011.
 The [Windows recipe](docs/YC011-CLAUDE-DISCOVERY.md) prepares a small checkout and queries
 Claude without a model prompt, preserving P06 packages.
 

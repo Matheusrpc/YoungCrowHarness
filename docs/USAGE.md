@@ -298,8 +298,8 @@ fica `not_run`. Um recibo existente é preservado e impede repetir esse comando
 sobre o mesmo arquivo. O resultado registra versão, plataforma, hash do binário,
 nomes encontrados e hashes das quatro skills e suas entradas instaladas.
 `passed` comprova descoberta, não aplicação em uma missão. O teste usa um consumidor
-e perfil temporários, sem copiar seu login. O [Codex passou nesta cloud](relatorios/2026-10-09-client-skill-discovery.md);
-Claude ainda precisa de observação nativa. YC-011 continua parcial.
+e perfil temporários, sem copiar seu login. [Codex/Linux e Claude/Windows passaram](relatorios/2026-10-09-client-skill-discovery.md).
+YC-011 continua parcial pela aplicação nativa pendente.
 Para o PC Windows usado na prova P06, siga o [preparo e a consulta sem prompt](YC011-CLAUDE-DISCOVERY.md).
 O roteiro usa uma cópia nova e preserva os recibos anteriores.
 
@@ -987,8 +987,8 @@ is `not_run`. Existing receipts are preserved and cannot be overwritten. The rec
 records version, platform, executable hash, discovered names and hashes of the four
 skills and their installed entries. `passed` proves discovery, not application in
 a mission. The disposable consumer/profile does not copy personal login data.
-[Codex passed in this cloud](relatorios/2026-10-09-client-skill-discovery.md);
-native Claude observation is still pending. YC-011 remains partial.
+[Codex/Linux and Claude/Windows passed](relatorios/2026-10-09-client-skill-discovery.md).
+YC-011 remains partial because native application is still pending.
 For the Windows PC used in P06, follow the [preparation and metadata-only probe](YC011-CLAUDE-DISCOVERY.md).
 The recipe uses a new checkout and preserves previous receipts.
 

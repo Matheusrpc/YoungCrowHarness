@@ -2,7 +2,7 @@
   "front": "YC-011 native skill discovery by client",
   "base_commit": "5fa0c65321e6a99af45aea88a8089b451fb4e730",
   "observed_at": "2026-10-09T23:43:41.539602+00:00",
-  "outcome": "codex_native_discovery_verified_claude_not_run_application_pending",
+  "outcome": "codex_linux_and_claude_windows_discovery_verified_application_pending",
   "native_probe": {
     "kind": "real_native_client_metadata",
     "platform": "linux",
@@ -106,7 +106,7 @@
   },
   "limits": {
     "application_verified": false,
-    "claude_native_discovery_verified": false,
+    "claude_native_discovery_verified": true,
     "model_calls_sent": 0,
     "paid_run_authorized": false,
     "YC_011_closed": false,
@@ -141,6 +141,67 @@
       "probe_sources_unchanged": true,
       "prepared_package_revision_and_probe_hash_match": true,
       "independent_review": "passed_read_only"
-    }
+    },
+    "subsequent_operator_run": "claude_native_probe"
+  },
+  "claude_native_probe": {
+    "kind": "operator_reported_native_client_metadata",
+    "platform": "win32",
+    "client": "claude",
+    "state": "passed",
+    "version": "2.1.220 (Claude Code)",
+    "executable_sha256": "af5bf1f1b2aadffc768eccd787084c6fdf9ba81624cbe96c1c6d9ac1a1550231",
+    "harness_revision": "058be40265606ef670fa024d0d511975e26f91a1",
+    "probe_sha256": "7d4231a2d054148d9fa66de1516688879f693a9fc6e10b82cb5c3135dbb35201",
+    "started_at": "2026-10-10T00:15:00.418487+00:00",
+    "ended_at": "2026-10-10T00:15:30.669763+00:00",
+    "elapsed_seconds": 30.251276,
+    "observed_required_skills": [
+      "yc-config",
+      "yc-missao",
+      "yc-personalizer",
+      "yc-status"
+    ],
+    "skill_sha256": {
+      "skills/yc-config/SKILL.md": "6eeb6872895b4e33caaf50653cd48b62848099fc6a966a5a21b760e9b1804aea",
+      "skills/yc-missao/SKILL.md": "c5dede67a23f8622ff89e8ff9d2bbdfba5e4fc4eb78d65fb0051ec6838fe7a6e",
+      "skills/yc-personalizer/SKILL.md": "89bd1c13500977718065de0b9c540c1e648f8c63ca0ed781902296d5900cd7f5",
+      "skills/yc-status/SKILL.md": "b336143153d284b112a9a69277765acb31ea1b4b1f6379f77f53267679da9d4f",
+      ".claude/skills/yc-config/SKILL.md": "67f74a45857e0c780318e8009594f945b221be9d109d774cb03706fef6be92a3",
+      ".claude/skills/yc-missao/SKILL.md": "849b995fd0bc3d63bb178f153dc31ed23c922cfedb99c05d4f5a5f236f8f101c",
+      ".claude/skills/yc-personalizer/SKILL.md": "73f7b20766675390eb587ebe4d7419f16b5d8050892c5970a53e0e09e773aabe",
+      ".claude/skills/yc-status/SKILL.md": "def38c86137a82f7d607c142f7a8b294b1653aea2ac0ff0ab1c118ea89277d75"
+    },
+    "user_prompts_sent": 0,
+    "application_verified": false,
+    "temporary_fixture_removed": true,
+    "codex_state": "not_run",
+    "evidence_validation": {
+      "source_kind": "operator_supplied_terminal_transcript",
+      "transcript_sha256": "8ae3385229f8e4c641530afeafc0e5cbfb3bb791e831342ffe7f6c55244226f4",
+      "original_receipt_file_received": false,
+      "receipt_json_line_sha256": "ef21263aa8601ab2e1ef56136d41937b8d5bee006f015e87f8f1282febd78372",
+      "required_skills": [
+        "yc-config",
+        "yc-missao",
+        "yc-personalizer",
+        "yc-status"
+      ],
+      "all_eight_skill_hashes_match_pinned_revision": true,
+      "probe_hash_matches": true,
+      "binary_hash_matches_preserved_p06": true,
+      "elapsed_seconds": 30.251276,
+      "native_rerun_performed": false
+    },
+    "independent_review": "passed_read_only_hash_and_receipt_check"
+  },
+  "tested_revision_ci": {
+    "commit": "058be40265606ef670fa024d0d511975e26f91a1",
+    "runs": [
+      38005905530,
+      38005909783
+    ],
+    "completed_successful_jobs": 8,
+    "new_documentation_commit_ci": "separate_pending"
   }
 }

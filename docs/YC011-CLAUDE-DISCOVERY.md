@@ -3,6 +3,12 @@
 Frente: YC-011, descoberta nativa sem prompt. Este roteiro usa o teste existente
 na revisão `058be40265606ef670fa024d0d511975e26f91a1`.
 
+**Resultado registrado:** o operador executou os dois blocos em 9/out, às 21h15 de
+Brasília. [Claude 2.1.220 encontrou as quatro skills](relatorios/2026-10-09-client-skill-discovery.md#confirmação-claude-no-windows),
+com zero prompts e limpeza confirmada. Os hashes enviados conferem com a revisão
+fixa. Preserve o pacote e o recibo existentes; não é necessário repetir esse teste.
+Os blocos abaixo documentam o procedimento executado.
+
 O teste consulta os metadados do Claude em um projeto temporário, com perfil vazio
 e MCPs desativados. Não envia conversa ao modelo e não precisa renovar o login.
 Procura `yc-personalizer`, `yc-config`, `yc-missao` e `yc-status`. O resultado prova
@@ -99,11 +105,14 @@ Na cloud Linux, os mesmos comandos Git prepararam 152 arquivos (1.629.228 bytes
 de conteúdo de trabalho), com as 80 dependências do instalador presentes e nenhum
 arquivo em `docs/media`. O instalador real da fixture passou com `--client claude
 --no-plugins` e removeu seus temporários. Isso valida a seleção de fontes; não é uma
-execução PowerShell nem prova de descoberta pelo Claude no Windows.
+execução PowerShell nem prova de descoberta pelo Claude no Windows. A execução
+posterior do operador confirmou ambas, conforme o resultado registrado acima.
 
 On Linux, the same Git sequence produced 152 working files (1,629,228 bytes), all
 80 installer dependencies and no media files. The fixture's actual Claude installer
 passed and cleaned up. PowerShell execution and real Claude discovery on Windows
-remain pending. These counts exclude Git metadata.
+were subsequently confirmed by the operator's terminal JSON, with matching hashes
+and zero model prompts. These counts exclude Git metadata. Preserve that completed
+run's package and receipt; no rerun is needed.
 
-ATRASO: roteiro preparado | descoberta Claude pendente | aplicação nativa/YC-203 pendentes.
+ATRASO: roteiro executado | descoberta Claude 0 | aplicação nativa/YC-203 pendentes.

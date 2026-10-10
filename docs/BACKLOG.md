@@ -209,7 +209,7 @@ ter quantos itens o produto exigir.
 | Memória consultável | Markdown, Graphify opcional e retomada entre sessões/projetos; [isolamento de temas](relatorios/2026-10-02-memory-project-isolation.md) |
 | Governança de skills, agentes e MCPs | Catálogo, auditoria e provas delimitadas por cliente; [matriz](relatorios/2026-10-02-capability-governance.md). Auditoria não concede autorização |
 | Experimentação reversível | Baseline anterior ao setup e retorno preservando o trabalho do trial; [provas](relatorios/2026-10-02-reversible-adoption.md). Efeitos em serviços externos ficam fora do retorno de arquivos |
-| Exemplo público | Quadro de entregas publicado e verificado; [piloto](relatorios/2026-10-03-public-pilot.md). Retomada do piloto no Claude ainda pendente |
+| Exemplo público | Quadro de entregas publicado e verificado; [piloto](relatorios/2026-10-03-public-pilot.md). [Retomada Claude verificada](relatorios/2026-10-09-p06-offline-review.md) |
 | Frente 1: preparação de missões | Configuração, backlog, DoR/DoD, histórico e quatro skills; [provas](relatorios/2026-10-03-mission-foundation.md). Execução dos modelos ainda não verificada |
 
 ## Sequência das entregas
@@ -242,7 +242,12 @@ package. Existing limits, separate acceptance criteria and current blockers rema
 | ID | Entrega | Dependência | Critério de aceite | Estado |
 |---|---|---|---|---|
 | YC-010 | Retomar o piloto público em sessão nova do Claude | Login válido e tentativa delimitada | Encontrar índices, UUIDs, revisão e produção observada sem receber o histórico inteiro; registrar resultado real | [Verificado no piloto](relatorios/2026-10-09-p06-offline-review.md): sessão Haiku real e reavaliação offline dos eventos/arquivos originais, com correção do verificador e revisão semântica. Recibo original de falha preservado; zero novas chamadas. Leitura manual de skills não encerra YC-011 |
-| YC-011 | Provar as quatro novas skills nos clientes nativos | Instalação atual e sessão autorizada em cada cliente | Descobrir e aplicar `yc-personalizer`, `yc-config`, `yc-missao` e `yc-status`; preservar dados e distinguir preparo de execução | Parcial: [descoberta das quatro skills verificada no Codex/Linux](relatorios/2026-10-09-client-skill-discovery.md), sem prompt. Smoke por cliente com recibo entregue. Descoberta Claude e aplicação nativa em ambos continuam pendentes; aplicação integra a prova de YC-203 |
+| YC-011 | Provar as quatro novas skills nos clientes nativos | Instalação atual e sessão autorizada em cada cliente | Descobrir e aplicar `yc-personalizer`, `yc-config`, `yc-missao` e `yc-status`; preservar dados e distinguir preparo de execução | Parcial: [descoberta das quatro skills verificada no Codex/Linux e Claude/Windows](relatorios/2026-10-09-client-skill-discovery.md), sem prompt. Recibo Claude enviado pelo operador, com hashes conferidos. Aplicação nativa em ambos continua pendente; integra a prova de YC-203 |
+
+YC-011 discovery passed in the observed Codex/Linux and Claude/Windows versions,
+without model prompts. The operator supplied the Windows receipt as terminal text;
+all eight skill hashes and the probe hash matched the pinned revision. Native skill
+application remains pending and YC-203 stays blocked.
 
 ## Frente 2: execução e continuidade
 

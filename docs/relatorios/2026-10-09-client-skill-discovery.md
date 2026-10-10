@@ -4,8 +4,9 @@ Frente: YC-011, prova de descoberta sem prompt. Base: `5fa0c65321e6a99af45aea88a
 
 O smoke existente agora permite consultar Claude ou Codex separadamente e guardar
 um recibo JSON. Isso permite observar o cliente disponível sem aguardar o outro.
-O Codex real desta cloud encontrou `yc-personalizer`, `yc-config`, `yc-missao` e
-`yc-status`. Nenhum prompt de usuário foi enviado.
+O Codex real desta cloud e o Claude real do Windows do operador encontraram
+`yc-personalizer`, `yc-config`, `yc-missao` e `yc-status`. Nenhum prompt de usuário
+foi enviado. A aplicação dessas skills continua pendente.
 
 ## Mudança e uso
 
@@ -45,9 +46,31 @@ e ficou `not_run`. A [medição](../medicoes/2026-10-09-client-skill-discovery.j
 registra horários UTC, hashes e resultados exatos. Um primeiro ensaio também passou;
 seu recibo permanece privado, separado da prova da revisão final.
 
-No Claude, as regressões usam um filho local que fala o protocolo. Isso testa o
-probe, não representa descoberta pelo Claude real. A leitura manual de skills na
-prova P06 permanece uma evidência diferente.
+As regressões Claude usam um filho local que fala o protocolo. Isso testa o probe;
+a descoberta pelo Claude real foi observada separadamente, conforme o registro
+abaixo. A leitura manual de skills na prova P06 permanece uma evidência diferente.
+
+## Confirmação Claude no Windows
+
+O operador executou o roteiro da revisão `058be40` em 9/out, às 21h15 de Brasília
+(10/out, 00h15 UTC), e enviou a saída do PowerShell. O JSON registra:
+
+- Claude Code `2.1.220`, plataforma `win32`, estado `passed`.
+- As quatro skills encontradas, oito hashes de arquivos instalados conferidos
+  contra a revisão fixa e hash do probe idêntico ao publicado.
+- Zero prompts, `application_verified: false`, fixture temporária removida.
+- Duração total observada de 30,251276 s; Codex ficou `not_run` nesta execução.
+
+O hash do executável coincide com o da prova P06 preservada. Isso identifica o
+mesmo binário; não reutiliza nem renova aquela tentativa. A revisão independente
+confirmou o JSON e os hashes, sem executar cliente ou modelo.
+
+A fonte recebida é a transcrição do terminal enviada pelo operador. O arquivo
+original `claude-discovery.json` do Windows não foi anexado. A medição identifica
+o hash da transcrição e da linha JSON extraída, sem atribuí-los ao arquivo original.
+O registro comprova descoberta nas versões e combinações observadas: Codex/Linux
+e Claude/Windows. Não amplia a matriz para os outros sistemas nem comprova uso
+das skills pelo modelo, contenção de descendentes ou aceite do executor Docker.
 
 ## Verificação e continuidade
 
@@ -68,23 +91,30 @@ incluindo Windows. Isso não substitui o CI deste incremento. A issue Docker
 [#690](https://github.com/docker/sbx-releases/issues/690) continuava aberta sem comentários
 na consulta desta sessão; seus bloqueios e o contador de ciclos foram preservados.
 
-YC-011 permanece parcial: falta observar a descoberta no Claude e provar a aplicação
-das quatro skills em ambos os clientes, com os limites do pacote de execução.
+O CI de `058be40`, revisão usada no Windows, passou nos oito jobs de push/PR,
+incluindo os dois Windows (runs `38005905530` e `38005909783`). Nenhum código do
+probe mudou ao registrar este resultado e nenhuma prova nativa foi repetida.
+
+YC-011 permanece parcial: falta provar a aplicação das quatro skills em ambos os
+clientes, com os limites do pacote de execução.
 O comando acima não inicia agente de produto, chama modelo, realiza login ou libera YC-203.
 
 The existing smoke now supports one-client metadata discovery with a preserved JSON
-receipt. Real Codex discovery passed; Claude was not run here. Native application
-of the four skills and Docker executor acceptance remain pending. No model prompt
-was sent, and the previous full smoke remains available.
+receipt. Real Codex/Linux discovery and operator-reported Claude/Windows discovery
+passed. The Claude 2.1.220 terminal JSON reports all four skills, zero prompts and
+temporary fixture cleanup in 30.251276 seconds. Its eight skill hashes and probe hash
+match the pinned revision. We received a terminal transcript, not the original
+Windows receipt file. Native skill application and Docker executor acceptance remain
+pending. No native run was repeated during this evidence review.
 
-O próximo passo está no [roteiro Claude/Windows](../YC011-CLAUDE-DISCOVERY.md).
+O [roteiro Claude/Windows](../YC011-CLAUDE-DISCOVERY.md) foi executado pelo operador.
 A seleção esparsa de `058be40` foi executada na cloud: 152 arquivos, 1.629.228 bytes
 de conteúdo de trabalho, 80 dependências presentes e nenhuma mídia. O instalador
-da fixture Claude passou e limpou seus temporários. PowerShell e descoberta Claude
-no PC do operador ainda não foram executados. Nenhum código do probe foi alterado.
+da fixture Claude passou e limpou seus temporários. A confirmação PowerShell/Claude
+posterior está registrada acima. Preservar os pacotes e recibos, sem repetir P06.
 
 The Windows recipe uses a separate checkout pinned to `058be40`. Its sparse source
-selection and actual fixture installer passed on Linux. PowerShell and real Claude
-discovery on the operator's Windows PC remain pending; probe code is unchanged.
+selection and actual fixture installer passed on Linux. The operator's subsequent
+PowerShell/Claude discovery passed as recorded above; probe code is unchanged.
 
-ATRASO: descoberta Codex 0 | descoberta Claude pendente | aplicação nativa/YC-203 pendentes.
+ATRASO: descoberta Codex 0 | descoberta Claude 0 | aplicação nativa/YC-203 pendentes.

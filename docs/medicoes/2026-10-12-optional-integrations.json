@@ -1,0 +1,458 @@
+{
+  "front": "Optional client integrations",
+  "date": "2026-10-12",
+  "base_revision": "e966e7e06dd30bbd039be839887f8d6de31c32f4",
+  "branch": "fix/optional-client-integrations",
+  "setup_tests": {
+    "cases": 60,
+    "passed": 58,
+    "skipped": 2,
+    "failures": 0,
+    "errors": 0
+  },
+  "installed_smoke": {
+    "platform": "Linux",
+    "python": "3.12.14",
+    "client": "both",
+    "git": "git version 2.52.0",
+    "revision": "e966e7e06dd30bbd039be839887f8d6de31c32f4",
+    "cases": [
+      {
+        "case": "absent",
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true
+      },
+      {
+        "case": "dirty-git",
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true
+      }
+    ],
+    "model_calls": 0,
+    "native_client_conversation": "not_exercised",
+    "observations": [
+      {
+        "case": "absent",
+        "mcp_empty_or_preserved": true,
+        "required_matched": 18,
+        "optional_claude_mcp_missing": 2
+      },
+      {
+        "case": "dirty-git",
+        "mcp_empty_or_preserved": true,
+        "required_matched": 18,
+        "optional_claude_mcp_missing": 2
+      }
+    ]
+  },
+  "capabilities": {
+    "exit_code": 0,
+    "required_matched": 18,
+    "optional_claude_mcp_missing": [
+      "n8n",
+      "cloudflare-api"
+    ],
+    "catalog_unchanged_from_base": true,
+    "catalog_sha256": "370686eaf9ba7d54921b6643da635057522262cbb5c40cd1e0b84f176e1d6c8c"
+  },
+  "code_review": {
+    "mode": "independent read-only",
+    "findings": []
+  },
+  "files": {
+    "setup.sh": "3bb8a2ba882ef932aec3b7cc14e166481e028c755c90a009ed0ca8c167afb22d",
+    ".mcp.json": "d8e397af03b5b032f21d0aa967086f0c78b33c87b76f2e9898ae0a144df7de02",
+    "tests/test_setup.py": "5ee0d79181199edb3eaafd6398c20c650bf73e0c261c32c593de673eaf98672d",
+    "tests/smoke_clients.py": "c1038f001b7b051f4af0b14342ed9993c1a29f512c68796174ef06198c308282",
+    "README.md": "f5c56767e9745b8fd7b729b5811295c2619c151c95b436f80f0db3f72b809d2f",
+    "docs/USAGE.md": "621591a68325203d50e432a0420a67de84c348f1a5ec163a24eae4c2c52403a6",
+    "docs/BACKLOG.md": "6514ac380b948f45cfa18174e1df16a64db7cf35fd0392e79df769a800ca3f1f"
+  },
+  "evidence": {
+    "setup-green.log": "ebddc925c9214643d1ab73b1f5abbb8c2883b44627f85881a9cc7a0c032d6ee1",
+    "red-opt-in.log": "4961b81b387dfb4414a8d543448f67c163e5b0ef173c266aae85112299fcfae7",
+    "installed_smoke.py": "e0ebe440453c5ee968eb93ead674c2734fedbfb08eef414284c9da538f46a110",
+    "red-mcp.log": "059682f52cd29c0fccf7ef462e435ea35e6c0d22f843555ce6928437c81d0cb4",
+    "capabilities.json": "e4df648c74a445ebf96bff6ba667c263f4b76553d15000f8a783be4a7d01f05a",
+    "red-default.log": "be30f690529a359741cd52478732ab160ab355c0cf5afe1f3ceacd97a9140327",
+    "installed-smoke.json": "a5c5ed3ef31e9e93e277fc99f84ab0d2e872cb53e84869eb446967f1b69455b2",
+    "full-suite.log": "2483b1793c96332cb820aaf71f48f45d0a121da25f6dd355f604bc8b8270c00e"
+  },
+  "limits": {
+    "plugin_calls": "simulated",
+    "native_client_smoke": "not_run",
+    "model_calls": 0,
+    "browser_opened": false,
+    "integration": "pending",
+    "remote_ci": "pending"
+  },
+  "full_suite": {
+    "command": "python3 -B -m unittest discover -s tests",
+    "cases": 346,
+    "passed": 332,
+    "skipped": 14,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 142.877
+  },
+  "local_links": {
+    "checked": 313,
+    "issues": []
+  },
+  "vault": {
+    "notes_checked": 3,
+    "issues": []
+  },
+  "combined_validation": {
+    "date": "2026-10-12",
+    "revision": "c2b1ef83dc629d6a47c9eefc3f2e6fea7a2f3069",
+    "tree": "c03bad0d6b176cbe6a48cd1b5474d19ae3f13757",
+    "pr27_merge": {
+      "mergeCommit": {
+        "oid": "063df45633b93b1fe981290ccaa9d4c624240831"
+      },
+      "mergedAt": "2026-10-12T14:19:01Z",
+      "number": 27,
+      "state": "MERGED",
+      "url": "https://github.com/Matheusrpc/YoungCrowHarness/pull/27"
+    },
+    "full_suite": {
+      "command": "python3 -B -m unittest discover -s tests",
+      "cases": 345,
+      "passed": 331,
+      "skipped": 14,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 155.647,
+      "exit_code": 0
+    },
+    "installed_smoke": {
+      "platform": "Linux",
+      "python": "3.12.14",
+      "client": "both",
+      "git": "git version 2.52.0",
+      "revision": "c2b1ef83dc629d6a47c9eefc3f2e6fea7a2f3069",
+      "cases": [
+        {
+          "case": "absent",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        },
+        {
+          "case": "dirty-git",
+          "restored": true,
+          "trial_preserved": true,
+          "home_unchanged": true
+        }
+      ],
+      "model_calls": 0,
+      "native_client_conversation": "not_exercised",
+      "observations": [
+        {
+          "case": "absent",
+          "installed_hooks_readonly": true,
+          "literal_quote": true,
+          "source_preserved": true,
+          "word_search": true,
+          "capability_matches": 18,
+          "converter": "synthetic fixture",
+          "mcp_empty_or_preserved": true,
+          "required_matched": 18,
+          "optional_claude_mcp_missing": 2
+        },
+        {
+          "case": "dirty-git",
+          "installed_hooks_readonly": true,
+          "literal_quote": true,
+          "source_preserved": true,
+          "word_search": true,
+          "capability_matches": 18,
+          "converter": "synthetic fixture",
+          "mcp_empty_or_preserved": true,
+          "required_matched": 18,
+          "optional_claude_mcp_missing": 2
+        }
+      ]
+    },
+    "board_tests": {
+      "command": "node --test examples/delivery-board/tests/*.test.mjs",
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0
+    },
+    "vault": {
+      "root_notes": 3,
+      "example_notes": 22,
+      "issues": []
+    },
+    "public_https": {
+      "base": "https://matheusrpc.github.io/YoungCrowHarness/",
+      "expected_revision": "80edd7786f3ecb13535565f5cb358ef1f983b757",
+      "started_at": "2026-10-12T14:22:55.670642+00:00",
+      "manifest_request": {
+        "http_code": 200,
+        "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/manifest.json",
+        "size_download": 617,
+        "content_type": "application/json; charset=utf-8",
+        "ssl_verify_result": 0,
+        "time_total": 0.215825,
+        "file": "manifest.json",
+        "curl_returncode": 0,
+        "error": "",
+        "retrieved_at": "2026-10-12T14:22:55.900247+00:00",
+        "bytes": 617,
+        "sha256": "cc4a8233543a4f91ef053f01e2f03c4fc36876f1859982c394266c31730538d6"
+      },
+      "files": [
+        {
+          "http_code": 200,
+          "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/index.html",
+          "size_download": 4093,
+          "content_type": "text/html; charset=utf-8",
+          "ssl_verify_result": 0,
+          "time_total": 0.236303,
+          "file": "index.html",
+          "curl_returncode": 0,
+          "error": "",
+          "retrieved_at": "2026-10-12T14:22:56.164161+00:00",
+          "bytes": 4093,
+          "sha256": "07cce9c69756927348a371d27e39e2f675a6fdf21b772fa40cef72bef88a13c8",
+          "manifest_sha256": "07cce9c69756927348a371d27e39e2f675a6fdf21b772fa40cef72bef88a13c8",
+          "expected_git_sha256": "07cce9c69756927348a371d27e39e2f675a6fdf21b772fa40cef72bef88a13c8",
+          "expected_git_bytes": 4093,
+          "combined_tree_sha256": "07cce9c69756927348a371d27e39e2f675a6fdf21b772fa40cef72bef88a13c8",
+          "combined_tree_bytes": 4093,
+          "equal_to_combined_tree": true,
+          "equal_to_git": true,
+          "equal_to_manifest": true,
+          "equal_to_checkout": true
+        },
+        {
+          "http_code": 200,
+          "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/style.css",
+          "size_download": 5895,
+          "content_type": "text/css; charset=utf-8",
+          "ssl_verify_result": 0,
+          "time_total": 0.253183,
+          "file": "style.css",
+          "curl_returncode": 0,
+          "error": "",
+          "retrieved_at": "2026-10-12T14:22:56.174824+00:00",
+          "bytes": 5895,
+          "sha256": "39667b6b7436e4a7f4724727c433077e0f8f133399536e0063e621259b9873c1",
+          "manifest_sha256": "39667b6b7436e4a7f4724727c433077e0f8f133399536e0063e621259b9873c1",
+          "expected_git_sha256": "39667b6b7436e4a7f4724727c433077e0f8f133399536e0063e621259b9873c1",
+          "expected_git_bytes": 5895,
+          "combined_tree_sha256": "39667b6b7436e4a7f4724727c433077e0f8f133399536e0063e621259b9873c1",
+          "combined_tree_bytes": 5895,
+          "equal_to_combined_tree": true,
+          "equal_to_git": true,
+          "equal_to_manifest": true,
+          "equal_to_checkout": true
+        },
+        {
+          "http_code": 200,
+          "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/app.mjs",
+          "size_download": 3664,
+          "content_type": "text/javascript; charset=utf-8",
+          "ssl_verify_result": 0,
+          "time_total": 0.271902,
+          "file": "app.mjs",
+          "curl_returncode": 0,
+          "error": "",
+          "retrieved_at": "2026-10-12T14:22:56.193686+00:00",
+          "bytes": 3664,
+          "sha256": "604d05029ff195aae4a71bb8b3ed9af0b1462bdd3713ab7eaa778978cb87e2fd",
+          "manifest_sha256": "604d05029ff195aae4a71bb8b3ed9af0b1462bdd3713ab7eaa778978cb87e2fd",
+          "expected_git_sha256": "604d05029ff195aae4a71bb8b3ed9af0b1462bdd3713ab7eaa778978cb87e2fd",
+          "expected_git_bytes": 3664,
+          "combined_tree_sha256": "604d05029ff195aae4a71bb8b3ed9af0b1462bdd3713ab7eaa778978cb87e2fd",
+          "combined_tree_bytes": 3664,
+          "equal_to_combined_tree": true,
+          "equal_to_git": true,
+          "equal_to_manifest": true,
+          "equal_to_checkout": true
+        },
+        {
+          "http_code": 200,
+          "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/model.mjs",
+          "size_download": 2141,
+          "content_type": "text/javascript; charset=utf-8",
+          "ssl_verify_result": 0,
+          "time_total": 0.268334,
+          "file": "model.mjs",
+          "curl_returncode": 0,
+          "error": "",
+          "retrieved_at": "2026-10-12T14:22:56.192988+00:00",
+          "bytes": 2141,
+          "sha256": "37ebfc8499379571f79a95664449c858d9b59967ef0934594bed88bde8f7c6f9",
+          "manifest_sha256": "37ebfc8499379571f79a95664449c858d9b59967ef0934594bed88bde8f7c6f9",
+          "expected_git_sha256": "37ebfc8499379571f79a95664449c858d9b59967ef0934594bed88bde8f7c6f9",
+          "expected_git_bytes": 2141,
+          "combined_tree_sha256": "37ebfc8499379571f79a95664449c858d9b59967ef0934594bed88bde8f7c6f9",
+          "combined_tree_bytes": 2141,
+          "equal_to_combined_tree": true,
+          "equal_to_git": true,
+          "equal_to_manifest": true,
+          "equal_to_checkout": true
+        },
+        {
+          "http_code": 200,
+          "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/data.json",
+          "size_download": 1350,
+          "content_type": "application/json; charset=utf-8",
+          "ssl_verify_result": 0,
+          "time_total": 0.237115,
+          "file": "data.json",
+          "curl_returncode": 0,
+          "error": "",
+          "retrieved_at": "2026-10-12T14:22:56.163468+00:00",
+          "bytes": 1350,
+          "sha256": "87f72c8a90202257d9e311861b905c49eef04e75fa96fb53e45ba3facc0a4f92",
+          "manifest_sha256": "87f72c8a90202257d9e311861b905c49eef04e75fa96fb53e45ba3facc0a4f92",
+          "expected_git_sha256": "87f72c8a90202257d9e311861b905c49eef04e75fa96fb53e45ba3facc0a4f92",
+          "expected_git_bytes": 1350,
+          "combined_tree_sha256": "87f72c8a90202257d9e311861b905c49eef04e75fa96fb53e45ba3facc0a4f92",
+          "combined_tree_bytes": 1350,
+          "equal_to_combined_tree": true,
+          "equal_to_git": true,
+          "equal_to_manifest": true,
+          "equal_to_checkout": true
+        },
+        {
+          "http_code": 200,
+          "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/gema-cobalto.svg",
+          "size_download": 1234,
+          "content_type": "image/svg+xml",
+          "ssl_verify_result": 0,
+          "time_total": 0.179402,
+          "file": "gema-cobalto.svg",
+          "curl_returncode": 0,
+          "error": "",
+          "retrieved_at": "2026-10-12T14:22:56.103664+00:00",
+          "bytes": 1234,
+          "sha256": "8a9bced1fe8b8f601cd0eefa6b881b44b2fb3dcaa75674dcb1fbe74977a5a68d",
+          "manifest_sha256": "8a9bced1fe8b8f601cd0eefa6b881b44b2fb3dcaa75674dcb1fbe74977a5a68d",
+          "expected_git_sha256": "8a9bced1fe8b8f601cd0eefa6b881b44b2fb3dcaa75674dcb1fbe74977a5a68d",
+          "expected_git_bytes": 1234,
+          "combined_tree_sha256": "8a9bced1fe8b8f601cd0eefa6b881b44b2fb3dcaa75674dcb1fbe74977a5a68d",
+          "combined_tree_bytes": 1234,
+          "equal_to_combined_tree": true,
+          "equal_to_git": true,
+          "equal_to_manifest": true,
+          "equal_to_checkout": true
+        }
+      ],
+      "passed": true,
+      "pages_trigger_paths_unchanged": true
+    },
+    "browser": {
+      "repeated": false,
+      "previous_report": "docs/relatorios/2026-10-12-filter-url-external.md",
+      "current_scope": "HTTP bytes and TLS verification; native Chromium TLS not revalidated"
+    },
+    "code_review": {
+      "mode": "independent read-only combined review",
+      "findings": []
+    },
+    "remote_ci_at_checkpoint": {
+      "headRefOid": "c2b1ef83dc629d6a47c9eefc3f2e6fea7a2f3069",
+      "mergeStateStatus": "UNSTABLE",
+      "number": 28,
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-12T14:20:30Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38262159569/job/114855140131",
+          "name": "public-pilot",
+          "startedAt": "2026-10-12T14:20:18Z",
+          "status": "COMPLETED",
+          "workflowName": "Installer tests"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-12T14:20:32Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38262152085/job/114855120963",
+          "name": "public-pilot",
+          "startedAt": "2026-10-12T14:20:16Z",
+          "status": "COMPLETED",
+          "workflowName": "Installer tests"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-12T14:23:45Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38262159569/job/114855140326",
+          "name": "installer",
+          "startedAt": "2026-10-12T14:20:19Z",
+          "status": "COMPLETED",
+          "workflowName": "Installer tests"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-12T14:23:42Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38262152085/job/114855120751",
+          "name": "installer",
+          "startedAt": "2026-10-12T14:20:16Z",
+          "status": "COMPLETED",
+          "workflowName": "Installer tests"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38262159569/job/114855139775",
+          "name": "adoption-windows",
+          "startedAt": "2026-10-12T14:20:18Z",
+          "status": "IN_PROGRESS",
+          "workflowName": "Installer tests"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38262152085/job/114855121423",
+          "name": "adoption-windows",
+          "startedAt": "2026-10-12T14:20:17Z",
+          "status": "IN_PROGRESS",
+          "workflowName": "Installer tests"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-12T14:20:34Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38262159569/job/114855140269",
+          "name": "graphify-smoke",
+          "startedAt": "2026-10-12T14:20:18Z",
+          "status": "COMPLETED",
+          "workflowName": "Installer tests"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-12T14:20:35Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38262152085/job/114855121280",
+          "name": "graphify-smoke",
+          "startedAt": "2026-10-12T14:20:16Z",
+          "status": "COMPLETED",
+          "workflowName": "Installer tests"
+        }
+      ]
+    },
+    "final_status_url": "https://github.com/Matheusrpc/YoungCrowHarness/pull/28",
+    "proof_sha256": {
+      "full-suite.log": "5c128b64268a7bb5bb28ab77e0558902814af68ff8f2ac7d582e626a6ee12641",
+      "installed-smoke.py": "fa0bfa4c8b8df10d0ee9076ccd43a3995a23b060aaa2de4bf2a1954a290c19a9",
+      "installed-smoke.json": "6152f73771015bcc880db104b3dc4f0042b76def00ab31e366cc41a9ff5d8184",
+      "public/http-verification.json": "81f6f276ecb1faf52e287cf74979102f11cb48b82517fc40634c49bd452a7564",
+      "pr28-combined-ci.json": "73964e325c0843383420891a385b5ec785e043cfa85cd3ce91aee567e64f37c1"
+    }
+  }
+}

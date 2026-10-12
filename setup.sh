@@ -7,11 +7,11 @@
 # Keep credentials in the local environment.
 #
 # Uso / usage:
-#   bash setup.sh <pasta-do-projeto> [--client claude|codex|both] [--nome "Nome"] [--force] [--sem-plugins]
+#   bash setup.sh <pasta-do-projeto> [--client claude|codex|both] [--nome "Nome"] [--force] [--com-plugins]
 set -euo pipefail
 
 HARNESS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET="${1:-}"; NOME=""; FORCE=0; PLUGINS=1; CLIENT=both
+TARGET="${1:-}"; NOME=""; FORCE=0; PLUGINS=0; CLIENT=both
 TRIAL=0; TRIAL_CHILD=0; BACKUP_ROOT=""
 shift || true
 while [ $# -gt 0 ]; do
@@ -34,12 +34,13 @@ while [ $# -gt 0 ]; do
         echo 'uso / usage: --client claude|codex|both' >&2; exit 2
       fi
       CLIENT="$2"; shift 2 ;;
+    --com-plugins|--with-plugins) PLUGINS=1; shift ;;
     --sem-plugins|--no-plugins) PLUGINS=0; shift ;;
     *) echo "argumento desconhecido / unknown argument: $1"; exit 2 ;;
   esac
 done
 if [ -z "$TARGET" ]; then
-  echo 'uso: bash setup.sh <pasta> [--client claude|codex|both] [--nome "Nome"] [--force] [--sem-plugins]'; exit 2
+  echo 'uso: bash setup.sh <pasta> [--client claude|codex|both] [--nome "Nome"] [--force] [--com-plugins]'; exit 2
 fi
 falhar() { printf '%s\n' "$1" >&2; exit 1; }
 [ -z "$BACKUP_ROOT" ] || [ "$TRIAL" = 1 ] || falhar '--backup-root exige / requires --trial'
@@ -321,7 +322,7 @@ FALHAS=0
 if [ "$CLIENT" = codex ]; then
   echo '== plugins Claude: pulados / skipped (--client codex); plugins Codex: instalar no cliente / install in client'
 elif [ "$PLUGINS" = 0 ]; then
-  echo '== plugins: pulados / skipped (--sem-plugins / --no-plugins)'
+  echo '== plugins: pulados por padrão / skipped by default (--sem-plugins / --no-plugins); opt-in: --com-plugins / --with-plugins'
 elif ! command -v claude >/dev/null 2>&1; then
   echo '== plugins: pulados / skipped (claude ausente / missing from PATH)'
 else

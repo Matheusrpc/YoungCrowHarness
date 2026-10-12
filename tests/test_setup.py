@@ -558,7 +558,7 @@ class SetupTests(unittest.TestCase):
     def test_plugin_failures_are_nonzero(self):
         for stage in ('marketplace', 'install'):
             with self.subTest(stage=stage):
-                result = self.run_setup(env={'TEST_CLAUDE_FAIL_STAGE': stage})
+                result = self.run_setup('--with-plugins', env={'TEST_CLAUDE_FAIL_STAGE': stage})
                 self.assertNotEqual(result.returncode, 0)
                 self.assertNotIn('Pronto.', result.stdout)
 
@@ -571,13 +571,13 @@ class SetupTests(unittest.TestCase):
 
     def test_plugins_skipped_without_claude(self):
         (self.bin / 'claude').unlink()
-        result = self.run_setup()
+        result = self.run_setup('--with-plugins')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('missing from PATH', result.stdout)
         self.assertFalse(any(json.loads(line)[0] == 'claude' for line in self.calls.read_text().splitlines()))
 
     def test_full_install_and_repeat(self):
-        result = self.run_setup('--name', 'Complete project')
+        result = self.run_setup('--with-plugins', '--name', 'Complete project')
         self.assertEqual(result.returncode, 0, result.stderr)
         for rel in ('scripts/documents.py', 'scripts/docling_worker.py', 'scripts/source_fetch.py',
                     'requirements/docling.txt', 'requirements/docling-media.txt'):
@@ -593,7 +593,7 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(len(installs), 5)
         self.assertTrue(all(not any(c.isspace() for c in value) for value in installs))
         before = {rel: (self.target / rel).read_bytes() for rel in FILES[1:10]}
-        self.assertEqual(self.run_setup('--name', 'Different name').returncode, 0)
+        self.assertEqual(self.run_setup('--com-plugins', '--name', 'Different name').returncode, 0)
         self.assertEqual(before, {rel: (self.target / rel).read_bytes() for rel in before})
 
     def test_source_syntax(self):
@@ -602,8 +602,7 @@ class SetupTests(unittest.TestCase):
             json.loads((self.source / rel).read_text(encoding='utf-8'))
         codex = tomllib.loads((self.source / '.codex/config.toml').read_text(encoding='utf-8'))
         claude = json.loads((self.source / '.mcp.json').read_text(encoding='utf-8'))
-        self.assertEqual({k: v['url'] for k, v in codex['mcp_servers'].items()},
-                         {k: v['url'] for k, v in claude['mcpServers'].items()})
+        self.assertEqual(claude['mcpServers'], {})
         self.assertTrue(all(v['enabled'] is False for v in codex['mcp_servers'].values()))
 
     def test_default_supports_both_clients(self):
@@ -615,6 +614,30 @@ class SetupTests(unittest.TestCase):
             self.assertTrue((skill / 'SKILL.md').is_file(), root)
             self.assertEqual(self.git('-C', str(skill), 'rev-parse', 'HEAD').stdout.strip(), self.expected_commit)
             self.assertTrue((root / 'humanizer-ptbr/SKILL.md').is_file())
+
+    def test_default_setup_does_not_install_plugins_or_declare_claude_servers(self):
+        result = self.run_setup()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
+        self.assertFalse(any(call[0] == 'claude' for call in calls))
+        self.assertEqual(json.loads((self.target / '.mcp.json').read_text())['mcpServers'], {})
+
+
+    def test_plugin_opt_in_cannot_override_codex_or_trial(self):
+        for mode in ('--client', '--trial'):
+            args = ('--client', 'codex') if mode == '--client' else ('--trial',)
+            with self.subTest(mode=mode):
+                self.target = self.base / ('plugin opt-in ' + mode[2:])
+                before_home = snapshot_bytes(self.home)
+                self.calls.write_text('')
+                result = self.run_setup(*args, '--com-plugins', timeout=180)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
+                self.assertFalse(any(call[0] == 'claude' for call in calls))
+                self.assertEqual(snapshot_bytes(self.home), before_home)
+                if mode == '--trial':
+                    self.assertFalse(any(call[:2] == ['git', 'clone'] for call in calls))
+
 
     def test_integration_vault_and_native_entries(self):
         result = self.run_setup('--no-plugins')

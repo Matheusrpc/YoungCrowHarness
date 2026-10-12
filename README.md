@@ -88,10 +88,11 @@ Sem `--trial`, a instalação normal não cria ponto de retorno e segue o compor
 O `setup.sh` copia o harness preservando os arquivos existentes e acrescenta proteção ao `.gitignore`.
 Cria um `.env` local a partir do `.env.example`, com permissão 600 onde suportada, para você preencher à mão.
 Instala a skill `humanizer` do upstream (commit pinado) e a `humanizer-ptbr`: em `~/.claude/skills/` para Claude
-e `.agents/skills/` no projeto para Codex. Use `--client claude`, `--client codex` ou `--client both` (padrão). E,
-se o Claude Code estiver instalado, adiciona os marketplaces e instala os plugins listados em
-`skills-lock.json`. Rode com `--sem-plugins` para pular essa última parte, ou com `--force` para trocar
-os templates que já existem. Vault, `.env`, regras de `.gitignore` e configurações de clientes/MCPs
+e `.agents/skills/` no projeto para Codex. Use `--client claude`, `--client codex` ou `--client both` (padrão).
+Plugins são opcionais: `--com-plugins` ou `--with-plugins` adiciona os marketplaces e instala os plugins
+Claude listados em `skills-lock.json`, se o cliente estiver disponível. Os aliases `--sem-plugins` e
+`--no-plugins` continuam aceitos. Use `--force` para trocar os templates que já existem.
+Vault, `.env`, regras de `.gitignore` e configurações de clientes/MCPs
 são preservados mesmo com `--force`. Compare as configurações com os novos templates e mescle as entradas desejadas.
 As skills dos clientes selecionados continuam com `--sem-plugins`; as do Claude afetam o usuário.
 O modo Codex não chama o Claude. Plugins do Codex são instalados pelo catálogo do próprio cliente.
@@ -99,7 +100,8 @@ Humanizer divergente ou modificado é preservado e interrompe o setup; falhas de
 O guia explica como retomar e quais componentes exigem instalação manual.
 
 Depois disso, abra o `CLAUDE.md` e troque cada `<preencher>` pelo que é seu: comandos de teste, alvos de
-publicação, fronteiras. Configure MCPs em `.mcp.json` para Claude e `.codex/config.toml` para Codex.
+publicação, fronteiras. O `.mcp.json` do Claude começa vazio; os exemplos em `.codex/config.toml`
+começam desabilitados. Configure apenas os MCPs necessários.
 Abra o cliente na pasta e [confira skills, MCPs e hooks](docs/USAGE.md#clientes-pt).
 
 Peça: “Use personalizer para adaptar este projeto. Leia o que já existe, pergunte o que falta e
@@ -345,7 +347,7 @@ Os limites de três PBIs e três agentes serão aplicados pela fila da entrega s
 | `.claude/settings.json` | Entrada curta para referências de documentos; hooks de design de `impeccable` quando instalado. |
 | `.codex/hooks.json` | Os mesmos hooks, no formato do Codex. |
 | `.codex/config.toml` | MCPs do Codex no escopo do projeto. Exemplos desativados até revisão; exige confiança do projeto. |
-| `.mcp.json` | Atalhos de MCP com URLs de exemplo. Nunca ponha token aqui; o token vai por variável de ambiente. |
+| `.mcp.json` | Configuração MCP do Claude, vazia no template. Declare os servidores necessários; mantenha tokens no ambiente. |
 | `.env.example` | Os nomes das variáveis que o projeto espera, com valores falsos. O `.env` real nasce daqui e nunca entra no git. |
 | `.gitignore` | Segredos, caches, evidência pesada e estado local fora do repositório. |
 | `skills-lock.json` | Inventário dos plugins e origem das skills. O instalador verifica o commit de humanizer; versões dos plugins de marketplace ainda não são fixadas por este manifesto. |
@@ -461,9 +463,10 @@ Without `--trial`, normal installation creates no restore point and behaves as d
 It creates a local `.env` from `.env.example`, with permission 600 where supported, for you to fill in
 by hand. It installs the `humanizer` skill from upstream (pinned commit) and `humanizer-ptbr` into
 `~/.claude/skills/` for Claude and project-local `.agents/skills/` for Codex. Choose `--client claude`,
-`--client codex` or `--client both` (default). For Claude, it adds the marketplaces and installs the plugins
-listed in `skills-lock.json`. Run it with `--no-plugins` to skip that last part, or with `--force` to
-replace existing templates. Vault notes, `.env`, ignore rules and client/MCP configurations are
+`--client codex` or `--client both` (default). Plugins are optional: `--with-plugins` or `--com-plugins`
+adds the marketplaces and installs the Claude plugins listed in `skills-lock.json`, if Claude is available.
+The `--no-plugins` and `--sem-plugins` aliases remain accepted. Use `--force` to replace existing templates.
+Vault notes, `.env`, ignore rules and client/MCP configurations are
 preserved even with `--force`. Compare configurations with the new templates and merge the desired entries.
 Selected clients' skills still install with `--no-plugins`; Claude installations affect the user.
 Codex-only mode does not call Claude. Install Codex plugins through its own catalog.
@@ -472,7 +475,8 @@ The guide explains recovery and manual components.
 
 After that, open `CLAUDE.md` and replace each `<preencher>` (fill in) with what is yours: test commands,
 publication targets, boundaries. If you work in English, move `docs/CLAUDE.en.md` over `CLAUDE.md`.
-Configure `.mcp.json` for Claude and `.codex/config.toml` for Codex. Open your client inside the folder
+Claude's `.mcp.json` starts empty; Codex examples in `.codex/config.toml` start disabled. Configure
+only the servers you need. Open your client inside the folder
 and check loaded skills, MCPs and hooks using the [usage guide](docs/USAGE.md#english).
 
 Ask: “Use personalizer to adapt this project. Read what is already here, ask about missing decisions
@@ -718,7 +722,7 @@ The following queue delivery will enforce the separate limits of three PBIs and 
 | `.claude/settings.json` | Short document-reference intake hook; `impeccable` design hooks when installed. |
 | `.codex/hooks.json` | The same hooks, in Codex format. |
 | `.codex/config.toml` | Project-scoped Codex MCP servers. Examples start disabled for review; project trust is required. |
-| `.mcp.json` | MCP shortcuts with example URLs. Never put a token here; tokens travel through environment variables. |
+| `.mcp.json` | Claude MCP configuration, empty in the template. Declare the required servers; keep tokens in the environment. |
 | `.env.example` | The names of the variables the project expects, with fake values. The real `.env` is born from it and never enters git. |
 | `.gitignore` | Secrets, caches, heavy evidence and local state stay out of the repository. |
 | `skills-lock.json` | Plugin inventory and skill sources. The installer verifies the humanizer commit; this manifest does not yet pin marketplace plugin versions. |

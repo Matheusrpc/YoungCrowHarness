@@ -3,9 +3,10 @@
 **Fontes e memória, 12/out (PR independente):** hook sem escrita automática, busca
 por palavras inteiras e citações literais corrigidas. Novas instalações selecionam
 o interpretador Python do hook Claude conforme o sistema. [Provas e limites](relatorios/2026-10-12-source-memory.md).
-Integração pendente; não altera o aceite nativo nem o trabalho do executor.
+Integrado pelo [PR #27](https://github.com/Matheusrpc/YoungCrowHarness/pull/27);
+não altera o aceite nativo nem o trabalho do executor.
 **English:** read-only source guidance, whole-word retrieval and literal evidence
-quotes are prepared independently of native execution. Integration pending.
+quotes were merged through PR #27 independently of native execution.
 
 Frente: produto completo e sequência de entrega. Atualizado em 2026-10-04.
 
@@ -18,6 +19,13 @@ das entregas abaixo. Não há estimativa de prazo ou percentual de conclusão va
 O público inicial é formado por desenvolvedores individuais e pequenos times com Claude Code
 ou Codex. A primeira versão completa deve levar uma missão de uma a N features até uma versão
 conjunta em produção verificada, em projeto novo ou migrado, com retomada pelo vault.
+
+Frente de adoção, 12/out/2026: plugins por opção explícita e MCP Claude vazio no template.
+Instalações existentes continuam preservadas. [Escopo e provas](relatorios/2026-10-12-optional-integrations.md);
+combinação com o PR #27 validada. Integração acompanhada no [PR #28](https://github.com/Matheusrpc/YoungCrowHarness/pull/28);
+não altera o aceite nativo YC-203.
+English: plugin opt-in and an empty Claude MCP template preserve existing configurations;
+combined validation passed. PR #28 tracks integration.
 
 ## Como acompanhar
 

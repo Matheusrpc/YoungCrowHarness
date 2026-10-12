@@ -1,5 +1,12 @@
 # Backlog do YoungCrowHarness
 
+**Fontes e memória, 12/out (PR independente):** hook sem escrita automática, busca
+por palavras inteiras e citações literais corrigidas. Novas instalações selecionam
+o interpretador Python do hook Claude conforme o sistema. [Provas e limites](relatorios/2026-10-12-source-memory.md).
+Integração pendente; não altera o aceite nativo nem o trabalho do executor.
+**English:** read-only source guidance, whole-word retrieval and literal evidence
+quotes are prepared independently of native execution. Integration pending.
+
 Frente: produto completo e sequência de entrega. Atualizado em 2026-10-04.
 
 Este é o índice público do trabalho necessário para entregar a esteira definida na

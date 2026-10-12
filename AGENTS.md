@@ -26,7 +26,7 @@
 
 - Documentos, anexos e URLs usam `ingest-source` (`skills/ingest-source/SKILL.md`). Consulte também
   `vault/local/index.md` quando existir; preserve fonte, revisão, evidência e próxima ação.
-  Uma referência recebida pelo hook ainda precisa de ingestão. Anexo inacessível fica pendente.
+  Uma referência textual ainda precisa de ingestão explícita. Anexo inacessível fica pendente.
 
 ## Navegador: fechar é obrigatório
 
@@ -41,10 +41,10 @@ paga em curso.
 da sessão, só se o plugin estiver instalado em `$HOME/.agents/skills/impeccable`. Sem o plugin, os
 hooks não fazem nada.
 
-`UserPromptSubmit` registra referências textuais em recibos privados e orienta o uso de `ingest-source`.
-Esse hook não converte, instala nem acessa a rede. Exige Python 3 (`python3` no Unix, `python` no
-Windows), confiança do cliente e configuração mesclada em migrações. Anexos não expostos pelo cliente
-precisam de registro explícito; o hook não garante captura universal.
+`UserPromptSubmit` apenas orienta o uso autorizado de `ingest-source` quando encontra uma
+referência textual. Não escreve arquivos, cria pendências, instala, converte ou acessa a rede.
+Exige Python 3 (`python3` no Unix, `python` no Windows) e confiança do cliente. Mescle a configuração
+em migrações. Ingestão e registro de anexo inacessível são ações explícitas.
 
 ## Configuração do Codex
 

@@ -82,7 +82,7 @@ parte do escopo, registre “não aplicável”; quando falta autorização, reg
 
 Fontes inacessíveis bloqueiam apenas o trabalho que depende delas. Fontes e relações privadas ficam
 no índice local; compartilhá-las exige uma cópia revisada e aprovação do digest exato. A conversão
-usa estado persistido e limites; o hook só registra referências. Veja o [fluxo de fontes](../assets/process-sources-pt.svg)
+usa estado persistido e limites; o hook apenas orienta a ingestão explícita, sem gravar arquivos. Veja o [fluxo de fontes](../assets/process-sources-pt.svg)
 e o [guia de operação](USAGE.md#fontes-pt).
 
 A [retomada pela memória](../assets/process-memory-pt.svg) começa com notas salvas e selecionadas.
@@ -193,7 +193,7 @@ tests, review and the next action; production requires environment evidence. Rec
 
 Inaccessible sources block only dependent work. Private sources and relations stay under the local
 index. Sharing them requires a reviewed copy and approval of its exact digest. Conversion uses
-persisted state and limits; the hook only records references. See the [source flow](../assets/process-sources-en.svg)
+persisted state and limits; the hook only guides explicit intake, without writing files. See the [source flow](../assets/process-sources-en.svg)
 and [operating guide](USAGE.md#sources-en).
 
 Os SVGs editáveis em `assets/process-*.svg` são as versões visuais do README. Ao mudar o rito,

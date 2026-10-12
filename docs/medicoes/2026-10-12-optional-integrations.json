@@ -1,0 +1,108 @@
+{
+  "front": "Optional client integrations",
+  "date": "2026-10-12",
+  "base_revision": "e966e7e06dd30bbd039be839887f8d6de31c32f4",
+  "branch": "fix/optional-client-integrations",
+  "setup_tests": {
+    "cases": 60,
+    "passed": 58,
+    "skipped": 2,
+    "failures": 0,
+    "errors": 0
+  },
+  "installed_smoke": {
+    "platform": "Linux",
+    "python": "3.12.14",
+    "client": "both",
+    "git": "git version 2.52.0",
+    "revision": "e966e7e06dd30bbd039be839887f8d6de31c32f4",
+    "cases": [
+      {
+        "case": "absent",
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true
+      },
+      {
+        "case": "dirty-git",
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true
+      }
+    ],
+    "model_calls": 0,
+    "native_client_conversation": "not_exercised",
+    "observations": [
+      {
+        "case": "absent",
+        "mcp_empty_or_preserved": true,
+        "required_matched": 18,
+        "optional_claude_mcp_missing": 2
+      },
+      {
+        "case": "dirty-git",
+        "mcp_empty_or_preserved": true,
+        "required_matched": 18,
+        "optional_claude_mcp_missing": 2
+      }
+    ]
+  },
+  "capabilities": {
+    "exit_code": 0,
+    "required_matched": 18,
+    "optional_claude_mcp_missing": [
+      "n8n",
+      "cloudflare-api"
+    ],
+    "catalog_unchanged_from_base": true,
+    "catalog_sha256": "370686eaf9ba7d54921b6643da635057522262cbb5c40cd1e0b84f176e1d6c8c"
+  },
+  "code_review": {
+    "mode": "independent read-only",
+    "findings": []
+  },
+  "files": {
+    "setup.sh": "3bb8a2ba882ef932aec3b7cc14e166481e028c755c90a009ed0ca8c167afb22d",
+    ".mcp.json": "d8e397af03b5b032f21d0aa967086f0c78b33c87b76f2e9898ae0a144df7de02",
+    "tests/test_setup.py": "5ee0d79181199edb3eaafd6398c20c650bf73e0c261c32c593de673eaf98672d",
+    "tests/smoke_clients.py": "c1038f001b7b051f4af0b14342ed9993c1a29f512c68796174ef06198c308282",
+    "README.md": "f5c56767e9745b8fd7b729b5811295c2619c151c95b436f80f0db3f72b809d2f",
+    "docs/USAGE.md": "621591a68325203d50e432a0420a67de84c348f1a5ec163a24eae4c2c52403a6",
+    "docs/BACKLOG.md": "b210362cd1d26be2fb6204b2887b7ddf5ee9a9a3fcf0f9de502e1f33128f5f7c"
+  },
+  "evidence": {
+    "setup-green.log": "ebddc925c9214643d1ab73b1f5abbb8c2883b44627f85881a9cc7a0c032d6ee1",
+    "red-opt-in.log": "4961b81b387dfb4414a8d543448f67c163e5b0ef173c266aae85112299fcfae7",
+    "installed_smoke.py": "e0ebe440453c5ee968eb93ead674c2734fedbfb08eef414284c9da538f46a110",
+    "red-mcp.log": "059682f52cd29c0fccf7ef462e435ea35e6c0d22f843555ce6928437c81d0cb4",
+    "capabilities.json": "e4df648c74a445ebf96bff6ba667c263f4b76553d15000f8a783be4a7d01f05a",
+    "red-default.log": "be30f690529a359741cd52478732ab160ab355c0cf5afe1f3ceacd97a9140327",
+    "installed-smoke.json": "a5c5ed3ef31e9e93e277fc99f84ab0d2e872cb53e84869eb446967f1b69455b2",
+    "full-suite.log": "2483b1793c96332cb820aaf71f48f45d0a121da25f6dd355f604bc8b8270c00e"
+  },
+  "limits": {
+    "plugin_calls": "simulated",
+    "native_client_smoke": "not_run",
+    "model_calls": 0,
+    "browser_opened": false,
+    "integration": "pending",
+    "remote_ci": "pending"
+  },
+  "full_suite": {
+    "command": "python3 -B -m unittest discover -s tests",
+    "cases": 346,
+    "passed": 332,
+    "skipped": 14,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 142.877
+  },
+  "local_links": {
+    "checked": 313,
+    "issues": []
+  },
+  "vault": {
+    "notes_checked": 3,
+    "issues": []
+  }
+}

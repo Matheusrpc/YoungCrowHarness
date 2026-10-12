@@ -1,12 +1,3 @@
 {
-  "mcpServers": {
-    "n8n": {
-      "type": "http",
-      "url": "https://n8n.SEU-DOMINIO.example/mcp-server/http"
-    },
-    "cloudflare-api": {
-      "type": "http",
-      "url": "https://mcp.cloudflare.com/mcp"
-    }
-  }
+  "mcpServers": {}
 }

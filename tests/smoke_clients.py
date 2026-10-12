@@ -182,6 +182,11 @@ def main():
         write(test.home / '.codex/config.toml',
               '[projects.' + json.dumps(os.path.normcase(str(test.target))) + ']\ntrust_level = "trusted"\n')
         check_codex(str(Path(args.codex).resolve()), test.target, env)
+        # Only this disposable discovery fixture declares the example server.
+        config = test.target / '.mcp.json'
+        assert json.loads(config.read_text()) == {'mcpServers': {}}
+        config.write_text(json.dumps({'mcpServers': {'n8n': {
+            'type': 'http', 'url': 'https://n8n.SEU-DOMINIO.example/mcp-server/http'}}}), encoding='utf-8')
         result = subprocess.run([str(Path(args.claude).resolve()), 'mcp', 'get', 'n8n'], cwd=test.target,
                                 env=env, capture_output=True, encoding='utf-8', check=True, timeout=25)
         assert 'n8n.SEU-DOMINIO.example' in result.stdout, result.stdout

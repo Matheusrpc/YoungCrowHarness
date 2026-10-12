@@ -233,7 +233,7 @@ O [exemplo](examples/delivery-board/README.md) tem página com filtros, critéri
 O percurso local foi verificado por teclado e em tela estreita. No Windows e no Linux, projeto novo e migração
 passaram pelo setup real e voltaram ao estado inicial, preservando o trabalho do trial. O site publicado teve revisão, hashes e uso conferidos. A retomada passou no Codex; no Claude, aguarda renovação de login.
 Veja as [provas e limites](docs/relatorios/2026-10-03-public-pilot.md).
-O [incremento U01](examples/delivery-board/README.md#reabrir-a-mesma-consulta) permite reabrir os filtros pelo endereço; publicação em preparação.
+O [incremento U01](examples/delivery-board/README.md#reabrir-a-mesma-consulta) permite reabrir os filtros pelo endereço; [publicação e verificação](docs/relatorios/2026-10-12-filter-url-publication.md).
 O pacote usa uma lista explícita de arquivos e um manifesto de hashes; o CI do piloto valida dados, testes e navegação do vault.
 
 A [adoção reversível](docs/USAGE.md#adocao-reversivel-pt) salva o projeto antes do primeiro setup
@@ -604,7 +604,7 @@ The [example](examples/delivery-board/README.md) has a page with filters, accept
 The local flow was checked with keyboard navigation and a narrow viewport. On Windows and Linux, new and existing
 projects passed real setup and returned to their initial state while retaining trial work. The published site passed revision, hash and interaction checks. Retrieval passed in Codex; Claude needs a renewed login.
 See the [evidence and limits](docs/relatorios/2026-10-03-public-pilot.md).
-The [U01 increment](examples/delivery-board/README.md#english) restores filters from the address; publication is being prepared.
+The [U01 increment](examples/delivery-board/README.md#english) restores filters from the address; [deployment and verification](docs/relatorios/2026-10-12-filter-url-publication.md).
 The package uses an explicit file list and hash manifest; the pilot CI checks data, tests and vault navigation.
 
 [Reversible adoption](docs/USAGE.md#reversible-adoption-en) saves the project before the first

@@ -39,9 +39,9 @@
     }
   },
   "git_diff_check": "passed",
-  "remote_state": "PR_open",
+  "remote_state": "merged_and_deployed",
   "external_verification": {
-    "state": "blocked",
+    "state": "blocked_after_successful_deploy",
     "reason": "cloud_proxy_403",
     "hostname": "matheusrpc.github.io",
     "network_draft_saved": true,
@@ -97,5 +97,86 @@
     "package_passed": true,
     "resolved_locally": true
   },
-  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/25"
+  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/25",
+  "merge_commit": "80edd7786f3ecb13535565f5cb358ef1f983b757",
+  "merged_at": "2026-10-12T07:14:12Z",
+  "pages_run": {
+    "databaseId": 38216618798,
+    "headSha": "80edd7786f3ecb13535565f5cb358ef1f983b757",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38216618798",
+    "jobs": [
+      {
+        "databaseId": 114702750024,
+        "name": "build",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-10-12T07:14:18Z",
+        "completedAt": "2026-10-12T07:14:28Z",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38216618798/job/114702750024"
+      },
+      {
+        "databaseId": 114702811435,
+        "name": "deploy",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-10-12T07:14:33Z",
+        "completedAt": "2026-10-12T07:14:47Z",
+        "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38216618798/job/114702811435"
+      }
+    ]
+  },
+  "deployment_id": 7008539339,
+  "deployment_statuses": [
+    {
+      "state": "success",
+      "environment_url": "https://matheusrpc.github.io/YoungCrowHarness/",
+      "created_at": "2026-10-12T07:14:47Z",
+      "log_url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38216618798/job/114702811435"
+    },
+    {
+      "state": "in_progress",
+      "environment_url": "",
+      "created_at": "2026-10-12T07:14:33Z",
+      "log_url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38216618798/job/114702811435"
+    },
+    {
+      "state": "queued",
+      "environment_url": "",
+      "created_at": "2026-10-12T07:14:31Z",
+      "log_url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38216618798/job/114702811435"
+    },
+    {
+      "state": "waiting",
+      "environment_url": "",
+      "created_at": "2026-10-12T07:14:30Z",
+      "log_url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38216618798/job/114702811435"
+    }
+  ],
+  "recorded_at": "2026-10-12T07:15:37.217195+00:00",
+  "ci_at_merge": {
+    "revision": "fcbbae86d37750e3b470f1490dad69fdfa58ad62",
+    "installer": "success",
+    "public-pilot": "success",
+    "graphify-smoke": "success",
+    "adoption-windows": "in_progress",
+    "windows_board_adoption_step": "success",
+    "required_checks_bypassed": false
+  },
+  "integrated_note_sha256": {
+    "examples/delivery-board/vault/features/delivery-board/delivery.md": "5e39167284dd1ef39b4621a7ff2ffa470e0cf86a42773c5313022d7505ef2a76",
+    "examples/delivery-board/vault/features/delivery-board/index.md": "19a15c147b26d84c12b5054b1a13870b1394677699bdae16c3c5729bad028d5f",
+    "examples/delivery-board/vault/features/delivery-board/runs/filter-url.md": "c0c9f27bd25f216aeb75dc819eec5e3e327d63ce8dcfd4cabe05dc0b8b31df85",
+    "examples/delivery-board/vault/operations/index.md": "574bafd33816ab0f38bcd42f666e20caf52d61ce63cd7429b08c6dc16a8722eb"
+  },
+  "vault_after_deploy": {
+    "schema_version": 1,
+    "notes_checked": 22,
+    "issues": []
+  },
+  "receipt_local_links": {
+    "checked": 328,
+    "issues": []
+  }
 }

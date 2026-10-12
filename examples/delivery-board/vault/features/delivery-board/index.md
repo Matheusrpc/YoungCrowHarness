@@ -34,8 +34,9 @@ Desenvolvimento: página, modelo, pacote e adoção verificados. Produção: ver
 Próxima ação registrada no piloto de 3/out: renovar o login do Claude e declarar nova tentativa limitada para concluir P06.
 
 Incremento [U01: consulta retomável por URL](runs/filter-url.md), em 12/out: implementado e verificado
-localmente com 11 testes Node e navegador em 1280px/360px. Publicação de U01 autorizada pelo mantenedor
-e em preparação. A prova histórica de produção refere-se somente à revisão registrada na operação.
-Próxima ação de U01: integrar o PR com os checks exigidos e verificar o site publicado.
+localmente com 11 testes Node e navegador em 1280px/360px. Integrado no PR #25, com deploy confirmado
+pelo GitHub na revisão `80edd7786f3ecb13535565f5cb358ef1f983b757`.
+Próxima ação de U01: após liberar o domínio na cloud, verificar manifesto, bytes e percurso no site.
+O registro de operação separa o deploy atual da observação externa histórica.
 
 [Retomada nativa](runs/native-memory.md) registra hashes e limites da consulta.

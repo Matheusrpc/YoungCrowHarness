@@ -11,15 +11,17 @@ index: "../index.md"
 
 [Vault](../index.md) · [Feature](../features/delivery-board/index.md) · [Integração Pages](../integrations/github/pages/index.md)
 
-Incremento [U01](../features/delivery-board/runs/filter-url.md), 12/out: consulta por URL verificada
-em prévia local. Publicação autorizada e em preparação; o registro histórico abaixo não comprova
-a publicação dos novos bytes. O manifesto da prévia só descreve os arquivos locais.
+Incremento [U01](../features/delivery-board/runs/filter-url.md), 12/out: [PR #25](https://github.com/Matheusrpc/YoungCrowHarness/pull/25) integrado.
+[Build e deploy Pages](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38216618798) passaram; o ambiente `github-pages`
+confirmou a revisão `80edd7786f3ecb13535565f5cb358ef1f983b757` às 07:14:47 UTC.
+A rede da cloud recusou o domínio do site. Manifesto, bytes servidos e percurso externo de U01
+continuam pendentes; a observação de 3/out abaixo não cobre esta nova revisão.
 
 O relatório `docs/relatorios/2026-10-12-filter-url-publication.md`, na raiz do harness,
 acompanha essa publicação. Retorno específico de U01: reverter somente seu commit por PR,
 aguardar os checks/deploy e verificar o site. O procedimento do piloto original segue abaixo.
 
-Produção verificada em 2026-10-03T12:24:54.296Z: [abrir demonstração](https://matheusrpc.github.io/YoungCrowHarness/).
+Observação histórica de produção em 2026-10-03T12:24:54.296Z: [abrir demonstração](https://matheusrpc.github.io/YoungCrowHarness/).
 Revisão publicada: `2134134f14dc861be803173613bfd6a0d2e855e0`. [Execução de deploy](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/37122731645).
 Página e seis arquivos responderam HTTP 200. Os hashes do manifesto coincidem com os bytes recebidos
 e com os blobs Git dessa revisão aprovada. Filtros combinados, vazio, limpeza, teclado, links do vault

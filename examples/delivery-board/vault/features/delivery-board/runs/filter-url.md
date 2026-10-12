@@ -9,8 +9,8 @@ index: "../index.md"
 
 # U01: reabrir a consulta pelo endereço
 
-Integração/publicação autorizada pelo mantenedor em 12/out e em preparação na branch
-`feat/delivery-board-url`, baseada na main `932b775c385b8ab9d7ff7819e00ffcc9f3f20c95`.
+U01 integrado no PR #25 em 12/out, revisão `80edd7786f3ecb13535565f5cb358ef1f983b757`.
+O deploy Pages passou; a verificação direta do site aguarda liberação do domínio na cloud.
 O registro `docs/relatorios/2026-10-12-filter-url-publication.md`, na raiz do harness, acompanha
 essa etapa. O relato e os hashes abaixo preservam a observação do desenvolvimento na cópia de origem.
 
@@ -51,7 +51,7 @@ Fonte da implementação: [modelo](../../../../model.mjs), [aplicação](../../.
 [página](../../../../index.html), [estilo](../../../../style.css) e [testes](../../../../tests/model.test.mjs).
 O [README](../../../../README.md#reabrir-a-mesma-consulta) explica como gerar uma prévia.
 
-Desenvolvimento: implementação, testes e revisão local realizados. Produção: U01 não publicado;
+Estado observado no desenvolvimento: implementação, testes e revisão local realizados. Naquele checkpoint, U01 não publicado;
 última observação histórica refere-se a `2134134f14dc861be803173613bfd6a0d2e855e0`, em 3/out.
 Nenhuma nova chamada nativa Claude/Codex, ciclo Docker ou repetição de P06 foi executada.
 Revisores desta sessão são agentes assistidos; não representam novas sessões dos dois clientes.
@@ -61,7 +61,8 @@ publicação, conferir o novo manifesto e repetir o percurso externo; main acion
 Uma sessão que retome agora deve começar pelo índice do vault, conferir os hashes e preservar
 esse estado local. Não iniciar outra feature nem repetir P06 para validar esta leitura.
 
-English: U01 persists the board filters in its URL. Unit/package tests and local browser checks
-passed; it remains unpublished. The measurement identifies the working-copy bytes. Resume through
+English (historical development checkpoint): U01 persists the board filters in its URL. Unit/package tests and local browser checks
+passed; it was unpublished at that checkpoint. It is now merged and deployed, with direct site verification pending the network allowance.
+The development measurement identifies the original working-copy bytes. Resume through
 the vault indexes, inspect the implementation and evidence, then prepare authorized integration.
 This is a new assisted delivery, separate from the historical native retrieval proof and executor acceptance.

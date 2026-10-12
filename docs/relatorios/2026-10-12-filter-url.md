@@ -1,5 +1,8 @@
 # U01: retomar uma consulta do quadro
 
+Registro do desenvolvimento anterior à integração. O [estado de publicação](2026-10-12-filter-url-publication.md)
+acompanha o PR #25, o deploy e a pendência de verificação externa.
+
 O quadro do exemplo agora guarda estado e busca no endereço. Recarregar, abrir outra aba e navegar
 por Voltar/Avançar recupera a mesma consulta. A alteração está implementada e verificada localmente;
 publicação pendente. [Uso](../../examples/delivery-board/README.md#reabrir-a-mesma-consulta) ·
@@ -77,6 +80,8 @@ nesta entrega. P06 e seu recibo original permanecem preservados; nenhum ciclo na
 foi consumido. Este incremento não encerra YC-203 ou a esteira completa YC-502.
 
 ## English
+
+This development record predates integration; see the [publication record](2026-10-12-filter-url-publication.md) for the current deployment and external verification state.
 
 U01 restores the board filters from its URL, including reload, a new tab and Back/Forward.
 Eleven Node tests and local Chromium checks at 1280px/360px passed. Working-copy hashes and

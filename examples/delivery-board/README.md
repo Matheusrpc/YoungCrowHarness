@@ -39,7 +39,7 @@ Notas privadas em `vault/local/` ficam fora do Git. Fontes, backups e recibos nu
 
 ### Reabrir a mesma consulta
 
-O incremento local [U01](vault/features/delivery-board/runs/filter-url.md) guarda os filtros no endereço.
+O incremento [U01](vault/features/delivery-board/runs/filter-url.md) guarda os filtros no endereço.
 Na prévia, abra `http://127.0.0.1:8765/?status=development&q=filtrar` para encontrar a mesma entrega
 ao recarregar ou abrir outra aba. Você pode guardar ou compartilhar esse endereço.
 Os valores de `status` são `planned`, `development` e `production`; ausente ou desconhecido usa todos.
@@ -48,8 +48,8 @@ Os valores de `status` são `planned`, `development` e `production`; ausente ou 
 Editar filtros substitui o endereço atual sem criar uma entrada por tecla. Limpar remove apenas
 `status` e `q`, preservando os outros parâmetros e o fragmento. Voltar/Avançar sincroniza a lista
 com o endereço. Se o navegador recusar a atualização da URL, os filtros funcionam e a página avisa.
-Este incremento foi verificado localmente; a produção continua identificada pela revisão histórica
-na operação. A [prova de U01](../../docs/relatorios/2026-10-12-filter-url.md) registra testes e limites.
+Este incremento foi integrado, com deploy confirmado pelo GitHub. A conferência direta do site
+aguarda a liberação de rede da cloud; veja o estado na operação. A [prova de U01](../../docs/relatorios/2026-10-12-filter-url.md) registra testes e limites.
 
 ## English
 
@@ -70,14 +70,15 @@ See the [evidence and limits](../../docs/relatorios/2026-10-03-public-pilot.md).
 indices. Setup does not copy this example into every consumer. Private notes, source documents, receipts
 and backups stay outside the public site.
 
-The local [U01 increment](vault/features/delivery-board/runs/filter-url.md) stores status and search in
+The [U01 increment](vault/features/delivery-board/runs/filter-url.md) stores status and search in
 the address. Preview `http://127.0.0.1:8765/?status=development&q=filtrar`, then reload or open another
 tab to restore the same query. Status accepts `planned`, `development` and `production`; missing or
 unknown values mean all. `q` is literal search text; duplicate parameters use their first value.
 Edits replace the current address without adding history entries per keystroke. Clear removes only
 these two parameters, preserving other parameters and the fragment. Back/Forward restores the view.
 If the browser refuses URL updates, filtering still works and the page explains the limitation.
-U01 is locally verified and unpublished; the operation record retains the historical production revision.
+U01 is merged and GitHub confirmed deployment. Direct site verification awaits the cloud network
+allowance; the operation record separates this deploy from the previous external observation.
 
 ## Começar do zero
 

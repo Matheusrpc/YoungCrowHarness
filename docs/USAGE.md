@@ -18,14 +18,14 @@ A [prova de retomada](relatorios/2026-10-03-public-pilot.md) passou no Codex; Cl
 O README do exemplo explica como gerar e servir somente o pacote permitido, em um destino novo.
 
 Para reabrir a mesma consulta, veja [filtros no endereço](../examples/delivery-board/README.md#reabrir-a-mesma-consulta).
-U01 está verificado localmente, com publicação autorizada e em preparação.
+U01 está integrado, com deploy confirmado pelo GitHub. A [verificação externa](relatorios/2026-10-12-filter-url-publication.md) depende da liberação de rede da cloud.
 
 [Open the demonstration](https://matheusrpc.github.io/YoungCrowHarness/) or follow the [pilot recipe](../examples/delivery-board/README.md), which brings these paths together in an example
 with its own vault. The page and filters were checked locally, including keyboard navigation and a narrow viewport.
 The recipe covers a new project, migration and exit; both consumers passed restoration on Windows and Linux.
 The [retrieval proof](relatorios/2026-10-03-public-pilot.md) passed in Codex; Claude needs a renewed login.
 The [URL-filter increment](../examples/delivery-board/README.md#english) restores the same query
-on reload or in another tab. Publication is authorized and being prepared.
+on reload or in another tab. GitHub confirmed deployment; [external verification](relatorios/2026-10-12-filter-url-publication.md) awaits the cloud network allowance.
 The example README explains how to build and serve only the allowed package, using a new destination.
 
 Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;

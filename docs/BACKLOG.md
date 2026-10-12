@@ -1,10 +1,5 @@
 # Backlog do YoungCrowHarness
 
-Frente de adoção, 12/out/2026: plugins por opção explícita e MCP Claude vazio no template.
-Instalações existentes continuam preservadas. [Escopo e provas](relatorios/2026-10-12-optional-integrations.md);
-integração pendente. Independente das correções de fontes/memória do PR #27 e do aceite nativo YC-203.
-English: plugin opt-in and an empty Claude MCP template, preserving existing configurations; integration pending.
-
 Frente: produto completo e sequência de entrega. Atualizado em 2026-10-04.
 
 Este é o índice público do trabalho necessário para entregar a esteira definida na
@@ -16,6 +11,11 @@ das entregas abaixo. Não há estimativa de prazo ou percentual de conclusão va
 O público inicial é formado por desenvolvedores individuais e pequenos times com Claude Code
 ou Codex. A primeira versão completa deve levar uma missão de uma a N features até uma versão
 conjunta em produção verificada, em projeto novo ou migrado, com retomada pelo vault.
+
+Frente de adoção, 12/out/2026: plugins por opção explícita e MCP Claude vazio no template.
+Instalações existentes continuam preservadas. [Escopo e provas](relatorios/2026-10-12-optional-integrations.md);
+integração pendente. Independente das correções de fontes/memória do PR #27 e do aceite nativo YC-203.
+English: plugin opt-in and an empty Claude MCP template, preserving existing configurations; integration pending.
 
 ## Como acompanhar
 

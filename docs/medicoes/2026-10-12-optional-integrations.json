@@ -68,7 +68,7 @@
     "tests/smoke_clients.py": "c1038f001b7b051f4af0b14342ed9993c1a29f512c68796174ef06198c308282",
     "README.md": "f5c56767e9745b8fd7b729b5811295c2619c151c95b436f80f0db3f72b809d2f",
     "docs/USAGE.md": "621591a68325203d50e432a0420a67de84c348f1a5ec163a24eae4c2c52403a6",
-    "docs/BACKLOG.md": "b210362cd1d26be2fb6204b2887b7ddf5ee9a9a3fcf0f9de502e1f33128f5f7c"
+    "docs/BACKLOG.md": "6514ac380b948f45cfa18174e1df16a64db7cf35fd0392e79df769a800ca3f1f"
   },
   "evidence": {
     "setup-green.log": "ebddc925c9214643d1ab73b1f5abbb8c2883b44627f85881a9cc7a0c032d6ee1",

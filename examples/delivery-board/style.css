@@ -49,7 +49,7 @@ input::placeholder { color: var(--muted); }
 button { cursor: pointer; padding-inline: 1.2rem; font-size: .9rem; }
 button:hover { border-color: var(--accent); background: #30281c; }
 button:disabled, select:disabled, input:disabled { opacity: .6; cursor: default; }
-#message { font-size: .8rem; color: var(--muted); margin: 1.2rem 0; }
+#message, #filter-help { font-size: .8rem; color: var(--muted); margin: 1.2rem 0; }
 #results { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; list-style: none; padding: 0; margin: 0; }
 .delivery { background: var(--surface); border: 1px solid var(--line); padding: 1.5rem; overflow-wrap: anywhere; }
 .status { display: inline-block; font-size: .72rem; padding: .2rem .6rem; border: 1px solid currentColor; border-radius: 2rem; }

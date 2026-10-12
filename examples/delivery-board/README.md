@@ -37,6 +37,20 @@ O vault tem identidade própria e índices de produto, features, decisões, inte
 Comece pelo índice geral e siga a frente. O setup não copia este exemplo para todos os consumidores.
 Notas privadas em `vault/local/` ficam fora do Git. Fontes, backups e recibos nunca acompanham o site.
 
+### Reabrir a mesma consulta
+
+O incremento local [U01](vault/features/delivery-board/runs/filter-url.md) guarda os filtros no endereço.
+Na prévia, abra `http://127.0.0.1:8765/?status=development&q=filtrar` para encontrar a mesma entrega
+ao recarregar ou abrir outra aba. Você pode guardar ou compartilhar esse endereço.
+Os valores de `status` são `planned`, `development` e `production`; ausente ou desconhecido usa todos.
+`q` guarda a busca como texto. Quando há parâmetros repetidos, o primeiro valor é usado.
+
+Editar filtros substitui o endereço atual sem criar uma entrada por tecla. Limpar remove apenas
+`status` e `q`, preservando os outros parâmetros e o fragmento. Voltar/Avançar sincroniza a lista
+com o endereço. Se o navegador recusar a atualização da URL, os filtros funcionam e a página avisa.
+Este incremento foi verificado localmente; a produção continua identificada pela revisão histórica
+na operação. A [prova de U01](../../docs/relatorios/2026-10-12-filter-url.md) registra testes e limites.
+
 ## English
 
 This example follows a delivery from discovery to publication. The three entries in `data.json`
@@ -55,6 +69,15 @@ Both consumers passed reversible adoption on Windows and Linux, with trial work 
 See the [evidence and limits](../../docs/relatorios/2026-10-03-public-pilot.md). The example has its own vault identity and linked
 indices. Setup does not copy this example into every consumer. Private notes, source documents, receipts
 and backups stay outside the public site.
+
+The local [U01 increment](vault/features/delivery-board/runs/filter-url.md) stores status and search in
+the address. Preview `http://127.0.0.1:8765/?status=development&q=filtrar`, then reload or open another
+tab to restore the same query. Status accepts `planned`, `development` and `production`; missing or
+unknown values mean all. `q` is literal search text; duplicate parameters use their first value.
+Edits replace the current address without adding history entries per keystroke. Clear removes only
+these two parameters, preserving other parameters and the fragment. Back/Forward restores the view.
+If the browser refuses URL updates, filtering still works and the page explains the limitation.
+U01 is locally verified and unpublished; the operation record retains the historical production revision.
 
 ## Começar do zero
 

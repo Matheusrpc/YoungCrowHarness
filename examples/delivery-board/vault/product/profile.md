@@ -3,7 +3,7 @@ id: "52afdaf0-b360-50d5-9724-a917ab0fcd8c"
 type: "product"
 title: "Perfil do quadro de entregas"
 origin: "youngcrow/public-pilot"
-updated: "2026-10-03T12:24:54.296Z"
+updated: "2026-10-12"
 index: "index.md"
 ---
 
@@ -19,6 +19,9 @@ Escopo: lista de entregas, filtro por estado e busca, critérios e links de evid
 por arquivos e PR. Não há edição colaborativa, login, banco, API de IA ou exportação de relatório.
 HTML/CSS/JavaScript e Node 24 para testes; Node é requisito do exemplo, não do setup do harness.
 Fundo #17130f, texto #F3E7C6, gemas e títulos serifados preservam o design do repositório.
+
+Incremento de 12/out: [U01](../features/delivery-board/runs/filter-url.md) estende os filtros existentes
+para reabrir uma consulta pelo endereço. Dados fictícios e arquitetura estática permanecem.
 
 PM define resultado e aceite; Tech Lead divide entregas; um executor escreve; um revisor independente
 avalia diff e evidências. Esses são papéis, sem orquestração autônoma. O orçamento dos ensaios nativos

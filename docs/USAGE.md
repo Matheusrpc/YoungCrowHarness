@@ -4,6 +4,12 @@
 
 [← README](../README.md) · [Português](#portugues) · [English](#english)
 
+O [primeiro uso no README](../README.md#setup-pt) resume a instalação e seus limites.
+Este guia detalha os comandos e a adoção em projetos novos ou existentes.
+
+The [README quickstart](../README.md#setup-en) summarizes setup and its limits.
+This guide covers the commands and adoption in new or existing projects.
+
 Consulte os [fluxos visuais de uso](../README.md#processo-pt) para localizar sua etapa:
 começar do zero, migrar um projeto, operar uma entrega, incorporar fontes ou retomar a memória. O [processo completo](PROCESS.md#portugues)
 detalha decisões, pausas e retomada.

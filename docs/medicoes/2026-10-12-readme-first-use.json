@@ -1,0 +1,227 @@
+{
+  "front": "README first use and published capabilities",
+  "date": "2026-10-12",
+  "base_revision": "d6c14c5034dbf6631d393242dd1ee85c785fd554",
+  "branch": "docs/readme-first-use",
+  "structure": {
+    "base_revision": "d6c14c5034dbf6631d393242dd1ee85c785fd554",
+    "before_lines": 811,
+    "after_lines": 323,
+    "reduction_percent": 60.2,
+    "explicit_anchors": [
+      "architecture-en",
+      "arquitetura-pt",
+      "english",
+      "evolucao-pt",
+      "memoria-pt",
+      "memory-en",
+      "português",
+      "process-en",
+      "processo-pt",
+      "roadmap-en",
+      "setup-en",
+      "setup-pt",
+      "verificacao",
+      "verification"
+    ],
+    "referenced_assets": [
+      "assets/architecture-en.svg",
+      "assets/architecture-pt.svg",
+      "assets/assinatura.svg",
+      "assets/gema-ambar.svg",
+      "assets/gema-cobalto.svg",
+      "assets/gema-esmeralda.svg",
+      "assets/gema-rubi.svg",
+      "assets/gema-turquesa.svg",
+      "assets/gema-violeta.svg",
+      "assets/leis-en.svg",
+      "assets/leis-pt.svg",
+      "assets/process-adoption-en.svg",
+      "assets/process-adoption-pt.svg",
+      "assets/process-delivery-en.svg",
+      "assets/process-delivery-pt.svg",
+      "assets/process-governance-en.svg",
+      "assets/process-governance-pt.svg",
+      "assets/process-memory-en.svg",
+      "assets/process-memory-pt.svg",
+      "assets/process-migrate-en.svg",
+      "assets/process-migrate-pt.svg",
+      "assets/process-mission-planning-en.svg",
+      "assets/process-mission-planning-pt.svg",
+      "assets/process-new-en.svg",
+      "assets/process-new-pt.svg",
+      "assets/process-sources-en.svg",
+      "assets/process-sources-pt.svg",
+      "assets/titulo.svg",
+      "assets/vidro.svg",
+      "assets/vitral.png"
+    ],
+    "asset_files_unchanged": 30
+  },
+  "local_links": {
+    "checked": 211,
+    "issues": []
+  },
+  "vault": {
+    "schema_version": 1,
+    "notes_checked": 3,
+    "issues": []
+  },
+  "review": {
+    "mode": "independent read-only",
+    "blocking_findings": [],
+    "resolved_finding": "Restored explicit macOS setup unverified statement in PT and EN",
+    "wording_skill": "humanizer-ptbr"
+  },
+  "preview": {
+    "scope": "GitHub GFM HTML in local reader CSS; normalized fragment IDs. Not GitHub page UI or published README.",
+    "observations": [
+      {
+        "width": 1280,
+        "loaded_images": 47,
+        "tables": 4,
+        "code_blocks": 3,
+        "pt_en_quickstart_visible": true,
+        "no_page_horizontal_overflow": true,
+        "page_errors": []
+      },
+      {
+        "width": 360,
+        "loaded_images": 47,
+        "tables": 4,
+        "code_blocks": 3,
+        "pt_en_quickstart_visible": true,
+        "no_page_horizontal_overflow": true,
+        "page_errors": []
+      }
+    ],
+    "remote_image_requests": [
+      {
+        "status": 200,
+        "tls_verified": true
+      },
+      {
+        "status": 200,
+        "tls_verified": true
+      },
+      {
+        "status": 200,
+        "tls_verified": true
+      },
+      {
+        "status": 200,
+        "tls_verified": true
+      },
+      {
+        "status": 200,
+        "tls_verified": true
+      },
+      {
+        "status": 200,
+        "tls_verified": true
+      },
+      {
+        "status": 200,
+        "tls_verified": true
+      },
+      {
+        "status": 200,
+        "tls_verified": true
+      },
+      {
+        "status": 200,
+        "tls_verified": true
+      },
+      {
+        "status": 200,
+        "tls_verified": true
+      },
+      {
+        "status": 200,
+        "tls_verified": true
+      },
+      {
+        "status": 200,
+        "tls_verified": true
+      }
+    ],
+    "cleanup": {
+      "owned_pids": [
+        70531,
+        70544,
+        70559,
+        70561,
+        70562,
+        70581,
+        70584,
+        70606,
+        70622,
+        70631,
+        70632,
+        70727,
+        70736,
+        70737
+      ],
+      "remaining_owned_pids": [],
+      "pgrep_owned_matches": [],
+      "remaining_owned_count": 0
+    },
+    "failure": null,
+    "passed": true
+  },
+  "base_ci": {
+    "url": "https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38263431350",
+    "revision": "d6c14c5034dbf6631d393242dd1ee85c785fd554",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "graphify-smoke",
+        "status": "completed",
+        "conclusion": "success",
+        "completedAt": "2026-10-12T14:30:58Z"
+      },
+      {
+        "name": "adoption-windows",
+        "status": "completed",
+        "conclusion": "success",
+        "completedAt": "2026-10-12T14:44:11Z"
+      },
+      {
+        "name": "installer",
+        "status": "completed",
+        "conclusion": "success",
+        "completedAt": "2026-10-12T14:34:04Z"
+      },
+      {
+        "name": "public-pilot",
+        "status": "completed",
+        "conclusion": "success",
+        "completedAt": "2026-10-12T14:30:51Z"
+      }
+    ]
+  },
+  "files": {
+    "README.md": "96d0acf5df7ab1d539d7ce5a719bfbeabb3e7f0d81b2a888f61da51b551dffe8",
+    "docs/USAGE.md": "016f7818f907baba6f99c6106d8161bfc67835ec807213235e958ced3f007c1f",
+    "docs/medicoes/2026-10-12-readme-mobile.png": "5a46325953799002ede68fd3c134f846ba267517f88f2cd00f34f7e27d516834",
+    "docs/medicoes/2026-10-12-readme-desktop.png": "96212137b9ba67be8bca43cf3aeab675d5efe9be0f7f381ef9c24b1c4ba73c44"
+  },
+  "evidence_sha256": {
+    "rendered.html": "356fff05a0d0549ee8c7bd4c1194301162c8319dbc3b8b0876dad105af9491d7",
+    "browser_check.py": "39cc17684f40f1d39b803413fceb3529fbb892b518f18b09f91228bdbe6c0e0c",
+    "browser.json": "262937c11457324e274dea6454965d64aa50a22670886d943c1219e38d0f7946",
+    "browser-file-uri.json": "86ec6216b0cc87f38d8828dbc99e964651a44a993c9d05c7cd4f92e1d6b682d2",
+    "assets-before.json": "2d40199e82e61efb6745254ec417205e8693806b6d431e1dd90368e34a3f0497",
+    "main-ci.json": "f8206c4cf50daf509bbc016ddcf369cdbe3116d4841629ab1e29033dd5e936e4"
+  },
+  "limits": {
+    "preview": "Local CSS reader using GitHub GFM HTML; not the actual GitHub UI",
+    "unit_suite": "not rerun locally for documentation-only change",
+    "new_revision_ci": "pending at checkpoint",
+    "publication": "follow the documentation pull request for final status",
+    "native_model_calls": 0,
+    "product_code_changed": false,
+    "existing_asset_bytes_changed": false
+  }
+}

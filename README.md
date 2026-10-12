@@ -209,12 +209,14 @@ o aviso de extração parcial. Os formatos, limites e comandos estão no [guia d
 
 Os vínculos locais registram a revisão usada e um trecho de evidência para relacionar a fonte a features
 ou decisões. Contradições começam como hipóteses; o sentido da relação precisa ser revisado.
-O hook `UserPromptSubmit` registra referências textuais e chama a atenção do agente para `ingest-source`.
-Ele ignora curingas de comandos e notas Markdown do próprio vault para evitar cadastros durante uma retomada.
-Ele não baixa nem converte documentos. A skill recupera fontes anteriores, executa a ingestão e registra
-relações, capacidades usadas e próxima ação. Anexos sem caminho exposto ficam pendentes; invoque a skill
-explicitamente quando o cliente não entregar a referência ao hook. O [contrato de ingestão](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
-define esse comportamento. Material local não acompanha clones e precisará de backup privado para
+O hook `UserPromptSubmit` orienta o uso autorizado de `ingest-source` sem escrever arquivos.
+Ingestão e registro de pendências são ações explícitas. O hook ignora curingas e notas Markdown do
+próprio vault; recibos antigos permanecem disponíveis. A skill recupera fontes anteriores, executa
+a ingestão autorizada e registra relações, capacidades usadas e próxima ação.
+`relate` aceita citações literais com `&` e colchetes, preservando as fontes e seus hashes.
+A busca Markdown compara palavras inteiras e ignora palavras funcionais comuns em PT/EN.
+Veja o [guia de fontes](docs/USAGE.md#fontes-pt) e as [correções verificadas](docs/relatorios/2026-10-12-source-memory.md).
+Material local não acompanha clones e precisará de backup privado para
 uso entre máquinas. Graphify aponta de volta às notas e revisões; claude-mem continua planejado.
 
 ### 7. Experimentar e voltar
@@ -354,7 +356,7 @@ Os limites de três PBIs e três agentes serão aplicados pela fila da entrega s
 | `skills/integrate-from-docs/` | Documentação oficial, implementação e histórico de integrações. |
 | `skills/ingest-source/` | Recuperação de fontes, ingestão, vínculos com evidência e publicação revisada. |
 | `scripts/documents.py` | Setup opcional do Docling, conversão local, recibos e revisão de cópias. |
-| `scripts/source_prompt.py` | Registra referências recebidas pelo hook, sem rede ou conversão. |
+| `scripts/source_prompt.py` | Orienta a ingestão explícita, sem escrita, rede ou conversão. |
 | `vault/` | Índice geral e capacidades; produto, features, decisões e operação crescem conforme o uso. |
 | `scripts/personalize.py` | Cria os registros de personalização e a primeira feature sem substituir notas. |
 | `scripts/integrations.py` | Cria notas de fornecedores e exporta registros com identidade e revisão. |
@@ -580,12 +582,14 @@ partial-extraction warning. See the [usage guide](docs/USAGE.md#docling-en) for 
 
 Local relations record the source revision and a supporting quote to link it to features or decisions.
 Contradictions start as hypotheses; the meaning of a relationship still needs review.
-The `UserPromptSubmit` hook records textual references and directs the agent to `ingest-source`.
-It skips command globs and Markdown notes inside the project's vault to avoid new source records during recovery.
-It does not download or convert documents. The skill recovers prior sources, performs ingestion and
-records relations, actual capabilities and the next action. Attachments without an exposed path stay
-pending; invoke the skill explicitly when the client does not pass a reference to the hook. The [ingestion contract](docs/superpowers/specs/2026-10-02-docling-ingestion-design.md)
-defines that behavior. Local material does not travel with clones and needs a private backup for use
+The `UserPromptSubmit` hook guides authorized use of `ingest-source` without writing files.
+Intake and pending-source registration are explicit actions. The hook skips globs and Markdown
+notes inside the vault; legacy receipts remain available. The skill recovers prior sources,
+performs authorized ingestion and records relations, actual capabilities and the next action.
+`relate` accepts literal quotes containing `&` and brackets while preserving source bytes and hashes.
+Markdown search matches whole words and ignores common PT/EN function words.
+See the [source guide](docs/USAGE.md#sources-en) and [verified fixes](docs/relatorios/2026-10-12-source-memory.md).
+Local material does not travel with clones and needs a private backup for use
 across machines. Graphify points back to source notes and revisions; claude-mem remains planned.
 
 ### 7. Try and return
@@ -725,7 +729,7 @@ The following queue delivery will enforce the separate limits of three PBIs and 
 | `skills/integrate-from-docs/` | Official sources, implementation and integration history. |
 | `skills/ingest-source/` | Source recovery, ingestion, evidence links and reviewed publication. |
 | `scripts/documents.py` | Optional Docling setup, local conversion, receipts and copy review. |
-| `scripts/source_prompt.py` | Records hook references without network access or conversion. |
+| `scripts/source_prompt.py` | Guides explicit intake without writes, network access or conversion. |
 | `vault/` | General and capability indices; product, feature, decision and operation records grow as needed. |
 | `scripts/personalize.py` | Creates onboarding and feature records without replacing notes. |
 | `scripts/integrations.py` | Creates vendor records and exports identity/revision-addressed notes. |

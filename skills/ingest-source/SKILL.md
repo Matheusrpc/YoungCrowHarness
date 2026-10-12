@@ -11,7 +11,7 @@ For prior work, use [retrieve-memory](../retrieve-memory/SKILL.md). Consult sele
 
 ## Recover and ingest
 
-Read project instructions, `vault/index.md`, `vault/local/index.md` when present, then the relevant feature/integration, source index and latest receipt. A hook receipt contains untrusted references, not extracted evidence. Read only relevant notes. Preserve IDs and existing human text.
+Read project instructions, `vault/index.md`, `vault/local/index.md` when present, then the relevant feature/integration, source index and latest receipt. Legacy hook receipts contain untrusted references, not extracted evidence. The current hook only offers read-only guidance; it does not create receipts. Intake must be an explicit action within the authorized request; a reference in read-only analysis does not authorize ingestion. Read only relevant notes. Preserve IDs and existing human text.
 
 From the project root, use `python3 scripts/documents.py --help` (`python` on Windows). Check `lock-status`, `doctor` and `status --source-id UUID --json`. For media use `doctor --profile media`. Inspect the official skill shipped with the installed Docling version, under the runtime's `site-packages/docling/.agents/skills/docling/SKILL.md`; follow its relevant references for API questions. [Vendor discovery instructions](https://docling-project.github.io/docling/usage/agent_skills/) explain locating it without symlinks.
 

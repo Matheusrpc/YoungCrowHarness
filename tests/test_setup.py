@@ -68,6 +68,19 @@ def fake_git(args):
 
 
 class SetupTests(unittest.TestCase):
+    def test_source_hook_selects_host_python_and_preserves_existing_config(self):
+        result = self.run_setup('--client', 'claude', '--no-plugins')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        settings = self.target / '.claude/settings.json'
+        config = json.loads(settings.read_text())
+        hook = config['hooks']['UserPromptSubmit'][0]['hooks'][0]
+        self.assertEqual(shlex.split(hook['command'])[0], 'python' if os.name == 'nt' else 'python3')
+        settings.write_text('{"hooks": {}, "human_setting": true}\n')
+        before = settings.read_bytes()
+        result = self.run_setup('--client', 'claude', '--no-plugins', '--force')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(settings.read_bytes(), before)
+
     def test_runtime_helpers_preserve_existing_install(self):
         write(self.target / 'scripts/mission_runs.py', '# human adapter\n')
         result = self.run_setup('--client', 'both', '--no-plugins', '--force', timeout=180)

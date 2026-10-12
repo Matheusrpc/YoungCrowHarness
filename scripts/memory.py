@@ -1,5 +1,6 @@
 """Project-scoped vault retrieval. Derived state is private and reconstructible."""
 import argparse
+from collections import Counter
 import hashlib
 import json
 from pathlib import Path
@@ -17,6 +18,13 @@ from documents import runtime_python, worker_environment, run_process
 BASE = '.operacao-local/memory'
 VERSION = '0.9.73'
 WORKER = Path(__file__).with_name('graphify_worker.py')
+# Small PT/EN list for lexical retrieval; keep technical terms such as C, R and Go.
+FUNCTION_WORDS = frozenset('a o as os e de da do das dos em no na nos nas um uma uns umas '
+                           'para por com que the an and of in on to for with'.split())
+
+
+def words(text):
+    return re.findall(r'[^\W_]+', text.casefold())
 
 
 def failure(code, state='failed'):
@@ -423,15 +431,16 @@ def query(root: Path, question: str, limit: int = 5) -> dict:
         return result
     except (ValueError, KeyError, TypeError, OSError):
         return dict(result, index_state='failed', warnings=['invalid_memory_state'])
-    terms = set(re.findall(r'[^\W_]+', question.casefold()))
+    terms = set(words(question)) - FUNCTION_WORDS
     def ranked(current):
         def score(note):
             _, body = metadata(note['text'])
-            return sum(3 * note['title'].casefold().count(t) + body.casefold().count(t) for t in terms)
+            title, body = Counter(words(note['title'])), Counter(words(body))
+            return sum(3 * title[t] + body[t] for t in terms)
         return sorted((n for n in current['notes'] if score(n)), key=lambda n: (-score(n), n['path']))
     ordered = ranked(snap)
     provider = 'markdown'
-    if state == 'ready' and snap['provider'] == 'graphify':
+    if terms and state == 'ready' and snap['provider'] == 'graphify':
         try:
             graph_path = BASE + '/builds/' + str(uuid.UUID(active['generation'])) + '/graph.json'
             graph_file = safe_path(root, graph_path)

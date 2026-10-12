@@ -7,9 +7,11 @@ from pathlib import Path
 import sys
 import unittest
 import uuid
+from unittest.mock import patch
 
 from test_documents import ProjectCase
 from memory_fixture import seed, OTHER
+import vault
 
 
 class MemoryTests(ProjectCase):
@@ -18,6 +20,30 @@ class MemoryTests(ProjectCase):
         self.data = seed(self.root)
         self.assertIsNotNone(importlib.util.find_spec('memory'), 'memory retrieval is not implemented')
         self.memory = importlib.import_module('memory')
+
+    def test_query_matches_words_and_ignores_function_words(self):
+        first, second = self.data['paths'][:2]
+        for path, title, body in ((first, 'Decisão memória', 'OAuth C Go SHA256 AÇÃO'),
+                                  (second, 'Outra nota', 'banana capital ' * 80)):
+            note = self.root / path
+            fields, _ = vault.metadata(note.read_text(encoding='utf-8'))
+            note.write_text('---\n' + ''.join(f'{k}: {json.dumps(v, ensure_ascii=False)}\n'
+                            for k, v in fields.items() if k != 'title')
+                            + f'title: {title}\n---\n\n{body}\n', encoding='utf-8')
+        self.memory.index(self.root, [first, second])
+        for query in ('a decisão de memória', 'the decisão and memória', 'OAuth', 'C', 'Go', 'SHA256', 'ação'):
+            with self.subTest(query=query):
+                self.assertEqual([r['path'] for r in self.memory.query(self.root, query)['results']], [first])
+        self.assertEqual(self.memory.query(self.root, 'API')['results'], [])
+        state = self.memory.load_state(self.root)
+        for provider in ('markdown', 'graphify'):
+            snapshot = dict(state[1], provider=provider)
+            with patch.object(self.memory, 'load_state', return_value=(state[0], snapshot, *state[2:])), \
+                 patch.object(self.memory, 'run_graphify', side_effect=AssertionError('unnecessary worker')):
+                for query in ('a de e o', 'the of and', '!!!'):
+                    result = self.memory.query(self.root, query)
+                    self.assertEqual(result['results'], [])
+                    self.assertEqual(result['index_state'], 'ready')
 
     def test_selected_notes_keep_identity_and_current_evidence(self):
         originals = {p: (self.root / p).read_bytes() for p in self.data['paths']}

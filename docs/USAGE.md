@@ -414,18 +414,19 @@ O setup copia `ingest-source` e o hook `UserPromptSubmit`. Em um repo novo, conf
 no cliente e prepare o perfil Docling abaixo quando precisar converter. Em uma migração, compare
 `.claude/settings.json` e `.codex/hooks.json` com os templates atualizados: esses arquivos são
 preservados mesmo com `--force`. Mescle a entrada `UserPromptSubmit` mantendo seus outros hooks.
-O comando Claude exige Python 3 como `python`; troque por `python3` se necessário. Codex usa
-`python3` no Unix e `python` no Windows. Reinicie o cliente depois de mudar o PATH e confirme a confiança.
+O setup configura o comando Claude com `python3` no Unix e `python` no Windows; o Codex usa
+a mesma seleção por plataforma. Em um clone usado diretamente no Windows, ajuste o comando Claude
+para `python`. Reinicie o cliente depois de mudar o PATH e confirme a confiança.
 
 1. Peça: “Use ingest-source para este arquivo e relacione a evidência à feature de pagamentos”.
    Informe o caminho acessível ou URL pública direta. Sem runtime, a fonte fica pendente; solicite
    o setup explicitamente. O agente consulta o índice geral, o índice local e os recibos existentes.
-2. O hook reconhece referências textuais, guarda somente localizadores sanitizados e IDs e orienta
-   a skill. Ele não instala, baixa ou converte. Aceita payload de até 1 MiB e até 20 referências por
-   evento. Não entrega o prompt inteiro ao armazenamento e não reage a `Stop`. A confiança, a versão
-   e os campos expostos pelo cliente determinam a cobertura. Confira os IDs recebidos na resposta.
-   Curingas de comandos e notas Markdown dentro do vault do projeto são ignorados. URLs e Markdown
-   externo ao vault continuam sendo registrados; use `ingest-source` explicitamente se necessário.
+2. O hook reconhece URLs e caminhos textuais e devolve uma orientação fixa para a skill.
+   Não grava arquivos, cria fontes ou inicializa o vault; não baixa, instala nem converte.
+   A ingestão exige ação explícita dentro do pedido autorizado, inclusive se uma referência aparecer
+   em uma auditoria somente leitura. O limite de entrada é 1 MiB; o contexto não inclui o prompt,
+   localizadores ou tokens. `Stop`, palavras como “anexo”/“attach”, globs e notas Markdown dentro
+   do vault não criam pendências. Recibos dos hooks antigos continuam preservados e consultáveis.
 3. Se um anexo não tiver caminho exposto, peça o registro explícito da pendência:
 
    ```bash
@@ -435,7 +436,10 @@ O comando Claude exige Python 3 como `python`; troque por `python3` se necessár
    Guarde o `source_id`. Quando o arquivo estiver disponível, execute `ingest` com `--source-id`.
    Estados `pending`, `partial`, `unsupported` e `failed` retornam código 1; leia o recibo para
    distinguir pendência registrada de falha. Fontes pendentes também têm microíndice navegável.
-4. Após a conversão, confira o original e use `relate` para ligar uma citação exata à feature,
+4. `relate` aceita citações literais com `&` e colchetes, além da representação escapada legada.
+   A comparação decodifica uma camada de entidades, sem regravar fontes nem alterar seus hashes.
+   Links locais neutralizados com barras invertidas ainda exigem a representação extraída.
+   Após a conversão, confira o original e use `relate` para ligar uma citação exata à feature,
    integração ou decisão. A execução local registra fonte/revisão, relação/evidência, pendências,
    agente/host, capacidades usadas e planejadas separadamente, desenvolvimento, produção e próxima
    ação. Dê um UUID às notas manuais, ligue-as ao índice local e execute `vault.py check`.
@@ -669,6 +673,11 @@ Referência: [regras disponíveis no GitHub](https://docs.github.com/en/reposito
 <a id="memoria-pt"></a>
 
 ## Memória: consultar notas selecionadas
+
+A busca Markdown compara palavras inteiras, sem distinguir maiúsculas, com peso triplo no título.
+Ignora uma lista curta de palavras funcionais PT/EN, como “a”, “de” e “the”; perguntas sem termos
+restantes retornam vazio. Termos técnicos curtos, como C, R e Go, continuam pesquisáveis. Pontuação
+separa termos: esta busca lexical não interpreta identificadores compostos como expressões exatas.
 
 Num projeto novo, conclua o setup e registre a primeira feature com `personalizer`. Numa migração, audite as notas existentes, preserve suas identidades e use `vault.py check` para reparar a navegação antes de selecionar. O setup mantém configurações de MCPs/hooks existentes; mescle as instruções necessárias sem substituí-las por inteiro.
 
@@ -1094,18 +1103,19 @@ Setup copies `ingest-source` and the `UserPromptSubmit` hook. For a new repo, ch
 and explicitly prepare the Docling profile below when conversion is needed. During migration,
 compare `.claude/settings.json` and `.codex/hooks.json` against current templates: these files are
 preserved even with `--force`. Merge `UserPromptSubmit` while retaining your existing hooks.
-Claude needs Python 3 as `python`; change it to `python3` if required. Codex uses `python3` on Unix
-and `python` on Windows. Restart after PATH changes and confirm hook trust.
+Setup configures Claude with `python3` on Unix and `python` on Windows; Codex selects the same
+commands per platform. If using the template clone directly on Windows, change the Claude command
+to `python`. Restart after PATH changes and confirm hook trust.
 
 1. Ask: “Use ingest-source for this file and link its evidence to the payments feature.” Supply an
    accessible path or direct public URL. Without a runtime the source stays pending; request setup
    explicitly. The agent reads general/local indices and existing receipts before acting.
-2. The hook recognizes textual references, saves only sanitized locators and IDs, and directs the
-   agent to the skill. It never installs, downloads or converts. Input is limited to 1 MiB and 20
-   references per event. The full prompt is not stored; `Stop` triggers no intake. Client trust,
-   version and exposed fields determine coverage. Check the source IDs returned by the agent.
-   Command globs and Markdown notes inside the project's vault are skipped. URLs and Markdown
-   outside the vault are still recorded; invoke `ingest-source` explicitly when needed.
+2. The hook recognizes textual URLs and paths and returns fixed skill guidance. It does not write
+   files, create sources, initialize the vault, download, install or convert. Intake requires an
+   explicit action within the authorized request; a reference in a read-only audit is not permission.
+   Input is limited to 1 MiB; context contains no prompt text, locators or tokens. `Stop`, attachment
+   words, globs and Markdown notes inside the vault create no pending records. Legacy hook receipts
+   remain preserved and readable.
 3. For an attachment without an exposed path, explicitly record its pending state:
 
    ```bash
@@ -1115,7 +1125,10 @@ and `python` on Windows. Restart after PATH changes and confirm hook trust.
    Keep the `source_id`; pass it to `ingest --source-id` when the file becomes accessible. States
    `pending`, `partial`, `unsupported` and `failed` exit with code 1: inspect the receipt to distinguish
    a recorded pending source from an error. Pending sources also have navigable microindices.
-4. Check the extraction against the original and use `relate` to link an exact quote to the feature,
+4. `relate` accepts literal quotes containing `&` and brackets, plus legacy escaped representations.
+   Comparison decodes one entity layer without rewriting sources or changing hashes. Backslash-escaped
+   local links still require their extracted representation. Check the extraction against the original
+   and use `relate` to link an exact quote to the feature,
    integration or decision. A local run records source/revision, relation/evidence, pending IDs,
    agent/host, used and planned capabilities separately, development, production and next action.
    Give manual notes UUIDs, link them from the local index and run `vault.py check`.
@@ -1310,6 +1323,11 @@ Tests use local Git, simulated network/plugin calls and an isolated temporary ho
 <a id="memory-en"></a>
 
 ## Memory: query selected notes
+
+Markdown search matches whole words case-insensitively, with triple weight in titles. It ignores a
+small PT/EN function-word list such as “a”, “de” and “the”; queries without remaining terms return
+no results. Short technical terms such as C, R and Go remain searchable. Punctuation splits terms;
+this lexical search does not treat compound identifiers as exact expressions.
 
 From a new or adopted project's root, select Markdown vault notes with UUIDs. Existing indices help locate them. Queries never expand the selection automatically.
 

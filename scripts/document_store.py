@@ -481,7 +481,9 @@ def relate(root, source_id, revision, target_id, relation, evidence):
         source = Path(receipt['note_path'])
         _, body = metadata((root / source).read_text(encoding='utf-8'))
         extracted = body.split('## Extracted source\n\n', 1)[-1]
-        if not evidence.strip() or ' '.join(evidence.split()) not in ' '.join(extracted.split()):
+        # Decode only our rendering layer, once; preserve old escaped citations too.
+        if not evidence.strip() or not any(' '.join(evidence.split()) in ' '.join(text.split())
+                                          for text in (extracted, html.unescape(extracted))):
             raise ValueError('Evidence must quote the extracted source.')
         key = json.dumps([revision, target_id, relation, evidence], ensure_ascii=False)
         identity = str(uuid.uuid5(uuid.UUID(record['source_id']), key))

@@ -47,6 +47,23 @@ O primeiro recálculo de hashes usou registros brutos com `legacy_ref`, causando
 as 18 observações voltaram a `matched`. Os registros desse diagnóstico ficam nos
 logs locais, sem ocultar a falha inicial.
 
+## Diagnóstico do piloto no CI
+
+No commit `3f4a3ca`, o piloto passou localmente e no push, mas falhou no
+[job do PR](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38218642573/job/114709257804).
+Após publicar a rede, o log pôde ser lido: a etapa de adoção emitiu apenas
+`public_pilot_smoke_failed`. A causa histórica permanece desconhecida.
+
+O commit `fd07e32` acrescenta tipo de exceção e até quatro localizações de arquivo/linha
+permitidos, sem mensagem, argumentos, caminhos completos ou valores locais.
+A regressão de diagnóstico falhou antes e passou depois; o ensaio instalado passou
+novamente nos consumidores novo/existente, perfil `both`, sem chamadas de modelo.
+Revisão independente do ajuste sem achados. O piloto passou no
+[push](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38240709971/job/114782330754)
+e no [PR](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38240715463/job/114782338443)
+desse commit. Esses sucessos não identificam a causa da falha anterior.
+Os demais checks e a integração devem ser conferidos no PR #27.
+
 ## Limites e continuidade
 
 Plugins opcionais, template MCP, redução geral do README, avisos, pausa/retomada

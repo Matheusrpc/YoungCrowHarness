@@ -10,9 +10,9 @@ index: "../index.md"
 # U01: reabrir a consulta pelo endereço
 
 U01 integrado no PR #25 em 12/out, revisão `80edd7786f3ecb13535565f5cb358ef1f983b757`.
-O deploy Pages passou; a verificação direta do site aguarda liberação do domínio na cloud.
-O registro `docs/relatorios/2026-10-12-filter-url-publication.md`, na raiz do harness, acompanha
-essa etapa. O relato e os hashes abaixo preservam a observação do desenvolvimento na cópia de origem.
+O deploy Pages passou; manifesto, bytes e filtros foram conferidos em 12/out. O teste de navegador
+usou transporte HTTPS delegado; TLS nativa do Chromium nesta cloud permanece sem validação.
+O registro `docs/relatorios/2026-10-12-filter-url-external.md`, na raiz do harness, acompanha essa etapa. O relato e os hashes abaixo preservam a observação do desenvolvimento na cópia de origem.
 
 [Feature](../index.md) · [Entregas](../delivery.md) · [Operação](../../../operations/index.md)
 
@@ -62,7 +62,7 @@ Uma sessão que retome agora deve começar pelo índice do vault, conferir os ha
 esse estado local. Não iniciar outra feature nem repetir P06 para validar esta leitura.
 
 English (historical development checkpoint): U01 persists the board filters in its URL. Unit/package tests and local browser checks
-passed; it was unpublished at that checkpoint. It is now merged and deployed, with direct site verification pending the network allowance.
+passed; it was unpublished at that checkpoint. It is now published, with public bytes and filter navigation checked using delegated HTTPS transport. Native Chromium TLS remains unverified in this cloud.
 The development measurement identifies the original working-copy bytes. Resume through
 the vault indexes, inspect the implementation and evidence, then prepare authorized integration.
 This is a new assisted delivery, separate from the historical native retrieval proof and executor acceptance.

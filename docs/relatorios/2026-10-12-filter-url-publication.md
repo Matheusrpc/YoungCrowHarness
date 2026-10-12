@@ -1,5 +1,9 @@
 # Integração e publicação de U01
 
+Atualização: a [conferência externa posterior](2026-10-12-filter-url-external.md) passou em HTTP,
+hashes e navegação com TLS delegado. O texto e a medição abaixo preservam o checkpoint anterior
+à aplicação da rede; a pendência de TLS nativa do Chromium está no novo relatório.
+
 Frente: filtros retomáveis por URL no exemplo Delivery Board. O mantenedor aprovou a integração
 e publicação em 12/out/2026, após conferir a entrega e suas evidências.
 

@@ -1,0 +1,257 @@
+{
+  "front": "U01 external verification after cloud network publication",
+  "observed_at_utc": "2026-10-12T11:09:45.234718+00:00",
+  "public_url": "https://matheusrpc.github.io/YoungCrowHarness/",
+  "published_revision": "80edd7786f3ecb13535565f5cb358ef1f983b757",
+  "historical_publication_receipt": "2026-10-12-filter-url-publication.json",
+  "http": {
+    "manifest": {
+      "http_code": 200,
+      "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/manifest.json",
+      "size_download": 617,
+      "content_type": "application/json; charset=utf-8",
+      "ssl_verify_result": 0,
+      "time_total": 0.194578,
+      "file": "manifest.json",
+      "curl_returncode": 0,
+      "error": "",
+      "retrieved_at": "2026-10-12T11:07:04.053433+00:00",
+      "bytes": 617,
+      "sha256": "cc4a8233543a4f91ef053f01e2f03c4fc36876f1859982c394266c31730538d6"
+    },
+    "files": [
+      {
+        "http_code": 200,
+        "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/index.html",
+        "size_download": 4093,
+        "content_type": "text/html; charset=utf-8",
+        "ssl_verify_result": 0,
+        "time_total": 0.238908,
+        "file": "index.html",
+        "curl_returncode": 0,
+        "error": "",
+        "retrieved_at": "2026-10-12T11:07:04.309545+00:00",
+        "bytes": 4093,
+        "sha256": "07cce9c69756927348a371d27e39e2f675a6fdf21b772fa40cef72bef88a13c8",
+        "manifest_sha256": "07cce9c69756927348a371d27e39e2f675a6fdf21b772fa40cef72bef88a13c8",
+        "expected_git_sha256": "07cce9c69756927348a371d27e39e2f675a6fdf21b772fa40cef72bef88a13c8",
+        "expected_git_bytes": 4093,
+        "equal_to_git": true,
+        "equal_to_manifest": true,
+        "equal_to_checkout": true
+      },
+      {
+        "http_code": 200,
+        "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/style.css",
+        "size_download": 5895,
+        "content_type": "text/css; charset=utf-8",
+        "ssl_verify_result": 0,
+        "time_total": 0.2233,
+        "file": "style.css",
+        "curl_returncode": 0,
+        "error": "",
+        "retrieved_at": "2026-10-12T11:07:04.298597+00:00",
+        "bytes": 5895,
+        "sha256": "39667b6b7436e4a7f4724727c433077e0f8f133399536e0063e621259b9873c1",
+        "manifest_sha256": "39667b6b7436e4a7f4724727c433077e0f8f133399536e0063e621259b9873c1",
+        "expected_git_sha256": "39667b6b7436e4a7f4724727c433077e0f8f133399536e0063e621259b9873c1",
+        "expected_git_bytes": 5895,
+        "equal_to_git": true,
+        "equal_to_manifest": true,
+        "equal_to_checkout": true
+      },
+      {
+        "http_code": 200,
+        "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/app.mjs",
+        "size_download": 3664,
+        "content_type": "text/javascript; charset=utf-8",
+        "ssl_verify_result": 0,
+        "time_total": 0.238646,
+        "file": "app.mjs",
+        "curl_returncode": 0,
+        "error": "",
+        "retrieved_at": "2026-10-12T11:07:04.311638+00:00",
+        "bytes": 3664,
+        "sha256": "604d05029ff195aae4a71bb8b3ed9af0b1462bdd3713ab7eaa778978cb87e2fd",
+        "manifest_sha256": "604d05029ff195aae4a71bb8b3ed9af0b1462bdd3713ab7eaa778978cb87e2fd",
+        "expected_git_sha256": "604d05029ff195aae4a71bb8b3ed9af0b1462bdd3713ab7eaa778978cb87e2fd",
+        "expected_git_bytes": 3664,
+        "equal_to_git": true,
+        "equal_to_manifest": true,
+        "equal_to_checkout": true
+      },
+      {
+        "http_code": 200,
+        "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/model.mjs",
+        "size_download": 2141,
+        "content_type": "text/javascript; charset=utf-8",
+        "ssl_verify_result": 0,
+        "time_total": 0.200972,
+        "file": "model.mjs",
+        "curl_returncode": 0,
+        "error": "",
+        "retrieved_at": "2026-10-12T11:07:04.272369+00:00",
+        "bytes": 2141,
+        "sha256": "37ebfc8499379571f79a95664449c858d9b59967ef0934594bed88bde8f7c6f9",
+        "manifest_sha256": "37ebfc8499379571f79a95664449c858d9b59967ef0934594bed88bde8f7c6f9",
+        "expected_git_sha256": "37ebfc8499379571f79a95664449c858d9b59967ef0934594bed88bde8f7c6f9",
+        "expected_git_bytes": 2141,
+        "equal_to_git": true,
+        "equal_to_manifest": true,
+        "equal_to_checkout": true
+      },
+      {
+        "http_code": 200,
+        "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/data.json",
+        "size_download": 1350,
+        "content_type": "application/json; charset=utf-8",
+        "ssl_verify_result": 0,
+        "time_total": 0.307398,
+        "file": "data.json",
+        "curl_returncode": 0,
+        "error": "",
+        "retrieved_at": "2026-10-12T11:07:04.380018+00:00",
+        "bytes": 1350,
+        "sha256": "87f72c8a90202257d9e311861b905c49eef04e75fa96fb53e45ba3facc0a4f92",
+        "manifest_sha256": "87f72c8a90202257d9e311861b905c49eef04e75fa96fb53e45ba3facc0a4f92",
+        "expected_git_sha256": "87f72c8a90202257d9e311861b905c49eef04e75fa96fb53e45ba3facc0a4f92",
+        "expected_git_bytes": 1350,
+        "equal_to_git": true,
+        "equal_to_manifest": true,
+        "equal_to_checkout": true
+      },
+      {
+        "http_code": 200,
+        "url_effective": "https://matheusrpc.github.io/YoungCrowHarness/gema-cobalto.svg",
+        "size_download": 1234,
+        "content_type": "image/svg+xml",
+        "ssl_verify_result": 0,
+        "time_total": 0.248804,
+        "file": "gema-cobalto.svg",
+        "curl_returncode": 0,
+        "error": "",
+        "retrieved_at": "2026-10-12T11:07:04.321811+00:00",
+        "bytes": 1234,
+        "sha256": "8a9bced1fe8b8f601cd0eefa6b881b44b2fb3dcaa75674dcb1fbe74977a5a68d",
+        "manifest_sha256": "8a9bced1fe8b8f601cd0eefa6b881b44b2fb3dcaa75674dcb1fbe74977a5a68d",
+        "expected_git_sha256": "8a9bced1fe8b8f601cd0eefa6b881b44b2fb3dcaa75674dcb1fbe74977a5a68d",
+        "expected_git_bytes": 1234,
+        "equal_to_git": true,
+        "equal_to_manifest": true,
+        "equal_to_checkout": true
+      }
+    ],
+    "passed": true
+  },
+  "browser": {
+    "browser": "Chromium 154.0.8037.57",
+    "transport": "Playwright routes delegated to urllib HTTPS through inherited proxy",
+    "tls": {
+      "ca_file": "/etc/ssl/certs/ca-certificates.crt",
+      "check_hostname": true,
+      "verify_mode": "CERT_REQUIRED",
+      "native_chromium_tls_verified": false
+    },
+    "observations": [
+      {
+        "width": 1280,
+        "public_revision": "80edd7786f3e",
+        "status_q_from_url": true,
+        "reload": true,
+        "new_tab": true,
+        "typing_preserves_history_and_state": true,
+        "literal_query_roundtrip": true,
+        "clear_preserves_duplicate_extra_params_and_fragment": true,
+        "status_change_preserves_extra_params_and_fragment": true,
+        "back_forward_after_anchor_navigation": true,
+        "no_horizontal_overflow": true,
+        "page_errors": []
+      },
+      {
+        "width": 360,
+        "public_revision": "80edd7786f3e",
+        "status_q_from_url": true,
+        "reload": true,
+        "new_tab": true,
+        "typing_preserves_history_and_state": true,
+        "literal_query_roundtrip": true,
+        "clear_preserves_duplicate_extra_params_and_fragment": true,
+        "status_change_preserves_extra_params_and_fragment": true,
+        "back_forward_after_anchor_navigation": true,
+        "no_horizontal_overflow": true,
+        "page_errors": []
+      }
+    ],
+    "cleanup": {
+      "owned_pids": [
+        2134,
+        2146,
+        2161,
+        2163,
+        2164,
+        2183,
+        2193,
+        2208,
+        2226,
+        2236,
+        2259,
+        2272,
+        2283,
+        2305
+      ],
+      "remaining_owned_pids": [],
+      "pgrep_command": [
+        "pgrep",
+        "-a",
+        "-f",
+        "chrom(e|ium)|playwright/driver"
+      ],
+      "pgrep_owned_matches": [],
+      "remaining_owned_count": 0
+    },
+    "passed": true
+  },
+  "https_responses_checked": 112,
+  "all_response_hashes_match_verified_http": true,
+  "limitations": [
+    "Native Chromium TLS chain was not validated. Browser transport was delegated to urllib using system CA trust and inherited proxy.",
+    "Final environment_status reports unrestricted/unknown; initial report was unrestricted/enforced. Actual verified HTTPS requests succeeded."
+  ],
+  "raw_evidence": {
+    "summary.json": {
+      "sha256": "5b93ea3ea871eccf90abe04c25101c00535aee3e408896b8467f7845714b5c9c",
+      "bytes": 5377
+    },
+    "http-verification.json": {
+      "sha256": "0a8fb9c5bbae8e16b1b896ae1fce716e857189c6b969340837bb875fcaf004c5",
+      "bytes": 6750
+    },
+    "browser.json": {
+      "sha256": "5c7106ddca2e7d2b1dc44849cd9e7ee79dcbf1459fd598831d7348faf1d1cd60",
+      "bytes": 51243
+    },
+    "browser-cleanup.json": {
+      "sha256": "2f0fb8b240ca267717c0b551433df65f564cca4095b595e92045cceebc60545f",
+      "bytes": 350
+    },
+    "browser_check.py": {
+      "sha256": "bb74db4222998f3d009fbfae525ccbb316e54c94f27c1a59f9fc967de3ca9ab6",
+      "bytes": 10598
+    },
+    "verify_http.py": {
+      "sha256": "b86d3e64663a04404b5db0732fe44a5d1b948383f5ec5d2f01cf89cbf3307c53",
+      "bytes": 3472
+    }
+  },
+  "model_calls": 0,
+  "screenshots": {
+    "2026-10-12-u01-public-1280.png": {
+      "sha256": "0a4feddb783936d67a3b877cec3f25b0b11ba07f7ed09a03f339d9fd24fde568",
+      "bytes": 142788
+    },
+    "2026-10-12-u01-public-360.png": {
+      "sha256": "9380a56e26ac8818d90328b3b6ee972153d7ec3c46c6ee829291c45f9362ff42",
+      "bytes": 125668
+    }
+  }
+}

@@ -48,8 +48,8 @@ Os valores de `status` são `planned`, `development` e `production`; ausente ou 
 Editar filtros substitui o endereço atual sem criar uma entrada por tecla. Limpar remove apenas
 `status` e `q`, preservando os outros parâmetros e o fragmento. Voltar/Avançar sincroniza a lista
 com o endereço. Se o navegador recusar a atualização da URL, os filtros funcionam e a página avisa.
-Este incremento foi integrado, com deploy confirmado pelo GitHub. A conferência direta do site
-aguarda a liberação de rede da cloud; veja o estado na operação. A [prova de U01](../../docs/relatorios/2026-10-12-filter-url.md) registra testes e limites.
+Este incremento está publicado. A [conferência externa](../../docs/relatorios/2026-10-12-filter-url-external.md)
+validou arquivos e filtros em desktop e celular, com transporte HTTPS delegado no teste de navegador.
 
 ## English
 
@@ -77,8 +77,8 @@ unknown values mean all. `q` is literal search text; duplicate parameters use th
 Edits replace the current address without adding history entries per keystroke. Clear removes only
 these two parameters, preserving other parameters and the fragment. Back/Forward restores the view.
 If the browser refuses URL updates, filtering still works and the page explains the limitation.
-U01 is merged and GitHub confirmed deployment. Direct site verification awaits the cloud network
-allowance; the operation record separates this deploy from the previous external observation.
+U01 is published. [External verification](../../docs/relatorios/2026-10-12-filter-url-external.md)
+checked public files and filters on desktop and mobile, using delegated HTTPS transport in the browser test.
 
 ## Começar do zero
 

@@ -1,0 +1,169 @@
+{
+  "workstream": "source-memory usability port",
+  "observed_at": "2026-10-12T07:33:13.125380+00:00",
+  "base_revision": "e966e7e06dd30bbd039be839887f8d6de31c32f4",
+  "branch": "fix/source-memory-usability",
+  "source_checkout_revision": "ca379107e9804180790afb3bb8c9a862a96bd554",
+  "verification": {
+    "red-hook": {
+      "tests": 5,
+      "seconds": 0.092,
+      "outcome": "FAILED (failures=10, errors=1)",
+      "log_sha256": "0502e78c79b93af830f71ac8f0fa68ffb8fb2bbde2aff1dae9ed87dc50b62f43"
+    },
+    "red-memory": {
+      "tests": 17,
+      "seconds": 1.052,
+      "outcome": "FAILED (failures=3)",
+      "log_sha256": "a97e3b2d4eb30319d0361f6c9041f16e81cee58964828b7e17b708dfec83983f"
+    },
+    "red-documents": {
+      "tests": 50,
+      "seconds": 5.059,
+      "outcome": "FAILED (errors=4, skipped=2)",
+      "log_sha256": "9cf34c41e04c492162bb49834adc87f06baa002ca676e12560c9c0db8850b5ca"
+    },
+    "red-setup": {
+      "tests": 1,
+      "seconds": 0.935,
+      "outcome": "FAILED (failures=1)",
+      "log_sha256": "391a4e4b5825ab37176b5f9a4b3f157e272aa404bda6eef915113482b6305426"
+    },
+    "green-hook": {
+      "tests": 5,
+      "seconds": 0.285,
+      "outcome": "OK",
+      "log_sha256": "fe683f655e18ebc4ac1c1b2d62be15134e57342db5c271b7959da0b0da726208"
+    },
+    "green-memory": {
+      "tests": 17,
+      "seconds": 1.044,
+      "outcome": "OK",
+      "log_sha256": "ef52db67416b8c1fc70ec6cef39b24969bf5ee892689863d64d691998ddf7c30"
+    },
+    "green-documents": {
+      "tests": 50,
+      "seconds": 5.169,
+      "outcome": "OK (skipped=2)",
+      "log_sha256": "fce960033e1343ca58783492b85e75f82b84fa84e48193a7157de640958329da"
+    },
+    "green-setup": {
+      "tests": 1,
+      "seconds": 1.468,
+      "outcome": "OK",
+      "log_sha256": "6ed81c47545536fa399420e6949f2a17a7bf3b9b69c93f8c238eef583a3f4eaa"
+    },
+    "green-capabilities": {
+      "tests": 23,
+      "seconds": 1.153,
+      "outcome": "OK",
+      "log_sha256": "616e00246427ae3091c38cf2ecfc498aa081463bc41077360ca1f660d0a1c866"
+    },
+    "full-suite": {
+      "tests": 342,
+      "seconds": 145.581,
+      "outcome": "FAILED (failures=1, skipped=14)",
+      "log_sha256": "afe38afcb0e91149ae49fa1b1452c29895b84288d773d755c470053e10c8edb3",
+      "failure": "test_capabilities.CatalogTests.test_expected_contracts_hash_resolved_legacy_identity; fixed by normalizing the catalog before hashing"
+    },
+    "full-suite-final": {
+      "tests": 342,
+      "passed": 328,
+      "skipped": 14,
+      "seconds": 145.647,
+      "outcome": "OK (skipped=14)",
+      "log_sha256": "2eec8d3161b07e4e82c102cb722248164eed437cd46a3c71a4d9bddf2ed88bff"
+    },
+    "links": {
+      "checked": 336,
+      "issues": []
+    },
+    "vault": {
+      "schema_version": 1,
+      "notes_checked": 3,
+      "issues": []
+    }
+  },
+  "installed_smoke": {
+    "platform": "Linux",
+    "python": "3.12.14",
+    "client": "both",
+    "git": "git version 2.52.0",
+    "revision": "e966e7e06dd30bbd039be839887f8d6de31c32f4",
+    "cases": [
+      {
+        "case": "absent",
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true
+      },
+      {
+        "case": "dirty-git",
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true
+      }
+    ],
+    "model_calls": 0,
+    "native_client_conversation": "not_exercised",
+    "source_memory": [
+      {
+        "case": "absent",
+        "installed_hooks_readonly": true,
+        "literal_quote": true,
+        "source_preserved": true,
+        "word_search": true,
+        "capability_matches": 18,
+        "converter": "synthetic fixture"
+      },
+      {
+        "case": "dirty-git",
+        "installed_hooks_readonly": true,
+        "literal_quote": true,
+        "source_preserved": true,
+        "word_search": true,
+        "capability_matches": 18,
+        "converter": "synthetic fixture"
+      }
+    ]
+  },
+  "catalog": {
+    "matched_required_observations": 18,
+    "permissions_changed": false,
+    "files_declared_changed": false
+  },
+  "review": {
+    "agent": "review_source_memory",
+    "mode": "read-only independent context",
+    "findings": [],
+    "evidence_review": "18 file hashes, 10 logs and installed smoke checked before final suite; no findings"
+  },
+  "publication": {
+    "state": "prepared",
+    "pages": "not applicable",
+    "windows": "pending remote CI",
+    "native_clients": "not exercised",
+    "model_calls": 0
+  },
+  "files_sha256": {
+    ".claude/settings.json": "b749c8d449a0546045285e7c634c0cd82585d51f3b86d12500a103b249daf65f",
+    "AGENTS.md": "5bdab40a11415c1ab380d9c73df675dde167f02525c5fc5b4ad91d5f5d209f5b",
+    "CLAUDE.md": "3d18cfd0351c312af8b08003c8ab80256be409bca4f528d45783ab2ff2b23c1d",
+    "README.md": "de9a13d727614b45c536844f9cbb53b5dc417b2549dc05052a901a4db6302f4d",
+    "docs/BACKLOG.md": "29e9c1b91f42ba54784c055fedf8d4e5c5ff627ff73f7a4c45e8d03bcb53f198",
+    "docs/CLAUDE.en.md": "7f2364913144aebb6dea37e61b3b86c99294abd82d7551c4e689073daf7bc05e",
+    "docs/PROCESS.md": "0f68832f6117d44417e9b829b6532dc2afc3c3563e1af318a43eba9baf894a46",
+    "docs/USAGE.md": "29056df08b92b741ba6a4944365f2772d7f3ee39b3350ad5c9d6a57ea990da89",
+    "scripts/document_store.py": "98a68f0f1f5deabde5bf2a4e08ddcd2c739c1c2b28bc3916ad562aed38227d66",
+    "scripts/memory.py": "188988899a6f0b1f2a1dce4554b515a7048a665be3e67292c6887afc00c65223",
+    "scripts/source_prompt.py": "09f1b59c73ee6a6749f202d76deb201115b0d4dd145d1049554eb82d3f735ec3",
+    "setup.sh": "b1557bae519d9c27e06d2d81a5a4946f0a88c619896d0a53507a9c105b96ac4d",
+    "skills-lock.json": "e3ee5fcab217765a501736fcf172de7a89d7c892dc822501035e0d19c6797766",
+    "skills/ingest-source/SKILL.md": "df6b55a0dff45f45945bda1626390cb95074265fb0af06df7ce3136ff1bcf6ec",
+    "tests/test_documents.py": "e577bd685187c110b03326582bc97796da926a89b60778d346e7d21531f3d90a",
+    "tests/test_memory.py": "ed549cf8dcb347adf3630246628f8f355f09f38c6ada85ade61243b319487a18",
+    "tests/test_setup.py": "c90e72a71d43df98fba8396f465b79b883ccd5cde7e7d38404d940713270cdbd",
+    "tests/test_source_prompt.py": "6006826d91101477629cfaa63aae54d57a5e217194a30c1561423131c15a7f40",
+    "docs/relatorios/2026-10-12-source-memory.md": "bff2ae2d49665dc982dadb44b9483d9b03cb2c114f9693b318a69e9c714ce1c0"
+  }
+}

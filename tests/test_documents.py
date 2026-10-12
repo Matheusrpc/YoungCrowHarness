@@ -422,6 +422,34 @@ class ReviewTests(IngestCase):
         with self.assertRaises(ValueError):
             self.store.relate(self.root, receipt['source_id'], receipt['revision'], str(uuid.uuid4()), 'supports', 'Public evidence')
 
+    def test_relations_accept_literal_entities_without_rewriting_sources(self):
+        text = 'R&D and [ver nota]. Literal: &lt;literal&gt;. Code: ```<script>no()</script>```.'
+        def convert(source, output, runtime, profile):
+            output.mkdir(parents=True)
+            (output / 'content.md').write_text(text, encoding='utf-8')
+            (output / 'document.json').write_text('{}')
+            return dict(state='ready', warnings=[], coverage={'pages': [1]})
+        receipt = self.documents.ingest(self.root, self.source, convert=convert)
+        note = self.root / receipt['note_path']
+        original = note.read_bytes()
+        identity = vault.metadata((self.root / 'vault/local/index.md').read_text(encoding='utf-8'))[0]['id']
+        for quote in ('R&D', '[ver nota]', 'R&amp;D', '&#91;ver nota&#93;',
+                      'Literal: &lt;literal&gt;.', '```<script>no()</script>```'):
+            with self.subTest(quote=quote):
+                result = self.store.relate(self.root, receipt['source_id'], receipt['revision'],
+                                          identity, 'supports', quote)
+                evidence = (self.root / result['note_path']).read_text(encoding='utf-8')
+                self.assertIn(quote, evidence)
+                self.assertEqual(self.store.relate(self.root, receipt['source_id'], receipt['revision'],
+                                                  identity, 'supports', quote), result)
+                self.assertEqual(note.read_bytes(), original)
+                if quote.startswith('```'):
+                    self.assertIn('````\n' + quote + '\n````', evidence)
+        for quote in ('Invented evidence', 'Literal: <literal>.'):
+            with self.subTest(quote=quote), self.assertRaises(ValueError):
+                self.store.relate(self.root, receipt['source_id'], receipt['revision'], identity, 'supports', quote)
+        self.assertEqual(note.read_bytes(), original)
+
     def test_promotion_uses_new_identity_and_survives_without_private_storage(self):
         receipt, review = self.review()
         result = self.store.promote(self.root, review['review_id'], review['digest'])

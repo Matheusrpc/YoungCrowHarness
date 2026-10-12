@@ -36,7 +36,7 @@ Próxima ação registrada no piloto de 3/out: renovar o login do Claude e decla
 Incremento [U01: consulta retomável por URL](runs/filter-url.md), em 12/out: implementado e verificado
 localmente com 11 testes Node e navegador em 1280px/360px. Integrado no PR #25, com deploy confirmado
 pelo GitHub na revisão `80edd7786f3ecb13535565f5cb358ef1f983b757`.
-Próxima ação de U01: após liberar o domínio na cloud, verificar manifesto, bytes e percurso no site.
-O registro de operação separa o deploy atual da observação externa histórica.
+Manifesto, bytes e filtros conferidos em 12/out. O teste de navegador usou transporte HTTPS delegado;
+a TLS nativa do Chromium nesta cloud permanece sem validação. Veja os limites no registro de operação.
 
 [Retomada nativa](runs/native-memory.md) registra hashes e limites da consulta.

@@ -5,6 +5,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import traceback
 
 from smoke_adoption import ROOT, smoke, run, write
 from integrations import note
@@ -149,8 +150,13 @@ def main():
     try:
         print(json.dumps(pilot(args.root, args.client), ensure_ascii=True))
         return 0
-    except (ValueError, OSError, subprocess.SubprocessError, KeyError):
-        print(json.dumps(dict(state='failed', code='public_pilot_smoke_failed')), file=sys.stderr)
+    except (ValueError, OSError, subprocess.SubprocessError, KeyError) as error:
+        locations = [dict(file=Path(frame.filename).name, line=frame.lineno)
+                     for frame in traceback.extract_tb(error.__traceback__)
+                     if Path(frame.filename).name in
+                     ('smoke_public_pilot.py', 'smoke_adoption.py', 'adoption_fs.py')]
+        print(json.dumps(dict(state='failed', code='public_pilot_smoke_failed',
+                              error_type=type(error).__name__, locations=locations[-4:])), file=sys.stderr)
         return 1
 
 

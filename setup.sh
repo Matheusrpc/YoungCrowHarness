@@ -230,6 +230,17 @@ copiar() {  # copiar <relativo>: nunca sobrescreve sem --force
   if [ -e "$dst" ] && [ "$FORCE" != 1 ]; then echo "  mantido  $rel (já existe; use --force para trocar)"; return; fi
   mkdir -p "$(dirname "$dst")"; cp "$src" "$dst"; echo "  copiado  $rel"
   case "$rel" in
+    .claude/settings.json)
+      python3 - "$dst" <<'PY'
+import json, os, pathlib, sys
+if os.name == 'nt':
+    path = pathlib.Path(sys.argv[1])
+    config = json.loads(path.read_text(encoding='utf-8'))
+    hook = config['hooks']['UserPromptSubmit'][0]['hooks'][0]
+    hook['command'] = hook['command'].replace('python3 ', 'python ', 1)
+    path.write_text(json.dumps(config, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+PY
+      ;;
     CLAUDE.md|AGENTS.md|docs/CLAUDE.en.md)
       python3 - "$dst" "$NOME" <<'PY'
 import sys, pathlib

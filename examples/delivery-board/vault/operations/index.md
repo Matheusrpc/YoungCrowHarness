@@ -14,11 +14,13 @@ index: "../index.md"
 Incremento [U01](../features/delivery-board/runs/filter-url.md), 12/out: [PR #25](https://github.com/Matheusrpc/YoungCrowHarness/pull/25) integrado.
 [Build e deploy Pages](https://github.com/Matheusrpc/YoungCrowHarness/actions/runs/38216618798) passaram; o ambiente `github-pages`
 confirmou a revisão `80edd7786f3ecb13535565f5cb358ef1f983b757` às 07:14:47 UTC.
-A rede da cloud recusou o domínio do site. Manifesto, bytes servidos e percurso externo de U01
-continuam pendentes; a observação de 3/out abaixo não cobre esta nova revisão.
+Após a publicação da rede, manifesto e seis arquivos responderam HTTP 200, com hashes iguais ao Git.
+Em 1280px/360px, filtros, recarga, nova aba e Voltar/Avançar passaram. O teste de navegador usou
+HTTPS delegado via Python com TLS verificada; a TLS nativa do Chromium falhou com `ERR_CERT_AUTHORITY_INVALID` (provável CA ausente no NSS).
+Zero processos próprios remanescentes. A observação de 3/out abaixo permanece histórica.
 
-O relatório `docs/relatorios/2026-10-12-filter-url-publication.md`, na raiz do harness,
-acompanha essa publicação. Retorno específico de U01: reverter somente seu commit por PR,
+O relatório `docs/relatorios/2026-10-12-filter-url-external.md`, na raiz do harness,
+registra a conferência e os limites. Retorno específico de U01: reverter somente seu commit por PR,
 aguardar os checks/deploy e verificar o site. O procedimento do piloto original segue abaixo.
 
 Observação histórica de produção em 2026-10-03T12:24:54.296Z: [abrir demonstração](https://matheusrpc.github.io/YoungCrowHarness/).

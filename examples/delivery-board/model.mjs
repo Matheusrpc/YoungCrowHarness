@@ -4,6 +4,7 @@ export const EVIDENCE_URLS = [
   'vault/operations/index.md',
 ].map(path => BASE + path);
 const KEYS = ['id', 'title', 'summary', 'status', 'acceptance', 'evidence'];
+const STATUSES = ['planned', 'development', 'production'];
 const text = value => typeof value === 'string' && value.trim().length > 0 && value.length <= 2000;
 const list = value => Array.isArray(value) && value.length >= 1 && value.length <= 20;
 
@@ -14,7 +15,7 @@ export function validateFeatures(raw) {
     if (!item || typeof item !== 'object' || Array.isArray(item) ||
         Object.keys(item).length !== KEYS.length || KEYS.some(key => !Object.hasOwn(item, key)) ||
         !text(item.id) || seen.has(item.id) || !text(item.title) || !text(item.summary) ||
-        !['planned', 'development', 'production'].includes(item.status) ||
+        !STATUSES.includes(item.status) ||
         !list(item.acceptance) || !item.acceptance.every(text) ||
         !list(item.evidence) || !item.evidence.every(url => EVIDENCE_URLS.includes(url))) {
       throw new Error('invalid_features');
@@ -29,4 +30,19 @@ export function selectFeatures(features, status = 'all', query = '') {
   return features.filter(item =>
     (status === 'all' || item.status === status) &&
     `${item.title} ${item.summary}`.toLocaleLowerCase('pt-BR').includes(needle));
+}
+
+export function filtersFromURL(url) {
+  const params = new URL(url).searchParams;
+  const status = params.get('status');
+  return {status: STATUSES.includes(status) ? status : 'all', query: params.get('q') || ''};
+}
+
+export function filtersToURL(url, status, query) {
+  const next = new URL(url);
+  if (STATUSES.includes(status)) next.searchParams.set('status', status);
+  else next.searchParams.delete('status');
+  if (query) next.searchParams.set('q', query);
+  else next.searchParams.delete('q');
+  return next.href;
 }

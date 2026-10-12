@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {validateFeatures, selectFeatures, EVIDENCE_URLS} from '../model.mjs';
+import {validateFeatures, selectFeatures, filtersFromURL, filtersToURL, EVIDENCE_URLS} from '../model.mjs';
 
 const sample = [
   {id: 'list', title: 'Listar entregas', summary: 'Ver critérios', status: 'production',
@@ -46,4 +46,33 @@ test('mantém marcação como texto e só aceita os destinos revisados', () => {
 test('os dados publicados têm as três entregas fictícias válidas', async () => {
   const data = JSON.parse(await readFile(new URL('../data.json', import.meta.url), 'utf8'));
   assert.deepEqual(validateFeatures(data).map(x => x.id), ['list', 'filter', 'export']);
+});
+
+test('reabre a consulta compartilhada com o mesmo estado, texto e resultado', () => {
+  const {status, query} = filtersFromURL('https://example.test/board/?status=development&q=FILTRAR');
+  assert.deepEqual({status, query}, {status: 'development', query: 'FILTRAR'});
+  assert.deepEqual(selectFeatures(sample, status, query).map(x => x.id), ['filter']);
+  assert.deepEqual(filtersFromURL('https://example.test/board/'), {status: 'all', query: ''});
+});
+
+test('estado desconhecido usa todos; parâmetros repetidos usam o primeiro valor', () => {
+  assert.deepEqual(filtersFromURL('https://example.test/?status=unknown&q=critérios'),
+    {status: 'all', query: 'critérios'});
+  assert.deepEqual(filtersFromURL('https://example.test/?status=planned&status=production&q=primeiro&q=segundo'),
+    {status: 'planned', query: 'primeiro'});
+});
+
+test('serializa texto literalmente; limpar remove só filtros e preserva o endereço original', () => {
+  const original = new URL('https://example.test/board/?ref=a&ref=b&status=planned&status=production&q=antigo#quadro');
+  const before = original.href;
+  const query = ' critérios & [ação] + <script> ';
+  const changed = new URL(filtersToURL(original, 'development', query));
+  assert.deepEqual(filtersFromURL(changed), {status: 'development', query});
+  assert.deepEqual(changed.searchParams.getAll('status'), ['development']);
+  assert.deepEqual(changed.searchParams.getAll('ref'), ['a', 'b']);
+  assert.equal(changed.pathname, '/board/');
+  assert.equal(changed.hash, '#quadro');
+  assert.equal(original.href, before);
+  const cleared = new URL(filtersToURL(changed, 'all', ''));
+  assert.equal(cleared.href, 'https://example.test/board/?ref=a&ref=b#quadro');
 });

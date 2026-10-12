@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "front": "U01 publication",
+  "base_commit": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+  "branch": "feat/delivery-board-url",
+  "source_implementation_sha256": {
+    "examples/delivery-board/model.mjs": "37ebfc8499379571f79a95664449c858d9b59967ef0934594bed88bde8f7c6f9",
+    "examples/delivery-board/app.mjs": "604d05029ff195aae4a71bb8b3ed9af0b1462bdd3713ab7eaa778978cb87e2fd",
+    "examples/delivery-board/index.html": "07cce9c69756927348a371d27e39e2f675a6fdf21b772fa40cef72bef88a13c8",
+    "examples/delivery-board/style.css": "39667b6b7436e4a7f4724727c433077e0f8f133399536e0063e621259b9873c1",
+    "examples/delivery-board/tests/model.test.mjs": "62712071f87ef587768aa7423f52828f2c758c8406c8de19606581f3a94320d0"
+  },
+  "approved_code_unchanged": true,
+  "node_tests": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0,
+    "skipped": 0
+  },
+  "vault": {
+    "schema_version": 1,
+    "notes_checked": 22,
+    "issues": []
+  },
+  "links": {
+    "checked": 326,
+    "issues": []
+  },
+  "manifest": {
+    "schema_version": 1,
+    "revision": "932b775c385b8ab9d7ff7819e00ffcc9f3f20c95",
+    "files": {
+      "index.html": "07cce9c69756927348a371d27e39e2f675a6fdf21b772fa40cef72bef88a13c8",
+      "style.css": "39667b6b7436e4a7f4724727c433077e0f8f133399536e0063e621259b9873c1",
+      "app.mjs": "604d05029ff195aae4a71bb8b3ed9af0b1462bdd3713ab7eaa778978cb87e2fd",
+      "model.mjs": "37ebfc8499379571f79a95664449c858d9b59967ef0934594bed88bde8f7c6f9",
+      "data.json": "87f72c8a90202257d9e311861b905c49eef04e75fa96fb53e45ba3facc0a4f92",
+      "gema-cobalto.svg": "8a9bced1fe8b8f601cd0eefa6b881b44b2fb3dcaa75674dcb1fbe74977a5a68d"
+    }
+  },
+  "git_diff_check": "passed",
+  "remote_state": "not_pushed",
+  "external_verification": {
+    "state": "blocked",
+    "reason": "cloud_proxy_403",
+    "hostname": "matheusrpc.github.io",
+    "network_draft_saved": true,
+    "runtime_applied": false
+  },
+  "source_checkout_preserved": true
+}

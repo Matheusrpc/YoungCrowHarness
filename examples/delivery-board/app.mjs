@@ -1,12 +1,25 @@
-import {validateFeatures, selectFeatures} from './model.mjs';
+import {validateFeatures, selectFeatures, filtersFromURL, filtersToURL} from './model.mjs';
 
 const status = document.querySelector('#status');
 const query = document.querySelector('#query');
 const clear = document.querySelector('#clear');
 const results = document.querySelector('#results');
 const message = document.querySelector('#message');
+const filterHelp = document.querySelector('#filter-help');
+const shareHint = filterHelp.textContent;
 const labels = {planned: 'Planejada', development: 'Em desenvolvimento', production: 'Em produção · fictício'};
 let features = [];
+
+function restoreFilters() {
+  const saved = filtersFromURL(window.location.href);
+  status.value = saved.status;
+  query.value = saved.query;
+  filterHelp.textContent = shareHint;
+  if (!status.disabled) render();
+}
+
+restoreFilters();
+window.addEventListener('popstate', restoreFilters);
 
 function element(tag, text, className) {
   const node = document.createElement(tag);
@@ -38,9 +51,20 @@ function render() {
   }
 }
 
-status.addEventListener('change', render);
-query.addEventListener('input', render);
-clear.addEventListener('click', () => { status.value = 'all'; query.value = ''; render(); });
+function changeFilters() {
+  render();
+  try {
+    const url = filtersToURL(window.location.href, status.value, query.value);
+    if (url !== window.location.href) window.history.replaceState(window.history.state, '', url);
+    filterHelp.textContent = shareHint;
+  } catch {
+    filterHelp.textContent = 'Filtros aplicados. Este navegador não permitiu atualizar o endereço.';
+  }
+}
+
+status.addEventListener('change', changeFilters);
+query.addEventListener('input', changeFilters);
+clear.addEventListener('click', () => { status.value = 'all'; query.value = ''; changeFilters(); });
 
 try {
   const response = await fetch('./data.json');

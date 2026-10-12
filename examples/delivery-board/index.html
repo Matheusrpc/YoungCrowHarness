@@ -36,14 +36,15 @@
     <section id="quadro" aria-labelledby="board-title">
       <div class="section-heading"><h2 id="board-title">Frentes de trabalho</h2><span class="section-note">CENÁRIO DE DEMONSTRAÇÃO</span></div>
       <div class="filters">
-        <div><label for="status">Estado da entrega</label><select id="status" disabled>
+        <div><label for="status">Estado da entrega</label><select id="status" aria-describedby="filter-help" disabled>
           <option value="all">Todos os estados</option><option value="planned">Planejada</option>
           <option value="development">Em desenvolvimento</option>
           <option value="production">Em produção no cenário fictício</option>
         </select></div>
-        <div><label for="query">Buscar entrega</label><input id="query" type="search" placeholder="Nome ou objetivo da entrega" disabled></div>
+        <div><label for="query">Buscar entrega</label><input id="query" type="search" placeholder="Nome ou objetivo da entrega" aria-describedby="filter-help" disabled></div>
         <button id="clear" type="button" disabled>Limpar filtros</button>
       </div>
+      <p id="filter-help">Guarde ou compartilhe o endereço para reabrir estes filtros.</p>
       <p id="message" role="status" aria-live="polite">Carregando entregas…</p>
       <ul id="results" role="list"></ul>
       <noscript><p>Ative JavaScript para consultar os filtros. Os dados e o vault também estão disponíveis no repositório.</p></noscript>

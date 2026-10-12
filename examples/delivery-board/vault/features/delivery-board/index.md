@@ -3,7 +3,7 @@ id: "7a8f5020-54ab-5c9d-8355-137c4fba336f"
 type: "feature"
 title: "Quadro de entregas"
 origin: "youngcrow/public-pilot"
-updated: "2026-10-03T12:24:54.296Z"
+updated: "2026-10-12"
 index: "../index.md"
 ---
 
@@ -31,5 +31,11 @@ Responsável pela aprovação: mantenedor. Execução: Codex nesta sessão, um e
 | P09: roteiro PT/EN, README e processos | Demonstração, roteiro e provas ligados |
 
 Desenvolvimento: página, modelo, pacote e adoção verificados. Produção: verificada na operação ligada acima.
-Próxima ação: renovar o login do Claude e declarar nova tentativa limitada para concluir P06.
+Próxima ação registrada no piloto de 3/out: renovar o login do Claude e declarar nova tentativa limitada para concluir P06.
+
+Incremento [U01: consulta retomável por URL](runs/filter-url.md), em 12/out: implementado e verificado
+localmente com 11 testes Node e navegador em 1280px/360px. Publicação de U01 autorizada pelo mantenedor
+e em preparação. A prova histórica de produção refere-se somente à revisão registrada na operação.
+Próxima ação de U01: integrar o PR com os checks exigidos e verificar o site publicado.
+
 [Retomada nativa](runs/native-memory.md) registra hashes e limites da consulta.

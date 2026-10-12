@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "increment": "U01",
+  "date": "2026-10-12",
+  "recorded_at": "2026-10-12T07:02:11.763167+00:00",
+  "base_commit": "ca379107e9804180790afb3bb8c9a862a96bd554",
+  "branch": "feat/isolated-executor",
+  "project_id": "f60e681f-a8f3-40a5-aac6-fbcdc7aad86c",
+  "development_state": "locally_verified",
+  "publication_state": "local_uncommitted_unpublished",
+  "production_last_observed": {
+    "revision": "2134134f14dc861be803173613bfd6a0d2e855e0",
+    "observed_at": "2026-10-03T12:24:54.296Z",
+    "rechecked_in_this_increment": false
+  },
+  "code_sha256": {
+    "examples/delivery-board/model.mjs": "37ebfc8499379571f79a95664449c858d9b59967ef0934594bed88bde8f7c6f9",
+    "examples/delivery-board/app.mjs": "604d05029ff195aae4a71bb8b3ed9af0b1462bdd3713ab7eaa778978cb87e2fd",
+    "examples/delivery-board/index.html": "07cce9c69756927348a371d27e39e2f675a6fdf21b772fa40cef72bef88a13c8",
+    "examples/delivery-board/style.css": "39667b6b7436e4a7f4724727c433077e0f8f133399536e0063e621259b9873c1",
+    "examples/delivery-board/tests/model.test.mjs": "62712071f87ef587768aa7423f52828f2c758c8406c8de19606581f3a94320d0"
+  },
+  "source_notes_sha256": {
+    "examples/delivery-board/vault/features/delivery-board/index.md": "9d428a328a86c3a4e4efc570b3e8c7e574c2c7625ecaea5f2287b2789da2fdf5",
+    "examples/delivery-board/vault/features/delivery-board/runs/filter-url.md": "b76b6114cdaf41418efa51015bbf57306b64a55dcaf8b9859f1e40201432c3d2",
+    "examples/delivery-board/vault/operations/index.md": "55025996f589c45ab45c45644b896e501c339abc7e614d56af60a0d7589f4eda",
+    "examples/delivery-board/vault/product/profile.md": "1253109f4433e232c57fd06c20a04199e55c3dd0b9a12ba6a2bdc3b191fdeb00"
+  },
+  "node_tests": {
+    "command": "node --test tests/*.test.mjs",
+    "cwd": "examples/delivery-board",
+    "node_version": "24.19.0",
+    "total": 11,
+    "passed": 11,
+    "failed": 0,
+    "skipped": 0
+  },
+  "red_evidence": {
+    "helpers": "model-red.log: missing filtersFromURL export",
+    "history": "browser-history-red.log: expected production, got development after Back"
+  },
+  "browser": {
+    "browser": "Chromium 154.0.8037.57",
+    "observations": [
+      {
+        "width": 1280,
+        "shared_url_reload_new_tab": true,
+        "no_history_entries_and_state_preserved": true,
+        "literal_query": true,
+        "keyboard_clear_preserves_other_params_and_hash": true,
+        "status_change": true,
+        "invalid_status_fallback": true,
+        "history_failure_keeps_filtering": true,
+        "back_forward_after_anchor_navigation": true,
+        "no_horizontal_overflow": true,
+        "page_errors": []
+      },
+      {
+        "width": 360,
+        "shared_url_reload_new_tab": true,
+        "no_history_entries_and_state_preserved": true,
+        "literal_query": true,
+        "keyboard_clear_preserves_other_params_and_hash": true,
+        "status_change": true,
+        "invalid_status_fallback": true,
+        "history_failure_keeps_filtering": true,
+        "back_forward_after_anchor_navigation": true,
+        "no_horizontal_overflow": true,
+        "page_errors": []
+      },
+      {
+        "load_failure": "http_error",
+        "controls_disabled": true
+      },
+      {
+        "load_failure": "invalid_data",
+        "controls_disabled": true
+      }
+    ],
+    "cleanup": {
+      "owned_pids": [
+        291430,
+        291442,
+        291457,
+        291459,
+        291460,
+        291481,
+        291489,
+        291498,
+        291522,
+        291532,
+        291571,
+        291632,
+        291643,
+        291681,
+        291740,
+        291749,
+        291750,
+        291780,
+        291789,
+        291790
+      ],
+      "remaining_owned_pids": [],
+      "server_thread_alive": false
+    },
+    "script_sha256": "417323dbd1f131b8ca94bd20dfc41f6428cffbfceb8ce088b889f550a511f119"
+  },
+  "preview_manifest": {
+    "schema_version": 1,
+    "revision": "ca379107e9804180790afb3bb8c9a862a96bd554",
+    "files": {
+      "index.html": "07cce9c69756927348a371d27e39e2f675a6fdf21b772fa40cef72bef88a13c8",
+      "style.css": "39667b6b7436e4a7f4724727c433077e0f8f133399536e0063e621259b9873c1",
+      "app.mjs": "604d05029ff195aae4a71bb8b3ed9af0b1462bdd3713ab7eaa778978cb87e2fd",
+      "model.mjs": "37ebfc8499379571f79a95664449c858d9b59967ef0934594bed88bde8f7c6f9",
+      "data.json": "87f72c8a90202257d9e311861b905c49eef04e75fa96fb53e45ba3facc0a4f92",
+      "gema-cobalto.svg": "8a9bced1fe8b8f601cd0eefa6b881b44b2fb3dcaa75674dcb1fbe74977a5a68d"
+    }
+  },
+  "preview_manifest_verifies_publication": false,
+  "native_client_runs": 0,
+  "executor_cycles_consumed": 0,
+  "P06_repeated": false,
+  "memory_selection": "missing; followed Markdown microindices without writing an index",
+  "independent_recovery": {
+    "state": "verified_in_independent_context",
+    "agent": "recover_delivery_context",
+    "fork_turns": "none",
+    "mode": "read_only",
+    "entrypoint": "examples/delivery-board/vault/index.md",
+    "notes_read": [
+      {
+        "path": "examples/delivery-board/vault/index.md",
+        "uuid": "6403a072-13c4-5366-a2d8-a8ac85a84a43",
+        "sha256": "f5b7336aaa18db05790cb135376e9ae0cc29e6dd4b77491bf6c0b3871035e4ec"
+      },
+      {
+        "path": "examples/delivery-board/vault/features/index.md",
+        "uuid": "ef7f414b-b984-5e8c-9258-27d68a6e0f9d",
+        "sha256": "c59987ed7e05f2aad2868b2ff588526ceef7a6d2c3a8c2f0c0e14ad9bba98af4"
+      },
+      {
+        "path": "examples/delivery-board/vault/features/delivery-board/index.md",
+        "uuid": "7a8f5020-54ab-5c9d-8355-137c4fba336f",
+        "sha256": "9d428a328a86c3a4e4efc570b3e8c7e574c2c7625ecaea5f2287b2789da2fdf5"
+      },
+      {
+        "path": "examples/delivery-board/vault/features/delivery-board/runs/filter-url.md",
+        "uuid": "c5392ec6-80a8-4672-8cdb-c9cbec0c6f29",
+        "sha256": "b76b6114cdaf41418efa51015bbf57306b64a55dcaf8b9859f1e40201432c3d2"
+      },
+      {
+        "path": "examples/delivery-board/vault/operations/index.md",
+        "uuid": "78e0331e-c5b3-56b7-9586-9d9171f76409",
+        "sha256": "55025996f589c45ab45c45644b896e501c339abc7e614d56af60a0d7589f4eda"
+      }
+    ],
+    "timing_reported_by_reviewer": {
+      "started_at": "2026-10-12T07:00:14Z",
+      "finished_at": "2026-10-12T07:00:56Z",
+      "elapsed_seconds": 42
+    },
+    "recovered": [
+      "objective",
+      "URL design decision",
+      "code and acceptance evidence",
+      "local vs historical production state",
+      "limitations",
+      "next integration action"
+    ],
+    "code_hashes_checked": 5,
+    "preview_hashes_checked": 6,
+    "local_artifact_hashes_checked": 15,
+    "clarifying_questions": 0,
+    "implementation_chat_supplied": false,
+    "git_diff_used": false,
+    "tests_rerun": false,
+    "native_client_proof": false,
+    "missing_information_blocking_resumption": [],
+    "limits": [
+      "One observation in the same workspace",
+      "Local runtime logs are not versioned",
+      "No cross-client native session or measured productivity baseline"
+    ]
+  },
+  "local_evidence_sha256": {
+    "node-tests-final.log": "2d46c959c06d026b18fd752890fbddcee0f14dda4b6b9972df5d066a7c1d255b",
+    "browser-cleanup.json": "340c426fae26f6a66260669112402b302ac845b504b32e26f58a565573c25108",
+    "browser_check.py": "417323dbd1f131b8ca94bd20dfc41f6428cffbfceb8ce088b889f550a511f119",
+    "vault.json": "f18730c74748fadb04e47b8c5e31ce15b9e27643ac74461ad3a87d9699fa8d48",
+    "manifest-final.json": "939fd2ad468ec8ac6f02c8959612e0dc97758017d64dea1f233b58982402fafe",
+    "browser.log": "ba5b207c15e71120e88fcd76957bc1a3972040cf9024c21f62955d767d1990f0",
+    "model-red.log": "d4912b246614e6ba5c5ddab49b8e47951b1375f862754fb35881ed527e76827d",
+    "browser-final.log": "fd57d770ae1cb7528a347e7b5ad6d08dce549197c9ee9f715e23cb00c2e9a0a1",
+    "manifest.json": "7f3437846108edcdcc5945b4483f62135157ee7450b5efbea7bbbbeeaaec9e79",
+    "board-1280.png": "7f12ee097c3bf0d5832cf1466e7629e4499376bdb6b18cca9ad537510ddf1743",
+    "baseline.json": "fc8aac53bb42ce7479e4e8faffa35533b6bc41015ab13dbccf572f388f2d0e91",
+    "node-tests.log": "577ae8c32ad2c57688bd0556db50091efd2b93489703b30b940e7c358f213a48",
+    "browser-history-red.log": "02cfa5609b62fb40597122f7027acf02f62aed69cf42bb4e9141bfe576fbc51f",
+    "browser.json": "fd57d770ae1cb7528a347e7b5ad6d08dce549197c9ee9f715e23cb00c2e9a0a1",
+    "board-360.png": "57a1b356bd8404eab35ef66bca1cfc4c247f4a0ea3714cb4608f198d8fdb4176",
+    "links.json": "4ee0730791eb0e1ad0125607c19dcd65dea33eb3ab1d06161f59b38086c561d7",
+    "preservation.json": "f1bed590338a931b6365bc4c50d709d9f37772ffa0ff2ff1d916e7a660a041e9",
+    "independent-recovery.json": "9c26c5c07af532f7bba229846159e8247c31b2dfb7d3f3224914084b7c446e14"
+  },
+  "limits": [
+    "Chromium on Linux only",
+    "No new production observation",
+    "No new Claude/Codex native proof",
+    "No harness Python suite rerun; no harness code changed"
+  ],
+  "vault_validation": {
+    "schema_version": 1,
+    "notes_checked": 22,
+    "issues": []
+  },
+  "local_links": {
+    "checked": 552,
+    "issues": []
+  },
+  "prior_work_preservation": {
+    "baseline_files": 504,
+    "changed_paths": [
+      "README.md",
+      "docs/BACKLOG.md",
+      "docs/HANDOFF-CLOUD-2026-10-07.md",
+      "docs/USAGE.md",
+      "examples/delivery-board/README.md",
+      "examples/delivery-board/app.mjs",
+      "examples/delivery-board/index.html",
+      "examples/delivery-board/model.mjs",
+      "examples/delivery-board/style.css",
+      "examples/delivery-board/tests/model.test.mjs",
+      "examples/delivery-board/vault/features/delivery-board/delivery.md",
+      "examples/delivery-board/vault/features/delivery-board/index.md",
+      "examples/delivery-board/vault/operations/index.md",
+      "examples/delivery-board/vault/product/profile.md"
+    ],
+    "unchanged_baseline_files": 490,
+    "unrelated_changes": []
+  },
+  "review": {
+    "agent": "audit_readme_reduction",
+    "mode": "read_only",
+    "initial_findings": 1,
+    "resolved_findings": 1,
+    "remaining_blocking_findings": 0,
+    "confirmed_regression": "Back/Forward after same-document anchor navigation"
+  },
+  "observed_interval": {
+    "from": "baseline capture after exploration",
+    "started_at": "2026-10-12T06:53:51.932833+00:00",
+    "finished_at": "2026-10-12T07:02:11.763167+00:00",
+    "elapsed_seconds": 499.83,
+    "includes": [
+      "implementation",
+      "verification",
+      "documentation",
+      "review",
+      "independent recovery"
+    ],
+    "excludes": [
+      "initial exploration"
+    ],
+    "productivity_comparison": false
+  }
+}

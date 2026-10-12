@@ -17,6 +17,12 @@ Validação na cópia sobre main: 11 testes Node aprovados, zero falhas/skips; 2
 zero problemas; 326 links/âncoras locais conferidos. Pacote gerado com os seis arquivos públicos
 e manifesto. `git diff --check` passou. O CI remoto e o deploy serão registrados abaixo após execução.
 
+O primeiro CI de U01 passou nos testes do quadro, vault e pacote, mas o ensaio de adoção recusou
+o resultado por esperar quatro testes do modelo. U01 tem sete testes de modelo e quatro de pacote.
+`smoke_public_pilot.py` agora usa uma única contagem esperada para a linha TAP exata e os recibos.
+O ensaio local passou nos consumidores novo/existente, cliente `both`, com restauração e preservação
+do trial e das configurações globais. Os testes da aplicação permaneceram intactos.
+
 A main exige PR e o check `installer`, sem bypass. O workflow Pages publica automaticamente
 quando a alteração dos arquivos do quadro chega à main. A conclusão do deploy precisa ser
 conferida na execução do GitHub; a verificação externa compara manifesto, seis hashes, revisão

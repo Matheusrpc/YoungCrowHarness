@@ -39,7 +39,7 @@
     }
   },
   "git_diff_check": "passed",
-  "remote_state": "not_pushed",
+  "remote_state": "PR_open",
   "external_verification": {
     "state": "blocked",
     "reason": "cloud_proxy_403",
@@ -47,5 +47,55 @@
     "network_draft_saved": true,
     "runtime_applied": false
   },
-  "source_checkout_preserved": true
+  "source_checkout_preserved": true,
+  "adoption_smoke": {
+    "platform": "Linux",
+    "python": "3.12.14",
+    "client": "both",
+    "git": "git version 2.52.0",
+    "revision": "f53a5e47cc1334d4b8846bd988a7443b5cf63cec",
+    "cases": [
+      {
+        "case": "absent",
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true
+      },
+      {
+        "case": "dirty-git",
+        "restored": true,
+        "trial_preserved": true,
+        "home_unchanged": true
+      }
+    ],
+    "model_calls": 0,
+    "native_client_conversation": "not_exercised",
+    "deliveries": [
+      {
+        "mode": "new",
+        "project_id": "b50e8bac-687c-4e65-88f7-939085e8b7b9",
+        "tests_passed": 7,
+        "native_model_calls": 0,
+        "capabilities_audit_exit": 0,
+        "original_instructions_preserved": false
+      },
+      {
+        "mode": "existing",
+        "project_id": "316de889-991b-409d-a85e-edabb5d0523d",
+        "tests_passed": 7,
+        "native_model_calls": 0,
+        "capabilities_audit_exit": 0,
+        "original_instructions_preserved": true
+      }
+    ]
+  },
+  "smoke_sha256": "f7ecc629910e85e9fa2b6774bd90af1810e4f636df3591689f6ab845c9655f77",
+  "ci_initial_failure": {
+    "reason": "smoke expected four model tests; U01 has seven",
+    "node_model_and_package_passed": true,
+    "vault_passed": true,
+    "package_passed": true,
+    "resolved_locally": true
+  },
+  "pull_request": "https://github.com/Matheusrpc/YoungCrowHarness/pull/25"
 }

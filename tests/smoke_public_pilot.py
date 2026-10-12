@@ -10,6 +10,7 @@ from smoke_adoption import ROOT, smoke, run, write
 from integrations import note
 
 EXAMPLE = ROOT / 'examples/delivery-board'
+MODEL_TEST_COUNT = 7
 PUBLIC_FILES = ('index.html', 'style.css', 'app.mjs', 'model.mjs', 'data.json', 'gema-cobalto.svg')
 
 
@@ -56,7 +57,7 @@ def pilot(root, client):
         for name in (*PUBLIC_FILES, 'tests/model.test.mjs'):
             write(project / name, (EXAMPLE / name).read_bytes())
         tests = run([node, '--test', '--test-reporter=tap', 'tests/model.test.mjs'], env=env, cwd=project)
-        if b'# pass 4' not in tests:
+        if f'# pass {MODEL_TEST_COUNT}'.encode() not in tests.splitlines():
             raise ValueError('model_tests_not_confirmed')
         audit = subprocess.run([sys.executable, '-B', 'scripts/capabilities.py', 'audit',
                                 '--client', client, '--json'], env=env, cwd=project,
@@ -76,7 +77,7 @@ def pilot(root, client):
                'HTML/CSS/JavaScript, Node 24, paleta do YoungCrow. PM define aceite; Tech Lead divide a entrega;\n'
                'script de ensaio copia a versão revisada e verifica testes. Isso não é uma conversa nativa de IA.\n'
                'Aceite: lista, filtro, vazio e limpeza; prova de interface está no exemplo canônico.\n'
-               'Teste executado: node --test tests/model.test.mjs, 4 aprovados.\n'
+               f'Teste executado: node --test tests/model.test.mjs, {MODEL_TEST_COUNT} aprovados.\n'
                'Desenvolvimento: modelo verificado e página copiada. Produção: não publicada.\n')
         record('vault/product/interviews/public-pilot.md', 'interview', 'Contexto do ensaio', '../index.md',
                f'# Contexto do ensaio\n\n[Produto](../index.md) · [Perfil](../profile.md)\n\nModo: {mode}. '
@@ -96,23 +97,23 @@ def pilot(root, client):
                    'CLAUDE.md e .codex/config.toml próprios; mudanças preparadas/não preparadas em app.txt.\n'
                    'Preservado: histórico, configuração Codex e prefixos das instruções/README.\n'
                    'Adaptado: acrescentados filtros à página e referência ao perfil. Sem instalação global.\n'
-                   'Verificação: 4 testes Node passaram. Interface canônica tem prova independente.\n'
+                   f'Verificação: {MODEL_TEST_COUNT} testes Node passaram. Interface canônica tem prova independente.\n'
                    'Desconhecido: execução nativa de modelos e produção; não alegadas pelo script.\n')
         record('vault/features/delivery-board/index.md', 'feature', 'Quadro no consumidor', '../index.md',
                '# Quadro no consumidor\n\n[Features](../index.md) · [Perfil](../../product/profile.md)\n'
                '· [Entregas](delivery.md) · [Execução](runs/first-delivery.md)\n\n'
                f'Entrega: {"primeira aplicação" if mode == "new" else "filtro sobre aplicação existente"}.\n'
-               'Desenvolvimento: página copiada e 4 testes do modelo aprovados. Produção: não publicada.\n'
+               f'Desenvolvimento: página copiada e {MODEL_TEST_COUNT} testes do modelo aprovados. Produção: não publicada.\n'
                'Próxima ação: retorno controlado; preservar trabalho do trial.\n')
         record('vault/features/delivery-board/delivery.md', 'delivery', 'Entrega do consumidor', 'index.md',
                '# Entrega\n\n[Feature](index.md) · [Execução](runs/first-delivery.md)\n\n'
-               'Aceite: modelo seleciona por estado/busca e recusa dados inválidos. Quatro testes passam.\n'
+               f'Aceite: modelo seleciona por estado/busca e recusa dados inválidos. {MODEL_TEST_COUNT} testes passam.\n'
                'Página vem da versão canônica revisada; o script não reexecuta a prova visual.\n'
                'Próxima ação: confirmar restauração exata e cópia recuperável do trabalho.\n')
         record('vault/features/delivery-board/runs/first-delivery.md', 'run', 'Primeira entrega', '../index.md',
                '# Primeira entrega\n\n[Feature](../index.md) · [Entregas](../delivery.md)\n\n'
                f'Executor: smoke_public_pilot.py; cliente instalado: {client}; modo: {mode}.\n'
-               'Setup e personalizer reais; modelo: node --test tests/model.test.mjs, 4 aprovados.\n'
+               f'Setup e personalizer reais; modelo: node --test tests/model.test.mjs, {MODEL_TEST_COUNT} aprovados.\n'
                'Capacidades: scripts de personalizer/capabilities e validador do vault. Model calls: 0.\n'
                'Skills disponíveis não foram executadas por um modelo neste ensaio. MCP, Graphify e claude-mem: zero.\n'
                'Desenvolvimento: modelo testado; produção: não publicada; próxima ação: retorno controlado.\n')
@@ -122,13 +123,13 @@ def pilot(root, client):
                 write(path, path.read_bytes() + b'\nProduct context: vault/product/profile.md.\n')
         guide = retained.get('README.md', b'# Delivery board consumer\n')
         write(project / 'README.md', guide + b'\nTrial delivery: list and filter fictional features.\n'
-              b'Test: node --test tests/model.test.mjs (4 passed).\n'
+              + f'Test: node --test tests/model.test.mjs ({MODEL_TEST_COUNT} passed).\n'.encode() +
               b'Context: vault/product/profile.md. Production: not published.\n')
         for name, previous in retained.items():
             if not (project / name).read_bytes().startswith(previous):
                 raise ValueError('existing_instructions_lost')
         run([sys.executable, '-B', 'scripts/vault.py', 'check', '--json'], env=env, cwd=project)
-        deliveries.append(dict(mode=mode, project_id=project_id, tests_passed=4,
+        deliveries.append(dict(mode=mode, project_id=project_id, tests_passed=MODEL_TEST_COUNT,
                                native_model_calls=0, capabilities_audit_exit=audit.returncode,
                                original_instructions_preserved=mode == 'existing'))
 

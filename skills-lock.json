@@ -299,7 +299,16 @@
           "scripts/mission_egress.py",
           "scripts/mission_network.py",
           "scripts/mission_queue.py",
-          "scripts/mission_workspace.py"
+          "scripts/mission_workspace.py",
+          "scripts/mission_worker.py",
+          "scripts/mission_tool_clients.py",
+          "scripts/mission_worker_runs.py",
+          "scripts/build_tool_worker.py",
+          "runtime/worker/guardian.py",
+          "runtime/worker/check.py",
+          "runtime/worker/transfer.py",
+          "runtime/worker/mcp.py",
+          "runtime/worker/worker.dockerfile"
         ],
         "claude": [
           ".claude/skills/personalizer/SKILL.md"
@@ -325,10 +334,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "4ed02a5e2e4d82e34d37823fab9b30ed144d950fb42b6e488ffae4499a4932a4",
+        "contract_sha256": "516b8617b9cb4de9c7ef0da04bbcadc613cd2cab6da96bc2ff5048153597624f",
         "files_sha256": {
-          "claude": "522ba40d99366fa717d98c2cb2900bae630fcb92cb4030247c5dce097aa5b5cc",
-          "codex": "e5328007a5f234a9f63728b7e334aa0714bb7e6e3838fdbd6c2d3a0f725a46ce"
+          "claude": "c397bf14a870e8fe4d4522aefde40aabf592c56a6a157c808da2e56f80860972",
+          "codex": "b6f8b3c381d402893f6b2762995a3918682534bdb63c39ce40dd34b94d0637f8"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1222,7 +1231,16 @@
           "scripts/mission_egress.py",
           "scripts/mission_network.py",
           "scripts/mission_queue.py",
-          "scripts/mission_workspace.py"
+          "scripts/mission_workspace.py",
+          "scripts/mission_worker.py",
+          "scripts/mission_tool_clients.py",
+          "scripts/mission_worker_runs.py",
+          "scripts/build_tool_worker.py",
+          "runtime/worker/guardian.py",
+          "runtime/worker/check.py",
+          "runtime/worker/transfer.py",
+          "runtime/worker/mcp.py",
+          "runtime/worker/worker.dockerfile"
         ],
         "claude": [
           ".claude/skills/yc-personalizer/SKILL.md"
@@ -1248,10 +1266,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "cc7f0be1bbc77eba45aa6c320fe24acb39039eb463827e3af8b104fc39d7014e",
+        "contract_sha256": "1eb35cf6f162542beb6ec92e9424a9510c8987c69084b72a5dfaebfe0ad5f72d",
         "files_sha256": {
-          "claude": "35f31c1912b7b7abb06e431f9c00c1c88c78d230e844e45533c452db08e29a50",
-          "codex": "be6be5a7b071645a50082c9e039174bebdbbcee2ddf91ee53e16331a9d08cd45"
+          "claude": "f85d10c3243e0f8e4e2c9b6d983576b5d732bd620a26c60ce3291cade19fae3f",
+          "codex": "cd949a6b05a0c691571e795a4d18805ddf82598369c7ef424962517c2b6f4b5f"
         }
       }
     },
@@ -1310,7 +1328,16 @@
           "scripts/mission_egress.py",
           "scripts/mission_network.py",
           "scripts/mission_queue.py",
-          "scripts/mission_workspace.py"
+          "scripts/mission_workspace.py",
+          "scripts/mission_worker.py",
+          "scripts/mission_tool_clients.py",
+          "scripts/mission_worker_runs.py",
+          "scripts/build_tool_worker.py",
+          "runtime/worker/guardian.py",
+          "runtime/worker/check.py",
+          "runtime/worker/transfer.py",
+          "runtime/worker/mcp.py",
+          "runtime/worker/worker.dockerfile"
         ],
         "claude": [
           ".claude/skills/yc-config/SKILL.md"
@@ -1340,10 +1367,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "7badfa4acfe7638f7326e93e94506a3b291d44cfb3d635bcee2a90884f9dcc08",
+        "contract_sha256": "18272fb6066f7b465f84cf638782d2b5364b998324bde7cbd7737eab50f2af83",
         "files_sha256": {
-          "claude": "068351b9c85d8bdb86a5a037e5eeb2d7c35acdb864b8afbeeb9a4dbfc0ddfd20",
-          "codex": "42e2c7a8bb3422cc55c3b35ffa9c79b680f77ff10ef2ffb794f7ff0458a09d17"
+          "claude": "32528108ca0cf3e8e0ea645124c00eeec23a7a66a1cf4325f6c5acb575521518",
+          "codex": "62ae4d74b00bd378f746ce9af22bae0c2032f5a07e1393c680d0fb69f012f6e6"
         }
       }
     },
@@ -1402,7 +1429,16 @@
           "scripts/mission_egress.py",
           "scripts/mission_network.py",
           "scripts/mission_queue.py",
-          "scripts/mission_workspace.py"
+          "scripts/mission_workspace.py",
+          "scripts/mission_worker.py",
+          "scripts/mission_tool_clients.py",
+          "scripts/mission_worker_runs.py",
+          "scripts/build_tool_worker.py",
+          "runtime/worker/guardian.py",
+          "runtime/worker/check.py",
+          "runtime/worker/transfer.py",
+          "runtime/worker/mcp.py",
+          "runtime/worker/worker.dockerfile"
         ],
         "claude": [
           ".claude/skills/yc-missao/SKILL.md"
@@ -1430,10 +1466,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "665134baae0553d4a05dfd7d0a920c2626c3fea34e7614b28a313b4f4733d07d",
+        "contract_sha256": "043541ff91a7c6acc22fa08a9dc8f5df65b7ec897b37cb64c99f435f0aa08c49",
         "files_sha256": {
-          "claude": "1edcff770709fb6064f64b1b63e350768a49580031cad9a747813f01c0d411c8",
-          "codex": "c22a0b90ae400d0fe0daf5266d7d44792c9070291f0c9aaf2c3a00d5affeea9f"
+          "claude": "cccee0464d60a962053f5a9a67c9164aa325d71df6e9038fc43382d6cb259665",
+          "codex": "ccc04ba62abb2b7c5e55aa341957bfcdbc6f7f778ee06ae0ee493f54f8f39b54"
         }
       }
     },
@@ -1492,7 +1528,16 @@
           "scripts/mission_egress.py",
           "scripts/mission_network.py",
           "scripts/mission_queue.py",
-          "scripts/mission_workspace.py"
+          "scripts/mission_workspace.py",
+          "scripts/mission_worker.py",
+          "scripts/mission_tool_clients.py",
+          "scripts/mission_worker_runs.py",
+          "scripts/build_tool_worker.py",
+          "runtime/worker/guardian.py",
+          "runtime/worker/check.py",
+          "runtime/worker/transfer.py",
+          "runtime/worker/mcp.py",
+          "runtime/worker/worker.dockerfile"
         ],
         "claude": [
           ".claude/skills/yc-status/SKILL.md"
@@ -1516,10 +1561,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "8c4bc48810e24529420e14e3df6ee3c6cccfb38db7821759a7934ceab73d7bba",
+        "contract_sha256": "404ba9fb7f7435a4133d25dd0e2337cceceadb0f81bea8313f61381dca9cf886",
         "files_sha256": {
-          "claude": "98b9200f918872cfa99e211159aa3861dcfe831736513c70677105996d7f7d3a",
-          "codex": "3681003906a3bc46798ac1aed975e6b1fd70fed66867dd0c61776f11d7c06f19"
+          "claude": "0ed38e2697967f0bc8c07a8dacc3c790357d9601e4ffd4848ce6d4ab7399d311",
+          "codex": "09c6a5bb80cdde4f124d51d698ffe91ca0693cc8a57265bc7a531daa1918b884"
         }
       }
     }

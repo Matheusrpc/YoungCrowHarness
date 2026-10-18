@@ -30,6 +30,8 @@ BATCH = 'YC-TEST-20261010-A'
 BASE = '.runtime/test-campaign-20261010/claude-p06'
 SECONDS, TOOLS = 300, 24
 SKILLS = ('retrieve-memory', 'karpathy', 'ponytail')
+# Reviewed source evidence for this pilot; links never expand the copy scope.
+PUBLIC_EVIDENCE = ('model.mjs', 'app.mjs', 'index.html', 'style.css', 'tests/model.test.mjs', 'README.md')
 REQUIRED_EVIDENCE = {
     'vault/features/delivery-board/index.md', 'vault/decisions/static-site.md',
     'vault/features/delivery-board/runs/implementation.md',
@@ -106,6 +108,7 @@ def make_context(repo, context, skills_dir):
     require(not vault.check(public)['issues'], 'invalid_public_vault')
     sources = [(p, p.relative_to(public)) for p in (public / 'vault').rglob('*')
                if p.is_file() and 'local' not in p.relative_to(public).parts]
+    sources.extend((public / name, Path(name)) for name in PUBLIC_EVIDENCE)
     for name in SKILLS:
         source = (repo / 'skills' if name == 'retrieve-memory' else skills_dir) / name / 'SKILL.md'
         fs.checked_path(source)
@@ -114,7 +117,9 @@ def make_context(repo, context, skills_dir):
     # Check all inputs before creating a destination; never copy a whole profile.
     for source, _ in sources:
         fs.checked_path(source)
+        require(source.is_file(), 'invalid_context_source')
         require(source.stat().st_nlink == 1, 'linked_source')
+        require(source.stat().st_size <= 1024 * 1024, 'context_file_too_large')
     context.mkdir(parents=True)
     for source, relative in sources:
         target = context / relative

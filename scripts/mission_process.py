@@ -67,15 +67,22 @@ def active_job(api, handle):
     return info.active
 
 
-def linux_members(group):
+def linux_members(group, *, strict=False):
     members = []
-    for path in Path('/proc').glob('[0-9]*/stat'):
+    try:
+        paths = [p / 'stat' for p in Path('/proc').iterdir() if p.name.isdigit()] if strict else Path('/proc').glob('[0-9]*/stat')
+    except OSError:
+        return None
+    for path in paths:
         try:
             fields = path.read_text().rsplit(')', 1)[1].split()
             if int(fields[2]) == group and fields[0] != 'Z':
                 members.append(int(path.parent.name))
-        except (OSError, ValueError, IndexError):
+        except FileNotFoundError:
             continue
+        except (OSError, ValueError, IndexError):
+            if strict:
+                return None
     return members
 
 
@@ -100,6 +107,10 @@ def owner_gone(owner):
         # Reuse can conservatively report a live group, never kill it. Inherited seccomp
         # keeps all owned descendants in the original group until they exit.
         return not linux_members(owner['pid'])
+    if owner['kind'] == 'linux-pidns-group' and sys.platform == 'linux' and type(owner['pid']) is int and owner['pid'] > 1:
+        # The namespace's PID 1 remains in this outer group. Its exit kills and
+        # reaps all namespace descendants before it becomes a zombie.
+        return linux_members(owner['pid'], strict=True) == []
     return False
 
 
@@ -129,10 +140,11 @@ def process_missing(pid):
     return False
 
 
-def linux_filter():
-    """Inherit a seccomp filter preventing descendants from leaving this group.
+def linux_filter(*, namespace=False):
+    """Block namespace escapes; legacy clients also cannot leave their group.
 
-    This contains process lifetime; it is not a filesystem/network sandbox.
+    PID 1 exit contains new groups in the namespace profile. Neither mode is a
+    filesystem/network sandbox.
     Only the tested x86-64 ABI is supported. Reject alternate syscall ABIs.
     """
     if platform.machine().lower() not in ('x86_64', 'amd64'):
@@ -143,7 +155,7 @@ def linux_filter():
         _fields_ = [('length', ctypes.c_ushort), ('filters', ctypes.POINTER(Filter))]
     instructions = [(0x20, 0, 0, 4), (0x15, 1, 0, 0xc000003e), (0x06, 0, 0, 0x80000000),
                     (0x20, 0, 0, 0), (0x35, 0, 1, 0x40000000), (0x06, 0, 0, 0x80000000)]
-    for syscall in (109, 112, 272, 308):  # setpgid, setsid, unshare, setns
+    for syscall in ((272, 308) if namespace else (109, 112, 272, 308)):
         instructions += [(0x15, 0, 1, syscall), (0x06, 0, 0, 0x50001)]
     # clone3 carries flags behind a pointer; ENOSYS permits libc's safe clone fallback.
     instructions += [(0x15, 0, 1, 435), (0x06, 0, 0, 0x50026),
@@ -160,18 +172,45 @@ def child_main():
     # Isolated Python (-I -S) starts no client until the parent assigns its job.
     request = json.loads(sys.stdin.buffer.readline(1024 * 1024))
     if sys.platform == 'linux':
-        linux_filter()
+        if not request.get('pid_namespace'):
+            linux_filter()
         parent = request['parent_pid']
         if os.getppid() != parent:
             return 125
 
         def watch_parent():
-            deadline = time.monotonic() + request['timeout_seconds']
+            deadline = request['deadline_monotonic'] if request.get('pid_namespace') else time.monotonic() + request['timeout_seconds']
             while os.getppid() == parent and time.monotonic() < deadline:
                 time.sleep(.05)
             os.killpg(os.getpid(), signal.SIGKILL)
 
         threading.Thread(target=watch_parent, daemon=True).start()
+        if request.get('pid_namespace'):
+            request['wrapper_pid'] = os.getpid()
+            command = ['/usr/bin/unshare', '--user', '--map-current-user', '--pid', '--fork', '--kill-child=KILL',
+                       sys.executable, '-I', '-S', str(Path(__file__).resolve()), '--namespace-child']
+            return subprocess.run(command, input=json.dumps(request).encode() + b'\n').returncode
+    return run_client(request)
+
+
+def namespace_main():
+    request = json.loads(sys.stdin.buffer.readline(1024 * 1024))
+    fields = Path('/proc/self/stat').read_text().rsplit(')', 1)[1].split()
+    if os.getpid() != 1 or int(fields[2]) != request['wrapper_pid']:
+        return 125
+    remaining = request['deadline_monotonic'] - time.monotonic()
+    if remaining <= 0:
+        return 124
+    # Independent of the wrapper: even SIGKILL of both controller and wrapper
+    # leaves this absolute deadline intact. PID 1 exit reaps every process group.
+    timer = threading.Timer(remaining, os._exit, args=(124,))
+    timer.daemon = True
+    timer.start()
+    linux_filter(namespace=True)
+    return run_client(request)
+
+
+def run_client(request):
     exchanges = request.get('exchange_requests')
     client = subprocess.Popen(request['argv'], stdin=subprocess.PIPE,
                               stdout=subprocess.PIPE if exchanges is not None else None)
@@ -208,6 +247,9 @@ def child_main():
 
 
 def environment(plan):
+    if plan.get('execution_contract') == 'isolated-tools':
+        from mission_tool_clients import client_environment
+        return client_environment(plan)
     allowed = {'PATH', 'SYSTEMROOT', 'WINDIR', 'COMSPEC', 'PATHEXT', 'TEMP', 'TMP', 'TMPDIR',
                'USERPROFILE', 'HOME', 'HOMEDRIVE', 'HOMEPATH', 'APPDATA', 'LOCALAPPDATA',
                'PROGRAMDATA', 'PROGRAMFILES', 'CODEX_HOME', 'CLAUDE_CONFIG_DIR', 'LANG', 'LC_ALL'}
@@ -237,6 +279,9 @@ def peek_exit_code(process):
 
 def supervise(plan: dict, *, on_started, stop_requested) -> dict:
     if os.name != 'nt' and not (sys.platform == 'linux' and platform.machine().lower() in ('x86_64', 'amd64')):
+        raise ValueError('unsupported_containment')
+    namespace = plan.get('execution_contract') == 'isolated-tools'
+    if namespace and (sys.platform != 'linux' or not Path('/usr/bin/unshare').is_file()):
         raise ValueError('unsupported_containment')
     observed_start = time.monotonic()
     result = dict(reason='spawn_failed', exit_code=None, stdout=b'', stderr=b'', tree_reaped=True,
@@ -278,7 +323,7 @@ def supervise(plan: dict, *, on_started, stop_requested) -> dict:
             assigned = bool(api.AssignProcessToJobObject(job, int(process._handle)))
             if not assigned:
                 raise ValueError('unsupported_containment')
-        owner = dict(kind='windows-job' if job else 'linux-group', name=name, pid=process.pid)
+        owner = dict(kind='windows-job' if job else 'linux-pidns-group' if namespace else 'linux-group', name=name, pid=process.pid)
         result['owner'] = owner
         on_started(owner)  # Persist ownership before giving the wrapper any executable.
         for stream, label in ((process.stdout, 'out'), (process.stderr, 'err')):
@@ -287,6 +332,7 @@ def supervise(plan: dict, *, on_started, stop_requested) -> dict:
             threads.append(thread)
         process.stdin.write(json.dumps(dict(argv=plan['argv'], stdin=base64.b64encode(plan['stdin']).decode(),
                                            parent_pid=os.getpid(), timeout_seconds=plan['timeout_seconds'],
+                                           pid_namespace=namespace, deadline_monotonic=started+plan['timeout_seconds'],
                                            exchange_requests=plan.get('exchange_requests'))).encode() + b'\n')
         process.stdin.close()
         result.update(effect_started=True, reason='completed')
@@ -314,6 +360,8 @@ def supervise(plan: dict, *, on_started, stop_requested) -> dict:
             if total > plan['output_limit_bytes']:
                 result['reason'] = 'output_limit'
                 break
+        if namespace and result['reason'] == 'completed' and time.monotonic() - started >= plan['timeout_seconds']:
+            result['reason'] = 'timeout'
     finally:
         stopped.set()
         try:
@@ -334,7 +382,13 @@ def supervise(plan: dict, *, on_started, stop_requested) -> dict:
                     result['tree_reaped'] = False
                 deadline = time.monotonic() + 3
                 while time.monotonic() < deadline:
-                    remaining = active_job(api, job) if assigned else len(linux_members(process.pid)) if os.name != 'nt' else 0
+                    if assigned:
+                        remaining = active_job(api, job)
+                    elif os.name != 'nt':
+                        members = linux_members(process.pid, strict=True) if namespace else linux_members(process.pid)
+                        remaining = None if members is None else len(members)
+                    else:
+                        remaining = 0
                     if remaining == 0:
                         break
                     time.sleep(.02)
@@ -357,6 +411,7 @@ def supervise(plan: dict, *, on_started, stop_requested) -> dict:
 
 if __name__ == '__main__':
     try:
-        sys.exit(child_main() if sys.argv[1:] == ['--child'] else 2)
+        sys.exit(child_main() if sys.argv[1:] == ['--child'] else
+                 namespace_main() if sys.argv[1:] == ['--namespace-child'] else 2)
     except Exception:
         sys.exit(125)

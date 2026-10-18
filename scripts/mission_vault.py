@@ -132,9 +132,10 @@ def project_run(root, run_id):
         sequence = conn.execute('SELECT MAX(seq) FROM agent_run_events WHERE run_id=?', (run_id,)).fetchone()[0]
         base = f"vault/local/missions/{run['mission_id']}/runs"
         path, index = f'{base}/{run_id}.md', f'{base}/index.md'
-        body = (f"# Client check · {run['state']}\n\n[Index](index.md) · [Mission](../index.md)\n\n"
+        title = 'Isolated tool check' if run.get('execution_contract') == 'isolated-tools' else 'Client diagnostic'
+        body = (f"# {title} · {run['state']}\n\n[Index](index.md) · [Mission](../index.md)\n\n"
                 + '```json\n' + json.dumps(run, ensure_ascii=False, indent=2) + '\n```\n')
-        data = markdown(run_id, 'receipt', 'Client diagnostic', 'index.md', body, run['updated_at']).encode()
+        data = markdown(run_id, 'receipt', title, 'index.md', body, run['updated_at']).encode()
         for relative in (path, index):
             safe_path(root, relative)
         if (root / path).exists():

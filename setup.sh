@@ -67,6 +67,7 @@ FILES+=(scripts/mission_config.py scripts/mission_backlog.py scripts/mission_sto
 FILES+=(scripts/mission_queue.py scripts/mission_workspace.py)
 FILES+=(scripts/mission_clients.py scripts/mission_process.py scripts/mission_runs.py scripts/mission_sandbox.py scripts/mission_environment.py)
 FILES+=(scripts/mission_sbx.py scripts/mission_execution.py scripts/mission_egress.py scripts/mission_controller.py scripts/mission_transaction.py scripts/mission_network.py)
+FILES+=(scripts/mission_worker.py scripts/mission_tool_clients.py scripts/mission_worker_runs.py scripts/build_tool_worker.py runtime/worker/guardian.py runtime/worker/check.py runtime/worker/transfer.py runtime/worker/mcp.py runtime/worker/worker.dockerfile)
 FILES+=(skills/yc-personalizer/SKILL.md skills/yc-config/SKILL.md skills/yc-missao/SKILL.md skills/yc-status/SKILL.md)
 SKILL_ROOTS=()
 if [ "$CLIENT" != codex ]; then
@@ -229,7 +230,7 @@ copiar() {  # copiar <relativo>: nunca sobrescreve sem --force
   # Knowledge is product data, never a replaceable configuration template.
   if [[ "$rel" == vault/* ]] && [ -e "$dst" ]; then echo "  mantido / preserved: $rel (vault)"; return; fi
   case "$rel" in
-    skills-lock.json|skills/*|.claude/skills/*|.agents/skills/*|.codex/agents/*|scripts/mission_clients.py|scripts/mission_runs.py|scripts/mission_process.py|scripts/mission_sandbox.py|scripts/mission_environment.py|scripts/mission_sbx.py|scripts/mission_execution.py|scripts/mission_egress.py|scripts/mission_controller.py|scripts/mission_transaction.py|scripts/mission_network.py|scripts/mission_queue.py|scripts/mission_workspace.py)
+    skills-lock.json|skills/*|.claude/skills/*|.agents/skills/*|.codex/agents/*|scripts/mission_clients.py|scripts/mission_runs.py|scripts/mission_process.py|scripts/mission_sandbox.py|scripts/mission_environment.py|scripts/mission_sbx.py|scripts/mission_execution.py|scripts/mission_egress.py|scripts/mission_controller.py|scripts/mission_transaction.py|scripts/mission_network.py|scripts/mission_queue.py|scripts/mission_workspace.py|scripts/mission_worker.py|scripts/mission_tool_clients.py|scripts/mission_worker_runs.py|scripts/build_tool_worker.py|runtime/worker/*)
       if [ -e "$dst" ]; then
         echo "  preservado / preserved: $rel; compare e mescle / compare and merge"; return
       fi ;;

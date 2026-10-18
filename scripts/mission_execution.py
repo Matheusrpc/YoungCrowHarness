@@ -158,6 +158,14 @@ class Registry:
             raise ValueError('execution_reservation_invalid')
 
     def validate_record(self, record, operation_id):
+        if type(record) is dict and 'contract' in record:
+            if record['contract'] != 'isolated-tools':
+                raise ValueError('execution_reservation_invalid')
+            from mission_worker_runs import validate_record
+            validate_record(record)
+            if record['request']['operation_id'] != operation_id:
+                raise ValueError('execution_reservation_invalid')
+            return
         if type(record) is dict and 'schema_version' in record:
             from mission_transaction import validate_record
             validate_record(record)

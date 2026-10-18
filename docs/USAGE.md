@@ -33,6 +33,10 @@ sessão Haiku. O verificador original recusou a navegação; a reavaliação
 offline dos mesmos arquivos passou com a correção e a revisão do conteúdo.
 O recibo original permanece intacto. P06 está verificado no piloto; não é preciso
 repetir o teste. O [guia](P06-CLAUDE.md) conserva o histórico e os limites.
+As regressões locais montam o contexto com o vault, as skills selecionadas e seis fontes públicas
+do exemplo: `model.mjs`, `app.mjs`, `index.html`, `style.css`, `tests/model.test.mjs` e `README.md`.
+Os arquivos são copiados sem alteração, com limite de 1 MiB cada; links nas notas não ampliam
+essa seleção. O teste não inicia Claude nem repete a sessão P06.
 O README do exemplo explica como gerar e servir somente o pacote permitido, em um destino novo.
 
 [Open the demonstration](https://matheusrpc.github.io/YoungCrowHarness/) or follow the [pilot recipe](../examples/delivery-board/README.md), which brings these paths together in an example
@@ -43,6 +47,10 @@ Haiku session. The original verifier rejected navigation; offline
 re-evaluation of the same files passed with the fix and semantic review.
 The original receipt remains intact. Pilot P06 is verified; no repeat is needed.
 The [guide](P06-CLAUDE.md) preserves the history and limits.
+Local regressions build the context from the vault, selected skills and six public example sources:
+`model.mjs`, `app.mjs`, `index.html`, `style.css`, `tests/model.test.mjs` and `README.md`.
+Files are copied unchanged, with a 1 MiB limit each; note links cannot expand this selection.
+The test does not start Claude or repeat the P06 session.
 The example README explains how to build and serve only the allowed package, using a new destination.
 
 Catálogo de capacidades: `python scripts/capabilities.py list --json` mostra finalidade e clientes;
@@ -3717,3 +3725,140 @@ repairs. A new decision requires a new operation/current revision. Reprioritizat
 plans; broad `revise` clears all current selections while retaining their event history.
 New references must enter through the authorized note/import/revise workflow first. No scope,
 criteria, dependency, note or PBI is changed; automated decomposition, review and dispatch remain pending.
+
+
+## Worker OCI experimental / Experimental OCI worker
+
+Frente: YC-203. O worker executa ferramentas em Docker Linux x86_64, sem rede,
+credenciais, montagem do projeto ou socket Docker dentro do contêiner. O isolamento
+compartilha o kernel do host. Os testes nativos corrigem uma cópia de `clamp.py`,
+executam o teste fixo e exportam o snapshot após confirmar o encerramento.
+O original permanece intacto. A fixture aceita uma função `clamp` com expressão pura;
+ela não é um executor geral de testes de projetos.
+
+Codex 0.159.2 e Claude Code 2.1.296 têm binários oficiais fixados por SHA-256.
+O transporte exec-server do Codex e o MCP do worker passaram nos ensaios sem modelo.
+A supervisão agora permite os grupos de processos do Codex dentro de um PID namespace,
+com prazo independente e encerramento dos descendentes após queda. Esse perfil exige
+Linux x86_64, `/usr/bin/unshare` e permissão para criar user/PID namespaces; se a criação
+falhar, o cliente não é iniciado. A recuperação observa processos sem sinalizar PIDs do ledger.
+A pasta de trabalho do worker é um tmpfs real de 64 MiB em
+`/tmp/youngcrow-UUID/cwd`. O controle tem uma pasta vazia com o mesmo caminho, sem
+compartilhar arquivos. A imagem inclui o `bwrap` do pacote oficial, fixado por SHA-256.
+A execução completa continua bloqueada neste ambiente: o container recusa a criação
+dos namespaces internos do sandbox do Codex. As rotas tardias do Claude ainda precisam de prova.
+Inicialização de SDK e presença de login não substituem esse aceite.
+Os fluxos atuais também não comprovam o esforço aplicado; Codex `exec --json` omite
+modelo e esforço. Uma saída zero sem essas observações não aprova o resultado.
+Veja [provas do workspace e pendências](relatorios/2026-10-17-codex-workspace.md).
+
+Para reproduzir somente o ensaio de ferramentas, com o Docker local disponível e o
+Codex oficial exato instalado, execute a partir da raiz do harness:
+
+```bash
+yc_worker_parent="$(mktemp -d /tmp/youngcrow-worker.XXXXXX)"
+python3 -B scripts/build_tool_worker.py \
+  --docker-executable /usr/local/bin/docker \
+  --codex-executable /opt/codex/bin/codex \
+  --bwrap-executable /opt/codex/codex-resources/bwrap --output "$yc_worker_parent/build"
+yc_worker_image="$(cat "$yc_worker_parent/build/image.id")"
+python3 -B tests/smoke_tool_worker.py \
+  --docker /usr/local/bin/docker --image "$yc_worker_image" \
+  --report "$yc_worker_parent/worker.json"
+python3 -B tests/smoke_tool_clients.py \
+  --client codex --executable /opt/codex/bin/codex \
+  --docker /usr/local/bin/docker --image "$yc_worker_image" \
+  --report "$yc_worker_parent/codex.json"
+python3 -B tests/smoke_codex_supervision.py \
+  --executable /opt/codex/bin/codex \
+  --docker /usr/local/bin/docker --image "$yc_worker_image" \
+  --report "$yc_worker_parent/codex-supervision.json"
+```
+
+Esses comandos não chamam modelos. `smoke_tool_clients.py` identifica a prova como
+`native-transport-no-model`, `qualified=false`. Um transporte aprovado não libera
+`worker-check`. O build preserva credenciais do registry, proxy e certificados do
+controle; seu cache Buildx fica no destino privado. Destinos existentes são recusados.
+
+`smoke_codex_supervision.py` usa uma resposta fixa de um servidor HTTP em loopback,
+sem conta ou modelo. Confere inicialização do transporte, catálogo e encerramento;
+não solicita execução de ferramenta e registra `tools_executed=[]`, `qualified=false`.
+Usa os metadados embarcados de `gpt-5.5` para expor ferramentas diretas. Não troca a
+seleção do produto: modelos com catálogo `code_mode_only` precisam de outra qualificação.
+Os testes de queda estão em `test_mission_namespace.py`; skips por indisponibilidade
+do namespace não valem como aceite. Recibos anteriores `linux-group` continuam legíveis;
+novos recibos usam `linux-pidns-group` e incluem o supervisor no hash do código.
+
+O ensaio de edição e patch pelo cliente completo é separado:
+
+```bash
+python3 -B tests/smoke_codex_workspace.py \
+  --executable /opt/codex/bin/codex \
+  --docker /usr/local/bin/docker --image "$yc_worker_image" \
+  --report "$yc_worker_parent/codex-workspace.json"
+```
+
+Esse ensaio retorna erro enquanto o container não permitir os namespaces exigidos
+pelo `bwrap`. Não conta como aprovação e não produz recibo de sucesso nessa condição.
+Quando passa, exige edição e patch no worker, original intacto, pasta do host vazia
+e encerramento dos processos. Também usa respostas fixas em loopback; nenhum modelo
+é chamado. Não desative o sandbox nem acrescente privilégios para contornar a falha.
+
+Inspeção somente leitura no projeto consumidor:
+
+```bash
+python3 -B scripts/missions.py --root /caminho/do/projeto client worker-inspect \
+  --client codex --executable /caminho/absoluto/codex \
+  --docker-executable /usr/local/bin/docker --json
+```
+
+`client worker-check --manifest ... --executable ... --docker-executable ...` usa o
+contrato `isolated-tools`, fixture `clamp-v1`, UUID único e limite de uma invocação,
+até 120 segundos. O comando recusa perfis sem qualificação. O manifesto fixa missão,
+revisão, autorização, papel, cliente, modelo/esforço, digest da imagem e hash do pacote.
+A fila geral continua com `runtime_available=false` e `runnable=false`.
+
+`client worker-reconcile --run ... --expected-revision ... --operation-id ...
+--docker-executable ...` observa e encerra somente recursos registrados. Repetir o
+UUID não cria outra execução. Uma identidade perdida ou daemon indisponível mantém
+a reserva. O ledger é compartilhado com sbx; seus recibos v1 a v4 mantêm o contrato
+original. O setup distribui os helpers e preserva adaptações existentes inclusive
+com `--force`; não instala Docker, clientes ou logins no projeto consumidor.
+
+### English
+
+The experimental Linux x86_64 OCI worker has native Docker checks for code editing,
+a fixed clamp fixture, snapshot export after shutdown, resource limits and deadline
+enforcement after a controller crash. It shares the host kernel and preserves the
+original files. The clamp fixture accepts a pure expression, not arbitrary project
+test code. Official Codex 0.159.2 and Claude Code 2.1.296 binaries are pinned by hash.
+
+The commands above build the image and test tool transports without calling a model.
+The supervisor now supports Codex process groups inside a PID namespace, with an
+independent deadline and descendant cleanup after crashes. It requires Linux x86_64,
+`/usr/bin/unshare` and user/PID namespace creation; failure prevents client dispatch.
+Recovery only observes recorded process identities. Old `linux-group` receipts remain
+readable; new receipts use `linux-pidns-group` and bind the supervisor code hash.
+
+`smoke_codex_supervision.py` serves one fixed loopback response without credentials.
+It checks startup, the tool catalog and cleanup, with `tools_executed=[]` and
+`qualified=false`. It uses bundled `gpt-5.5` metadata for direct tools without calling
+that model or changing product selection. Models marked `code_mode_only` need separate
+qualification. Run the crash checks in `test_mission_namespace.py` where namespaces
+are available; skipped checks are not acceptance evidence.
+
+The worker now uses a real 64 MiB tmpfs at `/tmp/youngcrow-UUID/cwd`, with an empty,
+unshared directory at the same path on the host. Builds require the official package's
+`codex-resources/bwrap` via `--bwrap-executable`; its SHA-256 is pinned.
+`smoke_codex_workspace.py` exercises native edits and patches with fixed loopback
+responses. It currently fails because the container refuses the namespaces required
+by Codex's sandbox, and emits no success receipt. Keep the sandbox and container
+privileges unchanged. A passing run requires worker edits, an unchanged original,
+an empty host directory and process cleanup.
+
+Subscription execution stays blocked, and full Claude routing, including deferred tools, remains unqualified. `worker-inspect` is
+read-only. Current headless streams do not establish applied effort, and Codex JSONL
+also omits the model; an exit code of zero cannot substitute for these observations.
+`worker-check` refuses unqualified profiles. Recovery uses native resource
+observations and never starts another client or worker. The setup preserves existing
+adapters and authentication, including under `--force`, and installs no external runtime.

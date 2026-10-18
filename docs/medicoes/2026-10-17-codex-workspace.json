@@ -1,0 +1,276 @@
+{
+  "front": "YC-203",
+  "observed_at_utc": "2026-10-18T02:11:07.877722+00:00",
+  "state": "partial",
+  "qualified": false,
+  "model_calls": 0,
+  "account_used": false,
+  "recovery": {
+    "restored_base": "ca379107e9804180790afb3bb8c9a862a96bd554",
+    "unavailable_local_commit": "f55155d737dd7d7861b964f784ecd3c6e37623dc",
+    "scope": "Worker, client profiles, coordinator, pilot context and namespace supervision recovered from task history. Other prior local changes are not fully recovered.",
+    "exact_historical_hashes": {
+      "scripts/mission_process.py": "e11b196ff8c0f44ff22d6ab88d7f88463d859c7830d08b425a74cf3a608f47f0",
+      "scripts/mission_worker_runs.py": "22f4b1a93ead8257cd8831fc4ac83fbd54172932fd2bc1788bb0b3a6af32a38d",
+      "tests/test_mission_namespace.py": "e46494aaf5e2ce411f0851a5b57d703c7c5b57a2ada41b85ee8193e98f9c85b5",
+      "tests/fixtures/namespace_client.py": "7bce8b36589a58ea44fb94438045b13d3d608784df24e71ac31f96bb0bc85c5b",
+      "tests/test_mission_worker_runs.py": "2b39fc09d57a4bfa1a20e3b40f728e8b78d022cfa14eaf729b4417351e07e096",
+      "tests/smoke_codex_supervision.py": "d67d89c32cc4595ee89a13882039d6c519a922007f4603d044613bfe05d99afd"
+    },
+    "restored_paths": [
+      "README.md",
+      "docs/USAGE.md",
+      "docs/relatorios/2026-10-12-tool-client-acceptance.md",
+      "docs/relatorios/2026-10-16-namespace-supervision.md",
+      "docs/relatorios/2026-10-16-pilot-context.md",
+      "docs/superpowers/specs/2026-10-12-isolated-tools-design.md",
+      "runtime/worker/check.py",
+      "runtime/worker/guardian.py",
+      "runtime/worker/mcp.py",
+      "runtime/worker/transfer.py",
+      "runtime/worker/worker.dockerfile",
+      "scripts/build_tool_worker.py",
+      "scripts/mission_execution.py",
+      "scripts/mission_process.py",
+      "scripts/mission_tool_clients.py",
+      "scripts/mission_vault.py",
+      "scripts/mission_worker.py",
+      "scripts/mission_worker_runs.py",
+      "scripts/missions.py",
+      "setup.sh",
+      "skills-lock.json",
+      "tests/fixtures/namespace_client.py",
+      "tests/pilot_claude.py",
+      "tests/smoke_codex_supervision.py",
+      "tests/smoke_tool_clients.py",
+      "tests/smoke_tool_worker.py",
+      "tests/test_mission_namespace.py",
+      "tests/test_mission_tool_clients.py",
+      "tests/test_mission_worker.py",
+      "tests/test_mission_worker_runs.py",
+      "tests/test_pilot_claude.py",
+      "tests/test_setup.py",
+      "tests/smoke_codex_workspace.py"
+    ],
+    "baseline_tests": {
+      "command": "PYTHONPATH=tests:scripts python3 -B -m unittest test_mission_worker test_mission_tool_clients test_mission_worker_runs",
+      "tests": 47,
+      "passed": 47,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 10.303,
+      "log_sha256": "535bba3789eb3f4204e6f0f4144ad64bf72fca2666093b971f38b1cf0e1158a2"
+    }
+  },
+  "build": {
+    "codex": {
+      "sha256": "1748767b230ebfc3d4ab7e4e254920d0c0ad9691fd8c11f190e7d44511a4a92e",
+      "version": "0.159.2"
+    },
+    "engine": {
+      "boot_id": "d93c318a-72a9-4fd5-9a0c-f44f236c3557",
+      "id": "50c82a29-93b7-416c-ae97-ddd0398624b4",
+      "version": "28.4.0"
+    },
+    "image_digest": "sha256:61e2d79aea1ab43a1c493edae086c03bb59fac0c5d9920feaa7e555358161670",
+    "kind": "local-worker-build",
+    "source_sha256": {
+      "bwrap": "77360cb751ccedc5971391444ac86a8a33c15b04d6b4a6fe45f5d25496e62c4c",
+      "check.py": "a19377243980a80be2e3b0e43db73b105ad9f8babbc71d2f1e0b28296a138645",
+      "guardian.py": "4204fbb927fb17e8f93deabf8cf35693325c86e9969b37097d21b1aded24ba96",
+      "mcp.py": "2bde319c49a8620320cacf80d989bd20f4e60f78cc3c4c71ac89c07d79bd39b9",
+      "transfer.py": "d39937862a1a139830026500d7d231cc8bec166a5e640bd54ff58ce8817fb0f6",
+      "worker.dockerfile": "146955fd28c9f5979968f5f9a1ef39dc1895fa698fc97407bb07da1cb6a5f7ff"
+    }
+  },
+  "tests": {
+    "full": {
+      "command": "python3 -B -m unittest discover -s tests -v",
+      "tests": 826,
+      "passed": 806,
+      "skipped": 20,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 361.172,
+      "log_sha256": "9c64722bd78c3159c5143da88d8919fd767c1248578b1ff743136ed2231fc937"
+    },
+    "focused": {
+      "command": "PYTHONPATH=tests:scripts python3 -B -m unittest test_mission_worker test_mission_tool_clients test_mission_worker_runs",
+      "tests": 50,
+      "passed": 50,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 9.778,
+      "log_sha256": "d3415e8ee36b8aea53b5e7ffe6a8c6fbd86bd25df1fabf9ab5c2e2bbdffd0e57"
+    },
+    "installer": {
+      "command": "PYTHONPATH=tests:scripts python3 -B -m unittest test_setup.SetupTests.test_tool_worker_install_preserves_existing_adapters_and_auth test_setup.SetupTests.test_runtime_helpers_preserve_existing_install",
+      "tests": 2,
+      "passed": 2,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 6.185,
+      "log_sha256": "9b5762ad727a564d5348fb5f55245a75f87450ed52195bfdc48e0ed02058b17d"
+    },
+    "installer_red": {
+      "exit_code": 1,
+      "reason": "--force overwrote a customized worker helper before restoring the preservation rule",
+      "log_sha256": "7fb48918aa68f67b0f8d4274bf4cf1e7b3026f18bb77dd843278b858fa8ce15b"
+    },
+    "note": "Three build/workspace tests were added after full discovery; the final focused run includes them. Installer preservation was restored during the full run and verified separately after the change."
+  },
+  "native": {
+    "worker": {
+      "files": {
+        "clamp.py": "de031298cf324520768035ab6bf832f2a25c4a753d82ef2c4e25f86b0e4a51bc"
+      },
+      "snapshot_sha256": "9afde0040f3b3491fe4fe5ecf6c37c1dd18a8533581eb3537d103379c3703a0a",
+      "test": {
+        "cases": 3,
+        "exit_code": 0
+      },
+      "worker_stopped_before_publish": true,
+      "finished_ms": 1792289150820,
+      "original_changed": false,
+      "boundary": "passed",
+      "deadline_without_controller": "passed",
+      "controller_killed": true,
+      "remaining_worker_processes": 0,
+      "kind": "native-docker-no-model",
+      "engine": {
+        "id": "50c82a29-93b7-416c-ae97-ddd0398624b4",
+        "version": "28.4.0",
+        "boot_id": "d93c318a-72a9-4fd5-9a0c-f44f236c3557"
+      },
+      "image_digest": "sha256:61e2d79aea1ab43a1c493edae086c03bb59fac0c5d9920feaa7e555358161670",
+      "model_calls": 0,
+      "events": 13,
+      "forged_checker_receipt": "refused"
+    },
+    "codex_transport": {
+      "kind": "native-transport-no-model",
+      "client": "codex",
+      "version": "0.159.2",
+      "sha256": "1748767b230ebfc3d4ab7e4e254920d0c0ad9691fd8c11f190e7d44511a4a92e",
+      "image_digest": "sha256:61e2d79aea1ab43a1c493edae086c03bb59fac0c5d9920feaa7e555358161670",
+      "state": "partial",
+      "transport": "passed",
+      "model_calls": 0,
+      "artifact": {
+        "files": {
+          "clamp.py": "de031298cf324520768035ab6bf832f2a25c4a753d82ef2c4e25f86b0e4a51bc"
+        },
+        "snapshot_sha256": "9afde0040f3b3491fe4fe5ecf6c37c1dd18a8533581eb3537d103379c3703a0a",
+        "test": {
+          "cases": 3,
+          "exit_code": 0
+        },
+        "worker_stopped_before_publish": true,
+        "finished_ms": 1792289140597
+      },
+      "agent_routes": "unverified",
+      "qualified": false,
+      "gaps": [
+        "agent_tool_catalog_unqualified",
+        "subscription_acceptance_pending"
+      ]
+    },
+    "codex_startup": {
+      "kind": "native-codex-supervision-no-model",
+      "version": "0.159.2",
+      "sha256": "1748767b230ebfc3d4ab7e4e254920d0c0ad9691fd8c11f190e7d44511a4a92e",
+      "image_digest": "sha256:61e2d79aea1ab43a1c493edae086c03bb59fac0c5d9920feaa7e555358161670",
+      "owner_kind": "linux-pidns-group",
+      "tools_exposed": [
+        "apply_patch",
+        "exec_command",
+        "request_user_input",
+        "view_image",
+        "write_stdin"
+      ],
+      "tools_executed": [],
+      "fixture_requests": 1,
+      "tree_reaped": true,
+      "model_calls": 0,
+      "qualified": false,
+      "worker_removed": true
+    },
+    "codex_workspace": [
+      {
+        "command": "python3 -B tests/smoke_codex_workspace.py --executable /opt/codex/bin/codex --docker /usr/local/bin/docker --image sha256:6c728f336bf5fcaa4e13d801297132dc72fab662fb4424211fd3b1d2f029c18a --report <new-private-path>",
+        "exit_code": 1,
+        "state": "failed",
+        "reason": "writable_symlink_rejected",
+        "diagnostic": "because it crosses writable symlink",
+        "log_sha256": "3077d8f67e78abc8da84cd47a8275e8539e61be5a557b641216b281c423fbcbf"
+      },
+      {
+        "command": "python3 -B tests/smoke_codex_workspace.py --executable /opt/codex/bin/codex --docker /usr/local/bin/docker --image sha256:51bdab03c0cc8907bca3a9851e55c27d13de1779266e4302c9386acd29f815a0 --report <new-private-path>",
+        "exit_code": 1,
+        "state": "failed",
+        "reason": "missing_bwrap",
+        "diagnostic": "bubblewrap is unavailable",
+        "log_sha256": "198a515f6295018d2071d58da30f417c1bc2c68b442c6739674c970a6987c0b5"
+      },
+      {
+        "command": "python3 -B tests/smoke_codex_workspace.py --executable /opt/codex/bin/codex --docker /usr/local/bin/docker --image sha256:61e2d79aea1ab43a1c493edae086c03bb59fac0c5d9920feaa7e555358161670 --report <new-private-path>",
+        "exit_code": 1,
+        "state": "failed",
+        "reason": "namespace_creation_denied",
+        "diagnostic": "No permissions to create a new namespace",
+        "log_sha256": "1cb763e291cf7cda1f74802422f413303d5adaca52f6bcac2dc10ccc1d68107a"
+      }
+    ]
+  },
+  "cleanup": {
+    "remaining_worker_containers": 0
+  },
+  "vault": {
+    "schema_version": 1,
+    "notes_checked": 3,
+    "issues": []
+  },
+  "review": {
+    "scope": "Workspace/build delta and PT/EN documentation",
+    "critical": 0,
+    "important": 0,
+    "editorial_fixed": 1
+  },
+  "source_sha256": {
+    "runtime/worker/check.py": "a19377243980a80be2e3b0e43db73b105ad9f8babbc71d2f1e0b28296a138645",
+    "runtime/worker/guardian.py": "4204fbb927fb17e8f93deabf8cf35693325c86e9969b37097d21b1aded24ba96",
+    "runtime/worker/mcp.py": "2bde319c49a8620320cacf80d989bd20f4e60f78cc3c4c71ac89c07d79bd39b9",
+    "runtime/worker/transfer.py": "d39937862a1a139830026500d7d231cc8bec166a5e640bd54ff58ce8817fb0f6",
+    "runtime/worker/worker.dockerfile": "146955fd28c9f5979968f5f9a1ef39dc1895fa698fc97407bb07da1cb6a5f7ff",
+    "scripts/build_tool_worker.py": "e89180645bf68155be2eca2771c5d3035162fc9dca3fe8215e92fa35766e8624",
+    "scripts/mission_execution.py": "c835625c045279473b18dcb94e3561a77995b49d77479d72cf5badc72c04e400",
+    "scripts/mission_process.py": "e11b196ff8c0f44ff22d6ab88d7f88463d859c7830d08b425a74cf3a608f47f0",
+    "scripts/mission_tool_clients.py": "8c1c85d738e5d9e0f4d26e369761ce540f141bf42385a12e295e593d122e4337",
+    "scripts/mission_vault.py": "a1ec015e8efc80f561cc909bcaebbd67c75cc97dfaa96e96c5833eda998071ef",
+    "scripts/mission_worker.py": "d28bcb33bfc71eec94bf6137cde3188e3dfe735b3e150994ed52ac584d6af8e6",
+    "scripts/mission_worker_runs.py": "22f4b1a93ead8257cd8831fc4ac83fbd54172932fd2bc1788bb0b3a6af32a38d",
+    "scripts/missions.py": "46ea12d22faee3b32e3a9b6b3b44521b39e1814770651d6c34bfb40a22cb6c7a",
+    "setup.sh": "ca51800419056c9c7e58410f86820cb63e23bf7e1aad8d78afbd75194c1c87ac",
+    "skills-lock.json": "0b3a2414a12ac026e2b82a76c842aa9e7fe662e6ccd78a35e74991c6527510c9",
+    "tests/fixtures/namespace_client.py": "7bce8b36589a58ea44fb94438045b13d3d608784df24e71ac31f96bb0bc85c5b",
+    "tests/pilot_claude.py": "2215fa0a8338f5a3ef24b075cf193d5307441cd523c5b64802d4a04b02b0afe5",
+    "tests/smoke_codex_supervision.py": "d67d89c32cc4595ee89a13882039d6c519a922007f4603d044613bfe05d99afd",
+    "tests/smoke_codex_workspace.py": "42af6db34e26d0db940aa5c3cfacf7084870f1ba46c57aa8c5a3acccf8c2af7b",
+    "tests/smoke_tool_clients.py": "02e95fa52c34b68c69fab8f3d04653ff8486ea55b96d59fcf08263a399a8bf87",
+    "tests/smoke_tool_worker.py": "12ecac5ee5a45f911d91ab3938b6fbd67d08e039141dba64e7ff7aae6ef7e002",
+    "tests/test_mission_namespace.py": "e46494aaf5e2ce411f0851a5b57d703c7c5b57a2ada41b85ee8193e98f9c85b5",
+    "tests/test_mission_tool_clients.py": "5246fe39b8835e99e3c75bcbba8f4047ae2e4c95e453a972ebe0761302230caa",
+    "tests/test_mission_worker.py": "e627b0e658aed1243607dab799fca3830ae374c3a83fd7bd0ab233560605adfd",
+    "tests/test_mission_worker_runs.py": "2b39fc09d57a4bfa1a20e3b40f728e8b78d022cfa14eaf729b4417351e07e096",
+    "tests/test_pilot_claude.py": "1fb07c7ca5cff0a60a00d8588621a83a11ac20c3c91e9d55c16fb4be9384f1eb",
+    "tests/test_setup.py": "8c02cabfa3856959ed2ac0ff32999793856f6b5b3d4a061d3b70064d05541675"
+  },
+  "limits": [
+    "Full Codex edit/patch run blocked by namespace creation inside the current OCI boundary.",
+    "Applied model/effort, remaining tool routes and both subscription acceptances remain unqualified.",
+    "Historical detailed plan and original measurement JSON files were not recovered."
+  ]
+}

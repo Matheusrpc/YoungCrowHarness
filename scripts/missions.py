@@ -451,7 +451,8 @@ def mission_status(root, mission_id):
     blocking_runs = []
     for run in observed_runs:
         if run['state'] in run_store.UNRESOLVED:
-            action = ('review_integrated_recovery' if 'execution_plan_sha256' in run else
+            action = ('review_worker_recovery' if run.get('execution_contract') == 'isolated-tools' else
+                      'review_integrated_recovery' if 'execution_plan_sha256' in run else
                       'review_reconciliation' if run['state'] == 'uncertain' else 'inspect_client_run')
             blocking_runs.append(dict(run_id=run['id'], mission_id=run['mission_id'],
                 operation_id=run['operation_id'], revision=run['revision'], state=run['state'], next_action=action))
@@ -613,6 +614,19 @@ def parser():
     reconcile.add_argument('--evidence', required=True)
     reconcile.add_argument('--expected-revision', type=int, required=True)
     reconcile.add_argument('--operation-id', required=True)
+    worker_inspect = client.add_parser('worker-inspect')
+    worker_inspect.add_argument('--client', choices=('codex', 'claude'), required=True)
+    worker_inspect.add_argument('--executable', type=Path, required=True)
+    worker_check = client.add_parser('worker-check')
+    worker_check.add_argument('--manifest', required=True)
+    worker_check.add_argument('--executable', type=Path, required=True)
+    worker_reconcile = client.add_parser('worker-reconcile')
+    worker_reconcile.add_argument('--run', required=True)
+    worker_reconcile.add_argument('--expected-revision', type=int, required=True)
+    worker_reconcile.add_argument('--operation-id', required=True)
+    for entry in (worker_inspect, worker_check, worker_reconcile):
+        entry.add_argument('--docker-executable', type=Path, required=True)
+        entry.add_argument('--json', action='store_true')
     for entry in (environment, inspect, check, runs, reconcile):
         entry.add_argument('--json', action='store_true')
     return p
@@ -621,7 +635,8 @@ def parser():
 CONFLICTS = {'operation_conflict', 'revision_conflict', 'config_conflict', 'identity_conflict', 'store_busy', 'invalid_store',
              'queue_busy', 'queue_already_started', 'workspace_busy', 'workspace_collision', 'workspace_changed',
              'workspace_dirty', 'workspace_uncertain', 'locked', 'priority_locked', 'technical_plan_locked'}
-SAFE_ERRORS = CONFLICTS | {'invalid_config', 'invalid_request', 'invalid_arguments', 'invalid_digest', 'invalid_actor',
+WORKER_ERRORS = {'tool_profile_unqualified', 'managed_policy_conflict', 'managed_policy_unreadable', 'subscription_login_required', 'unresolved_model_selection', 'worker_receipt_unlinked', 'worker_receipt_conflict', 'worker_identity_unknown', 'worker_identity_changed', 'worker_engine_changed', 'worker_coordinator_alive', 'worker_client_alive', 'worker_boundary_changed', 'worker_command_failed', 'worker_reconciliation_required', 'unsupported_tool_client', 'worker_input_changed', 'invalid_worker_fixture', 'invalid_worker_record'}
+SAFE_ERRORS = CONFLICTS | WORKER_ERRORS | {'invalid_config', 'invalid_request', 'invalid_arguments', 'invalid_digest', 'invalid_actor',
                          'invalid_revision', 'invalid_identity', 'invalid_priority', 'unknown_mission', 'unknown_feature',
                          'unknown_record', 'foreign_project', 'invalid_contract', 'incompatible_helper',
                          'invalid_manifest', 'invalid_client', 'invalid_executable', 'unsupported_policy',
@@ -723,6 +738,14 @@ def main(argv=None):
                                 phase['reason'] = 'precondition_failed'
             elif args.action == 'inspect':
                 result = clients.inspect_client(root, args.client, args.executable)
+            elif args.action.startswith('worker-'):
+                import mission_worker_runs as worker_runs
+                if args.action == 'worker-inspect':
+                    result = worker_runs.inspect_worker(root, args.client, args.executable, args.docker_executable)
+                elif args.action == 'worker-check':
+                    result = worker_runs.check_worker(root, load_input(root, args.manifest), args.executable, args.docker_executable)
+                else:
+                    result = worker_runs.reconcile_worker(root, args.run, args.expected_revision, args.operation_id, args.docker_executable)
             elif args.action == 'runs':
                 result = dict(schema_version=1, runs=runs.list_runs(root, args.mission), runtime_available=False)
             elif args.action == 'check':

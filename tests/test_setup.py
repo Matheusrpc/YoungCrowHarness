@@ -38,6 +38,8 @@ FILES += tuple(f'scripts/{name}.py' for name in
                ('mission_config', 'mission_backlog', 'mission_store', 'mission_vault', 'missions', 'mission_queue', 'mission_workspace',
                 'mission_clients', 'mission_process', 'mission_runs', 'mission_sandbox', 'mission_environment', 'mission_sbx',
                 'mission_execution','mission_egress', 'mission_controller', 'mission_transaction', 'mission_network'))
+WORKER_FILES = tuple('scripts/'+name+'.py' for name in ('mission_worker','mission_tool_clients','mission_worker_runs','build_tool_worker')) + tuple('runtime/worker/'+name for name in ('guardian.py','check.py','transfer.py','mcp.py','worker.dockerfile'))
+FILES += WORKER_FILES
 FILES += tuple(f'{base}/{name}/SKILL.md' for base in ('skills', '.claude/skills', '.agents/skills')
                for name in ('yc-personalizer', 'yc-config', 'yc-missao', 'yc-status'))
 
@@ -153,6 +155,19 @@ class SetupTests(unittest.TestCase):
         self.assertIn('runtime_missing', json.loads(probe.stdout)['gaps'])
         self.assertFalse(json.loads(probe.stdout)['execution_reservation']['effects_allowed'])
         self.assertEqual(snapshot_bytes(self.target), before)
+
+    def test_tool_worker_install_preserves_existing_adapters_and_auth(self):
+        result=self.run_setup('--client','both','--no-plugins')
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        for name in WORKER_FILES:self.assertTrue((self.target/name).is_file(),name)
+        originals={'scripts/mission_worker.py':'# human worker\n',
+                   'runtime/worker/mcp.py':'# human MCP\n',
+                   '.codex/auth.json':'fake-account-sentinel'}
+        for name,value in originals.items():write(self.target/name,value)
+        repeated=self.run_setup('--client','both','--no-plugins','--force')
+        self.assertEqual(repeated.returncode,0,repeated.stdout+repeated.stderr)
+        for name,value in originals.items():self.assertEqual((self.target/name).read_text(),value)
+        self.assertFalse((self.target/'YoungCrowToolRuns').exists())
 
     def test_runtime_helpers_preserve_existing_install(self):
         write(self.target / 'scripts/mission_runs.py', '# human adapter\n')

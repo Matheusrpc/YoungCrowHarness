@@ -22,6 +22,9 @@
 
 <a id="português"></a>
 
+**Worker OCI experimental:** edição, teste fixo e prazo comprovados em Docker.
+[Workspace do Codex corrigido; execução completa ainda bloqueada pelos namespaces no container](docs/relatorios/2026-10-17-codex-workspace.md).
+
 ## <img src="assets/gema-cobalto.svg" height="24" alt=""> O que é
 
 Um harness reutilizável para desenvolvedores e pequenos times que trabalham com Claude Code e Codex.
@@ -677,6 +680,9 @@ repositório é MIT.
 <img src="assets/vidro.svg" alt="" width="100%">
 
 <a id="english"></a>
+
+**Experimental OCI worker:** code editing, fixed checks and deadlines verified in Docker.
+[Codex workspace corrected; full execution remains blocked by container namespace creation](docs/relatorios/2026-10-17-codex-workspace.md).
 
 ## <img src="assets/gema-cobalto.svg" height="24" alt=""> What it is
 

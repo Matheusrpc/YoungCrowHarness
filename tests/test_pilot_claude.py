@@ -3,6 +3,7 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 import time
@@ -12,6 +13,48 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).parent))
+
+
+class PilotContextTests(unittest.TestCase):
+    def setUp(self):
+        import pilot_claude
+        self.p = pilot_claude
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.base = Path(self.temp.name)
+        self.repo = self.base / 'repo'
+        self.public = self.repo / 'examples/delivery-board'
+        shutil.copytree(ROOT / 'examples/delivery-board', self.public)
+        shutil.copytree(ROOT / 'skills/retrieve-memory', self.repo / 'skills/retrieve-memory')
+        self.skills = self.base / 'skills'
+        for name in ('karpathy', 'ponytail'):
+            (self.skills / name).mkdir(parents=True)
+            (self.skills / name / 'SKILL.md').write_text('Fixture skill, no external actions.')
+        self.context = self.base / 'context'
+
+    def test_context_preserves_public_evidence_without_copying_unselected_files(self):
+        private = ('private.txt', '.env', 'vault/local/private.txt', '.git/config')
+        for name in private:
+            path = self.public / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text('unselected-canary')
+        before = self.p.snapshot(self.public)
+        try:
+            self.p.make_context(self.repo, self.context, self.skills)
+        except ValueError as error:
+            self.fail(f'Valid public evidence must remain navigable: {error}')
+        self.assertEqual(self.p.vault.check(self.context)['issues'], [])
+        for name in ('model.mjs', 'app.mjs', 'index.html', 'style.css', 'tests/model.test.mjs', 'README.md'):
+            self.assertEqual((self.context / name).read_bytes(), (self.public / name).read_bytes())
+        for name in private:
+            self.assertFalse((self.context / name).exists(), name)
+        self.assertEqual(self.p.snapshot(self.public), before)
+
+    def test_oversized_evidence_is_refused_before_creating_context(self):
+        (self.public / 'model.mjs').write_bytes(b'x' * (1024 * 1024 + 1))
+        with self.assertRaisesRegex(ValueError, '^context_file_too_large$'):
+            self.p.make_context(self.repo, self.context, self.skills)
+        self.assertFalse(self.context.exists())
 
 
 class PilotClaudeTests(unittest.TestCase):

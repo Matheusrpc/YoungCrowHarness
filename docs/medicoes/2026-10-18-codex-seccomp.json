@@ -1,0 +1,206 @@
+{
+  "front": "YC-203: Codex native sandbox compatibility in OCI worker",
+  "date_utc": "2026-10-18",
+  "base_commit": "b751aba4d06df8318df8923369c93145c772d06a",
+  "model_calls": 0,
+  "qualified": false,
+  "source": {
+    "url": "https://github.com/moby/moby/blob/v28.4.0/vendor/github.com/moby/profiles/seccomp/default.json",
+    "sha256": "01536f1d1df938ae611eba20d6349e0de7a99b6ecdee1549427a0b01b8301e28",
+    "license": "Apache-2.0"
+  },
+  "namespace_diagnosis": {
+    "before": {
+      "host": {
+        "uid": 65534,
+        "unshare": 0,
+        "errno": 0,
+        "before": "user:[4026531837]",
+        "after": "user:[4026532224]",
+        "status": {
+          "CapEff": "0000000000000000",
+          "CapBnd": "000001ffffffffff",
+          "NoNewPrivs": "0",
+          "Seccomp": "0",
+          "Seccomp_filters": "0"
+        },
+        "lsm_profile": "kernel"
+      },
+      "policy": {
+        "SecurityOpt": [
+          "no-new-privileges"
+        ],
+        "CapAdd": null,
+        "CapDrop": [
+          "ALL"
+        ],
+        "Privileged": false,
+        "NetworkMode": "none"
+      },
+      "worker": {
+        "uid": 1000,
+        "unshare": -1,
+        "errno": 1,
+        "before": "user:[4026531837]",
+        "after": "user:[4026531837]",
+        "status": {
+          "CapEff": "0000000000000000",
+          "CapBnd": "0000000000000000",
+          "NoNewPrivs": "1",
+          "Seccomp": "2",
+          "Seccomp_filters": "1"
+        },
+        "lsm_profile": "kernel"
+      }
+    },
+    "after_exact_userns_allowance": {
+      "uid": 65534,
+      "unshare": 0,
+      "errno": 0,
+      "before": "user:[4026531837]",
+      "after": "user:[4026532299]",
+      "status": {
+        "CapEff": "0000000000000000",
+        "CapBnd": "0000000000000000",
+        "NoNewPrivs": "1",
+        "Seccomp": "2",
+        "Seccomp_filters": "1"
+      },
+      "lsm_profile": "kernel"
+    }
+  },
+  "native_codex": {
+    "kind": "native-codex-local-responses-no-model",
+    "version": "0.159.2",
+    "sha256": "1748767b230ebfc3d4ab7e4e254920d0c0ad9691fd8c11f190e7d44511a4a92e",
+    "image_digest": "sha256:61e2d79aea1ab43a1c493edae086c03bb59fac0c5d9920feaa7e555358161670",
+    "tools_checked": [
+      "exec_command",
+      "apply_patch"
+    ],
+    "fixture_requests": 3,
+    "tree_reaped": true,
+    "original_preserved": true,
+    "host_mirror_empty": true,
+    "sandbox_mode": "workspace-write",
+    "seccomp_sha256": "c881e07ed45113db00b8e7b7e2ff79222601c3cee1de611ef4f61de7c598812b",
+    "artifact": {
+      "files": {
+        "probe.txt": "b6a4e9ba33a344ebf59b05376eefb8f4c94b4f4420dfec0fe0ddeeeb7b73c4a5",
+        "clamp.py": "de031298cf324520768035ab6bf832f2a25c4a753d82ef2c4e25f86b0e4a51bc"
+      },
+      "snapshot_sha256": "3f97cfee7c4e17006aa1fd11e1da10879e8083db969732b86671c84cd34787af",
+      "test": {
+        "cases": 3,
+        "exit_code": 0
+      },
+      "worker_stopped_before_publish": true,
+      "finished_ms": 1792289830761
+    },
+    "model_calls": 0,
+    "qualified": false,
+    "worker_removed": true
+  },
+  "native_worker": {
+    "files": {
+      "clamp.py": "de031298cf324520768035ab6bf832f2a25c4a753d82ef2c4e25f86b0e4a51bc"
+    },
+    "snapshot_sha256": "9afde0040f3b3491fe4fe5ecf6c37c1dd18a8533581eb3537d103379c3703a0a",
+    "test": {
+      "cases": 3,
+      "exit_code": 0
+    },
+    "worker_stopped_before_publish": true,
+    "finished_ms": 1792289831092,
+    "original_changed": false,
+    "boundary": "passed",
+    "nested_user_mount_pid_network_boundaries": "passed",
+    "nested_scratch_exceeds_workspace_volume": true,
+    "seccomp_sha256": "c881e07ed45113db00b8e7b7e2ff79222601c3cee1de611ef4f61de7c598812b",
+    "deadline_without_controller": "passed",
+    "nested_process_deadline": "passed",
+    "controller_killed": true,
+    "remaining_worker_processes": 0,
+    "kind": "native-docker-no-model",
+    "engine": {
+      "id": "50c82a29-93b7-416c-ae97-ddd0398624b4",
+      "version": "28.4.0",
+      "boot_id": "d93c318a-72a9-4fd5-9a0c-f44f236c3557"
+    },
+    "image_digest": "sha256:61e2d79aea1ab43a1c493edae086c03bb59fac0c5d9920feaa7e555358161670",
+    "model_calls": 0,
+    "events": 13,
+    "forged_checker_receipt": "refused"
+  },
+  "files": {
+    "scripts/mission_worker.py": "fc440a7be9351a6de392400f2be261aa4f732b22dbf2af0cde1b08bae8bb8fb5",
+    "runtime/worker/seccomp-bwrap.json": "c881e07ed45113db00b8e7b7e2ff79222601c3cee1de611ef4f61de7c598812b",
+    "runtime/worker/seccomp-LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "tests/smoke_tool_worker.py": "30c39f8d85d075b49e552de308290d5ea8d9f7c3b37fe8db3217ee70a13c2e97",
+    "tests/smoke_codex_workspace.py": "b6de5c89c159b937798e72dd0cbf846109da7c6cc3c01ff4f695b2aa16d9efa9",
+    "tests/test_mission_worker.py": "2132a995a1a8bc58dcf17c3e8490b7493594a252699f52fd8286c211c0ab68d0",
+    "setup.sh": "59c3249a6eeed34e1119ee24bd294c803e5e8d2e4f08eca7d03fe9a84b43ad42",
+    "skills-lock.json": "aa8138229e66736369147cf91aaa1ae1a527394515a50a12bfb991f89a4a49cd"
+  },
+  "tests": {
+    "regression_red": {
+      "command": "PYTHONPATH=tests:scripts python3 -B -m unittest test_mission_worker.WorkerTests.test_inspection_rejects_missing_or_unconfined_seccomp",
+      "exit_code": 1,
+      "failed_subtests": 3
+    },
+    "focused": {
+      "command": "PYTHONPATH=tests:scripts python3 -B -m unittest test_mission_worker test_mission_tool_clients test_mission_worker_runs",
+      "exit_code": 0,
+      "tests": 52,
+      "seconds": 13.089
+    },
+    "initial_full_suite": {
+      "command": "python3 -B -m unittest discover -s tests -v",
+      "exit_code": 1,
+      "tests": 825,
+      "seconds": 357.95,
+      "skipped": 21,
+      "failures": 5,
+      "failed_methods": [
+        "test_expected_contracts_hash_resolved_legacy_identity",
+        "test_mission_catalog_has_explicit_diagnostic_permissions",
+        "test_governance_installs_selected_profiles_and_audits (claude, codex, both)"
+      ],
+      "cause": "Catalog expected hashes did not include new profile/license and worker changes; corrected only the five affected contracts."
+    },
+    "catalog_after_fix": {
+      "command": "PYTHONPATH=tests:scripts python3 -B -m unittest test_capabilities test_setup.SetupTests.test_governance_installs_selected_profiles_and_audits",
+      "exit_code": 0,
+      "tests": 24,
+      "seconds": 7.964,
+      "all_initial_failing_cases_passed": true
+    },
+    "final_syntax_and_whitespace": {
+      "commands": [
+        "bash -n setup.sh",
+        "git diff --check"
+      ],
+      "exit_code": 0
+    }
+  },
+  "commands": {
+    "native_codex": "python3 -B tests/smoke_codex_workspace.py --executable /opt/codex/bin/codex --docker /usr/local/bin/docker --image sha256:61e2d79aea1ab43a1c493edae086c03bb59fac0c5d9920feaa7e555358161670 --report <new-report.json>",
+    "native_worker": "python3 -B tests/smoke_tool_worker.py --docker /usr/local/bin/docker --image sha256:61e2d79aea1ab43a1c493edae086c03bb59fac0c5d9920feaa7e555358161670 --report <new-report.json>"
+  },
+  "review": {
+    "critical": 0,
+    "important": 0,
+    "note": "Nested scratch allowance measured and documented; original volume quota is not aggregate memory limit.",
+    "catalog": "Five affected contracts reviewed; permissions unchanged; five contract hashes and ten content hashes verified."
+  },
+  "limitations": [
+    "Acceptance measured on Docker28.4.0 without active AppArmor profile",
+    "Nested namespaces expose additional kernel operations",
+    "Additional tmpfs may exceed 64MiB original volume; cgroup memory remains 1GiB",
+    "No model, effort or subscription acceptance",
+    "code_mode_only and Claude deferred routes remain unqualified"
+  ],
+  "cleanup": {
+    "remaining_youngcrow_containers": 0
+  }
+}

@@ -23,7 +23,7 @@
 <a id="português"></a>
 
 **Worker OCI experimental:** edição, teste fixo e prazo comprovados em Docker.
-[Workspace do Codex corrigido; execução completa ainda bloqueada pelos namespaces no container](docs/relatorios/2026-10-17-codex-workspace.md).
+[Codex editou e aplicou patch no worker com respostas locais; aceite por assinatura pendente](docs/relatorios/2026-10-18-codex-seccomp.md).
 
 ## <img src="assets/gema-cobalto.svg" height="24" alt=""> O que é
 
@@ -675,14 +675,15 @@ registrada no [relatório de autoria](docs/relatorios/2026-10-02-ai-attribution.
 A skill `humanizer` é de [blader/humanizer](https://github.com/blader/humanizer), MIT, e os padrões
 vêm de [«Signs of AI writing»](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) da
 Wikipédia. Os plugins listados no `skills-lock.json` pertencem aos seus autores. O resto deste
-repositório é MIT.
+repositório é MIT, exceto o perfil seccomp derivado de Moby, sob
+[Apache-2.0](runtime/worker/seccomp-LICENSE).
 
 <img src="assets/vidro.svg" alt="" width="100%">
 
 <a id="english"></a>
 
 **Experimental OCI worker:** code editing, fixed checks and deadlines verified in Docker.
-[Codex workspace corrected; full execution remains blocked by container namespace creation](docs/relatorios/2026-10-17-codex-workspace.md).
+[Codex edited and patched files in the worker using local responses; subscription acceptance pending](docs/relatorios/2026-10-18-codex-seccomp.md).
 
 ## <img src="assets/gema-cobalto.svg" height="24" alt=""> What it is
 
@@ -1333,7 +1334,8 @@ commits and PRs. Removal of the older `main` attributions is recorded in the
 
 The `humanizer` skill is [blader/humanizer](https://github.com/blader/humanizer), MIT, and its patterns
 come from Wikipedia's [«Signs of AI writing»](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
-The plugins listed in `skills-lock.json` belong to their authors. The rest of this repository is MIT.
+The plugins listed in `skills-lock.json` belong to their authors. The rest of this repository is MIT,
+except for the Moby-derived seccomp profile under [Apache-2.0](runtime/worker/seccomp-LICENSE).
 
 <a id="verificacao"></a>
 <a id="verification"></a>

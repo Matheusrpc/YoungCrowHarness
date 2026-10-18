@@ -3745,12 +3745,18 @@ falhar, o cliente não é iniciado. A recuperação observa processos sem sinali
 A pasta de trabalho do worker é um tmpfs real de 64 MiB em
 `/tmp/youngcrow-UUID/cwd`. O controle tem uma pasta vazia com o mesmo caminho, sem
 compartilhar arquivos. A imagem inclui o `bwrap` do pacote oficial, fixado por SHA-256.
-A execução completa continua bloqueada neste ambiente: o container recusa a criação
-dos namespaces internos do sandbox do Codex. As rotas tardias do Claude ainda precisam de prova.
+O ensaio nativo do Codex passou em edição e patch com respostas locais. O worker aplica
+`runtime/worker/seccomp-bwrap.json`, derivado do perfil padrão do Moby 28.4.0, com
+exceções de namespace e montagem restritas pelos argumentos usados pelo `bwrap`.
+O driver verifica o hash do arquivo e a política retornada pelo Docker antes de iniciar.
+O perfil permite criar tmpfs adicional dentro de namespaces filhos: 64 MiB é o limite
+do volume original, enquanto o cgroup limita a memória agregada a 1 GiB. A rede continua
+desativada, as capabilities externas removidas e a raiz somente leitura.
+As rotas tardias do Claude ainda precisam de prova.
 Inicialização de SDK e presença de login não substituem esse aceite.
 Os fluxos atuais também não comprovam o esforço aplicado; Codex `exec --json` omite
 modelo e esforço. Uma saída zero sem essas observações não aprova o resultado.
-Veja [provas do workspace e pendências](relatorios/2026-10-17-codex-workspace.md).
+Veja [provas do sandbox e pendências](relatorios/2026-10-18-codex-seccomp.md).
 
 Para reproduzir somente o ensaio de ferramentas, com o Docker local disponível e o
 Codex oficial exato instalado, execute a partir da raiz do harness:
@@ -3798,11 +3804,13 @@ python3 -B tests/smoke_codex_workspace.py \
   --report "$yc_worker_parent/codex-workspace.json"
 ```
 
-Esse ensaio retorna erro enquanto o container não permitir os namespaces exigidos
-pelo `bwrap`. Não conta como aprovação e não produz recibo de sucesso nessa condição.
-Quando passa, exige edição e patch no worker, original intacto, pasta do host vazia
-e encerramento dos processos. Também usa respostas fixas em loopback; nenhum modelo
-é chamado. Não desative o sandbox nem acrescente privilégios para contornar a falha.
+Esse ensaio exige edição e patch no worker, original intacto, pasta do host vazia
+e encerramento dos processos. Usa respostas fixas em loopback; nenhum modelo é chamado.
+O aceite registrado usa Docker 28.4.0 sem AppArmor ativo. Outro kernel ou política LSM
+pode recusar as operações; nesse caso, o teste falha e não emite recibo de sucesso.
+Preserve essas políticas e registre a incompatibilidade. A execução mantém
+`workspace-write` e `include_local=false`; não há fallback para sandbox desativado.
+O instalador preserva helpers existentes: atualize o driver e o perfil fixado juntos.
 
 Inspeção somente leitura no projeto consumidor:
 
@@ -3850,11 +3858,18 @@ are available; skipped checks are not acceptance evidence.
 The worker now uses a real 64 MiB tmpfs at `/tmp/youngcrow-UUID/cwd`, with an empty,
 unshared directory at the same path on the host. Builds require the official package's
 `codex-resources/bwrap` via `--bwrap-executable`; its SHA-256 is pinned.
-`smoke_codex_workspace.py` exercises native edits and patches with fixed loopback
-responses. It currently fails because the container refuses the namespaces required
-by Codex's sandbox, and emits no success receipt. Keep the sandbox and container
-privileges unchanged. A passing run requires worker edits, an unchanged original,
-an empty host directory and process cleanup.
+`smoke_codex_workspace.py` passed native edits and patches with fixed loopback responses,
+an unchanged original, an empty host directory and process cleanup. The driver applies
+the pinned `runtime/worker/seccomp-bwrap.json`, derived from Moby 28.4.0's default
+profile with argument-constrained namespace and mount allowances for `bwrap`, and
+checks Docker's applied policy before startup. Child namespaces can create additional
+tmpfs storage: 64 MiB bounds the original workspace volume; the cgroup bounds aggregate
+memory at 1 GiB. The worker retains no network, dropped outer capabilities and a
+read-only root. This acceptance used Docker 28.4.0 with no active AppArmor profile;
+other kernels or LSM policies may refuse these operations. Preserve those policies
+and report incompatibility. Failed runs emit no success receipt. Keep `workspace-write`
+and `include_local=false`; there is no unsandboxed fallback. Since setup preserves
+existing helpers, update the driver and pinned profile together.
 
 Subscription execution stays blocked, and full Claude routing, including deferred tools, remains unqualified. `worker-inspect` is
 read-only. Current headless streams do not establish applied effort, and Codex JSONL

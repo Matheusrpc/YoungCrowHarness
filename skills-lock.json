@@ -308,7 +308,9 @@
           "runtime/worker/check.py",
           "runtime/worker/transfer.py",
           "runtime/worker/mcp.py",
-          "runtime/worker/worker.dockerfile"
+          "runtime/worker/worker.dockerfile",
+          "runtime/worker/seccomp-bwrap.json",
+          "runtime/worker/seccomp-LICENSE"
         ],
         "claude": [
           ".claude/skills/personalizer/SKILL.md"
@@ -334,10 +336,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "516b8617b9cb4de9c7ef0da04bbcadc613cd2cab6da96bc2ff5048153597624f",
+        "contract_sha256": "8e8e5f65dde8c4fe52a802613f2e3050dcfb4e947f59866bb11e027bf0b150b9",
         "files_sha256": {
-          "claude": "c397bf14a870e8fe4d4522aefde40aabf592c56a6a157c808da2e56f80860972",
-          "codex": "b6f8b3c381d402893f6b2762995a3918682534bdb63c39ce40dd34b94d0637f8"
+          "claude": "8513822c9b5c6d77b7501964c1f150d71c80f1f0ee30c0096dfa7821f2779bdc",
+          "codex": "fc72f92d6ab59546f723c5022f319147ee88cfdfd3e1c3b52252f0f98cb73ef5"
         }
       },
       "legacy_ref": "skills_de_projeto/personalizer"
@@ -1240,7 +1242,9 @@
           "runtime/worker/check.py",
           "runtime/worker/transfer.py",
           "runtime/worker/mcp.py",
-          "runtime/worker/worker.dockerfile"
+          "runtime/worker/worker.dockerfile",
+          "runtime/worker/seccomp-bwrap.json",
+          "runtime/worker/seccomp-LICENSE"
         ],
         "claude": [
           ".claude/skills/yc-personalizer/SKILL.md"
@@ -1266,10 +1270,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "1eb35cf6f162542beb6ec92e9424a9510c8987c69084b72a5dfaebfe0ad5f72d",
+        "contract_sha256": "dd83ed45abee8ea79de0f02a42beacddca505a1c7468de0ab3c1e2b112dcef79",
         "files_sha256": {
-          "claude": "f85d10c3243e0f8e4e2c9b6d983576b5d732bd620a26c60ce3291cade19fae3f",
-          "codex": "cd949a6b05a0c691571e795a4d18805ddf82598369c7ef424962517c2b6f4b5f"
+          "claude": "796051c649da4196ad83e6f04f337bbedefc64c58b8e6e4b89866093038ee9d2",
+          "codex": "399db4d85c2faa81c2532caa2c6261ec8955146d615a66c65248c51c82e558e0"
         }
       }
     },
@@ -1337,7 +1341,9 @@
           "runtime/worker/check.py",
           "runtime/worker/transfer.py",
           "runtime/worker/mcp.py",
-          "runtime/worker/worker.dockerfile"
+          "runtime/worker/worker.dockerfile",
+          "runtime/worker/seccomp-bwrap.json",
+          "runtime/worker/seccomp-LICENSE"
         ],
         "claude": [
           ".claude/skills/yc-config/SKILL.md"
@@ -1367,10 +1373,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "18272fb6066f7b465f84cf638782d2b5364b998324bde7cbd7737eab50f2af83",
+        "contract_sha256": "79b2e064d0031a212fd555212df4b18b6a33443d605bfdcf24f61877e2a8af25",
         "files_sha256": {
-          "claude": "32528108ca0cf3e8e0ea645124c00eeec23a7a66a1cf4325f6c5acb575521518",
-          "codex": "62ae4d74b00bd378f746ce9af22bae0c2032f5a07e1393c680d0fb69f012f6e6"
+          "claude": "0e865ec430699177a1219fa4a48e975860b47869bfb7262296e5e347f1bd2d5f",
+          "codex": "8a4397d721cc993d5bb4cfabe098ce34b6b5ccd956151caedb823639cb11494c"
         }
       }
     },
@@ -1438,7 +1444,9 @@
           "runtime/worker/check.py",
           "runtime/worker/transfer.py",
           "runtime/worker/mcp.py",
-          "runtime/worker/worker.dockerfile"
+          "runtime/worker/worker.dockerfile",
+          "runtime/worker/seccomp-bwrap.json",
+          "runtime/worker/seccomp-LICENSE"
         ],
         "claude": [
           ".claude/skills/yc-missao/SKILL.md"
@@ -1466,10 +1474,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "043541ff91a7c6acc22fa08a9dc8f5df65b7ec897b37cb64c99f435f0aa08c49",
+        "contract_sha256": "d0ebf47bf032eca3d1ee0cfbc5eea77a3df6c7af8be6797de85f991e8a668fee",
         "files_sha256": {
-          "claude": "cccee0464d60a962053f5a9a67c9164aa325d71df6e9038fc43382d6cb259665",
-          "codex": "ccc04ba62abb2b7c5e55aa341957bfcdbc6f7f778ee06ae0ee493f54f8f39b54"
+          "claude": "eb70780a16c09415c744bfa7987b56f49ed08943c6abe63708004c174d56d39c",
+          "codex": "d6552f953c745f510d03391ba1bd880873237204290ef602ff7fbab4bdddec23"
         }
       }
     },
@@ -1537,7 +1545,9 @@
           "runtime/worker/check.py",
           "runtime/worker/transfer.py",
           "runtime/worker/mcp.py",
-          "runtime/worker/worker.dockerfile"
+          "runtime/worker/worker.dockerfile",
+          "runtime/worker/seccomp-bwrap.json",
+          "runtime/worker/seccomp-LICENSE"
         ],
         "claude": [
           ".claude/skills/yc-status/SKILL.md"
@@ -1561,10 +1571,10 @@
       },
       "native": {},
       "expected": {
-        "contract_sha256": "404ba9fb7f7435a4133d25dd0e2337cceceadb0f81bea8313f61381dca9cf886",
+        "contract_sha256": "c18b35b955a731cfa96842103ddb7138e4e1133c4484ec8d78ccfd7536c942e6",
         "files_sha256": {
-          "claude": "0ed38e2697967f0bc8c07a8dacc3c790357d9601e4ffd4848ce6d4ab7399d311",
-          "codex": "09c6a5bb80cdde4f124d51d698ffe91ca0693cc8a57265bc7a531daa1918b884"
+          "claude": "4b1a39db05520b6651dadfac48981f1a2d55e59f77f0e185afde2b56c2617c49",
+          "codex": "83907d6a0016ada40da5c11b8862cb36d24ae3a072c40a906351906a8ea63a9a"
         }
       }
     }

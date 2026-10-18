@@ -38,7 +38,7 @@ FILES += tuple(f'scripts/{name}.py' for name in
                ('mission_config', 'mission_backlog', 'mission_store', 'mission_vault', 'missions', 'mission_queue', 'mission_workspace',
                 'mission_clients', 'mission_process', 'mission_runs', 'mission_sandbox', 'mission_environment', 'mission_sbx',
                 'mission_execution','mission_egress', 'mission_controller', 'mission_transaction', 'mission_network'))
-WORKER_FILES = tuple('scripts/'+name+'.py' for name in ('mission_worker','mission_tool_clients','mission_worker_runs','build_tool_worker')) + tuple('runtime/worker/'+name for name in ('guardian.py','check.py','transfer.py','mcp.py','worker.dockerfile'))
+WORKER_FILES = tuple('scripts/'+name+'.py' for name in ('mission_worker','mission_tool_clients','mission_worker_runs','build_tool_worker')) + tuple('runtime/worker/'+name for name in ('guardian.py','check.py','transfer.py','mcp.py','worker.dockerfile','seccomp-bwrap.json','seccomp-LICENSE'))
 FILES += WORKER_FILES
 FILES += tuple(f'{base}/{name}/SKILL.md' for base in ('skills', '.claude/skills', '.agents/skills')
                for name in ('yc-personalizer', 'yc-config', 'yc-missao', 'yc-status'))

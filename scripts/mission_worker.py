@@ -20,6 +20,8 @@ DATA_LIMIT = 8 * 1024 * 1024
 ARCHIVE_LIMIT = DATA_LIMIT + 1024 * 1024
 FILE_LIMIT = 128
 SOCKET = '--host=unix:///var/run/docker.sock'
+SECCOMP_PATH = Path(__file__).resolve().parents[1] / 'runtime/worker/seccomp-bwrap.json'
+SECCOMP_SHA256 = 'c881e07ed45113db00b8e7b7e2ff79222601c3cee1de611ef4f61de7c598812b'
 SENSITIVE = {'.git', '.env', '.claude', '.codex', '.ssh', '.aws', 'auth.json',
              '.credentials.json', 'id_rsa', 'id_ed25519', 'registry.json',
              '.runtime', 'node_modules', '__pycache__'}
@@ -32,6 +34,12 @@ def require(condition, reason='invalid_worker_input'):
 
 def sha(data):
     return hashlib.sha256(data).hexdigest()
+
+
+def seccomp_profile():
+    data = SECCOMP_PATH.read_bytes()
+    require(sha(data) == SECCOMP_SHA256, 'worker_seccomp_changed')
+    return json.loads(data)
 
 
 def relative(name):
@@ -258,6 +266,13 @@ def _inspection(handle):
     require(row['Id'] == handle['container_id'] and row['Image'] == handle['image_digest'],
             'worker_identity_changed')
     config, host = row['Config'], row['HostConfig']
+    options = host.get('SecurityOpt') or []
+    require(len(options) == 2 and 'no-new-privileges' in options, 'worker_boundary_changed')
+    policy = next((v.removeprefix('seccomp=') for v in options if v.startswith('seccomp=')), '')
+    try:
+        require(json.loads(policy) == seccomp_profile(), 'worker_boundary_changed')
+    except (json.JSONDecodeError, TypeError) as error:
+        raise ValueError('worker_boundary_changed') from error
     require(host['NetworkMode'] == 'none' and host['ReadonlyRootfs'] is True
             and host['Privileged'] is False and host['CapDrop'] == ['ALL']
             and not host['CapAdd'] and host['PidMode'] == '' and host['IpcMode'] == 'private'
@@ -266,7 +281,7 @@ def _inspection(handle):
             and host['PidsLimit'] == 128 and host['Memory'] == 1073741824
             and host['MemorySwap'] == 1073741824 and host.get('OomKillDisable') in (False, None)
             and host['NanoCpus'] == 2000000000
-            and 'no-new-privileges' in host['SecurityOpt'] and config['User'] == '0:0',
+            and config['User'] == '0:0',
             'worker_boundary_changed')
     require(config['Labels'].get('youngcrow.operation') == handle['operation_id']
             and config['Labels'].get('youngcrow.plan') == handle['plan_sha256'], 'worker_identity_changed')
@@ -285,11 +300,13 @@ def start(plan, package, docker, persist):
     require(len(data) <= ARCHIVE_LIMIT and sha(data) == plan['package_sha256'], 'worker_input_changed')
     archive_files(data)
     require(engine(docker) == plan['engine'], 'worker_engine_changed')
+    seccomp_profile()
     plan_hash = sha(fs.canonical(plan))
     cwd = workspace(plan['operation_id'])
     manifest = dict(operation_id=plan['operation_id'], deadline_ms=plan['deadline_ms'], plan_sha256=plan_hash)
     args = ['create', '--network=none', '--ipc=private', '--read-only', '--cap-drop=ALL',
-            '--security-opt=no-new-privileges', '--user=0:0', '--restart=no', '--pids-limit=128',
+            '--security-opt=no-new-privileges', '--security-opt=seccomp=' + str(SECCOMP_PATH),
+            '--user=0:0', '--restart=no', '--pids-limit=128',
             '--memory=1g', '--memory-swap=1g', '--cpus=2', '--workdir=' + cwd,
             '--tmpfs=/snapshot:rw,nosuid,nodev,noexec,size=16777216,mode=0755',
             '--tmpfs=/tmp:rw,nosuid,nodev,size=16777216,mode=1777',

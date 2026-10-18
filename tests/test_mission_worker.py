@@ -2,6 +2,7 @@
 import hashlib
 import importlib.util
 import io
+import json
 import os
 from pathlib import Path
 import sys
@@ -175,6 +176,39 @@ class WorkerTests(unittest.TestCase):
         for operation in ('../outside', '00000000000000000000000000000000', None):
             with self.subTest(operation=operation), self.assertRaises(ValueError):
                 self.w.workspace(operation)
+
+    def test_inspection_rejects_missing_or_unconfined_seccomp(self):
+        handle = dict(docker='/usr/local/bin/docker', engine={}, container_id='a'*64,
+                      image_digest='sha256:'+'b'*64, operation_id='operation', plan_sha256='plan')
+        row = dict(Id=handle['container_id'], Image=handle['image_digest'], Created='created', Mounts=[],
+                   Config=dict(User='0:0', Labels={'youngcrow.operation':'operation', 'youngcrow.plan':'plan'}),
+                   HostConfig=dict(NetworkMode='none', ReadonlyRootfs=True, Privileged=False,
+                       CapDrop=['ALL'], CapAdd=None, PidMode='', IpcMode='private', RestartPolicy={'Name':'no'},
+                       Binds=None, Devices=[], PortBindings={}, PidsLimit=128, Memory=1073741824,
+                       MemorySwap=1073741824, NanoCpus=2000000000))
+        profile = self.w.seccomp_profile()
+        expected = ['no-new-privileges', 'seccomp='+json.dumps(profile)]
+        row['HostConfig']['SecurityOpt'] = expected
+        with patch.object(self.w, 'engine', return_value={}), \
+                patch.object(self.w, 'call', return_value=json.dumps([row]).encode()):
+            self.w._inspection(handle)
+        changed = dict(profile, defaultAction='SCMP_ACT_ALLOW')
+        for options in (['no-new-privileges'], ['no-new-privileges', 'seccomp=unconfined'],
+                        ['no-new-privileges', 'apparmor=unconfined'],
+                        ['no-new-privileges', 'seccomp='+json.dumps(changed)],
+                        expected+['apparmor=unconfined']):
+            row['HostConfig']['SecurityOpt'] = options
+            with self.subTest(options=options), patch.object(self.w, 'engine', return_value={}), \
+                    patch.object(self.w, 'call', return_value=json.dumps([row]).encode()), \
+                    self.assertRaisesRegex(ValueError, 'worker_boundary_changed'):
+                self.w._inspection(handle)
+
+    def test_changed_seccomp_profile_is_refused(self):
+        profile = self.root / 'seccomp.json'
+        profile.write_text('{"defaultAction":"SCMP_ACT_ALLOW"}')
+        with patch.object(self.w, 'SECCOMP_PATH', profile), \
+                self.assertRaisesRegex(ValueError, 'worker_seccomp_changed'):
+            self.w.seccomp_profile()
 
     def test_build_refuses_unverified_bwrap_before_docker_or_output(self):
         import build_tool_worker as builder

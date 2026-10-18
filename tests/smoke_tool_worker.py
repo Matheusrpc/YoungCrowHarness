@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import selectors
+import shlex
 import signal
 from pathlib import Path
 import subprocess
@@ -15,6 +16,90 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 import mission_worker as worker
+
+
+NESTED_PROBE = '''import ctypes,errno,json,os,socket
+from pathlib import Path
+libc=ctypes.CDLL(None,use_errno=True)
+def denied(result):
+ assert result == -1 and ctypes.get_errno() in (errno.EPERM,errno.EACCES), ctypes.get_errno()
+def map_user(parent):
+ Path('/proc/self/setgroups').write_text('deny')
+ Path('/proc/self/uid_map').write_text('0 '+str(parent)+' 1')
+ Path('/proc/self/gid_map').write_text('0 '+str(parent)+' 1')
+ assert os.getuid()==0 and os.getgid()==0
+def protected():
+ for p in ('/snapshot/nested-attack','/opt/youngcrow/check.py'):
+  try: Path(p).write_bytes(b'attack')
+  except OSError: pass
+  else: raise AssertionError('protected file writable by nested root')
+ for p in ('/control','/root','/proc/1/root','/proc/1/fd'):
+  try: list(Path(p).iterdir())
+  except OSError: pass
+  else: raise AssertionError('private path accessible by nested root: '+p)
+ try: Path('/proc/1/mem').open('rb')
+ except OSError: pass
+ else: raise AssertionError('guardian memory accessible')
+ assert not Path('/var/run/docker.sock').exists()
+def no_network():
+ for address in ('1.1.1.1','169.254.169.254','172.17.0.1'):
+  with socket.socket() as connection:
+   connection.settimeout(.1)
+   try: connection.connect((address,443))
+   except OSError: pass
+   else: raise AssertionError('network accessible by nested root')
+assert libc.unshare(0x10000000)==0, ctypes.get_errno()
+map_user(1000)
+protected()
+denied(libc.kill(1,9))
+assert libc.setuid(2000)==-1 and ctypes.get_errno()==errno.EINVAL
+denied(libc.unshare(0x20000))
+with open('/proc/self/ns/user','rb') as namespace:
+ denied(libc.setns(namespace.fileno(),0))
+target=Path('nested-tmpfs').resolve();target.mkdir()
+denied(libc.mount(b'tmpfs',os.fsencode(target),b'tmpfs',6,None))
+# The parent listener must disappear from the child's new network namespace.
+listener=socket.socket();listener.bind(('127.0.0.1',0));listener.listen()
+port=listener.getsockname()[1]
+pid=libc.syscall(56,0x78020011,0,0,0,0)
+assert pid>=0, ctypes.get_errno()
+if pid==0:
+ try:
+  listener.close()
+  map_user(0)
+  protected()
+  no_network()
+  with socket.socket() as connection:
+   connection.settimeout(.1)
+   assert connection.connect_ex(('127.0.0.1',port)) != 0
+  denied(libc.mount(b'none',b'/',None,0x9022,None))
+  assert Path('/sys/fs/cgroup/memory.max').read_text().strip()=='1073741824'
+  assert Path('/sys/fs/cgroup/pids.max').read_text().strip()=='128'
+  children=[]
+  try:
+   for _ in range(150):
+    try: child=os.fork()
+    except BlockingIOError: break
+    if child==0:
+     import time;time.sleep(60);os._exit(0)
+    children.append(child)
+   else: raise AssertionError('nested PID quota absent')
+  finally:
+   for child in children: os.kill(child,9)
+   for child in children: os.waitpid(child,0)
+  assert libc.mount(b'tmpfs',os.fsencode(target),b'tmpfs',6,b'size=96m')==0, ctypes.get_errno()
+  with (target/'extra').open('wb') as output:
+   for _ in range(80): output.write(b'x'*1048576)
+  # Nested scratch can exceed the workspace volume, within the cgroup memory cap.
+  assert libc.umount2(os.fsencode(target),2)==0
+  print('nested-boundary-ok',flush=True)
+  os._exit(0)
+ except BaseException:
+  import traceback;traceback.print_exc();os._exit(1)
+_,status=os.waitpid(pid,0)
+assert os.waitstatus_to_exitcode(status)==0
+listener.close();target.rmdir()
+'''
 
 
 def run(docker, image, seconds=30):
@@ -98,12 +183,17 @@ print('boundary-ok')
 '''
             output = worker.execute(handle, ['/usr/local/bin/python3', '-I', '-c', probe])
             assert output == b'boundary-ok\n'
+            output = worker.execute(handle, ['/usr/local/bin/python3', '-I', '-c', NESTED_PROBE])
+            assert output == b'nested-boundary-ok\n'
             result = worker.collect(handle, root / 'result', persist)
             assert result['worker_stopped_before_publish'] and result['test']['exit_code'] == 0
             assert (source / 'clamp.py').read_bytes() == original
             assert (root / 'result' / 'clamp.py').read_bytes() != original
             result['original_changed'] = False
             result['boundary'] = 'passed'
+            result['nested_user_mount_pid_network_boundaries'] = 'passed'
+            result['nested_scratch_exceeds_workspace_volume'] = True
+            result['seccomp_sha256'] = worker.SECCOMP_SHA256
         finally:
             if handle is None:
                 handle = next((e['payload'] for e in reversed(observations) if e['kind'] in ('ready','start_intent','created')), None)
@@ -130,6 +220,7 @@ print('boundary-ok')
             stopped=worker.observe(handle)
             assert not stopped['running'] and stopped['pid']==0 and stopped['finished_ms']<=plan['deadline_ms']
             result['deadline_without_controller']='passed'
+            result['nested_process_deadline']='passed'
             result['controller_killed']=True
             result['remaining_worker_processes']=0
         finally:
@@ -184,7 +275,15 @@ def crash_child():
         with Path(request['journal']).open('w') as stream:
             json.dump(rows,stream);stream.flush();os.fsync(stream.fileno())
     handle=worker.start(request['plan'],Path(request['package']),Path(request['docker']),persist)
-    worker.execute(handle,['/bin/sh','-c','sleep 60 >/dev/null 2>&1 &'])
+    code = "from pathlib import Path; import time; Path('nested-ready').write_text('ready'); time.sleep(60)"
+    command = ['/usr/local/bin/codex-resources/bwrap', '--unshare-user', '--unshare-pid',
+               '--unshare-net', '--unshare-ipc', '--bind', '/', '/', '--',
+               '/usr/local/bin/python3', '-I', '-c', code]
+    worker.execute(handle,['/bin/sh','-c',shlex.join(command)+' >/dev/null 2>&1 &'])
+    worker.execute(handle, ['/usr/local/bin/python3', '-I', '-c',
+        "from pathlib import Path; import time; "
+        "exec(\"for _ in range(30):\\n if Path('nested-ready').exists(): break\\n time.sleep(.05)\"); "
+        "assert Path('nested-ready').read_text() == 'ready'"])
     print(json.dumps(handle),flush=True)
     while True:time.sleep(.1)
 

@@ -104,6 +104,7 @@ def run(executable, docker, image):
                         tools_checked=['exec_command', 'apply_patch'], fixture_requests=len(requests),
                         tree_reaped=True, original_preserved=True, host_mirror_empty=True,
                         sandbox_mode=profile['configuration']['sandbox_mode'],
+                        seccomp_sha256=worker.SECCOMP_SHA256,
                         artifact=artifact, model_calls=0, qualified=False)
         finally:
             server.shutdown()

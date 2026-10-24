@@ -5,25 +5,29 @@ For every legacy path (`youngcrow.migrate.is_legacy_path`: what setup.sh copied 
 never the vault), the table lists each distinct SHA-256 that path had in the history of one ref.
 The ref is the branch head (R27): its history holds everything origin/main published and what the
 branch is about to publish. Only history reachable from the ref counts; a branch that never reached
-it does not. A file setup.sh copied to another place also gets the hashes of its source (`COPIES`).
-Keys and hash lists are sorted and the file ends with a newline, so the same history always gives
-the same bytes.
+it does not. On top of that comes each legacy file as it is in the working tree now (R28): a regular
+file that git lists as tracked or as untracked and not ignored, never through a link. So a change to
+a legacy file and the regenerated table can go into one commit. A file setup.sh copied to another
+place also gets the hashes of its source (`COPIES`). Keys and hash lists are sorted and the file ends
+with a newline, so the same history and files always give the same bytes.
 
     python3 tools/legacy_hashes.py --repo . --ref HEAD
 
-writes `src/youngcrow/legacy_hashes.json`. Needs the full history (`git fetch --unshallow`). Run it
-again after a commit that changes a legacy file.
+writes `src/youngcrow/legacy_hashes.json`. `--repo` is the repository root. Needs the full history
+(`git fetch --unshallow`).
 """
 from pathlib import Path
 import argparse
 import hashlib
 import json
+import stat
 import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 
+from youngcrow.manifest import UnsafePathError, safe_target, sha256_file  # noqa: E402
 from youngcrow.migrate import is_legacy_path  # noqa: E402
 
 DEFAULT_OUT = ROOT / 'src' / 'youngcrow' / 'legacy_hashes.json'
@@ -59,10 +63,6 @@ def _blobs(repo: Path, ref: str) -> dict[str, set[str]]:
             path = name.decode(errors='replace')
             if kind == 'blob' and mode in FILE_MODES and is_legacy_path(path):
                 blobs.setdefault(path, set()).add(blob)
-    for source, copy in COPIES:
-        for path, ids in list(blobs.items()):
-            if path.startswith(source):
-                blobs.setdefault(copy + path[len(source):], set()).update(ids)
     return blobs
 
 
@@ -81,12 +81,43 @@ def _digests(repo: Path, ids: list[str]) -> dict[str, str]:
     return digests
 
 
+def _working_tree(repo: Path) -> dict[str, str]:
+    """Legacy path -> SHA-256 of the file as it is in the working tree now.
+
+    The files git lists (tracked, or untracked and not ignored, so a local clone in an ignored
+    folder stays out) that are regular files. Nothing is followed: a link, or a path behind a linked
+    folder, is skipped. A repository without a working tree gives nothing.
+    """
+    if _git(repo, 'rev-parse', '--is-inside-work-tree').decode().strip() != 'true':
+        return {}
+    found = {}
+    for raw in _git(repo, 'ls-files', '-z', '--cached', '--others', '--exclude-standard').split(b'\0'):
+        path = raw.decode(errors='replace')
+        if not raw or not is_legacy_path(path):
+            continue
+        try:
+            target = safe_target(repo, path)
+            if stat.S_ISREG(target.lstat().st_mode):
+                found[path] = sha256_file(target)
+        except (UnsafePathError, FileNotFoundError):
+            pass  # a link, a folder, or a file that is gone from the working tree
+    return found
+
+
 def build_table(repo: Path, ref: str) -> dict[str, list[str]]:
-    """Legacy path -> sorted distinct SHA-256 of every version it had in the history of `ref`."""
+    """Legacy path -> sorted distinct SHA-256 of every version it had in the history of `ref`,
+    plus the file as it is in the working tree now."""
     repo = Path(repo)
     blobs = _blobs(repo, ref)
     digests = _digests(repo, sorted({blob for ids in blobs.values() for blob in ids}))
-    return {path: sorted({digests[blob] for blob in ids}) for path, ids in sorted(blobs.items())}
+    hashes = {path: {digests[blob] for blob in ids} for path, ids in blobs.items()}
+    for path, digest in _working_tree(repo).items():
+        hashes.setdefault(path, set()).add(digest)
+    for source, copy in COPIES:
+        for path, found in list(hashes.items()):
+            if path.startswith(source):
+                hashes.setdefault(copy + path[len(source):], set()).update(found)
+    return {path: sorted(found) for path, found in sorted(hashes.items())}
 
 
 def render(table: dict[str, list[str]]) -> str:

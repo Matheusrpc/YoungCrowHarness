@@ -549,6 +549,73 @@ class LegacyHashesToolTests(unittest.TestCase):
         self.assertEqual(table['.agents/skills/humanizer-ptbr/references/x.md'], [sha(v['c'])])
         self.assertEqual([rel for rel in table if 'humanizer' in rel and rel.startswith('.claude')], [])
 
+    def test_a_legacy_file_changed_but_not_committed_counts_too(self):
+        self.make_history()
+        v = self.VERSIONS
+        edited = b'edited, not committed\n'
+        (self.repo / 'scripts/vault.py').write_bytes(edited)
+        table = self.tool.build_table(self.repo, 'main')
+        self.assertEqual(table['scripts/vault.py'], sorted([sha(v['a']), sha(v['b']), sha(edited)]))
+        # Only the working tree changed, so a build from the commit alone is what it was.
+        git(self.repo, 'stash', '-q')
+        self.assertEqual(self.tool.build_table(self.repo, 'main')['scripts/vault.py'], sorted([sha(v['a']), sha(v['b'])]))
+
+    def test_new_untracked_legacy_files_count_but_ignored_and_other_files_do_not(self):
+        self.make_history()
+        self.commit('ignore', put=[('.gitignore', b'.agents/skills/humanizer/\n')])
+        new = b'a skill nobody committed yet\n'
+        for rel, data in (('skills/new/SKILL.md', new), ('.agents/skills/humanizer/SKILL.md', b'upstream clone\n'),
+                          ('notes.txt', b'not harness\n'), ('vault/index.md', b'changed note\n'),
+                          ('scripts/mine.py', b'mine\n')):
+            (self.repo / rel).parent.mkdir(parents=True, exist_ok=True)
+            (self.repo / rel).write_bytes(data)
+        table = self.tool.build_table(self.repo, 'main')
+        self.assertEqual(table['skills/new/SKILL.md'], [sha(new)])
+        self.assertEqual([rel for rel in table if 'humanizer' in rel or rel.startswith('vault/') or rel in (
+            'notes.txt', 'scripts/mine.py')], [])
+        self.assertNotIn(sha(self.VERSIONS['note']), json.dumps(table))
+
+    def test_a_legacy_file_deleted_from_the_working_tree_keeps_its_history(self):
+        self.make_history()
+        v = self.VERSIONS
+        (self.repo / 'scripts/vault.py').unlink()
+        self.assertEqual(self.tool.build_table(self.repo, 'main')['scripts/vault.py'], sorted([sha(v['a']), sha(v['b'])]))
+
+    def test_links_in_the_working_tree_are_never_followed(self):
+        self.make_history()
+        v = self.VERSIONS
+        outside = self.repo.parent / 'outside'
+        (outside / 'agents').mkdir(parents=True)
+        (outside / 'agents/SKILL.md').write_bytes(b'behind a linked folder\n')
+        (outside / 'config.json').write_bytes(b'behind a linked file\n')
+        try:
+            (self.repo / '.mcp.json').symlink_to(outside / 'config.json')
+            shutil.rmtree(self.repo / '.agents/skills/y')
+            (self.repo / '.agents/skills/y').symlink_to(outside / 'agents', target_is_directory=True)
+        except (OSError, NotImplementedError) as error:
+            self.skipTest(f'this OS refused to create a symlink: {error}')
+        table = self.tool.build_table(self.repo, 'main')
+        self.assertNotIn('.mcp.json', table)
+        self.assertEqual(table['.agents/skills/y/SKILL.md'], [sha(v['agents'])])
+        self.assertNotIn(sha(b'behind a linked folder\n'), json.dumps(table))
+        self.assertNotIn(sha(b'behind a linked file\n'), json.dumps(table))
+
+    def test_the_working_tree_copy_of_humanizer_ptbr_counts_for_both_places(self):
+        v = self.VERSIONS
+        self.commit('one', put=[('skills/humanizer-ptbr/SKILL.md', v['a'])])
+        edited = b'edited humanizer, not committed\n'
+        (self.repo / 'skills/humanizer-ptbr/SKILL.md').write_bytes(edited)
+        table = self.tool.build_table(self.repo, 'main')
+        both = sorted([sha(v['a']), sha(edited)])
+        self.assertEqual(table['skills/humanizer-ptbr/SKILL.md'], both)
+        self.assertEqual(table['.agents/skills/humanizer-ptbr/SKILL.md'], both)
+
+    def test_a_repository_without_a_working_tree_gives_the_history_alone(self):
+        self.make_history()
+        bare = self.repo.parent / 'bare.git'
+        git(self.repo.parent, 'clone', '-q', '--bare', str(self.repo), str(bare))
+        self.assertEqual(self.tool.build_table(bare, 'main'), self.tool.build_table(self.repo, 'main'))
+
     def test_a_ref_that_looks_like_an_option_or_a_folder_is_taken_as_a_ref(self):
         self.make_history()
         git(self.repo, 'branch', 'scripts', 'main')  # a branch named like the scripts/ folder
@@ -603,9 +670,10 @@ class LegacyHashesToolTests(unittest.TestCase):
         self.assertIn('nope', errors.getvalue())
         self.assertFalse(out.exists())
 
-    def test_the_committed_table_is_what_the_generator_gives_for_head(self):
-        # R27: the table comes from the branch head, so it holds what origin/main published and what
-        # this branch is about to publish. After a commit that changes a legacy file, regenerate it.
+    def test_the_committed_table_is_what_the_generator_gives_for_head_and_the_working_tree(self):
+        # R27/R28: the table comes from the branch head plus the files as they are now, so it holds what
+        # origin/main published and what this branch is about to publish, and a change to a legacy
+        # file can land in the same commit as its regenerated table.
         def run(*args):
             return subprocess.run(['git', '-C', str(REPO), *args], capture_output=True, text=True)
 

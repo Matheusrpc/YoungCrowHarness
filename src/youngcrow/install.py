@@ -9,7 +9,7 @@ The manifest is saved (or, by `undo`, deleted) last, so it always describes a fi
 from dataclasses import asdict, dataclass, field
 from importlib.resources import files
 from pathlib import Path, PurePath
-from typing import Callable
+from typing import Callable, Sequence
 from urllib.parse import unquote, urlsplit
 import hashlib
 import os
@@ -215,9 +215,13 @@ def _add_block(body: str, start: str, end: str) -> Callable[[str], str]:
     return add
 
 
-def _plan_managed(root: Path, rel: str, fresh: str, add: Callable[[str], str]) -> _Step | None:
-    """The step that adds managed text to `rel`; None when `add` leaves the text unchanged."""
-    old = _read(root, rel)
+def _plan_managed(root: Path, rel: str, fresh: str, add: Callable[[str], str],
+                  gone: frozenset[str] = frozenset()) -> _Step | None:
+    """The step that adds managed text to `rel`; None when `add` leaves the text unchanged.
+
+    A file in `gone` is about to be removed by the same run, so it counts as missing.
+    """
+    old = None if rel in gone else _read(root, rel)
     new = add(fresh if old is None else old)
     if old is not None and new == old:
         return None
@@ -331,7 +335,8 @@ def _apply(root: Path, steps: list[_Step], *, manifest: Manifest | None = None,
         raise
 
 
-def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'light') -> Report:
+def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'light',
+         remove: Sequence[str] = ()) -> Report:
     """Install the harness into `root`.
 
     Copies the scripts into `.youngcrow/`, creates the vault indexes that are missing (a sub-index
@@ -341,6 +346,13 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
     mistyped destination, ManagedBlockError for broken markers, AlreadyInitialized when the
     project has a manifest or install leftovers. None of these writes anything. A write that fails
     is rolled back before the error is raised again.
+
+    `remove` lists project files to delete in the same run, before the install (`migrate` passes
+    the copies an older `setup.sh` made). A name that is not there is skipped; one under
+    `.youngcrow/` or `vault/` is a ValueError. Each goes through `safe_target` and is read before
+    the first write. A file it removes that init also writes (CLAUDE.md, AGENTS.md) is created anew,
+    not edited. The files go into `Report.removed`, followed by the folders they leave empty (R18,
+    with a trailing `/`); a failed run puts them all back.
     """
     _check_options(client, lang, rigor)
     root = Path(root)
@@ -354,6 +366,14 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
             raise AlreadyInitialized(
                 f'{step.rel} exists but {MANIFEST_PATH} does not; remove it (or the whole .youngcrow '
                 'folder) and run init again.')
+
+    drops = []
+    for rel in dict.fromkeys(remove):
+        if PurePath(rel).parts[:1] in (('.youngcrow',), ('vault',)):
+            raise ValueError(f'{rel} cannot be removed: init never deletes the harness folder or vault notes.')
+        if (data := _read_bytes(root, rel)) is not None:
+            drops.append(_Step(rel, None, data))
+    gone = frozenset(step.rel for step in drops)
 
     report = Report()
     parent, *children = VAULT_INDEXES
@@ -374,19 +394,21 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
         plans.append(('AGENTS.md', '', _add_block(harness, MD_START, MD_END)))
     plans.append(('.gitignore', '', _add_block(GITIGNORE_BODY, GITIGNORE_START, GITIGNORE_END)))
     for rel, fresh, add in plans:
-        step = _plan_managed(root, rel, fresh, add)
+        step = _plan_managed(root, rel, fresh, add, gone)
         if step is None:
             report.skipped.append(rel)
         else:
             steps.append(step)
 
-    _apply(root, steps, manifest=Manifest(
+    dirs = _empty_parents(root, [step.rel for step in drops], keep=[step.rel for step in steps])
+    _apply(root, drops + steps, manifest=Manifest(
         version=__version__, client=client, lang=lang, rigor=rigor,
         files={step.rel: _sha(step.data) for step in steps},
         created=[step.rel for step in steps if step.created],
         edits=[step.rel for step in steps if step.managed],
-    ))
+    ), dirs=dirs)
     report.written = [step.rel for step in steps]
+    report.removed = [step.rel for step in drops] + [path.relative_to(root).as_posix() + '/' for path in dirs]
     return report
 
 

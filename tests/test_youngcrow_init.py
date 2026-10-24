@@ -528,5 +528,73 @@ class InitTests(unittest.TestCase):
         self.assertEqual(json.loads(json.dumps(data)), data)
 
 
+    # Files the caller asks init to remove first (`migrate`), in the same all-or-nothing run.
+
+    def write(self, rel, data=b'x\n'):
+        (self.root / rel).parent.mkdir(parents=True, exist_ok=True)
+        (self.root / rel).write_bytes(data)
+
+    def test_remove_deletes_the_named_files_and_the_folders_they_empty(self):
+        for rel in ('old/a.txt', 'old/deep/b.txt', 'keep/c.txt', 'keep/d.txt'):
+            self.write(rel)
+        report = init(self.root, remove=['old/a.txt', 'old/deep/b.txt', 'keep/c.txt'])
+        self.assertFalse((self.root / 'old').exists())
+        self.assertFalse((self.root / 'keep/c.txt').exists())
+        self.assertTrue((self.root / 'keep/d.txt').is_file())
+        self.assertEqual(report.removed, ['old/a.txt', 'old/deep/b.txt', 'keep/c.txt', 'old/deep/', 'old/'])
+        self.assertNotIn('old/a.txt', report.written)
+        self.assertNotIn('old/a.txt', load(self.root).files)
+
+    def test_remove_of_a_file_init_writes_makes_init_create_it(self):
+        self.write('CLAUDE.md', b'# Old rules\n')
+        report = init(self.root, remove=['CLAUDE.md'])
+        self.assertEqual((self.root / 'CLAUDE.md').read_text().count(IMPORT), 1)
+        self.assertNotIn('Old rules', (self.root / 'CLAUDE.md').read_text())
+        self.assertIn('CLAUDE.md', report.removed)
+        self.assertIn('CLAUDE.md', report.written)
+        self.assertIn('CLAUDE.md', load(self.root).created)
+
+    def test_remove_ignores_a_file_that_is_not_there(self):
+        report = init(self.root, remove=['old/gone.txt'])
+        self.assertEqual(report.removed, [])
+        self.assertIsNotNone(load(self.root))
+
+    def test_remove_without_the_argument_changes_nothing_for_init(self):
+        self.assertEqual(init(self.root).removed, [])
+
+    def test_remove_refuses_the_harness_folder_and_the_vault(self):
+        self.write('keep.txt')
+        for rel in ('.youngcrow/VERSION', '.youngcrow', 'vault/index.md', 'vault'):
+            with self.subTest(rel), self.assertRaises(ValueError):
+                init(self.root, remove=['keep.txt', rel])
+        self.assertEqual(snapshot(self.root), {'keep.txt': b'x\n'})
+
+    def test_remove_refuses_a_linked_path_before_removing_anything(self):
+        self.write('old/a.txt')
+        (self.other / 'b.txt').write_bytes(b'outside\n')
+        self.symlink(self.other, self.root / 'linked', directory=True)
+        with self.assertRaises(UnsafePathError):
+            init(self.root, remove=['old/a.txt', 'linked/b.txt'])
+        self.assertTrue((self.root / 'old/a.txt').is_file())
+        self.assertEqual((self.other / 'b.txt').read_bytes(), b'outside\n')
+        self.assertFalse((self.root / '.youngcrow').exists())
+
+    def test_remove_refuses_an_initialized_project_before_removing_anything(self):
+        init(self.root)
+        self.write('old/a.txt')
+        before = snapshot(self.root)
+        with self.assertRaises(AlreadyInitialized):
+            init(self.root, remove=['old/a.txt'])
+        self.assertEqual(snapshot(self.root), before)
+
+    def test_remove_is_rolled_back_with_a_failed_write(self):
+        self.write('old/a.txt', b'a\n')
+        self.write('CLAUDE.md', b'# Old rules\n')
+        before = snapshot(self.root)
+        with mock.patch('youngcrow.install.save', side_effect=OSError('disk full')), self.assertRaises(OSError):
+            init(self.root, remove=['old/a.txt', 'CLAUDE.md'])
+        self.assertEqual(snapshot(self.root), before)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -36,3 +36,6 @@ packages = ["src/youngcrow"]
 "requirements/docling.txt" = "youngcrow/payload/requirements/docling.txt"
 "requirements/docling-media.txt" = "youngcrow/payload/requirements/docling-media.txt"
 "requirements/graphify.txt" = "youngcrow/payload/requirements/graphify.txt"
+"vault/index.md" = "youngcrow/payload/vault/index.md"
+"vault/integrations/index.md" = "youngcrow/payload/vault/integrations/index.md"
+"vault/capabilities/index.md" = "youngcrow/payload/vault/capabilities/index.md"

@@ -71,3 +71,31 @@ jobs:
         run: python3.12 scripts/memory.py --root .runtime/memory-proof setup-graphify
       - name: Exercise actual local Graphify and failure recovery
         run: python3.12 tests/smoke_memory.py --root .runtime/memory-proof --provider graphify
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      # The legacy-table test hashes working-tree files byte for byte, so the checkout must keep LF.
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.11'
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          enable-cache: false
+      - name: Run the youngcrow package tests
+        run: python -m unittest discover -s tests -p "test_youngcrow_*.py" -v
+      - name: Build the wheel and install from it into a new project
+        shell: bash
+        run: |
+          uv build --wheel -o "$RUNNER_TEMP/yc-dist"
+          uvx --from "$(ls "$RUNNER_TEMP"/yc-dist/*.whl)" youngcrow init --root "$RUNNER_TEMP/yc"
+      - name: Check the vault the wheel installed
+        run: python .youngcrow/scripts/vault.py check
+        working-directory: ${{ runner.temp }}/yc

@@ -1,10 +1,10 @@
-"""`youngcrow init`: put the harness into a project and record what was written.
+"""`youngcrow init`, `upgrade` and `undo`: put the harness into a project, keep it current, take it out.
 
-Everything is planned before the first write: every destination goes through `safe_target`,
-every source and user file is read, every managed edit is computed. A refusal at that stage
-leaves the project untouched. If a write fails later, the files and folders this run created
-are removed and the files it edited get their original bytes back. The manifest is saved last,
-so a project has one only when the install finished.
+Each operation is planned before the first write: every path goes through `safe_target`, every
+source and user file is read, every managed edit is computed. A refusal at that stage leaves the
+project untouched. If a write fails later, the run is rolled back: files it created are removed,
+files it edited or deleted get their original bytes back, and its folders are removed or put back.
+The manifest is saved (or, by `undo`, deleted) last, so it always describes a finished operation.
 """
 from dataclasses import asdict, dataclass, field
 from importlib.resources import files
@@ -16,13 +16,16 @@ import os
 import posixpath
 import re
 import shutil
+import stat
 
 from youngcrow import __version__
 from youngcrow.blocks import (
     GITIGNORE_END, GITIGNORE_START, IMPORT_LINE, MD_END, MD_START,
-    ensure_line, remove_block, upsert_block,
+    ManagedBlockError, ensure_line, remove_block, remove_line, upsert_block,
 )
-from youngcrow.manifest import MANIFEST_PATH, Manifest, UnsafePathError, is_real_dir, safe_target, save
+from youngcrow.manifest import (
+    MANIFEST_PATH, Manifest, UnsafePathError, is_real_dir, load, safe_target, save,
+)
 from youngcrow.payload import PAYLOAD, payload_root
 
 CLIENTS = ('claude', 'codex', 'both')
@@ -31,10 +34,20 @@ GITIGNORE_BODY = '\n'.join(('.env', '.env.*', '!.env.example', '.operacao-local/
 # parent of the other two.
 VAULT_INDEXES = ('vault/index.md', 'vault/integrations/index.md', 'vault/capabilities/index.md')
 _INLINE_LINK = re.compile(r'\[[^\]\n]*\]\(\s*(<[^>\n]+>|[^()\s]+)[^)]*\)')
+# How `undo` takes the managed text out of each file `init` can edit.
+_UNMANAGE: dict[str, Callable[[str], str]] = {
+    'CLAUDE.md': lambda text: remove_line(text, IMPORT_LINE),
+    'AGENTS.md': lambda text: remove_block(text, MD_START, MD_END),
+    '.gitignore': lambda text: remove_block(text, GITIGNORE_START, GITIGNORE_END),
+}
 
 
 class AlreadyInitialized(RuntimeError):
     """The project already has a manifest, or leftovers an earlier install did not finish."""
+
+
+class NotInitialized(RuntimeError):
+    """The project has no manifest, so there is no install to upgrade or undo."""
 
 
 @dataclass
@@ -51,9 +64,10 @@ class Report:
 @dataclass
 class _Step:
     rel: str
-    data: bytes
+    data: bytes | None        # what to write; None deletes the file
     old: bytes | None = None  # bytes the file had before; None when it did not exist
     managed: bool = False     # it carries text the installer added: the import line or a block
+    mode: int | None = None   # st_mode of a file the step deleted, put back by a roll back
 
     @property
     def created(self) -> bool:
@@ -75,14 +89,59 @@ def _template(*parts: str) -> str:
     return raw.decode('utf-8').replace('\r\n', '\n')
 
 
-def _read(root: Path, rel: str) -> str | None:
-    """Text of an existing project file, None when it is missing. Line endings stay as they are."""
+def _sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def _read_bytes(root: Path, rel: str) -> bytes | None:
+    """Bytes of a project file, None when it is missing. The path goes through `safe_target`."""
     try:
-        return safe_target(root, rel).read_bytes().decode('utf-8')
+        return safe_target(root, rel).read_bytes()
     except FileNotFoundError:
         return None
+
+
+def _decode(rel: str, data: bytes) -> str:
+    try:
+        return data.decode('utf-8')
     except UnicodeDecodeError as error:
-        raise ValueError(f'{rel} is not UTF-8 text; init does not edit it.') from error
+        raise ValueError(f'{rel} is not UTF-8 text; youngcrow does not edit it.') from error
+
+
+def _read(root: Path, rel: str) -> str | None:
+    """Text of an existing project file, None when it is missing. Line endings stay as they are."""
+    data = _read_bytes(root, rel)
+    return None if data is None else _decode(rel, data)
+
+
+def _managed(rel: str, edit: Callable[[str], str], text: str) -> str:
+    """`edit(text)`, with a ManagedBlockError that names the file."""
+    try:
+        return edit(text)
+    except ManagedBlockError as error:
+        raise ManagedBlockError(f'{rel}: {error}') from error
+
+
+def _put_block(text: str, body: str) -> str:
+    """AGENTS.md text with `body` in its managed block (appended when there is none)."""
+    return _managed('AGENTS.md', lambda t: upsert_block(t, body, MD_START, MD_END), text)
+
+
+def _load(root: Path) -> Manifest:
+    manifest = load(root)
+    if manifest is None:
+        raise NotInitialized(f'{MANIFEST_PATH} not found: this project was not set up by youngcrow init.')
+    return manifest
+
+
+def _harness_files(harness: str) -> dict[str, bytes]:
+    """The `.youngcrow/` files this package installs: VERSION, HARNESS.md and the payload."""
+    source = payload_root()
+    return {
+        '.youngcrow/VERSION': (__version__ + '\n').encode('utf-8'),
+        '.youngcrow/HARNESS.md': harness.encode('utf-8'),
+        **{f'.youngcrow/{rel}': (source / rel).read_bytes() for rel in PAYLOAD},
+    }
 
 
 def _prose(text: str) -> str:
@@ -170,13 +229,21 @@ def _replace_file(target: Path, data: bytes) -> None:
         raise
 
 
-def _roll_back(root: Path, written: list[_Step], made: list[Path]) -> list[str]:
-    """Undo this run's writes: delete what it created, restore what it edited, remove its folders.
+def _roll_back(root: Path, written: list[_Step], made: list[Path], removed: list[Path] = ()) -> list[str]:
+    """Undo this run's changes: put back the folders it removed, delete what it created, restore
+    what it edited or deleted (bytes and permission bits), remove the folders it made.
 
     Returns what could not be undone. Folders are removed only when `is_real_dir` still says so
     and they are empty.
     """
     left = []
+    for directory in reversed(removed):
+        try:
+            os.mkdir(directory)
+        except FileExistsError:
+            pass
+        except OSError as error:
+            left.append(f'{directory.relative_to(root).as_posix()}/ ({error})')
     for step in reversed(written):
         try:
             target = safe_target(root, step.rel)
@@ -184,6 +251,8 @@ def _roll_back(root: Path, written: list[_Step], made: list[Path]) -> list[str]:
                 target.unlink(missing_ok=True)
             else:
                 _replace_file(target, step.old)
+                if step.mode is not None:
+                    os.chmod(target, stat.S_IMODE(step.mode))
         except OSError as error:
             left.append(f'{step.rel} ({error})')
     for directory in reversed(made):
@@ -193,6 +262,40 @@ def _roll_back(root: Path, written: list[_Step], made: list[Path]) -> list[str]:
         except OSError as error:
             left.append(f'{directory.relative_to(root).as_posix()}/ ({error})')
     return left
+
+
+def _apply(root: Path, steps: list[_Step], *, manifest: Manifest | None = None,
+           dirs: list[Path] = ()) -> None:
+    """Carry out the steps in order, then save `manifest`, then remove the empty `dirs`.
+
+    All or nothing: when anything fails, what was already done is rolled back and the error is
+    raised again, with a note naming whatever the roll back could not restore.
+    """
+    written: list[_Step] = []
+    made: list[Path] = []
+    removed: list[Path] = []
+    try:
+        for step in steps:
+            target = safe_target(root, step.rel)
+            if step.data is None:
+                step.mode = target.lstat().st_mode
+                target.unlink()
+            else:
+                _make_dirs(root, PurePath(step.rel).parent, made)
+                _replace_file(target, step.data)
+            written.append(step)
+        if manifest is not None:
+            save(root, manifest)
+        for directory in dirs:
+            if not is_real_dir(directory):
+                raise UnsafePathError('linked managed path: ' + directory.relative_to(root).as_posix())
+            directory.rmdir()
+            removed.append(directory)
+    except BaseException as error:
+        left = _roll_back(root, written, made, removed)
+        if left:
+            error.add_note('Could not undo these changes: ' + '; '.join(left))
+        raise
 
 
 def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'light') -> Report:
@@ -212,12 +315,7 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
         raise AlreadyInitialized(f'{MANIFEST_PATH} already exists: this project is already set up.')
 
     harness = _template(f'HARNESS.{lang}.{rigor}.md')
-    source = payload_root()
-    steps = [
-        _Step('.youngcrow/VERSION', (__version__ + '\n').encode('utf-8')),
-        _Step('.youngcrow/HARNESS.md', harness.encode('utf-8')),
-        *(_Step(f'.youngcrow/{rel}', (source / rel).read_bytes()) for rel in PAYLOAD),
-    ]
+    steps = [_Step(rel, data) for rel, data in _harness_files(harness).items()]
     for step in steps:
         if os.path.lexists(safe_target(root, step.rel)):
             raise AlreadyInitialized(
@@ -249,24 +347,139 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
         else:
             steps.append(step)
 
-    written: list[_Step] = []
-    made: list[Path] = []
-    try:
-        for step in steps:
-            target = safe_target(root, step.rel)
-            _make_dirs(root, PurePath(step.rel).parent, made)
-            _replace_file(target, step.data)
-            written.append(step)
-        save(root, Manifest(
-            version=__version__, client=client, lang=lang, rigor=rigor,
-            files={step.rel: hashlib.sha256(step.data).hexdigest() for step in steps},
-            created=[step.rel for step in steps if step.created],
-            edits=[step.rel for step in steps if step.managed],
-        ))
-    except BaseException as error:
-        left = _roll_back(root, written, made)
-        if left:
-            error.add_note('Could not undo these changes: ' + '; '.join(left))
-        raise
+    _apply(root, steps, manifest=Manifest(
+        version=__version__, client=client, lang=lang, rigor=rigor,
+        files={step.rel: _sha(step.data) for step in steps},
+        created=[step.rel for step in steps if step.created],
+        edits=[step.rel for step in steps if step.managed],
+    ))
     report.written = [step.rel for step in steps]
+    return report
+
+
+def upgrade(root: Path) -> Report:
+    """Bring the harness files to this package's version without touching what the user changed.
+
+    Only `.youngcrow/` and the AGENTS.md block body are touched (never `vault/`, never text outside
+    a block). A `.youngcrow/` file whose hash matches the manifest is replaced, a missing one is
+    written, a changed one is kept and listed in `kept_modified`. A payload file new in this version
+    is written and recorded; a recorded one this version dropped is deleted (`removed`) when
+    unmodified, else kept. The AGENTS.md block that init added gets the new HARNESS text only while
+    its body is still the installed HARNESS text (`.youngcrow/HARNESS.md` with a matching hash);
+    otherwise it is kept. Raises NotInitialized without a manifest, ManagedBlockError (naming the
+    file) for broken markers, UnsafePathError for a linked path, before any write. The manifest is
+    saved last; a failed write rolls the whole upgrade back.
+    """
+    root = Path(root)
+    manifest = _load(root)
+    _check_options(manifest.client, manifest.lang, manifest.rigor)
+    harness = _template(f'HARNESS.{manifest.lang}.{manifest.rigor}.md')
+    fresh = _harness_files(harness)
+    report, steps = Report(), []
+    files, created = dict(manifest.files), list(manifest.created)
+    installed = None  # the HARNESS text the AGENTS.md block should still hold
+    for rel, data in fresh.items():
+        current = _read_bytes(root, rel)
+        if current is not None and _sha(current) != manifest.files.get(rel):
+            report.kept_modified.append(rel)  # changed by the user, or not ours (a new path taken)
+            continue
+        if rel == '.youngcrow/HARNESS.md' and current is not None:
+            installed = _decode(rel, current)
+        if current != data:
+            steps.append(_Step(rel, data, current))
+            report.written.append(rel)
+        files[rel] = _sha(data)
+        if current is None and rel not in created:
+            created.append(rel)
+
+    if 'AGENTS.md' in manifest.edits:
+        text = _read(root, 'AGENTS.md')
+        if text is None:
+            report.kept_modified.append('AGENTS.md')
+        elif (new := _put_block(text, harness)) != text:
+            if installed is not None and _put_block(text, installed) == text:
+                steps.append(_Step('AGENTS.md', new.encode('utf-8'), text.encode('utf-8'), managed=True))
+                report.written.append('AGENTS.md')
+                if _sha(text.encode('utf-8')) == manifest.files.get('AGENTS.md'):
+                    files['AGENTS.md'] = _sha(new.encode('utf-8'))  # still wholly ours: undo may delete it
+            else:
+                report.kept_modified.append('AGENTS.md')
+
+    for rel, digest in manifest.files.items():
+        if not rel.startswith('.youngcrow/') or rel in fresh or rel == MANIFEST_PATH:
+            continue
+        current = _read_bytes(root, rel)
+        if current is not None and _sha(current) != digest:
+            report.kept_modified.append(rel)
+            continue
+        if current is not None:
+            steps.append(_Step(rel, None, current))
+            report.removed.append(rel)
+        del files[rel]
+        created = [name for name in created if name != rel]
+
+    updated = Manifest(__version__, manifest.client, manifest.lang, manifest.rigor, files, created,
+                       list(manifest.edits))
+    if steps or updated != manifest:
+        _apply(root, steps, manifest=updated)
+    return report
+
+
+def _empty_parents(root: Path, removed: list[str]) -> list[Path]:
+    """The folders `undo` may remove (R18), deepest first.
+
+    A folder qualifies when it holds a file undo removes, is a real directory inside the root (not
+    the root), and holds nothing else once undo's own removals are done.
+    """
+    gone = set(removed)
+    parents = {parent for rel in removed for parent in PurePath(rel).parents if parent.parts}
+    emptied = []
+    for parent in sorted(parents, key=lambda p: (-len(p.parts), p.as_posix())):
+        path = root / parent
+        if is_real_dir(path) and all((parent / name).as_posix() in gone for name in os.listdir(path)):
+            gone.add(parent.as_posix())
+            emptied.append(path)
+    return emptied
+
+
+def undo(root: Path, *, confirm: bool = False) -> Report:
+    """Take out what init (and upgrade) put in. Without `confirm`, only report what would happen.
+
+    A created file whose hash still matches the manifest is deleted (`removed`). A created file the
+    user changed is kept, minus the managed text it carries (`kept_modified`). A file that existed
+    before init gets the managed text taken out, which restores its original bytes (`written`).
+    Folders left empty by those deletions go too (`removed`, with a trailing `/`); the manifest is
+    deleted last. Every path and managed edit is checked first: NotInitialized, UnsafePathError,
+    ManagedBlockError (naming the file) or ValueError change nothing, and a failed write rolls the
+    whole undo back.
+    """
+    root = Path(root)
+    manifest = _load(root)
+    report, steps = Report(), []
+    for rel in dict.fromkeys(manifest.created + manifest.edits):
+        if rel == MANIFEST_PATH:
+            continue
+        current = _read_bytes(root, rel)
+        if current is None:
+            continue
+        created = rel in manifest.created
+        if created and _sha(current) == manifest.files.get(rel):
+            steps.append(_Step(rel, None, current))
+            report.removed.append(rel)
+            continue
+        new = current
+        if rel in manifest.edits and rel in _UNMANAGE:
+            new = _managed(rel, _UNMANAGE[rel], _decode(rel, current)).encode('utf-8')
+        if new != current:
+            steps.append(_Step(rel, new, current, managed=True))
+        if created:
+            report.kept_modified.append(rel)
+        elif new != current:
+            report.written.append(rel)
+    steps.append(_Step(MANIFEST_PATH, None, safe_target(root, MANIFEST_PATH).read_bytes()))
+    report.removed.append(MANIFEST_PATH)
+    dirs = _empty_parents(root, [step.rel for step in steps if step.data is None])
+    report.removed += [path.relative_to(root).as_posix() + '/' for path in dirs]
+    if confirm:
+        _apply(root, steps, dirs=dirs)
     return report

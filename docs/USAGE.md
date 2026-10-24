@@ -4,6 +4,8 @@
 
 [← README](../README.md) · [Português](#portugues) · [English](#english)
 
+Instalador novo (prévia): [youngcrow](#youngcrow-pt) · New installer (preview): [youngcrow](#youngcrow-en)
+
 O [primeiro uso no README](../README.md#setup-pt) resume a instalação e seus limites.
 Este guia detalha os comandos e a adoção em projetos novos ou existentes.
 
@@ -817,8 +819,10 @@ youngcrow migrate --confirm                   # troca a instalação do setup.sh
 ```
 
 Todo comando aceita `--root CAMINHO` (a pasta do projeto, padrão `.`) e `--json` (um objeto JSON em
-vez de linhas de texto). O `init` cria a pasta se ela não existir. O `migrate` também aceita
-`--client`. Sem `--confirm`, `undo` e `migrate` não mudam nada, e a primeira linha da saída diz isso.
+vez de linhas de texto). `init` e `migrate --confirm` criam a pasta se ela não existir. O `migrate`
+também aceita `--client`; a prévia não confere o valor, só o `--confirm` confere. Sem `--confirm`,
+`undo` e `migrate` não mudam nada. Na saída em texto, a primeira linha avisa isso; o `--json` imprime
+só os dados.
 
 ### O que cada comando toca
 
@@ -860,9 +864,11 @@ removidas), `modified` e `legacy_rules`.
 
 O código de saída é 0 quando o comando rodou, 2 para linha de comando errada e 3 quando o youngcrow
 recusou mexer no projeto; a recusa escreve o motivo em stderr. Ele recusa quando o projeto já tem
-instalação (`init`, `migrate --confirm`) ou não tem (`upgrade`, `undo`), quando as linhas de marcação
-do `AGENTS.md` ou do `.gitignore` não fecham, quando há link simbólico ou junction onde ele escreveria,
-quando `--root` é um arquivo e quando `--client` não é `claude`, `codex` nem `both`.
+instalação (`init`, `migrate --confirm`) ou não tem (`upgrade`, `undo`), quando uma instalação
+anterior deixou arquivos sem manifesto, quando o manifesto não pode ser lido, quando as linhas de
+marcação do `AGENTS.md` ou do `.gitignore` não fecham, quando um arquivo que ele precisa editar
+(`CLAUDE.md`, `AGENTS.md`, `.gitignore`) não é texto UTF-8, quando há link simbólico ou junction onde
+ele escreveria, quando `--root` é um arquivo e quando `--client` não é `claude`, `codex` nem `both`.
 
 ### Migrar do setup.sh
 
@@ -870,11 +876,18 @@ Rode `migrate` sem `--confirm` primeiro. Ele lista `Will be removed (unmodified 
 `Kept (you changed these)`. Acrescente `--confirm` quando as listas estiverem certas.
 
 O `setup.sh` também gravou `CLAUDE.md`, `AGENTS.md` e `docs/CLAUDE.en.md` com as regras antigas do
-harness. Se você editou algum deles, o `migrate` o mantém, acrescenta a nova linha de import ou o novo
-bloco e imprime um aviso com o nome do arquivo (o `--json` o lista em `legacy_rules`). Agora o
-`.youngcrow/HARNESS.md` carrega as regras, então apare o texto antigo desses arquivos à mão; do
-contrário as regras aparecem duas vezes. O `migrate` remove a cópia sem edição e grava um arquivo novo
-no lugar.
+harness. O `migrate` trata cada um conforme a sua edição e o `--client`.
+
+- O `migrate` remove a cópia sem edição. Depois o `init` grava `CLAUDE.md` e `AGENTS.md` de novo para
+  o cliente escolhido: `CLAUDE.md` com `claude` e `both`, `AGENTS.md` com `codex` e `both`. Com
+  `--client claude`, um `AGENTS.md` sem edição some de vez; com `--client codex`, o mesmo vale para o
+  `CLAUDE.md`. O `docs/CLAUDE.en.md` sem edição só é removido (o `init` nunca o grava), junto com
+  `docs/` se a pasta ficar vazia.
+- O arquivo editado fica. Quando o cliente usa o arquivo, o `migrate` acrescenta a linha de import ao
+  `CLAUDE.md` ou o bloco ao `AGENTS.md`; o `docs/CLAUDE.en.md` nunca é tocado.
+- Para cada arquivo editado, o `migrate` imprime um aviso com o nome (o `--json` lista em `legacy_rules`),
+  qualquer que seja o cliente. Agora o `.youngcrow/HARNESS.md` carrega as regras, então apare o texto
+  antigo desses arquivos à mão; do contrário as regras aparecem duas vezes.
 
 ### Rodar antes do lançamento
 
@@ -889,8 +902,8 @@ No Windows, use `python` e, no PowerShell, defina antes `$env:PYTHONPATH = "src"
 A partir de um wheel gerado:
 
 ```bash
-uv build --wheel -o /path/to/yc-dist
-uvx --from /path/to/yc-dist/youngcrow-0.1.0.dev0-py3-none-any.whl youngcrow init --root /caminho/do/projeto
+uv build --wheel -o /caminho/do/yc-dist
+uvx --from /caminho/do/yc-dist/youngcrow-0.1.0.dev0-py3-none-any.whl youngcrow init --root /caminho/do/projeto
 cd /caminho/do/projeto && python .youngcrow/scripts/vault.py check
 ```
 
@@ -1579,9 +1592,10 @@ youngcrow migrate --confirm                   # replace the setup.sh install
 ```
 
 Every command accepts `--root PATH` (the project folder, default `.`) and `--json` (one JSON object
-instead of plain lines). `init` creates the folder when it is missing. `migrate` also accepts
-`--client`. Without `--confirm`, `undo` and `migrate` change nothing, and the first line of their
-output says so.
+instead of plain lines). `init` and `migrate --confirm` create the folder when it is missing.
+`migrate` also accepts `--client`; a preview does not check its value, only `--confirm` does. Without
+`--confirm`, `undo` and `migrate` change nothing. In plain output the first line says so; `--json`
+prints only the data.
 
 ### What each command touches
 
@@ -1621,9 +1635,11 @@ be), `modified` and `legacy_rules`.
 
 The exit code is 0 when the command ran, 2 for a wrong command line and 3 when youngcrow refused to
 touch the project; a refusal prints its reason on stderr. It refuses when the project is already set
-up (`init`, `migrate --confirm`) or not set up (`upgrade`, `undo`), when the marker lines in
-`AGENTS.md` or `.gitignore` do not pair up, when a symbolic link or junction sits where it would
-write, when `--root` is a file, and when `--client` is not `claude`, `codex` or `both`.
+up (`init`, `migrate --confirm`) or not set up (`upgrade`, `undo`), when an earlier install left files
+but no manifest, when the manifest cannot be read, when the marker lines in `AGENTS.md` or
+`.gitignore` do not pair up, when a file it has to edit (`CLAUDE.md`, `AGENTS.md`, `.gitignore`) is
+not UTF-8 text, when a symbolic link or junction sits where it would write, when `--root` is a file,
+and when `--client` is not `claude`, `codex` or `both`.
 
 ### Migrate from setup.sh
 
@@ -1631,10 +1647,18 @@ Run `migrate` without `--confirm` first. It lists `Will be removed (unmodified s
 `Kept (you changed these)`. Add `--confirm` once the lists look right.
 
 `setup.sh` also wrote `CLAUDE.md`, `AGENTS.md` and `docs/CLAUDE.en.md` with the old harness rules.
-If you edited one of them, `migrate` keeps it, adds the new import line or block, and prints a note
-that names the file (`--json` lists it under `legacy_rules`). `.youngcrow/HARNESS.md` carries the rules
-now, so trim the old text from those files by hand, or the rules appear twice. `migrate` removes an
-unedited copy and writes a fresh file in its place.
+`migrate` treats each one by whether you edited it and by `--client`.
+
+- `migrate` removes an unedited copy. `init` then writes `CLAUDE.md` and `AGENTS.md` again for the
+  chosen client: `CLAUDE.md` for `claude` and `both`, `AGENTS.md` for `codex` and `both`. With
+  `--client claude` an unedited `AGENTS.md` is gone for good, and with `--client codex` so is
+  `CLAUDE.md`. An unedited `docs/CLAUDE.en.md` is only removed (`init` never writes it), along with
+  `docs/` if that leaves the folder empty.
+- An edited file stays. When the client uses the file, `migrate` adds the import line to `CLAUDE.md`
+  or the block to `AGENTS.md`; it never touches `docs/CLAUDE.en.md`.
+- For every edited file it prints a note naming it (`--json` lists it under `legacy_rules`), whatever
+  the client. `.youngcrow/HARNESS.md` carries the rules now, so trim the old text from those files by
+  hand, or the rules appear twice.
 
 ### Run it before the release
 

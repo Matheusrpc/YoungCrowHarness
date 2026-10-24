@@ -154,7 +154,7 @@ class InitTests(unittest.TestCase):
         for rel in VAULT_INDEXES:
             self.assertEqual((self.root / rel).read_bytes(), (TEMPLATES / rel).read_bytes(), rel)
 
-    def test_existing_vault_index_is_left_alone_and_the_others_are_created(self):
+    def test_existing_vault_index_is_left_alone(self):
         (self.root / 'vault').mkdir()
         (self.root / 'vault/index.md').write_bytes(b'# My vault\n')
         report = init(self.root)
@@ -163,8 +163,68 @@ class InitTests(unittest.TestCase):
         self.assertIn('vault/index.md', report.skipped)
         self.assertNotIn('vault/index.md', manifest.files)
         self.assertNotIn('vault/index.md', manifest.created)
-        self.assertTrue((self.root / 'vault/integrations/index.md').is_file())
-        self.assertTrue((self.root / 'vault/capabilities/index.md').is_file())
+
+    def user_index(self, body):
+        (self.root / 'vault').mkdir(exist_ok=True)
+        text = ('---\nid: my-vault\ntype: index\ntitle: Mine\norigin: me\nupdated: 2026-10-01\n'
+                'index: index.md\n---\n\n# Mine\n' + body)
+        (self.root / 'vault/index.md').write_bytes(text.encode('utf-8'))
+        return text.encode('utf-8')
+
+    def assertSubIndexes(self, report, created, skipped):
+        manifest = load(self.root)
+        for rel in created:
+            self.assertTrue((self.root / rel).is_file(), rel)
+            self.assertIn(rel, manifest.created)
+            self.assertIn(rel, manifest.files)
+            self.assertNotIn(rel, report.skipped)
+        for rel in skipped:
+            self.assertFalse((self.root / rel).exists(), rel)
+            self.assertIn(rel, report.skipped)
+            self.assertNotIn(rel, manifest.files)
+
+    def test_own_vault_index_without_links_gets_no_sub_index_and_the_check_passes(self):
+        original = self.user_index('')
+        report = init(self.root)
+        self.assertEqual((self.root / 'vault/index.md').read_bytes(), original)
+        self.assertSubIndexes(report, [], ['vault/integrations/index.md', 'vault/capabilities/index.md'])
+        run = self.vault_check()
+        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+
+    def test_own_vault_index_linking_one_sub_index_gets_only_that_one(self):
+        original = self.user_index('\n[Integrations](integrations/index.md)\n')
+        report = init(self.root)
+        self.assertEqual((self.root / 'vault/index.md').read_bytes(), original)
+        self.assertSubIndexes(report, ['vault/integrations/index.md'], ['vault/capabilities/index.md'])
+        run = self.vault_check()
+        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+
+    def test_own_vault_index_linking_the_other_sub_index_gets_only_that_one(self):
+        self.user_index('\n[Capabilities](<./capabilities/index.md#top> "title")\n')
+        report = init(self.root)
+        self.assertSubIndexes(report, ['vault/capabilities/index.md'], ['vault/integrations/index.md'])
+        run = self.vault_check()
+        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+
+    def test_links_in_code_or_to_other_places_do_not_count(self):
+        self.user_index('\n```\n[Integrations](integrations/index.md)\n```\n`[C](capabilities/index.md)`\n'
+                        '<!-- [Integrations](integrations/index.md) -->\n'
+                        '[Elsewhere](https://example.com/integrations/index.md) [Up](../integrations/index.md)\n')
+        report = init(self.root)
+        self.assertSubIndexes(report, [], ['vault/integrations/index.md', 'vault/capabilities/index.md'])
+
+    def test_own_vault_index_linking_both_gets_both(self):
+        self.user_index('\n[I](integrations/index.md) [C](capabilities/index.md)\n')
+        report = init(self.root)
+        self.assertSubIndexes(report, ['vault/integrations/index.md', 'vault/capabilities/index.md'], [])
+        run = self.vault_check()
+        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+
+    def test_own_vault_index_that_is_not_utf8_is_not_a_reason_to_refuse(self):
+        (self.root / 'vault').mkdir()
+        (self.root / 'vault/index.md').write_bytes(b'caf\xe9\n')
+        report = init(self.root)
+        self.assertSubIndexes(report, [], ['vault/integrations/index.md', 'vault/capabilities/index.md'])
 
     def test_vault_notes_are_never_touched(self):
         (self.root / 'vault/decisions').mkdir(parents=True)
@@ -381,11 +441,12 @@ class InitTests(unittest.TestCase):
         self.assertIn('python3 .youngcrow/scripts/integrations.py init',
                       (self.root / 'vault/integrations/index.md').read_text(encoding='utf-8'))
 
-    def test_capabilities_index_links_only_to_the_other_indexes(self):
+    def test_sub_indexes_link_only_to_the_vault_index_so_a_skipped_sibling_breaks_nothing(self):
         init(self.root)
-        text = (self.root / 'vault/capabilities/index.md').read_text(encoding='utf-8')
-        self.assertEqual(sorted(re.findall(r'\]\(([^)]*)\)', text)), ['../index.md', '../integrations/index.md'])
-        self.assertIn('youngcrow plugin', text)
+        for rel in ('vault/integrations/index.md', 'vault/capabilities/index.md'):
+            text = (self.root / rel).read_text(encoding='utf-8')
+            self.assertEqual(re.findall(r'\]\(([^)]*)\)', text), ['../index.md'], rel)
+        self.assertIn('youngcrow plugin', (self.root / 'vault/capabilities/index.md').read_text(encoding='utf-8'))
 
     def test_package_vault_templates_keep_the_ids_types_origin_and_index_links_of_the_repo_ones(self):
         for rel in VAULT_INDEXES:

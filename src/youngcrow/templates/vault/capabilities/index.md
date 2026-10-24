@@ -9,7 +9,7 @@ index: ../index.md
 
 # Capabilities
 
-[Vault](../index.md) · [Integrations](../integrations/index.md)
+[Vault](../index.md)
 
 The skills, agents and MCP servers that agents can use in this project come from the youngcrow plugin, not from files in this repository.
 

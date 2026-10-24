@@ -10,8 +10,11 @@ from dataclasses import asdict, dataclass, field
 from importlib.resources import files
 from pathlib import Path, PurePath
 from typing import Callable
+from urllib.parse import unquote, urlsplit
 import hashlib
 import os
+import posixpath
+import re
 import shutil
 
 from youngcrow import __version__
@@ -24,8 +27,10 @@ from youngcrow.payload import PAYLOAD, payload_root
 
 CLIENTS = ('claude', 'codex', 'both')
 GITIGNORE_BODY = '\n'.join(('.env', '.env.*', '!.env.example', '.operacao-local/', 'vault/local/'))
-# Indexes created when missing, from the package templates of the same path.
+# Indexes created when missing, from the package templates of the same path. The first is the
+# parent of the other two.
 VAULT_INDEXES = ('vault/index.md', 'vault/integrations/index.md', 'vault/capabilities/index.md')
+_INLINE_LINK = re.compile(r'\[[^\]\n]*\]\(\s*(<[^>\n]+>|[^()\s]+)[^)]*\)')
 
 
 class AlreadyInitialized(RuntimeError):
@@ -78,6 +83,37 @@ def _read(root: Path, rel: str) -> str | None:
         return None
     except UnicodeDecodeError as error:
         raise ValueError(f'{rel} is not UTF-8 text; init does not edit it.') from error
+
+
+def _prose(text: str) -> str:
+    """The text without HTML comments, fenced code and inline code, where a link is not a link."""
+    kept, fence = [], None
+    for line in re.sub(r'<!--.*?-->', '', text, flags=re.S).splitlines():
+        match = re.match(r'^ {0,3}(`{3,}|~{3,})', line)
+        if fence:
+            if match and match[1][0] == fence[0] and len(match[1]) >= len(fence):
+                fence = None
+        elif match:
+            fence = match[1]
+        else:
+            kept.append(line)
+    return re.sub(r'(`+).*?\1', '', '\n'.join(kept), flags=re.S)
+
+
+def _links_to(root: Path, note: str, target: str) -> bool:
+    """Whether the existing Markdown `note` has an inline link that resolves to `target`.
+
+    Both are project-relative. Only inline links count; a reference-style or wiki link reads as no
+    link, which errs towards creating less. The note is only read, never edited, and bytes that
+    are not UTF-8 do not stop the read.
+    """
+    text = safe_target(root, note).read_bytes().decode('utf-8', errors='replace')
+    for match in _INLINE_LINK.finditer(_prose(text)):
+        parts = urlsplit(match[1].strip('<>'))
+        if not parts.scheme and posixpath.normpath(
+                posixpath.join(posixpath.dirname(note), unquote(parts.path))) == target:
+            return True
+    return False
 
 
 def _add_block(body: str, start: str, end: str) -> Callable[[str], str]:
@@ -162,7 +198,8 @@ def _roll_back(root: Path, written: list[_Step], made: list[Path]) -> list[str]:
 def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'light') -> Report:
     """Install the harness into `root`.
 
-    Copies the scripts into `.youngcrow/`, creates the vault indexes that are missing, links the
+    Copies the scripts into `.youngcrow/`, creates the vault indexes that are missing (a sub-index
+    only when this run creates `vault/index.md` or the existing one already links to it), links the
     rules into CLAUDE.md (import line) and AGENTS.md (block), adds the .gitignore block, and saves
     the manifest. Raises ValueError for an unsupported option, UnsafePathError for a linked or
     mistyped destination, ManagedBlockError for broken markers, AlreadyInitialized when the
@@ -188,8 +225,13 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
                 'folder) and run init again.')
 
     report = Report()
+    parent, *children = VAULT_INDEXES
+    own_parent = os.path.lexists(safe_target(root, parent))
     for rel in VAULT_INDEXES:
-        if os.path.lexists(safe_target(root, rel)):
+        # With the user's own vault/index.md, a sub-index is created only if that index links to it:
+        # init never edits the user's index, and an unlinked sub-index would fail `vault.py check`.
+        unlinked = own_parent and rel in children and not _links_to(root, parent, rel)
+        if os.path.lexists(safe_target(root, rel)) or unlinked:
             report.skipped.append(rel)
         else:
             steps.append(_Step(rel, _template(*rel.split('/')).encode('utf-8')))

@@ -9,7 +9,7 @@ index: ../index.md
 
 # Integrations
 
-[Vault](../index.md) · [Capabilities](../capabilities/index.md)
+[Vault](../index.md)
 
 Providers and services are added when an integration is started. The service index records its purpose, owner, state and next action.
 

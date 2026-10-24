@@ -1,6 +1,7 @@
 """Check the `youngcrow` command line: what each command prints, and the exit code of each outcome."""
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest import mock
 import io
 import json
 import os
@@ -267,6 +268,55 @@ class CliTests(unittest.TestCase):
     def test_migrate_confirm_refuses_a_project_that_is_already_set_up(self):
         self._init()
         self.assertRefused(self._cli('migrate', '--root', str(self.root), '--confirm'), 'manifest.json')
+
+    def _main(self, *args):
+        """Run `main` in this process: its exit code, stdout and stderr."""
+        from youngcrow.cli import main
+        out, err = io.StringIO(), io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
+            code = main(list(args))
+        return code, out.getvalue(), err.getvalue()
+
+    def test_an_os_error_is_exit_3_with_the_message_and_no_traceback(self):
+        from youngcrow import install
+        real = install._replace_file
+
+        def fail_on_agents(target, data):
+            if target.name == 'AGENTS.md':
+                raise PermissionError(13, 'Permission denied', str(target))
+            real(target, data)
+        with mock.patch('youngcrow.install._replace_file', side_effect=fail_on_agents):
+            code, out, err = self._main('init', '--root', str(self.root))
+        self.assertEqual(code, 3)
+        self.assertEqual(out, '')
+        self.assertTrue(err.startswith('youngcrow: '), err)
+        self.assertIn('Permission denied', err)
+        self.assertIn('AGENTS.md', err)
+        self.assertNotIn('Traceback', err)
+        self.assertEqual(self._tree(), {})  # init rolled back what it wrote
+
+    def test_the_roll_back_notes_are_printed(self):
+        with mock.patch('youngcrow.install._replace_file', side_effect=OSError(28, 'No space left on device')), \
+                mock.patch('youngcrow.install._roll_back', return_value=['CLAUDE.md (still there)']):
+            code, out, err = self._main('init', '--root', str(self.root))
+        self.assertEqual(code, 3)
+        self.assertEqual(err.splitlines(), ['youngcrow: [Errno 28] No space left on device',
+                                            'youngcrow: Could not undo these changes: CLAUDE.md (still there)'])
+
+    def test_a_refusal_prints_its_notes_too(self):
+        from youngcrow.install import NotInitialized
+        refusal = NotInitialized('not set up')
+        refusal.add_note('a note for the person')
+        with mock.patch('youngcrow.cli.upgrade', side_effect=refusal):
+            code, _, err = self._main('upgrade', '--root', str(self.root))
+        self.assertEqual(code, 3)
+        self.assertEqual(err.splitlines(), ['youngcrow: not set up', 'youngcrow: a note for the person'])
+
+    def test_version(self):
+        import youngcrow
+        run = self._cli('--version')
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(run.stdout, f'youngcrow {youngcrow.__version__}\n')
 
     # Usage errors: exit 2.
 

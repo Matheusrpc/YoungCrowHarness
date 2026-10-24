@@ -1,7 +1,8 @@
 """The `youngcrow` command: init, upgrade, undo and migrate, on top of the install and migrate modules.
 
 Exit codes: 0 done, 2 the command line itself is wrong (argparse), 3 youngcrow refused to touch
-the project and said why on stderr. Anything else is a bug and surfaces as a traceback.
+the project, or the system refused a read or write (OSError), and it said why on stderr, with the
+notes a roll back left. Anything else is a bug and surfaces as a traceback.
 Without `--json` the output is a few plain lines; with `--json` stdout holds one JSON object.
 """
 from contextlib import contextmanager
@@ -12,6 +13,7 @@ import json
 import os
 import sys
 
+from youngcrow import __version__
 from youngcrow.install import AlreadyInitialized, NotInitialized, Report, init, undo, upgrade
 from youngcrow.migrate import apply, scan
 
@@ -127,6 +129,7 @@ def _migrate(args: argparse.Namespace) -> Result:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog='youngcrow', description='Set up, upgrade or remove the YoungCrow harness in a project.')
+    parser.add_argument('--version', action='version', version=f'youngcrow {__version__}')
     commands = parser.add_subparsers(dest='command', required=True, metavar='command')
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument('--root', type=Path, default=Path('.'), help='the project folder (default: .)')
@@ -159,8 +162,9 @@ def main(argv: list[str] | None = None) -> int:
         if args.root.exists() and not args.root.is_dir():
             raise ValueError(f'{args.root} is not a folder.')
         data, text = args.run(args)
-    except REFUSALS as error:
-        print(f'youngcrow: {error}', file=sys.stderr)
+    except (*REFUSALS, OSError) as error:
+        for line in (error, *getattr(error, '__notes__', ())):
+            print(f'youngcrow: {line}', file=sys.stderr)
         return 3
     print(json.dumps(data, indent=2) if args.json else text)
     return 0

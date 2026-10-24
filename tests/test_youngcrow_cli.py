@@ -219,7 +219,7 @@ class CliTests(unittest.TestCase):
     def test_broken_markers_in_agents_md_refuse_before_any_write(self):
         (self.root / 'AGENTS.md').write_text('<!-- youngcrow:start -->\nno end marker\n')
         before = self._tree()
-        self.assertRefused(self._cli('init', '--root', str(self.root)), 'youngcrow:start', 'no matching')
+        self.assertRefused(self._cli('init', '--root', str(self.root)), 'AGENTS.md', 'youngcrow:start', 'no matching')
         self.assertEqual(self._tree(), before)
 
     def test_upgrade_and_undo_refuse_markers_the_user_broke_and_name_the_file(self):

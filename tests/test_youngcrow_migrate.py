@@ -681,7 +681,8 @@ class LegacyHashesToolTests(unittest.TestCase):
         if shallow.returncode != 0 or shallow.stdout.strip() != 'false':
             self.skipTest('the git history is not available (not a repository, or a shallow checkout)')
         committed = (REPO / 'src/youngcrow/legacy_hashes.json').read_text(encoding='utf-8')
-        self.assertEqual(committed, self.tool.render(self.tool.build_table(REPO, 'HEAD')))
+        self.assertEqual(committed, self.tool.render(self.tool.build_table(REPO, 'HEAD')),
+                         'src/youngcrow/legacy_hashes.json is stale; run: python3 tools/legacy_hashes.py --repo . --ref HEAD')
 
 
 if __name__ == '__main__':

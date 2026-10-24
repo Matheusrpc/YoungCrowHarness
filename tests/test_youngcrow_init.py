@@ -358,6 +358,15 @@ class InitTests(unittest.TestCase):
         self.assertFalse((self.root / 'CLAUDE.md').exists())
         self.assertEqual((self.root / 'AGENTS.md').read_bytes(), f'{MD_START}\nnever closed\n'.encode())
 
+    def test_broken_markers_name_the_file(self):
+        for rel, marker in (('AGENTS.md', MD_START), ('.gitignore', '# youngcrow:end')):
+            (self.root / rel).write_text(f'{marker}\nnot paired\n')
+            with self.assertRaises(ManagedBlockError) as caught:
+                init(self.root)
+            self.assertTrue(str(caught.exception).startswith(f'{rel}: '), str(caught.exception))
+            (self.root / rel).unlink()
+        self.assertNothingWritten()
+
     def test_text_that_is_not_utf8_refuses_before_any_write(self):
         (self.root / 'CLAUDE.md').write_bytes(b'caf\xe9\n')
         with self.assertRaises(ValueError) as caught:

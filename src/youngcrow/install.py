@@ -222,7 +222,7 @@ def _plan_managed(root: Path, rel: str, fresh: str, add: Callable[[str], str],
     A file in `gone` is about to be removed by the same run, so it counts as missing.
     """
     old = None if rel in gone else _read(root, rel)
-    new = add(fresh if old is None else old)
+    new = _managed(rel, add, fresh if old is None else old)
     if old is not None and new == old:
         return None
     return _Step(rel, new.encode('utf-8'), None if old is None else old.encode('utf-8'), managed=True)

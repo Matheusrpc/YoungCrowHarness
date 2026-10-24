@@ -1,9 +1,9 @@
 """`youngcrow migrate`: move a project from the old `setup.sh` install to the `.youngcrow/` layout.
 
 `setup.sh` copied harness files straight into the project. `scan` looks for those copies and sorts
-them with a table of the versions the harness published on origin/main (`legacy_hashes.json`,
-built by `tools/legacy_hashes.py`): a file byte-identical to a published version is a match and may
-go; any other file at a legacy path is the user's own, so it is kept and listed as modified.
+them with a table of the versions the harness published (`legacy_hashes.json`, built by
+`tools/legacy_hashes.py`): a file byte-identical to a published version is a match and may go; any
+other file at a legacy path is the user's own, so it is kept and listed as modified.
 `apply` removes the matches and installs the new layout in one all-or-nothing run.
 """
 from dataclasses import dataclass
@@ -67,7 +67,7 @@ def is_legacy_path(rel: str) -> bool:
 
 
 def legacy_hashes() -> dict[str, list[str]]:
-    """The published table: relative path -> every SHA-256 that path had on origin/main."""
+    """The published table: relative path -> every SHA-256 that path had in the history it was built from."""
     return json.loads(files('youngcrow').joinpath('legacy_hashes.json').read_text(encoding='utf-8'))
 
 
@@ -75,15 +75,22 @@ def _classify(root: Path, rel: str, published: list[str]) -> str | None:
     """'match' or 'modified' for a regular file at `rel`; None when there is none to judge.
 
     Nothing is followed: a link or junction on the path, a folder, or any other kind of file
-    gives None, so migrate neither reads nor removes it (R9).
+    gives None, so migrate neither reads nor removes it (R9). A path that cannot be looked at (a
+    folder we may not enter) also gives None, but a file that is there and cannot be read is
+    'modified': it is kept and listed, and the scan goes on.
     """
     try:
         path = safe_target(root, rel)
         if not stat.S_ISREG(path.lstat().st_mode):
             return None
-        return 'match' if sha256_file(path) in published else 'modified'
-    except (UnsafePathError, FileNotFoundError):
+    except (UnsafePathError, FileNotFoundError, PermissionError):
         return None
+    try:
+        return 'match' if sha256_file(path) in published else 'modified'
+    except FileNotFoundError:
+        return None
+    except PermissionError:
+        return 'modified'
 
 
 def _scan(root: Path, table: dict[str, list[str]]) -> MigrationPreview:

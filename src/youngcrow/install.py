@@ -348,9 +348,10 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
     is rolled back before the error is raised again.
 
     `remove` lists project files to delete in the same run, before the install (`migrate` passes
-    the copies an older `setup.sh` made). A name that is not there is skipped; one under
-    `.youngcrow/` or `vault/` is a ValueError. Each goes through `safe_target` and is read before
-    the first write. A file it removes that init also writes (CLAUDE.md, AGENTS.md) is created anew,
+    the copies an older `setup.sh` made). Each name must be a canonical relative path with `/`
+    (no `./`, `//`, trailing `/`; else ValueError); a repeated name counts once and a name that is
+    not there is skipped. One under `.youngcrow/` or `vault/`, in any letter case, is a ValueError.
+    Each goes through `safe_target` and is read before the first write. A file it removes that init also writes (CLAUDE.md, AGENTS.md) is created anew,
     not edited. The files go into `Report.removed`, followed by the folders they leave empty (R18,
     with a trailing `/`); a failed run puts them all back.
     """
@@ -369,7 +370,10 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
 
     drops = []
     for rel in dict.fromkeys(remove):
-        if PurePath(rel).parts[:1] in (('.youngcrow',), ('vault',)):
+        canonical = PurePath(rel).as_posix()
+        if canonical != rel:
+            raise ValueError(f'{rel!r} is not a canonical relative path; write it as {canonical!r}.')
+        if PurePath(rel).parts[:1] and PurePath(rel).parts[0].casefold() in ('.youngcrow', 'vault'):
             raise ValueError(f'{rel} cannot be removed: init never deletes the harness folder or vault notes.')
         if (data := _read_bytes(root, rel)) is not None:
             drops.append(_Step(rel, None, data))

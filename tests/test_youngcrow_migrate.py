@@ -90,6 +90,10 @@ class TableTests(unittest.TestCase):
         for rel in ('scripts/vault.py', 'scripts/memory.py', 'skills-lock.json', '.claude/settings.json'):
             self.assertIn(rel, table)
 
+    def test_the_agents_copy_of_humanizer_ptbr_has_the_hashes_of_the_skills_one(self):
+        table = legacy_hashes()
+        self.assertEqual(table['.agents/skills/humanizer-ptbr/SKILL.md'], table['skills/humanizer-ptbr/SKILL.md'])
+
 
 class RealTableTests(unittest.TestCase):
     """scan and apply against the table that ships in the package."""
@@ -122,6 +126,21 @@ class RealTableTests(unittest.TestCase):
 
     def test_an_empty_project_has_nothing_to_migrate(self):
         self.assertEqual(scan(self.root), MigrationPreview([], []))
+
+    def test_the_humanizer_ptbr_copy_in_agents_skills_is_matched_and_removed(self):
+        for rel, source in (('.agents/skills/humanizer-ptbr/SKILL.md', REPO / 'skills/humanizer-ptbr/SKILL.md'),
+                            ('.agents/skills/humanizer/SKILL.md', None)):
+            (self.root / rel).parent.mkdir(parents=True)
+            if source:
+                shutil.copy(source, self.root / rel)
+            else:
+                (self.root / rel).write_text('upstream clone\n')
+        preview = scan(self.root)
+        self.assertEqual(preview, MigrationPreview(['.agents/skills/humanizer-ptbr/SKILL.md'], []))
+        report = apply(self.root, preview)
+        self.assertFalse((self.root / '.agents/skills/humanizer-ptbr').exists())
+        self.assertIn('.agents/skills/humanizer-ptbr/', report.removed)
+        self.assertTrue((self.root / '.agents/skills/humanizer/SKILL.md').is_file())
 
 
 class MigrateTests(unittest.TestCase):
@@ -233,6 +252,33 @@ class MigrateTests(unittest.TestCase):
         apply(self.root, MigrationPreview(['skills/personalizer/SKILL.md'], []))
         self.assertEqual((self.other / 'personalizer/SKILL.md').read_bytes(), data)
         self.assertTrue((self.root / 'skills').is_symlink())
+
+    def test_a_legacy_file_that_cannot_be_read_is_modified_and_does_not_stop_the_scan(self):
+        self.legacy('scripts/vault.py')
+        self.legacy('scripts/memory.py')
+        self.legacy('.mcp.json')
+        real = sha256_file
+
+        def reading(path):
+            if Path(path).name == 'memory.py':
+                raise PermissionError(13, 'Permission denied')
+            return real(path)
+
+        with mock.patch('youngcrow.migrate.sha256_file', reading):
+            preview = scan(self.root)
+            self.assertEqual(preview, MigrationPreview(['.mcp.json', 'scripts/vault.py'], ['scripts/memory.py']))
+            report = apply(self.root, preview)
+        self.assertTrue((self.root / 'scripts/memory.py').is_file())
+        self.assertEqual(report.kept_modified, ['scripts/memory.py'])
+
+    def test_a_file_the_operating_system_will_not_let_us_read_is_modified(self):
+        path = self.legacy('scripts/memory.py')
+        self.legacy('scripts/vault.py')
+        os.chmod(path, 0)
+        self.addCleanup(os.chmod, path, 0o644)
+        if os.access(path, os.R_OK):
+            self.skipTest('this user can read any file (root), so the permission cannot be tested')
+        self.assertEqual(scan(self.root), MigrationPreview(['scripts/vault.py'], ['scripts/memory.py']))
 
     def test_a_folder_in_place_of_a_legacy_file_is_skipped(self):
         self.publish('scripts/vault.py')
@@ -492,6 +538,44 @@ class LegacyHashesToolTests(unittest.TestCase):
         for hashes in data.values():
             self.assertEqual(hashes, sorted(hashes))
 
+    def test_humanizer_ptbr_is_also_recorded_where_setup_sh_copied_it(self):
+        v = self.VERSIONS
+        self.commit('one', put=[('skills/humanizer-ptbr/SKILL.md', v['a']), ('skills/humanizer-ptbr/references/x.md', v['c'])])
+        self.commit('two', put=[('skills/humanizer-ptbr/SKILL.md', v['b'])])
+        table = self.tool.build_table(self.repo, 'main')
+        both = sorted([sha(v['a']), sha(v['b'])])
+        self.assertEqual(table['skills/humanizer-ptbr/SKILL.md'], both)
+        self.assertEqual(table['.agents/skills/humanizer-ptbr/SKILL.md'], both)
+        self.assertEqual(table['.agents/skills/humanizer-ptbr/references/x.md'], [sha(v['c'])])
+        self.assertEqual([rel for rel in table if 'humanizer' in rel and rel.startswith('.claude')], [])
+
+    def test_a_ref_that_looks_like_an_option_or_a_folder_is_taken_as_a_ref(self):
+        self.make_history()
+        git(self.repo, 'branch', 'scripts', 'main')  # a branch named like the scripts/ folder
+        self.assertEqual(self.tool.build_table(self.repo, 'scripts'), self.tool.build_table(self.repo, 'main'))
+        out = self.repo.parent / 'table.json'
+        errors = io.StringIO()
+        with redirect_stderr(errors):
+            code = self.tool.main(['--repo', str(self.repo), '--ref=--all', '--out', str(out)])
+        self.assertEqual(code, 1)  # `--all` as an option would have read every branch
+        self.assertFalse(out.exists())
+
+    def test_without_git_the_command_says_so_and_fails(self):
+        errors = io.StringIO()
+        out = self.repo.parent / 'table.json'
+        with mock.patch('subprocess.run', side_effect=FileNotFoundError(2, 'No such file', 'git')), redirect_stderr(errors):
+            code = self.tool.main(['--repo', str(self.repo), '--ref', 'main', '--out', str(out)])
+        self.assertEqual(code, 1)
+        self.assertIn('git is not installed', errors.getvalue())
+        self.assertFalse(out.exists())
+
+    def test_a_folder_that_is_not_a_repository_fails_with_a_message(self):
+        errors = io.StringIO()
+        with redirect_stderr(errors):
+            code = self.tool.main(['--repo', str(self.repo.parent / 'missing'), '--out', str(self.repo.parent / 't.json')])
+        self.assertEqual(code, 1)
+        self.assertIn('legacy_hashes:', errors.getvalue())
+
     def test_the_command_writes_the_same_bytes_every_run(self):
         self.make_history()
         outputs = []
@@ -503,6 +587,13 @@ class LegacyHashesToolTests(unittest.TestCase):
         self.assertEqual(outputs[0], outputs[1])
         self.assertEqual(outputs[0], self.tool.render(self.tool.build_table(self.repo, 'main')).encode())
 
+    def test_the_command_reads_head_when_no_ref_is_given(self):
+        self.make_history()
+        out = self.repo.parent / 'head.json'
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(self.tool.main(['--repo', str(self.repo), '--out', str(out)]), 0)
+        self.assertEqual(out.read_text(), self.tool.render(self.tool.build_table(self.repo, 'main')))
+
     def test_an_unknown_ref_fails_without_writing(self):
         self.make_history()
         out = self.repo.parent / 'table.json'
@@ -512,16 +603,17 @@ class LegacyHashesToolTests(unittest.TestCase):
         self.assertIn('nope', errors.getvalue())
         self.assertFalse(out.exists())
 
-    def test_the_committed_table_is_what_the_generator_gives_for_origin_main(self):
+    def test_the_committed_table_is_what_the_generator_gives_for_head(self):
+        # R27: the table comes from the branch head, so it holds what origin/main published and what
+        # this branch is about to publish. After a commit that changes a legacy file, regenerate it.
         def run(*args):
             return subprocess.run(['git', '-C', str(REPO), *args], capture_output=True, text=True)
 
-        if run('rev-parse', '--verify', '-q', 'origin/main').returncode != 0:
-            self.skipTest('origin/main is not available')
-        if run('rev-parse', '--is-shallow-repository').stdout.strip() != 'false':
-            self.skipTest('this checkout is shallow, so the history is incomplete')
+        shallow = run('rev-parse', '--is-shallow-repository')
+        if shallow.returncode != 0 or shallow.stdout.strip() != 'false':
+            self.skipTest('the git history is not available (not a repository, or a shallow checkout)')
         committed = (REPO / 'src/youngcrow/legacy_hashes.json').read_text(encoding='utf-8')
-        self.assertEqual(committed, self.tool.render(self.tool.build_table(REPO, 'origin/main')))
+        self.assertEqual(committed, self.tool.render(self.tool.build_table(REPO, 'HEAD')))
 
 
 if __name__ == '__main__':

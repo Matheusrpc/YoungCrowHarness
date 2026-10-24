@@ -2,6 +2,9 @@
   ".agents/skills/govern-capabilities/SKILL.md": [
     "1e5bf8c4dc0ecd60568abc51be4af0fb5c74b2c4be503f03d46dbb3fbf57d388"
   ],
+  ".agents/skills/humanizer-ptbr/SKILL.md": [
+    "4e23aa4afb16200ca7a5ed56ca3fe2acd8c69e1b5ec370ca045130ba8127ecf5"
+  ],
   ".agents/skills/ingest-source/SKILL.md": [
     "f232c37eecbc66d4a2997ddb0f085a1337098abcf7178e3d8c6310e3bd0767d3"
   ],
@@ -195,6 +198,7 @@
   ],
   "scripts/source_prompt.py": [
     "09f1b59c73ee6a6749f202d76deb201115b0d4dd145d1049554eb82d3f735ec3",
+    "13494ae3f12cc07d21ed7ce8076b4b271cd37117b378ca7ca6e53034273bf379",
     "5e7d1a6076fe8aba4d20f82db8b9fc63aa655bea3ef2c50f1cd14ed4b62c6a54",
     "c9107da1b8a37165750738f1d26f9b093b1983f04d1d5b1c0e3fe99f0b4be781"
   ],
@@ -217,6 +221,7 @@
     "6e2337e9c33a184182efecca3a4de93ecfb1b108acc926712293e2cfae34bbe9",
     "826edd0257deadea896a1d32a6606658ea5db4675086ce95bb2037ff773fa66f",
     "973a7a9dd9de381ffc7a01d8b24f9b03152e28fb39c3c0fb2b6a1c977ea8c037",
+    "c96b026102266af293141f2dfacd44df009a0debf6e8418d481fdaafab064b4f",
     "de34ab3f875c8e156bbc283d804dbe0b6232f326adf621574ea2810e3a4c5963",
     "e3ee5fcab217765a501736fcf172de7a89d7c892dc822501035e0d19c6797766",
     "e58ba96d885a8e5cd01a1177822e09ccf414c42f23b310cd90e888696c049c98",

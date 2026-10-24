@@ -569,6 +569,33 @@ class InitTests(unittest.TestCase):
                 init(self.root, remove=['keep.txt', rel])
         self.assertEqual(snapshot(self.root), {'keep.txt': b'x\n'})
 
+    def test_remove_guard_ignores_letter_case(self):
+        self.write('keep.txt')
+        for rel in ('Vault/index.md', 'VAULT', '.YoungCrow/VERSION', '.YOUNGCROW'):
+            with self.subTest(rel), self.assertRaises(ValueError):
+                init(self.root, remove=['keep.txt', rel])
+        self.assertEqual(snapshot(self.root), {'keep.txt': b'x\n'})
+
+    def test_remove_refuses_a_name_that_is_not_canonical(self):
+        self.write('CLAUDE.md', b'My rules\n')
+        self.write('scripts/v.py')
+        before = snapshot(self.root)
+        for rel in ('./CLAUDE.md', 'scripts//v.py', 'scripts/./v.py', 'scripts/', '', '.'):
+            with self.subTest(rel):
+                with self.assertRaises(ValueError):
+                    init(self.root, remove=[rel])
+                self.assertEqual(snapshot(self.root), before)
+        with self.assertRaises(ValueError) as caught:
+            init(self.root, remove=['scripts/v.py', 'scripts//v.py'])
+        self.assertIn("'scripts/v.py'", str(caught.exception))
+        self.assertEqual(snapshot(self.root), before)
+
+    def test_remove_removes_a_repeated_name_once(self):
+        self.write('scripts/v.py')
+        report = init(self.root, remove=['scripts/v.py', 'scripts/v.py'])
+        self.assertEqual([rel for rel in report.removed if not rel.endswith('/')], ['scripts/v.py'])
+        self.assertFalse((self.root / 'scripts').exists())
+
     def test_remove_refuses_a_linked_path_before_removing_anything(self):
         self.write('old/a.txt')
         (self.other / 'b.txt').write_bytes(b'outside\n')

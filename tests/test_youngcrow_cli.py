@@ -105,6 +105,14 @@ class CliTests(unittest.TestCase):
         self.assertEqual(run.returncode, 3, run.stderr)
         self.assertFalse((self.root / 'new').exists())
 
+    def test_a_root_with_dot_dot_through_a_missing_folder_works_and_a_refusal_leaves_nothing(self):
+        refused = self._cli('init', '--root', 'nope/../proj', '--client', 'cursor', cwd=self.root)
+        self.assertRefused(refused, "'cursor'")
+        self.assertEqual(self._tree(), {})
+        done = self._cli('init', '--root', 'nope/../proj', cwd=self.root)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertTrue((self.root / 'proj/.youngcrow/manifest.json').is_file())
+
     def test_commands_that_do_not_install_never_create_the_folder(self):
         for args in (('upgrade',), ('undo',), ('undo', '--confirm')):
             self.assertEqual(self._cli(*args, '--root', str(self.root / 'new')).returncode, 3, args)
@@ -186,6 +194,7 @@ class CliTests(unittest.TestCase):
     def assertRefused(self, run, *words):
         self.assertEqual(run.returncode, 3, run.stdout + run.stderr)
         self.assertEqual(run.stdout, '')
+        self.assertTrue(run.stderr.startswith('youngcrow: '), run.stderr)
         self.assertNotIn('Traceback', run.stderr)
         for word in words:
             self.assertIn(word, run.stderr)
@@ -242,6 +251,18 @@ class CliTests(unittest.TestCase):
         run = self._cli('migrate', '--root', str(self.root), '--confirm', '--client', 'cursor')
         self.assertRefused(run, "'cursor'")
         self.assertEqual(self._tree(), {})
+
+    def test_files_youngcrow_cannot_work_with_are_refusals_too(self):
+        (self.root / 'CLAUDE.md').write_bytes(b'\xff\xfe not text\n')
+        self.assertRefused(self._cli('init', '--root', str(self.root)), 'CLAUDE.md', 'UTF-8')
+        (self.root / 'CLAUDE.md').unlink()
+        (self.root / '.youngcrow').mkdir()
+        (self.root / '.youngcrow/VERSION').write_text('left over\n')
+        self.assertRefused(self._cli('init', '--root', str(self.root)), '.youngcrow/VERSION', 'manifest.json')
+        shutil.rmtree(self.root / '.youngcrow')
+        self._init()
+        (self.root / '.youngcrow/manifest.json').write_text('{\n')
+        self.assertRefused(self._cli('upgrade', '--root', str(self.root)), 'manifest.json', 'not valid JSON')
 
     def test_migrate_confirm_refuses_a_project_that_is_already_set_up(self):
         self._init()
@@ -307,6 +328,30 @@ class CliTests(unittest.TestCase):
         self.assertIn('  .youngcrow/VERSION', lines)
         self.assertEqual(lines[lines.index('Removed:') + 1], '  scripts/vault.py')
 
+    def test_a_migrate_preview_does_not_check_the_client(self):
+        run = self._cli('migrate', '--root', str(self.root), '--client', 'cursor', '--json')
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(json.loads(run.stdout)['applied'], False)
+
+    def test_migrate_confirm_puts_back_the_rule_files_the_client_uses_and_only_removes_the_docs_copy(self):
+        for client, expected in (('claude', ['CLAUDE.md']), ('codex', ['AGENTS.md']), ('both', ['AGENTS.md', 'CLAUDE.md'])):
+            project = self.root / client
+            for rel in ('CLAUDE.md', 'AGENTS.md', 'docs/CLAUDE.en.md'):
+                shutil.copy(REPO / rel, self._dest(f'{client}/{rel}'))
+            run = self._cli('migrate', '--root', str(project), '--confirm', '--client', client, '--json')
+            self.assertEqual(run.returncode, 0, run.stderr)
+            self.assertEqual(json.loads(run.stdout)['matches'], ['AGENTS.md', 'CLAUDE.md', 'docs/CLAUDE.en.md'], client)
+            self.assertEqual([name for name in ('AGENTS.md', 'CLAUDE.md') if (project / name).exists()], expected, client)
+            self.assertFalse((project / 'docs').exists(), client)
+
+    def test_migrate_confirm_leaves_an_edited_file_alone_when_the_client_does_not_use_it(self):
+        self._legacy('AGENTS.md', b'# Mine\n')
+        self._legacy('docs/CLAUDE.en.md', b'# Mine\n')
+        run = self._cli('migrate', '--root', str(self.root), '--confirm', '--client', 'claude', '--json')
+        self.assertEqual(json.loads(run.stdout)['legacy_rules'], ['AGENTS.md', 'docs/CLAUDE.en.md'])
+        self.assertEqual((self.root / 'AGENTS.md').read_bytes(), b'# Mine\n')
+        self.assertEqual((self.root / 'docs/CLAUDE.en.md').read_bytes(), b'# Mine\n')
+
     def test_migrate_confirm_with_nothing_to_remove_installs_like_init(self):
         run = self._cli('migrate', '--root', str(self.root), '--confirm', '--json')
         self.assertEqual(json.loads(run.stdout)['applied'], True)
@@ -361,6 +406,9 @@ class CliTests(unittest.TestCase):
         report = json.loads(run.stdout)
         self.assertEqual(report['legacy_rules'], ['AGENTS.md', 'CLAUDE.md'])
         self.assertEqual(report['applied'], True)
+        for text in ('Note:', 'setup.sh', 'by hand', 'HARNESS.md'):
+            self.assertNotIn(text, run.stdout)
+        self.assertEqual(run.stderr, '')
 
     def test_no_notice_when_the_rule_files_are_unmodified_or_absent(self):
         shutil.copy(REPO / 'CLAUDE.md', self._dest('CLAUDE.md'))

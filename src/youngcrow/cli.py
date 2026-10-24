@@ -54,20 +54,25 @@ def _legacy_notice(paths: list[str], *, migrated: bool) -> list[str]:
 def _project_folder(root: Path):
     """Create the project folder when it is missing (`init` itself needs it to exist).
 
-    If the command inside the block fails, the folders made here are removed again, so a refusal
-    leaves nothing behind.
+    If anything fails, here or in the command inside the block, the folders made are removed
+    again, so a refusal leaves nothing behind.
     """
-    made = []
+    missing = []
     for folder in (root, *root.parents):
         if os.path.lexists(folder):
             break
-        made.append(folder)
-    for folder in reversed(made):
-        folder.mkdir()
+        missing.append(folder)
+    made = []
     try:
+        for folder in reversed(missing):
+            try:
+                folder.mkdir()
+            except FileExistsError:  # a `..` in `a/../b` stands for a folder that exists by now
+                continue
+            made.append(folder)
         yield
     except BaseException:
-        for folder in made:
+        for folder in reversed(made):
             try:
                 folder.rmdir()
             except OSError:

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "youngcrow"
+dynamic = ["version"]
+description = "YoungCrowHarness: a vault, document ingestion and memory harness for coding agents."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+youngcrow = "youngcrow.cli:main"
+
+[tool.hatch.version]
+path = "src/youngcrow/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/youngcrow"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"scripts" = "youngcrow/payload/scripts"
+"requirements" = "youngcrow/payload/requirements"

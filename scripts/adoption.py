@@ -12,6 +12,7 @@ import subprocess
 import sys
 import uuid
 
+sys.dont_write_bytecode = True
 import adoption_fs as fs
 from document_store import atomic_write, process_alive, safe_path
 

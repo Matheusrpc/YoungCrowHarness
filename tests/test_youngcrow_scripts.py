@@ -1,6 +1,7 @@
 """Check the harness scripts work when run from `<project>/.youngcrow/scripts`, as `youngcrow init` installs them."""
 from pathlib import Path
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -9,9 +10,13 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 
-from youngcrow.install import init  # noqa: E402
+from youngcrow.install import init, undo  # noqa: E402
+from youngcrow.payload import PAYLOAD  # noqa: E402
 
 GUIDANCE = 'Textual source reference detected'
+# The command each script answers without doing any work; the others take --help. A module with no
+# command line of its own just runs its top level and exits.
+NO_OP = {'scripts/docling_worker.py': ('versions',)}
 
 
 class InstalledScriptsTests(unittest.TestCase):
@@ -53,6 +58,20 @@ class InstalledScriptsTests(unittest.TestCase):
         self.assertEqual(run.returncode, 0, run.stderr)
         self.assertEqual(json.loads(run.stdout), {})
         self.assertEqual(self.snapshot(), before)
+
+    def test_running_the_installed_scripts_leaves_no_bytecode_and_undo_empties_the_project(self):
+        init(self.root)
+        # Bytecode on, as a person's Python has it: no -B, no PYTHONDONTWRITEBYTECODE, no cache prefix.
+        env = {k: v for k, v in os.environ.items() if k not in ('PYTHONDONTWRITEBYTECODE', 'PYTHONPYCACHEPREFIX')}
+        for rel in (rel for rel in PAYLOAD if rel.endswith('.py')):
+            args = NO_OP.get(rel, ('--help',))
+            run = subprocess.run([sys.executable, f'.youngcrow/{rel}', *args], cwd=self.root, env=env,
+                                 stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=120)
+            self.assertEqual(run.returncode, 0, f'{rel}: {run.stderr}')
+            self.assertEqual(sorted(p.relative_to(self.root).as_posix() for p in self.root.rglob('__pycache__')),
+                             [], rel)
+        undo(self.root, confirm=True)
+        self.assertEqual(self.snapshot(), {})
 
     def test_prompt_hook_in_the_repository_still_uses_the_repository_root(self):
         note = ROOT / 'vault' / 'decisions' / 'choice.md'

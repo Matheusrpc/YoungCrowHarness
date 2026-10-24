@@ -7,6 +7,7 @@ import stat
 import sys
 import uuid
 
+sys.dont_write_bytecode = True
 from integrations import check_path, note, project_identity, slug
 
 

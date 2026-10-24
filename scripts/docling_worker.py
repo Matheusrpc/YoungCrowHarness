@@ -79,6 +79,7 @@ def convert(request, *, document_timeout=1800):
         if not media['has_video']:
             # Whisper's own decoder autodetects inputs. Give it a local PCM WAV
             # produced with an explicit demuxer and file-only protocol instead.
+            sys.dont_write_bytecode = True  # documents.py sits in the project's own scripts folder
             from documents import MEDIA_FORMATS
             normalized = output / 'normalized.wav'
             subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-protocol_whitelist', 'file',

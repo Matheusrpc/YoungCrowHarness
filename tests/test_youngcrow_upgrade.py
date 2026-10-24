@@ -205,6 +205,43 @@ class UpgradeUndoTests(unittest.TestCase):
         self.assertIn('AGENTS.md', report.kept_modified)
         self.assertNotIn('AGENTS.md', report.removed)
 
+    def assertUndoLeaves(self, rel, edit, existing):
+        """R20: once the user typed inside the block of `rel`, undo leaves that whole file as it is."""
+        for existed in (True, False):
+            with self.subTest(existed=existed):
+                if existed:
+                    (self.root / rel).write_bytes(existing)
+                init(self.root)
+                path = self.root / rel
+                path.write_bytes(edit(path.read_bytes()))
+                before = path.read_bytes()
+                preview = undo(self.root)
+                report = undo(self.root, confirm=True)
+                self.assertEqual(report.to_json(), preview.to_json())
+                self.assertEqual(path.read_bytes(), before)
+                self.assertIn(rel, report.kept_modified)
+                self.assertNotIn(rel, report.written + report.removed)
+                path.unlink()
+                self.assertEqual(self._tree_bytes(), {})
+
+    def test_undo_leaves_a_gitignore_whose_block_the_user_typed_in(self):
+        self.assertUndoLeaves('.gitignore', lambda data: data.replace(b'vault/local/\n', b'vault/local/\nnode_modules/\n'),
+                              b'dist/\n')
+
+    def test_undo_leaves_an_agents_md_whose_block_the_user_edited(self):
+        self.assertUndoLeaves('AGENTS.md', lambda data: data.replace(b'Four rules', b'My five rules'),
+                              b'Agent notes\r\n')
+
+    def test_undo_leaves_the_agents_block_when_the_installed_text_is_unknown(self):
+        (self.root / 'AGENTS.md').write_bytes(b'Agent notes\n')
+        init(self.root)
+        (self.root / '.youngcrow/HARNESS.md').write_text('my rules\n')
+        before = (self.root / 'AGENTS.md').read_bytes()
+        report = undo(self.root, confirm=True)
+        self.assertEqual((self.root / 'AGENTS.md').read_bytes(), before)
+        self.assertIn('AGENTS.md', report.kept_modified)
+        self.assertIn('.youngcrow/HARNESS.md', report.kept_modified)
+
     def test_undo_keeps_a_created_file_whose_managed_text_the_user_removed(self):
         init(self.root)
         (self.root / 'CLAUDE.md').write_bytes(b'# Rewritten by me\n')

@@ -34,12 +34,8 @@ GITIGNORE_BODY = '\n'.join(('.env', '.env.*', '!.env.example', '.operacao-local/
 # parent of the other two.
 VAULT_INDEXES = ('vault/index.md', 'vault/integrations/index.md', 'vault/capabilities/index.md')
 _INLINE_LINK = re.compile(r'\[[^\]\n]*\]\(\s*(<[^>\n]+>|[^()\s]+)[^)]*\)')
-# How `undo` takes the managed text out of each file `init` can edit.
-_UNMANAGE: dict[str, Callable[[str], str]] = {
-    'CLAUDE.md': lambda text: remove_line(text, IMPORT_LINE),
-    'AGENTS.md': lambda text: remove_block(text, MD_START, MD_END),
-    '.gitignore': lambda text: remove_block(text, GITIGNORE_START, GITIGNORE_END),
-}
+# The markers of each file that gets a managed block; CLAUDE.md gets the import line instead.
+_BLOCKS = {'AGENTS.md': (MD_START, MD_END), '.gitignore': (GITIGNORE_START, GITIGNORE_END)}
 
 
 class AlreadyInitialized(RuntimeError):
@@ -122,9 +118,35 @@ def _managed(rel: str, edit: Callable[[str], str], text: str) -> str:
         raise ManagedBlockError(f'{rel}: {error}') from error
 
 
-def _put_block(text: str, body: str) -> str:
-    """AGENTS.md text with `body` in its managed block (appended when there is none)."""
-    return _managed('AGENTS.md', lambda t: upsert_block(t, body, MD_START, MD_END), text)
+def _put_block(rel: str, text: str, body: str) -> str:
+    """The text of `rel` with `body` in its managed block (appended when there is none)."""
+    start, end = _BLOCKS[rel]
+    return _managed(rel, lambda t: upsert_block(t, body, start, end), text)
+
+
+def _strip(rel: str, text: str, body: str | None) -> str | None:
+    """The text of `rel` without the managed text init put there.
+
+    None when the block's body is not `body`, the text init wrote (or that text is unknown): the
+    user typed inside the markers, so the file is left as it is (R20). A broken block raises.
+    """
+    if rel == 'CLAUDE.md':
+        return _managed(rel, lambda t: remove_line(t, IMPORT_LINE), text)
+    start, end = _BLOCKS[rel]
+    stripped = _managed(rel, lambda t: remove_block(t, start, end), text)
+    if stripped != text and (body is None or _put_block(rel, text, body) != text):
+        return None
+    return stripped
+
+
+def _installed_harness(root: Path, manifest: Manifest) -> str | None:
+    """The HARNESS text init or upgrade put in the AGENTS.md block, when it can still be known:
+    `.youngcrow/HARNESS.md` as long as its hash matches the manifest. None otherwise."""
+    rel = '.youngcrow/HARNESS.md'
+    data = _read_bytes(root, rel)
+    if data is None or _sha(data) != manifest.files.get(rel):
+        return None
+    return _decode(rel, data)
 
 
 def _load(root: Path) -> Manifest:
@@ -377,14 +399,12 @@ def upgrade(root: Path) -> Report:
     fresh = _harness_files(harness)
     report, steps = Report(), []
     files, created = dict(manifest.files), list(manifest.created)
-    installed = None  # the HARNESS text the AGENTS.md block should still hold
+    installed = _installed_harness(root, manifest)  # what the AGENTS.md block should still hold
     for rel, data in fresh.items():
         current = _read_bytes(root, rel)
         if current is not None and _sha(current) != manifest.files.get(rel):
             report.kept_modified.append(rel)  # changed by the user, or not ours (a new path taken)
             continue
-        if rel == '.youngcrow/HARNESS.md' and current is not None:
-            installed = _decode(rel, current)
         if current != data:
             steps.append(_Step(rel, data, current))
             report.written.append(rel)
@@ -396,8 +416,8 @@ def upgrade(root: Path) -> Report:
         text = _read(root, 'AGENTS.md')
         if text is None:
             report.kept_modified.append('AGENTS.md')
-        elif (new := _put_block(text, harness)) != text:
-            if installed is not None and _put_block(text, installed) == text:
+        elif (new := _put_block('AGENTS.md', text, harness)) != text:
+            if installed is not None and _put_block('AGENTS.md', text, installed) == text:
                 steps.append(_Step('AGENTS.md', new.encode('utf-8'), text.encode('utf-8'), managed=True))
                 report.written.append('AGENTS.md')
                 if _sha(text.encode('utf-8')) == manifest.files.get('AGENTS.md'):
@@ -448,6 +468,9 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
     A created file whose hash still matches the manifest is deleted (`removed`). A created file the
     user changed is kept, minus the managed text it carries (`kept_modified`). A file that existed
     before init gets the managed text taken out, which restores its original bytes (`written`).
+    A block is taken out only while its body is what init wrote (for AGENTS.md, the HARNESS text
+    known from `.youngcrow/HARNESS.md` with a matching hash); otherwise the user typed inside it,
+    and the whole file is left as it is (`kept_modified`).
     Folders left empty by those deletions go too (`removed`, with a trailing `/`); the manifest is
     deleted last. Every path and managed edit is checked first: NotInitialized, UnsafePathError,
     ManagedBlockError (naming the file) or ValueError change nothing, and a failed write rolls the
@@ -455,6 +478,7 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
     """
     root = Path(root)
     manifest = _load(root)
+    bodies = {'AGENTS.md': _installed_harness(root, manifest), '.gitignore': GITIGNORE_BODY}
     report, steps = Report(), []
     for rel in dict.fromkeys(manifest.created + manifest.edits):
         if rel == MANIFEST_PATH:
@@ -468,8 +492,12 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
             report.removed.append(rel)
             continue
         new = current
-        if rel in manifest.edits and rel in _UNMANAGE:
-            new = _managed(rel, _UNMANAGE[rel], _decode(rel, current)).encode('utf-8')
+        if rel in manifest.edits and (rel == 'CLAUDE.md' or rel in _BLOCKS):
+            stripped = _strip(rel, _decode(rel, current), bodies.get(rel))
+            if stripped is None:
+                report.kept_modified.append(rel)
+                continue
+            new = stripped.encode('utf-8')
         if new != current:
             steps.append(_Step(rel, new, current, managed=True))
         if created:

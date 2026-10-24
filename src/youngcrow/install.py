@@ -124,17 +124,23 @@ def _put_block(rel: str, text: str, body: str) -> str:
     return _managed(rel, lambda t: upsert_block(t, body, start, end), text)
 
 
-def _strip(rel: str, text: str, body: str | None) -> str | None:
+def _owns_block(rel: str, text: str, body: str | None, whole: bool) -> bool:
+    """Whether the block in `rel` is still the installer's (R21): its body is `body`, the text the
+    installer wrote there, or the whole file still has the hash in the manifest (`whole`)."""
+    return whole or (body is not None and _put_block(rel, text, body) == text)
+
+
+def _strip(rel: str, text: str, body: str | None, whole: bool) -> str | None:
     """The text of `rel` without the managed text init put there.
 
-    None when the block's body is not `body`, the text init wrote (or that text is unknown): the
-    user typed inside the markers, so the file is left as it is (R20). A broken block raises.
+    None when the block is no longer the installer's (see `_owns_block`): the user typed inside
+    the markers, so the file is left as it is (R20). A broken block raises.
     """
     if rel == 'CLAUDE.md':
         return _managed(rel, lambda t: remove_line(t, IMPORT_LINE), text)
     start, end = _BLOCKS[rel]
     stripped = _managed(rel, lambda t: remove_block(t, start, end), text)
-    if stripped != text and (body is None or _put_block(rel, text, body) != text):
+    if stripped != text and not _owns_block(rel, text, body, whole):
         return None
     return stripped
 
@@ -236,10 +242,15 @@ def _make_dirs(root: Path, parent: PurePath, made: list[Path]) -> None:
 
 
 def _replace_file(target: Path, data: bytes) -> None:
-    """Write through a temp file and a rename, so a user's file is never left half written."""
+    """Write through a temp file and a rename, so a user's file is never left half written.
+
+    The temp file is created exclusively; when its name is already taken, the write fails and the
+    file that holds the name is left alone.
+    """
     temp = target.with_name(f'{target.name}.{os.getpid()}.tmp')
+    handle = open(temp, 'xb')
     try:
-        with open(temp, 'xb') as handle:
+        with handle:
             handle.write(data)
             handle.flush()
             os.fsync(handle.fileno())
@@ -288,7 +299,7 @@ def _roll_back(root: Path, written: list[_Step], made: list[Path], removed: list
 
 def _apply(root: Path, steps: list[_Step], *, manifest: Manifest | None = None,
            dirs: list[Path] = ()) -> None:
-    """Carry out the steps in order, then save `manifest`, then remove the empty `dirs`.
+    """Carry out the steps in order, then remove the empty `dirs`, then save `manifest`.
 
     All or nothing: when anything fails, what was already done is rolled back and the error is
     raised again, with a note naming whatever the roll back could not restore.
@@ -306,13 +317,13 @@ def _apply(root: Path, steps: list[_Step], *, manifest: Manifest | None = None,
                 _make_dirs(root, PurePath(step.rel).parent, made)
                 _replace_file(target, step.data)
             written.append(step)
-        if manifest is not None:
-            save(root, manifest)
         for directory in dirs:
             if not is_real_dir(directory):
                 raise UnsafePathError('linked managed path: ' + directory.relative_to(root).as_posix())
             directory.rmdir()
             removed.append(directory)
+        if manifest is not None:
+            save(root, manifest)
     except BaseException as error:
         left = _roll_back(root, written, made, removed)
         if left:
@@ -386,11 +397,13 @@ def upgrade(root: Path) -> Report:
     a block). A `.youngcrow/` file whose hash matches the manifest is replaced, a missing one is
     written, a changed one is kept and listed in `kept_modified`. A payload file new in this version
     is written and recorded; a recorded one this version dropped is deleted (`removed`) when
-    unmodified, else kept. The AGENTS.md block that init added gets the new HARNESS text only while
-    its body is still the installed HARNESS text (`.youngcrow/HARNESS.md` with a matching hash);
-    otherwise it is kept. Raises NotInitialized without a manifest, ManagedBlockError (naming the
-    file) for broken markers, UnsafePathError for a linked path, before any write. The manifest is
-    saved last; a failed write rolls the whole upgrade back.
+    unmodified, else kept; folders that leaves empty go too (R18). The AGENTS.md block that init
+    added, while it is still the installer's (R21: its body is the installed HARNESS text, or the
+    whole file still has its recorded hash), gets `.youngcrow/HARNESS.md` as it stands after this
+    upgrade: the new text, or the user's own when they changed that file. Otherwise it is kept.
+    Raises NotInitialized without a manifest, ManagedBlockError (naming the file) for broken
+    markers, UnsafePathError for a linked path, before any write. The manifest is saved last; a
+    failed write rolls the whole upgrade back.
     """
     root = Path(root)
     manifest = _load(root)
@@ -413,14 +426,22 @@ def upgrade(root: Path) -> Report:
             created.append(rel)
 
     if 'AGENTS.md' in manifest.edits:
+        # The block mirrors HARNESS.md as it will stand after this upgrade (R21).
+        kept = '.youngcrow/HARNESS.md' in report.kept_modified
+        rules = _read(root, '.youngcrow/HARNESS.md') if kept else harness
         text = _read(root, 'AGENTS.md')
         if text is None:
             report.kept_modified.append('AGENTS.md')
-        elif (new := _put_block('AGENTS.md', text, harness)) != text:
-            if installed is not None and _put_block('AGENTS.md', text, installed) == text:
+        elif (new := _put_block('AGENTS.md', text, rules)) != text:
+            whole = _sha(text.encode('utf-8')) == manifest.files.get('AGENTS.md')
+            if _owns_block('AGENTS.md', text, installed, whole):
+                for marker in (MD_START, MD_END):
+                    if marker in (line.rstrip() for line in rules.splitlines()):
+                        raise ManagedBlockError(f'.youngcrow/HARNESS.md has the line "{marker}"; '
+                                                'it cannot go into the AGENTS.md block.')
                 steps.append(_Step('AGENTS.md', new.encode('utf-8'), text.encode('utf-8'), managed=True))
                 report.written.append('AGENTS.md')
-                if _sha(text.encode('utf-8')) == manifest.files.get('AGENTS.md'):
+                if whole:
                     files['AGENTS.md'] = _sha(new.encode('utf-8'))  # still wholly ours: undo may delete it
             else:
                 report.kept_modified.append('AGENTS.md')
@@ -440,19 +461,24 @@ def upgrade(root: Path) -> Report:
 
     updated = Manifest(__version__, manifest.client, manifest.lang, manifest.rigor, files, created,
                        list(manifest.edits))
+    dirs = _empty_parents(root, [step.rel for step in steps if step.data is None],
+                          keep=[step.rel for step in steps if step.data is not None])
+    report.removed += [path.relative_to(root).as_posix() + '/' for path in dirs]
     if steps or updated != manifest:
-        _apply(root, steps, manifest=updated)
+        _apply(root, steps, manifest=updated, dirs=dirs)
     return report
 
 
-def _empty_parents(root: Path, removed: list[str]) -> list[Path]:
-    """The folders `undo` may remove (R18), deepest first.
+def _empty_parents(root: Path, removed: list[str], keep: list[str] = ()) -> list[Path]:
+    """The folders a run may remove (R18), deepest first.
 
-    A folder qualifies when it holds a file undo removes, is a real directory inside the root (not
-    the root), and holds nothing else once undo's own removals are done.
+    A folder qualifies when it holds a file the run removes, is a real directory inside the root
+    (not the root), holds nothing else once the run's removals are done, and gets none of the
+    files in `keep` (the ones the run writes).
     """
     gone = set(removed)
-    parents = {parent for rel in removed for parent in PurePath(rel).parents if parent.parts}
+    busy = {parent for rel in keep for parent in PurePath(rel).parents}
+    parents = {parent for rel in removed for parent in PurePath(rel).parents if parent.parts} - busy
     emptied = []
     for parent in sorted(parents, key=lambda p: (-len(p.parts), p.as_posix())):
         path = root / parent
@@ -468,9 +494,10 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
     A created file whose hash still matches the manifest is deleted (`removed`). A created file the
     user changed is kept, minus the managed text it carries (`kept_modified`). A file that existed
     before init gets the managed text taken out, which restores its original bytes (`written`).
-    A block is taken out only while its body is what init wrote (for AGENTS.md, the HARNESS text
-    known from `.youngcrow/HARNESS.md` with a matching hash); otherwise the user typed inside it,
-    and the whole file is left as it is (`kept_modified`).
+    A block is taken out only while it is the installer's (R21): its body is what init wrote (for
+    AGENTS.md, the HARNESS text known from `.youngcrow/HARNESS.md` with a matching hash) or the whole
+    file still has its recorded hash. Otherwise the user typed inside it, and the whole file is
+    left as it is (`kept_modified`), as is a pre-existing file whose managed text the user removed.
     Folders left empty by those deletions go too (`removed`, with a trailing `/`); the manifest is
     deleted last. Every path and managed edit is checked first: NotInitialized, UnsafePathError,
     ManagedBlockError (naming the file) or ValueError change nothing, and a failed write rolls the
@@ -493,17 +520,16 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
             continue
         new = current
         if rel in manifest.edits and (rel == 'CLAUDE.md' or rel in _BLOCKS):
-            stripped = _strip(rel, _decode(rel, current), bodies.get(rel))
+            stripped = _strip(rel, _decode(rel, current), bodies.get(rel),
+                              whole=_sha(current) == manifest.files.get(rel))
             if stripped is None:
                 report.kept_modified.append(rel)
                 continue
             new = stripped.encode('utf-8')
         if new != current:
             steps.append(_Step(rel, new, current, managed=True))
-        if created:
-            report.kept_modified.append(rel)
-        elif new != current:
-            report.written.append(rel)
+        # Restored to its bytes from before init (`written`), or kept as the user left it.
+        (report.written if new != current and not created else report.kept_modified).append(rel)
     steps.append(_Step(MANIFEST_PATH, None, safe_target(root, MANIFEST_PATH).read_bytes()))
     report.removed.append(MANIFEST_PATH)
     dirs = _empty_parents(root, [step.rel for step in steps if step.data is None])

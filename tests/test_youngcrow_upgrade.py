@@ -19,6 +19,7 @@ from youngcrow.manifest import UnsafePathError, load, save, sha256_file  # noqa:
 from youngcrow.payload import PAYLOAD, payload_root  # noqa: E402
 
 NEW_RULES = '# YoungCrow rules\n\nThe rules of the next release.\n'
+REQUIREMENTS = tuple(rel for rel in PAYLOAD if rel.startswith('requirements/'))
 
 
 def failing(name, real):
@@ -232,15 +233,36 @@ class UpgradeUndoTests(unittest.TestCase):
         self.assertUndoLeaves('AGENTS.md', lambda data: data.replace(b'Four rules', b'My five rules'),
                               b'Agent notes\r\n')
 
-    def test_undo_leaves_the_agents_block_when_the_installed_text_is_unknown(self):
-        (self.root / 'AGENTS.md').write_bytes(b'Agent notes\n')
+    def test_undo_removes_an_untouched_block_even_when_harness_md_was_edited(self):
+        (self.root / 'AGENTS.md').write_bytes(b'Agent notes\r\n')
         init(self.root)
         (self.root / '.youngcrow/HARNESS.md').write_text('my rules\n')
-        before = (self.root / 'AGENTS.md').read_bytes()
         report = undo(self.root, confirm=True)
-        self.assertEqual((self.root / 'AGENTS.md').read_bytes(), before)
-        self.assertIn('AGENTS.md', report.kept_modified)
-        self.assertIn('.youngcrow/HARNESS.md', report.kept_modified)
+        self.assertEqual((self.root / 'AGENTS.md').read_bytes(), b'Agent notes\r\n')
+        self.assertIn('AGENTS.md', report.written)
+        self.assertEqual(report.kept_modified, ['.youngcrow/HARNESS.md'])
+
+    def test_a_block_neither_its_body_nor_its_file_hash_vouches_for_is_left_alone(self):
+        (self.root / 'AGENTS.md').write_bytes(b'Agent notes\n')
+        init(self.root)
+        agents = self.root / 'AGENTS.md'
+        agents.write_bytes(agents.read_bytes() + b'More notes\n')
+        (self.root / '.youngcrow/HARNESS.md').write_text('my rules\n')
+        before = agents.read_bytes()
+        with self._release(rules=NEW_RULES):
+            self.assertIn('AGENTS.md', upgrade(self.root).kept_modified)
+        self.assertEqual(agents.read_bytes(), before)
+        self.assertIn('AGENTS.md', undo(self.root, confirm=True).kept_modified)
+        self.assertEqual(agents.read_bytes(), before)
+
+    def test_undo_lists_a_pre_existing_file_whose_managed_text_the_user_removed(self):
+        (self.root / 'CLAUDE.md').write_bytes(b'Mine\n')
+        init(self.root)
+        (self.root / 'CLAUDE.md').write_bytes(b'Mine\nmore\n')
+        report = undo(self.root, confirm=True)
+        self.assertEqual((self.root / 'CLAUDE.md').read_bytes(), b'Mine\nmore\n')
+        self.assertIn('CLAUDE.md', report.kept_modified)
+        self.assertNotIn('CLAUDE.md', report.written)
 
     def test_undo_keeps_a_created_file_whose_managed_text_the_user_removed(self):
         init(self.root)
@@ -387,16 +409,55 @@ class UpgradeUndoTests(unittest.TestCase):
         self.assertIn('AGENTS.md', report.kept_modified)
         self.assertIn('.youngcrow/HARNESS.md', report.written)
 
-    def test_upgrade_keeps_the_agents_block_when_harness_md_was_edited(self):
+    def test_an_untouched_block_mirrors_a_harness_md_the_user_edited(self):
         init(self.root)
         (self.root / '.youngcrow/HARNESS.md').write_text('my rules\n')
-        before = (self.root / 'AGENTS.md').read_bytes()
-        self.assertEqual(upgrade(self.root).kept_modified, ['.youngcrow/HARNESS.md'])
+        report = upgrade(self.root)
+        self.assertEqual((report.written, report.kept_modified), (['AGENTS.md'], ['.youngcrow/HARNESS.md']))
+        mirrored = f'{MD_START}\nmy rules\n{MD_END}\n'.encode()
+        self.assertEqual((self.root / 'AGENTS.md').read_bytes(), mirrored)
         with self._release(rules=NEW_RULES):
             report = upgrade(self.root)
-        self.assertEqual(sorted(report.kept_modified), ['.youngcrow/HARNESS.md', 'AGENTS.md'])
-        self.assertEqual((self.root / 'AGENTS.md').read_bytes(), before)
+        self.assertEqual((report.written, report.kept_modified), ([], ['.youngcrow/HARNESS.md']))
+        self.assertEqual((self.root / 'AGENTS.md').read_bytes(), mirrored)
         self.assertEqual((self.root / '.youngcrow/HARNESS.md').read_text(), 'my rules\n')
+        self.assertIn('AGENTS.md', undo(self.root).removed)
+
+    def test_upgrade_refreshes_an_untouched_block_after_harness_md_was_deleted(self):
+        init(self.root)
+        (self.root / '.youngcrow/HARNESS.md').unlink()
+        with self._release(rules=NEW_RULES):
+            report = upgrade(self.root)
+        self.assertEqual(sorted(report.written), ['.youngcrow/HARNESS.md', 'AGENTS.md'])
+        self.assertEqual(report.kept_modified, [])
+        self.assertEqual((self.root / 'AGENTS.md').read_text(), f'{MD_START}\n{NEW_RULES}{MD_END}\n')
+        undo(self.root, confirm=True)
+        self.assertEqual(self._tree_bytes(), {})
+
+    def test_upgrade_refuses_to_copy_a_marker_line_from_harness_md(self):
+        init(self.root)
+        (self.root / '.youngcrow/HARNESS.md').write_text(f'my rules\n{MD_END}\n')
+        before = self._tree_bytes()
+        with self.assertRaises(ManagedBlockError) as caught:
+            upgrade(self.root)
+        self.assertIn('.youngcrow/HARNESS.md', str(caught.exception))
+        self.assertEqual(self._tree_bytes(), before)
+
+    def test_upgrade_removes_a_folder_its_deletions_empty(self):
+        init(self.root)
+        with self._release(drop=REQUIREMENTS):
+            report = upgrade(self.root)
+        self.assertIn('.youngcrow/requirements/', report.removed)
+        self.assertFalse((self.root / '.youngcrow/requirements').exists())
+        undo(self.root, confirm=True)
+        self.assertEqual(self._tree_bytes(), {})
+
+    def test_upgrade_keeps_a_folder_that_gets_a_new_file(self):
+        init(self.root)
+        with self._release(drop=REQUIREMENTS, add={'requirements/new.txt': b'new\n'}):
+            report = upgrade(self.root)
+        self.assertNotIn('.youngcrow/requirements/', report.removed)
+        self.assertEqual([p.name for p in (self.root / '.youngcrow/requirements').iterdir()], ['new.txt'])
 
     def test_upgrade_leaves_a_block_the_user_wrote_before_init(self):
         own = f'{MD_START}\nmy own words\n{MD_END}\n'.encode()
@@ -440,7 +501,77 @@ class UpgradeUndoTests(unittest.TestCase):
         self.assertIn('AGENTS.md', str(caught.exception))
         self.assertEqual(self._tree_bytes(), before)
 
+    # A manifest that points outside the project.
+
+    def _tamper(self, rel, target):
+        manifest = load(self.root)
+        manifest.files[rel] = sha256_file(target)
+        manifest.created.append(rel)
+        save(self.root, manifest)
+
+    def test_undo_refuses_a_manifest_path_that_leaves_the_project(self):
+        init(self.root)
+        outside = self.other / 'x.md'
+        outside.write_bytes(b'outside\n')
+        clean = load(self.root)
+        for rel, target in (('../other/x.md', outside), (str(outside), outside),
+                            ('.youngcrow/../CLAUDE.md', self.root / 'CLAUDE.md')):
+            with self.subTest(rel=rel):
+                self._tamper(rel, target)
+                before = self._tree_bytes()
+                for confirm in (False, True):
+                    with self.assertRaises(UnsafePathError):
+                        undo(self.root, confirm=confirm)
+                self.assertEqual(self._tree_bytes(), before)
+                self.assertEqual(outside.read_bytes(), b'outside\n')
+                save(self.root, clean)
+
+    def test_upgrade_ignores_manifest_paths_outside_youngcrow_and_refuses_a_climbing_one(self):
+        init(self.root)
+        outside = self.other / 'x.md'
+        outside.write_bytes(b'outside\n')
+        for rel in ('../other/x.md', str(outside)):
+            self._tamper(rel, outside)
+        with self._release(version='0.2.0'):
+            self.assertEqual(upgrade(self.root).written, ['.youngcrow/VERSION'])
+        self.assertEqual(outside.read_bytes(), b'outside\n')
+        self._tamper('.youngcrow/../CLAUDE.md', self.root / 'CLAUDE.md')
+        before = self._tree_bytes()
+        with self._release(version='0.3.0'), self.assertRaises(UnsafePathError):
+            upgrade(self.root)
+        self.assertEqual(self._tree_bytes(), before)
+        self.assertEqual(list(self.other.iterdir()), [outside])
+
     # All or nothing.
+
+    def test_a_temp_name_already_taken_is_never_deleted(self):
+        (self.root / 'CLAUDE.md').write_bytes(b'Mine\n')
+        taken = self.root / f'CLAUDE.md.{os.getpid()}.tmp'
+        taken.write_bytes(b'not a temp file\n')
+        before = self._tree_bytes()
+        with self.assertRaises(FileExistsError):
+            init(self.root)
+        self.assertEqual(self._tree_bytes(), before)
+        taken.unlink()
+        init(self.root)
+        taken.write_bytes(b'not a temp file\n')
+        before = self._tree_bytes()
+        with self.assertRaises(FileExistsError):
+            undo(self.root, confirm=True)
+        self.assertEqual(self._tree_bytes(), before)
+
+    def test_a_failed_upgrade_puts_back_the_folder_it_removed(self):
+        init(self.root)
+        before = self._tree_bytes()
+        cases = (
+            ('youngcrow.install.save', mock.Mock(side_effect=OSError('disk full'))),  # after the rmdir
+            ('os.rmdir', failing('requirements', os.rmdir)),  # the manifest must not be saved yet
+        )
+        for target, stand_in in cases:
+            with self.subTest(failing=target), self._release(drop=REQUIREMENTS), \
+                    mock.patch(target, stand_in), self.assertRaises(OSError):
+                upgrade(self.root)
+            self.assertEqual(self._tree_bytes(), before)
 
     def test_a_failed_upgrade_rolls_back_everything(self):
         (self.root / 'AGENTS.md').write_bytes(b'Agent notes\n')

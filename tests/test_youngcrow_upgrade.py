@@ -229,6 +229,36 @@ class UpgradeUndoTests(unittest.TestCase):
         self.assertUndoLeaves('.gitignore', lambda data: data.replace(b'vault/local/\n', b'vault/local/\nnode_modules/\n'),
                               b'dist/\n')
 
+    # Undo takes the .gitignore block out; an .env file in the project then shows to git.
+
+    def test_undo_warns_about_env_files_once_the_gitignore_block_goes(self):
+        for existed in (False, True):
+            with self.subTest(existed=existed):
+                if existed:
+                    (self.root / '.gitignore').write_bytes(b'dist/\n')
+                init(self.root)
+                for name in ('.env', '.env.local', '.env.example', '.envrc'):
+                    (self.root / name).write_text('X=1\n')
+                preview = undo(self.root)
+                report = undo(self.root, confirm=True)
+                self.assertEqual(preview.warnings, report.warnings)
+                self.assertEqual([warning.split(':')[0] for warning in report.warnings], ['.env', '.env.local'])
+                self.assertIn('.gitignore', report.warnings[0])
+                self.assertNotIn('warnings', report.to_json())  # the four lists stay the report's JSON
+                for name in ('.env', '.env.local', '.env.example', '.envrc', '.gitignore'):
+                    (self.root / name).unlink(missing_ok=True)
+                self.assertEqual(self._tree_bytes(), {})
+
+    def test_undo_gives_no_warning_without_env_files_or_when_the_block_stays(self):
+        init(self.root)
+        self.assertEqual(undo(self.root).warnings, [])
+        (self.root / '.env').write_text('X=1\n')
+        gitignore = self.root / '.gitignore'
+        gitignore.write_bytes(gitignore.read_bytes().replace(b'vault/local/\n', b'vault/local/\nnode_modules/\n'))
+        report = undo(self.root, confirm=True)
+        self.assertIn('.gitignore', report.kept_modified)
+        self.assertEqual(report.warnings, [])
+
     def test_undo_leaves_an_agents_md_whose_block_the_user_edited(self):
         self.assertUndoLeaves('AGENTS.md', lambda data: data.replace(b'Four rules', b'My five rules'),
                               b'Agent notes\r\n')

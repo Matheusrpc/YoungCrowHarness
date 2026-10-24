@@ -98,7 +98,9 @@ def _undo(args: argparse.Namespace) -> Result:
     lines = _report_lines(report)
     if not args.confirm:
         lines.insert(0, 'Preview only, nothing was changed. Add --confirm to undo.')
-    return report.to_json(), '\n'.join(lines)
+    for warning in report.warnings:  # on stderr in both modes, so --json output stays one object
+        print(f'youngcrow: warning: {warning}', file=sys.stderr)
+    return {**report.to_json(), 'warnings': report.warnings}, '\n'.join(lines)
 
 
 def _migrate(args: argparse.Namespace) -> Result:

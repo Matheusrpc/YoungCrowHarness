@@ -6,7 +6,7 @@ project untouched. If a write fails later, the run is rolled back: files it crea
 files it edited or deleted get their original bytes back, and its folders are removed or put back.
 The manifest is saved (or, by `undo`, deleted) last, so it always describes a finished operation.
 """
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from importlib.resources import files
 from pathlib import Path, PurePath
 from typing import Callable, Sequence
@@ -52,9 +52,11 @@ class Report:
     kept_modified: list[str] = field(default_factory=list)
     removed: list[str] = field(default_factory=list)
     skipped: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)  # for the person; not one of the four lists
 
     def to_json(self) -> dict:
-        return asdict(self)
+        """The four lists: `written`, `kept_modified`, `removed` and `skipped`."""
+        return {name: getattr(self, name) for name in ('written', 'kept_modified', 'removed', 'skipped')}
 
 
 @dataclass
@@ -514,6 +516,13 @@ def _empty_parents(root: Path, removed: list[str], keep: list[str] = ()) -> list
     return emptied
 
 
+def _env_files(root: Path) -> list[str]:
+    """The entries in the project root that the .gitignore block keeps out of git: `.env` and
+    `.env.*`, except `.env.example`."""
+    return sorted(name for name in os.listdir(root)
+                  if (name == '.env' or name.startswith('.env.')) and name != '.env.example')
+
+
 def undo(root: Path, *, confirm: bool = False) -> Report:
     """Take out what init (and upgrade) put in. Without `confirm`, only report what would happen.
 
@@ -527,7 +536,8 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
     Folders left empty by those deletions go too (`removed`, with a trailing `/`); the manifest is
     deleted last. Every path and managed edit is checked first: NotInitialized, UnsafePathError,
     ManagedBlockError (naming the file) or ValueError change nothing, and a failed write rolls the
-    whole undo back.
+    whole undo back. When the .gitignore block goes, `warnings` names each `.env` or `.env.*` file
+    in the project root (not `.env.example`): that block was what kept it out of git.
     """
     root = Path(root)
     manifest = _load(root)
@@ -556,6 +566,9 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
             steps.append(_Step(rel, new, current, managed=True))
         # Restored to its bytes from before init (`written`), or kept as the user left it.
         (report.written if new != current and not created else report.kept_modified).append(rel)
+    if any(step.rel == '.gitignore' for step in steps):
+        report.warnings = [f'{name}: without the youngcrow block, .gitignore may no longer keep this file '
+                           'out of git. Run git status before you commit.' for name in _env_files(root)]
     steps.append(_Step(MANIFEST_PATH, None, safe_target(root, MANIFEST_PATH).read_bytes()))
     report.removed.append(MANIFEST_PATH)
     dirs = _empty_parents(root, [step.rel for step in steps if step.data is None])

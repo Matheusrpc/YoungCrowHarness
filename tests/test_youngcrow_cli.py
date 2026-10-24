@@ -174,7 +174,7 @@ class CliTests(unittest.TestCase):
         before = self._tree()
         run = self._cli('undo', '--root', str(self.root), '--json')
         report = json.loads(run.stdout)
-        self.assertEqual(list(report), REPORT_KEYS)
+        self.assertEqual(list(report), REPORT_KEYS + ['warnings'])
         self.assertIn('.youngcrow/manifest.json', report['removed'])
         self.assertEqual(self._tree(), before)
 
@@ -189,6 +189,24 @@ class CliTests(unittest.TestCase):
         self.assertIn('.youngcrow/VERSION', report['removed'])
         self.assertIn('.youngcrow/', report['removed'])
         self.assertNotIn('CLAUDE.md', report['removed'])
+
+    def test_undo_warns_on_stderr_and_in_json_when_an_env_file_loses_its_ignore_rule(self):
+        self._init()
+        (self.root / '.env').write_text('TOKEN=x\n')
+        (self.root / '.env.example').write_text('TOKEN=\n')
+        run = self._cli('undo', '--root', str(self.root), '--confirm', '--json')
+        self.assertEqual(run.returncode, 0, run.stderr)
+        warnings = json.loads(run.stdout)['warnings']
+        self.assertEqual(len(warnings), 1)
+        self.assertTrue(warnings[0].startswith('.env: '), warnings)
+        self.assertEqual(run.stderr, f'youngcrow: warning: {warnings[0]}\n')
+        self.assertEqual(sorted(self._tree()), ['.env', '.env.example'])
+
+    def test_undo_without_env_files_has_no_warning(self):
+        self._init()
+        run = self._cli('undo', '--root', str(self.root), '--confirm')
+        self.assertEqual(run.stderr, '')
+        self.assertEqual(json.loads(self._cli('init', '--root', str(self.root), '--json').stdout).get('warnings'), None)
 
     # Refusals: exit 3 and the message on stderr.
 

@@ -2,29 +2,30 @@
 
 Everything is planned before the first write: every destination goes through `safe_target`,
 every source and user file is read, every managed edit is computed. A refusal at that stage
-leaves the project untouched. The manifest is saved last, so a project has one only when the
-install finished.
+leaves the project untouched. If a write fails later, the files and folders this run created
+are removed and the files it edited get their original bytes back. The manifest is saved last,
+so a project has one only when the install finished.
 """
 from dataclasses import asdict, dataclass, field
 from importlib.resources import files
 from pathlib import Path, PurePath
 from typing import Callable
+import hashlib
 import os
 import shutil
-import stat
 
 from youngcrow import __version__
 from youngcrow.blocks import (
     GITIGNORE_END, GITIGNORE_START, IMPORT_LINE, MD_END, MD_START,
     ensure_line, remove_block, upsert_block,
 )
-from youngcrow.manifest import (
-    MANIFEST_PATH, _REPARSE_POINT, Manifest, UnsafePathError, safe_target, save, sha256_file,
-)
-from youngcrow.payload import PAYLOAD, VAULT_TEMPLATES, payload_root
+from youngcrow.manifest import MANIFEST_PATH, Manifest, UnsafePathError, is_real_dir, safe_target, save
+from youngcrow.payload import PAYLOAD, payload_root
 
 CLIENTS = ('claude', 'codex', 'both')
 GITIGNORE_BODY = '\n'.join(('.env', '.env.*', '!.env.example', '.operacao-local/', 'vault/local/'))
+# Indexes created when missing, from the package templates of the same path.
+VAULT_INDEXES = ('vault/index.md', 'vault/integrations/index.md', 'vault/capabilities/index.md')
 
 
 class AlreadyInitialized(RuntimeError):
@@ -46,8 +47,12 @@ class Report:
 class _Step:
     rel: str
     data: bytes
-    created: bool = True    # the file did not exist before
-    managed: bool = False   # it carries text the installer added: the import line or a block
+    old: bytes | None = None  # bytes the file had before; None when it did not exist
+    managed: bool = False     # it carries text the installer added: the import line or a block
+
+    @property
+    def created(self) -> bool:
+        return self.old is None
 
 
 def _check_options(client: str, lang: str, rigor: str) -> None:
@@ -59,8 +64,9 @@ def _check_options(client: str, lang: str, rigor: str) -> None:
         raise ValueError(f"rigor {rigor!r} is not available yet; use 'light'.")
 
 
-def _harness_text(lang: str, rigor: str) -> str:
-    raw = (files('youngcrow') / 'templates' / f'HARNESS.{lang}.{rigor}.md').read_bytes()
+def _template(*parts: str) -> str:
+    """Text of a file under the package's `templates/` folder, with LF line endings."""
+    raw = files('youngcrow').joinpath('templates', *parts).read_bytes()
     return raw.decode('utf-8').replace('\r\n', '\n')
 
 
@@ -92,31 +98,32 @@ def _plan_managed(root: Path, rel: str, fresh: str, add: Callable[[str], str]) -
     new = add(fresh if old is None else old)
     if old is not None and new == old:
         return None
-    return _Step(rel, new.encode('utf-8'), created=old is None, managed=True)
+    return _Step(rel, new.encode('utf-8'), None if old is None else old.encode('utf-8'), managed=True)
 
 
-def _make_dirs(root: Path, parent: PurePath) -> None:
-    """Create the missing directories one at a time; each must end up a real directory, not a link."""
+def _make_dirs(root: Path, parent: PurePath, made: list[Path]) -> None:
+    """Create the missing directories one at a time, each checked as a real directory (no link).
+
+    Every directory created is appended to `made` at once, so a failure still leaves the list true.
+    """
     current = root
     for part in parent.parts:
         current = current / part
         try:
             os.mkdir(current)
+            made.append(current)
         except FileExistsError:
             pass
-        metadata = os.lstat(current)
-        if not stat.S_ISDIR(metadata.st_mode) or getattr(metadata, 'st_file_attributes', 0) & _REPARSE_POINT:
+        if not is_real_dir(current):
             raise UnsafePathError('linked managed path: ' + current.relative_to(root).as_posix())
 
 
-def _write(root: Path, step: _Step) -> None:
+def _replace_file(target: Path, data: bytes) -> None:
     """Write through a temp file and a rename, so a user's file is never left half written."""
-    target = safe_target(root, step.rel)
-    _make_dirs(root, PurePath(step.rel).parent)
     temp = target.with_name(f'{target.name}.{os.getpid()}.tmp')
     try:
         with open(temp, 'xb') as handle:
-            handle.write(step.data)
+            handle.write(data)
             handle.flush()
             os.fsync(handle.fileno())
         if target.exists():
@@ -127,6 +134,31 @@ def _write(root: Path, step: _Step) -> None:
         raise
 
 
+def _roll_back(root: Path, written: list[_Step], made: list[Path]) -> list[str]:
+    """Undo this run's writes: delete what it created, restore what it edited, remove its folders.
+
+    Returns what could not be undone. Folders are removed only when `is_real_dir` still says so
+    and they are empty.
+    """
+    left = []
+    for step in reversed(written):
+        try:
+            target = safe_target(root, step.rel)
+            if step.old is None:
+                target.unlink(missing_ok=True)
+            else:
+                _replace_file(target, step.old)
+        except OSError as error:
+            left.append(f'{step.rel} ({error})')
+    for directory in reversed(made):
+        try:
+            if is_real_dir(directory):
+                directory.rmdir()
+        except OSError as error:
+            left.append(f'{directory.relative_to(root).as_posix()}/ ({error})')
+    return left
+
+
 def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'light') -> Report:
     """Install the harness into `root`.
 
@@ -134,14 +166,15 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
     rules into CLAUDE.md (import line) and AGENTS.md (block), adds the .gitignore block, and saves
     the manifest. Raises ValueError for an unsupported option, UnsafePathError for a linked or
     mistyped destination, ManagedBlockError for broken markers, AlreadyInitialized when the
-    project has a manifest or install leftovers. None of these writes anything.
+    project has a manifest or install leftovers. None of these writes anything. A write that fails
+    is rolled back before the error is raised again.
     """
     _check_options(client, lang, rigor)
     root = Path(root)
     if safe_target(root, MANIFEST_PATH).exists():
         raise AlreadyInitialized(f'{MANIFEST_PATH} already exists: this project is already set up.')
 
-    harness = _harness_text(lang, rigor)
+    harness = _template(f'HARNESS.{lang}.{rigor}.md')
     source = payload_root()
     steps = [
         _Step('.youngcrow/VERSION', (__version__ + '\n').encode('utf-8')),
@@ -155,11 +188,11 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
                 'folder) and run init again.')
 
     report = Report()
-    for rel in VAULT_TEMPLATES:
+    for rel in VAULT_INDEXES:
         if os.path.lexists(safe_target(root, rel)):
             report.skipped.append(rel)
         else:
-            steps.append(_Step(rel, (source / rel).read_bytes()))
+            steps.append(_Step(rel, _template(*rel.split('/')).encode('utf-8')))
 
     plans = []
     if client != 'codex':
@@ -174,13 +207,24 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
         else:
             steps.append(step)
 
-    for step in steps:
-        _write(root, step)
-        report.written.append(step.rel)
-    save(root, Manifest(
-        version=__version__, client=client, lang=lang, rigor=rigor,
-        files={step.rel: sha256_file(root / step.rel) for step in steps},
-        created=[step.rel for step in steps if step.created],
-        edits=[step.rel for step in steps if step.managed],
-    ))
+    written: list[_Step] = []
+    made: list[Path] = []
+    try:
+        for step in steps:
+            target = safe_target(root, step.rel)
+            _make_dirs(root, PurePath(step.rel).parent, made)
+            _replace_file(target, step.data)
+            written.append(step)
+        save(root, Manifest(
+            version=__version__, client=client, lang=lang, rigor=rigor,
+            files={step.rel: hashlib.sha256(step.data).hexdigest() for step in steps},
+            created=[step.rel for step in steps if step.created],
+            edits=[step.rel for step in steps if step.managed],
+        ))
+    except BaseException as error:
+        left = _roll_back(root, written, made)
+        if left:
+            error.add_note('Could not undo these changes: ' + '; '.join(left))
+        raise
+    report.written = [step.rel for step in steps]
     return report

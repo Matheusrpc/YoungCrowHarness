@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 
 from youngcrow.manifest import (  # noqa: E402
-    Manifest, UnsafePathError, load, safe_target, save, sha256_file,
+    Manifest, UnsafePathError, is_real_dir, load, safe_target, save, sha256_file,
 )
 
 
@@ -92,6 +92,29 @@ class ManifestTests(unittest.TestCase):
 
         with mock.patch.object(Path, 'lstat', lstat), self.assertRaises(UnsafePathError):
             safe_target(self.root, '.youngcrow/VERSION')
+
+    def test_is_real_dir_accepts_only_a_directory_that_is_not_a_link(self):
+        (self.root / 'real').mkdir()
+        (self.root / 'file.txt').write_text('x')
+        self.assertTrue(is_real_dir(self.root / 'real'))
+        self.assertFalse(is_real_dir(self.root / 'file.txt'))
+        self.assertFalse(is_real_dir(self.root / 'missing'))
+
+    def test_is_real_dir_refuses_a_symlinked_directory(self):
+        self.link_youngcrow()
+        self.assertFalse(is_real_dir(self.root / '.youngcrow'))
+
+    def test_is_real_dir_refuses_a_junction(self):
+        (self.root / '.youngcrow').mkdir()
+        real = Path.lstat
+
+        def lstat(path):
+            if path.name == '.youngcrow':
+                return mock.Mock(st_mode=stat.S_IFDIR | 0o755, st_file_attributes=0x400)
+            return real(path)
+
+        with mock.patch.object(Path, 'lstat', lstat):
+            self.assertFalse(is_real_dir(self.root / '.youngcrow'))
 
     def test_missing_components_allowed_and_nothing_created(self):
         target = safe_target(self.root, '.youngcrow/scripts/vault.py')

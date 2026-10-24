@@ -11,14 +11,8 @@ PAYLOAD: tuple[str, ...] = (
     *(f'requirements/{name}.txt' for name in ('docling', 'docling-media', 'graphify')),
 )
 
-# Vault indexes `init` creates when they are missing. They stay single-sourced in the repository's
-# own vault/ and are not part of PAYLOAD: they land in the project's vault/, not in .youngcrow/.
-VAULT_TEMPLATES: tuple[str, ...] = (
-    'vault/index.md', 'vault/integrations/index.md', 'vault/capabilities/index.md',
-)
-
 
 def payload_root() -> Path:
-    """Folder holding `scripts/`, `requirements/` and `vault/`: packaged, else the repository root."""
+    """Folder holding `scripts/` and `requirements/`: packaged, else the repository root."""
     packaged = Path(str(files('youngcrow') / 'payload'))
     return packaged if packaged.is_dir() else Path(__file__).resolve().parents[2]

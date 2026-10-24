@@ -1,8 +1,10 @@
 """Check `youngcrow init` installs the harness into a project and records exactly what it wrote."""
 from pathlib import Path
+from unittest import mock
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -15,11 +17,24 @@ import youngcrow  # noqa: E402
 from youngcrow.blocks import MD_END, MD_START, ManagedBlockError  # noqa: E402
 from youngcrow.install import AlreadyInitialized, Report, init  # noqa: E402
 from youngcrow.manifest import UnsafePathError, load, sha256_file  # noqa: E402
-from youngcrow.payload import PAYLOAD, VAULT_TEMPLATES, payload_root  # noqa: E402
+from youngcrow.payload import PAYLOAD, payload_root  # noqa: E402
 
 IMPORT = '@.youngcrow/HARNESS.md'
+VAULT_INDEXES = ('vault/index.md', 'vault/integrations/index.md', 'vault/capabilities/index.md')
+TEMPLATES = ROOT / 'src' / 'youngcrow' / 'templates'
 GITIGNORE_BLOCK = ('# youngcrow:start\n.env\n.env.*\n!.env.example\n.operacao-local/\nvault/local/\n'
                    '# youngcrow:end\n')
+
+
+def snapshot(root):
+    """Every file and folder under root: relative path -> bytes (None for a folder)."""
+    return {path.relative_to(root).as_posix(): path.read_bytes() if path.is_file() else None
+            for path in sorted(root.rglob('*'))}
+
+
+def frontmatter(text):
+    lines = text.splitlines()
+    return dict(line.split(': ', 1) for line in lines[1:lines.index('---', 1)])
 
 
 class InitTests(unittest.TestCase):
@@ -68,6 +83,7 @@ class InitTests(unittest.TestCase):
         init(self.root)
         run = subprocess.run([sys.executable, '.youngcrow/scripts/memory.py', '--root', '.', 'status'],
                              cwd=self.root, capture_output=True, text=True)
+        self.assertEqual(run.returncode, 0, run.stderr)
         self.assertNotIn('USER CODE', run.stdout + run.stderr)
         self.assertEqual((self.root / 'scripts/vault.py').read_text(), 'print("USER CODE")\n')
 
@@ -106,6 +122,13 @@ class InitTests(unittest.TestCase):
             self.assertIn(words, text)
         self.assertNotIn('\r', text)
 
+    def test_proof_note_rule_can_be_followed_without_breaking_the_vault_check(self):
+        init(self.root)
+        text = (self.root / '.youngcrow/HARNESS.md').read_text(encoding='utf-8')
+        for words in ('id', 'type', 'title', 'origin', 'updated', 'index', 'linked from an index',
+                      'python3 .youngcrow/scripts/vault.py check'):
+            self.assertIn(words, text)
+
     def test_new_claude_md_is_a_title_a_blank_line_and_the_import(self):
         init(self.root)
         self.assertEqual((self.root / 'CLAUDE.md').read_bytes(),
@@ -128,8 +151,8 @@ class InitTests(unittest.TestCase):
 
     def test_vault_indexes_are_created_from_the_templates(self):
         init(self.root)
-        for rel in VAULT_TEMPLATES:
-            self.assertEqual((self.root / rel).read_bytes(), (payload_root() / rel).read_bytes(), rel)
+        for rel in VAULT_INDEXES:
+            self.assertEqual((self.root / rel).read_bytes(), (TEMPLATES / rel).read_bytes(), rel)
 
     def test_existing_vault_index_is_left_alone_and_the_others_are_created(self):
         (self.root / 'vault').mkdir()
@@ -157,7 +180,7 @@ class InitTests(unittest.TestCase):
         self.assertEqual((manifest.version, manifest.client, manifest.lang, manifest.rigor),
                          (youngcrow.__version__, 'both', 'en', 'light'))
         expected = {'.youngcrow/VERSION', '.youngcrow/HARNESS.md', 'CLAUDE.md', 'AGENTS.md', '.gitignore',
-                    *(f'.youngcrow/{rel}' for rel in PAYLOAD), *VAULT_TEMPLATES}
+                    *(f'.youngcrow/{rel}' for rel in PAYLOAD), *VAULT_INDEXES}
         self.assertEqual(set(manifest.files), expected)
         self.assertEqual(set(manifest.created), expected)
         self.assertEqual(len(manifest.created), len(expected))
@@ -320,11 +343,121 @@ class InitTests(unittest.TestCase):
             self.assertEqual(list(self.root.iterdir()), [])
 
     def test_a_failed_write_leaves_no_manifest(self):
-        from unittest import mock
         with mock.patch('os.replace', side_effect=OSError('disk full')), self.assertRaises(OSError):
             init(self.root)
         self.assertFalse((self.root / '.youngcrow/manifest.json').exists())
         self.assertEqual([p.name for p in self.root.rglob('*.tmp')], [])
+
+    # The vault the project ends up with.
+
+    def vault_check(self):
+        return subprocess.run([sys.executable, '-B', '.youngcrow/scripts/vault.py', 'check'],
+                              cwd=self.root, capture_output=True, text=True)
+
+    def test_fresh_init_leaves_a_vault_that_passes_the_check(self):
+        init(self.root)
+        run = self.vault_check()
+        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+        self.assertIn('3 notes checked; 0 issues', run.stdout)
+
+    def test_the_integrations_command_the_index_shows_runs_and_keeps_the_vault_healthy(self):
+        (self.root / 'scripts').mkdir()
+        (self.root / 'scripts/integrations.py').write_text('raise SystemExit("USER CODE")\n')
+        init(self.root)
+        run = subprocess.run([sys.executable, '-B', '.youngcrow/scripts/integrations.py', 'init',
+                              '--provider', 'example', '--service', 'payments', '--run', 'first-contract'],
+                             cwd=self.root, capture_output=True, text=True)
+        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+        self.assertEqual(self.vault_check().returncode, 0)
+        self.assertEqual((self.root / 'vault/index.md').read_text(encoding='utf-8').count('integrations/index.md'), 1)
+        self.assertEqual((self.root / 'vault/integrations/index.md').read_text(encoding='utf-8').count('(../index.md)'), 1)
+
+    def test_installed_indexes_name_only_the_youngcrow_scripts(self):
+        init(self.root)
+        for rel in VAULT_INDEXES:
+            text = (self.root / rel).read_text(encoding='utf-8')
+            self.assertNotIn('python3 scripts/', text, rel)
+            self.assertEqual(re.findall(r'(?<!\.youngcrow/)\bscripts/', text), [], rel)
+        self.assertIn('python3 .youngcrow/scripts/integrations.py init',
+                      (self.root / 'vault/integrations/index.md').read_text(encoding='utf-8'))
+
+    def test_capabilities_index_links_only_to_the_other_indexes(self):
+        init(self.root)
+        text = (self.root / 'vault/capabilities/index.md').read_text(encoding='utf-8')
+        self.assertEqual(sorted(re.findall(r'\]\(([^)]*)\)', text)), ['../index.md', '../integrations/index.md'])
+        self.assertIn('youngcrow plugin', text)
+
+    def test_package_vault_templates_keep_the_ids_types_origin_and_index_links_of_the_repo_ones(self):
+        for rel in VAULT_INDEXES:
+            ours = frontmatter((TEMPLATES / rel).read_text(encoding='utf-8'))
+            repo = frontmatter((ROOT / rel).read_text(encoding='utf-8'))
+            self.assertEqual(sorted(ours), ['id', 'index', 'origin', 'title', 'type', 'updated'], rel)
+            for key in ('id', 'type', 'origin', 'index'):
+                self.assertEqual(ours[key], repo[key], f'{rel} {key}')
+
+    # A write that fails halfway must leave the project as it was.
+
+    def test_a_failed_write_rolls_back_to_the_exact_bytes_and_folders_from_before(self):
+        (self.root / 'CLAUDE.md').write_bytes(b'My rules\r\n')
+        (self.root / '.gitignore').write_bytes(b'dist/\n')
+        (self.root / 'vault').mkdir()
+        (self.root / 'vault/index.md').write_bytes(b'# Mine\n')
+        (self.root / '.youngcrow').mkdir()
+        before = snapshot(self.root)
+        real = os.replace
+
+        def replace(source, destination):
+            if Path(destination).name == 'AGENTS.md':
+                raise OSError('disk full')
+            return real(source, destination)
+
+        with mock.patch('os.replace', replace), self.assertRaises(OSError):
+            init(self.root)
+        self.assertEqual(snapshot(self.root), before)
+
+    def test_a_failed_manifest_save_rolls_back_too(self):
+        (self.root / 'CLAUDE.md').write_bytes(b'My rules\n')
+        before = snapshot(self.root)
+        with mock.patch('youngcrow.install.save', side_effect=OSError('disk full')), self.assertRaises(OSError):
+            init(self.root)
+        self.assertEqual(snapshot(self.root), before)
+
+    def test_init_after_a_rolled_back_failure_records_the_right_owners(self):
+        (self.root / 'CLAUDE.md').write_bytes(b'My rules\n')
+        real = os.replace
+
+        def replace(source, destination):
+            if Path(destination).name == 'AGENTS.md':
+                raise OSError('disk full')
+            return real(source, destination)
+
+        with mock.patch('os.replace', replace), self.assertRaises(OSError):
+            init(self.root)
+        init(self.root)
+        manifest = load(self.root)
+        self.assertIn('CLAUDE.md', manifest.edits)
+        self.assertNotIn('CLAUDE.md', manifest.created)
+        for rel in VAULT_INDEXES:
+            self.assertIn(rel, manifest.created)
+
+    def test_a_rollback_that_cannot_restore_a_file_says_which(self):
+        (self.root / 'CLAUDE.md').write_bytes(b'My rules\n')
+        real = os.replace
+        claude_writes = []
+
+        def replace(source, destination):
+            if Path(destination).name == 'AGENTS.md':
+                raise OSError('disk full')
+            if Path(destination).name == 'CLAUDE.md':
+                claude_writes.append(destination)
+                if len(claude_writes) > 1:
+                    raise OSError('still full')
+            return real(source, destination)
+
+        with mock.patch('os.replace', replace), self.assertRaises(OSError) as caught:
+            init(self.root)
+        self.assertEqual(str(caught.exception), 'disk full')
+        self.assertIn('CLAUDE.md', ' '.join(caught.exception.__notes__))
 
     def test_report_is_json(self):
         report = init(self.root)

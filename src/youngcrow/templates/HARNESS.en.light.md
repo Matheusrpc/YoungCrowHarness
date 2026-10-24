@@ -20,4 +20,4 @@ Only one agent session works in a checkout at a time. For parallel work, use `gi
 
 ## Proof note
 
-Each delivery leaves a short note in `vault/` (start at `vault/index.md`) with the command and the output that prove it.
+Each delivery leaves a short note in `vault/` (start at `vault/index.md`) with the command and the output that prove it. The note starts with the vault frontmatter (`id`, `type`, `title`, `origin`, `updated`, `index`) and is linked from an index. Before you finish, `python3 .youngcrow/scripts/vault.py check` must pass.

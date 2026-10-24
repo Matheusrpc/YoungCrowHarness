@@ -41,6 +41,24 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _is_link(metadata: os.stat_result) -> bool:
+    """A symbolic link or a Windows junction (reparse point)."""
+    return stat.S_ISLNK(metadata.st_mode) or bool(getattr(metadata, 'st_file_attributes', 0) & _REPARSE_POINT)
+
+
+def is_real_dir(path: Path) -> bool:
+    """True when `path` is a directory itself: not a symbolic link, not a junction, not a file.
+
+    A missing path gives False. Check this (it uses `lstat`) before creating something inside a
+    directory or removing the directory.
+    """
+    try:
+        metadata = path.lstat()
+    except FileNotFoundError:
+        return False
+    return stat.S_ISDIR(metadata.st_mode) and not _is_link(metadata)
+
+
 def safe_target(root: Path, relative: str) -> Path:
     """`root / relative`, or UnsafePathError when writing there could land somewhere else.
 
@@ -58,7 +76,7 @@ def safe_target(root: Path, relative: str) -> Path:
             metadata = current.lstat()
         except FileNotFoundError:
             continue
-        if stat.S_ISLNK(metadata.st_mode) or getattr(metadata, 'st_file_attributes', 0) & _REPARSE_POINT:
+        if _is_link(metadata):
             raise UnsafePathError('linked managed path: ' + relative)
         if stat.S_ISDIR(metadata.st_mode) != (i < len(path.parts) - 1):
             raise UnsafePathError('wrong path type: ' + relative)

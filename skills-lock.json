@@ -241,8 +241,8 @@
       "expected": {
         "contract_sha256": "ba640dd91a4c5a21c3918cb9e07405a0da13ee8994811ca7326e257bdd198cf7",
         "files_sha256": {
-          "claude": "65d03e606389c4f1627d14ab4403a67360fd805ee7f2fd7c425c7322f4c55c8d",
-          "codex": "24f045fa374b54dc643b970be99263c77b6f2afbe0c7ea13c948990849e73029"
+          "claude": "3a60e02ff87dbe1e9b7c3d8da8ed46c8c06af90f7fd711818ab908297a02f220",
+          "codex": "c899b8c0779f4e2090a1e4c2a8dc6ec827b97636ce0e434a745a258f2825cb46"
         }
       },
       "legacy_ref": "skills_de_projeto/ingest-source"

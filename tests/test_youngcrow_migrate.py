@@ -21,7 +21,9 @@ sys.path.insert(0, str(REPO / 'src'))
 
 from youngcrow.install import AlreadyInitialized, init  # noqa: E402
 from youngcrow.manifest import load, sha256_file  # noqa: E402
-from youngcrow.migrate import LEGACY_PATHS, MigrationPreview, apply, is_legacy_path, legacy_hashes, scan  # noqa: E402
+from youngcrow.migrate import (  # noqa: E402
+    LEGACY_PATHS, MigrationPreview, apply, dangling_references, is_legacy_path, legacy_hashes, scan, vault_check,
+)
 
 FOLDERS = {'skills/*', '.claude/skills/*', '.agents/skills/*'}
 
@@ -454,6 +456,89 @@ class MigrateTests(unittest.TestCase):
         report = apply(self.root, scan(self.root))
         self.assertIn('scripts/vault.py', report.removed)
         self.assertIsNotNone(load(self.root))
+
+
+class ReferenceTests(unittest.TestCase):
+    """dangling_references: which kept files and vault notes still name a file migrate removes."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name) / 'project'
+        self.root.mkdir()
+
+    def put(self, rel, text):
+        path = self.root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding='utf-8')
+        return path
+
+    def test_links_commands_and_hooks_count_as_references(self):
+        self.put('vault/capabilities/index.md', '| x | [Skill](../../skills/a/SKILL.md) |\n')
+        self.put('vault/integrations/index.md', '```bash\npython3 scripts/integrations.py init\n```\n')
+        self.put('.claude/settings.json', '{"command": "python3 \\"$CLAUDE_PROJECT_DIR/scripts/hook.py\\""}\n')
+        self.put('CLAUDE.md', "Run `scripts/vault.py check`; see skills/a/SKILL.md.\n")
+        found = dangling_references(self.root, ['skills/a/SKILL.md', 'scripts/integrations.py', 'scripts/hook.py',
+                                                'scripts/vault.py'], ['.claude/settings.json', 'CLAUDE.md'])
+        self.assertEqual(found, {
+            '.claude/settings.json': ['scripts/hook.py'],
+            'CLAUDE.md': ['scripts/vault.py', 'skills/a/SKILL.md'],
+            'vault/capabilities/index.md': ['skills/a/SKILL.md'],
+            'vault/integrations/index.md': ['scripts/integrations.py'],
+        })
+
+    def test_a_longer_path_that_ends_the_same_is_not_a_reference(self):
+        self.put('vault/index.md', 'Run .youngcrow/scripts/vault.py check. See .claude/skills/a/SKILL.md, '
+                                   'scripts/vault.pyc and scripts/vault.py.bak.\n')
+        self.assertEqual(dangling_references(self.root, ['scripts/vault.py', 'skills/a/SKILL.md'], []), {})
+
+    def test_only_markdown_notes_under_the_vault_and_the_kept_files_are_read(self):
+        self.put('vault/notes/data.json', '"scripts/vault.py"\n')
+        self.put('README.md', 'scripts/vault.py\n')
+        self.put('vault/notes/a.md', 'scripts/vault.py\n')
+        self.assertEqual(dangling_references(self.root, ['scripts/vault.py'], []), {'vault/notes/a.md': ['scripts/vault.py']})
+
+    def test_links_and_files_that_cannot_be_read_as_text_are_skipped(self):
+        outside = Path(self.root.parent) / 'outside.md'
+        outside.write_text('scripts/vault.py\n')
+        self.put('vault/a.md', 'scripts/vault.py\n')
+        (self.root / 'vault/b.md').write_bytes(b'\xff scripts/vault.py\n')  # bytes that are not UTF-8 still read
+        try:
+            os.symlink(outside, self.root / 'vault/linked.md')
+            os.symlink(outside.parent, self.root / 'vault/linked-folder', target_is_directory=True)
+        except (OSError, NotImplementedError) as error:
+            self.skipTest(f'this OS refused to create a symlink: {error}')
+        before = snapshot(self.root)
+        found = dangling_references(self.root, ['scripts/vault.py'], ['vault/linked.md', 'missing.json'])
+        self.assertEqual(found, {'vault/a.md': ['scripts/vault.py'], 'vault/b.md': ['scripts/vault.py']})
+        self.assertEqual(snapshot(self.root), before)
+
+    def test_the_youngcrow_block_is_the_installers_text_and_does_not_count(self):
+        self.put('AGENTS.md', '# Mine\n\n<!-- youngcrow:start -->\n`.env.example` holds fake values only.\n'
+                              '<!-- youngcrow:end -->\n')
+        self.assertEqual(dangling_references(self.root, ['.env.example'], ['AGENTS.md']), {})
+        self.put('AGENTS.md', '# Mine\n\nCopy .env.example first.\n<!-- youngcrow:start -->\nno end\n')
+        self.assertEqual(dangling_references(self.root, ['.env.example'], ['AGENTS.md']), {'AGENTS.md': ['.env.example']})
+
+    def test_nothing_removed_means_nothing_to_report(self):
+        self.put('vault/index.md', 'scripts/vault.py\n')
+        self.assertEqual(dangling_references(self.root, [], ['vault/index.md']), {})
+
+    def test_vault_check_reports_the_exit_code_and_the_summary_line(self):
+        init(self.root)
+        self.assertEqual(vault_check(self.root),
+                         {'exit_code': 0, 'summary': 'Vault: 3 notes checked; 0 issues. No files changed.'})
+        self.put('vault/notes/a.md', '[gone](missing.md)\n')
+        result = vault_check(self.root)
+        self.assertEqual(result['exit_code'], 1)
+        self.assertRegex(result['summary'], r'^Vault: \d+ notes checked; [1-9]\d* issues\. No files changed\.$')
+
+    def test_vault_check_that_cannot_run_says_so(self):
+        init(self.root)
+        with mock.patch('subprocess.run', side_effect=OSError(2, 'No such file or directory')):
+            result = vault_check(self.root)
+        self.assertIsNone(result['exit_code'])
+        self.assertIn('No such file or directory', result['summary'])
 
 
 def load_tool():

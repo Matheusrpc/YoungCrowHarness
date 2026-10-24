@@ -374,7 +374,8 @@ class CliTests(unittest.TestCase):
         self._legacy('scripts/memory.py', b'# my change\n')
         run = self._cli('migrate', '--root', str(self.root), '--json')
         self.assertEqual(json.loads(run.stdout), {
-            'applied': False, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'], 'legacy_rules': []})
+            'applied': False, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'], 'legacy_rules': [],
+            'dangling_references': {}, 'vault_check': None})
 
     def test_migrate_confirm_removes_the_matches_and_installs(self):
         shutil.copy(REPO / 'scripts/vault.py', self._dest('scripts/vault.py'))
@@ -382,7 +383,9 @@ class CliTests(unittest.TestCase):
         run = self._cli('migrate', '--root', str(self.root), '--confirm', '--json')
         self.assertEqual(run.returncode, 0, run.stderr)
         self.assertEqual(json.loads(run.stdout), {
-            'applied': True, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'], 'legacy_rules': []})
+            'applied': True, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'], 'legacy_rules': [],
+            'dangling_references': {},
+            'vault_check': {'exit_code': 0, 'summary': 'Vault: 3 notes checked; 0 issues. No files changed.'}})
         self.assertFalse((self.root / 'scripts/vault.py').exists())
         self.assertTrue((self.root / 'scripts/memory.py').is_file())
         self.assertTrue((self.root / '.youngcrow/VERSION').is_file())
@@ -413,6 +416,7 @@ class CliTests(unittest.TestCase):
             self.assertFalse((project / 'docs').exists(), client)
 
     def test_migrate_confirm_leaves_an_edited_file_alone_when_the_client_does_not_use_it(self):
+        shutil.copy(REPO / 'scripts/vault.py', self._dest('scripts/vault.py'))
         self._legacy('AGENTS.md', b'# Mine\n')
         self._legacy('docs/CLAUDE.en.md', b'# Mine\n')
         run = self._cli('migrate', '--root', str(self.root), '--confirm', '--client', 'claude', '--json')
@@ -488,16 +492,98 @@ class CliTests(unittest.TestCase):
         self.assertEqual(report['legacy_rules'], [])
 
     def test_a_modified_docs_claude_en_is_a_legacy_rule_file_too(self):
+        shutil.copy(REPO / 'scripts/vault.py', self._dest('scripts/vault.py'))
         self._legacy('docs/CLAUDE.en.md', b'# Mine\n')
         report = json.loads(self._cli('migrate', '--root', str(self.root), '--json').stdout)
         self.assertEqual(report['legacy_rules'], ['docs/CLAUDE.en.md'])
-        self.assertEqual(report['matches'], [])
+        self.assertEqual(report['matches'], ['scripts/vault.py'])
 
     def test_a_modified_file_that_is_not_a_rule_file_gets_no_notice(self):
         self._legacy('scripts/memory.py', b'# my change\n')
         run = self._cli('migrate', '--root', str(self.root))
         self.assertEqual(run.returncode, 0, run.stderr)
         self.assertNotIn('Note:', run.stdout)
+
+    # A project setup.sh never touched: its own files at legacy paths are not called setup.sh copies.
+
+    def test_without_any_setup_sh_copy_nothing_is_listed_as_changed_or_legacy(self):
+        self._legacy('CLAUDE.md', b'# My own rules\n')
+        self._legacy('scripts/vault.py', b'# my own vault script\n')
+        preview = self._cli('migrate', '--root', str(self.root))
+        self.assertEqual(preview.returncode, 0, preview.stderr)
+        self.assertEqual(preview.stdout.splitlines(),
+                         ['Preview only, nothing was changed. Add --confirm to migrate.', 'No setup.sh install found.'])
+        report = json.loads(self._cli('migrate', '--root', str(self.root), '--json').stdout)
+        self.assertEqual((report['matches'], report['modified'], report['legacy_rules']), ([], [], []))
+        done = self._cli('migrate', '--root', str(self.root), '--confirm')
+        self.assertEqual(done.returncode, 0, done.stderr)
+        lines = done.stdout.splitlines()
+        self.assertIn('No setup.sh install found.', lines)
+        for text in ('Kept (you changed these):', 'Note:', 'setup.sh install and still'):
+            self.assertNotIn(text, done.stdout)
+        self.assertTrue((self.root / 'CLAUDE.md').read_text().startswith('# My own rules\n'))
+
+    # R30: what still points at the files migrate removes, and the vault check after it.
+
+    def _setup_sh_project(self):
+        """The vault setup.sh created (the repository's own vault/ is that template), the skills and
+        scripts it links to or names, and a .claude/settings.json the person merged with their own."""
+        for rel in ('vault/index.md', 'vault/integrations/index.md', 'vault/capabilities/index.md',
+                    'scripts/integrations.py', 'scripts/source_prompt.py', 'scripts/vault.py',
+                    *(f'skills/{name}/SKILL.md' for name in (
+                        'govern-capabilities', 'personalizer', 'integrate-from-docs', 'ingest-source',
+                        'retrieve-memory', 'yc-personalizer', 'yc-config', 'yc-missao', 'yc-status'))):
+            shutil.copy(REPO / rel, self._dest(rel))
+        settings = json.loads((REPO / '.claude/settings.json').read_text(encoding='utf-8'))
+        settings['permissions'] = {'allow': ['Bash(make test)']}
+        self._legacy('.claude/settings.json', json.dumps(settings, indent=2).encode() + b'\n')
+
+    def test_migrate_names_the_files_that_point_at_what_it_removes(self):
+        self._setup_sh_project()
+        for args in ((), ('--confirm',)):
+            run = self._cli('migrate', '--root', str(self.root), '--json', *args)
+            self.assertEqual(run.returncode, 0, run.stderr)
+            refs = json.loads(run.stdout)['dangling_references']
+            self.assertEqual(refs['.claude/settings.json'], ['scripts/source_prompt.py'], args)
+            self.assertEqual(refs['vault/integrations/index.md'], ['scripts/integrations.py'], args)
+            self.assertIn('skills/govern-capabilities/SKILL.md', refs['vault/capabilities/index.md'], args)
+            self.assertEqual(sorted(refs), ['.claude/settings.json', 'vault/capabilities/index.md',
+                                            'vault/integrations/index.md'], args)
+
+    def test_migrate_confirm_runs_the_vault_check_and_reports_it(self):
+        self._setup_sh_project()
+        preview = json.loads(self._cli('migrate', '--root', str(self.root), '--json').stdout)
+        self.assertIsNone(preview['vault_check'])
+        run = self._cli('migrate', '--root', str(self.root), '--confirm', '--json')
+        check = json.loads(run.stdout)['vault_check']
+        direct = subprocess.run([sys.executable, '-B', '.youngcrow/scripts/vault.py', 'check'], cwd=self.root,
+                                capture_output=True, text=True, encoding='utf-8')
+        self.assertEqual(check, {'exit_code': 1, 'summary': direct.stdout.splitlines()[-1]})
+        self.assertNotIn(' 0 issues', check['summary'])
+        self.assertEqual(sorted(p.name for p in self.root.rglob('__pycache__')), [])
+
+    def test_migrate_plain_output_shows_the_references_and_the_check(self):
+        self._setup_sh_project()
+        preview = self._cli('migrate', '--root', str(self.root))
+        section = preview.stdout[preview.stdout.index('These files still point at files migrate removes:'):]
+        self.assertIn('  .claude/settings.json: scripts/source_prompt.py', section)
+        self.assertIn('  vault/integrations/index.md: scripts/integrations.py', section)
+        self.assertNotIn('Vault: ', preview.stdout)
+        done = self._cli('migrate', '--root', str(self.root), '--confirm')
+        self.assertIn('These files still point at files migrate removes:', done.stdout)
+        summary = [line for line in done.stdout.splitlines() if line.startswith('Vault: ')]
+        self.assertEqual(len(summary), 1, done.stdout)
+        self.assertRegex(summary[0], r'^Vault: 3 notes checked; [1-9]\d* issues\. No files changed\.$')
+
+    def test_a_clean_migrate_has_no_references_and_a_clean_vault_check(self):
+        shutil.copy(REPO / 'scripts/vault.py', self._dest('scripts/vault.py'))
+        run = self._cli('migrate', '--root', str(self.root), '--confirm', '--json')
+        report = json.loads(run.stdout)
+        self.assertEqual(report['dangling_references'], {})
+        self.assertEqual(report['vault_check']['exit_code'], 0)
+        plain = self._cli('undo', '--root', str(self.root), '--confirm')
+        self.assertEqual(plain.returncode, 0, plain.stderr)
+        self.assertEqual(self._tree(), {})
 
 
 if __name__ == '__main__':

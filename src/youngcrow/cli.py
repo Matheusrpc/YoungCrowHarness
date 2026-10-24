@@ -15,7 +15,7 @@ import sys
 
 from youngcrow import __version__
 from youngcrow.install import AlreadyInitialized, NotInitialized, Report, init, undo, upgrade
-from youngcrow.migrate import apply, scan
+from youngcrow.migrate import apply, dangling_references, scan, vault_check
 
 # ManagedBlockError and UnsafePathError are ValueErrors too, as is a client, lang or rigor init does not support.
 REFUSALS = (AlreadyInitialized, NotInitialized, ValueError)
@@ -103,28 +103,56 @@ def _undo(args: argparse.Namespace) -> Result:
     return {**report.to_json(), 'warnings': report.warnings}, '\n'.join(lines)
 
 
+def _comes_back(rel: str, client: str) -> bool:
+    """Whether `init` writes `rel` again after migrate removes it: the rule file each client reads."""
+    return (rel == 'CLAUDE.md' and client != 'codex') or (rel == 'AGENTS.md' and client != 'claude')
+
+
+def _references_notice(found: dict[str, list[str]]) -> list[str]:
+    """R30: the kept files and vault notes that still name a file migrate removes, one line each."""
+    lines = ['', 'These files still point at files migrate removes:']
+    for rel, paths in found.items():
+        lines.append(f'  {rel}: {paths[0]}' + (f' and {len(paths) - 1} more' if len(paths) > 1 else ''))
+    return lines + ['Update them by hand. --json lists every path.']
+
+
 def _migrate(args: argparse.Namespace) -> Result:
     preview = scan(args.root)
+    found = bool(preview.matches)  # not one unmodified copy: setup.sh never installed this project
+    check = None
     if args.confirm:
         with _project_folder(args.root):
             report = apply(args.root, preview, client=args.client)
+        if not found:
+            report.kept_modified = []  # the project's own files, not setup.sh copies someone edited
         # apply looked at the files again: only what it removed, and what it kept, count.
         matches = [path for path in preview.matches if path in report.removed]
         modified = report.kept_modified
+        gone = [rel for rel in report.removed if not rel.endswith('/') and not os.path.lexists(args.root / rel)]
         lines = _report_lines(report)
+        check = vault_check(args.root)
     else:
-        matches, modified = preview.matches, preview.modified
+        matches, modified = preview.matches, preview.modified if found else []
+        gone = [rel for rel in matches if not _comes_back(rel, args.client)]
         lines = ['Preview only, nothing was changed. Add --confirm to migrate.']
         if matches:
             lines += _listing('Will be removed (unmodified setup.sh copies):', matches)
         if modified:
             lines += _listing('Kept (you changed these):', modified)
-        if not (matches or modified):
-            lines.append('No files from the old setup.sh install were found.')
+    if not found:
+        lines.append('No setup.sh install found.')
     rules = [path for path in modified if path in LEGACY_RULE_FILES]
     if rules:
         lines += _legacy_notice(rules, migrated=args.confirm)
-    data = {'applied': args.confirm, 'matches': matches, 'modified': modified, 'legacy_rules': rules}
+    references = dangling_references(args.root, gone, modified)
+    if references:
+        lines += _references_notice(references)
+    if check:
+        lines += ['', check['summary']]
+        if check['exit_code']:
+            lines.append('Run .youngcrow/scripts/vault.py check in the project to see each issue.')
+    data = {'applied': args.confirm, 'matches': matches, 'modified': modified, 'legacy_rules': rules,
+            'dangling_references': references, 'vault_check': check}
     return data, '\n'.join(lines)
 
 

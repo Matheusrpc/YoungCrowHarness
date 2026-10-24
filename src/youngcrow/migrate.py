@@ -5,15 +5,22 @@ them with a table of the versions the harness published (`legacy_hashes.json`, b
 `tools/legacy_hashes.py`): a file byte-identical to a published version is a match and may go; any
 other file at a legacy path is the user's own, so it is kept and listed as modified.
 `apply` removes the matches and installs the new layout in one all-or-nothing run.
+`dangling_references` and `vault_check` say, read-only, what still points at the removed files.
 """
 from dataclasses import dataclass
 from importlib.resources import files
 from pathlib import Path
+from typing import Iterable
 import json
+import os
+import re
 import stat
+import subprocess
+import sys
 
+from youngcrow.blocks import MD_END, MD_START, ManagedBlockError, remove_block
 from youngcrow.install import Report, init
-from youngcrow.manifest import UnsafePathError, safe_target, sha256_file
+from youngcrow.manifest import UnsafePathError, is_real_dir, safe_target, sha256_file
 
 # Every path in the FILES arrays of setup.sh (both client branches) except the vault (R22), then the
 # folders it copied skills into: an entry ending in `/*` stands for every file under that folder.
@@ -140,3 +147,77 @@ def apply(root: Path, preview: MigrationPreview, *, client: str = 'both') -> Rep
     report = init(root, client=client, remove=[rel for rel in preview.matches if rel in current.matches])
     report.kept_modified = current.modified
     return report
+
+
+def _reference(rel: str) -> re.Pattern:
+    """`rel` as a whole path: after the start or a character no path holds, maybe behind `./`,
+    `../` or `$VAR/` (a link from a note, a command in a hook), and not followed by more of a path.
+    So `.youngcrow/scripts/vault.py` does not name `scripts/vault.py`."""
+    return re.compile(r'(?<![\w.\-/$])(?:\.{1,2}/|\$\{?\w+\}?/)*' + re.escape(rel) + r'(?![\w\-/]|\.\w)')
+
+
+def _text(root: Path, rel: str) -> str | None:
+    """The text of the regular file at `rel`, read without following a link; None when there is none.
+
+    The youngcrow block is left out: that text is the installer's, so whatever it names is not a
+    reference the person has to fix.
+    """
+    try:
+        path = safe_target(root, rel)
+        if not stat.S_ISREG(path.lstat().st_mode):
+            return None
+        text = path.read_bytes().decode('utf-8', errors='replace')
+    except (UnsafePathError, OSError):
+        return None
+    try:
+        return remove_block(text, MD_START, MD_END)
+    except ManagedBlockError:
+        return text
+
+
+def _vault_notes(root: Path) -> list[str]:
+    """Every `*.md` under `vault/`, as project-relative paths. Linked folders are not entered."""
+    vault = root / 'vault'
+    if not is_real_dir(vault):
+        return []
+    notes = []
+    for folder, dirs, names in os.walk(vault):
+        dirs[:] = [name for name in dirs if is_real_dir(Path(folder) / name)]  # no link, no junction
+        notes += [(Path(folder) / name).relative_to(root).as_posix() for name in names if name.endswith('.md')]
+    return notes
+
+
+def dangling_references(root: Path, removed: Iterable[str], kept: Iterable[str]) -> dict[str, list[str]]:
+    """Which files still name a path in `removed`: each file in `kept` and every Markdown note under `vault/`.
+
+    Reads only. A file names a path when the path stands whole in its text (see `_reference`),
+    outside the youngcrow block; a link, a folder, or a file that cannot be read is skipped, and
+    bytes that are not UTF-8 do not stop the read. Returns {file: [paths]}, both sorted, without
+    the files that name none.
+    """
+    root = Path(root)
+    patterns = {rel: _reference(rel) for rel in sorted(set(removed))}
+    found = {}
+    for rel in sorted(set(kept) | set(_vault_notes(root))) if patterns else ():
+        text = _text(root, rel)
+        if text is not None and (named := [path for path, pattern in patterns.items() if pattern.search(text)]):
+            found[rel] = named
+    return found
+
+
+def vault_check(root: Path) -> dict:
+    """Run the installed `.youngcrow/scripts/vault.py check` with `root` as the working folder.
+
+    The check only reads. Returns {'exit_code': its exit code, 'summary': the last line it printed};
+    when it cannot run, the exit code is None and the summary says why.
+    """
+    root = Path(root)
+    try:
+        script = safe_target(root, '.youngcrow/scripts/vault.py')
+        run = subprocess.run([sys.executable, '-B', str(script), 'check'], cwd=root, capture_output=True,
+                             text=True, encoding='utf-8', errors='replace', timeout=600)
+    except (UnsafePathError, OSError, subprocess.TimeoutExpired) as error:
+        return {'exit_code': None, 'summary': f'vault.py check did not run: {error}'}
+    lines = [line for line in run.stdout.splitlines() if line.strip()] or \
+        [line for line in run.stderr.splitlines() if line.strip()]  # a crash prints only there
+    return {'exit_code': run.returncode, 'summary': lines[-1] if lines else ''}

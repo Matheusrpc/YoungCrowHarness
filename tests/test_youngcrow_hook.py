@@ -24,12 +24,12 @@ SUBS = ('session-start', 'prompt')
 SOURCE = {'prompt': 'see https://example.com/a.pdf'}
 INPUT_LIMIT = 'Source guidance: input_limit. No source was inspected or registered.'
 
-# R40 as amended by R45 (isolated mode); `<sub>` stands for the subcommand.
+# R40 as amended by R45 (isolated mode) and R46 (never an exit code that blocks); `<sub>` stands for the subcommand.
 POSIX = ('python3 -I "${CLAUDE_PLUGIN_ROOT}/hooks/youngcrow_hook.py" <sub> || '
-         'python -I "${CLAUDE_PLUGIN_ROOT}/hooks/youngcrow_hook.py" <sub>')
-WINDOWS = ('python -I -c "import os,runpy,sys; r=os.environ.get(\'PLUGIN_ROOT\') or os.environ[\'CLAUDE_PLUGIN_ROOT\']; '
-           'sys.argv=[os.path.join(r,\'hooks\',\'youngcrow_hook.py\'),\'<sub>\']; '
-           'runpy.run_path(sys.argv[0],run_name=\'__main__\')"')
+         'python -I "${CLAUDE_PLUGIN_ROOT}/hooks/youngcrow_hook.py" <sub> || true')
+WINDOWS = ('python -I -c "import os,runpy,sys; r=os.environ.get(\'PLUGIN_ROOT\') or os.environ.get(\'CLAUDE_PLUGIN_ROOT\') or \'\'; '
+           'p=os.path.join(r,\'hooks\',\'youngcrow_hook.py\'); sys.argv=[p,\'<sub>\']; '
+           'r and os.path.isfile(p) and runpy.run_path(p,run_name=\'__main__\')"')
 
 Run = namedtuple('Run', 'returncode stdout stderr')
 
@@ -299,23 +299,51 @@ class HooksJsonTests(HookTestCase):
                 self.assertEqual(entry['command'].count(' -I "${CLAUDE_PLUGIN_ROOT}/'), 2)  # python3 and the python fallback
                 self.assertIn('python -I -c ', entry['commandWindows'])
 
+    def python_bin(self, python3=None):
+        """A folder for PATH where `python` and `python3` (unless `python3` gives other script text) run this interpreter."""
+        bin_dir = self.tmp / 'bin'
+        bin_dir.mkdir(exist_ok=True)
+        python = f'#!/bin/sh\nexec {shlex.quote(sys.executable)} "$@"\n'
+        for exe, text in (('python', python), ('python3', python3 or python)):
+            (bin_dir / exe).write_text(text, encoding='utf-8')
+            (bin_dir / exe).chmod(0o755)
+        return bin_dir
+
+    def shell(self, command, env):
+        done = subprocess.run(command, shell=True, input=b'{}', capture_output=True, cwd=self.root, env=env, timeout=60)
+        return Run(done.returncode, done.stdout.decode('utf-8'), done.stderr.decode('utf-8'))
+
     def test_the_shell_command_runs_the_hook(self):
         if os.name == 'nt':
             self.skipTest('the shell command is for POSIX shells; Windows uses commandWindows')
         plugin, expected = self.prepared_project()
         self.assertNotEqual(expected.stdout, '')
-        bin_dir = self.tmp / 'bin'
-        bin_dir.mkdir()
-        python = f'#!/bin/sh\nexec {shlex.quote(sys.executable)} "$@"\n'
         command = self.entry('SessionStart')['command']
-        env = clean_env(PATH=str(bin_dir), CLAUDE_PLUGIN_ROOT=str(plugin))
-        for name, python3 in {'python3 works': python, 'no python3': '#!/bin/sh\nexit 127\n'}.items():
+        for name, python3 in {'python3 works': None, 'no python3': '#!/bin/sh\nexit 127\n'}.items():
             with self.subTest(name):
-                for exe, text in (('python', python), ('python3', python3)):
-                    (bin_dir / exe).write_text(text, encoding='utf-8')
-                    (bin_dir / exe).chmod(0o755)
-                done = subprocess.run(command, shell=True, input=b'{}', capture_output=True, cwd=self.root, env=env, timeout=60)
-                self.assertEqual(Run(done.returncode, done.stdout.decode('utf-8'), done.stderr.decode('utf-8')), expected)
+                env = clean_env(PATH=str(self.python_bin(python3)), CLAUDE_PLUGIN_ROOT=str(plugin))
+                self.assertEqual(self.shell(command, env), expected)
+
+    def test_a_missing_plugin_folder_never_blocks_the_prompt(self):
+        # Exit code 2 on UserPromptSubmit blocks and erases the prompt, so neither command may end in it.
+        init(self.root)
+        bait = self.root / 'hooks' / 'youngcrow_hook.py'  # what a path relative to the project would find
+        bait.parent.mkdir()
+        bait.write_text("open('pwned', 'w').write('x')\n", encoding='utf-8')
+        gone = str(self.tmp / 'gone')
+        roots = {'unset': {}, 'empty': {'CLAUDE_PLUGIN_ROOT': '', 'PLUGIN_ROOT': ''},
+                 'CLAUDE_PLUGIN_ROOT missing': {'CLAUDE_PLUGIN_ROOT': gone}, 'PLUGIN_ROOT missing': {'PLUGIN_ROOT': gone}}
+        for event in self.hooks:
+            entry = self.entry(event)
+            words = shlex.split(entry['commandWindows'])
+            for name, env in roots.items():
+                with self.subTest(event=event, root=name, command='commandWindows'):
+                    self.assertEqual(run_process([sys.executable, *words[1:]], b'{}', self.root, clean_env(**env)), Run(0, '', ''))
+                if os.name != 'nt':
+                    with self.subTest(event=event, root=name, command='command'):
+                        run = self.shell(entry['command'], clean_env(PATH=str(self.python_bin()), **env))
+                        self.assertEqual((run.returncode, run.stdout), (0, ''))
+        self.assertFalse((self.root / 'pwned').exists())
 
     def test_the_windows_command_runs_the_same_hook_from_either_variable(self):
         plugin, expected = self.prepared_project()

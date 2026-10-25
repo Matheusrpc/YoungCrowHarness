@@ -1,16 +1,16 @@
 {
   "receipt": "youngcrow plugin proof",
-  "date": "2026-10-25T18:39:57+00:00",
+  "date": "2026-10-25T18:55:24+00:00",
   "youngcrow": "0.1.0.dev0",
   "python": "3.13.16",
   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
-  "runner_sha256": "de7ae6deba7fbeefea22c307cf9c7211eea5067a3340f6ceeae5cc0cecf5a00b",
+  "runner_sha256": "4f67c79d1a7eb9244412907e4980c95d263e80cfe1a4aef7c6403443c931c5ce",
   "paths": {
     "$TMP": "a new temporary folder, removed at the end",
     "$REPO": "this repository",
     "$FIXTURE": "the loopback model fixture"
   },
-  "head": "db472f1cd29ce6165e208a8bb083c50c1ff1bad7",
+  "head": "f17176c6894c1d11bddafea6f9c1f3325863a890",
   "clients": {
     "claude": "2.1.310 (Claude Code)",
     "codex": "codex-cli 0.164.0"
@@ -161,9 +161,27 @@
       ],
       "checks": [
         {
+          "check": "claude plugin install keeps the JSON value of .claude/settings.json",
+          "ok": true,
+          "detail": {
+            "sha256_before": "88b92216484dfb8ac1013d6a7bf441bf915bf0e61fab2dd9ceccc25088f340c3",
+            "sha256_after": "3d7a68166741d2d73369cc49cbdd670d8c92405e3250eaceae477586d6f961d9",
+            "bytes_changed": true,
+            "same_value": true,
+            "keys_before": [
+              "extraKnownMarketplaces",
+              "enabledPlugins"
+            ],
+            "keys_after": [
+              "enabledPlugins",
+              "extraKnownMarketplaces"
+            ]
+          }
+        },
+        {
           "check": "claude plugin list shows the plugin enabled at project scope",
           "ok": true,
-          "detail": "[{'id': 'youngcrow@youngcrow', 'version': '0.1.0.dev0', 'scope': 'project', 'enabled': True, 'installPath': '$TMP/home/.claude/plugins/cache/youngcrow/youngcrow/0.1.0.dev0', 'readFromFolder': '$REPO/plugins/youngcrow', 'folderVersion': '0.1.0.dev0', 'installedAt': '2026-10-25T18:39:59.548Z', 'lastUpdated': '2026-10-25T18:39:59.548Z', 'projectPath': '$TMP/project', 'projectEnabled': True}]"
+          "detail": "[{'id': 'youngcrow@youngcrow', 'version': '0.1.0.dev0', 'scope': 'project', 'enabled': True, 'installPath': '$TMP/home/.claude/plugins/cache/youngcrow/youngcrow/0.1.0.dev0', 'readFromFolder': '$REPO/plugins/youngcrow', 'folderVersion': '0.1.0.dev0', 'installedAt': '2026-10-25T18:55:28.688Z', 'lastUpdated': '2026-10-25T18:55:28.688Z', 'projectPath': '$TMP/project', 'projectEnabled': True}]"
         },
         {
           "check": "the copy Claude installed is the plugin folder, byte for byte",
@@ -175,7 +193,23 @@
           "ok": true
         }
       ],
-      "ok": true
+      "ok": true,
+      "observations": {
+        ".claude/settings.json around claude plugin install": {
+          "sha256_before": "88b92216484dfb8ac1013d6a7bf441bf915bf0e61fab2dd9ceccc25088f340c3",
+          "sha256_after": "3d7a68166741d2d73369cc49cbdd670d8c92405e3250eaceae477586d6f961d9",
+          "bytes_changed": true,
+          "same_value": true,
+          "keys_before": [
+            "extraKnownMarketplaces",
+            "enabledPlugins"
+          ],
+          "keys_after": [
+            "enabledPlugins",
+            "extraKnownMarketplaces"
+          ]
+        }
+      }
     },
     {
       "step": "4",
@@ -352,7 +386,7 @@
           ],
           "cwd": "$TMP/project",
           "exit": 0,
-          "stdout": "ype\":\"thread.started\",\"thread_id\":\"01a1745c-ce63-7b51-846e-5d54661f9a15\"} | {\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"error\",\"message\":\"Model metadata for `local-fixture` not found. Defaulting to fallback metadata; this can degrade performance and cause issues.\"}} | {\"type\":\"turn.starte",
+          "stdout": "ype\":\"thread.started\",\"thread_id\":\"01a1746a-fb7c-7e30-8136-84b74cdbd6f5\"} | {\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"error\",\"message\":\"Model metadata for `local-fixture` not found. Defaulting to fallback metadata; this can degrade performance and cause issues.\"}} | {\"type\":\"turn.starte",
           "note": "stopped by the proof after the first request",
           "requests_to_fixture": 1
         },
@@ -390,7 +424,7 @@
           ],
           "cwd": "$TMP/project",
           "exit": 0,
-          "stdout": "ype\":\"thread.started\",\"thread_id\":\"01a1745c-d53f-77e0-b3de-a3f09b509721\"} | {\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"error\",\"message\":\"Model metadata for `local-fixture` not found. Defaulting to fallback metadata; this can degrade performance and cause issues.\"}} | {\"type\":\"turn.starte",
+          "stdout": "ype\":\"thread.started\",\"thread_id\":\"01a1746b-0292-7240-9b6b-5942096e853d\"} | {\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"error\",\"message\":\"Model metadata for `local-fixture` not found. Defaulting to fallback metadata; this can degrade performance and cause issues.\"}} | {\"type\":\"turn.starte",
           "note": "stopped by the proof after the first request",
           "requests_to_fixture": 1
         }
@@ -444,7 +478,7 @@
           ],
           "cwd": "$TMP/project",
           "exit": 1,
-          "stdout": "concurrency_limit\":0,\"budget\":0},\"by_type\":{}},\"safety_stops\":0,\"is_error\":true,\"num_turns\":1,\"subtype\":\"success\",\"api_error_status\":400,\"result\":\"API Error: 400 loopback fixture\",\"type\":\"result\",\"duration_ms\":218,\"uuid\":\"1b0b04e8-b436-4ea7-976d-58e95e111d36\",\"queued_turn_count\":0,\"result_index\":0}",
+          "stdout": "concurrency_limit\":0,\"budget\":0},\"by_type\":{}},\"safety_stops\":0,\"is_error\":true,\"num_turns\":1,\"subtype\":\"success\",\"api_error_status\":400,\"result\":\"API Error: 400 loopback fixture\",\"type\":\"result\",\"duration_ms\":234,\"uuid\":\"d2de252d-83a0-4c65-b1f9-c78f96a7bf79\",\"queued_turn_count\":0,\"result_index\":0}",
           "note": "exit 1 is expected: the fixture answers 400",
           "requests_to_fixture": 4
         },
@@ -460,7 +494,7 @@
           ],
           "cwd": "$TMP/project",
           "exit": 1,
-          "stdout": "concurrency_limit\":0,\"budget\":0},\"by_type\":{}},\"safety_stops\":0,\"is_error\":true,\"num_turns\":1,\"subtype\":\"success\",\"api_error_status\":400,\"result\":\"API Error: 400 loopback fixture\",\"type\":\"result\",\"duration_ms\":288,\"uuid\":\"64de6e01-7486-472b-9570-8cabbfc737eb\",\"queued_turn_count\":0,\"result_index\":0}",
+          "stdout": "concurrency_limit\":0,\"budget\":0},\"by_type\":{}},\"safety_stops\":0,\"is_error\":true,\"num_turns\":1,\"subtype\":\"success\",\"api_error_status\":400,\"result\":\"API Error: 400 loopback fixture\",\"type\":\"result\",\"duration_ms\":224,\"uuid\":\"447e5bbc-ce42-4f2e-83dd-9c292c34f647\",\"queued_turn_count\":0,\"result_index\":0}",
           "note": "exit 1 is expected: the fixture answers 400",
           "requests_to_fixture": 4
         }
@@ -571,7 +605,7 @@
         {
           "check": "Claude Code no longer enables the plugin in this project",
           "ok": true,
-          "detail": "[{'id': 'youngcrow@youngcrow', 'version': '0.1.0.dev0', 'scope': 'project', 'enabled': False, 'installPath': '$TMP/home/.claude/plugins/cache/youngcrow/youngcrow/0.1.0.dev0', 'readFromFolder': '$REPO/plugins/youngcrow', 'installedAt': '2026-10-25T18:39:59.548Z', 'lastUpdated': '2026-10-25T18:39:59.548Z', 'projectPath': '$TMP/project', 'projectEnabled': False}]"
+          "detail": "[{'id': 'youngcrow@youngcrow', 'version': '0.1.0.dev0', 'scope': 'project', 'enabled': False, 'installPath': '$TMP/home/.claude/plugins/cache/youngcrow/youngcrow/0.1.0.dev0', 'readFromFolder': '$REPO/plugins/youngcrow', 'installedAt': '2026-10-25T18:55:28.688Z', 'lastUpdated': '2026-10-25T18:55:28.688Z', 'projectPath': '$TMP/project', 'projectEnabled': False}]"
         },
         {
           "check": "Codex keeps the plugin installed for the user (undo does not touch it)",

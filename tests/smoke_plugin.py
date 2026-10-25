@@ -37,6 +37,9 @@ import threading
 import time
 
 REPO = Path(__file__).resolve().parents[1]
+sys.dont_write_bytecode = True  # importing from src/ must not leave a __pycache__ in the repository
+sys.path.insert(0, str(REPO / 'src'))
+from youngcrow.settings import same_value  # noqa: E402  (R52's comparison: same JSON value, any layout)
 PLUGIN = 'youngcrow@youngcrow'
 SKILLS = ('govern-capabilities', 'ingest-source', 'integrate-from-docs', 'personalizer', 'retrieve-memory')
 AGENT = 'integration-specialist'
@@ -295,7 +298,17 @@ class Proof:
 
         self.step('3', 'Claude Code: add the local marketplace, install at project scope, list')
         self.run([self.claude, 'plugin', 'marketplace', 'add', REPO, '--json'])
+        settings = self.project / '.claude' / 'settings.json'
+        before = settings.read_bytes()
         self.run([self.claude, 'plugin', 'install', PLUGIN, '--scope', 'project', '--json'])
+        after = settings.read_bytes()
+        # The premise of R52: Claude may write the file back in another layout, but keeps its JSON value.
+        # Whether the bytes changed is only observed, so the proof still passes if Claude stops rewriting.
+        rewrite = {'sha256_before': hashlib.sha256(before).hexdigest(), 'sha256_after': hashlib.sha256(after).hexdigest(),
+                   'bytes_changed': before != after, 'same_value': same_value(before, after),
+                   'keys_before': list(json.loads(before)), 'keys_after': list(json.loads(after))}
+        self.steps[-1]['observations'] = {'.claude/settings.json around claude plugin install': rewrite}
+        self.check('claude plugin install keeps the JSON value of .claude/settings.json', rewrite['same_value'], rewrite)
         listed = json.loads(self.run([self.claude, 'plugin', 'list', '--json']))
         ours = [p for p in listed if p.get('id') == PLUGIN]
         self.check('claude plugin list shows the plugin enabled at project scope',

@@ -1,0 +1,11 @@
+{
+  "name": "youngcrow",
+  "version": "0.1.0.dev0",
+  "description": "Proof-first memory, sources and capability governance for Claude Code and Codex projects.",
+  "author": {
+    "name": "Matheusrpc"
+  },
+  "homepage": "https://github.com/Matheusrpc/YoungCrowHarness",
+  "repository": "https://github.com/Matheusrpc/YoungCrowHarness",
+  "license": "MIT"
+}

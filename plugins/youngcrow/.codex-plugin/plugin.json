@@ -1,0 +1,7 @@
+{
+  "name": "youngcrow",
+  "version": "0.1.0.dev0",
+  "description": "Proof-first memory, sources and capability governance for Claude Code and Codex projects.",
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json"
+}

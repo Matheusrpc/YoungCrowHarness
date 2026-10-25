@@ -29,7 +29,7 @@ from youngcrow.manifest import (
 from youngcrow.payload import PAYLOAD, payload_root
 from youngcrow.settings import (
     CLAUDE_MANUAL_STEP, CLAUDE_SETTINGS, CLAUDE_STEP, CODEX_AGENT, CODEX_STEP, HOOK_FILES, ORIGINALS, SettingsSkipped,
-    add_wiring, added_pairs, codex_agent, remove_hooks, unwire,
+    add_wiring, added_pairs, codex_agent, remove_hooks, same_value, unwire,
 )
 
 CLIENTS = ('claude', 'codex', 'both')
@@ -440,6 +440,26 @@ def _original(root: Path, manifest: Manifest, rel: str) -> bytes | None:
     return data if data is not None and _sha(data) == manifest.files.get(saved) else None
 
 
+def _only_relaid(root: Path, manifest: Manifest, rel: str, current: bytes, created: bool) -> bool:
+    """Whether the settings file `rel` holds the value of the bytes init wrote, only laid out anew (R52).
+
+    `claude plugin install --scope project` writes the file back with the keys in another order and LF line
+    endings. The bytes init wrote are recomputed with `add_wiring` from the saved original (from nothing for a
+    file init created) and trusted only when their hash is the one the manifest recorded; a saved original that
+    is gone or changed means the answer is no.
+    """
+    original = None
+    if not created:
+        original = _original(root, manifest, rel)
+        if original is None:
+            return False
+    try:
+        wrote = add_wiring(original)
+    except SettingsSkipped:
+        return False
+    return wrote is not None and _sha(wrote) == manifest.files.get(rel) and same_value(current, wrote)
+
+
 def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'light',
          remove: Sequence[str] = (), strip_hooks: tuple[dict, ...] = ()) -> Report:
     """Install the harness into `root`.
@@ -652,7 +672,9 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
     left as it is (`kept_modified`), as is a pre-existing file whose managed text the user removed.
     A settings file init edited (R37) gets its saved original back while it is as init left it
     (`written`); once the user changed it, only the keys init added come out (R49) and it is listed
-    in `kept_modified`.
+    in `kept_modified`. A settings file that holds the same JSON value as init's bytes, only laid out
+    anew (R52, `_only_relaid`), counts as left as init left it: deleted when init created it, else its
+    original comes back.
     Folders left empty by those deletions go too (`removed`, with a trailing `/`); the manifest is
     deleted last. Every path and managed edit is checked first: NotInitialized, UnsafePathError,
     ManagedBlockError (naming the file) or ValueError change nothing, and a failed write rolls the
@@ -671,6 +693,8 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
             continue
         created = rel in manifest.created
         unchanged = _sha(current) == manifest.files.get(rel)
+        if rel in manifest.json_edits and not unchanged:
+            unchanged = _only_relaid(root, manifest, rel, current, created)
         if created and unchanged:
             steps.append(_Step(rel, None, current))
             report.removed.append(rel)

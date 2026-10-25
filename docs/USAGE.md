@@ -850,7 +850,9 @@ só os dados.
   editados ficam, sem as linhas que o `init` acrescentou. Nos arquivos que já existiam antes do `init`,
   tira só essas linhas e devolve os bytes originais. O `.claude/settings.json` que você não mudou volta
   aos bytes de antes do `init`; se você o mudou, saem só as chaves que o `init` acrescentou e o arquivo
-  aparece na lista. Quando tira o bloco do `.gitignore` e há um arquivo
+  aparece na lista. Quando o Claude só reescreve o arquivo com os mesmos valores em outra ordem (o
+  `claude plugin install` faz isso), o `undo` o trata como não mudado: devolve o original ou apaga o
+  arquivo que o `init` criou. Quando tira o bloco do `.gitignore` e há um arquivo
   `.env` ou `.env.*` (fora o `.env.example`) na raiz do projeto, ele avisa em stderr (`--json`:
   `warnings`), porque o git pode passar a ver esse arquivo.
 - `migrate --confirm` apaga as cópias antigas do `setup.sh` que coincidem, byte a byte, com uma versão
@@ -1694,7 +1696,9 @@ prints only the data.
 - `undo --confirm` deletes the files `init` created, unless you edited them; edited ones stay, minus
   the lines `init` added. In files that existed before `init`, it takes out only those lines and
   restores the original bytes. A `.claude/settings.json` you did not change gets back its bytes from
-  before `init`; once you changed it, only the keys `init` added come out and the file is listed. When it
+  before `init`; once you changed it, only the keys `init` added come out and the file is listed. When
+  Claude only writes the file back with the same values in another order (`claude plugin install` does),
+  `undo` treats it as unchanged: it restores the original, or deletes the file `init` created. When it
   takes the block out of `.gitignore` and a `.env` or `.env.*`
   file (other than `.env.example`) sits in the project root, it prints a warning on stderr (`--json`:
   `warnings`), because git may now see that file.

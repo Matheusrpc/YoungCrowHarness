@@ -9,7 +9,7 @@ sys.path.insert(0, str(ROOT / 'src'))
 
 from youngcrow.settings import (  # noqa: E402
     CLAUDE_SETTINGS, HOOK_FILES, WIRING, SettingsSkipped, add_wiring, added_pairs, hook_entries, remove_hooks,
-    remove_wiring, unwire,
+    remove_wiring, same_value, unwire,
 )
 
 MARKETPLACE = ['extraKnownMarketplaces', 'youngcrow']
@@ -150,6 +150,26 @@ class UnwireTests(unittest.TestCase):
 
     def test_a_file_that_is_no_longer_json_stays_as_it_is(self):
         self.assertEqual(unwire(b'{broken', None, BOTH), b'{broken')
+
+
+class SameValueTests(unittest.TestCase):
+    # R52: what `claude plugin install` does to the file (keys moved, LF, arrays spread) keeps the value.
+
+    def test_layout_does_not_count(self):
+        relaid = json.dumps({'enabledPlugins': WIRING['enabledPlugins'],
+                             'extraKnownMarketplaces': WIRING['extraKnownMarketplaces']}, indent=4).encode()
+        self.assertTrue(same_value(FRESH, relaid))
+        self.assertTrue(same_value(FRESH.replace(b'\n', b'\r\n'), relaid))
+        self.assertTrue(same_value(b'{"a": ["x", "y"]}', b'{\n  "a": [\n    "x",\n    "y"\n  ]\n}\n'))
+
+    def test_any_change_of_value_counts(self):
+        self.assertFalse(same_value(b'{"a": ["x", "y"]}', b'{"a": ["y", "x"]}'))
+        self.assertFalse(same_value(b'{"a": true}', b'{"a": 1}'))
+        self.assertFalse(same_value(FRESH, add_wiring(b'{"model": "x"}')))
+
+    def test_bytes_that_are_not_json_never_match(self):
+        self.assertFalse(same_value(b'{broken', b'{broken'))
+        self.assertFalse(same_value(b'\xff{}', b'{}'))
 
 
 OLD = {'type': 'command', 'command': 'python3 -c "run scripts/source_prompt.py"', 'timeout': 10,

@@ -50,6 +50,15 @@ def add_permission(root, rule):
     path.write_text(json.dumps(data, indent=4) + '\n', encoding='utf-8')
 
 
+def claude_layout(root):
+    """What `claude plugin install --scope project` measurably does to the file (2.1.310): the same value written
+    back with `enabledPlugins` moved before `extraKnownMarketplaces`, two-space indent, LF line endings."""
+    path = root / SETTINGS
+    data = json.loads(path.read_bytes())
+    ours = {key: data.pop(key) for key in ('enabledPlugins', 'extraKnownMarketplaces')}
+    path.write_bytes((json.dumps({**data, **ours}, indent=2) + '\n').encode())
+
+
 def run_installed(root, script, *args):
     """stdout of `.youngcrow/scripts/<script> --root <root> <args>`, run the way a person would run it."""
     run = subprocess.run([sys.executable, '-B', str(root / '.youngcrow/scripts' / script), '--root', str(root), *args],
@@ -828,10 +837,78 @@ class InitTests(unittest.TestCase):
     def test_undo_writes_an_empty_object_when_only_our_keys_are_left_in_an_edited_file(self):
         init(self.root, client='claude')
         path = self.root / SETTINGS
-        path.write_text(json.dumps(WIRING) + '\n')  # the same keys, laid out on one line
+        path.write_text(json.dumps({'enabledPlugins': WIRING['enabledPlugins']}) + '\n')  # the marketplace taken out
         report = undo(self.root, confirm=True)
         self.assertEqual(path.read_bytes(), b'{}\n')
         self.assertIn(SETTINGS, report.kept_modified)
+
+    # R52: `claude plugin install --scope project` writes the file back with the same value in another layout
+    # (enabledPlugins moved first, LF, arrays spread over lines). That is not an edit.
+
+    def test_undo_deletes_a_created_settings_file_claude_only_relaid(self):
+        init(self.root, client='claude')
+        claude_layout(self.root)
+        preview = undo(self.root)
+        report = undo(self.root, confirm=True)
+        self.assertEqual(report.to_json(), preview.to_json())
+        self.assertIn(SETTINGS, report.removed)
+        self.assertNotIn(SETTINGS, report.kept_modified)
+        self.assertEqual(snapshot(self.root), {})
+
+    def test_undo_gives_back_a_crlf_original_claude_only_relaid(self):
+        original = b'{\r\n  "permissions": {"allow": ["Read"]},\r\n  "model": "opus"\r\n}\r\n'
+        self.write(SETTINGS, original)
+        init(self.root, client='claude')
+        claude_layout(self.root)
+        self.assertNotIn(b'\r\n', (self.root / SETTINGS).read_bytes())
+        report = undo(self.root, confirm=True)
+        self.assertEqual((self.root / SETTINGS).read_bytes(), original)
+        self.assertIn(SETTINGS, report.written)
+        self.assertNotIn(SETTINGS, report.kept_modified)
+        self.assertEqual(snapshot(self.root), {'.claude': None, SETTINGS: original})
+
+    def test_a_real_edit_after_claude_relaid_the_file_is_kept_minus_our_pairs(self):
+        for original in (None, b'{\r\n  "model": "opus"\r\n}\r\n'):
+            with self.subTest(existed=original is not None):
+                if original is not None:
+                    self.write(SETTINGS, original)
+                init(self.root, client='claude')
+                claude_layout(self.root)
+                add_permission(self.root, 'Read')
+                report = undo(self.root, confirm=True)
+                left = {'permissions': {'allow': ['Read']}, **({'model': 'opus'} if original else {})}
+                self.assertEqual(json.loads((self.root / SETTINGS).read_bytes()), left)
+                self.assertIn(SETTINGS, report.kept_modified)
+                self.assertNotIn(SETTINGS, report.written + report.removed)
+                (self.root / SETTINGS).unlink()
+
+    def test_recomputed_bytes_that_miss_the_recorded_hash_are_not_trusted(self):
+        # An undo whose wiring differs from the one init used cannot tell what init wrote. Here the person
+        # added a plugin that the other wiring happens to hold too; without the hash, undo would delete it.
+        init(self.root, client='claude')
+        other = {'enabledPlugins': {'youngcrow@youngcrow': True, 'other@x': True}}
+        path = self.root / SETTINGS
+        path.write_text(json.dumps({**WIRING, **other}, indent=2) + '\n')
+        with mock.patch.dict('youngcrow.settings.WIRING', other):
+            report = undo(self.root, confirm=True)
+        self.assertEqual(json.loads(path.read_bytes()), {'enabledPlugins': {'other@x': True}})
+        self.assertIn(SETTINGS, report.kept_modified)
+
+    def test_a_relaid_file_whose_saved_original_changed_is_treated_as_edited(self):
+        # `{}` is the case the recorded hash alone cannot catch: init writes the same bytes over it as over nothing.
+        for original, left in ((b'{"model": "x"}', {'model': 'x'}), (b'{}', {})):
+            with self.subTest(original=original):
+                self.write(SETTINGS, original)
+                init(self.root, client='claude')
+                claude_layout(self.root)
+                (self.root / ORIGINAL).write_bytes(b'{"model": "changed by hand"}')
+                report = undo(self.root, confirm=True)
+                self.assertEqual(json.loads((self.root / SETTINGS).read_bytes()), left)
+                self.assertIn(SETTINGS, report.kept_modified)
+                self.assertNotIn(SETTINGS, report.written + report.removed)
+                self.assertIn(ORIGINAL, report.kept_modified)
+                for rel in (SETTINGS, ORIGINAL):
+                    (self.root / rel).unlink()
 
     def test_undo_without_a_trustworthy_original_takes_out_only_our_keys(self):
         self.write(SETTINGS, b'{"model": "x"}')

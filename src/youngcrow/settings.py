@@ -178,6 +178,18 @@ def remove_hooks(data: bytes, published: Sequence[dict]) -> tuple[bytes, int, li
     return _dump(settings, data), removed, kept
 
 
+def same_value(a: bytes, b: bytes) -> bool:
+    """Whether `a` and `b` hold the same JSON value, whatever the key order, spacing or line endings (R52).
+
+    `claude plugin install --scope project` writes the file back this way. Bytes that are not JSON in UTF-8
+    never match.
+    """
+    try:
+        return _same(json.loads(a.decode('utf-8')), json.loads(b.decode('utf-8')))
+    except ValueError:  # UnicodeDecodeError is a ValueError too
+        return False
+
+
 def unwire(current: bytes, original: bytes | None, added: list[list[str]]) -> bytes:
     """What `undo` writes back into a settings file init edited (R37).
 

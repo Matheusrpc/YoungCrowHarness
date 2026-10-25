@@ -4,6 +4,8 @@
 
 [← README](../README.md) · [Português](#portugues) · [English](#english)
 
+Instalador novo (prévia): [youngcrow](#youngcrow-pt) · New installer (preview): [youngcrow](#youngcrow-en)
+
 O [primeiro uso no README](../README.md#setup-pt) resume a instalação e seus limites.
 Este guia detalha os comandos e a adoção em projetos novos ou existentes.
 
@@ -794,6 +796,146 @@ No checkout do harness, o ensaio opcional usa `python3 tests/smoke_capabilities.
 pasta inexistente, cria um ambiente isolado e usa um MCP sintético, sem turno de modelo. No Windows,
 passe o `.exe`, não o lançador `.ps1` ou `.cmd`. Resultado pendente retorna 2; falha da prova retorna 1.
 
+<a id="youngcrow-pt"></a>
+
+## youngcrow (prévia)
+
+`youngcrow` é o comando que vai substituir o `setup.sh`. É uma prévia: o pacote está na versão
+0.1.0.dev0 e não foi publicado, então o `setup.sh` continua sendo o caminho de instalação até o
+lançamento. Exige Python 3.11 ou superior e mais nada. Por enquanto, textos e mensagens existem só em
+inglês.
+
+Em vez de espalhar arquivos pelo projeto, ele guarda o harness na pasta `.youngcrow/` e registra cada
+arquivo que escreve em `.youngcrow/manifest.json`. Os comandos seguintes usam esse registro para
+separar os seus arquivos dos dele.
+
+```bash
+youngcrow init [--client claude|codex|both]   # instala; o cliente padrão é both
+youngcrow upgrade                             # atualiza os arquivos instalados
+youngcrow undo                                # mostra o que o undo faria
+youngcrow undo --confirm                      # tira a instalação
+youngcrow migrate                             # mostra o que a saída do setup.sh faria
+youngcrow migrate --confirm                   # troca a instalação do setup.sh
+youngcrow --version                           # mostra a versão
+```
+
+Todo comando aceita `--root CAMINHO` (a pasta do projeto, padrão `.`) e `--json` (um objeto JSON em
+vez de linhas de texto). `init` e `migrate --confirm` criam a pasta se ela não existir. O `migrate`
+também aceita `--client`; a prévia não confere o valor, só o `--confirm` confere. Sem `--confirm`,
+`undo` e `migrate` não mudam nada. Na saída em texto, a primeira linha avisa isso; o `--json` imprime
+só os dados.
+
+### O que cada comando toca
+
+- `init` grava os arquivos de `.youngcrow/`, os índices do vault que faltarem (`vault/index.md`,
+  `vault/integrations/index.md` e `vault/capabilities/index.md`), uma linha de import
+  (`@.youngcrow/HARNESS.md`) no `CLAUDE.md`, um bloco marcado no `AGENTS.md` e outro no `.gitignore`.
+  Cria `CLAUDE.md`, `AGENTS.md` ou `.gitignore` quando eles não existem. `--client claude` não mexe no
+  `AGENTS.md`; `--client codex` não mexe no `CLAUDE.md`. Se você já tem um `vault/index.md`, o `init`
+  cria um subíndice que falta só quando o seu índice aponta para ele; do contrário, pula o subíndice e
+  o lista em `Skipped:`.
+- `upgrade` atualiza os arquivos de `.youngcrow/` que ainda estão como foram instalados, traz os
+  arquivos que a nova versão acrescenta, remove os que ela abandonou (se você não os alterou) e troca o
+  bloco do `AGENTS.md` quando você não o editou. Arquivo que você alterou fica no lugar e aparece na
+  lista.
+- `undo --confirm` apaga os arquivos que o `init` criou, a menos que você os tenha editado; os
+  editados ficam, sem as linhas que o `init` acrescentou. Nos arquivos que já existiam antes do `init`,
+  tira só essas linhas e devolve os bytes originais. Quando tira o bloco do `.gitignore` e há um arquivo
+  `.env` ou `.env.*` (fora o `.env.example`) na raiz do projeto, ele avisa em stderr (`--json`:
+  `warnings`), porque o git pode passar a ver esse arquivo.
+- `migrate --confirm` apaga as cópias antigas do `setup.sh` que coincidem, byte a byte, com uma versão
+  que o harness publicou, e depois roda o `init`. Cópia que você editou fica e aparece na lista.
+
+Nenhum deles edita nota existente do `vault/`, escreve através de link simbólico ou junction, nem
+sobrescreve arquivo que você alterou. Quando um comando recusa (veja abaixo), não escreve nada; se
+falha no meio do caminho, devolve o que já fez.
+
+### Saída e códigos de saída
+
+A saída em texto traz um título por lista não vazia, seguido dos caminhos com recuo (os títulos saem
+em inglês):
+
+- `Written:` arquivos criados ou editados. No `undo`, os arquivos que existiam antes do `init`,
+  devolvidos aos bytes originais.
+- `Kept (you changed these):` arquivos que você editou. O comando os deixou como estavam ou tirou só
+  as linhas que ele mesmo acrescentou.
+- `Removed:` arquivos apagados. No `undo`, entram também o manifesto e as pastas que ficaram vazias;
+  nomes de pasta terminam em `/`.
+- `Skipped:` arquivos que o `init` deixou como estavam porque já tinham o que ele precisava, e
+  subíndices do vault para os quais o seu `vault/index.md` não aponta.
+
+`--json` imprime as mesmas quatro listas como `written`, `kept_modified`, `removed` e `skipped`; o
+`undo --json` acrescenta `warnings`. `migrate --json` imprime `applied`, `matches` (as cópias removidas
+ou, na prévia, as que seriam removidas), `modified`, `legacy_rules`, `dangling_references` e
+`vault_check`.
+
+O código de saída é 0 quando o comando rodou, 2 para linha de comando errada e 3 quando o youngcrow
+recusou mexer no projeto; a recusa escreve o motivo em stderr. Ele recusa quando o projeto já tem
+instalação (`init`, `migrate --confirm`) ou não tem (`upgrade`, `undo`), quando uma instalação
+anterior deixou arquivos sem manifesto, quando o manifesto não pode ser lido, quando as linhas de
+marcação do `AGENTS.md` ou do `.gitignore` não fecham, quando um arquivo que ele precisa editar
+(`CLAUDE.md`, `AGENTS.md`, `.gitignore`) não é texto UTF-8, quando há link simbólico ou junction onde
+ele escreveria, quando `--root` é um arquivo e quando `--client` não é `claude`, `codex` nem `both`.
+Também sai com 3 quando o sistema recusa uma leitura ou escrita (falta de permissão, disco cheio). O
+motivo vai para stderr, seguido do que uma execução que falhou não conseguiu desfazer.
+
+### Migrar do setup.sh
+
+Rode `migrate` sem `--confirm` primeiro. Ele lista `Will be removed (unmodified setup.sh copies)` e
+`Kept (you changed these)`. Acrescente `--confirm` quando as listas estiverem certas. Quando nenhum
+arquivo coincide com uma cópia publicada do `setup.sh`, o `migrate` imprime `No setup.sh install found.`
+e não lista os seus arquivos como cópias editadas; nesse caso, o `--confirm` instala como o `init`.
+
+Nesta prévia, o `migrate --confirm` também apaga as skills antigas (`skills/`, `.claude/skills/`,
+`.agents/skills/`), o agente `integration-specialist`, o `.claude/settings.json`, o `.codex/hooks.json`,
+o `.codex/config.toml` e o `.mcp.json`, desde que você não os tenha alterado. Nada nesta prévia os
+substitui ainda; o plugin chega numa versão posterior. Os scripts passam para `.youngcrow/scripts/`,
+então atualize qualquer Makefile, job de CI ou hook que chame `scripts/...`. Rodar `undo` depois do
+`migrate` tira a instalação nova, mas não devolve o que o `migrate` removeu. Recupere esses arquivos
+pelo git.
+
+Tanto a prévia quanto o `--confirm` listam os arquivos que ainda apontam para o que o `migrate`
+remove, sob o título `These files still point at files migrate removes:` (`--json`:
+`dangling_references`, cada arquivo com os caminhos que cita). Ele lê as cópias editadas do `setup.sh` que mantém e todas as
+notas Markdown de `vault/`, sem alterar nenhuma. Depois do `--confirm`, roda
+`.youngcrow/scripts/vault.py check` e imprime a linha de resumo (`--json`: `vault_check`, com
+`exit_code` e `summary`; `null` na prévia). Um vault criado pelo `setup.sh` tem links para as skills
+removidas, e o check acusa esses links até você editar as notas.
+
+O `setup.sh` também gravou `CLAUDE.md`, `AGENTS.md` e `docs/CLAUDE.en.md` com as regras antigas do
+harness. O `migrate` trata cada um conforme a sua edição e o `--client`.
+
+- O `migrate` remove a cópia sem edição. Depois o `init` grava `CLAUDE.md` e `AGENTS.md` de novo para
+  o cliente escolhido: `CLAUDE.md` com `claude` e `both`, `AGENTS.md` com `codex` e `both`. Com
+  `--client claude`, um `AGENTS.md` sem edição some de vez; com `--client codex`, o mesmo vale para o
+  `CLAUDE.md`. O `docs/CLAUDE.en.md` sem edição só é removido (o `init` nunca o grava), junto com
+  `docs/` se a pasta ficar vazia.
+- O arquivo editado fica. Quando o cliente usa o arquivo, o `migrate` acrescenta a linha de import ao
+  `CLAUDE.md` ou o bloco ao `AGENTS.md`; o `docs/CLAUDE.en.md` nunca é tocado.
+- Para cada arquivo editado, o `migrate` imprime um aviso com o nome (o `--json` lista em `legacy_rules`),
+  qualquer que seja o cliente. Agora o `.youngcrow/HARNESS.md` carrega as regras, então apare o texto
+  antigo desses arquivos à mão; do contrário as regras aparecem duas vezes.
+
+### Rodar antes do lançamento
+
+A partir de um checkout deste repositório:
+
+```bash
+PYTHONPATH=src python3 -m youngcrow init --root /caminho/do/projeto
+```
+
+No Windows, use `python` e, no PowerShell, defina antes `$env:PYTHONPATH = "src"`.
+
+A partir de um wheel gerado:
+
+```bash
+uv build --wheel -o /caminho/do/yc-dist
+uvx --from /caminho/do/yc-dist/youngcrow-0.1.0.dev0-py3-none-any.whl youngcrow init --root /caminho/do/projeto
+cd /caminho/do/projeto && python .youngcrow/scripts/vault.py check
+```
+
+O job `package` do CI roda esse mesmo caminho no Linux e no Windows.
+
 <a id="english"></a>
 
 ## <img src="../assets/gema-cobalto.svg" height="24" alt=""> Before you start
@@ -1454,6 +1596,142 @@ In the harness checkout, the optional probe is `python3 tests/smoke_capabilities
 --executable /absolute/path/codex --root /new/disposable/path` (one line). The directory must not
 exist. The probe creates an isolated environment and synthetic MCP with no model turn. On Windows,
 select the actual `.exe`, not a `.ps1` or `.cmd` launcher. Pending exits with 2; failed proof exits with 1.
+
+<a id="youngcrow-en"></a>
+
+## youngcrow (preview)
+
+`youngcrow` is the command that will replace `setup.sh`. It is a preview: the package is at version
+0.1.0.dev0 and is not published, so `setup.sh` stays the way to install until the release. It needs
+Python 3.11 or newer and nothing else. Text and messages are English only for now.
+
+It keeps the harness in a `.youngcrow/` folder instead of copying files across the project, and it
+records every file it writes in `.youngcrow/manifest.json`. Later commands use that record to tell
+your files from its own.
+
+```bash
+youngcrow init [--client claude|codex|both]   # install; the default client is both
+youngcrow upgrade                             # refresh the installed files
+youngcrow undo                                # show what undo would do
+youngcrow undo --confirm                      # take the install out
+youngcrow migrate                             # show what a move from setup.sh would do
+youngcrow migrate --confirm                   # replace the setup.sh install
+youngcrow --version                           # print the version
+```
+
+Every command accepts `--root PATH` (the project folder, default `.`) and `--json` (one JSON object
+instead of plain lines). `init` and `migrate --confirm` create the folder when it is missing.
+`migrate` also accepts `--client`; a preview does not check its value, only `--confirm` does. Without
+`--confirm`, `undo` and `migrate` change nothing. In plain output the first line says so; `--json`
+prints only the data.
+
+### What each command touches
+
+- `init` writes the files under `.youngcrow/`, the vault indexes that are missing (`vault/index.md`,
+  `vault/integrations/index.md` and `vault/capabilities/index.md`), one import line
+  (`@.youngcrow/HARNESS.md`) in `CLAUDE.md`, one marked block in `AGENTS.md` and one in `.gitignore`.
+  It creates `CLAUDE.md`, `AGENTS.md` or `.gitignore` when they do not exist. `--client claude` leaves
+  `AGENTS.md` alone; `--client codex` leaves `CLAUDE.md` alone. If you already have a `vault/index.md`,
+  `init` creates a missing sub-index only when your index links to it; otherwise it skips it and lists
+  it under `Skipped:`.
+- `upgrade` refreshes the files under `.youngcrow/` that still match what was installed, adds the
+  files the new release brings, removes the ones it dropped (if you did not change them) and replaces
+  the `AGENTS.md` block when you did not edit it. A file you changed stays and is listed.
+- `undo --confirm` deletes the files `init` created, unless you edited them; edited ones stay, minus
+  the lines `init` added. In files that existed before `init`, it takes out only those lines and
+  restores the original bytes. When it takes the block out of `.gitignore` and a `.env` or `.env.*`
+  file (other than `.env.example`) sits in the project root, it prints a warning on stderr (`--json`:
+  `warnings`), because git may now see that file.
+- `migrate --confirm` deletes the old `setup.sh` copies that match, byte for byte, a version this
+  harness published, then runs `init`. A copy you edited stays and is listed.
+
+None of them edits an existing note in `vault/`, writes through a symbolic link or junction, or
+overwrites a file you changed. A command that refuses (see below) writes nothing, and one that fails
+halfway puts back what it did.
+
+### Output and exit codes
+
+Plain output has one heading per non-empty list, followed by indented paths:
+
+- `Written:` files created or edited. For `undo`, the files that existed before `init`, restored to
+  their original bytes.
+- `Kept (you changed these):` files you edited. The command left them as they were, or took out only
+  its own lines.
+- `Removed:` files deleted. For `undo` this also lists the manifest and the folders left empty; folder
+  names end with `/`.
+- `Skipped:` files `init` left alone because they already had what it needed, and vault sub-indexes
+  your own `vault/index.md` does not link to.
+
+`--json` prints the same four lists as `written`, `kept_modified`, `removed` and `skipped`;
+`undo --json` adds `warnings`. `migrate --json` prints `applied`, `matches` (the copies removed or, in
+a preview, the ones that would be), `modified`, `legacy_rules`, `dangling_references` and
+`vault_check`.
+
+The exit code is 0 when the command ran, 2 for a wrong command line and 3 when youngcrow refused to
+touch the project; a refusal prints its reason on stderr. It refuses when the project is already set
+up (`init`, `migrate --confirm`) or not set up (`upgrade`, `undo`), when an earlier install left files
+but no manifest, when the manifest cannot be read, when the marker lines in `AGENTS.md` or
+`.gitignore` do not pair up, when a file it has to edit (`CLAUDE.md`, `AGENTS.md`, `.gitignore`) is
+not UTF-8 text, when a symbolic link or junction sits where it would write, when `--root` is a file,
+and when `--client` is not `claude`, `codex` or `both`. It also exits with 3 when the system refuses a
+read or a write (a permission error, a full disk). The reason goes to stderr, followed by anything a
+failed run could not put back.
+
+### Migrate from setup.sh
+
+Run `migrate` without `--confirm` first. It lists `Will be removed (unmodified setup.sh copies)` and
+`Kept (you changed these)`. Add `--confirm` once the lists look right. When no file matches a published
+`setup.sh` copy, `migrate` prints `No setup.sh install found.` and does not list your own files as
+edited copies; `--confirm` then installs like `init`.
+
+In this preview, `migrate --confirm` also deletes the old skills (`skills/`, `.claude/skills/`,
+`.agents/skills/`), the `integration-specialist` agent, `.claude/settings.json`, `.codex/hooks.json`,
+`.codex/config.toml` and `.mcp.json`, as long as you have not changed them. Nothing in this preview
+replaces them yet; the plugin comes in a later release. The scripts move to `.youngcrow/scripts/`, so
+update any Makefile, CI job or hook that calls `scripts/...`. Running `undo` after `migrate` takes out
+the new install but does not bring back what `migrate` removed. Restore those files with git.
+
+Both the preview and `--confirm` list the files that still point at what `migrate` removes, under
+`These files still point at files migrate removes:` (`--json`: `dangling_references`, each file with
+the paths it names). It reads the edited `setup.sh` copies it keeps and every Markdown note in
+`vault/`, and changes none of them. After `--confirm` it runs `.youngcrow/scripts/vault.py check` and
+prints the summary line (`--json`: `vault_check`, with `exit_code` and `summary`; `null` in a preview).
+A vault that `setup.sh` created links to the removed skills, so expect issues there until you edit
+those notes.
+
+`setup.sh` also wrote `CLAUDE.md`, `AGENTS.md` and `docs/CLAUDE.en.md` with the old harness rules.
+`migrate` treats each one by whether you edited it and by `--client`.
+
+- `migrate` removes an unedited copy. `init` then writes `CLAUDE.md` and `AGENTS.md` again for the
+  chosen client: `CLAUDE.md` for `claude` and `both`, `AGENTS.md` for `codex` and `both`. With
+  `--client claude` an unedited `AGENTS.md` is gone for good, and with `--client codex` so is
+  `CLAUDE.md`. An unedited `docs/CLAUDE.en.md` is only removed (`init` never writes it), along with
+  `docs/` if that leaves the folder empty.
+- An edited file stays. When the client uses the file, `migrate` adds the import line to `CLAUDE.md`
+  or the block to `AGENTS.md`; it never touches `docs/CLAUDE.en.md`.
+- For every edited file it prints a note naming it (`--json` lists it under `legacy_rules`), whatever
+  the client. `.youngcrow/HARNESS.md` carries the rules now, so trim the old text from those files by
+  hand, or the rules appear twice.
+
+### Run it before the release
+
+From a checkout of this repository:
+
+```bash
+PYTHONPATH=src python3 -m youngcrow init --root /path/to/project
+```
+
+On Windows, use `python`, and in PowerShell set `$env:PYTHONPATH = "src"` first.
+
+From a built wheel:
+
+```bash
+uv build --wheel -o /path/to/yc-dist
+uvx --from /path/to/yc-dist/youngcrow-0.1.0.dev0-py3-none-any.whl youngcrow init --root /path/to/project
+cd /path/to/project && python .youngcrow/scripts/vault.py check
+```
+
+The `package` job in CI runs this same path on Linux and Windows.
 
 <a id="mission-config"></a>
 

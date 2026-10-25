@@ -1,0 +1,291 @@
+{
+  ".agents/skills/govern-capabilities/SKILL.md": [
+    "1e5bf8c4dc0ecd60568abc51be4af0fb5c74b2c4be503f03d46dbb3fbf57d388"
+  ],
+  ".agents/skills/humanizer-ptbr/SKILL.md": [
+    "4e23aa4afb16200ca7a5ed56ca3fe2acd8c69e1b5ec370ca045130ba8127ecf5"
+  ],
+  ".agents/skills/ingest-source/SKILL.md": [
+    "f232c37eecbc66d4a2997ddb0f085a1337098abcf7178e3d8c6310e3bd0767d3"
+  ],
+  ".agents/skills/integrate-from-docs/SKILL.md": [
+    "3bdef75b09f2aec6faae61e66300178f26df7e2a033002bcc96f2223e8663ddd"
+  ],
+  ".agents/skills/personalizer/SKILL.md": [
+    "4581c32b6a2890e4c41669a170700a4153adc135ce679c773f5b74939c58e49e"
+  ],
+  ".agents/skills/retrieve-memory/SKILL.md": [
+    "bd7775dff0d58b225b9ee74af3531d3c55a714b71d0a0ab9dae5d8165d7540cc"
+  ],
+  ".agents/skills/yc-config/SKILL.md": [
+    "67f74a45857e0c780318e8009594f945b221be9d109d774cb03706fef6be92a3"
+  ],
+  ".agents/skills/yc-missao/SKILL.md": [
+    "849b995fd0bc3d63bb178f153dc31ed23c922cfedb99c05d4f5a5f236f8f101c"
+  ],
+  ".agents/skills/yc-personalizer/SKILL.md": [
+    "73f7b20766675390eb587ebe4d7419f16b5d8050892c5970a53e0e09e773aabe"
+  ],
+  ".agents/skills/yc-status/SKILL.md": [
+    "def38c86137a82f7d607c142f7a8b294b1653aea2ac0ff0ab1c118ea89277d75"
+  ],
+  ".claude/agents/integration-specialist.md": [
+    "472166975f90f22539423720aa2ee5c86c1a4d9bb862d3e593cb4a6242739c2c"
+  ],
+  ".claude/settings.json": [
+    "27f74e41b41e64870d3929cae717c325bcd26c69e83b7610af9df1f3307347d7",
+    "51613fbd4924067898076fdcdcc0f33a286655fbb78a174021f4cc9ea66a13e9",
+    "8b9fb3177266b5c62c78d3b7c9b92a83420e8c21a6bed5b2516b43a168f58251",
+    "b749c8d449a0546045285e7c634c0cd82585d51f3b86d12500a103b249daf65f"
+  ],
+  ".claude/skills/govern-capabilities/SKILL.md": [
+    "1e5bf8c4dc0ecd60568abc51be4af0fb5c74b2c4be503f03d46dbb3fbf57d388"
+  ],
+  ".claude/skills/ingest-source/SKILL.md": [
+    "f232c37eecbc66d4a2997ddb0f085a1337098abcf7178e3d8c6310e3bd0767d3"
+  ],
+  ".claude/skills/integrate-from-docs/SKILL.md": [
+    "3bdef75b09f2aec6faae61e66300178f26df7e2a033002bcc96f2223e8663ddd"
+  ],
+  ".claude/skills/personalizer/SKILL.md": [
+    "4581c32b6a2890e4c41669a170700a4153adc135ce679c773f5b74939c58e49e"
+  ],
+  ".claude/skills/retrieve-memory/SKILL.md": [
+    "bd7775dff0d58b225b9ee74af3531d3c55a714b71d0a0ab9dae5d8165d7540cc"
+  ],
+  ".claude/skills/yc-config/SKILL.md": [
+    "67f74a45857e0c780318e8009594f945b221be9d109d774cb03706fef6be92a3"
+  ],
+  ".claude/skills/yc-missao/SKILL.md": [
+    "849b995fd0bc3d63bb178f153dc31ed23c922cfedb99c05d4f5a5f236f8f101c"
+  ],
+  ".claude/skills/yc-personalizer/SKILL.md": [
+    "73f7b20766675390eb587ebe4d7419f16b5d8050892c5970a53e0e09e773aabe"
+  ],
+  ".claude/skills/yc-status/SKILL.md": [
+    "def38c86137a82f7d607c142f7a8b294b1653aea2ac0ff0ab1c118ea89277d75"
+  ],
+  ".codex/agents/integration-specialist.toml": [
+    "e54fec1738cd07944970bc7ecfb1c2d5f07a0eae4b68998edea11189dc2773a0"
+  ],
+  ".codex/config.toml": [
+    "1cb5841448f519ccd6400c8bc12a90fd78154bb90738ae700fbc75af986c7a4c"
+  ],
+  ".codex/hooks.json": [
+    "97eafa5cd14b6f4f8a8e6fa7a28242d567545defec2b8f8616779c746fe912c2",
+    "9a6fced3031894f13ea48e0620349268ab2e3d4fb0490e5071b6c97f297a04e3",
+    "a21c6fcbd71bf9e8f8560559ea5a7aa807206eb487c610615d0598baab28e0cf"
+  ],
+  ".env.example": [
+    "918b2f29c9399b021ad11e0b039ca7826d92c40eb30dbf233df56c955e7f86af"
+  ],
+  ".mcp.json": [
+    "8123ba2297ae09eb83244724033b37b0546ee3c96d01fe626c43c4d9f05d9e58",
+    "d8e397af03b5b032f21d0aa967086f0c78b33c87b76f2e9898ae0a144df7de02"
+  ],
+  "AGENTS.md": [
+    "159d0b00b7e994246e91aba3435beee0dd7f05cf91af6d79db8dabfdf275d400",
+    "1760c9b36aab77eb5fa1dc967dfac2d17862d052eb14a7fec9e6141003fe2856",
+    "3450bd63ae1e601d14ddce0616eacf105fdb19ae1fe2176e89cd15a3bcabd19b",
+    "3b67a046d380504e84c81e1d464fd3e7b117868d349a165c0c2a29446b728d18",
+    "49dc1f8f4db5d00da9569a4879b041c52faa27a53d46b5af32c3bd59764f3835",
+    "5bdab40a11415c1ab380d9c73df675dde167f02525c5fc5b4ad91d5f5d209f5b",
+    "ae8a49fa80720f317bc7d2e4b48d83637b3e5e50b2234d43645536b9b60d62cb"
+  ],
+  "CLAUDE.md": [
+    "033e46d5f197a14c65f9b0743ee5914c9330ca07431027103f14f9cba31d45a3",
+    "3d18cfd0351c312af8b08003c8ab80256be409bca4f528d45783ab2ff2b23c1d",
+    "465ab19a84cb18808744a5b13e3e60b132d09084b5557475261025a497d0248b",
+    "6ede0639f66693d9965179a7c05d863185418ff83275ae1962479f485115ca8f",
+    "7e2618510bf05dd5f3cf30e2a465f411d3c272fbf336e9567ddc20eb82e73580",
+    "e62b1908afbec1aa4e08054f80e7c93054188a91ac115bb8dd576cc64da108b0",
+    "fda1e291e40eb2029332c8d10cf6be6612e2e51a81772e9af2aa8d7808cb3351"
+  ],
+  "docs/CLAUDE.en.md": [
+    "01bbc3cf167cb56119115a593307d6ed34d3507436f98534131896f69d87652a",
+    "3a0be6dacc0164452dd3c39d46006589aa1049e7a66e818401c55e284af3d95e",
+    "4b0609ce0092c6a58ba587625d858e26f23e4497badc5af55d2c0fb4b460db70",
+    "50e7c103403f7facbcc6b5139742ec656ded2b48920d86fd9b7ebbc814a34020",
+    "7f2364913144aebb6dea37e61b3b86c99294abd82d7551c4e689073daf7bc05e",
+    "a547230e33e4aeb48dd7d20c90ca8176e18a269bd6982ef1b18f09e9b493f84b",
+    "cf1502414398ba97df6626dbf108a8c99629da260eb9c39dc12f19d99c917a54"
+  ],
+  "requirements/docling-media.txt": [
+    "02d65eaec2320369d576379501d4d52980cfb18411c4a30f2ba4899040ef378c"
+  ],
+  "requirements/docling.txt": [
+    "90e247f3ee03c072d98cf58ccb4cd8f3eff219e72fb5e27c5419c8b902b63c8d"
+  ],
+  "requirements/graphify.txt": [
+    "9ca6b61e6a2ea461025c5b4d79e3a83e4af1f09a45d0f630e90b44867ab30dc5"
+  ],
+  "scripts/adoption.py": [
+    "97404f21b495f55c8ad3e2d53b096d4e8045fe9e9c033741c0b5d9c9d5042a4f",
+    "98e01a61e87e272f4637893de7bda8dd4977bc462b0e47833ac305ff94f6fe3f"
+  ],
+  "scripts/adoption_acl.ps1": [
+    "9b3e0662d381da8547d94a9976854070f71029c945b3c64deca99704f6f2c748"
+  ],
+  "scripts/adoption_fs.py": [
+    "b5504f826193bf0653e01f99124ba17621e4298ffb63170e241ce1e41827be65"
+  ],
+  "scripts/capabilities.py": [
+    "359b4674fe8ed17edb4782722fa945bb1f0b5aade93a84b3b051a9b8ff1466ea",
+    "42d26f4457085c6df6d5fe4adda7b10d23d31b0af595cc504d6088180f4c811f",
+    "59e7747e3c735e750a9ecc34edbea646625d067e80b203301ee2feee3a371198",
+    "e27943aeaf4b9e0c5b4032d56d384da251d251d3c2ee206db88af44039e0bc47"
+  ],
+  "scripts/docling_worker.py": [
+    "56c4a7dcb429ccc846988b03d797c78786435ed4a70be4c9153e91fdbd9b397f",
+    "bef99e6d69d7d553a346b47c89b515f6941cab49e7c083dc4e68944cc7185fe3",
+    "ef0eb631a81abaed2bf162cdd6811045bddff8b81220a260cbd1471ea2393bdb"
+  ],
+  "scripts/document_store.py": [
+    "25b4f26885cfaf1071ec7fd2e5741605bb421d84b831da7490c7ca1af67338cd",
+    "27dc0c06dae550faaa4b11b33c067ea0f9cc64f587715c06f108dc1db440869c",
+    "98a68f0f1f5deabde5bf2a4e08ddcd2c739c1c2b28bc3916ad562aed38227d66",
+    "b57e4f497cb79e88f05af374f77976057f65868f425c0b49844d0c7cbd637436",
+    "d0a07e542dd0974c0c64dd299335eca289bda2779548754f86b92a6b2f8c75ed",
+    "f30b3123bd8f3771a5ad07bc1c9e89103a5d489f2f5c0da5616346f86cdeb664"
+  ],
+  "scripts/documents.py": [
+    "a42de542f39d967f44d4b72aba1a85ae2b6fb69d1b18dfa79797f3c882200a62"
+  ],
+  "scripts/graphify_worker.py": [
+    "7aca3e62997107af91291de09fa66890054045fb73ba0a41aef1587fa63ba745",
+    "d456b9acc69f1f74e288963ad082e3d1ef80a8ee3e296c880c5595d31791a5c0"
+  ],
+  "scripts/integrations.py": [
+    "29fc50039e714e37ea5050aa7b624c1d3381c646f0751987354385e06f23153b"
+  ],
+  "scripts/memory.py": [
+    "14e451605babd26d277ecbfdb603363c0b0e9a699dc604593992f0dc5b516142",
+    "188988899a6f0b1f2a1dce4554b515a7048a665be3e67292c6887afc00c65223",
+    "1f0889de6ba0cdcf3917f39ad07e70a39c0487d8fda1a5bceab091d24848f2b3",
+    "2882ddb7815a16aaad4101abef81d86eff318f6ac8fdd78ab29e7a7c56bf1bce",
+    "61dec940b7abad7ce926e64a5fd4ffd01dcb536f277b8854f0555f655137611f"
+  ],
+  "scripts/mission_backlog.py": [
+    "67153a457579ed71b3528cbfe30dfb9019694563f5ddb610f0254352dfbae834"
+  ],
+  "scripts/mission_clients.py": [
+    "45fbcd83303529c766b481dd1b578aaf7e89be383885dedb73e0dc3a8919b27d",
+    "91d179d4af48480fe58a7c165eba050a89de7d873c5d8afbc23a86f2af325123"
+  ],
+  "scripts/mission_config.py": [
+    "8b773edfa6b38a6baf339b2df307a1b119ed1f90e1739cdc1cadb2bed74f89b0"
+  ],
+  "scripts/mission_process.py": [
+    "5c6faba3327b4ff39a06482e23256721e6e2e6f87ecbd16f2566c0b40783b14b"
+  ],
+  "scripts/mission_runs.py": [
+    "d8807b5a4af20991b0454531ac9895563ee55b2449d04283c0903459e9fba31d"
+  ],
+  "scripts/mission_store.py": [
+    "44aec8c1437d457d576a5652217b4eeda314e37f8794882963c2cb9570cba265",
+    "5a1207fdd003c4492bccb7ec78be4588023ac4b26a1bdae4543b0fee773a0cbd"
+  ],
+  "scripts/mission_vault.py": [
+    "221c9fd5d310c115b6133f1c50de4ece8f0de69cd6e46d0a2880e8ebae940cc4",
+    "705389d2a6fc6cedfd421d148a5af57560df8e570ea5419c5e625c6237f058f4"
+  ],
+  "scripts/missions.py": [
+    "6d05b57323cb33d43ad4a928cdb7e4282ae0988110651263a55309649e434d39",
+    "786d240e7b8f5762fe9a45d74c5780dbece608d14c6cdaaf58caeb6dc5c807e0"
+  ],
+  "scripts/personalize.py": [
+    "06f656fa4b7fd47eba3ac659e9315a45827f2b9723b76d051f4c8446b5cbc4ad",
+    "2a306f2359541e52bde40f0cf9530b013f6842eecf146a3bb454b15971eab494"
+  ],
+  "scripts/source_fetch.py": [
+    "56748271b864566b034150563f9498a0e2a2d795564292e6f9979dc318e166b1"
+  ],
+  "scripts/source_prompt.py": [
+    "09f1b59c73ee6a6749f202d76deb201115b0d4dd145d1049554eb82d3f735ec3",
+    "13494ae3f12cc07d21ed7ce8076b4b271cd37117b378ca7ca6e53034273bf379",
+    "5e7d1a6076fe8aba4d20f82db8b9fc63aa655bea3ef2c50f1cd14ed4b62c6a54",
+    "c9107da1b8a37165750738f1d26f9b093b1983f04d1d5b1c0e3fe99f0b4be781"
+  ],
+  "scripts/vault.py": [
+    "33a77336048d67169902e6a92759dee0ab8dde0f10449092de20e70e658e159c",
+    "50898e88bd5459ef13c87b8748380cdfc891f2638a2f89f4f9eab5d54a933b38",
+    "640acd0f968e9750d4cc80dbe07b7fc9abf3ea1405e8381408d4ab092e71afc9",
+    "a16bb69c14fcaaad824957090c0ccc1ca595f8f483cb2f6770533538e17b3c5f"
+  ],
+  "skills-lock.json": [
+    "0aaa77a07ee1174789fe2a03801fdf8f02478183e63b7556256fb3876f331778",
+    "168e5c5fc864e577c1d51679d7fb49690a01105df183a12913f78167aa7cf005",
+    "1d57d46bd6b693c2582941fa87582f495d1cd10336d22e01db6e39dbb2af976c",
+    "3052d6d431750eefa449a8dbc64a0c5f5e849f4c42f88e8b1c4db345384856e9",
+    "370686eaf9ba7d54921b6643da635057522262cbb5c40cd1e0b84f176e1d6c8c",
+    "51c0393bef23b0ae4ec8b4f8b87abd03341da2604f7970382676c1d4522bbc55",
+    "5ca1f12dec3f6759e8669e101572e1feb8035b39243200f77f9d5baa9d0de0f1",
+    "612dc390dca21c870c7773a4d3cf01292ca9b4c19ed5df92a69aa86f8ac7b997",
+    "6299cf3f978cbeeadf0344ed1b3577a6e1c4a33a4a1e90c19d42e58e76f6d41b",
+    "6e2337e9c33a184182efecca3a4de93ecfb1b108acc926712293e2cfae34bbe9",
+    "826edd0257deadea896a1d32a6606658ea5db4675086ce95bb2037ff773fa66f",
+    "973a7a9dd9de381ffc7a01d8b24f9b03152e28fb39c3c0fb2b6a1c977ea8c037",
+    "ad7ec6ff1f1c8075f76b4ef6f734bf8cf21831fc5e9136e5dffec688a4d6f20f",
+    "c96b026102266af293141f2dfacd44df009a0debf6e8418d481fdaafab064b4f",
+    "de34ab3f875c8e156bbc283d804dbe0b6232f326adf621574ea2810e3a4c5963",
+    "e3ee5fcab217765a501736fcf172de7a89d7c892dc822501035e0d19c6797766",
+    "e58ba96d885a8e5cd01a1177822e09ccf414c42f23b310cd90e888696c049c98",
+    "eacea3573a1b2dd5e79bb7449be87acc8c2eff06af4f72be7f850867cdc758cf",
+    "f1a0dd5a1675fe05c418beb88761c090f2eb70d3a483384fa62108b44ed95a5f"
+  ],
+  "skills/govern-capabilities/SKILL.md": [
+    "b48134c0aba09173127c99f5f65b27a6d18d07353aa071f44a116cb2c7d9f647"
+  ],
+  "skills/humanizer-ptbr/SKILL.md": [
+    "4e23aa4afb16200ca7a5ed56ca3fe2acd8c69e1b5ec370ca045130ba8127ecf5"
+  ],
+  "skills/ingest-source/SKILL.md": [
+    "197d51ac7b812f20b8634561a8784bf552a4523d229ae85bb69b192172292d62",
+    "332d20d7fa8cb6c7fdd010cd430a80e1b5c4f62679feca12d98729101bc9f41a",
+    "df6b55a0dff45f45945bda1626390cb95074265fb0af06df7ce3136ff1bcf6ec"
+  ],
+  "skills/integrate-from-docs/SKILL.md": [
+    "249a00f5ac08f4e394e22822c3174e32a585ac271e7c8ccbdb3e45e2d628109b",
+    "305d1e8da3d4735e216d15f53914fdee8d98b4902a24aa8aa0908fd482f7fe71",
+    "984d9e123fd823040bf503793ca3a12f28ade25192dd954683c53b17c110e04e",
+    "d93e6f9ba89e873a0d4e628a40d0eaf2d5a295e5f102df6f15a4a555a3151db8"
+  ],
+  "skills/integrate-from-docs/references/memory.md": [
+    "411bb2a0ac5d63fa732f86ea9612ba6128f19c422e9d702117e9bf542cab0701",
+    "559487d256c88c3d1be304efedb74f98b3bb6cdb237db71d2461e0b154e4b6e3",
+    "fa61fbfa2aaa9722db04dee10b9b854c16902d5070ad4ee1826863c53e27a67c"
+  ],
+  "skills/personalizer/SKILL.md": [
+    "0df7ad8771b85448b7782093db54aa8a37e6e457d607b312f4919bff589ac7a6",
+    "2977a30800a41526fc4ba34a1ed3b040e020ef5a942f630048b1144fa27495f6",
+    "39140fc9ebed71317f6c83fa2dc3bf24dc83165490bd78d18e5108991e81b6e9",
+    "3cf1e852dab2fbe972dda1496523ab79fc6b31c4b0700a02d56d1104ec812213",
+    "562c4075a7627d80a4aa750badb16178af70ac4bbd1135b292500e1b2fb3c00d",
+    "e3beefe7483aca65968fd008539971312eca3e5cce744e4b5352ca2ad246f227"
+  ],
+  "skills/personalizer/references/interview.md": [
+    "27acb827c5daf39b039f9d6ff5a43ae41c412fcdf1bda3777dfc9c65929ec5c2",
+    "57e949935526d6433128de7d8a3ac5a9c87bbe7d0f3b61fc35c83d06bda55307",
+    "8ba25ed72b982d1e710b87198fc462e05aabe2da6a2f464d2f640ac67a318360",
+    "b7eb5739ee03567b67c3dd39b571d98ef78754dca3054443ef0a3ff747806e99",
+    "c3c4aaa502d281943df80af332f8c733b180e13f808aa21b99f2b186e0d660a8"
+  ],
+  "skills/retrieve-memory/SKILL.md": [
+    "e459ef70f01fdd97d62abc637b5c2801d529397d504c0f2cc1199cb83a8cdcd4",
+    "f11e8d6480e6f151b78c0f79ce451812d59bf9d28fe97b665c7b8b87014b01f9"
+  ],
+  "skills/yc-config/SKILL.md": [
+    "6eeb6872895b4e33caaf50653cd48b62848099fc6a966a5a21b760e9b1804aea",
+    "bf85d4ec87484460aab3a2342e2dedb6cd8d6a43ffd4686f3a1ceceb382959f4"
+  ],
+  "skills/yc-missao/SKILL.md": [
+    "c5dede67a23f8622ff89e8ff9d2bbdfba5e4fc4eb78d65fb0051ec6838fe7a6e"
+  ],
+  "skills/yc-personalizer/SKILL.md": [
+    "d93092419095241e91d444a112ea155a448c1882831c0d4f1a2466a23fd7713c"
+  ],
+  "skills/yc-status/SKILL.md": [
+    "5a9056ba118cd226f69a1d68bc95c70555030e3a4f0daa9421d6ace5b6421e5c",
+    "d811287ccf094ebdf0aaff63451b458493d105077b188c2740b36fd96c784cb1"
+  ]
+}

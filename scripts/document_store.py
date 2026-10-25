@@ -10,10 +10,12 @@ import re
 import shutil
 import stat
 import subprocess
+import sys
 import tempfile
 from urllib.parse import quote, unquote, urlsplit
 import uuid
 
+sys.dont_write_bytecode = True
 from integrations import check_path, project_identity
 
 PRIVATE = ('vault/local', '.operacao-local/docling', '.operacao-local/memory')

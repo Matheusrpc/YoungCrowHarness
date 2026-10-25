@@ -68,7 +68,10 @@ def main():
             payload = json.loads(raw)
         except (ValueError, UnicodeError):
             payload = {}
-        result = handle_prompt(payload, Path(__file__).resolve().parents[1])
+        root = Path(__file__).resolve().parents[1]
+        if root.name == '.youngcrow':  # installed by `youngcrow init`: the project is the folder above
+            root = root.parent
+        result = handle_prompt(payload, root)
     print(json.dumps(result))
 
 

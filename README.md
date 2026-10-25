@@ -70,6 +70,9 @@ O Claude começa com `.mcp.json` vazio; os exemplos do Codex ficam desabilitados
 vault e `.env` são preservados, inclusive com `--force`; compare e mescle as mudanças necessárias.
 O hook de fontes apenas orienta: ingestão e registro de pendências são ações explícitas.
 
+Prévia do instalador novo: [youngcrow](docs/USAGE.md#youngcrow-pt). Ele guarda o harness em
+`.youngcrow/`, e o `youngcrow undo` desfaz a instalação.
+
 <a id="arquitetura-pt"></a>
 
 ## <img src="assets/gema-turquesa.svg" height="24" alt=""> Arquitetura
@@ -205,6 +208,9 @@ Claude starts with an empty `.mcp.json`; Codex examples remain disabled.
 [Configure only the MCPs you need](docs/USAGE.md#english). Existing client configuration,
 vault and `.env` are preserved even with `--force`; compare and merge the changes you need.
 The source hook only offers guidance: ingestion and pending records require explicit actions.
+
+Preview of the new installer: [youngcrow](docs/USAGE.md#youngcrow-en). It keeps the harness in
+`.youngcrow/`, and `youngcrow undo` takes the install back out.
 
 <a id="architecture-en"></a>
 

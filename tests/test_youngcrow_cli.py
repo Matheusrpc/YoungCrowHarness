@@ -585,6 +585,13 @@ class CliTests(unittest.TestCase):
         self.assertEqual(plain.returncode, 0, plain.stderr)
         self.assertEqual(self._tree(), {})
 
+    def test_migrate_confirm_with_a_relative_root_checks_that_project(self):
+        shutil.copy(REPO / 'scripts/vault.py', self._dest('scripts/vault.py'))
+        run = self._cli('migrate', '--root', self.root.name, '--confirm', '--json', cwd=self.root.parent)
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(json.loads(run.stdout)['vault_check'],
+                         {'exit_code': 0, 'summary': 'Vault: 3 notes checked; 0 issues. No files changed.'})
+
 
 if __name__ == '__main__':
     unittest.main()

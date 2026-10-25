@@ -211,7 +211,7 @@ def vault_check(root: Path) -> dict:
     The check only reads. Returns {'exit_code': its exit code, 'summary': the last line it printed};
     when it cannot run, the exit code is None and the summary says why.
     """
-    root = Path(root)
+    root = Path(root).absolute()  # the script path must not be read again from inside cwd=root
     try:
         script = safe_target(root, '.youngcrow/scripts/vault.py')
         run = subprocess.run([sys.executable, '-B', str(script), 'check'], cwd=root, capture_output=True,

@@ -837,7 +837,9 @@ class InitTests(unittest.TestCase):
     def test_undo_writes_an_empty_object_when_only_our_keys_are_left_in_an_edited_file(self):
         init(self.root, client='claude')
         path = self.root / SETTINGS
-        path.write_text(json.dumps({'enabledPlugins': WIRING['enabledPlugins']}) + '\n')  # the marketplace taken out
+        # The user's edit (the marketplace taken out) is written as bytes with LF (R53): write_text gives CRLF on
+        # Windows, and undo rightly keeps the line endings the file has, so the assertion would differ per OS.
+        path.write_bytes(json.dumps({'enabledPlugins': WIRING['enabledPlugins']}).encode() + b'\n')
         report = undo(self.root, confirm=True)
         self.assertEqual(path.read_bytes(), b'{}\n')
         self.assertIn(SETTINGS, report.kept_modified)

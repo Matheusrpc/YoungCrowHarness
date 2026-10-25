@@ -953,8 +953,9 @@ em inglês):
 Depois das listas, o `init` e o `migrate --confirm` imprimem `Next steps:`, uma linha por cliente.
 
 `--json` imprime as mesmas quatro listas como `written`, `kept_modified`, `removed` e `skipped`, mais
-`next_steps`; o `undo --json` acrescenta `warnings`. `migrate --json` imprime `applied`, `matches` (as
-cópias removidas ou, na prévia, as que seriam removidas), `modified`, `legacy_hooks`, `legacy_rules`,
+`next_steps`; o `undo --json` acrescenta `warnings`. `migrate --json` imprime `applied`, `already_set_up`
+(o projeto já tem `.youngcrow/manifest.json`, então o `--confirm` recusa), `matches` (as cópias
+removidas ou, na prévia, as que seriam removidas), `modified`, `legacy_hooks`, `legacy_rules`,
 `dangling_references`, `vault_check` e `next_steps`.
 
 O código de saída é 0 quando o comando rodou, 2 para linha de comando errada e 3 quando o youngcrow
@@ -975,6 +976,13 @@ Rode `migrate` sem `--confirm` primeiro. Ele lista `Will be removed (unmodified 
 `Kept (you changed these)`. Acrescente `--confirm` quando as listas estiverem certas. Quando nenhum
 arquivo coincide com uma cópia publicada do `setup.sh`, o `migrate` imprime `No setup.sh install found.`
 e não lista os seus arquivos como cópias editadas; nesse caso, o `--confirm` instala como o `init`.
+
+Se o projeto já tem `.youngcrow/manifest.json` (você rodou o `init` ou o `migrate --confirm` de uma
+versão anterior desta prévia, que ainda não ligava o plugin), o `--confirm` recusa com «already set
+up», e a prévia diz isso logo no começo (`--json`: `already_set_up: true`). Faça à mão o que o
+`migrate` faria: instale o plugin com os comandos de «Plugin no Claude Code e no Codex» e, se a prévia
+listar um arquivo sob `Old setup.sh hooks to take out by hand:`, tire dele a entrada de hook que roda
+`scripts/source_prompt.py`.
 
 Nesta prévia, o `migrate --confirm` também apaga as skills antigas (`skills/`, `.claude/skills/`,
 `.agents/skills/`), o agente `integration-specialist`, o `.claude/settings.json`, o `.codex/hooks.json`,
@@ -1883,8 +1891,9 @@ Plain output has one heading per non-empty list, followed by indented paths:
 After the lists, `init` and `migrate --confirm` print `Next steps:`, one line per client.
 
 `--json` prints the same four lists as `written`, `kept_modified`, `removed` and `skipped`, plus
-`next_steps`; `undo --json` adds `warnings`. `migrate --json` prints `applied`, `matches` (the copies
-removed or, in a preview, the ones that would be), `modified`, `legacy_hooks`, `legacy_rules`,
+`next_steps`; `undo --json` adds `warnings`. `migrate --json` prints `applied`, `already_set_up` (the
+project already has `.youngcrow/manifest.json`, so `--confirm` refuses), `matches` (the copies removed
+or, in a preview, the ones that would be), `modified`, `legacy_hooks`, `legacy_rules`,
 `dangling_references`, `vault_check` and `next_steps`.
 
 The exit code is 0 when the command ran, 2 for a wrong command line and 3 when youngcrow refused to
@@ -1905,6 +1914,13 @@ Run `migrate` without `--confirm` first. It lists `Will be removed (unmodified s
 `Kept (you changed these)`. Add `--confirm` once the lists look right. When no file matches a published
 `setup.sh` copy, `migrate` prints `No setup.sh install found.` and does not list your own files as
 edited copies; `--confirm` then installs like `init`.
+
+If the project already has `.youngcrow/manifest.json` (you ran `init` or `migrate --confirm` from an
+earlier build of this preview, which did not wire the plugin yet), `--confirm` refuses with "already set
+up", and the preview says so at the top (`--json`: `already_set_up: true`). Do by hand what `migrate`
+would do: install the plugin with the commands in "The plugin in Claude Code and Codex" and, if the
+preview lists a file under `Old setup.sh hooks to take out by hand:`, remove from it the hook entry that
+runs `scripts/source_prompt.py`.
 
 In this preview, `migrate --confirm` also deletes the old skills (`skills/`, `.claude/skills/`,
 `.agents/skills/`), the `integration-specialist` agent, `.claude/settings.json`, `.codex/hooks.json`,

@@ -15,7 +15,9 @@ import sys
 
 from youngcrow import __version__
 from youngcrow.install import AlreadyInitialized, NotInitialized, Report, init, undo, upgrade
+from youngcrow.manifest import MANIFEST_PATH
 from youngcrow.migrate import apply, dangling_references, legacy_hooks, scan, vault_check
+from youngcrow.settings import CLAUDE_MANUAL_STEP, CODEX_STEP
 
 # ManagedBlockError and UnsafePathError are ValueErrors too, as is a client, lang or rigor init does not support.
 REFUSALS = (AlreadyInitialized, NotInitialized, ValueError)
@@ -125,6 +127,16 @@ def _hooks_listing(heading: str, hooks: dict[str, int]) -> list[str]:
     return _listing(heading, lines) if lines else []
 
 
+def _set_up_notice(hooks: dict[str, int]) -> list[str]:
+    """R55: `--confirm` refuses a project init already set up, so the preview says so first, with what to
+    do by hand: install the plugin, and take out the old hook entries when it lists any."""
+    steps = [CLAUDE_MANUAL_STEP, CODEX_STEP]
+    if hooks:
+        steps.append('Take the old setup.sh hook entries listed below out of those files.')
+    return [f'This project is already set up ({MANIFEST_PATH} exists), so migrate --confirm will refuse. '
+            'Do this by hand instead:', *(f'  {step}' for step in steps)]
+
+
 def _references_notice(found: dict[str, list[str]]) -> list[str]:
     """R30: the kept files and vault notes that still name a file migrate removes, one line each."""
     lines = ['', 'These files still point at files migrate removes:']
@@ -156,17 +168,23 @@ def _migrate(args: argparse.Namespace) -> Result:
         matches, modified = preview.matches, preview.modified if found else []
         gone = [rel for rel in matches if not _comes_back(rel, args.client)]
         hooks, to_strip = preview.hooks, legacy_hooks()  # read the hook files as --confirm leaves them
-        lines = ['Preview only, nothing was changed. Add --confirm to migrate.']
+        set_up = preview.already_set_up  # --confirm refuses it, so nothing below is promised (R55)
+        if set_up:
+            lines = ['Preview only, nothing was changed.', *_set_up_notice(hooks)]
+        else:
+            lines = ['Preview only, nothing was changed. Add --confirm to migrate.']
         if matches:
-            lines += _listing('Will be removed (unmodified setup.sh copies):', matches)
+            lines += _listing('Unmodified setup.sh copies:' if set_up else
+                              'Will be removed (unmodified setup.sh copies):', matches)
         if modified:
             lines += _listing('Kept (you changed these):', modified)
-        lines += _hooks_listing('Old setup.sh hooks that will be taken out:', hooks)
+        lines += _hooks_listing('Old setup.sh hooks to take out by hand:' if set_up else
+                                'Old setup.sh hooks that will be taken out:', hooks)
     if not found:
         lines.append('No setup.sh install found.')
     rules = [path for path in modified if path in LEGACY_RULE_FILES]
     if rules:
-        lines += _legacy_notice(rules, migrated=args.confirm)
+        lines += _legacy_notice(rules, migrated=args.confirm or preview.already_set_up)
     references = dangling_references(args.root, gone, modified, to_strip)
     if references:
         lines += _references_notice(references)
@@ -175,7 +193,8 @@ def _migrate(args: argparse.Namespace) -> Result:
         if check['exit_code']:
             lines.append('Run .youngcrow/scripts/vault.py check in the project to see each issue.')
     lines += _next_steps(steps)
-    data = {'applied': args.confirm, 'matches': matches, 'modified': modified, 'legacy_hooks': hooks,
+    data = {'applied': args.confirm, 'already_set_up': preview.already_set_up, 'matches': matches,
+            'modified': modified, 'legacy_hooks': hooks,
             'legacy_rules': rules, 'dangling_references': references, 'vault_check': check, 'next_steps': steps}
     return data, '\n'.join(lines)
 

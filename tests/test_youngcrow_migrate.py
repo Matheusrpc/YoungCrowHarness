@@ -402,6 +402,16 @@ class MigrateTests(unittest.TestCase):
             apply(self.root, preview)
         self.assertEqual(snapshot(self.root), before)
 
+    def test_scan_says_when_the_project_is_already_set_up(self):
+        # R55: what makes apply refuse with AlreadyInitialized, read without writing.
+        self.assertFalse(scan(self.root).already_set_up)
+        init(self.root)
+        self.assertTrue(scan(self.root).already_set_up)
+
+    def test_a_linked_youngcrow_folder_does_not_stop_the_scan(self):
+        self.symlink(self.other, self.root / '.youngcrow', directory=True)
+        self.assertFalse(scan(self.root).already_set_up)  # --confirm refuses it as a link, not as set up
+
     def test_apply_refuses_before_removing_anything_when_init_would_refuse(self):
         self.legacy('scripts/vault.py')
         self.put('CLAUDE.md', b'x\n')

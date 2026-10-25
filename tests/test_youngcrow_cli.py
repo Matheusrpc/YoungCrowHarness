@@ -14,6 +14,8 @@ import unittest
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / 'src'))
 
+from youngcrow.settings import CLAUDE_MANUAL_STEP, CODEX_STEP  # noqa: E402
+
 REPORT_KEYS = ['written', 'kept_modified', 'removed', 'skipped', 'next_steps']
 
 
@@ -396,8 +398,8 @@ class CliTests(unittest.TestCase):
         self._legacy('scripts/memory.py', b'# my change\n')
         run = self._cli('migrate', '--root', str(self.root), '--json')
         self.assertEqual(json.loads(run.stdout), {
-            'applied': False, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'], 'legacy_hooks': {},
-            'legacy_rules': [], 'dangling_references': {}, 'vault_check': None, 'next_steps': []})
+            'applied': False, 'already_set_up': False, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'],
+            'legacy_hooks': {}, 'legacy_rules': [], 'dangling_references': {}, 'vault_check': None, 'next_steps': []})
 
     def test_migrate_confirm_removes_the_matches_and_installs(self):
         shutil.copy(REPO / 'scripts/vault.py', self._dest('scripts/vault.py'))
@@ -407,8 +409,8 @@ class CliTests(unittest.TestCase):
         report = json.loads(run.stdout)
         self.assertEqual(len(report.pop('next_steps')), 2)
         self.assertEqual(report, {
-            'applied': True, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'], 'legacy_hooks': {},
-            'legacy_rules': [], 'dangling_references': {},
+            'applied': True, 'already_set_up': False, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'],
+            'legacy_hooks': {}, 'legacy_rules': [], 'dangling_references': {},
             'vault_check': {'exit_code': 0, 'summary': 'Vault: 3 notes checked; 0 issues. No files changed.'}})
         self.assertFalse((self.root / 'scripts/vault.py').exists())
         self.assertTrue((self.root / 'scripts/memory.py').is_file())
@@ -654,6 +656,49 @@ class CliTests(unittest.TestCase):
         self.assertIn('UserPromptSubmit', done.stderr)
         self.assertEqual(json.loads((self.root / '.claude/settings.json').read_text())['hooks']['UserPromptSubmit'],
                          settings['hooks']['UserPromptSubmit'])
+
+    # R55: --confirm refuses a project that is already set up, so its preview says so up front.
+
+    def _set_up_with_the_old_hook(self):
+        """An install from the P1 preview: init ran (P1 never wired Claude, as --client codex does not) on a
+        setup.sh project, so .claude/settings.json still holds the old hook."""
+        self._setup_sh_project()
+        run = self._cli('init', '--root', str(self.root), '--client', 'codex')
+        self.assertEqual(run.returncode, 0, run.stderr)
+
+    def test_migrate_preview_of_a_project_already_set_up_says_confirm_will_refuse(self):
+        self._set_up_with_the_old_hook()
+        before = self._tree()
+        run = self._cli('migrate', '--root', str(self.root))
+        self.assertEqual(run.returncode, 0, run.stderr)
+        lines = run.stdout.splitlines()
+        self.assertEqual(lines[:5], [
+            'Preview only, nothing was changed.',
+            'This project is already set up (.youngcrow/manifest.json exists), so migrate --confirm will refuse. '
+            'Do this by hand instead:',
+            '  ' + CLAUDE_MANUAL_STEP,
+            '  ' + CODEX_STEP,
+            '  Take the old setup.sh hook entries listed below out of those files.'])
+        self.assertEqual(lines[lines.index('Old setup.sh hooks to take out by hand:') + 1], '  .claude/settings.json: 1 entry')
+        for promise in ('Old setup.sh hooks that will be taken out:', 'Will be removed (unmodified setup.sh copies):'):
+            self.assertNotIn(promise, lines)
+        self.assertNotIn('Migrate installs', run.stdout)
+        self.assertEqual(self._tree(), before)
+        self.assertRefused(self._cli('migrate', '--root', str(self.root), '--confirm'), 'already set up')
+        self.assertEqual(self._tree(), before)
+
+    def test_migrate_preview_json_says_the_project_is_already_set_up(self):
+        self._set_up_with_the_old_hook()
+        data = json.loads(self._cli('migrate', '--root', str(self.root), '--json').stdout)
+        self.assertIs(data['already_set_up'], True)
+        self.assertIs(data['applied'], False)
+        self.assertEqual(data['legacy_hooks'], {'.claude/settings.json': 1})
+
+    def test_without_an_old_hook_the_preview_names_only_the_plugin_install(self):
+        self._init('--client', 'codex')
+        lines = self._cli('migrate', '--root', str(self.root)).stdout.splitlines()
+        self.assertEqual(lines[2:4], ['  ' + CLAUDE_MANUAL_STEP, '  ' + CODEX_STEP])
+        self.assertNotIn('  Take the old setup.sh hook entries listed below out of those files.', lines)
 
     def test_a_clean_migrate_has_no_references_and_a_clean_vault_check(self):
         shutil.copy(REPO / 'scripts/vault.py', self._dest('scripts/vault.py'))

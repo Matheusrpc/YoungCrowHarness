@@ -22,7 +22,7 @@ import sys
 
 from youngcrow.blocks import MD_END, MD_START, ManagedBlockError, remove_block
 from youngcrow.install import Report, init
-from youngcrow.manifest import UnsafePathError, is_real_dir, safe_target, sha256_file
+from youngcrow.manifest import MANIFEST_PATH, UnsafePathError, is_real_dir, safe_target, sha256_file
 from youngcrow.settings import HOOK_FILES, SettingsSkipped, remove_hooks
 
 # Every path in the FILES arrays of setup.sh (both client branches) except the vault (R22), then the
@@ -66,6 +66,7 @@ class MigrationPreview:
     matches: list[str]   # unmodified copies: byte-identical to a published version, `apply` removes them
     modified: list[str]  # the user's own versions of legacy files: kept, and listed in the report
     hooks: dict[str, int] = field(default_factory=dict)  # kept hook file -> old setup.sh entries `apply` takes out
+    already_set_up: bool = False  # the project has the manifest, so `apply` refuses it (AlreadyInitialized, R55)
 
 
 def is_legacy_path(rel: str) -> bool:
@@ -146,10 +147,16 @@ def scan(root: Path) -> MigrationPreview:
     file without following links. A file whose hash is in the table is a match; one at a table path
     with another hash is modified; a path not in the table is not the harness's and is ignored.
     Both lists are sorted. `hooks` counts the published hook entries in each hook file that stays.
+    `already_set_up` says the project has `.youngcrow/manifest.json`, which `apply` refuses (R55); a
+    linked `.youngcrow` reads as False, since `apply` refuses it as a link.
     """
     root = Path(root)
     preview = _scan(root, legacy_hashes())
     preview.hooks = _old_hooks(root, legacy_hooks(), preview.matches)
+    try:
+        preview.already_set_up = safe_target(root, MANIFEST_PATH).exists()
+    except (UnsafePathError, OSError):
+        pass
     return preview
 
 

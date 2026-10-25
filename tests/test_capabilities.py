@@ -40,10 +40,12 @@ class CapabilityCase(ProjectCase):
         return [cap]
 
     def install_catalog(self):
-        """Move the catalog to where `youngcrow init` puts it, and return the new path."""
+        """Make the project one that `youngcrow init` set up: its catalog moves to `.youngcrow/` and the
+        install manifest is there. Returns the path of the catalog."""
         target = self.root / caps.CATALOG_PATHS[1]
         target.parent.mkdir(exist_ok=True)
         (self.root / 'skills-lock.json').rename(target)
+        (self.root / caps.INSTALL_MANIFEST).write_text('{"schema_version": 1}\n', encoding='utf-8')
         return target
 
     def cli(self, *args):
@@ -77,20 +79,54 @@ class CatalogTests(CapabilityCase):
     def test_the_repository_catalog_still_wins(self):
         self.assertEqual(caps.catalog_path(ROOT), 'skills-lock.json')
 
-    def test_the_catalog_is_the_first_of_the_two_paths_that_exists(self):
+    def test_a_project_that_init_set_up_uses_the_catalog_init_installed(self):
         self.assertEqual(caps.CATALOG_PATHS, ('skills-lock.json', '.youngcrow/capabilities.json'))
+        self.assertEqual(caps.INSTALL_MANIFEST, '.youngcrow/manifest.json')
         self.assertEqual(caps.catalog_path(self.root), 'skills-lock.json')  # neither: the error names this file
         self.seed()
         self.assertEqual(caps.catalog_path(self.root), 'skills-lock.json')
         self.install_catalog()
         self.assertEqual(caps.catalog_path(self.root), '.youngcrow/capabilities.json')
-        self.save([])  # both
+
+    def test_the_installed_catalog_beats_a_skills_lock_in_the_same_project(self):
+        self.seed()
+        self.install_catalog()
+        self.save([])  # a skills-lock.json that lists nothing, next to the installed catalog
+        self.assertEqual(caps.catalog_path(self.root), '.youngcrow/capabilities.json')
+        self.assertEqual([c['id'] for c in caps.load_catalog(self.root)], ['sample'])
+        self.assertEqual([c['id'] for c in json.loads(self.cli('list', '--json').stdout)], ['sample'])
+
+    def test_only_a_regular_install_manifest_makes_a_project_installed(self):
+        self.seed()
+        self.install_catalog()
+        manifest = self.root / caps.INSTALL_MANIFEST
+        self.assertEqual(caps.catalog_path(self.root), '.youngcrow/capabilities.json')
+        manifest.unlink()  # a catalog file alone is not an install
+        self.assertEqual(caps.catalog_path(self.root), 'skills-lock.json')
+        manifest.mkdir()
+        self.assertEqual(caps.catalog_path(self.root), 'skills-lock.json')
+        manifest.rmdir()
+        elsewhere = self.root / 'elsewhere.json'
+        elsewhere.write_text('{}', encoding='utf-8')
+        try:
+            manifest.symlink_to(elsewhere)
+        except (OSError, NotImplementedError) as error:
+            self.skipTest(f'this OS refused to create a symlink: {error}')
         self.assertEqual(caps.catalog_path(self.root), 'skills-lock.json')
 
     def test_a_project_without_a_catalog_fails_naming_the_repository_file(self):
         with self.assertRaises(OSError) as raised:
             caps.load_catalog(self.root)
         self.assertIn('skills-lock.json', str(raised.exception))
+        self.assertEqual(self.cli('list', '--json').returncode, 2)
+
+    def test_an_installed_project_that_lost_its_catalog_fails_naming_the_installed_file(self):
+        self.seed()
+        self.install_catalog().unlink()
+        self.save([])  # a skills-lock.json does not stand in for it
+        with self.assertRaises(OSError) as raised:
+            caps.load_catalog(self.root)
+        self.assertIn('capabilities.json', str(raised.exception))
         self.assertEqual(self.cli('list', '--json').returncode, 2)
 
     def test_list_and_describe_read_the_installed_catalog(self):
@@ -279,11 +315,15 @@ class AuditTests(CapabilityCase):
         self.assertEqual(result['coverage']['files']['.youngcrow/capabilities.json'], digest)
         self.assertEqual(json.loads(self.cli('audit', '--client', 'codex', '--json').stdout)['exit_code'], 0)
 
-    def test_audit_notes_that_the_repository_catalog_is_absent(self):
+    def test_audit_records_the_install_manifest_that_picks_the_catalog(self):
         self.locked()
-        self.install_catalog()
+        self.assertIsNone(caps.audit(self.root, 'codex')['observations'][0]['input_hashes'][caps.INSTALL_MANIFEST])
+        path = self.install_catalog()
         hashes = caps.audit(self.root, 'codex')['observations'][0]['input_hashes']
-        self.assertIsNone(hashes['skills-lock.json'])  # a new one would take over, so its absence is an input
+        self.assertEqual(hashes[caps.INSTALL_MANIFEST],
+                         hashlib.sha256((self.root / caps.INSTALL_MANIFEST).read_bytes()).hexdigest())
+        self.assertNotIn('skills-lock.json', hashes)  # not read, not an input
+        self.assertEqual(hashes['.youngcrow/capabilities.json'], hashlib.sha256(path.read_bytes()).hexdigest())
 
     def test_claude_settings_the_plugin_wiring_adds_are_known_fields(self):
         self.locked()
@@ -431,7 +471,7 @@ class ReviewTests(CapabilityCase):
         config.write_text('[mcp_servers]\n', encoding='utf-8')
         self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'changed')
 
-    def test_review_binds_to_the_installed_catalog_and_to_the_choice_of_catalog(self):
+    def test_review_binds_to_the_installed_catalog_and_to_the_install_that_picks_it(self):
         self.ready()
         catalog = self.install_catalog()
         receipt = caps.prepare_review(self.root, 'sample', 'codex')
@@ -443,7 +483,12 @@ class ReviewTests(CapabilityCase):
         self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'changed')
         catalog.write_bytes(catalog.read_bytes()[:-1])
         self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'current')
-        (self.root / 'skills-lock.json').write_bytes(catalog.read_bytes())  # now this one wins
+        (self.root / 'skills-lock.json').write_bytes(catalog.read_bytes())  # shadowed by the installed catalog
+        self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'current')
+        manifest = self.root / caps.INSTALL_MANIFEST
+        manifest.write_bytes(manifest.read_bytes() + b' ')
+        self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'changed')
+        manifest.unlink()  # the project no longer reads as installed: this catalog would not be the one
         self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'changed')
 
     def test_boundary_and_lock_fail_without_bundle(self):

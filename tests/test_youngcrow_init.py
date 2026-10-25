@@ -135,6 +135,14 @@ class InitTests(unittest.TestCase):
         self.assertNotIn('unsupported_fields', json.dumps(result['coverage']))
         self.assertTrue(all(o['content_state'] != 'changed' for o in result['observations']))
 
+    def test_a_skills_lock_in_the_project_does_not_replace_the_installed_catalog(self):
+        (self.root / 'skills-lock.json').write_text('{"version": 3, "capabilities": []}\n')
+        init(self.root)
+        out = run_installed(self.root, 'capabilities.py', 'list', '--json')
+        self.assertIn('retrieve-memory', [c['id'] for c in json.loads(out)])
+        result = json.loads(run_installed(self.root, 'capabilities.py', 'audit', '--client', 'both', '--json'))
+        self.assertEqual(result['exit_code'], 0)
+
     def test_a_fresh_init_matches_the_core_skills_and_names_no_file_it_does_not_install(self):
         init(self.root, client='both')
         result = json.loads(run_installed(self.root, 'capabilities.py', 'audit', '--client', 'both', '--json'))

@@ -855,13 +855,15 @@ falha no meio do caminho, devolve o que já fez.
 O `init` grava `.youngcrow/capabilities.json`, o catálogo do núcleo: as cinco skills, o agente
 `integration-specialist` e os runtimes opcionais `docling` e `graphify`. Com ele,
 `python3 .youngcrow/scripts/capabilities.py list --json` e `audit` funcionam num projeto instalado, que
-não tem o `skills-lock.json` deste repositório. Quando o projeto tem os dois arquivos, vale o
-`skills-lock.json`. O catálogo lista só os arquivos que o `init` instala em `.youngcrow/`; as páginas das
-skills ficam de fora porque vêm no plugin, e o `audit` compara os scripts com os hashes que o catálogo
-registra. O `upgrade` e o `undo` tratam o arquivo como os outros de `.youngcrow/`: o `upgrade` o troca
-enquanto ele continua como foi instalado, o `undo` o apaga, e se você o editou os dois o deixam e o
-listam. O arquivo `.codex/agents/integration-specialist.toml` aparece como `missing` na auditoria até
-existir; o agente é opcional.
+não tem o `skills-lock.json` deste repositório. Num projeto que o `init` instalou (com
+`.youngcrow/manifest.json`), os scripts leem `.youngcrow/capabilities.json`, mesmo que exista um
+`skills-lock.json`; fora dele, leem o `skills-lock.json`. O catálogo lista só os arquivos que o `init`
+instala em `.youngcrow/`; as páginas das skills ficam de fora porque vêm no plugin, e o `audit` compara
+os scripts com os hashes que o catálogo registra. O `upgrade` e o `undo` tratam o arquivo como os
+outros de `.youngcrow/`: o `upgrade` o troca enquanto ele continua como foi instalado, o `undo` o
+apaga, e se você o editou os dois o deixam e o listam. O arquivo
+`.codex/agents/integration-specialist.toml` aparece como `missing` na auditoria até existir; o agente é
+opcional.
 
 ### Saída e códigos de saída
 
@@ -1667,9 +1669,11 @@ halfway puts back what it did.
 `init` writes `.youngcrow/capabilities.json`, the core catalog: the five skills, the
 `integration-specialist` agent and the optional `docling` and `graphify` runtimes. With it,
 `python3 .youngcrow/scripts/capabilities.py list --json` and `audit` work in an installed project, which
-has no `skills-lock.json` of this repository. When a project has both files, `skills-lock.json` wins.
-The catalog lists only the files `init` installs under `.youngcrow/`; the skill pages are left out
-because they come in the plugin, and `audit` compares the scripts with the hashes the catalog records.
+has no `skills-lock.json` of this repository. In a project that `init` installed (it has
+`.youngcrow/manifest.json`), the scripts read `.youngcrow/capabilities.json` even when a
+`skills-lock.json` exists; elsewhere they read `skills-lock.json`. The catalog lists only the files
+`init` installs under `.youngcrow/`; the skill pages are left out because they come in the plugin, and
+`audit` compares the scripts with the hashes the catalog records.
 `upgrade` and `undo` treat the file like the other files under `.youngcrow/`: `upgrade` replaces it
 while it still matches what was installed, `undo` deletes it, and if you edited it both leave it and
 list it. The file `.codex/agents/integration-specialist.toml` shows as `missing` in the audit until it

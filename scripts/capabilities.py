@@ -29,6 +29,7 @@ NATIVE = {'server', 'transport', 'url', 'command', 'args', 'credential_env',
 LEGACY = ('skills_de_projeto', 'skills_de_usuario', 'plugins')
 # The harness repository keeps its catalog in skills-lock.json; `youngcrow init` installs a core one.
 CATALOG_PATHS = ('skills-lock.json', '.youngcrow/capabilities.json')
+INSTALL_MANIFEST = '.youngcrow/manifest.json'  # what `youngcrow init` leaves: the project is an install
 
 
 def require(condition, code='invalid_catalog'):
@@ -256,10 +257,14 @@ def catalog_from_bytes(data):
 
 
 def catalog_path(root):
-    """The catalog file of the project: the first of CATALOG_PATHS that is there, so the repository's own
-    wins. With neither, the first, so a project without a catalog fails on the file it always named.
-    A link counts as there: reading it is refused, rather than falling through to the other catalog."""
-    return next((p for p in CATALOG_PATHS if os.path.lexists(Path(root) / p)), CATALOG_PATHS[0])
+    """The catalog file of the project: `.youngcrow/capabilities.json` when `youngcrow init` set the project
+    up (a regular `.youngcrow/manifest.json`), even if a `skills-lock.json` is there too; otherwise
+    `skills-lock.json`, which is also the file a project with no catalog fails on."""
+    try:
+        installed = stat.S_ISREG((Path(root) / INSTALL_MANIFEST).lstat().st_mode)
+    except OSError:
+        installed = False
+    return CATALOG_PATHS[1] if installed else CATALOG_PATHS[0]
 
 
 def load_catalog(root):
@@ -470,18 +475,19 @@ def audit(root, client):
     try:
         require(client in (*CLIENTS, 'both'), 'invalid_client')
         selected = CLIENTS if client == 'both' else (client,)
-        manifest = catalog_path(root)
-        first = read_inputs(root, [manifest])[manifest]
+        catalog_file = catalog_path(root)
+        first = read_inputs(root, [catalog_file])[catalog_file]
         catalog = catalog_from_bytes(first)
-        # Both catalog names are inputs: one that appears later would take over, so its absence is recorded too.
-        paths = set(CATALOG_PATHS)
+        # The install manifest picks the catalog, so it is an input too: a project that loses it reads another.
+        always = {catalog_file, INSTALL_MANIFEST}
+        paths = set(always)
         for c in selected:
             paths.update(CONFIG_FILES[c])
             for cap in catalog:
                 if c in cap['clients']:
                     paths.update(cap['files']['common'] + cap['files'][c])
         records = read_inputs(root, existing_inputs(root, paths))
-        require(records.get(manifest) == first, 'input_changed')
+        require(records.get(catalog_file) == first, 'input_changed')
         configs = {c: inspect_client(root, c, records=records) for c in selected}
         hashes = {p: hashlib.sha256(records[p]).hexdigest() if p in records else None for p in sorted(paths)}
         observations = []
@@ -518,7 +524,7 @@ def audit(root, client):
                 state = next(s for s in ('failed', 'unsupported', 'missing', 'changed', 'unverified', 'matched') if s in states)
                 observations.append(dict(id=cap['id'], client=c, required=cap['required'][c], state=state,
                     content_state=content, config_state=config_state, codes=sorted(set(codes + config_codes)),
-                    input_hashes={p: hashes[p] for p in sorted({*CATALOG_PATHS, *files, *CONFIG_FILES[c]})},
+                    input_hashes={p: hashes[p] for p in sorted({*always, *files, *CONFIG_FILES[c]})},
                     observed_version=None, runtime_proof=None))
         coverage = dict(limits=list(COVERAGE), files=hashes,
                         clients={c: dict(codes=configs[c]['codes'], server_count=len(configs[c]['servers'])) for c in selected})
@@ -578,11 +584,11 @@ def review_payload(root, capability_id, client):
     observations = [o for o in result['observations'] if o['id'] == capability_id]
     require(bool(observations), 'unknown_capability')
     # Use the same manifest revision that the auditor read, not a later catalog silently.
-    manifest = catalog_path(root)
-    data = read_inputs(root, [manifest, 'vault/project.json'])
-    manifest_hash = hashlib.sha256(data[manifest]).hexdigest()
-    require(all(o['input_hashes'].get(manifest) == manifest_hash for o in observations), 'input_changed')
-    cap = next(c for c in catalog_from_bytes(data[manifest]) if c['id'] == capability_id)
+    catalog_file = catalog_path(root)
+    data = read_inputs(root, [catalog_file, 'vault/project.json'])
+    manifest_hash = hashlib.sha256(data[catalog_file]).hexdigest()
+    require(all(o['input_hashes'].get(catalog_file) == manifest_hash for o in observations), 'input_changed')
+    cap = next(c for c in catalog_from_bytes(data[catalog_file]) if c['id'] == capability_id)
     hashes = {p: digest for o in observations for p, digest in o['input_hashes'].items()}
     hashes['vault/project.json'] = hashlib.sha256(data['vault/project.json']).hexdigest()
     proposals = {}
@@ -590,7 +596,7 @@ def review_payload(root, capability_id, client):
         c = o['client']
         native = cap['native'].get(c, {})
         proposals[c] = dict(file=CONFIG_FILES[c][0], capability_id=capability_id,
-                            manifest_reference=manifest, fields=sorted(native),
+                            manifest_reference=catalog_file, fields=sorted(native),
                             expected=native_projection(native), action='manual_review_required')
     return dict(schema=1, project_id=project, capability_id=capability_id, client=client,
                 input_hashes=dict(sorted(hashes.items())), observations=observations,

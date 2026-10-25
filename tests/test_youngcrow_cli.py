@@ -396,8 +396,8 @@ class CliTests(unittest.TestCase):
         self._legacy('scripts/memory.py', b'# my change\n')
         run = self._cli('migrate', '--root', str(self.root), '--json')
         self.assertEqual(json.loads(run.stdout), {
-            'applied': False, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'], 'legacy_rules': [],
-            'dangling_references': {}, 'vault_check': None, 'next_steps': []})
+            'applied': False, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'], 'legacy_hooks': {},
+            'legacy_rules': [], 'dangling_references': {}, 'vault_check': None, 'next_steps': []})
 
     def test_migrate_confirm_removes_the_matches_and_installs(self):
         shutil.copy(REPO / 'scripts/vault.py', self._dest('scripts/vault.py'))
@@ -407,8 +407,8 @@ class CliTests(unittest.TestCase):
         report = json.loads(run.stdout)
         self.assertEqual(len(report.pop('next_steps')), 2)
         self.assertEqual(report, {
-            'applied': True, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'], 'legacy_rules': [],
-            'dangling_references': {},
+            'applied': True, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'], 'legacy_hooks': {},
+            'legacy_rules': [], 'dangling_references': {},
             'vault_check': {'exit_code': 0, 'summary': 'Vault: 3 notes checked; 0 issues. No files changed.'}})
         self.assertFalse((self.root / 'scripts/vault.py').exists())
         self.assertTrue((self.root / 'scripts/memory.py').is_file())
@@ -570,11 +570,10 @@ class CliTests(unittest.TestCase):
             run = self._cli('migrate', '--root', str(self.root), '--json', *args)
             self.assertEqual(run.returncode, 0, run.stderr)
             refs = json.loads(run.stdout)['dangling_references']
-            self.assertEqual(refs['.claude/settings.json'], ['scripts/source_prompt.py'], args)
             self.assertEqual(refs['vault/integrations/index.md'], ['scripts/integrations.py'], args)
             self.assertIn('skills/govern-capabilities/SKILL.md', refs['vault/capabilities/index.md'], args)
-            self.assertEqual(sorted(refs), ['.claude/settings.json', 'vault/capabilities/index.md',
-                                            'vault/integrations/index.md'], args)
+            # The old source_prompt hook was the settings file's only reference, and migrate takes it out (R41).
+            self.assertEqual(sorted(refs), ['vault/capabilities/index.md', 'vault/integrations/index.md'], args)
 
     def test_migrate_confirm_runs_the_vault_check_and_reports_it(self):
         self._setup_sh_project()
@@ -592,7 +591,7 @@ class CliTests(unittest.TestCase):
         self._setup_sh_project()
         preview = self._cli('migrate', '--root', str(self.root))
         section = preview.stdout[preview.stdout.index('These files still point at files migrate removes:'):]
-        self.assertIn('  .claude/settings.json: scripts/source_prompt.py', section)
+        self.assertNotIn('.claude/settings.json', section)
         self.assertIn('  vault/integrations/index.md: scripts/integrations.py', section)
         self.assertNotIn('Vault: ', preview.stdout)
         done = self._cli('migrate', '--root', str(self.root), '--confirm')
@@ -600,6 +599,47 @@ class CliTests(unittest.TestCase):
         summary = [line for line in done.stdout.splitlines() if line.startswith('Vault: ')]
         self.assertEqual(len(summary), 1, done.stdout)
         self.assertRegex(summary[0], r'^Vault: 3 notes checked; [1-9]\d* issues\. No files changed\.$')
+
+    # R41/R43: the old source_prompt hook the setup.sh settings carry.
+
+    def test_migrate_lists_the_old_hooks_and_takes_them_out(self):
+        self._setup_sh_project()
+        preview = self._cli('migrate', '--root', str(self.root), '--json')
+        self.assertEqual(json.loads(preview.stdout)['legacy_hooks'], {'.claude/settings.json': 1})
+        plain = self._cli('migrate', '--root', str(self.root)).stdout.splitlines()
+        self.assertEqual(plain[plain.index('Old setup.sh hooks that will be taken out:') + 1], '  .claude/settings.json: 1 entry')
+        done = self._cli('migrate', '--root', str(self.root), '--confirm', '--json')
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(done.stderr, '')
+        self.assertEqual(json.loads(done.stdout)['legacy_hooks'], {'.claude/settings.json': 1})
+        settings = json.loads((self.root / '.claude/settings.json').read_text(encoding='utf-8'))
+        self.assertNotIn('UserPromptSubmit', settings['hooks'])
+        self.assertEqual(sorted(settings['hooks']), ['PostToolUse', 'Stop'])
+        self.assertEqual(settings['permissions'], {'allow': ['Bash(make test)']})
+        self.assertEqual(settings['enabledPlugins'], {'youngcrow@youngcrow': True})
+
+    def test_migrate_confirm_prints_the_hooks_it_took_out(self):
+        self._setup_sh_project()
+        lines = self._cli('migrate', '--root', str(self.root), '--confirm').stdout.splitlines()
+        self.assertEqual(lines[lines.index('Old setup.sh hooks taken out:') + 1], '  .claude/settings.json: 1 entry')
+        self.assertNotIn('Old setup.sh hooks that will be taken out:', lines)
+
+    def test_a_hand_edited_old_hook_stays_and_is_still_named(self):
+        self._setup_sh_project()
+        settings = json.loads((self.root / '.claude/settings.json').read_text(encoding='utf-8'))
+        settings['hooks']['UserPromptSubmit'][0]['hooks'][0]['timeout'] = 99
+        self._legacy('.claude/settings.json', json.dumps(settings, indent=2).encode() + b'\n')
+        preview = json.loads(self._cli('migrate', '--root', str(self.root), '--json').stdout)
+        self.assertEqual(preview['legacy_hooks'], {})
+        self.assertEqual(preview['dangling_references']['.claude/settings.json'], ['scripts/source_prompt.py'])
+        done = self._cli('migrate', '--root', str(self.root), '--confirm', '--json')
+        report = json.loads(done.stdout)
+        self.assertEqual(report['legacy_hooks'], {})
+        self.assertEqual(report['dangling_references']['.claude/settings.json'], ['scripts/source_prompt.py'])
+        self.assertTrue(done.stderr.startswith('youngcrow: warning: .claude/settings.json: '), done.stderr)
+        self.assertIn('UserPromptSubmit', done.stderr)
+        self.assertEqual(json.loads((self.root / '.claude/settings.json').read_text())['hooks']['UserPromptSubmit'],
+                         settings['hooks']['UserPromptSubmit'])
 
     def test_a_clean_migrate_has_no_references_and_a_clean_vault_check(self):
         shutil.copy(REPO / 'scripts/vault.py', self._dest('scripts/vault.py'))

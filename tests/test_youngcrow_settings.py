@@ -8,7 +8,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 
 from youngcrow.settings import (  # noqa: E402
-    CLAUDE_SETTINGS, WIRING, SettingsSkipped, add_wiring, added_pairs, remove_wiring, unwire,
+    CLAUDE_SETTINGS, HOOK_FILES, WIRING, SettingsSkipped, add_wiring, added_pairs, hook_entries, remove_hooks,
+    remove_wiring, unwire,
 )
 
 MARKETPLACE = ['extraKnownMarketplaces', 'youngcrow']
@@ -149,6 +150,95 @@ class UnwireTests(unittest.TestCase):
 
     def test_a_file_that_is_no_longer_json_stays_as_it_is(self):
         self.assertEqual(unwire(b'{broken', None, BOTH), b'{broken')
+
+
+OLD = {'type': 'command', 'command': 'python3 -c "run scripts/source_prompt.py"', 'timeout': 10,
+       'commandWindows': 'python -c "run scripts/source_prompt.py"'}
+MINE = {'type': 'command', 'command': 'make lint', 'timeout': 5}
+
+
+def settings(hooks, **more):
+    return json.dumps({**more, 'hooks': hooks}, indent=2).encode() + b'\n'
+
+
+class RemoveHooksTests(unittest.TestCase):
+    """R41/R43: migrate takes the published source_prompt entries out of the hook files it keeps."""
+
+    def test_the_hook_files_are_the_two_setup_sh_wrote(self):
+        self.assertEqual(HOOK_FILES, ('.claude/settings.json', '.codex/hooks.json'))
+
+    def test_a_published_entry_comes_out_with_the_group_and_event_it_empties(self):
+        data = settings({'UserPromptSubmit': [{'hooks': [OLD]}], 'Stop': [{'hooks': [MINE]}]}, permissions={'allow': ['Read']})
+        out, count, kept = remove_hooks(data, [OLD])
+        self.assertEqual((count, kept), (1, []))
+        self.assertEqual(json.loads(out), {'permissions': {'allow': ['Read']}, 'hooks': {'Stop': [{'hooks': [MINE]}]}})
+
+    def test_the_entries_and_groups_around_it_stay(self):
+        data = settings({'UserPromptSubmit': [{'matcher': 'x', 'hooks': [MINE, OLD]}, {'hooks': [OLD]}, {'hooks': [MINE]}]})
+        out, count, _ = remove_hooks(data, [OLD])
+        self.assertEqual(count, 2)
+        self.assertEqual(json.loads(out), {'hooks': {'UserPromptSubmit': [{'matcher': 'x', 'hooks': [MINE]}, {'hooks': [MINE]}]}})
+
+    def test_hooks_left_empty_goes_too(self):
+        out, count, _ = remove_hooks(settings({'UserPromptSubmit': [{'hooks': [OLD]}]}, model='x'), [OLD])
+        self.assertEqual((json.loads(out), count), ({'model': 'x'}, 1))
+        self.assertEqual(remove_hooks(settings({'UserPromptSubmit': [{'hooks': [OLD, OLD]}]}), [OLD])[:2], (b'{}\n', 2))
+
+    def test_what_was_empty_before_stays(self):
+        data = settings({'Stop': [], 'PreToolUse': [{'hooks': []}], 'UserPromptSubmit': [{'hooks': [OLD]}]})
+        self.assertEqual(json.loads(remove_hooks(data, [OLD])[0]), {'hooks': {'Stop': [], 'PreToolUse': [{'hooks': []}]}})
+
+    def test_key_order_does_not_matter_and_any_published_entry_counts(self):
+        reordered = dict(reversed(list(OLD.items())))
+        other = {'type': 'command', 'command': 'python scripts/source_prompt.py', 'timeout': 10}
+        out, count, kept = remove_hooks(settings({'UserPromptSubmit': [{'hooks': [reordered, other, MINE]}]}), [other, OLD])
+        self.assertEqual((json.loads(out), count, kept), ({'hooks': {'UserPromptSubmit': [{'hooks': [MINE]}]}}, 2, []))
+
+    def test_an_entry_with_a_published_command_and_another_field_changed_stays_and_is_named(self):
+        for changed in ({**OLD, 'timeout': 99}, {**OLD, 'timeout': 10.0}, {**OLD, 'statusMessage': 'Sources'},
+                        {key: value for key, value in OLD.items() if key != 'timeout'},
+                        {'type': 'command', 'command': 'mine', 'commandWindows': OLD['commandWindows']},
+                        {'type': 'command', 'command': OLD['commandWindows']}):
+            with self.subTest(changed=changed):
+                data = settings({'Stop': [{'hooks': [MINE]}], 'UserPromptSubmit': [{'hooks': [changed]}]})
+                self.assertEqual(remove_hooks(data, [OLD]), (data, 0, ['UserPromptSubmit']))
+
+    def test_an_entry_that_only_names_source_prompt_is_not_ours_and_stays_quietly(self):
+        data = settings({'UserPromptSubmit': [{'hooks': [{'type': 'command', 'command': 'python3 scripts/source_prompt.py'}]}]})
+        self.assertEqual(remove_hooks(data, [OLD]), (data, 0, []))
+
+    def test_nothing_to_take_out_gives_the_bytes_back_as_they_are(self):
+        data = b'{\n    "hooks": {"Stop": [{"hooks": [{"type": "command", "command": "make lint"}]}]}\n}'
+        for published in ([OLD], [], ()):
+            with self.subTest(published=published):
+                self.assertIs(remove_hooks(data, published)[0], data)
+        self.assertEqual(remove_hooks(b'{"model": "x"}', [OLD]), (b'{"model": "x"}', 0, []))
+
+    def test_crlf_and_text_outside_ascii_stay(self):
+        data = settings({'UserPromptSubmit': [{'hooks': [OLD]}]}, título='ação').replace(b'\n', b'\r\n')
+        out = remove_hooks(data, [OLD])[0]
+        self.assertEqual(out, '{\r\n  "título": "ação"\r\n}\r\n'.encode())
+
+    def test_parts_of_another_shape_are_passed_over(self):
+        data = settings({'A': 'text', 'B': [1, {'hooks': 'text'}, {'hooks': [2, OLD]}]})
+        out, count, _ = remove_hooks(data, [OLD])
+        self.assertEqual((json.loads(out), count), ({'hooks': {'A': 'text', 'B': [1, {'hooks': 'text'}, {'hooks': [2]}]}}, 1))
+        for data in (b'{"hooks": []}', b'{"hooks": "x"}', b'{"hooks": {"Stop": {"hooks": []}}}'):
+            with self.subTest(data=data):
+                self.assertEqual(remove_hooks(data, [OLD]), (data, 0, []))
+
+    def test_a_file_that_is_not_a_json_object_is_refused(self):
+        for data in (b'{oops', b'[]', b'\xff'):
+            with self.subTest(data=data), self.assertRaises(SettingsSkipped):
+                remove_hooks(data, [OLD])
+
+    def test_hook_entries_lists_every_hook_object_where_the_clients_read_them(self):
+        value = {'hooks': {'Stop': [{'hooks': [MINE, 'text']}, 3], 'UserPromptSubmit': [{'matcher': 'x', 'hooks': [OLD]}],
+                           'Odd': {'hooks': [OLD]}}, 'other': {'hooks': [OLD]}}
+        self.assertEqual(hook_entries(value), [MINE, OLD])
+        for value in ({}, [], 'text', {'hooks': []}):
+            with self.subTest(value=value):
+                self.assertEqual(hook_entries(value), [])
 
 
 if __name__ == '__main__':

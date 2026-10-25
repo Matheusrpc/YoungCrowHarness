@@ -895,7 +895,7 @@ Depois das listas, o `init` e o `migrate --confirm` imprimem `Next steps:`, uma 
 
 `--json` imprime as mesmas quatro listas como `written`, `kept_modified`, `removed` e `skipped`, mais
 `next_steps`; o `undo --json` acrescenta `warnings`. `migrate --json` imprime `applied`, `matches` (as
-cópias removidas ou, na prévia, as que seriam removidas), `modified`, `legacy_rules`,
+cópias removidas ou, na prévia, as que seriam removidas), `modified`, `legacy_hooks`, `legacy_rules`,
 `dangling_references`, `vault_check` e `next_steps`.
 
 O código de saída é 0 quando o comando rodou, 2 para linha de comando errada e 3 quando o youngcrow
@@ -924,10 +924,23 @@ então atualize qualquer Makefile, job de CI ou hook que chame `scripts/...`. Ro
 `migrate` tira a instalação nova, mas não devolve o que o `migrate` removeu. Recupere esses arquivos
 pelo git.
 
+O `setup.sh` também pôs no `.claude/settings.json` e no `.codex/hooks.json` um hook `UserPromptSubmit`
+que roda `scripts/source_prompt.py`. Sem o `scripts/`, esse hook falharia a cada prompt; agora o hook do
+plugin faz esse trabalho. Quando você alterou esses arquivos e eles ficam, o `migrate` tira deles só as
+entradas iguais a uma que o `setup.sh` publicou. Os seus outros hooks ficam, e o grupo ou evento que
+ficar vazio sai. A prévia lista cada arquivo sob `Old setup.sh hooks that will be taken out:` e o
+`--confirm`, sob `Old setup.sh hooks taken out:`, com o número de entradas (`--json`: `legacy_hooks`).
+Uma entrada com o mesmo comando e outro campo mudado (um `timeout`, por exemplo) é sua: fica, e um
+aviso em stderr diz o arquivo e o evento. Um arquivo que não é JSON fica como está, também com aviso.
+No `.claude/settings.json`, o hook antigo sai antes de o `init` ligar o plugin, então a cópia em
+`.youngcrow/originals/` já não o tem e o `undo` não o traz de volta; o `.codex/hooks.json` limpo também
+continua limpo depois do `undo`.
+
 Tanto a prévia quanto o `--confirm` listam os arquivos que ainda apontam para o que o `migrate`
 remove, sob o título `These files still point at files migrate removes:` (`--json`:
 `dangling_references`, cada arquivo com os caminhos que cita). Ele lê as cópias editadas do `setup.sh` que mantém e todas as
-notas Markdown de `vault/`, sem alterar nenhuma. Depois do `--confirm`, roda
+notas Markdown de `vault/`, sem alterar nenhuma; os arquivos de hook são lidos sem as entradas que o
+`migrate` tira. Depois do `--confirm`, roda
 `.youngcrow/scripts/vault.py check` e imprime a linha de resumo (`--json`: `vault_check`, com
 `exit_code` e `summary`; `null` na prévia). Um vault criado pelo `setup.sh` tem links para as skills
 removidas, e o check acusa esses links até você editar as notas.
@@ -1724,8 +1737,8 @@ After the lists, `init` and `migrate --confirm` print `Next steps:`, one line pe
 
 `--json` prints the same four lists as `written`, `kept_modified`, `removed` and `skipped`, plus
 `next_steps`; `undo --json` adds `warnings`. `migrate --json` prints `applied`, `matches` (the copies
-removed or, in a preview, the ones that would be), `modified`, `legacy_rules`, `dangling_references`,
-`vault_check` and `next_steps`.
+removed or, in a preview, the ones that would be), `modified`, `legacy_hooks`, `legacy_rules`,
+`dangling_references`, `vault_check` and `next_steps`.
 
 The exit code is 0 when the command ran, 2 for a wrong command line and 3 when youngcrow refused to
 touch the project; a refusal prints its reason on stderr. It refuses when the project is already set
@@ -1752,10 +1765,22 @@ and hooks now come from the plugin. The scripts move to `.youngcrow/scripts/`, s
 update any Makefile, CI job or hook that calls `scripts/...`. Running `undo` after `migrate` takes out
 the new install but does not bring back what `migrate` removed. Restore those files with git.
 
+`setup.sh` also put a `UserPromptSubmit` hook in `.claude/settings.json` and `.codex/hooks.json` that
+runs `scripts/source_prompt.py`. Without `scripts/`, that hook would fail on every prompt; the plugin's
+hook does that job now. When you changed those files and they stay, `migrate` takes out only the
+entries equal to one `setup.sh` published. Your other hooks stay, and a group or event left empty goes.
+The preview lists each file under `Old setup.sh hooks that will be taken out:` and `--confirm` under
+`Old setup.sh hooks taken out:`, with the number of entries (`--json`: `legacy_hooks`). An entry with
+the same command and another field changed (a `timeout`, say) is yours: it stays, and a warning on
+stderr names the file and the event. A file that is not JSON stays as it is, also with a warning. In
+`.claude/settings.json` the old hook comes out before `init` turns on the plugin, so the copy in
+`.youngcrow/originals/` no longer has it and `undo` does not bring it back; a cleaned
+`.codex/hooks.json` also stays clean after `undo`.
+
 Both the preview and `--confirm` list the files that still point at what `migrate` removes, under
 `These files still point at files migrate removes:` (`--json`: `dangling_references`, each file with
 the paths it names). It reads the edited `setup.sh` copies it keeps and every Markdown note in
-`vault/`, and changes none of them. After `--confirm` it runs `.youngcrow/scripts/vault.py check` and
+`vault/`, and changes none of them; it reads the hook files without the entries `migrate` takes out. After `--confirm` it runs `.youngcrow/scripts/vault.py check` and
 prints the summary line (`--json`: `vault_check`, with `exit_code` and `summary`; `null` in a preview).
 A vault that `setup.sh` created links to the removed skills, so expect issues there until you edit
 those notes.

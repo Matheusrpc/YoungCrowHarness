@@ -19,12 +19,13 @@ import unittest
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / 'src'))
 
-from youngcrow.install import AlreadyInitialized, init  # noqa: E402
-from youngcrow.manifest import load, sha256_file  # noqa: E402
+from youngcrow.install import AlreadyInitialized, init, undo  # noqa: E402
+from youngcrow.manifest import UnsafePathError, load, sha256_file  # noqa: E402
 from youngcrow.migrate import (  # noqa: E402
-    LEGACY_PATHS, MigrationPreview, apply, dangling_references, is_legacy_path, legacy_hashes, scan, vault_check,
+    LEGACY_PATHS, MigrationPreview, apply, dangling_references, is_legacy_path, legacy_hashes, legacy_hooks, scan,
+    vault_check,
 )
-from youngcrow.settings import WIRING  # noqa: E402
+from youngcrow.settings import CLAUDE_SETTINGS, HOOK_FILES, WIRING, hook_entries  # noqa: E402
 
 FOLDERS = {'skills/*', '.claude/skills/*', '.agents/skills/*'}
 
@@ -96,6 +97,20 @@ class TableTests(unittest.TestCase):
     def test_the_agents_copy_of_humanizer_ptbr_has_the_hashes_of_the_skills_one(self):
         table = legacy_hashes()
         self.assertEqual(table['.agents/skills/humanizer-ptbr/SKILL.md'], table['skills/humanizer-ptbr/SKILL.md'])
+
+    def test_the_hook_table_holds_published_source_prompt_entries_sorted_and_once(self):
+        entries = legacy_hooks()
+        self.assertIsInstance(entries, tuple)
+        self.assertTrue(entries)
+        canonical = [json.dumps(entry, sort_keys=True) for entry in entries]
+        self.assertEqual(canonical, sorted(set(canonical)))
+        for entry in entries:
+            self.assertTrue(any('source_prompt.py' in entry.get(key, '') for key in ('command', 'commandWindows')), entry)
+        # What the repository's hook files hold now is in the table (R28).
+        for rel in HOOK_FILES:
+            for entry in hook_entries(json.loads((REPO / rel).read_text(encoding='utf-8'))):
+                if any('source_prompt.py' in entry.get(key, '') for key in ('command', 'commandWindows')):
+                    self.assertIn(entry, entries, rel)
 
 
 class RealTableTests(unittest.TestCase):
@@ -476,6 +491,138 @@ class MigrateTests(unittest.TestCase):
         self.assertIsNotNone(load(self.root))
 
 
+class LegacyHookTests(unittest.TestCase):
+    """R41/R43: migrate takes the old source_prompt hook out of the hook files it keeps (real tables)."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name) / 'project'
+        for rel in ('scripts/source_prompt.py', 'scripts/vault.py'):
+            (self.root / rel).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(REPO / rel, self.root / rel)
+        # The hook files setup.sh copied, with the person's own additions, so migrate keeps them.
+        self.settings = json.loads((REPO / CLAUDE_SETTINGS).read_text(encoding='utf-8'))
+        self.settings['permissions'] = {'allow': ['Bash(make test)']}
+        self.codex = json.loads((REPO / '.codex/hooks.json').read_text(encoding='utf-8'))
+        self.codex['hooks']['SessionStart'] = [{'hooks': [{'type': 'command', 'command': 'make env'}]}]
+
+    def write(self):
+        for rel, value in ((CLAUDE_SETTINGS, self.settings), ('.codex/hooks.json', self.codex)):
+            path = self.root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(value if isinstance(value, bytes) else json.dumps(value, indent=2).encode() + b'\n')
+
+    def migrate(self):
+        self.write()
+        preview = scan(self.root)
+        return preview, apply(self.root, preview)
+
+    def read(self, rel):
+        return json.loads((self.root / rel).read_bytes())
+
+    @staticmethod
+    def without_the_old_hook(value):
+        return {**value, 'hooks': {event: groups for event, groups in value['hooks'].items() if event != 'UserPromptSubmit'}}
+
+    def test_migrate_removes_the_published_hook_and_keeps_the_rest(self):
+        preview, report = self.migrate()
+        self.assertEqual(preview.hooks, {CLAUDE_SETTINGS: 1, '.codex/hooks.json': 1})
+        self.assertEqual(report.hooks, preview.hooks)
+        settings = self.read(CLAUDE_SETTINGS)
+        self.assertNotIn('UserPromptSubmit', settings['hooks'])
+        self.assertIn('Stop', settings['hooks'])
+        self.assertEqual(settings, {**self.without_the_old_hook(self.settings), **WIRING})
+        self.assertEqual(settings['enabledPlugins'], {'youngcrow@youngcrow': True})
+        self.assertNotIn('source_prompt', (self.root / CLAUDE_SETTINGS).read_text(encoding='utf-8'))
+        self.assertFalse((self.root / 'scripts').exists())
+        self.assertEqual(report.warnings, [])
+        # The old hook came out first, so the original init saved is the file already without it (R37).
+        self.assertEqual(self.read('.youngcrow/originals/' + CLAUDE_SETTINGS), self.without_the_old_hook(self.settings))
+
+    def test_codex_hooks_json_is_cleaned_too(self):
+        _, report = self.migrate()
+        self.assertEqual(self.read('.codex/hooks.json'), self.without_the_old_hook(self.codex))
+        self.assertIn('.codex/hooks.json', report.written)
+        self.assertNotIn('.codex/hooks.json', load(self.root).files)  # migrate's own change, not init's
+
+    def test_undo_after_migrate_does_not_bring_the_old_hook_back(self):
+        self.migrate()
+        cleaned = (self.root / '.codex/hooks.json').read_bytes()
+        saved = (self.root / '.youngcrow/originals' / CLAUDE_SETTINGS).read_bytes()
+        undo(self.root, confirm=True)
+        self.assertEqual((self.root / '.codex/hooks.json').read_bytes(), cleaned)
+        self.assertEqual((self.root / CLAUDE_SETTINGS).read_bytes(), saved)
+
+    def test_a_hand_edited_hook_entry_stays(self):
+        entry = self.settings['hooks']['UserPromptSubmit'][0]['hooks'][0]
+        entry['timeout'] = 99
+        preview, report = self.migrate()
+        self.assertEqual(preview.hooks, {'.codex/hooks.json': 1})
+        self.assertEqual(report.hooks, {'.codex/hooks.json': 1})
+        self.assertEqual(self.read(CLAUDE_SETTINGS)['hooks']['UserPromptSubmit'], [{'hooks': [entry]}])
+        self.assertEqual(len(report.warnings), 1, report.warnings)
+        self.assertTrue(report.warnings[0].startswith(CLAUDE_SETTINGS + ': '), report.warnings)
+        self.assertIn('UserPromptSubmit', report.warnings[0])
+
+    def test_a_hook_file_that_is_not_json_stays_and_is_named_in_warnings(self):
+        self.codex = b'{"hooks": oops\n'
+        preview, report = self.migrate()
+        self.assertEqual(preview.hooks, {CLAUDE_SETTINGS: 1})
+        self.assertEqual((self.root / '.codex/hooks.json').read_bytes(), b'{"hooks": oops\n')
+        self.assertEqual(len(report.warnings), 1, report.warnings)
+        self.assertTrue(report.warnings[0].startswith('.codex/hooks.json: '), report.warnings)
+
+    def test_a_hook_file_migrate_removes_whole_is_not_counted(self):
+        self.write()
+        shutil.copy(REPO / '.codex/hooks.json', self.root / '.codex/hooks.json')  # an unmodified setup.sh copy
+        preview = scan(self.root)
+        self.assertIn('.codex/hooks.json', preview.matches)
+        self.assertEqual(preview.hooks, {CLAUDE_SETTINGS: 1})
+        report = apply(self.root, preview)
+        self.assertFalse((self.root / '.codex/hooks.json').exists())
+        self.assertEqual(report.hooks, {CLAUDE_SETTINGS: 1})
+
+    def test_scan_counts_without_writing(self):
+        self.write()
+        before = snapshot(self.root)
+        self.assertEqual(scan(self.root).hooks, {CLAUDE_SETTINGS: 1, '.codex/hooks.json': 1})
+        self.assertEqual(snapshot(self.root), before)
+
+    def test_a_failed_run_puts_the_hook_files_back(self):
+        self.write()
+        before = snapshot(self.root)
+        real = os.replace
+
+        def replace(source, destination):
+            if Path(destination).name == 'AGENTS.md':  # after the hooks came out, before the wiring
+                raise OSError('disk full')
+            return real(source, destination)
+
+        # Failing before the wiring, and at the very end, once settings.json was written twice.
+        for failure in (mock.patch('os.replace', replace), mock.patch('youngcrow.install.save', side_effect=OSError('disk full'))):
+            preview = scan(self.root)
+            with failure, self.assertRaises(OSError):
+                apply(self.root, preview)
+            self.assertEqual(snapshot(self.root), before)
+
+    def test_a_linked_hook_file_makes_migrate_refuse_before_it_changes_anything(self):
+        self.write()
+        outside = self.root.parent / 'hooks.json'
+        shutil.move(self.root / '.codex/hooks.json', outside)
+        try:
+            os.symlink(outside, self.root / '.codex/hooks.json')
+        except (OSError, NotImplementedError) as error:
+            self.skipTest(f'this OS refused to create a symlink: {error}')
+        before, data = snapshot(self.root), outside.read_bytes()
+        preview = scan(self.root)
+        self.assertEqual(preview.hooks, {CLAUDE_SETTINGS: 1})  # a link is never read
+        with self.assertRaises(UnsafePathError):
+            apply(self.root, preview, client='claude')
+        self.assertEqual(snapshot(self.root), before)
+        self.assertEqual(outside.read_bytes(), data)
+
+
 class ReferenceTests(unittest.TestCase):
     """dangling_references: which kept files and vault notes still name a file migrate removes."""
 
@@ -537,6 +684,17 @@ class ReferenceTests(unittest.TestCase):
         self.assertEqual(dangling_references(self.root, ['.env.example'], ['AGENTS.md']), {})
         self.put('AGENTS.md', '# Mine\n\nCopy .env.example first.\n<!-- youngcrow:start -->\nno end\n')
         self.assertEqual(dangling_references(self.root, ['.env.example'], ['AGENTS.md']), {'AGENTS.md': ['.env.example']})
+
+    def test_a_hook_file_is_read_without_the_entries_migrate_takes_out(self):
+        old = {'type': 'command', 'command': 'python3 scripts/source_prompt.py', 'timeout': 10}
+        edited = {**old, 'timeout': 99}
+        for entries, found in (([old], {}), ([old, edited], {CLAUDE_SETTINGS: ['scripts/source_prompt.py']})):
+            with self.subTest(entries=entries):
+                self.put(CLAUDE_SETTINGS, json.dumps({'hooks': {'UserPromptSubmit': [{'hooks': entries}]}}))
+                self.assertEqual(dangling_references(self.root, ['scripts/source_prompt.py'], [CLAUDE_SETTINGS],
+                                                     strip_hooks=(old,)), found)
+        self.assertEqual(dangling_references(self.root, ['scripts/source_prompt.py'], [CLAUDE_SETTINGS]),
+                         {CLAUDE_SETTINGS: ['scripts/source_prompt.py']})
 
     def test_nothing_removed_means_nothing_to_report(self):
         self.put('vault/index.md', 'scripts/vault.py\n')
@@ -772,20 +930,71 @@ class LegacyHashesToolTests(unittest.TestCase):
             self.assertEqual(self.tool.main(['--repo', str(self.repo), '--ref', 'nope', '--out', str(out)]), 1)
         self.assertIn('nope', errors.getvalue())
         self.assertFalse(out.exists())
+        self.assertFalse((out.parent / 'legacy_hooks.json').exists())
+
+    # The hook table (R41/R43): every source_prompt entry the hook files had, from the same history.
+
+    @staticmethod
+    def hook(command, **more):
+        return {'type': 'command', 'command': f'{command} scripts/source_prompt.py', **more}
+
+    @staticmethod
+    def hook_file(*entries):
+        mine = {'type': 'command', 'command': 'make lint'}
+        return json.dumps({'hooks': {'UserPromptSubmit': [{'hooks': list(entries)}], 'Stop': [{'hooks': [mine]}]}},
+                          indent=2).encode() + b'\n'
+
+    def test_the_hook_table_holds_every_source_prompt_entry_the_hook_files_had(self):
+        old, win, codex, other, side, local = (
+            self.hook('python3', timeout=10), self.hook('python', timeout=10),
+            self.hook('python3', timeout=10, commandWindows='python scripts/source_prompt.py'),
+            self.hook('py', timeout=1), self.hook('side'), self.hook('local'))
+        self.commit('one', put=[('.claude/settings.json', self.hook_file(old)),
+                                ('.claude/settings.local.json', self.hook_file(other)), ('notes.json', self.hook_file(other))])
+        self.commit('two', put=[('.claude/settings.json', b'{not json'), ('.codex/hooks.json', self.hook_file(old, codex))])
+        self.commit('three', put=[('.claude/settings.json', self.hook_file(win))])
+        git(self.repo, 'checkout', '-q', '-b', 'feature')
+        self.commit('side', put=[('.codex/hooks.json', self.hook_file(side))])
+        git(self.repo, 'checkout', '-q', 'main')
+        (self.repo / '.codex/hooks.json').write_bytes(self.hook_file(local))  # changed, not committed
+        expected = sorted([old, win, codex, local], key=lambda entry: json.dumps(entry, sort_keys=True))
+        self.assertEqual(self.tool.build_hooks(self.repo, 'main'), expected)
+        self.assertEqual(json.loads(self.tool.render_hooks(expected)), {'entries': expected})
+
+    def test_the_command_writes_the_hook_table_next_to_the_hash_table(self):
+        self.commit('one', put=[('.claude/settings.json', self.hook_file(self.hook('python3', timeout=10)))])
+        outputs = []
+        for name in ('one', 'two'):
+            out = self.repo.parent / name / 'legacy_hashes.json'
+            out.parent.mkdir()
+            with redirect_stdout(io.StringIO()):
+                self.assertEqual(self.tool.main(['--repo', str(self.repo), '--out', str(out)]), 0)
+            outputs.append((out.parent / 'legacy_hooks.json').read_bytes())
+        self.assertEqual(outputs[0], outputs[1])
+        text = outputs[0].decode()
+        self.assertEqual(text, self.tool.render_hooks(self.tool.build_hooks(self.repo, 'main')))
+        self.assertEqual(text, json.dumps(json.loads(text), indent=2, sort_keys=True) + '\n')
+        self.assertEqual(json.loads(text), {'entries': [self.hook('python3', timeout=10)]})
+
+    def skip_without_history(self):
+        run = subprocess.run(['git', '-C', str(REPO), 'rev-parse', '--is-shallow-repository'], capture_output=True, text=True)
+        if run.returncode != 0 or run.stdout.strip() != 'false':
+            self.skipTest('the git history is not available (not a repository, or a shallow checkout)')
 
     def test_the_committed_table_is_what_the_generator_gives_for_head_and_the_working_tree(self):
         # R27/R28: the table comes from the branch head plus the files as they are now, so it holds what
         # origin/main published and what this branch is about to publish, and a change to a legacy
         # file can land in the same commit as its regenerated table.
-        def run(*args):
-            return subprocess.run(['git', '-C', str(REPO), *args], capture_output=True, text=True)
-
-        shallow = run('rev-parse', '--is-shallow-repository')
-        if shallow.returncode != 0 or shallow.stdout.strip() != 'false':
-            self.skipTest('the git history is not available (not a repository, or a shallow checkout)')
+        self.skip_without_history()
         committed = (REPO / 'src/youngcrow/legacy_hashes.json').read_text(encoding='utf-8')
         self.assertEqual(committed, self.tool.render(self.tool.build_table(REPO, 'HEAD')),
                          'src/youngcrow/legacy_hashes.json is stale; run: python3 tools/legacy_hashes.py --repo . --ref HEAD')
+
+    def test_legacy_hooks_table_is_fresh(self):
+        self.skip_without_history()
+        committed = (REPO / 'src/youngcrow/legacy_hooks.json').read_text(encoding='utf-8')
+        self.assertEqual(committed, self.tool.render_hooks(self.tool.build_hooks(REPO, 'HEAD')),
+                         'src/youngcrow/legacy_hooks.json is stale; run: python3 tools/legacy_hashes.py --repo . --ref HEAD')
 
 
 if __name__ == '__main__':

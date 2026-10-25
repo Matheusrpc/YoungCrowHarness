@@ -15,7 +15,7 @@ import sys
 
 from youngcrow import __version__
 from youngcrow.install import AlreadyInitialized, NotInitialized, Report, init, undo, upgrade
-from youngcrow.migrate import apply, dangling_references, scan, vault_check
+from youngcrow.migrate import apply, dangling_references, legacy_hooks, scan, vault_check
 
 # ManagedBlockError and UnsafePathError are ValueErrors too, as is a client, lang or rigor init does not support.
 REFUSALS = (AlreadyInitialized, NotInitialized, ValueError)
@@ -119,6 +119,12 @@ def _comes_back(rel: str, client: str) -> bool:
     return (rel == 'CLAUDE.md' and client != 'codex') or (rel == 'AGENTS.md' and client != 'claude')
 
 
+def _hooks_listing(heading: str, hooks: dict[str, int]) -> list[str]:
+    """R41: the hook files that lose the old setup.sh entries, with how many."""
+    lines = [f'{rel}: {n} {"entry" if n == 1 else "entries"}' for rel, n in hooks.items()]
+    return _listing(heading, lines) if lines else []
+
+
 def _references_notice(found: dict[str, list[str]]) -> list[str]:
     """R30: the kept files and vault notes that still name a file migrate removes, one line each."""
     lines = ['', 'These files still point at files migrate removes:']
@@ -143,22 +149,25 @@ def _migrate(args: argparse.Namespace) -> Result:
         matches = [path for path in preview.matches if path in report.removed]
         modified = report.kept_modified
         gone = [rel for rel in report.removed if not rel.endswith('/') and not os.path.lexists(args.root / rel)]
-        lines = _report_lines(report)
+        hooks, to_strip = report.hooks, ()  # the files on disk no longer hold the entries init took out
+        lines = _report_lines(report) + _hooks_listing('Old setup.sh hooks taken out:', hooks)
         check = vault_check(args.root)
     else:
         matches, modified = preview.matches, preview.modified if found else []
         gone = [rel for rel in matches if not _comes_back(rel, args.client)]
+        hooks, to_strip = preview.hooks, legacy_hooks()  # read the hook files as --confirm leaves them
         lines = ['Preview only, nothing was changed. Add --confirm to migrate.']
         if matches:
             lines += _listing('Will be removed (unmodified setup.sh copies):', matches)
         if modified:
             lines += _listing('Kept (you changed these):', modified)
+        lines += _hooks_listing('Old setup.sh hooks that will be taken out:', hooks)
     if not found:
         lines.append('No setup.sh install found.')
     rules = [path for path in modified if path in LEGACY_RULE_FILES]
     if rules:
         lines += _legacy_notice(rules, migrated=args.confirm)
-    references = dangling_references(args.root, gone, modified)
+    references = dangling_references(args.root, gone, modified, to_strip)
     if references:
         lines += _references_notice(references)
     if check:
@@ -166,8 +175,8 @@ def _migrate(args: argparse.Namespace) -> Result:
         if check['exit_code']:
             lines.append('Run .youngcrow/scripts/vault.py check in the project to see each issue.')
     lines += _next_steps(steps)
-    data = {'applied': args.confirm, 'matches': matches, 'modified': modified, 'legacy_rules': rules,
-            'dangling_references': references, 'vault_check': check, 'next_steps': steps}
+    data = {'applied': args.confirm, 'matches': matches, 'modified': modified, 'legacy_hooks': hooks,
+            'legacy_rules': rules, 'dangling_references': references, 'vault_check': check, 'next_steps': steps}
     return data, '\n'.join(lines)
 
 

@@ -28,8 +28,8 @@ from youngcrow.manifest import (
 )
 from youngcrow.payload import PAYLOAD, payload_root
 from youngcrow.settings import (
-    CLAUDE_MANUAL_STEP, CLAUDE_SETTINGS, CLAUDE_STEP, CODEX_AGENT, CODEX_STEP, ORIGINALS, SettingsSkipped,
-    add_wiring, added_pairs, codex_agent, unwire,
+    CLAUDE_MANUAL_STEP, CLAUDE_SETTINGS, CLAUDE_STEP, CODEX_AGENT, CODEX_STEP, HOOK_FILES, ORIGINALS, SettingsSkipped,
+    add_wiring, added_pairs, codex_agent, remove_hooks, unwire,
 )
 
 CLIENTS = ('claude', 'codex', 'both')
@@ -58,6 +58,7 @@ class Report:
     skipped: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)  # for the person; not in `to_json`
     next_steps: list[str] = field(default_factory=list)  # what the person does after init, one client each
+    hooks: dict[str, int] = field(default_factory=dict)  # entries `strip_hooks` took out, per file; not in `to_json`
 
     def to_json(self) -> dict:
         """The four lists `written`, `kept_modified`, `removed` and `skipped`, then `next_steps`."""
@@ -351,18 +352,52 @@ def _apply(root: Path, steps: list[_Step], *, manifest: Manifest | None = None,
         raise
 
 
-def _plan_clients(root: Path, client: str, gone: frozenset[str], report: Report) -> list[_Step]:
+def _plan_hooks(root: Path, published: Sequence[dict], gone: frozenset[str], report: Report) -> list[_Step]:
+    """The steps that take the old setup.sh hook entries out of the hook files (R41, R43).
+
+    In each of HOOK_FILES that is there and not in `gone`, the entries equal to one in `published`
+    come out (`settings.remove_hooks`), and how many goes into `report.hooks`. A look-alike entry
+    stays and gets a line in `warnings`, as does a file that is not a JSON object in UTF-8, which is
+    left as it is.
+    """
+    steps = []
+    for rel in HOOK_FILES if published else ():
+        old = None if rel in gone else _read_bytes(root, rel)
+        if old is None:
+            continue
+        try:
+            new, count, kept = remove_hooks(old, published)
+        except SettingsSkipped as error:
+            report.warnings.append(f'{rel}: {error}, so youngcrow could not look for the old setup.sh hook in it.')
+            continue
+        report.warnings += [f'{rel}: youngcrow kept a {event} hook that is the old setup.sh one with an edit. It runs '
+                            'scripts/source_prompt.py and fails once that file is gone; remove it by hand.'
+                            for event in kept]
+        if count:
+            steps.append(_Step(rel, new, old))
+            report.hooks[rel] = count
+    return steps
+
+
+def _plan_clients(root: Path, client: str, gone: frozenset[str], report: Report,
+                  cleaned: dict[str, bytes]) -> list[_Step]:
     """The steps that wire the clients (R36); each client's next step goes into `report`.
 
     Claude (`claude`, `both`): `add_wiring` on `.claude/settings.json`. A file that was there is
     saved first under `.youngcrow/originals/` (R37). One that already has the wiring is `skipped`;
     one `add_wiring` refuses is left alone too, with the reason in `warnings` and the manual install
     as the next step. Codex (`codex`, `both`): the agent file is written when it is missing, else
-    `skipped`. A file in `gone` is about to be removed by the same run, so it counts as missing.
+    `skipped`. A file in `gone` is about to be removed by the same run, so it counts as missing; one
+    in `cleaned` is read as the same run leaves it before the wiring (the old hooks out).
     """
     steps = []
     if client != 'codex':
-        old = None if CLAUDE_SETTINGS in gone else _read_bytes(root, CLAUDE_SETTINGS)
+        if CLAUDE_SETTINGS in gone:
+            old = None
+        elif CLAUDE_SETTINGS in cleaned:
+            old = cleaned[CLAUDE_SETTINGS]
+        else:
+            old = _read_bytes(root, CLAUDE_SETTINGS)
         try:
             new = add_wiring(old)
         except SettingsSkipped as error:
@@ -395,7 +430,7 @@ def _original(root: Path, manifest: Manifest, rel: str) -> bytes | None:
 
 
 def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'light',
-         remove: Sequence[str] = ()) -> Report:
+         remove: Sequence[str] = (), strip_hooks: tuple[dict, ...] = ()) -> Report:
     """Install the harness into `root`.
 
     Copies the scripts and the capability catalog into `.youngcrow/`, creates the vault indexes that
@@ -417,6 +452,12 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
     Each goes through `safe_target` and is read before the first write. A file it removes that init also writes (CLAUDE.md, AGENTS.md) is created anew,
     not edited. The files go into `Report.removed`, followed by the folders they leave empty (R18,
     with a trailing `/`); a failed run puts them all back.
+
+    `strip_hooks` lists hook entries to take out of `.claude/settings.json` and `.codex/hooks.json`
+    first (`migrate` passes the ones setup.sh published, R41); see `_plan_hooks`. Only that change is
+    made to `.codex/hooks.json`, which goes into `Report.written` but not into the manifest, so `undo`
+    leaves it. In `.claude/settings.json` the wiring comes after, so the bytes saved in
+    `.youngcrow/originals/` are the file without those entries. `Report.hooks` counts them per file.
     """
     _check_options(client, lang, rigor)
     root = Path(root)
@@ -463,17 +504,18 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
             report.skipped.append(rel)
         else:
             steps.append(step)
-    steps += _plan_clients(root, client, gone, report)
+    cleaned = _plan_hooks(root, strip_hooks, gone, report)
+    steps += _plan_clients(root, client, gone, report, {step.rel: step.data for step in cleaned})
 
     dirs = _empty_parents(root, [step.rel for step in drops], keep=[step.rel for step in steps])
-    _apply(root, drops + steps, manifest=Manifest(
+    _apply(root, drops + cleaned + steps, manifest=Manifest(
         version=__version__, client=client, lang=lang, rigor=rigor,
         files={step.rel: _sha(step.data) for step in steps},
         created=[step.rel for step in steps if step.created],
         edits=[step.rel for step in steps if step.managed],
         json_edits={step.rel: added_pairs(step.old) for step in steps if step.rel == CLAUDE_SETTINGS},
     ), dirs=dirs)
-    report.written = [step.rel for step in steps]
+    report.written = list(dict.fromkeys(step.rel for step in cleaned + steps))
     report.removed = [step.rel for step in drops] + [path.relative_to(root).as_posix() + '/' for path in dirs]
     return report
 

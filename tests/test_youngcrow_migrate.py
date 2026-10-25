@@ -25,7 +25,7 @@ from youngcrow.migrate import (  # noqa: E402
     LEGACY_PATHS, MigrationPreview, apply, dangling_references, is_legacy_path, legacy_hashes, legacy_hooks, scan,
     vault_check,
 )
-from youngcrow.settings import CLAUDE_SETTINGS, HOOK_FILES, WIRING, hook_entries  # noqa: E402
+from youngcrow.settings import CLAUDE_MANUAL_STEP, CLAUDE_SETTINGS, HOOK_FILES, WIRING, hook_entries  # noqa: E402
 
 FOLDERS = {'skills/*', '.claude/skills/*', '.agents/skills/*'}
 
@@ -410,6 +410,22 @@ class MigrateTests(unittest.TestCase):
             apply(self.root, scan(self.root))
         self.assertEqual(snapshot(self.root), before)
         self.assertEqual(list(self.other.iterdir()), [])
+
+    def test_a_folder_in_place_of_the_claude_settings_skips_only_the_claude_wiring(self):
+        # R57: the old P1 contract (migrate went on) holds; the folder is never written into.
+        self.legacy('scripts/vault.py')
+        (self.root / CLAUDE_SETTINGS).mkdir(parents=True)
+        (self.root / CLAUDE_SETTINGS / 'notes.txt').write_bytes(b'mine\n')
+        report = apply(self.root, scan(self.root))
+        self.assertFalse((self.root / 'scripts/vault.py').exists())
+        self.assertTrue((self.root / '.youngcrow/scripts/vault.py').is_file())
+        self.assertEqual(sorted(p.name for p in (self.root / CLAUDE_SETTINGS).iterdir()), ['notes.txt'])
+        self.assertEqual((self.root / CLAUDE_SETTINGS / 'notes.txt').read_bytes(), b'mine\n')
+        self.assertIn(CLAUDE_SETTINGS, report.skipped)
+        self.assertEqual(report.next_steps[0], CLAUDE_MANUAL_STEP)
+        self.assertIn(f'{CLAUDE_SETTINGS}: it or a folder on its path is a link, has the wrong type or cannot be read, '
+                      'so youngcrow left it as it is.', report.warnings)
+        self.assertNotIn(CLAUDE_SETTINGS, load(self.root).files)
 
     def test_apply_refuses_a_path_that_is_not_a_legacy_file(self):
         self.put('README.md', b'mine\n')

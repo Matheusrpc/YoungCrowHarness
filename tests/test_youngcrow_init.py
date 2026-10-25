@@ -756,29 +756,91 @@ class InitTests(unittest.TestCase):
         undo(self.root, confirm=True)
         self.assertEqual((self.root / AGENT).read_bytes(), b'name = "mine"\n')
 
-    def test_a_linked_claude_folder_or_settings_file_refuses_before_any_write(self):
+    # R57: a client path init cannot read or write safely costs that client's wiring, not the install.
+    UNREACHABLE = 'it or a folder on its path is a link, has the wrong type or cannot be read'
+
+    def assert_claude_wiring_skipped(self, report):
+        """init went on without the Claude wiring, said why, and gave the manual install as the next step."""
+        self.assertIn(SETTINGS, report.skipped)
+        self.assertNotIn(SETTINGS, report.written)
+        self.assertEqual(report.warnings, [f'{SETTINGS}: {self.UNREACHABLE}, so youngcrow left it as it is.'])
+        self.assertEqual(report.next_steps[0], CLAUDE_MANUAL_STEP)
+        manifest = load(self.root)
+        self.assertNotIn(SETTINGS, manifest.files)
+        self.assertEqual(manifest.json_edits, {})
+        self.assertFalse((self.root / '.youngcrow/originals').exists())
+        self.assertIn(IMPORT, (self.root / 'CLAUDE.md').read_text())  # the rest of the install went ahead
+
+    def test_a_linked_claude_folder_or_settings_file_skips_the_claude_wiring(self):
         (self.other / 'settings.json').write_bytes(b'{}\n')
         for link, target, directory in (('.claude', self.other, True), (SETTINGS, self.other / 'settings.json', False)):
             with self.subTest(link=link):
                 (self.root / link).parent.mkdir(exist_ok=True)
                 self.symlink(target, self.root / link, directory=directory)
-                with self.assertRaises(UnsafePathError):
-                    init(self.root)
-                self.assertFalse((self.root / '.youngcrow').exists())
-                self.assertFalse((self.root / 'CLAUDE.md').exists())
+                before = snapshot(self.root)
+                report = init(self.root)
+                self.assert_claude_wiring_skipped(report)
+                self.assertEqual(report.next_steps, [CLAUDE_MANUAL_STEP, CODEX_STEP])
+                self.assertTrue((self.root / AGENT).is_file())
+                self.assertTrue((self.root / link).is_symlink())
                 self.assertEqual(sorted(p.name for p in self.other.iterdir()), ['settings.json'])
                 self.assertEqual((self.other / 'settings.json').read_bytes(), b'{}\n')
-                init(self.root, client='codex')  # Codex never looks at .claude
                 undo(self.root, confirm=True)
+                self.assertEqual(snapshot(self.root), before)
                 (self.root / link).unlink()
 
-    def test_a_linked_codex_folder_refuses_before_any_write(self):
-        self.symlink(self.other, self.root / '.codex', directory=True)
-        with self.assertRaises(UnsafePathError):
-            init(self.root)
-        self.assertNothingWritten()
-        init(self.root, client='claude')  # Claude never looks at .codex
-        self.assertEqual(list(self.other.iterdir()), [])
+    def test_a_folder_at_the_settings_path_skips_the_claude_wiring(self):
+        (self.root / SETTINGS).mkdir(parents=True)
+        (self.root / SETTINGS / 'notes.txt').write_bytes(b'mine\n')
+        before = snapshot(self.root)
+        self.assert_claude_wiring_skipped(init(self.root))
+        undo(self.root, confirm=True)
+        self.assertEqual(snapshot(self.root), before)
+
+    def test_a_settings_file_that_cannot_be_read_skips_the_claude_wiring(self):
+        self.write(SETTINGS, b'{}\n')
+        real = Path.read_bytes
+
+        def reading(path):
+            if path == self.root / SETTINGS:
+                raise PermissionError(13, 'Permission denied')
+            return real(path)
+
+        with mock.patch.object(Path, 'read_bytes', reading):
+            report = init(self.root)
+        self.assert_claude_wiring_skipped(report)
+        self.assertEqual((self.root / SETTINGS).read_bytes(), b'{}\n')
+
+    @unittest.skipUnless(hasattr(os, 'mkfifo'), 'needs os.mkfifo')
+    def test_a_fifo_at_the_settings_path_is_never_read(self):
+        (self.root / '.claude').mkdir()
+        os.mkfifo(self.root / SETTINGS)
+        real = Path.read_bytes
+
+        def reading(path):
+            if path == self.root / SETTINGS:
+                raise AssertionError('init opened the FIFO, which would wait for a writer forever')
+            return real(path)
+
+        with mock.patch.object(Path, 'read_bytes', reading):
+            self.assert_claude_wiring_skipped(init(self.root))
+
+    def test_a_linked_codex_folder_skips_the_codex_agent(self):
+        for link in ('.codex', '.codex/agents'):
+            with self.subTest(link=link):
+                (self.root / link).parent.mkdir(exist_ok=True)
+                self.symlink(self.other, self.root / link, directory=True)
+                before = snapshot(self.root)
+                report = init(self.root, client='codex')
+                self.assertIn(AGENT, report.skipped)
+                self.assertEqual(report.warnings, [f'{AGENT}: {self.UNREACHABLE}, so youngcrow did not write it.'])
+                self.assertEqual(report.next_steps, [CODEX_STEP])
+                self.assertNotIn(AGENT, load(self.root).files)
+                self.assertIn(MD_START, (self.root / 'AGENTS.md').read_text())  # the rest of the install went ahead
+                self.assertEqual(list(self.other.iterdir()), [])
+                undo(self.root, confirm=True)
+                self.assertEqual(snapshot(self.root), before)
+                (self.root / link).unlink()
 
     def test_a_leftover_original_without_a_manifest_refuses_and_keeps_it(self):
         self.write(SETTINGS, b'{}\n')

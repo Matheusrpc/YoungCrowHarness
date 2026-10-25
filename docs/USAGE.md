@@ -838,8 +838,12 @@ só os dados.
   o plugin carrega depois que você confia na pasta. Se o arquivo já existia, o `init` guarda os bytes
   originais em `.youngcrow/originals/.claude/settings.json`. Um `settings.json` que não é um objeto
   JSON em UTF-8, ou que já dá outro valor a uma dessas chaves, fica como está: aparece em `Skipped:`, o
-  motivo vai para stderr e os próximos passos trazem a instalação manual. No Codex, grava
-  `.codex/agents/integration-specialist.toml` quando o arquivo não existe. `--client claude` não mexe
+  motivo vai para stderr e os próximos passos trazem a instalação manual. O mesmo acontece quando o
+  arquivo ou a pasta `.claude/` é link simbólico ou junction, tem outro tipo (uma pasta no lugar do
+  arquivo, por exemplo) ou não pode ser lido: o `init` não escreve através dele e instala o resto. No
+  Codex, grava `.codex/agents/integration-specialist.toml` quando o arquivo não existe; se o `.codex/`
+  ou o `.codex/agents/` é link, tem outro tipo ou não pode ser lido, pula o agente com um aviso em
+  stderr e instala o resto. `--client claude` não mexe
   no `AGENTS.md` nem em `.codex/`; `--client codex` não mexe no `CLAUDE.md` nem em `.claude/`. No fim,
   imprime o que fazer em cada cliente, sob `Next steps:`.
 - `upgrade` atualiza os arquivos de `.youngcrow/` e o agente do Codex que ainda estão como foram
@@ -941,8 +945,8 @@ em inglês):
 - `Removed:` arquivos apagados. No `undo`, entram também o manifesto e as pastas que ficaram vazias;
   nomes de pasta terminam em `/`.
 - `Skipped:` arquivos que o `init` deixou como estavam porque já tinham o que ele precisava, um
-  `.claude/settings.json` que ele não pode editar, um agente do Codex que já existe e subíndices do
-  vault para os quais o seu `vault/index.md` não aponta.
+  `.claude/settings.json` que ele não pode editar, um agente do Codex que já existe ou que ele não
+  pode gravar com segurança e subíndices do vault para os quais o seu `vault/index.md` não aponta.
 
 Depois das listas, o `init` e o `migrate --confirm` imprimem `Next steps:`, uma linha por cliente.
 
@@ -958,6 +962,8 @@ anterior deixou arquivos sem manifesto, quando o manifesto não pode ser lido, q
 marcação do `AGENTS.md` ou do `.gitignore` não fecham, quando um arquivo que ele precisa editar
 (`CLAUDE.md`, `AGENTS.md`, `.gitignore`) não é texto UTF-8, quando há link simbólico ou junction onde
 ele escreveria, quando `--root` é um arquivo e quando `--client` não é `claude`, `codex` nem `both`.
+A ligação dos clientes é a exceção: um `.claude/` ou `.codex/` que é link só faz o `init` e o
+`migrate --confirm` pularem aquele cliente (veja «O que cada comando toca»).
 Também sai com 3 quando o sistema recusa uma leitura ou escrita (falta de permissão, disco cheio). O
 motivo vai para stderr, seguido do que uma execução que falhou não conseguiu desfazer.
 
@@ -1759,8 +1765,12 @@ prints only the data.
   loads once you trust the folder. When the file already existed, `init` saves its original bytes in
   `.youngcrow/originals/.claude/settings.json`. A `settings.json` that is not a JSON object in UTF-8,
   or that already gives one of those keys another value, stays as it is: it is listed under
-  `Skipped:`, the reason goes to stderr, and the next steps give the manual install. For Codex it
-  writes `.codex/agents/integration-specialist.toml` when that file does not exist. `--client claude`
+  `Skipped:`, the reason goes to stderr, and the next steps give the manual install. The same happens
+  when that file or the `.claude/` folder is a symbolic link or junction, has another type (a folder in
+  place of the file, say) or cannot be read: `init` does not write through it and installs the rest.
+  For Codex it writes `.codex/agents/integration-specialist.toml` when that file does not exist; when
+  `.codex/` or `.codex/agents/` is a link, has another type or cannot be read, it skips the agent with a
+  warning on stderr and installs the rest. `--client claude`
   leaves `AGENTS.md` and `.codex/` alone; `--client codex` leaves `CLAUDE.md` and `.claude/` alone.
   At the end it prints what to do next in each client, under `Next steps:`.
 - `upgrade` refreshes the files under `.youngcrow/` and the Codex agent file while they still match
@@ -1863,8 +1873,8 @@ Plain output has one heading per non-empty list, followed by indented paths:
 - `Removed:` files deleted. For `undo` this also lists the manifest and the folders left empty; folder
   names end with `/`.
 - `Skipped:` files `init` left alone because they already had what it needed, a
-  `.claude/settings.json` it cannot edit, a Codex agent file that already exists, and vault
-  sub-indexes your own `vault/index.md` does not link to.
+  `.claude/settings.json` it cannot edit, a Codex agent file that already exists or that it cannot
+  write safely, and vault sub-indexes your own `vault/index.md` does not link to.
 
 After the lists, `init` and `migrate --confirm` print `Next steps:`, one line per client.
 
@@ -1879,7 +1889,9 @@ up (`init`, `migrate --confirm`) or not set up (`upgrade`, `undo`), when an earl
 but no manifest, when the manifest cannot be read, when the marker lines in `AGENTS.md` or
 `.gitignore` do not pair up, when a file it has to edit (`CLAUDE.md`, `AGENTS.md`, `.gitignore`) is
 not UTF-8 text, when a symbolic link or junction sits where it would write, when `--root` is a file,
-and when `--client` is not `claude`, `codex` or `both`. It also exits with 3 when the system refuses a
+and when `--client` is not `claude`, `codex` or `both`. Client wiring is the exception: a linked
+`.claude/` or `.codex/` only makes `init` and `migrate --confirm` skip that client (see "What each
+command touches"). It also exits with 3 when the system refuses a
 read or a write (a permission error, a full disk). The reason goes to stderr, followed by anything a
 failed run could not put back.
 

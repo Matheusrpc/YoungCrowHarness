@@ -390,6 +390,28 @@ def _plan_hooks(root: Path, published: Sequence[dict], gone: frozenset[str], rep
     return steps
 
 
+# Why init leaves a client unwired when the path to its file is not one it reads or writes (R57).
+_UNREACHABLE = 'it or a folder on its path is a link, has the wrong type or cannot be read'
+
+
+def _client_file(root: Path, rel: str) -> bytes | None:
+    """The bytes of the client file `rel`, None when it is missing.
+
+    SettingsSkipped (R57) when the file or a folder on its way is a link or junction or has the wrong
+    type, when the file is not a regular one (a FIFO is never opened), or when it cannot be looked at
+    or read: init then leaves that client unwired and goes on.
+    """
+    try:
+        target = safe_target(root, rel)
+        if not stat.S_ISREG(target.lstat().st_mode):
+            raise UnsafePathError('not a regular file: ' + rel)
+        return target.read_bytes()
+    except FileNotFoundError:
+        return None
+    except (UnsafePathError, OSError) as error:
+        raise SettingsSkipped(_UNREACHABLE) from error
+
+
 def _plan_clients(root: Path, client: str, gone: frozenset[str], report: Report,
                   cleaned: dict[str, bytes]) -> list[_Step]:
     """The steps that wire the clients (R36); each client's next step goes into `report`.
@@ -400,16 +422,14 @@ def _plan_clients(root: Path, client: str, gone: frozenset[str], report: Report,
     as the next step. Codex (`codex`, `both`): the agent file is written when it is missing, else
     `skipped`. A file in `gone` is about to be removed by the same run, so it counts as missing; one
     in `cleaned` is read as the same run leaves it before the wiring (the old hooks out).
+    A client path that is a link, has the wrong type or cannot be read (`_client_file`) leaves that
+    client unwired, `skipped` with a line in `warnings`, and the rest of the install goes on (R57).
     """
     steps = []
     if client != 'codex':
-        if CLAUDE_SETTINGS in gone:
-            old = None
-        elif CLAUDE_SETTINGS in cleaned:
-            old = cleaned[CLAUDE_SETTINGS]
-        else:
-            old = _read_bytes(root, CLAUDE_SETTINGS)
         try:
+            old = None if CLAUDE_SETTINGS in gone else _client_file(root, CLAUDE_SETTINGS)
+            old = cleaned.get(CLAUDE_SETTINGS, old)
             new = add_wiring(old)
         except SettingsSkipped as error:
             report.skipped.append(CLAUDE_SETTINGS)
@@ -425,10 +445,16 @@ def _plan_clients(root: Path, client: str, gone: frozenset[str], report: Report,
                 steps.append(_Step(CLAUDE_SETTINGS, new, old))
             report.next_steps.append(CLAUDE_STEP)
     if client != 'claude':
-        if CODEX_AGENT not in gone and os.path.lexists(safe_target(root, CODEX_AGENT)):
+        try:
+            present = CODEX_AGENT not in gone and os.path.lexists(safe_target(root, CODEX_AGENT))
+        except (UnsafePathError, OSError):
             report.skipped.append(CODEX_AGENT)
+            report.warnings.append(f'{CODEX_AGENT}: {_UNREACHABLE}, so youngcrow did not write it.')
         else:
-            steps.append(_Step(CODEX_AGENT, codex_agent()))
+            if present:
+                report.skipped.append(CODEX_AGENT)
+            else:
+                steps.append(_Step(CODEX_AGENT, codex_agent()))
         report.next_steps.append(CODEX_STEP)
     return steps
 

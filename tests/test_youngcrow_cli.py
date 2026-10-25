@@ -425,6 +425,20 @@ class CliTests(unittest.TestCase):
         self.assertEqual(lines[-3], 'Next steps:')  # after the lists and the vault check
         self.assertLess(lines.index('Vault: 3 notes checked; 0 issues. No files changed.'), len(lines) - 3)
 
+    def test_migrate_confirm_goes_on_when_the_claude_settings_path_is_a_folder(self):
+        # R57: P1 migrated such a project; now it still does, without the Claude wiring.
+        shutil.copy(REPO / 'scripts/vault.py', self._dest('scripts/vault.py'))
+        (self.root / '.claude/settings.json').mkdir(parents=True)
+        run = self._cli('migrate', '--root', str(self.root), '--confirm', '--json')
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertIn('youngcrow: warning: .claude/settings.json: it or a folder on its path is a link, has the wrong '
+                      'type or cannot be read, so youngcrow left it as it is.', run.stderr.splitlines())
+        report = json.loads(run.stdout)
+        self.assertEqual(report['matches'], ['scripts/vault.py'])
+        self.assertTrue(report['next_steps'][0].startswith('Claude Code: /plugin marketplace add '), report)
+        self.assertTrue((self.root / '.claude/settings.json').is_dir())
+        self.assertTrue((self.root / '.youngcrow/manifest.json').is_file())
+
     def test_a_migrate_preview_does_not_check_the_client(self):
         run = self._cli('migrate', '--root', str(self.root), '--client', 'cursor', '--json')
         self.assertEqual(run.returncode, 0, run.stderr)

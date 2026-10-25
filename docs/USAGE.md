@@ -890,9 +890,10 @@ codex plugin add youngcrow@youngcrow
 ```
 
 Depois, no Codex, confie nos dois hooks do plugin em `/hooks`; até lá eles não rodam. O Codex guarda a
-confiança com o hash de cada hook; se uma versão nova do plugin mudar um hook, confie nele de novo em
-`/hooks`. O agente vem do `.codex/agents/integration-specialist.toml` do projeto, e o Codex só o carrega
-numa pasta em que você confia.
+confiança junto com o hash de cada hook. A prova não mediu o que acontece quando uma versão nova do
+plugin muda um hook; se os hooks pararem de rodar depois de uma atualização, abra `/hooks` de novo. O
+agente vem do `.codex/agents/integration-specialist.toml` do projeto. Na prova, a pasta já estava
+marcada como confiável quando o Codex carregou esse agente; sem essa confiança, o caso não foi medido.
 
 Instalado por usuário, o plugin dispara os hooks em todo repositório que você abre no Codex, inclusive nos
 que não usam o youngcrow. Por isso os hooks rodam apenas o código que vem no plugin e leem o projeto como
@@ -1060,8 +1061,9 @@ claude plugin marketplace add /caminho/do/checkout
 codex plugin marketplace add /caminho/do/checkout
 ```
 
-Com um marketplace local, o Claude lê o plugin direto da pasta, e uma edição ali vale a partir da próxima
-sessão. A prova completa roda em pastas descartáveis e não chama modelo:
+Com um marketplace local, o Claude lê o plugin direto da pasta (o `claude plugin list --json` mostra
+`readFromFolder`); quando uma edição ali passa a valer não foi medido. A prova completa roda em pastas
+descartáveis e não chama modelo:
 
 ```bash
 python3 tests/smoke_plugin.py --claude /caminho/do/claude --codex /caminho/do/codex --json
@@ -1828,9 +1830,10 @@ codex plugin add youngcrow@youngcrow
 ```
 
 Then, in Codex, trust the plugin's two hooks in `/hooks`; until you do, they do not run. Codex keeps that
-trust with a hash of each hook; if a new plugin version changes a hook, trust it again in `/hooks`. The
-agent comes from the project's `.codex/agents/integration-specialist.toml`, which Codex loads only in a
-folder you trust.
+trust together with a hash of each hook. The proof did not measure what happens when a new plugin version
+changes a hook; if the hooks stop running after an update, open `/hooks` again. The agent comes from the
+project's `.codex/agents/integration-specialist.toml`. In the proof the folder was already marked as
+trusted when Codex loaded that agent; the case without that trust was not measured.
 
 Installed per user, the plugin fires its hooks in every repository you open in Codex, including the ones
 that do not use youngcrow. That is why the hooks run only the code that ships in the plugin and read the
@@ -1996,8 +1999,9 @@ claude plugin marketplace add /path/to/checkout
 codex plugin marketplace add /path/to/checkout
 ```
 
-With a local marketplace, Claude reads the plugin straight from the folder, so an edit there applies from
-the next session. The full proof runs in throwaway folders and calls no model:
+With a local marketplace, Claude reads the plugin straight from the folder (`claude plugin list --json`
+shows `readFromFolder`); when an edit there takes effect was not measured. The full proof runs in
+throwaway folders and calls no model:
 
 ```bash
 python3 tests/smoke_plugin.py --claude /path/to/claude --codex /path/to/codex --json

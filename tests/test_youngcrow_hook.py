@@ -24,9 +24,10 @@ SUBS = ('session-start', 'prompt')
 SOURCE = {'prompt': 'see https://example.com/a.pdf'}
 INPUT_LIMIT = 'Source guidance: input_limit. No source was inspected or registered.'
 
-# R40, as the plan writes them; `<sub>` stands for the subcommand.
-POSIX = 'python3 "${CLAUDE_PLUGIN_ROOT}/hooks/youngcrow_hook.py" <sub> || python "${CLAUDE_PLUGIN_ROOT}/hooks/youngcrow_hook.py" <sub>'
-WINDOWS = ('python -c "import os,runpy,sys; r=os.environ.get(\'PLUGIN_ROOT\') or os.environ[\'CLAUDE_PLUGIN_ROOT\']; '
+# R40 as amended by R45 (isolated mode); `<sub>` stands for the subcommand.
+POSIX = ('python3 -I "${CLAUDE_PLUGIN_ROOT}/hooks/youngcrow_hook.py" <sub> || '
+         'python -I "${CLAUDE_PLUGIN_ROOT}/hooks/youngcrow_hook.py" <sub>')
+WINDOWS = ('python -I -c "import os,runpy,sys; r=os.environ.get(\'PLUGIN_ROOT\') or os.environ[\'CLAUDE_PLUGIN_ROOT\']; '
            'sys.argv=[os.path.join(r,\'hooks\',\'youngcrow_hook.py\'),\'<sub>\']; '
            'runpy.run_path(sys.argv[0],run_name=\'__main__\')"')
 
@@ -291,6 +292,13 @@ class HooksJsonTests(HookTestCase):
         plugin = self.copy_plugin()
         return plugin, self.hook('session-start', self.root, plugin=plugin)
 
+    def test_every_command_runs_python_in_isolated_mode(self):
+        for event in self.hooks:
+            entry = self.entry(event)
+            with self.subTest(event):
+                self.assertEqual(entry['command'].count(' -I "${CLAUDE_PLUGIN_ROOT}/'), 2)  # python3 and the python fallback
+                self.assertIn('python -I -c ', entry['commandWindows'])
+
     def test_the_shell_command_runs_the_hook(self):
         if os.name == 'nt':
             self.skipTest('the shell command is for POSIX shells; Windows uses commandWindows')
@@ -312,10 +320,11 @@ class HooksJsonTests(HookTestCase):
     def test_the_windows_command_runs_the_same_hook_from_either_variable(self):
         plugin, expected = self.prepared_project()
         self.assertNotEqual(expected.stdout, '')
-        # `python -c` puts the working folder, which is the project, first on sys.path.
-        (self.root / 'json.py').write_text("open('pwned', 'w').write('x')\n", encoding='utf-8')
+        # Without -I, `python -c` puts the working folder, which is the project, first on sys.path.
+        for name in ('json.py', 'runpy.py'):
+            (self.root / name).write_text("open('pwned', 'w').write('x')\n", encoding='utf-8')
         words = shlex.split(self.entry('SessionStart')['commandWindows'])
-        self.assertEqual(words[:2], ['python', '-c'])
+        self.assertEqual(words[:3], ['python', '-I', '-c'])
         missing = str(self.tmp / 'missing')
         for name, env in {'PLUGIN_ROOT': dict(PLUGIN_ROOT=str(plugin)),
                           'CLAUDE_PLUGIN_ROOT': dict(CLAUDE_PLUGIN_ROOT=str(plugin)),

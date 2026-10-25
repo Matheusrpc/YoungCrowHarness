@@ -17,8 +17,8 @@ import os
 import sys
 
 if __name__ == '__main__':
-    # `python -c` (the Windows command) puts the working folder, which is the project, first on sys.path.
-    # Take it out before the first import that is not built in, so a `json.py` there is never loaded.
+    # Second guard behind `-I` in hooks.json: without it `python -c` puts the working folder, which is the
+    # project, first on sys.path. Take it out before the first import that is not built in.
     sys.path[:] = [entry for entry in sys.path if entry not in ('', '.')]
 
 from collections.abc import Mapping  # noqa: E402

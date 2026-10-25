@@ -843,7 +843,7 @@ class InitTests(unittest.TestCase):
         self.assertIn(SETTINGS, report.kept_modified)
 
     # R52: `claude plugin install --scope project` writes the file back with the same value in another layout
-    # (enabledPlugins moved first, LF, arrays spread over lines). That is not an edit.
+    # (enabledPlugins moved before extraKnownMarketplaces, LF line endings). That is not an edit.
 
     def test_undo_deletes_a_created_settings_file_claude_only_relaid(self):
         init(self.root, client='claude')

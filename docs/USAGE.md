@@ -862,6 +862,57 @@ Nenhum deles edita nota existente do `vault/`, escreve através de link simbóli
 sobrescreve arquivo que você alterou. Quando um comando recusa (veja abaixo), não escreve nada; se
 falha no meio do caminho, devolve o que já fez.
 
+### Plugin no Claude Code e no Codex
+
+As skills do núcleo, o agente `integration-specialist` e os hooks vêm no plugin `youngcrow@youngcrow`, do
+marketplace `youngcrow` deste repositório. Nos dois clientes, as skills aparecem com o nome do plugin na
+frente, como `youngcrow:ingest-source`.
+
+No Claude Code, o `init` já ligou o plugin no `.claude/settings.json` do projeto: abra a pasta, aceite o
+aviso de confiança e o Claude oferece o plugin. Se o `init` pulou esse arquivo, instale à mão:
+
+```bash
+claude plugin marketplace add Matheusrpc/YoungCrowHarness
+claude plugin install youngcrow@youngcrow --scope project
+```
+
+O Codex instala plugins por usuário, então o `init` só grava o agente do projeto e mostra os comandos:
+
+```bash
+codex plugin marketplace add Matheusrpc/YoungCrowHarness
+codex plugin add youngcrow@youngcrow
+```
+
+Depois, no Codex, confie nos dois hooks do plugin em `/hooks`; até lá eles não rodam. O Codex guarda a
+confiança com o hash de cada hook; se uma versão nova do plugin mudar um hook, confie nele de novo em
+`/hooks`. O agente vem do `.codex/agents/integration-specialist.toml` do projeto, e o Codex só o carrega
+numa pasta em que você confia.
+
+Instalado por usuário, o plugin dispara os hooks em todo repositório que você abre no Codex, inclusive nos
+que não usam o youngcrow. Por isso os hooks rodam apenas o código que vem no plugin e leem o projeto como
+dado: nunca executam um arquivo do projeto, nunca escrevem e sempre deixam o prompt seguir. Num
+repositório sem `.youngcrow/manifest.json`, não imprimem nada. Eles precisam de `python3` ou `python` no
+PATH; sem nenhum dos dois, não fazem nada e o prompt segue.
+
+São dois hooks:
+
+- `UserPromptSubmit`: quando o prompt cita uma URL ou um arquivo, acrescenta ao contexto a orientação de
+  fontes, o mesmo texto que o `.youngcrow/scripts/source_prompt.py` dá. Não abre a fonte nem registra nada.
+- `SessionStart`: compara a versão do projeto (`.youngcrow/VERSION`) com a do plugin. Com as duas iguais,
+  fica quieto. Quando diferem, avisa no começo da sessão com uma linha como esta:
+
+  ```text
+  youngcrow: this project has harness files 0.1.0.dev0; the plugin is 0.1.0. Run `uvx youngcrow upgrade` in the project.
+  ```
+
+  Antes do lançamento, rode o `upgrade` pelo checkout ou pelo wheel (veja «Rodar antes do lançamento»,
+  abaixo).
+
+O `undo` tira a ligação do `.claude/settings.json` junto com o resto (veja «O que cada comando toca»), e o
+Claude deixa de carregar o plugin nesta pasta: o `claude plugin list` passa a mostrá-lo desligado no
+projeto. A cópia que cada cliente guardou na pasta do usuário fica. No Codex, o plugin continua instalado
+para o seu usuário; para tirá-lo, rode `codex plugin remove youngcrow@youngcrow`.
+
 ### Catálogo de capacidades no projeto
 
 O `init` grava `.youngcrow/capabilities.json`, o catálogo do núcleo: as cinco skills, o agente
@@ -981,7 +1032,30 @@ uvx --from /caminho/do/yc-dist/youngcrow-0.1.0.dev0-py3-none-any.whl youngcrow i
 cd /caminho/do/projeto && python .youngcrow/scripts/vault.py check
 ```
 
-O job `package` do CI roda esse mesmo caminho no Linux e no Windows.
+O job `package` do CI roda esse mesmo caminho no Linux e no Windows. Ele também confere se os arquivos
+gerados do plugin estão em dia (`python tools/build_plugin.py --check`) e, no Linux, roda
+`claude plugin validate .` com o Claude Code 2.1.310.
+
+Para testar o plugin a partir de um checkout, antes de publicar, adicione a pasta como marketplace local
+no lugar de `Matheusrpc/YoungCrowHarness` e instale como acima:
+
+```bash
+claude plugin marketplace add /caminho/do/checkout
+codex plugin marketplace add /caminho/do/checkout
+```
+
+Com um marketplace local, o Claude lê o plugin direto da pasta, e uma edição ali vale a partir da próxima
+sessão. A prova completa roda em pastas descartáveis e não chama modelo:
+
+```bash
+python3 tests/smoke_plugin.py --claude /caminho/do/claude --codex /caminho/do/codex --json
+```
+
+Ela gera o wheel, roda `init --client both` num projeto novo, valida e instala o plugin nos dois clientes,
+compara o hook de cada cópia instalada com o `source_prompt` do projeto, deixa cada cliente rodar o hook
+contra um servidor local que responde 400 e termina com `undo --confirm`. Precisa de `uv` no PATH e, até
+agora, só rodou no Linux. Sai com 0 quando tudo passa; o `--json` imprime o recibo, com as versões dos
+clientes e cada comando com o seu código de saída.
 
 <a id="english"></a>
 
@@ -1709,6 +1783,59 @@ None of them edits an existing note in `vault/`, writes through a symbolic link 
 overwrites a file you changed. A command that refuses (see below) writes nothing, and one that fails
 halfway puts back what it did.
 
+### The plugin in Claude Code and Codex
+
+The core skills, the `integration-specialist` agent and the hooks come in the `youngcrow@youngcrow`
+plugin, from this repository's `youngcrow` marketplace. Both clients show the skills with the plugin name
+in front, such as `youngcrow:ingest-source`.
+
+In Claude Code, `init` has already turned the plugin on in the project's `.claude/settings.json`: open the
+folder, accept the trust prompt, and Claude offers the plugin. If `init` skipped that file, install it by
+hand:
+
+```bash
+claude plugin marketplace add Matheusrpc/YoungCrowHarness
+claude plugin install youngcrow@youngcrow --scope project
+```
+
+Codex installs plugins per user, so `init` only writes the project's agent file and prints the commands:
+
+```bash
+codex plugin marketplace add Matheusrpc/YoungCrowHarness
+codex plugin add youngcrow@youngcrow
+```
+
+Then, in Codex, trust the plugin's two hooks in `/hooks`; until you do, they do not run. Codex keeps that
+trust with a hash of each hook; if a new plugin version changes a hook, trust it again in `/hooks`. The
+agent comes from the project's `.codex/agents/integration-specialist.toml`, which Codex loads only in a
+folder you trust.
+
+Installed per user, the plugin fires its hooks in every repository you open in Codex, including the ones
+that do not use youngcrow. That is why the hooks run only the code that ships in the plugin and read the
+project as data: they never run a file from the project, never write, and always let the prompt through.
+In a repository without `.youngcrow/manifest.json` they print nothing. They need `python3` or `python` on
+the PATH; with neither, they do nothing and the prompt goes on.
+
+There are two hooks:
+
+- `UserPromptSubmit`: when the prompt cites a URL or a file, it adds the source guidance to the context,
+  the same text `.youngcrow/scripts/source_prompt.py` gives. It does not open the source or record
+  anything.
+- `SessionStart`: compares the project's version (`.youngcrow/VERSION`) with the plugin's. When they
+  match, it says nothing. When they differ, it warns at the start of the session with a line like this:
+
+  ```text
+  youngcrow: this project has harness files 0.1.0.dev0; the plugin is 0.1.0. Run `uvx youngcrow upgrade` in the project.
+  ```
+
+  Before the release, run `upgrade` from the checkout or the wheel (see "Run it before the release",
+  below).
+
+`undo` takes the wiring out of `.claude/settings.json` along with the rest (see "What each command
+touches"), and Claude stops loading the plugin in this folder: `claude plugin list` then shows it turned
+off for the project. The copy each client keeps in your user folder stays. In Codex the plugin stays
+installed for your user; to remove it, run `codex plugin remove youngcrow@youngcrow`.
+
 ### Capability catalog in the project
 
 `init` writes `.youngcrow/capabilities.json`, the core catalog: the five skills, the
@@ -1825,7 +1952,30 @@ uvx --from /path/to/yc-dist/youngcrow-0.1.0.dev0-py3-none-any.whl youngcrow init
 cd /path/to/project && python .youngcrow/scripts/vault.py check
 ```
 
-The `package` job in CI runs this same path on Linux and Windows.
+The `package` job in CI runs this same path on Linux and Windows. It also checks that the generated
+plugin files are fresh (`python tools/build_plugin.py --check`) and, on Linux, runs
+`claude plugin validate .` with Claude Code 2.1.310.
+
+To try the plugin from a checkout before it is published, add the folder as a local marketplace instead
+of `Matheusrpc/YoungCrowHarness`, then install as above:
+
+```bash
+claude plugin marketplace add /path/to/checkout
+codex plugin marketplace add /path/to/checkout
+```
+
+With a local marketplace, Claude reads the plugin straight from the folder, so an edit there applies from
+the next session. The full proof runs in throwaway folders and calls no model:
+
+```bash
+python3 tests/smoke_plugin.py --claude /path/to/claude --codex /path/to/codex --json
+```
+
+It builds the wheel, runs `init --client both` in a new project, validates and installs the plugin in
+both clients, compares the hook of each installed copy with the project's `source_prompt`, lets each
+client run the hook against a local server that answers 400, and ends with `undo --confirm`. It needs
+`uv` on the PATH and so far has run only on Linux. It exits with 0 when everything passes; `--json`
+prints the receipt, with the client versions and each command with its exit code.
 
 <a id="mission-config"></a>
 

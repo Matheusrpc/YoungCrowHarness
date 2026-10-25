@@ -153,7 +153,7 @@ class UnwireTests(unittest.TestCase):
 
 
 class SameValueTests(unittest.TestCase):
-    # R52: what `claude plugin install` does to the file (keys moved, LF, arrays spread) keeps the value.
+    # R52: a new layout keeps the value. `claude plugin install` moves keys and writes LF; spacing counts as layout too.
 
     def test_layout_does_not_count(self):
         relaid = json.dumps({'enabledPlugins': WIRING['enabledPlugins'],

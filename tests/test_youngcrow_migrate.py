@@ -320,6 +320,7 @@ class MigrateTests(unittest.TestCase):
         # Kept, with the plugin wired in after the user's own key; init saved the bytes it found.
         self.assertEqual(json.loads((self.root / '.claude/settings.json').read_bytes()), {'mine': True, **WIRING})
         self.assertEqual((self.root / '.youngcrow/originals/.claude/settings.json').read_bytes(), b'{"mine": true}\n')
+        self.assertEqual((self.root / '.youngcrow/originals/.gitignore').read_bytes(), b'*\n')  # R56
         self.assertEqual(report.kept_modified, ['.claude/settings.json'])
         self.assertIn('.youngcrow/scripts/vault.py', report.written)
         self.assertTrue((self.root / '.youngcrow/scripts/vault.py').is_file())

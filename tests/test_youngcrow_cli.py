@@ -321,10 +321,10 @@ class CliTests(unittest.TestCase):
         from youngcrow import install
         real = install._replace_file
 
-        def fail_on_agents(target, data):
+        def fail_on_agents(target, data, mode=None):
             if target.name == 'AGENTS.md':
                 raise PermissionError(13, 'Permission denied', str(target))
-            real(target, data)
+            real(target, data, mode)
         with mock.patch('youngcrow.install._replace_file', side_effect=fail_on_agents):
             code, out, err = self._main('init', '--root', str(self.root))
         self.assertEqual(code, 3)

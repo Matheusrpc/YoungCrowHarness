@@ -214,13 +214,15 @@ class UpgradeUndoTests(unittest.TestCase):
         before = self._tree_bytes()
         with self._release(version='0.2.0', rules=NEW_RULES, drop=REQUIREMENTS):
             report = upgrade(self.root)
-        for rel in (self.SETTINGS, self.ORIGINAL):
+        ignore = '.youngcrow/originals/.gitignore'  # R56: it keeps the saved original out of git
+        for rel in (self.SETTINGS, self.ORIGINAL, ignore):
             self.assertEqual(self._tree_bytes()[rel], before[rel], rel)
             self.assertNotIn(rel, report.written + report.kept_modified + report.removed)
         manifest = load(self.root)
         self.assertEqual(manifest.json_edits, {self.SETTINGS: [['extraKnownMarketplaces', 'youngcrow'],
                                                                ['enabledPlugins', 'youngcrow@youngcrow']]})
         self.assertIn(self.ORIGINAL, manifest.created)
+        self.assertIn(ignore, manifest.created)
         settings.write_bytes(wired)  # back to what init wrote: undo gives the saved original back
         undo(self.root, confirm=True)
         self.assertEqual(settings.read_bytes(), original)

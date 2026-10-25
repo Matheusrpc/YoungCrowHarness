@@ -5,6 +5,8 @@ import hashlib
 import json
 import os
 import re
+import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -28,6 +30,7 @@ GITIGNORE_BLOCK = ('# youngcrow:start\n.env\n.env.*\n!.env.example\n.operacao-lo
 SETTINGS = '.claude/settings.json'
 AGENT = '.codex/agents/integration-specialist.toml'
 ORIGINAL = '.youngcrow/originals/.claude/settings.json'
+ORIGINALS_IGNORE = '.youngcrow/originals/.gitignore'
 BOTH_PAIRS = [['extraKnownMarketplaces', 'youngcrow'], ['enabledPlugins', 'youngcrow@youngcrow']]
 CLAUDE_STEP = 'Claude Code: open this folder and accept the workspace trust prompt; it then offers the youngcrow plugin.'
 CLAUDE_MANUAL_STEP = ('Claude Code: /plugin marketplace add Matheusrpc/YoungCrowHarness, then /plugin install '
@@ -694,6 +697,41 @@ class InitTests(unittest.TestCase):
         self.assertEqual(manifest.files[ORIGINAL], hashlib.sha256(original).hexdigest())
         self.assertIn(SETTINGS, report.written)
         self.assertEqual(report.next_steps[0], CLAUDE_STEP)
+
+    # R56: the saved original is as private as the file it copies, and git does not see it.
+
+    @unittest.skipIf(os.name == 'nt', 'POSIX permission bits')
+    def test_the_saved_original_keeps_the_mode_of_the_settings_file(self):
+        self.write(SETTINGS, b'{"model": "opus"}\n')
+        os.chmod(self.root / SETTINGS, 0o600)
+        init(self.root)
+        self.assertEqual(stat.S_IMODE((self.root / ORIGINAL).stat().st_mode), 0o600)
+        self.assertEqual(stat.S_IMODE((self.root / SETTINGS).stat().st_mode), 0o600)
+
+    def test_init_puts_an_ignore_file_next_to_the_saved_original_and_undo_takes_both_out(self):
+        self.write(SETTINGS, b'{"model": "opus"}\n')
+        before = snapshot(self.root)
+        report = init(self.root)
+        self.assertEqual((self.root / ORIGINALS_IGNORE).read_bytes(), b'*\n')
+        self.assertIn(ORIGINALS_IGNORE, report.written)
+        manifest = load(self.root)
+        self.assertIn(ORIGINALS_IGNORE, manifest.created)
+        self.assertEqual(manifest.files[ORIGINALS_IGNORE], hashlib.sha256(b'*\n').hexdigest())
+        self.assertEqual((self.root / '.gitignore').read_text(), GITIGNORE_BLOCK)  # the managed block is as it was
+        report = undo(self.root, confirm=True)
+        self.assertIn(ORIGINALS_IGNORE, report.removed)
+        self.assertEqual(snapshot(self.root), before)
+
+    @unittest.skipUnless(shutil.which('git'), 'needs git')
+    def test_git_does_not_see_the_saved_original(self):
+        self.write(SETTINGS, b'{"model": "opus"}\n')
+        init(self.root)
+        env = {**os.environ, 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_NOSYSTEM': '1'}  # no excludes of the machine
+        subprocess.run(['git', 'init', '-q', str(self.root)], check=True, capture_output=True, env=env)
+        checked = subprocess.run(['git', '-C', str(self.root), 'check-ignore', ORIGINAL, ORIGINALS_IGNORE,
+                                  '.youngcrow/manifest.json', SETTINGS], capture_output=True, text=True, env=env)
+        self.assertEqual(checked.returncode, 0, checked.stderr)
+        self.assertEqual(checked.stdout.split(), [ORIGINAL, ORIGINALS_IGNORE])
 
     def test_init_records_only_the_pairs_it_added_and_undo_takes_out_only_those(self):
         original = b'{"enabledPlugins": {"youngcrow@youngcrow": true}}\n'

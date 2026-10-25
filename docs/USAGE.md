@@ -833,19 +833,21 @@ só os dados.
   Cria `CLAUDE.md`, `AGENTS.md` ou `.gitignore` quando eles não existem. Se você já tem um
   `vault/index.md`, o `init` cria um subíndice que falta só quando o seu índice aponta para ele; do
   contrário, pula o subíndice e o lista em `Skipped:`.
-- O `init` também liga os clientes. No Claude Code, acrescenta ao `.claude/settings.json` o
-  marketplace `youngcrow` e ativa o plugin `youngcrow@youngcrow`, criando o arquivo se ele não existe;
-  o plugin carrega depois que você confia na pasta. Se o arquivo já existia, o `init` guarda os bytes
-  originais em `.youngcrow/originals/.claude/settings.json`. Um `settings.json` que não é um objeto
-  JSON em UTF-8, ou que já dá outro valor a uma dessas chaves, fica como está: aparece em `Skipped:`, o
-  motivo vai para stderr e os próximos passos trazem a instalação manual. O mesmo acontece quando o
-  arquivo ou a pasta `.claude/` é link simbólico ou junction, tem outro tipo (uma pasta no lugar do
-  arquivo, por exemplo) ou não pode ser lido: o `init` não escreve através dele e instala o resto. No
-  Codex, grava `.codex/agents/integration-specialist.toml` quando o arquivo não existe; se o `.codex/`
-  ou o `.codex/agents/` é link, tem outro tipo ou não pode ser lido, pula o agente com um aviso em
-  stderr e instala o resto. `--client claude` não mexe
-  no `AGENTS.md` nem em `.codex/`; `--client codex` não mexe no `CLAUDE.md` nem em `.claude/`. No fim,
-  imprime o que fazer em cada cliente, sob `Next steps:`.
+- O `init` também liga os clientes. No Claude Code, acrescenta ao `.claude/settings.json` o marketplace
+  `youngcrow` e ativa o plugin `youngcrow@youngcrow`, criando o arquivo se ele não existe; o plugin
+  carrega depois que você confia na pasta. Se o arquivo já existia, o `init` guarda os bytes originais
+  em `.youngcrow/originals/.claude/settings.json`. Essa cópia é privada como o arquivo: fora do
+  Windows, leva as mesmas permissões dele, e o `init` grava em `.youngcrow/originals/` um `.gitignore`
+  com `*`, que deixa a pasta fora do git (o `undo` apaga os dois). Um `settings.json` que não é um
+  objeto JSON em UTF-8, ou que já dá outro valor a uma dessas chaves, fica como está: aparece em
+  `Skipped:`, o motivo vai para stderr e os próximos passos trazem a instalação manual. O mesmo
+  acontece quando o arquivo ou a pasta `.claude/` é link simbólico ou junction, tem outro tipo (uma
+  pasta no lugar do arquivo, por exemplo) ou não pode ser lido: o `init` não escreve através dele e
+  instala o resto. No Codex, grava `.codex/agents/integration-specialist.toml` quando o arquivo não
+  existe; se o `.codex/` ou o `.codex/agents/` é link, tem outro tipo ou não pode ser lido, pula o
+  agente com um aviso em stderr e instala o resto. `--client claude` não mexe no `AGENTS.md` nem em
+  `.codex/`; `--client codex` não mexe no `CLAUDE.md` nem em `.claude/`. No fim, imprime o que fazer em
+  cada cliente, sob `Next steps:`.
 - `upgrade` atualiza os arquivos de `.youngcrow/` e o agente do Codex que ainda estão como foram
   instalados, traz os arquivos que a nova versão acrescenta, remove os que ela abandonou (se você não
   os alterou) e troca o bloco do `AGENTS.md` quando você não o editou. Não mexe no
@@ -1763,16 +1765,18 @@ prints only the data.
 - `init` also wires the clients. For Claude Code it adds the `youngcrow` marketplace and turns on the
   `youngcrow@youngcrow` plugin in `.claude/settings.json`, creating the file if needed; the plugin
   loads once you trust the folder. When the file already existed, `init` saves its original bytes in
-  `.youngcrow/originals/.claude/settings.json`. A `settings.json` that is not a JSON object in UTF-8,
-  or that already gives one of those keys another value, stays as it is: it is listed under
-  `Skipped:`, the reason goes to stderr, and the next steps give the manual install. The same happens
-  when that file or the `.claude/` folder is a symbolic link or junction, has another type (a folder in
-  place of the file, say) or cannot be read: `init` does not write through it and installs the rest.
-  For Codex it writes `.codex/agents/integration-specialist.toml` when that file does not exist; when
-  `.codex/` or `.codex/agents/` is a link, has another type or cannot be read, it skips the agent with a
-  warning on stderr and installs the rest. `--client claude`
-  leaves `AGENTS.md` and `.codex/` alone; `--client codex` leaves `CLAUDE.md` and `.claude/` alone.
-  At the end it prints what to do next in each client, under `Next steps:`.
+  `.youngcrow/originals/.claude/settings.json`. That copy is as private as the file: outside Windows it
+  gets the file's permission bits, and `init` writes a `.gitignore` holding `*` in
+  `.youngcrow/originals/`, which keeps the folder out of git (`undo` deletes both). A `settings.json`
+  that is not a JSON object in UTF-8, or that already gives one of those keys another value, stays as
+  it is: it is listed under `Skipped:`, the reason goes to stderr, and the next steps give the manual
+  install. The same happens when that file or the `.claude/` folder is a symbolic link or junction, has
+  another type (a folder in place of the file, say) or cannot be read: `init` does not write through it
+  and installs the rest. For Codex it writes `.codex/agents/integration-specialist.toml` when that file
+  does not exist; when `.codex/` or `.codex/agents/` is a link, has another type or cannot be read, it
+  skips the agent with a warning on stderr and installs the rest. `--client claude` leaves `AGENTS.md`
+  and `.codex/` alone; `--client codex` leaves `CLAUDE.md` and `.claude/` alone. At the end it prints
+  what to do next in each client, under `Next steps:`.
 - `upgrade` refreshes the files under `.youngcrow/` and the Codex agent file while they still match
   what was installed, adds the files the new release brings, removes the ones it dropped (if you did
   not change them) and replaces the `AGENTS.md` block when you did not edit it. It does not touch

@@ -33,6 +33,8 @@ from youngcrow.settings import (
 )
 
 CLIENTS = ('claude', 'codex', 'both')
+# Holds `*`, so git sees nothing in `.youngcrow/originals/`: the copies are as private as their sources (R56).
+ORIGINALS_IGNORE = ORIGINALS + '.gitignore'
 GITIGNORE_BODY = '\n'.join(('.env', '.env.*', '!.env.example', '.operacao-local/', 'vault/local/'))
 # Indexes created when missing, from the package templates of the same path. The first is the
 # parent of the other two.
@@ -71,7 +73,9 @@ class _Step:
     data: bytes | None        # what to write; None deletes the file
     old: bytes | None = None  # bytes the file had before; None when it did not exist
     managed: bool = False     # it carries text the installer added: the import line or a block
-    mode: int | None = None   # st_mode of a file the step deleted, put back by a roll back
+    # st_mode for a file the step creates (the saved original takes its source's, R56), or of a file
+    # the step deleted, put back by a roll back
+    mode: int | None = None
 
     @property
     def created(self) -> bool:
@@ -262,16 +266,20 @@ def _make_dirs(root: Path, parent: PurePath, made: list[Path]) -> None:
             raise UnsafePathError('linked managed path: ' + current.relative_to(root).as_posix())
 
 
-def _replace_file(target: Path, data: bytes) -> None:
+def _replace_file(target: Path, data: bytes, mode: int | None = None) -> None:
     """Write through a temp file and a rename, so a user's file is never left half written.
 
     The temp file is created exclusively; when its name is already taken, the write fails and the
-    file that holds the name is left alone.
+    file that holds the name is left alone. An existing file keeps its permission bits; a new one
+    gets those of `mode` when given, set before the bytes go in (R56). Only on POSIX: on Windows the
+    bits carry just the read-only flag, and a read-only copy could not be deleted by undo.
     """
     temp = target.with_name(f'{target.name}.{os.getpid()}.tmp')
     handle = open(temp, 'xb')
     try:
         with handle:
+            if mode is not None and os.name != 'nt':
+                os.chmod(temp, stat.S_IMODE(mode))
             handle.write(data)
             handle.flush()
             os.fsync(handle.fileno())
@@ -336,7 +344,7 @@ def _apply(root: Path, steps: list[_Step], *, manifest: Manifest | None = None,
                 target.unlink()
             else:
                 _make_dirs(root, PurePath(step.rel).parent, made)
-                _replace_file(target, step.data)
+                _replace_file(target, step.data, step.mode)
             written.append(step)
         for directory in dirs:
             if not is_real_dir(directory):
@@ -394,8 +402,8 @@ def _plan_hooks(root: Path, published: Sequence[dict], gone: frozenset[str], rep
 _UNREACHABLE = 'it or a folder on its path is a link, has the wrong type or cannot be read'
 
 
-def _client_file(root: Path, rel: str) -> bytes | None:
-    """The bytes of the client file `rel`, None when it is missing.
+def _client_file(root: Path, rel: str) -> tuple[bytes, int] | None:
+    """The bytes and the st_mode of the client file `rel`, None when it is missing.
 
     SettingsSkipped (R57) when the file or a folder on its way is a link or junction or has the wrong
     type, when the file is not a regular one (a FIFO is never opened), or when it cannot be looked at
@@ -403,9 +411,10 @@ def _client_file(root: Path, rel: str) -> bytes | None:
     """
     try:
         target = safe_target(root, rel)
-        if not stat.S_ISREG(target.lstat().st_mode):
+        mode = target.lstat().st_mode
+        if not stat.S_ISREG(mode):
             raise UnsafePathError('not a regular file: ' + rel)
-        return target.read_bytes()
+        return target.read_bytes(), mode
     except FileNotFoundError:
         return None
     except (UnsafePathError, OSError) as error:
@@ -417,7 +426,8 @@ def _plan_clients(root: Path, client: str, gone: frozenset[str], report: Report,
     """The steps that wire the clients (R36); each client's next step goes into `report`.
 
     Claude (`claude`, `both`): `add_wiring` on `.claude/settings.json`. A file that was there is
-    saved first under `.youngcrow/originals/` (R37). One that already has the wiring is `skipped`;
+    saved first under `.youngcrow/originals/` (R37), with its permission bits, next to a `.gitignore`
+    that keeps the folder out of git (R56). One that already has the wiring is `skipped`;
     one `add_wiring` refuses is left alone too, with the reason in `warnings` and the manual install
     as the next step. Codex (`codex`, `both`): the agent file is written when it is missing, else
     `skipped`. A file in `gone` is about to be removed by the same run, so it counts as missing; one
@@ -428,7 +438,8 @@ def _plan_clients(root: Path, client: str, gone: frozenset[str], report: Report,
     steps = []
     if client != 'codex':
         try:
-            old = None if CLAUDE_SETTINGS in gone else _client_file(root, CLAUDE_SETTINGS)
+            found = None if CLAUDE_SETTINGS in gone else _client_file(root, CLAUDE_SETTINGS)
+            old, mode = found or (None, None)
             old = cleaned.get(CLAUDE_SETTINGS, old)
             new = add_wiring(old)
         except SettingsSkipped as error:
@@ -440,8 +451,10 @@ def _plan_clients(root: Path, client: str, gone: frozenset[str], report: Report,
                 report.skipped.append(CLAUDE_SETTINGS)
             else:
                 if old is not None:
-                    _refuse_leftover(root, ORIGINALS + CLAUDE_SETTINGS)
-                    steps.append(_Step(ORIGINALS + CLAUDE_SETTINGS, old))
+                    for rel in (ORIGINALS_IGNORE, ORIGINALS + CLAUDE_SETTINGS):
+                        _refuse_leftover(root, rel)
+                    steps.append(_Step(ORIGINALS_IGNORE, b'*\n'))  # first, so git never sees the copy
+                    steps.append(_Step(ORIGINALS + CLAUDE_SETTINGS, old, mode=mode))
                 steps.append(_Step(CLAUDE_SETTINGS, new, old))
             report.next_steps.append(CLAUDE_STEP)
     if client != 'claude':

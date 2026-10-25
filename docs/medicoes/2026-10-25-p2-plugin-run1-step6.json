@@ -1,0 +1,531 @@
+{
+  "receipt": "youngcrow plugin proof",
+  "date": "2026-10-25T18:20:45+00:00",
+  "youngcrow": "0.1.0.dev0",
+  "python": "3.13.16",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "paths": {
+    "$TMP": "a new temporary folder, removed at the end",
+    "$REPO": "this repository",
+    "$FIXTURE": "the loopback model fixture"
+  },
+  "head": "827bfbbe3049dd20dbf28dc9ea34450137d6b622",
+  "clients": {
+    "claude": "2.1.310 (Claude Code)",
+    "codex": "codex-cli 0.164.0"
+  },
+  "repository_unchanged": true,
+  "steps": [
+    {
+      "step": "1",
+      "title": "build the wheel and run init --client both in a new project",
+      "in_brief": true,
+      "commands": [
+        {
+          "argv": [
+            "uv",
+            "build",
+            "--wheel",
+            "--python",
+            "python",
+            "-o",
+            "$TMP/dist"
+          ],
+          "cwd": "$REPO",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "uvx",
+            "--python",
+            "python",
+            "--from",
+            "$TMP/dist/youngcrow-0.1.0.dev0-py3-none-any.whl",
+            "youngcrow",
+            "init",
+            "--root",
+            "$TMP/project",
+            "--client",
+            "both",
+            "--json"
+          ],
+          "cwd": "$TMP",
+          "exit": 0,
+          "stdout": "{ |   \"written\": [ |     \".youngcrow/VERSION\", |     \".youngcrow/HARNESS.md\", |     \".youngcrow/capabilities.json\", |     \".youngcrow/scripts/vault.py\", |     \".youngcrow/scripts/document_store.py\", |     \".youngcrow/scripts/documents.py\", |     \".youngcrow/scripts/docling_worker.py\", |     \".youngc"
+        }
+      ],
+      "checks": [
+        {
+          "check": "one wheel was built",
+          "ok": true,
+          "detail": [
+            "$TMP/dist/youngcrow-0.1.0.dev0-py3-none-any.whl"
+          ]
+        },
+        {
+          "check": "init wrote the Claude wiring and the Codex agent",
+          "ok": true
+        },
+        {
+          "check": "init printed one next step per client",
+          "ok": true,
+          "detail": [
+            "Claude Code: open this folder and accept the workspace trust prompt; it then offers the youngcrow plugin.",
+            "Codex: run codex plugin marketplace add Matheusrpc/YoungCrowHarness, then codex plugin add youngcrow@youngcrow, and trust its hooks in /hooks."
+          ]
+        }
+      ],
+      "ok": true
+    },
+    {
+      "step": "2",
+      "title": "claude plugin validate",
+      "in_brief": true,
+      "commands": [
+        {
+          "argv": [
+            "claude",
+            "plugin",
+            "validate",
+            "$REPO"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "stdout": "Validating marketplace manifest: $REPO/.claude-plugin/marketplace.json | ℹ Advice (does not change the verdict): |   ❯ $REPO/README.md: This README has no line that installs \"youngcrow\" from a marketplace. Add the install line, which works in one step on C"
+        }
+      ],
+      "checks": [
+        {
+          "check": "the validator passed",
+          "ok": true
+        }
+      ],
+      "ok": true
+    },
+    {
+      "step": "3",
+      "title": "Claude Code: add the local marketplace, install at project scope, list",
+      "in_brief": true,
+      "commands": [
+        {
+          "argv": [
+            "claude",
+            "plugin",
+            "marketplace",
+            "add",
+            "$REPO",
+            "--json"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "stdout": "{\"command\":\"marketplace-add\",\"outcome\":\"ok\",\"marketplace\":\"youngcrow\",\"message\":\"Successfully added marketplace: youngcrow (declared in user settings)\"}"
+        },
+        {
+          "argv": [
+            "claude",
+            "plugin",
+            "install",
+            "youngcrow@youngcrow",
+            "--scope",
+            "project",
+            "--json"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "stdout": "{\"command\":\"install\",\"outcome\":\"ok\",\"plugin\":\"youngcrow@youngcrow\",\"pluginId\":\"youngcrow@youngcrow\",\"scope\":\"project\",\"message\":\"Successfully installed plugin: youngcrow@youngcrow (scope: project)\"}"
+        },
+        {
+          "argv": [
+            "claude",
+            "plugin",
+            "list",
+            "--json"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "stdout": "[ |   { |     \"id\": \"youngcrow@youngcrow\", |     \"version\": \"0.1.0.dev0\", |     \"scope\": \"project\", |     \"enabled\": true, |     \"installPath\": \"$TMP/home/.claude/plugins/cache/youngcrow/youngcrow/0.1.0"
+        },
+        {
+          "argv": [
+            "claude",
+            "plugin",
+            "details",
+            "youngcrow@youngcrow"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "stdout": "youngcrow 0.1.0.dev0 |   Description: Proof-first memory, sources and capability governance for Claude Code and Codex projects. |   Source: youngcrow@youngcrow | Component inventory |   Skills (5)  govern-capabilities, ingest-source, integrate-from-docs, personalizer, retrieve-memory |   Agents (1) ",
+          "note": "beyond the brief: component inventory"
+        }
+      ],
+      "checks": [
+        {
+          "check": "claude plugin list shows the plugin enabled at project scope",
+          "ok": true,
+          "detail": "[{'id': 'youngcrow@youngcrow', 'version': '0.1.0.dev0', 'scope': 'project', 'enabled': True, 'installPath': '$TMP/home/.claude/plugins/cache/youngcrow/youngcrow/0.1.0.dev0', 'readFromFolder': '$REPO/plugins/youngcrow', 'folderVersion': '0.1.0.dev0', 'installedAt': '2026-10-25T18:20:47.773Z', 'lastUpdated': '2026-10-25T18:20:47.773Z', 'projectPath': '$TMP/project', 'projectEnabled': True}]"
+        },
+        {
+          "check": "the copy Claude installed is the plugin folder, byte for byte",
+          "ok": true,
+          "detail": "$TMP/home/.claude/plugins/cache/youngcrow/youngcrow/0.1.0.dev0"
+        },
+        {
+          "check": "claude plugin details counts five skills, the agent and both hooks",
+          "ok": true
+        }
+      ],
+      "ok": true
+    },
+    {
+      "step": "4",
+      "title": "Codex: add the local marketplace, install, list",
+      "in_brief": true,
+      "commands": [
+        {
+          "argv": [
+            "codex",
+            "plugin",
+            "marketplace",
+            "add",
+            "$REPO",
+            "--json"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "stdout": "{ |   \"marketplaceName\": \"youngcrow\", |   \"installedRoot\": \"$REPO\", |   \"alreadyAdded\": false | }"
+        },
+        {
+          "argv": [
+            "codex",
+            "plugin",
+            "add",
+            "youngcrow@youngcrow",
+            "--json"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "stdout": "{ |   \"pluginId\": \"youngcrow@youngcrow\", |   \"name\": \"youngcrow\", |   \"marketplaceName\": \"youngcrow\", |   \"version\": \"0.1.0.dev0\", |   \"installedPath\": \"$TMP/home/.codex/plugins/cache/youngcrow/youngcro"
+        },
+        {
+          "argv": [
+            "codex",
+            "plugin",
+            "list"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "stdout": "Marketplace `youngcrow` | $REPO/.claude-plugin/marketplace.json | PLUGIN               STATUS              VERSION     SOURCE | youngcrow@youngcrow  installed, enabled  0.1.0.dev0  $REPO/plugins/youngcrow"
+        }
+      ],
+      "checks": [
+        {
+          "check": "codex plugin list shows the plugin installed and enabled",
+          "ok": true
+        },
+        {
+          "check": "the copy Codex installed is the plugin folder, byte for byte",
+          "ok": true,
+          "detail": "$TMP/home/.codex/plugins/cache/youngcrow/youngcrow/0.1.0.dev0"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "step": "5",
+      "title": "the hook of each installed copy gives what the project source_prompt gives",
+      "in_brief": true,
+      "commands": [
+        {
+          "argv": [
+            "python",
+            "-B",
+            "$TMP/project/.youngcrow/scripts/source_prompt.py"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "stdout": "{\"hookSpecificOutput\": {\"hookEventName\": \"UserPromptSubmit\", \"additionalContext\": \"Textual source reference detected. Use ingest-source only when source intake is authorized by the user request. Read-only analysis must remain read-only. This hook wrote nothing and did not access the source. Referenc"
+        },
+        {
+          "argv": [
+            "python",
+            "-I",
+            "$TMP/home/.claude/plugins/cache/youngcrow/youngcrow/0.1.0.dev0/hooks/youngcrow_hook.py",
+            "prompt"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "stdout": "{\"hookSpecificOutput\": {\"hookEventName\": \"UserPromptSubmit\", \"additionalContext\": \"Textual source reference detected. Use ingest-source only when source intake is authorized by the user request. Read-only analysis must remain read-only. This hook wrote nothing and did not access the source. Referenc"
+        },
+        {
+          "argv": [
+            "python",
+            "-I",
+            "$TMP/home/.claude/plugins/cache/youngcrow/youngcrow/0.1.0.dev0/hooks/youngcrow_hook.py",
+            "session-start"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "python",
+            "-I",
+            "$TMP/home/.codex/plugins/cache/youngcrow/youngcrow/0.1.0.dev0/hooks/youngcrow_hook.py",
+            "prompt"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "stdout": "{\"hookSpecificOutput\": {\"hookEventName\": \"UserPromptSubmit\", \"additionalContext\": \"Textual source reference detected. Use ingest-source only when source intake is authorized by the user request. Read-only analysis must remain read-only. This hook wrote nothing and did not access the source. Referenc"
+        },
+        {
+          "argv": [
+            "python",
+            "-I",
+            "$TMP/home/.codex/plugins/cache/youngcrow/youngcrow/0.1.0.dev0/hooks/youngcrow_hook.py",
+            "session-start"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0
+        }
+      ],
+      "checks": [
+        {
+          "check": "source_prompt answers the prompt with source guidance",
+          "ok": true
+        },
+        {
+          "check": "Claude copy: prompt hook output equals source_prompt output",
+          "ok": true
+        },
+        {
+          "check": "Claude copy: session-start is silent while the versions match",
+          "ok": true
+        },
+        {
+          "check": "Codex copy: prompt hook output equals source_prompt output",
+          "ok": true
+        },
+        {
+          "check": "Codex copy: session-start is silent while the versions match",
+          "ok": true
+        }
+      ],
+      "ok": true
+    },
+    {
+      "step": "5+",
+      "title": "Codex runs the plugin hook (loopback model fixture)",
+      "in_brief": false,
+      "commands": [
+        {
+          "argv": [
+            "codex",
+            "app-server",
+            "--stdio"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "note": "requests hooks/list, skills/list; stopped by the proof after the replies"
+        },
+        {
+          "argv": [
+            "codex",
+            "exec",
+            "--json",
+            "--skip-git-repo-check",
+            "--sandbox",
+            "read-only",
+            "-c",
+            "model=\"local-fixture\"",
+            "-c",
+            "model_provider=\"fixture\"",
+            "-c",
+            "model_providers.fixture.name=\"Local fixture\"",
+            "-c",
+            "model_providers.fixture.base_url=\"$FIXTURE/v1\"",
+            "-c",
+            "model_providers.fixture.wire_api=\"responses\"",
+            "-c",
+            "model_providers.fixture.requires_openai_auth=false",
+            "Read https://example.com/spec.pdf and tell me what it covers."
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "stdout": "ype\":\"thread.started\",\"thread_id\":\"01a1744b-3bcd-7400-a1cd-c58e50cd1db8\"} | {\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"error\",\"message\":\"Model metadata for `local-fixture` not found. Defaulting to fallback metadata; this can degrade performance and cause issues.\"}} | {\"type\":\"turn.starte",
+          "note": "stopped by the proof after the first request",
+          "requests_to_fixture": 1
+        },
+        {
+          "argv": [
+            "codex",
+            "app-server",
+            "--stdio"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "note": "requests hooks/list; stopped by the proof after the replies"
+        },
+        {
+          "argv": [
+            "codex",
+            "exec",
+            "--json",
+            "--skip-git-repo-check",
+            "--sandbox",
+            "read-only",
+            "-c",
+            "model=\"local-fixture\"",
+            "-c",
+            "model_provider=\"fixture\"",
+            "-c",
+            "model_providers.fixture.name=\"Local fixture\"",
+            "-c",
+            "model_providers.fixture.base_url=\"$FIXTURE/v1\"",
+            "-c",
+            "model_providers.fixture.wire_api=\"responses\"",
+            "-c",
+            "model_providers.fixture.requires_openai_auth=false",
+            "Read https://example.com/spec.pdf and tell me what it covers."
+          ],
+          "cwd": "$TMP/project",
+          "exit": 0,
+          "stdout": "ype\":\"thread.started\",\"thread_id\":\"01a1744b-3f61-7b61-8654-fd2b7c06665d\"} | {\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"error\",\"message\":\"Model metadata for `local-fixture` not found. Defaulting to fallback metadata; this can degrade performance and cause issues.\"}} | {\"type\":\"turn.starte",
+          "note": "stopped by the proof after the first request",
+          "requests_to_fixture": 1
+        }
+      ],
+      "checks": [
+        {
+          "check": "Codex finds both plugin hooks, pointing at the installed copy, untrusted",
+          "ok": true,
+          "detail": [
+            "{'eventName': 'sessionStart', 'trustStatus': 'untrusted', 'command': 'python3 -I \"$TMP/home/.codex/plugins/cache/youngcrow/youngcrow/0.1.0.dev0/hooks/youngcrow_hook.py\" session-start || python -I \"$TMP/home/.codex/plugins/cache/youngcrow/youngcrow/0.1.0.dev0/hooks/youngcrow_hook.py\" session-start || true'}",
+            "{'eventName': 'userPromptSubmit', 'trustStatus': 'untrusted', 'command': 'python3 -I \"$TMP/home/.codex/plugins/cache/youngcrow/youngcrow/0.1.0.dev0/hooks/youngcrow_hook.py\" prompt || python -I \"$TMP/home/.codex/plugins/cache/youngcrow/youngcrow/0.1.0.dev0/hooks/youngcrow_hook.py\" prompt || true'}"
+          ]
+        },
+        {
+          "check": "Codex finds the five skills as youngcrow:<skill>",
+          "ok": true
+        },
+        {
+          "check": "control: with the hooks untrusted, the request carries no source guidance",
+          "ok": true
+        },
+        {
+          "check": "after trust, hooks/list reports both hooks trusted",
+          "ok": true
+        },
+        {
+          "check": "the request Codex sends carries the hook source guidance",
+          "ok": true
+        },
+        {
+          "check": "the same request names the five skills and the project agent",
+          "ok": true
+        }
+      ],
+      "ok": true
+    },
+    {
+      "step": "5+",
+      "title": "Claude Code runs the plugin hook (loopback model fixture)",
+      "in_brief": false,
+      "commands": [
+        {
+          "argv": [
+            "claude",
+            "-p",
+            "Read https://example.com/spec.pdf and tell me what it covers.",
+            "--output-format",
+            "json",
+            "--max-turns",
+            "1"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 1,
+          "stdout": "concurrency_limit\":0,\"budget\":0},\"by_type\":{}},\"safety_stops\":0,\"is_error\":true,\"num_turns\":1,\"subtype\":\"success\",\"api_error_status\":400,\"result\":\"API Error: 400 loopback fixture\",\"type\":\"result\",\"duration_ms\":228,\"uuid\":\"d480c4f0-9cba-4505-8373-6563400c4b5f\",\"queued_turn_count\":0,\"result_index\":0}",
+          "note": "exit 1 is expected: the fixture answers 400",
+          "requests_to_fixture": 4
+        },
+        {
+          "argv": [
+            "claude",
+            "-p",
+            "Say hello.",
+            "--output-format",
+            "json",
+            "--max-turns",
+            "1"
+          ],
+          "cwd": "$TMP/project",
+          "exit": 1,
+          "stdout": "concurrency_limit\":0,\"budget\":0},\"by_type\":{}},\"safety_stops\":0,\"is_error\":true,\"num_turns\":1,\"subtype\":\"success\",\"api_error_status\":400,\"result\":\"API Error: 400 loopback fixture\",\"type\":\"result\",\"duration_ms\":296,\"uuid\":\"28889ccb-62c0-42ac-9b34-d3065137e78a\",\"queued_turn_count\":0,\"result_index\":0}",
+          "note": "exit 1 is expected: the fixture answers 400",
+          "requests_to_fixture": 4
+        }
+      ],
+      "checks": [
+        {
+          "check": "the request Claude Code sends carries the hook source guidance",
+          "ok": true,
+          "detail": 4
+        },
+        {
+          "check": "the same request names the five skills and the agent as youngcrow:<name>",
+          "ok": true
+        },
+        {
+          "check": "control: a prompt that cites no source gets no source guidance",
+          "ok": true,
+          "detail": 4
+        }
+      ],
+      "ok": true
+    },
+    {
+      "step": "6",
+      "title": "undo --confirm leaves the project empty",
+      "in_brief": true,
+      "commands": [
+        {
+          "argv": [
+            "uvx",
+            "--python",
+            "python",
+            "--from",
+            "$TMP/dist/youngcrow-0.1.0.dev0-py3-none-any.whl",
+            "youngcrow",
+            "undo",
+            "--confirm",
+            "--root",
+            "$TMP/project",
+            "--json"
+          ],
+          "cwd": "$TMP",
+          "exit": 0,
+          "stdout": "{ |   \"written\": [], |   \"kept_modified\": [ |     \".claude/settings.json\" |   ], |   \"removed\": [ |     \".youngcrow/VERSION\", |     \".youngcrow/HARNESS.md\", |     \".youngcrow/capabilities.json\", |     \".youngcrow/scripts/vault.py\", |     \".youngcrow/scripts/document_store.py\", |     \".youngcrow/scri"
+        }
+      ],
+      "checks": [
+        {
+          "check": "the project folder is empty",
+          "ok": false,
+          "detail": {
+            "left": [
+              ".claude",
+              ".claude/settings.json"
+            ],
+            "kept_modified": [
+              ".claude/settings.json"
+            ],
+            ".claude/settings.json": "{}\n"
+          }
+        }
+      ],
+      "ok": false
+    }
+  ],
+  "processes_left": [],
+  "failed": "the project folder is empty",
+  "ok": false
+}

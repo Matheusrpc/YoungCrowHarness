@@ -27,8 +27,14 @@ from youngcrow.manifest import (
     MANIFEST_PATH, Manifest, UnsafePathError, is_real_dir, load, safe_target, save,
 )
 from youngcrow.payload import PAYLOAD, payload_root
+from youngcrow.settings import (
+    CLAUDE_MANUAL_STEP, CLAUDE_SETTINGS, CLAUDE_STEP, CODEX_AGENT, CODEX_STEP, HOOK_FILES, ORIGINALS, SettingsSkipped,
+    add_wiring, added_pairs, codex_agent, remove_hooks, same_value, unwire,
+)
 
 CLIENTS = ('claude', 'codex', 'both')
+# Holds `*`, so git sees nothing in `.youngcrow/originals/`: the copies are as private as their sources (R56).
+ORIGINALS_IGNORE = ORIGINALS + '.gitignore'
 GITIGNORE_BODY = '\n'.join(('.env', '.env.*', '!.env.example', '.operacao-local/', 'vault/local/'))
 # Indexes created when missing, from the package templates of the same path. The first is the
 # parent of the other two.
@@ -52,11 +58,13 @@ class Report:
     kept_modified: list[str] = field(default_factory=list)
     removed: list[str] = field(default_factory=list)
     skipped: list[str] = field(default_factory=list)
-    warnings: list[str] = field(default_factory=list)  # for the person; not one of the four lists
+    warnings: list[str] = field(default_factory=list)  # for the person; not in `to_json`
+    next_steps: list[str] = field(default_factory=list)  # what the person does after init, one client each
+    hooks: dict[str, int] = field(default_factory=dict)  # entries `strip_hooks` took out, per file; not in `to_json`
 
     def to_json(self) -> dict:
-        """The four lists: `written`, `kept_modified`, `removed` and `skipped`."""
-        return {name: getattr(self, name) for name in ('written', 'kept_modified', 'removed', 'skipped')}
+        """The four lists `written`, `kept_modified`, `removed` and `skipped`, then `next_steps`."""
+        return {name: getattr(self, name) for name in ('written', 'kept_modified', 'removed', 'skipped', 'next_steps')}
 
 
 @dataclass
@@ -65,7 +73,9 @@ class _Step:
     data: bytes | None        # what to write; None deletes the file
     old: bytes | None = None  # bytes the file had before; None when it did not exist
     managed: bool = False     # it carries text the installer added: the import line or a block
-    mode: int | None = None   # st_mode of a file the step deleted, put back by a roll back
+    # st_mode for a file the step creates (the saved original takes its source's, R56), or of a file
+    # the step deleted, put back by a roll back
+    mode: int | None = None
 
     @property
     def created(self) -> bool:
@@ -157,6 +167,14 @@ def _installed_harness(root: Path, manifest: Manifest) -> str | None:
     return _decode(rel, data)
 
 
+def _refuse_leftover(root: Path, rel: str) -> None:
+    """AlreadyInitialized when a `.youngcrow/` file init is about to write is there without a manifest."""
+    if os.path.lexists(safe_target(root, rel)):
+        raise AlreadyInitialized(
+            f'{rel} exists but {MANIFEST_PATH} does not; remove it (or the whole .youngcrow '
+            'folder) and run init again.')
+
+
 def _load(root: Path) -> Manifest:
     manifest = load(root)
     if manifest is None:
@@ -165,11 +183,12 @@ def _load(root: Path) -> Manifest:
 
 
 def _harness_files(harness: str) -> dict[str, bytes]:
-    """The `.youngcrow/` files this package installs: VERSION, HARNESS.md and the payload."""
+    """The `.youngcrow/` files this package installs: VERSION, HARNESS.md, the catalog and the payload."""
     source = payload_root()
     return {
         '.youngcrow/VERSION': (__version__ + '\n').encode('utf-8'),
         '.youngcrow/HARNESS.md': harness.encode('utf-8'),
+        '.youngcrow/capabilities.json': _template('capabilities.json').encode('utf-8'),
         **{f'.youngcrow/{rel}': (source / rel).read_bytes() for rel in PAYLOAD},
     }
 
@@ -247,16 +266,20 @@ def _make_dirs(root: Path, parent: PurePath, made: list[Path]) -> None:
             raise UnsafePathError('linked managed path: ' + current.relative_to(root).as_posix())
 
 
-def _replace_file(target: Path, data: bytes) -> None:
+def _replace_file(target: Path, data: bytes, mode: int | None = None) -> None:
     """Write through a temp file and a rename, so a user's file is never left half written.
 
     The temp file is created exclusively; when its name is already taken, the write fails and the
-    file that holds the name is left alone.
+    file that holds the name is left alone. An existing file keeps its permission bits; a new one
+    gets those of `mode` when given, set before the bytes go in (R56). Only on POSIX: on Windows the
+    bits carry just the read-only flag, and a read-only copy could not be deleted by undo.
     """
     temp = target.with_name(f'{target.name}.{os.getpid()}.tmp')
     handle = open(temp, 'xb')
     try:
         with handle:
+            if mode is not None and os.name != 'nt':
+                os.chmod(temp, stat.S_IMODE(mode))
             handle.write(data)
             handle.flush()
             os.fsync(handle.fileno())
@@ -321,7 +344,7 @@ def _apply(root: Path, steps: list[_Step], *, manifest: Manifest | None = None,
                 target.unlink()
             else:
                 _make_dirs(root, PurePath(step.rel).parent, made)
-                _replace_file(target, step.data)
+                _replace_file(target, step.data, step.mode)
             written.append(step)
         for directory in dirs:
             if not is_real_dir(directory):
@@ -337,17 +360,160 @@ def _apply(root: Path, steps: list[_Step], *, manifest: Manifest | None = None,
         raise
 
 
+def _plan_hooks(root: Path, published: Sequence[dict], gone: frozenset[str], report: Report) -> list[_Step]:
+    """The steps that take the old setup.sh hook entries out of the hook files (R41, R43).
+
+    In each of HOOK_FILES that is there and not in `gone`, the entries equal to one in `published`
+    come out (`settings.remove_hooks`), and how many goes into `report.hooks`. A look-alike entry
+    stays and gets a line in `warnings`, as does a file that is not a JSON object in UTF-8, which is
+    left as it is. So is a link (or a path behind one), a folder or any other file that is not a
+    regular one, and a file that cannot be read (R51): migrate never reads those (R9), and its scan
+    does not count them either.
+    """
+    steps = []
+    for rel in HOOK_FILES if published else ():
+        if rel in gone:
+            continue
+        try:
+            target = safe_target(root, rel)
+            if not stat.S_ISREG(target.lstat().st_mode):
+                raise UnsafePathError('not a regular file: ' + rel)
+            old = target.read_bytes()
+        except FileNotFoundError:
+            continue
+        except (UnsafePathError, OSError):
+            report.warnings.append(f'{rel} is a link (or unreadable), so youngcrow did not look for the old hook in it.')
+            continue
+        try:
+            new, count, kept = remove_hooks(old, published)
+        except SettingsSkipped as error:
+            report.warnings.append(f'{rel}: {error}, so youngcrow could not look for the old setup.sh hook in it.')
+            continue
+        report.warnings += [f'{rel}: youngcrow kept a {event} hook that is the old setup.sh one with an edit. It runs '
+                            'scripts/source_prompt.py and fails once that file is gone; remove it by hand.'
+                            for event in kept]
+        if count:
+            steps.append(_Step(rel, new, old))
+            report.hooks[rel] = count
+    return steps
+
+
+# Why init leaves a client unwired when the path to its file is not one it reads or writes (R57).
+_UNREACHABLE = 'it or a folder on its path is a link, has the wrong type or cannot be read'
+
+
+def _client_file(root: Path, rel: str) -> tuple[bytes, int] | None:
+    """The bytes and the st_mode of the client file `rel`, None when it is missing.
+
+    SettingsSkipped (R57) when the file or a folder on its way is a link or junction or has the wrong
+    type, when the file is not a regular one (a FIFO is never opened), or when it cannot be looked at
+    or read: init then leaves that client unwired and goes on.
+    """
+    try:
+        target = safe_target(root, rel)
+        mode = target.lstat().st_mode
+        if not stat.S_ISREG(mode):
+            raise UnsafePathError('not a regular file: ' + rel)
+        return target.read_bytes(), mode
+    except FileNotFoundError:
+        return None
+    except (UnsafePathError, OSError) as error:
+        raise SettingsSkipped(_UNREACHABLE) from error
+
+
+def _plan_clients(root: Path, client: str, gone: frozenset[str], report: Report,
+                  cleaned: dict[str, bytes]) -> list[_Step]:
+    """The steps that wire the clients (R36); each client's next step goes into `report`.
+
+    Claude (`claude`, `both`): `add_wiring` on `.claude/settings.json`. A file that was there is
+    saved first under `.youngcrow/originals/` (R37), with its permission bits, next to a `.gitignore`
+    that keeps the folder out of git (R56). One that already has the wiring is `skipped`;
+    one `add_wiring` refuses is left alone too, with the reason in `warnings` and the manual install
+    as the next step. Codex (`codex`, `both`): the agent file is written when it is missing, else
+    `skipped`. A file in `gone` is about to be removed by the same run, so it counts as missing; one
+    in `cleaned` is read as the same run leaves it before the wiring (the old hooks out).
+    A client path that is a link, has the wrong type or cannot be read (`_client_file`) leaves that
+    client unwired, `skipped` with a line in `warnings`, and the rest of the install goes on (R57).
+    """
+    steps = []
+    if client != 'codex':
+        try:
+            found = None if CLAUDE_SETTINGS in gone else _client_file(root, CLAUDE_SETTINGS)
+            old, mode = found or (None, None)
+            old = cleaned.get(CLAUDE_SETTINGS, old)
+            new = add_wiring(old)
+        except SettingsSkipped as error:
+            report.skipped.append(CLAUDE_SETTINGS)
+            report.warnings.append(f'{CLAUDE_SETTINGS}: {error}, so youngcrow left it as it is.')
+            report.next_steps.append(CLAUDE_MANUAL_STEP)
+        else:
+            if new is None:
+                report.skipped.append(CLAUDE_SETTINGS)
+            else:
+                if old is not None:
+                    for rel in (ORIGINALS_IGNORE, ORIGINALS + CLAUDE_SETTINGS):
+                        _refuse_leftover(root, rel)
+                    steps.append(_Step(ORIGINALS_IGNORE, b'*\n'))  # first, so git never sees the copy
+                    steps.append(_Step(ORIGINALS + CLAUDE_SETTINGS, old, mode=mode))
+                steps.append(_Step(CLAUDE_SETTINGS, new, old))
+            report.next_steps.append(CLAUDE_STEP)
+    if client != 'claude':
+        try:
+            present = CODEX_AGENT not in gone and os.path.lexists(safe_target(root, CODEX_AGENT))
+        except (UnsafePathError, OSError):
+            report.skipped.append(CODEX_AGENT)
+            report.warnings.append(f'{CODEX_AGENT}: {_UNREACHABLE}, so youngcrow did not write it.')
+        else:
+            if present:
+                report.skipped.append(CODEX_AGENT)
+            else:
+                steps.append(_Step(CODEX_AGENT, codex_agent()))
+        report.next_steps.append(CODEX_STEP)
+    return steps
+
+
+def _original(root: Path, manifest: Manifest, rel: str) -> bytes | None:
+    """The bytes `rel` had before init, from `.youngcrow/originals/`; None when that copy is gone or changed."""
+    saved = ORIGINALS + rel
+    data = _read_bytes(root, saved)
+    return data if data is not None and _sha(data) == manifest.files.get(saved) else None
+
+
+def _only_relaid(root: Path, manifest: Manifest, rel: str, current: bytes, created: bool) -> bool:
+    """Whether the settings file `rel` holds the value of the bytes init wrote, only laid out anew (R52).
+
+    `claude plugin install --scope project` writes the file back with the keys in another order and LF line
+    endings. The bytes init wrote are recomputed with `add_wiring` from the saved original (from nothing for a
+    file init created) and trusted only when their hash is the one the manifest recorded; a saved original that
+    is gone or changed means the answer is no.
+    """
+    original = None
+    if not created:
+        original = _original(root, manifest, rel)
+        if original is None:
+            return False
+    try:
+        wrote = add_wiring(original)
+    except SettingsSkipped:
+        return False
+    return wrote is not None and _sha(wrote) == manifest.files.get(rel) and same_value(current, wrote)
+
+
 def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'light',
-         remove: Sequence[str] = ()) -> Report:
+         remove: Sequence[str] = (), strip_hooks: tuple[dict, ...] = ()) -> Report:
     """Install the harness into `root`.
 
-    Copies the scripts into `.youngcrow/`, creates the vault indexes that are missing (a sub-index
-    only when this run creates `vault/index.md` or the existing one already links to it), links the
-    rules into CLAUDE.md (import line) and AGENTS.md (block), adds the .gitignore block, and saves
-    the manifest. Raises ValueError for an unsupported option, UnsafePathError for a linked or
-    mistyped destination, ManagedBlockError for broken markers, AlreadyInitialized when the
-    project has a manifest or install leftovers. None of these writes anything. A write that fails
-    is rolled back before the error is raised again.
+    Copies the scripts and the capability catalog into `.youngcrow/`, creates the vault indexes that
+    are missing (a sub-index only when this run creates `vault/index.md` or the existing one already
+    links to it), links the rules into CLAUDE.md (import line) and AGENTS.md (block), adds the
+    .gitignore block, wires the clients (see `_plan_clients`: the plugin in `.claude/settings.json`,
+    the Codex agent, one entry per client in `Report.next_steps`), and saves the manifest. A settings
+    file it edits goes into `json_edits` with the keys it added (R49), and the bytes it had are saved
+    in `.youngcrow/originals/`.
+    Raises ValueError for an unsupported option, UnsafePathError for a linked or mistyped
+    destination, ManagedBlockError for broken markers, AlreadyInitialized when the project has a
+    manifest or install leftovers. None of these writes anything. A write that fails is rolled back
+    before the error is raised again.
 
     `remove` lists project files to delete in the same run, before the install (`migrate` passes
     the copies an older `setup.sh` made). Each name must be a canonical relative path with `/`
@@ -356,6 +522,12 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
     Each goes through `safe_target` and is read before the first write. A file it removes that init also writes (CLAUDE.md, AGENTS.md) is created anew,
     not edited. The files go into `Report.removed`, followed by the folders they leave empty (R18,
     with a trailing `/`); a failed run puts them all back.
+
+    `strip_hooks` lists hook entries to take out of `.claude/settings.json` and `.codex/hooks.json`
+    first (`migrate` passes the ones setup.sh published, R41); see `_plan_hooks`. Only that change is
+    made to `.codex/hooks.json`, which goes into `Report.written` but not into the manifest, so `undo`
+    leaves it. In `.claude/settings.json` the wiring comes after, so the bytes saved in
+    `.youngcrow/originals/` are the file without those entries. `Report.hooks` counts them per file.
     """
     _check_options(client, lang, rigor)
     root = Path(root)
@@ -365,10 +537,7 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
     harness = _template(f'HARNESS.{lang}.{rigor}.md')
     steps = [_Step(rel, data) for rel, data in _harness_files(harness).items()]
     for step in steps:
-        if os.path.lexists(safe_target(root, step.rel)):
-            raise AlreadyInitialized(
-                f'{step.rel} exists but {MANIFEST_PATH} does not; remove it (or the whole .youngcrow '
-                'folder) and run init again.')
+        _refuse_leftover(root, step.rel)
 
     drops = []
     for rel in dict.fromkeys(remove):
@@ -405,15 +574,18 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
             report.skipped.append(rel)
         else:
             steps.append(step)
+    cleaned = _plan_hooks(root, strip_hooks, gone, report)
+    steps += _plan_clients(root, client, gone, report, {step.rel: step.data for step in cleaned})
 
     dirs = _empty_parents(root, [step.rel for step in drops], keep=[step.rel for step in steps])
-    _apply(root, drops + steps, manifest=Manifest(
+    _apply(root, drops + cleaned + steps, manifest=Manifest(
         version=__version__, client=client, lang=lang, rigor=rigor,
         files={step.rel: _sha(step.data) for step in steps},
         created=[step.rel for step in steps if step.created],
         edits=[step.rel for step in steps if step.managed],
+        json_edits={step.rel: added_pairs(step.old) for step in steps if step.rel == CLAUDE_SETTINGS},
     ), dirs=dirs)
-    report.written = [step.rel for step in steps]
+    report.written = list(dict.fromkeys(step.rel for step in cleaned + steps))
     report.removed = [step.rel for step in drops] + [path.relative_to(root).as_posix() + '/' for path in dirs]
     return report
 
@@ -421,14 +593,16 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
 def upgrade(root: Path) -> Report:
     """Bring the harness files to this package's version without touching what the user changed.
 
-    Only `.youngcrow/` and the AGENTS.md block body are touched (never `vault/`, never text outside
-    a block). A `.youngcrow/` file whose hash matches the manifest is replaced, a missing one is
-    written, a changed one is kept and listed in `kept_modified`. A payload file new in this version
-    is written and recorded; a recorded one this version dropped is deleted (`removed`) when
-    unmodified, else kept; folders that leaves empty go too (R18). The AGENTS.md block that init
-    added, while it is still the installer's (R21: its body is the installed HARNESS text, or the
-    whole file still has its recorded hash), gets `.youngcrow/HARNESS.md` as it stands after this
-    upgrade: the new text, or the user's own when they changed that file. Otherwise it is kept.
+    Only `.youngcrow/`, the Codex agent and the AGENTS.md block body are touched (never `vault/`,
+    never text outside a block, never `.claude/settings.json` or the originals saved for it). A
+    `.youngcrow/` file, or the Codex agent when the manifest records it (R50), whose hash matches the
+    manifest is replaced, a missing one is written, a changed one is kept and listed in
+    `kept_modified`. A payload file new in this version is written and recorded; a recorded one
+    this version dropped is deleted (`removed`) when unmodified, else kept; folders that leaves
+    empty go too (R18). The AGENTS.md block that init added, while it is still the installer's
+    (R21: its body is the installed HARNESS text, or the whole file still has its recorded hash),
+    gets `.youngcrow/HARNESS.md` as it stands after this upgrade: the new text, or the user's own
+    when they changed that file. Otherwise it is kept.
     Raises NotInitialized without a manifest, ManagedBlockError (naming the file) for broken
     markers, UnsafePathError for a linked path, before any write. The manifest is saved last; a
     failed write rolls the whole upgrade back.
@@ -438,6 +612,8 @@ def upgrade(root: Path) -> Report:
     _check_options(manifest.client, manifest.lang, manifest.rigor)
     harness = _template(f'HARNESS.{manifest.lang}.{manifest.rigor}.md')
     fresh = _harness_files(harness)
+    if CODEX_AGENT in manifest.files:  # only the agent init wrote (R50), by the same rule (R19a)
+        fresh[CODEX_AGENT] = codex_agent()
     report, steps = Report(), []
     files, created = dict(manifest.files), list(manifest.created)
     installed = _installed_harness(root, manifest)  # what the AGENTS.md block should still hold
@@ -475,7 +651,7 @@ def upgrade(root: Path) -> Report:
                 report.kept_modified.append('AGENTS.md')
 
     for rel, digest in manifest.files.items():
-        if not rel.startswith('.youngcrow/') or rel in fresh or rel == MANIFEST_PATH:
+        if not rel.startswith('.youngcrow/') or rel.startswith(ORIGINALS) or rel in fresh or rel == MANIFEST_PATH:
             continue
         current = _read_bytes(root, rel)
         if current is not None and _sha(current) != digest:
@@ -488,7 +664,7 @@ def upgrade(root: Path) -> Report:
         created = [name for name in created if name != rel]
 
     updated = Manifest(__version__, manifest.client, manifest.lang, manifest.rigor, files, created,
-                       list(manifest.edits))
+                       list(manifest.edits), dict(manifest.json_edits))
     dirs = _empty_parents(root, [step.rel for step in steps if step.data is None],
                           keep=[step.rel for step in steps if step.data is not None])
     report.removed += [path.relative_to(root).as_posix() + '/' for path in dirs]
@@ -533,6 +709,11 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
     AGENTS.md, the HARNESS text known from `.youngcrow/HARNESS.md` with a matching hash) or the whole
     file still has its recorded hash. Otherwise the user typed inside it, and the whole file is
     left as it is (`kept_modified`), as is a pre-existing file whose managed text the user removed.
+    A settings file init edited (R37) gets its saved original back while it is as init left it
+    (`written`); once the user changed it, only the keys init added come out (R49) and it is listed
+    in `kept_modified`. A settings file that holds the same JSON value as init's bytes, only laid out
+    anew (R52, `_only_relaid`), counts as left as init left it: deleted when init created it, else its
+    original comes back.
     Folders left empty by those deletions go too (`removed`, with a trailing `/`); the manifest is
     deleted last. Every path and managed edit is checked first: NotInitialized, UnsafePathError,
     ManagedBlockError (naming the file) or ValueError change nothing, and a failed write rolls the
@@ -543,21 +724,31 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
     manifest = _load(root)
     bodies = {'AGENTS.md': _installed_harness(root, manifest), '.gitignore': GITIGNORE_BODY}
     report, steps = Report(), []
-    for rel in dict.fromkeys(manifest.created + manifest.edits):
+    for rel in dict.fromkeys(manifest.created + manifest.edits + list(manifest.json_edits)):
         if rel == MANIFEST_PATH:
             continue
         current = _read_bytes(root, rel)
         if current is None:
             continue
         created = rel in manifest.created
-        if created and _sha(current) == manifest.files.get(rel):
+        unchanged = _sha(current) == manifest.files.get(rel)
+        if rel in manifest.json_edits and not unchanged:
+            unchanged = _only_relaid(root, manifest, rel, current, created)
+        if created and unchanged:
             steps.append(_Step(rel, None, current))
             report.removed.append(rel)
             continue
+        if rel in manifest.json_edits:
+            # R37: the saved original while the file is as init left it (`written`); else only the keys
+            # init added go (R49).
+            new = unwire(current, _original(root, manifest, rel) if unchanged else None, manifest.json_edits[rel])
+            if new != current:
+                steps.append(_Step(rel, new, current, managed=True))
+            (report.written if unchanged and new != current else report.kept_modified).append(rel)
+            continue
         new = current
         if rel in manifest.edits and (rel == 'CLAUDE.md' or rel in _BLOCKS):
-            stripped = _strip(rel, _decode(rel, current), bodies.get(rel),
-                              whole=_sha(current) == manifest.files.get(rel))
+            stripped = _strip(rel, _decode(rel, current), bodies.get(rel), whole=unchanged)
             if stripped is None:
                 report.kept_modified.append(rel)
                 continue

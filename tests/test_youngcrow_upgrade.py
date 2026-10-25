@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 from pathlib import Path
 from unittest import mock
+import json
 import os
 import shutil
 import stat
@@ -95,6 +96,137 @@ class UpgradeUndoTests(unittest.TestCase):
         self.assertIn('.youngcrow/scripts/vault.py', report.kept_modified)
         self.assertIn('.youngcrow/scripts/memory.py', report.written)
         self.assertTrue(script.read_text().endswith('# mine\n'))
+
+    # The capability catalog follows the same rule as the other .youngcrow/ files (R19a).
+
+    CATALOG = '.youngcrow/capabilities.json'
+
+    def _with_catalog_template(self, text):
+        real = install._template
+        return mock.patch.object(install, '_template',
+                                 lambda *parts: text if parts == ('capabilities.json',) else real(*parts))
+
+    def test_upgrade_replaces_an_untouched_catalog_with_the_new_one(self):
+        init(self.root)
+        with self._with_catalog_template('{"version": 3, "capabilities": []}\n'):
+            report = upgrade(self.root)
+        self.assertEqual(report.written, [self.CATALOG])
+        self.assertEqual((self.root / self.CATALOG).read_text(), '{"version": 3, "capabilities": []}\n')
+        self.assertEqual(load(self.root).files[self.CATALOG], sha256_file(self.root / self.CATALOG))
+
+    def test_upgrade_keeps_a_catalog_the_user_edited(self):
+        init(self.root)
+        catalog = self.root / self.CATALOG
+        catalog.write_text('{"version": 3, "capabilities": [], "mine": true}\n')
+        with self._with_catalog_template('{"version": 3, "capabilities": []}\n'):
+            report = upgrade(self.root)
+        self.assertEqual((report.written, report.kept_modified), ([], [self.CATALOG]))
+        self.assertIn('"mine"', catalog.read_text())
+
+    def test_upgrade_writes_the_catalog_into_a_project_from_before_it_existed(self):
+        init(self.root)
+        (self.root / self.CATALOG).unlink()
+        manifest = load(self.root)
+        del manifest.files[self.CATALOG]
+        manifest.created.remove(self.CATALOG)
+        save(self.root, manifest)
+        report = upgrade(self.root)
+        self.assertEqual(report.written, [self.CATALOG])
+        self.assertTrue((self.root / self.CATALOG).is_file())
+        self.assertIn(self.CATALOG, load(self.root).created)
+
+    def test_upgrade_does_not_take_over_a_catalog_the_manifest_never_recorded(self):
+        init(self.root)
+        manifest = load(self.root)
+        del manifest.files[self.CATALOG]
+        manifest.created.remove(self.CATALOG)
+        save(self.root, manifest)
+        (self.root / self.CATALOG).write_text('mine\n')
+        report = upgrade(self.root)
+        self.assertEqual(report.kept_modified, [self.CATALOG])
+        self.assertEqual((self.root / self.CATALOG).read_text(), 'mine\n')
+
+    def test_undo_removes_an_untouched_catalog_and_keeps_an_edited_one(self):
+        init(self.root)
+        self.assertIn(self.CATALOG, undo(self.root).removed)
+        (self.root / self.CATALOG).write_text('{}\n')
+        report = undo(self.root, confirm=True)
+        self.assertIn(self.CATALOG, report.kept_modified)
+        self.assertEqual((self.root / self.CATALOG).read_text(), '{}\n')
+
+    # The Codex agent follows R19a too; .claude/settings.json is not upgrade's to touch.
+
+    AGENT = '.codex/agents/integration-specialist.toml'
+    SETTINGS = '.claude/settings.json'
+    ORIGINAL = '.youngcrow/originals/.claude/settings.json'
+
+    def test_upgrade_replaces_an_untouched_codex_agent_and_keeps_an_edited_one(self):
+        init(self.root)
+        agent = self.root / self.AGENT
+        with mock.patch.object(install, 'codex_agent', return_value=b'name = "next"\n'):
+            self.assertEqual(upgrade(self.root).written, [self.AGENT])
+            self.assertEqual(agent.read_bytes(), b'name = "next"\n')
+            self.assertEqual(load(self.root).files[self.AGENT], sha256_file(agent))
+            agent.write_bytes(b'name = "mine"\n')
+            self.assertEqual(upgrade(self.root).kept_modified, [self.AGENT])
+            self.assertEqual(agent.read_bytes(), b'name = "mine"\n')
+            agent.unlink()
+            self.assertEqual(upgrade(self.root).written, [self.AGENT])
+        self.assertIn(self.AGENT, undo(self.root, confirm=True).removed)  # written back with its hash recorded
+
+    def test_a_codex_agent_init_did_not_write_is_never_upgraded_nor_listed(self):
+        # R50: only the agent the manifest records is upgrade's (and undo's).
+        (self.root / '.codex/agents').mkdir(parents=True)
+        (self.root / self.AGENT).write_bytes(b'name = "mine"\n')
+        init(self.root)
+        with mock.patch.object(install, 'codex_agent', return_value=b'name = "next"\n'):
+            report = upgrade(self.root)
+        self.assertEqual((self.root / self.AGENT).read_bytes(), b'name = "mine"\n')
+        self.assertNotIn(self.AGENT, report.written + report.kept_modified + report.removed + report.skipped)
+        self.assertNotIn(self.AGENT, load(self.root).files)
+        report = undo(self.root, confirm=True)
+        self.assertNotIn(self.AGENT, report.written + report.kept_modified + report.removed)
+        self.assertEqual(self._tree_bytes(), {'.codex': None, '.codex/agents': None, self.AGENT: b'name = "mine"\n'})
+
+    def test_upgrade_does_not_add_the_codex_agent_to_an_install_that_never_recorded_it(self):
+        init(self.root)
+        (self.root / self.AGENT).unlink()
+        manifest = load(self.root)
+        del manifest.files[self.AGENT]
+        manifest.created.remove(self.AGENT)
+        save(self.root, manifest)
+        self.assertEqual(upgrade(self.root).written, [])
+        self.assertFalse((self.root / self.AGENT).exists())
+
+    def test_upgrade_of_a_claude_install_writes_no_codex_agent(self):
+        init(self.root, client='claude')
+        self.assertEqual(upgrade(self.root).written, [])
+        self.assertFalse((self.root / '.codex').exists())
+
+    def test_upgrade_leaves_the_settings_and_their_saved_original_alone(self):
+        original = b'{"model": "x"}\r\n'
+        (self.root / '.claude').mkdir()
+        (self.root / self.SETTINGS).write_bytes(original)
+        init(self.root)
+        settings = self.root / self.SETTINGS
+        wired = settings.read_bytes()
+        settings.write_text(json.dumps({**json.loads(wired), 'permissions': {'allow': ['Read']}}))
+        before = self._tree_bytes()
+        with self._release(version='0.2.0', rules=NEW_RULES, drop=REQUIREMENTS):
+            report = upgrade(self.root)
+        ignore = '.youngcrow/originals/.gitignore'  # R56: it keeps the saved original out of git
+        for rel in (self.SETTINGS, self.ORIGINAL, ignore):
+            self.assertEqual(self._tree_bytes()[rel], before[rel], rel)
+            self.assertNotIn(rel, report.written + report.kept_modified + report.removed)
+        manifest = load(self.root)
+        self.assertEqual(manifest.json_edits, {self.SETTINGS: [['extraKnownMarketplaces', 'youngcrow'],
+                                                               ['enabledPlugins', 'youngcrow@youngcrow']]})
+        self.assertIn(self.ORIGINAL, manifest.created)
+        self.assertIn(ignore, manifest.created)
+        settings.write_bytes(wired)  # back to what init wrote: undo gives the saved original back
+        undo(self.root, confirm=True)
+        self.assertEqual(settings.read_bytes(), original)
+        self.assertFalse((self.root / '.youngcrow').exists())
 
     def test_upgrade_refuses_broken_markers(self):
         init(self.root)
@@ -360,7 +492,7 @@ class UpgradeUndoTests(unittest.TestCase):
             self.assertIn('.youngcrow/scripts/new_tool.py', manifest.created)
             again = self._tree_bytes()
             self.assertEqual(upgrade(self.root).to_json(),
-                             {'written': [], 'kept_modified': [], 'removed': [], 'skipped': []})
+                             {'written': [], 'kept_modified': [], 'removed': [], 'skipped': [], 'next_steps': []})
             self.assertEqual(self._tree_bytes(), again)
         undo(self.root, confirm=True)
         self.assertEqual(self._tree_bytes(), {})

@@ -35,10 +35,12 @@ class StorageFixture(unittest.TestCase):
         path.write_bytes(data)
 
     def git(self, *args):
+        # Automatic maintenance (after a commit, git runs `maintenance run --auto` detached) makes and removes
+        # objects/maintenance.lock and packs inside .git while the tests compare whole trees. Off for every call.
         env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
         env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_OPTIONAL_LOCKS='0')
-        return subprocess.check_output(['git', '-c', 'core.fsmonitor=false', *args], env=env,
-                                       stderr=subprocess.PIPE)
+        return subprocess.check_output(['git', '-c', 'core.fsmonitor=false', '-c', 'maintenance.auto=false',
+                                        '-c', 'gc.auto=0', *args], env=env, stderr=subprocess.PIPE)
 
     def seed_dirty_git(self):
         self.git('init', '-q', str(self.project))

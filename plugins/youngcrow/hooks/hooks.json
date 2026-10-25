@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -I \"${CLAUDE_PLUGIN_ROOT}/hooks/youngcrow_hook.py\" session-start || python -I \"${CLAUDE_PLUGIN_ROOT}/hooks/youngcrow_hook.py\" session-start || true",
+            "commandWindows": "python -I -c \"import os,runpy,sys; r=os.environ.get('PLUGIN_ROOT') or os.environ.get('CLAUDE_PLUGIN_ROOT') or ''; p=os.path.join(r,'hooks','youngcrow_hook.py'); sys.argv=[p,'session-start']; r and os.path.isfile(p) and runpy.run_path(p,run_name='__main__')\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -I \"${CLAUDE_PLUGIN_ROOT}/hooks/youngcrow_hook.py\" prompt || python -I \"${CLAUDE_PLUGIN_ROOT}/hooks/youngcrow_hook.py\" prompt || true",
+            "commandWindows": "python -I -c \"import os,runpy,sys; r=os.environ.get('PLUGIN_ROOT') or os.environ.get('CLAUDE_PLUGIN_ROOT') or ''; p=os.path.join(r,'hooks','youngcrow_hook.py'); sys.argv=[p,'prompt']; r and os.path.isfile(p) and runpy.run_path(p,run_name='__main__')\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

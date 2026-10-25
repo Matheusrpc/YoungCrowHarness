@@ -5,9 +5,11 @@ them with a table of the versions the harness published (`legacy_hashes.json`, b
 `tools/legacy_hashes.py`): a file byte-identical to a published version is a match and may go; any
 other file at a legacy path is the user's own, so it is kept and listed as modified.
 `apply` removes the matches and installs the new layout in one all-or-nothing run.
+The hook files it keeps lose the hook entries setup.sh published (`legacy_hooks.json`, from the same
+tool), which run `scripts/source_prompt.py` and would fail once it is gone; the plugin's hook replaces them (R41).
 `dangling_references` and `vault_check` say, read-only, what still points at the removed files.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from importlib.resources import files
 from pathlib import Path
 from typing import Iterable
@@ -20,7 +22,8 @@ import sys
 
 from youngcrow.blocks import MD_END, MD_START, ManagedBlockError, remove_block
 from youngcrow.install import Report, init
-from youngcrow.manifest import UnsafePathError, is_real_dir, safe_target, sha256_file
+from youngcrow.manifest import MANIFEST_PATH, UnsafePathError, is_real_dir, safe_target, sha256_file
+from youngcrow.settings import HOOK_FILES, SettingsSkipped, remove_hooks
 
 # Every path in the FILES arrays of setup.sh (both client branches) except the vault (R22), then the
 # folders it copied skills into: an entry ending in `/*` stands for every file under that folder.
@@ -62,6 +65,8 @@ LEGACY_PATHS: tuple[str, ...] = (
 class MigrationPreview:
     matches: list[str]   # unmodified copies: byte-identical to a published version, `apply` removes them
     modified: list[str]  # the user's own versions of legacy files: kept, and listed in the report
+    hooks: dict[str, int] = field(default_factory=dict)  # kept hook file -> old setup.sh entries `apply` takes out
+    already_set_up: bool = False  # the project has the manifest, so `apply` refuses it (AlreadyInitialized, R55)
 
 
 def is_legacy_path(rel: str) -> bool:
@@ -76,6 +81,11 @@ def is_legacy_path(rel: str) -> bool:
 def legacy_hashes() -> dict[str, list[str]]:
     """The published table: relative path -> every SHA-256 that path had in the history it was built from."""
     return json.loads(files('youngcrow').joinpath('legacy_hashes.json').read_text(encoding='utf-8'))
+
+
+def legacy_hooks() -> tuple[dict, ...]:
+    """Every hook entry setup.sh published that runs `scripts/source_prompt.py` (R43), as the table holds them."""
+    return tuple(json.loads(files('youngcrow').joinpath('legacy_hooks.json').read_text(encoding='utf-8'))['entries'])
 
 
 def _classify(root: Path, rel: str, published: list[str]) -> str | None:
@@ -113,15 +123,41 @@ def _scan(root: Path, table: dict[str, list[str]]) -> MigrationPreview:
     return preview
 
 
+def _old_hooks(root: Path, published: tuple[dict, ...], matches: list[str]) -> dict[str, int]:
+    """Hook file -> how many of its entries are published ones, for the files `apply` keeps.
+
+    A match goes whole, so it is not counted; neither is a file that is a link or not a JSON object.
+    """
+    found = {}
+    for rel in HOOK_FILES:
+        data = None if rel in matches else _bytes(root, rel)
+        try:
+            count = 0 if data is None else remove_hooks(data, published)[1]
+        except SettingsSkipped:
+            continue
+        if count:
+            found[rel] = count
+    return found
+
+
 def scan(root: Path) -> MigrationPreview:
     """Find the files `setup.sh` left in `root`. Reads only; writes nothing.
 
     Every path of the table that is a legacy path (never under `vault/`) is checked as a regular
     file without following links. A file whose hash is in the table is a match; one at a table path
     with another hash is modified; a path not in the table is not the harness's and is ignored.
-    Both lists are sorted.
+    Both lists are sorted. `hooks` counts the published hook entries in each hook file that stays.
+    `already_set_up` says the project has `.youngcrow/manifest.json`, which `apply` refuses (R55); a
+    linked `.youngcrow` reads as False, since `apply` refuses it as a link.
     """
-    return _scan(Path(root), legacy_hashes())
+    root = Path(root)
+    preview = _scan(root, legacy_hashes())
+    preview.hooks = _old_hooks(root, legacy_hooks(), preview.matches)
+    try:
+        preview.already_set_up = safe_target(root, MANIFEST_PATH).exists()
+    except (UnsafePathError, OSError):
+        pass
+    return preview
 
 
 def apply(root: Path, preview: MigrationPreview, *, client: str = 'both') -> Report:
@@ -130,13 +166,15 @@ def apply(root: Path, preview: MigrationPreview, *, client: str = 'both') -> Rep
     The matches are checked again first: a file that changed since the scan, or is gone, is not
     removed (a changed one is reported in `kept_modified`), and a path that is not in the table
     raises ValueError, so a stale or hand-built preview cannot delete anything the user owns. Then
-    `init(remove=...)` removes the matches, the folders they empty, and installs; a failure puts
-    every file and folder back. Raises what `init` raises (AlreadyInitialized when the project has a
-    manifest, UnsafePathError, ManagedBlockError, ...) before anything is removed.
+    `init(remove=..., strip_hooks=legacy_hooks())` removes the matches, the folders they empty, the
+    published hook entries in the hook files that stay, and installs; a failure puts every file and
+    folder back. Raises what `init` raises (AlreadyInitialized when the project has a manifest,
+    UnsafePathError, ManagedBlockError, ...) before anything is removed.
 
     The report is init's: `removed` holds the matches and the folders they emptied, `written` what
-    init wrote (CLAUDE.md among them when it added the import line to a kept file), `kept_modified`
-    the user's legacy files left in place.
+    init wrote (CLAUDE.md among them when it added the import line to a kept file, a hook file it
+    took entries out of), `hooks` how many entries came out of each, `kept_modified` the user's legacy
+    files left in place, `warnings` the hook entries and files it could not judge.
     """
     root = Path(root)
     table = legacy_hashes()
@@ -144,7 +182,8 @@ def apply(root: Path, preview: MigrationPreview, *, client: str = 'both') -> Rep
         if rel not in table or not is_legacy_path(rel):
             raise ValueError(f'{rel} is not a file that setup.sh installed; migrate does not remove it.')
     current = _scan(root, table)
-    report = init(root, client=client, remove=[rel for rel in preview.matches if rel in current.matches])
+    report = init(root, client=client, remove=[rel for rel in preview.matches if rel in current.matches],
+                  strip_hooks=legacy_hooks())
     report.kept_modified = current.modified
     return report
 
@@ -156,19 +195,33 @@ def _reference(rel: str) -> re.Pattern:
     return re.compile(r'(?<![\w.\-/$])(?:\.{1,2}/|\$\{?\w+\}?/)*' + re.escape(rel) + r'(?![\w\-/]|\.\w)')
 
 
-def _text(root: Path, rel: str) -> str | None:
-    """The text of the regular file at `rel`, read without following a link; None when there is none.
-
-    The youngcrow block is left out: that text is the installer's, so whatever it names is not a
-    reference the person has to fix.
-    """
+def _bytes(root: Path, rel: str) -> bytes | None:
+    """The bytes of the regular file at `rel`, read without following a link; None when there is none."""
     try:
         path = safe_target(root, rel)
         if not stat.S_ISREG(path.lstat().st_mode):
             return None
-        text = path.read_bytes().decode('utf-8', errors='replace')
+        return path.read_bytes()
     except (UnsafePathError, OSError):
         return None
+
+
+def _text(root: Path, rel: str, strip_hooks: tuple[dict, ...] = ()) -> str | None:
+    """The text of the regular file at `rel`, read without following a link; None when there is none.
+
+    The youngcrow block is left out: that text is the installer's, so whatever it names is not a
+    reference the person has to fix. A hook file is read without the `strip_hooks` entries, as
+    `apply` leaves it.
+    """
+    data = _bytes(root, rel)
+    if data is None:
+        return None
+    if strip_hooks and rel in HOOK_FILES:
+        try:
+            data = remove_hooks(data, strip_hooks)[0]
+        except SettingsSkipped:
+            pass
+    text = data.decode('utf-8', errors='replace')
     try:
         return remove_block(text, MD_START, MD_END)
     except ManagedBlockError:
@@ -187,19 +240,21 @@ def _vault_notes(root: Path) -> list[str]:
     return notes
 
 
-def dangling_references(root: Path, removed: Iterable[str], kept: Iterable[str]) -> dict[str, list[str]]:
+def dangling_references(root: Path, removed: Iterable[str], kept: Iterable[str],
+                        strip_hooks: tuple[dict, ...] = ()) -> dict[str, list[str]]:
     """Which files still name a path in `removed`: each file in `kept` and every Markdown note under `vault/`.
 
     Reads only. A file names a path when the path stands whole in its text (see `_reference`),
     outside the youngcrow block; a link, a folder, or a file that cannot be read is skipped, and
-    bytes that are not UTF-8 do not stop the read. Returns {file: [paths]}, both sorted, without
-    the files that name none.
+    bytes that are not UTF-8 do not stop the read. A preview passes `strip_hooks`, the entries
+    `apply` takes out of the hook files, so those do not count. Returns {file: [paths]}, both
+    sorted, without the files that name none.
     """
     root = Path(root)
     patterns = {rel: _reference(rel) for rel in sorted(set(removed))}
     found = {}
     for rel in sorted(set(kept) | set(_vault_notes(root))) if patterns else ():
-        text = _text(root, rel)
+        text = _text(root, rel, strip_hooks)
         if text is not None and (named := [path for path, pattern in patterns.items() if pattern.search(text)]):
             found[rel] = named
     return found
@@ -211,7 +266,7 @@ def vault_check(root: Path) -> dict:
     The check only reads. Returns {'exit_code': its exit code, 'summary': the last line it printed};
     when it cannot run, the exit code is None and the summary says why.
     """
-    root = Path(root)
+    root = Path(root).absolute()  # the script path must not be read again from inside cwd=root
     try:
         script = safe_target(root, '.youngcrow/scripts/vault.py')
         run = subprocess.run([sys.executable, '-B', str(script), 'check'], cwd=root, capture_output=True,

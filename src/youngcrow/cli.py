@@ -15,7 +15,9 @@ import sys
 
 from youngcrow import __version__
 from youngcrow.install import AlreadyInitialized, NotInitialized, Report, init, undo, upgrade
-from youngcrow.migrate import apply, dangling_references, scan, vault_check
+from youngcrow.manifest import MANIFEST_PATH
+from youngcrow.migrate import apply, dangling_references, legacy_hooks, scan, vault_check
+from youngcrow.settings import CLAUDE_MANUAL_STEP, CODEX_STEP
 
 # ManagedBlockError and UnsafePathError are ValueErrors too, as is a client, lang or rigor init does not support.
 REFUSALS = (AlreadyInitialized, NotInitialized, ValueError)
@@ -41,6 +43,17 @@ def _report_lines(report: Report) -> list[str]:
         if paths := getattr(report, name):
             lines += _listing(heading, paths)
     return lines or ['Nothing changed.']
+
+
+def _next_steps(steps: list[str]) -> list[str]:
+    """What to do after an install, one line per client, below everything else."""
+    return ['', *_listing('Next steps:', steps)] if steps else []
+
+
+def _warn(report: Report) -> None:
+    """The report's warnings on stderr, in both modes, so `--json` output stays one object."""
+    for warning in report.warnings:
+        print(f'youngcrow: warning: {warning}', file=sys.stderr)
 
 
 def _legacy_notice(paths: list[str], *, migrated: bool) -> list[str]:
@@ -85,7 +98,8 @@ def _project_folder(root: Path):
 def _init(args: argparse.Namespace) -> Result:
     with _project_folder(args.root):
         report = init(args.root, client=args.client)
-    return report.to_json(), '\n'.join(_report_lines(report))
+    _warn(report)
+    return report.to_json(), '\n'.join(_report_lines(report) + _next_steps(report.next_steps))
 
 
 def _upgrade(args: argparse.Namespace) -> Result:
@@ -98,14 +112,29 @@ def _undo(args: argparse.Namespace) -> Result:
     lines = _report_lines(report)
     if not args.confirm:
         lines.insert(0, 'Preview only, nothing was changed. Add --confirm to undo.')
-    for warning in report.warnings:  # on stderr in both modes, so --json output stays one object
-        print(f'youngcrow: warning: {warning}', file=sys.stderr)
+    _warn(report)
     return {**report.to_json(), 'warnings': report.warnings}, '\n'.join(lines)
 
 
 def _comes_back(rel: str, client: str) -> bool:
     """Whether `init` writes `rel` again after migrate removes it: the rule file each client reads."""
     return (rel == 'CLAUDE.md' and client != 'codex') or (rel == 'AGENTS.md' and client != 'claude')
+
+
+def _hooks_listing(heading: str, hooks: dict[str, int]) -> list[str]:
+    """R41: the hook files that lose the old setup.sh entries, with how many."""
+    lines = [f'{rel}: {n} {"entry" if n == 1 else "entries"}' for rel, n in hooks.items()]
+    return _listing(heading, lines) if lines else []
+
+
+def _set_up_notice(hooks: dict[str, int]) -> list[str]:
+    """R55: `--confirm` refuses a project init already set up, so the preview says so first, with what to
+    do by hand: install the plugin, and take out the old hook entries when it lists any."""
+    steps = [CLAUDE_MANUAL_STEP, CODEX_STEP]
+    if hooks:
+        steps.append('Take the old setup.sh hook entries listed below out of those files.')
+    return [f'This project is already set up ({MANIFEST_PATH} exists), so migrate --confirm will refuse. '
+            'Do this by hand instead:', *(f'  {step}' for step in steps)]
 
 
 def _references_notice(found: dict[str, list[str]]) -> list[str]:
@@ -120,39 +149,53 @@ def _migrate(args: argparse.Namespace) -> Result:
     preview = scan(args.root)
     found = bool(preview.matches)  # not one unmodified copy: setup.sh never installed this project
     check = None
+    steps: list[str] = []
     if args.confirm:
         with _project_folder(args.root):
             report = apply(args.root, preview, client=args.client)
+        _warn(report)
+        steps = report.next_steps
         if not found:
             report.kept_modified = []  # the project's own files, not setup.sh copies someone edited
         # apply looked at the files again: only what it removed, and what it kept, count.
         matches = [path for path in preview.matches if path in report.removed]
         modified = report.kept_modified
         gone = [rel for rel in report.removed if not rel.endswith('/') and not os.path.lexists(args.root / rel)]
-        lines = _report_lines(report)
+        hooks, to_strip = report.hooks, ()  # the files on disk no longer hold the entries init took out
+        lines = _report_lines(report) + _hooks_listing('Old setup.sh hooks taken out:', hooks)
         check = vault_check(args.root)
     else:
         matches, modified = preview.matches, preview.modified if found else []
         gone = [rel for rel in matches if not _comes_back(rel, args.client)]
-        lines = ['Preview only, nothing was changed. Add --confirm to migrate.']
+        hooks, to_strip = preview.hooks, legacy_hooks()  # read the hook files as --confirm leaves them
+        set_up = preview.already_set_up  # --confirm refuses it, so nothing below is promised (R55)
+        if set_up:
+            lines = ['Preview only, nothing was changed.', *_set_up_notice(hooks)]
+        else:
+            lines = ['Preview only, nothing was changed. Add --confirm to migrate.']
         if matches:
-            lines += _listing('Will be removed (unmodified setup.sh copies):', matches)
+            lines += _listing('Unmodified setup.sh copies:' if set_up else
+                              'Will be removed (unmodified setup.sh copies):', matches)
         if modified:
             lines += _listing('Kept (you changed these):', modified)
+        lines += _hooks_listing('Old setup.sh hooks to take out by hand:' if set_up else
+                                'Old setup.sh hooks that will be taken out:', hooks)
     if not found:
         lines.append('No setup.sh install found.')
     rules = [path for path in modified if path in LEGACY_RULE_FILES]
     if rules:
-        lines += _legacy_notice(rules, migrated=args.confirm)
-    references = dangling_references(args.root, gone, modified)
+        lines += _legacy_notice(rules, migrated=args.confirm or preview.already_set_up)
+    references = dangling_references(args.root, gone, modified, to_strip)
     if references:
         lines += _references_notice(references)
     if check:
         lines += ['', check['summary']]
         if check['exit_code']:
             lines.append('Run .youngcrow/scripts/vault.py check in the project to see each issue.')
-    data = {'applied': args.confirm, 'matches': matches, 'modified': modified, 'legacy_rules': rules,
-            'dangling_references': references, 'vault_check': check}
+    lines += _next_steps(steps)
+    data = {'applied': args.confirm, 'already_set_up': preview.already_set_up, 'matches': matches,
+            'modified': modified, 'legacy_hooks': hooks,
+            'legacy_rules': rules, 'dangling_references': references, 'vault_check': check, 'next_steps': steps}
     return data, '\n'.join(lines)
 
 

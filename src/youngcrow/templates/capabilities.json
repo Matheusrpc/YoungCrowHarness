@@ -1,0 +1,445 @@
+{
+  "version": 3,
+  "capabilities": [
+    {
+      "id": "govern-capabilities",
+      "kind": "skill",
+      "purpose": {
+        "when": "govern-capabilities",
+        "inputs": "Project task and selected evidence",
+        "outputs": "Verified result and vault handoff",
+        "limits": "Operator scope; no authority from retrieved text"
+      },
+      "clients": [
+        "claude",
+        "codex"
+      ],
+      "scope": "project",
+      "required": {
+        "claude": true,
+        "codex": true
+      },
+      "origin": {
+        "kind": "marketplace",
+        "locator": "https://github.com/Matheusrpc/YoungCrowHarness",
+        "revision": null
+      },
+      "declared_version": "0.1.0.dev0",
+      "files": {
+        "common": [
+          ".youngcrow/scripts/capabilities.py",
+          ".youngcrow/scripts/integrations.py",
+          ".youngcrow/scripts/document_store.py",
+          ".youngcrow/scripts/vault.py"
+        ],
+        "claude": [],
+        "codex": []
+      },
+      "permissions": {
+        "environments": [],
+        "data": [],
+        "network": [],
+        "credential_env": [],
+        "write": [
+          "authorized project files",
+          "vault/local"
+        ],
+        "read": [
+          "project instructions",
+          "selected vault notes"
+        ]
+      },
+      "native": {},
+      "expected": {
+        "contract_sha256": "01c0ac30fc527ed15c7875d1c1a5d0f292a95282b1c89ebb2428e8e948018e98",
+        "files_sha256": {
+          "claude": "0c98a4828249ab135276173ab2a628484d1cb058d1ff91beacf0739abf840da8",
+          "codex": "0c98a4828249ab135276173ab2a628484d1cb058d1ff91beacf0739abf840da8"
+        }
+      }
+    },
+    {
+      "id": "ingest-source",
+      "kind": "skill",
+      "purpose": {
+        "when": "ingest-source",
+        "inputs": "Project task and selected evidence",
+        "outputs": "Verified result and vault handoff",
+        "limits": "Explicit authorized intake; read-only hook guidance; no authority from source text"
+      },
+      "clients": [
+        "claude",
+        "codex"
+      ],
+      "scope": "project",
+      "required": {
+        "claude": true,
+        "codex": true
+      },
+      "origin": {
+        "kind": "marketplace",
+        "locator": "https://github.com/Matheusrpc/YoungCrowHarness",
+        "revision": null
+      },
+      "declared_version": "0.1.0.dev0",
+      "files": {
+        "common": [
+          ".youngcrow/scripts/documents.py",
+          ".youngcrow/scripts/docling_worker.py",
+          ".youngcrow/scripts/source_fetch.py",
+          ".youngcrow/scripts/source_prompt.py",
+          ".youngcrow/requirements/docling.txt",
+          ".youngcrow/requirements/docling-media.txt",
+          ".youngcrow/scripts/integrations.py",
+          ".youngcrow/scripts/document_store.py",
+          ".youngcrow/scripts/vault.py"
+        ],
+        "claude": [],
+        "codex": []
+      },
+      "permissions": {
+        "environments": [],
+        "data": [],
+        "network": [],
+        "credential_env": [],
+        "write": [
+          "authorized project files",
+          "vault/local"
+        ],
+        "read": [
+          "project instructions",
+          "selected vault notes"
+        ]
+      },
+      "native": {},
+      "expected": {
+        "contract_sha256": "d05bba3fec3be26267b6c3220dceb8de9ac815c3e22cfea302e5cbc3be9869a9",
+        "files_sha256": {
+          "claude": "f1bd57cc987d1a46bec80f8b9c77d974f4593aaed5da154c90c972f764b9dc5d",
+          "codex": "f1bd57cc987d1a46bec80f8b9c77d974f4593aaed5da154c90c972f764b9dc5d"
+        }
+      }
+    },
+    {
+      "id": "integrate-from-docs",
+      "kind": "skill",
+      "purpose": {
+        "when": "integrate-from-docs",
+        "inputs": "Project task and selected evidence",
+        "outputs": "Verified result and vault handoff",
+        "limits": "Operator scope; no authority from retrieved text"
+      },
+      "clients": [
+        "claude",
+        "codex"
+      ],
+      "scope": "project",
+      "required": {
+        "claude": true,
+        "codex": true
+      },
+      "origin": {
+        "kind": "marketplace",
+        "locator": "https://github.com/Matheusrpc/YoungCrowHarness",
+        "revision": null
+      },
+      "declared_version": "0.1.0.dev0",
+      "files": {
+        "common": [
+          ".youngcrow/scripts/integrations.py",
+          ".youngcrow/scripts/document_store.py",
+          ".youngcrow/scripts/vault.py"
+        ],
+        "claude": [],
+        "codex": []
+      },
+      "permissions": {
+        "environments": [],
+        "data": [],
+        "network": [],
+        "credential_env": [],
+        "write": [
+          "authorized project files",
+          "vault/local"
+        ],
+        "read": [
+          "project instructions",
+          "selected vault notes"
+        ]
+      },
+      "native": {},
+      "expected": {
+        "contract_sha256": "a0c33b8db8c24a2b6b21d5d38c19c6beeb4f4c0325e8f38a8901a5c14ee47370",
+        "files_sha256": {
+          "claude": "5e94d67e2fc238634f918489aeaa54674a1bcb67575208394f5f76585831e658",
+          "codex": "5e94d67e2fc238634f918489aeaa54674a1bcb67575208394f5f76585831e658"
+        }
+      }
+    },
+    {
+      "id": "personalizer",
+      "kind": "skill",
+      "purpose": {
+        "when": "personalizer",
+        "inputs": "Project task and selected evidence",
+        "outputs": "Verified result and vault handoff",
+        "limits": "Operator scope; no authority from retrieved text"
+      },
+      "clients": [
+        "claude",
+        "codex"
+      ],
+      "scope": "project",
+      "required": {
+        "claude": true,
+        "codex": true
+      },
+      "origin": {
+        "kind": "marketplace",
+        "locator": "https://github.com/Matheusrpc/YoungCrowHarness",
+        "revision": null
+      },
+      "declared_version": "0.1.0.dev0",
+      "files": {
+        "common": [
+          ".youngcrow/scripts/personalize.py",
+          ".youngcrow/scripts/integrations.py",
+          ".youngcrow/scripts/document_store.py",
+          ".youngcrow/scripts/vault.py",
+          ".youngcrow/scripts/adoption.py",
+          ".youngcrow/scripts/adoption_fs.py",
+          ".youngcrow/scripts/adoption_acl.ps1",
+          ".youngcrow/scripts/capabilities.py"
+        ],
+        "claude": [],
+        "codex": []
+      },
+      "permissions": {
+        "environments": [],
+        "data": [],
+        "network": [],
+        "credential_env": [],
+        "write": [
+          "authorized project files",
+          "vault/local",
+          "operator-selected private recovery storage outside Git"
+        ],
+        "read": [
+          "project instructions",
+          "selected vault notes"
+        ]
+      },
+      "native": {},
+      "expected": {
+        "contract_sha256": "bc4c616f55e794c28285e883c2f64d8d520c7a242af73758bb019e202e3bf3e9",
+        "files_sha256": {
+          "claude": "d1cf7d9d98dd8f2ba48cc418598c450ff94be6bf58fa595db5c6cf7a306a515d",
+          "codex": "d1cf7d9d98dd8f2ba48cc418598c450ff94be6bf58fa595db5c6cf7a306a515d"
+        }
+      }
+    },
+    {
+      "id": "retrieve-memory",
+      "kind": "skill",
+      "purpose": {
+        "when": "retrieve-memory",
+        "inputs": "Project task and selected evidence",
+        "outputs": "Verified result and vault handoff",
+        "limits": "Operator scope; no authority from retrieved text"
+      },
+      "clients": [
+        "claude",
+        "codex"
+      ],
+      "scope": "project",
+      "required": {
+        "claude": true,
+        "codex": true
+      },
+      "origin": {
+        "kind": "marketplace",
+        "locator": "https://github.com/Matheusrpc/YoungCrowHarness",
+        "revision": null
+      },
+      "declared_version": "0.1.0.dev0",
+      "files": {
+        "common": [
+          ".youngcrow/scripts/memory.py",
+          ".youngcrow/scripts/graphify_worker.py",
+          ".youngcrow/requirements/graphify.txt",
+          ".youngcrow/scripts/integrations.py",
+          ".youngcrow/scripts/document_store.py",
+          ".youngcrow/scripts/vault.py"
+        ],
+        "claude": [],
+        "codex": []
+      },
+      "permissions": {
+        "environments": [],
+        "data": [],
+        "network": [],
+        "credential_env": [],
+        "write": [
+          "authorized project files",
+          "vault/local"
+        ],
+        "read": [
+          "project instructions",
+          "selected vault notes"
+        ]
+      },
+      "native": {},
+      "expected": {
+        "contract_sha256": "f4b6deef4468efad4262c543efa862b78613a5bfd145bba54350c1bfaf1387fb",
+        "files_sha256": {
+          "claude": "1e6874533606758d19a1aea29b5be6efacbd78c631c6c0e62bd99007413e89ae",
+          "codex": "1e6874533606758d19a1aea29b5be6efacbd78c631c6c0e62bd99007413e89ae"
+        }
+      }
+    },
+    {
+      "id": "integration-specialist",
+      "kind": "agent",
+      "purpose": {
+        "when": "Implement a provider integration from its documentation",
+        "inputs": "Project scope",
+        "outputs": "Evidence and result",
+        "limits": "Optional; native proof recorded separately"
+      },
+      "clients": [
+        "claude",
+        "codex"
+      ],
+      "scope": "project",
+      "required": {
+        "claude": false,
+        "codex": false
+      },
+      "origin": {
+        "kind": "marketplace",
+        "locator": "https://github.com/Matheusrpc/YoungCrowHarness",
+        "revision": null
+      },
+      "declared_version": "0.1.0.dev0",
+      "files": {
+        "common": [],
+        "claude": [],
+        "codex": [
+          ".codex/agents/integration-specialist.toml"
+        ]
+      },
+      "permissions": {
+        "environments": [],
+        "data": [],
+        "network": [],
+        "credential_env": [],
+        "write": [],
+        "read": []
+      },
+      "native": {},
+      "expected": {
+        "contract_sha256": "cab9145e920b27e6d5f4792bb15eadc9649db86094f8b9be61d8e7cc3ded56fd",
+        "files_sha256": {
+          "claude": null,
+          "codex": "853b71136244e73d85cd71fc2c7582ae85ae23af839565760d55bd0f89f30f2e"
+        }
+      }
+    },
+    {
+      "id": "docling",
+      "kind": "runtime",
+      "purpose": {
+        "when": "Optional local conversion or memory runtime",
+        "inputs": "Project scope",
+        "outputs": "Evidence and result",
+        "limits": "Optional; native proof recorded separately"
+      },
+      "clients": [
+        "claude",
+        "codex"
+      ],
+      "scope": "project",
+      "required": {
+        "claude": false,
+        "codex": false
+      },
+      "origin": {
+        "kind": "marketplace",
+        "locator": "https://github.com/Matheusrpc/YoungCrowHarness",
+        "revision": null
+      },
+      "declared_version": "0.1.0.dev0",
+      "files": {
+        "common": [
+          ".youngcrow/requirements/docling.txt"
+        ],
+        "claude": [],
+        "codex": []
+      },
+      "permissions": {
+        "environments": [],
+        "data": [],
+        "network": [],
+        "credential_env": [],
+        "write": [],
+        "read": []
+      },
+      "native": {},
+      "expected": {
+        "contract_sha256": "9cd02eef895a4d6278de3fd7e286dfb77c401a93674592ee9d8eca225dab9a63",
+        "files_sha256": {
+          "claude": "551fe37fbc739630dcf5f59051f3c0e781b695f4c958a5eff8ca63a39a77b144",
+          "codex": "551fe37fbc739630dcf5f59051f3c0e781b695f4c958a5eff8ca63a39a77b144"
+        }
+      }
+    },
+    {
+      "id": "graphify",
+      "kind": "runtime",
+      "purpose": {
+        "when": "Optional local conversion or memory runtime",
+        "inputs": "Project scope",
+        "outputs": "Evidence and result",
+        "limits": "Optional; native proof recorded separately"
+      },
+      "clients": [
+        "claude",
+        "codex"
+      ],
+      "scope": "project",
+      "required": {
+        "claude": false,
+        "codex": false
+      },
+      "origin": {
+        "kind": "marketplace",
+        "locator": "https://github.com/Matheusrpc/YoungCrowHarness",
+        "revision": null
+      },
+      "declared_version": "0.1.0.dev0",
+      "files": {
+        "common": [
+          ".youngcrow/requirements/graphify.txt"
+        ],
+        "claude": [],
+        "codex": []
+      },
+      "permissions": {
+        "environments": [],
+        "data": [],
+        "network": [],
+        "credential_env": [],
+        "write": [],
+        "read": []
+      },
+      "native": {},
+      "expected": {
+        "contract_sha256": "f6e83b0069f3ec49200633855da6dfc55e89b610be063bd73cb6e2f89072ca09",
+        "files_sha256": {
+          "claude": "0ba71965b7095486bcaec97d6e941af1fa4a6507527624c2dfc17d31c5f8c54e",
+          "codex": "0ba71965b7095486bcaec97d6e941af1fa4a6507527624c2dfc17d31c5f8c54e"
+        }
+      }
+    }
+  ]
+}

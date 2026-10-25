@@ -830,17 +830,35 @@ só os dados.
 - `init` grava os arquivos de `.youngcrow/`, os índices do vault que faltarem (`vault/index.md`,
   `vault/integrations/index.md` e `vault/capabilities/index.md`), uma linha de import
   (`@.youngcrow/HARNESS.md`) no `CLAUDE.md`, um bloco marcado no `AGENTS.md` e outro no `.gitignore`.
-  Cria `CLAUDE.md`, `AGENTS.md` ou `.gitignore` quando eles não existem. `--client claude` não mexe no
-  `AGENTS.md`; `--client codex` não mexe no `CLAUDE.md`. Se você já tem um `vault/index.md`, o `init`
-  cria um subíndice que falta só quando o seu índice aponta para ele; do contrário, pula o subíndice e
-  o lista em `Skipped:`.
-- `upgrade` atualiza os arquivos de `.youngcrow/` que ainda estão como foram instalados, traz os
-  arquivos que a nova versão acrescenta, remove os que ela abandonou (se você não os alterou) e troca o
-  bloco do `AGENTS.md` quando você não o editou. Arquivo que você alterou fica no lugar e aparece na
-  lista.
+  Cria `CLAUDE.md`, `AGENTS.md` ou `.gitignore` quando eles não existem. Se você já tem um
+  `vault/index.md`, o `init` cria um subíndice que falta só quando o seu índice aponta para ele; do
+  contrário, pula o subíndice e o lista em `Skipped:`.
+- O `init` também liga os clientes. No Claude Code, acrescenta ao `.claude/settings.json` o marketplace
+  `youngcrow` e ativa o plugin `youngcrow@youngcrow`, criando o arquivo se ele não existe; o plugin
+  carrega depois que você confia na pasta. Se o arquivo já existia, o `init` guarda os bytes originais
+  em `.youngcrow/originals/.claude/settings.json`. Essa cópia é privada como o arquivo: fora do
+  Windows, leva as mesmas permissões dele, e o `init` grava em `.youngcrow/originals/` um `.gitignore`
+  com `*`, que deixa a pasta fora do git (o `undo` apaga os dois). Um `settings.json` que não é um
+  objeto JSON em UTF-8, ou que já dá outro valor a uma dessas chaves, fica como está: aparece em
+  `Skipped:`, o motivo vai para stderr e os próximos passos trazem a instalação manual. O mesmo
+  acontece quando o arquivo ou a pasta `.claude/` é link simbólico ou junction, tem outro tipo (uma
+  pasta no lugar do arquivo, por exemplo) ou não pode ser lido: o `init` não escreve através dele e
+  instala o resto. No Codex, grava `.codex/agents/integration-specialist.toml` quando o arquivo não
+  existe; se o `.codex/` ou o `.codex/agents/` é link, tem outro tipo ou não pode ser lido, pula o
+  agente com um aviso em stderr e instala o resto. `--client claude` não mexe no `AGENTS.md` nem em
+  `.codex/`; `--client codex` não mexe no `CLAUDE.md` nem em `.claude/`. No fim, imprime o que fazer em
+  cada cliente, sob `Next steps:`.
+- `upgrade` atualiza os arquivos de `.youngcrow/` e o agente do Codex que ainda estão como foram
+  instalados, traz os arquivos que a nova versão acrescenta, remove os que ela abandonou (se você não
+  os alterou) e troca o bloco do `AGENTS.md` quando você não o editou. Não mexe no
+  `.claude/settings.json`. Arquivo que você alterou fica no lugar e aparece na lista.
 - `undo --confirm` apaga os arquivos que o `init` criou, a menos que você os tenha editado; os
   editados ficam, sem as linhas que o `init` acrescentou. Nos arquivos que já existiam antes do `init`,
-  tira só essas linhas e devolve os bytes originais. Quando tira o bloco do `.gitignore` e há um arquivo
+  tira só essas linhas e devolve os bytes originais. O `.claude/settings.json` que você não mudou volta
+  aos bytes de antes do `init`; se você o mudou, saem só as chaves que o `init` acrescentou e o arquivo
+  aparece na lista. Quando o Claude só reescreve o arquivo com os mesmos valores em outra ordem (o
+  `claude plugin install` faz isso), o `undo` o trata como não mudado: devolve o original ou apaga o
+  arquivo que o `init` criou. Quando tira o bloco do `.gitignore` e há um arquivo
   `.env` ou `.env.*` (fora o `.env.example`) na raiz do projeto, ele avisa em stderr (`--json`:
   `warnings`), porque o git pode passar a ver esse arquivo.
 - `migrate --confirm` apaga as cópias antigas do `setup.sh` que coincidem, byte a byte, com uma versão
@@ -849,6 +867,74 @@ só os dados.
 Nenhum deles edita nota existente do `vault/`, escreve através de link simbólico ou junction, nem
 sobrescreve arquivo que você alterou. Quando um comando recusa (veja abaixo), não escreve nada; se
 falha no meio do caminho, devolve o que já fez.
+
+### Plugin no Claude Code e no Codex
+
+As skills do núcleo, o agente `integration-specialist` e os hooks vêm no plugin `youngcrow@youngcrow`, do
+marketplace `youngcrow` deste repositório. Nos dois clientes, as skills aparecem com o nome do plugin na
+frente, como `youngcrow:ingest-source`.
+
+No Claude Code, o `init` já ligou o plugin no `.claude/settings.json` do projeto: abra a pasta, aceite o
+aviso de confiança e o Claude oferece o plugin. Se o `init` pulou esse arquivo, instale à mão:
+
+```bash
+claude plugin marketplace add Matheusrpc/YoungCrowHarness
+claude plugin install youngcrow@youngcrow --scope project
+```
+
+O Codex instala plugins por usuário, então o `init` só grava o agente do projeto e mostra os comandos:
+
+```bash
+codex plugin marketplace add Matheusrpc/YoungCrowHarness
+codex plugin add youngcrow@youngcrow
+```
+
+Depois, no Codex, confie nos dois hooks do plugin em `/hooks`; até lá eles não rodam. O Codex guarda a
+confiança junto com o hash de cada hook. A prova não mediu o que acontece quando uma versão nova do
+plugin muda um hook; se os hooks pararem de rodar depois de uma atualização, abra `/hooks` de novo. O
+agente vem do `.codex/agents/integration-specialist.toml` do projeto. Na prova, a pasta já estava
+marcada como confiável quando o Codex carregou esse agente; sem essa confiança, o caso não foi medido.
+
+Instalado por usuário, o plugin dispara os hooks em todo repositório que você abre no Codex, inclusive nos
+que não usam o youngcrow. Por isso os hooks rodam apenas o código que vem no plugin e leem o projeto como
+dado: nunca executam um arquivo do projeto, nunca escrevem e sempre deixam o prompt seguir. Num
+repositório sem `.youngcrow/manifest.json`, não imprimem nada. Eles precisam de `python3` ou `python` no
+PATH; sem nenhum dos dois, não fazem nada e o prompt segue.
+
+São dois hooks:
+
+- `UserPromptSubmit`: quando o prompt cita uma URL ou um arquivo, acrescenta ao contexto a orientação de
+  fontes, o mesmo texto que o `.youngcrow/scripts/source_prompt.py` dá. Não abre a fonte nem registra nada.
+- `SessionStart`: compara a versão do projeto (`.youngcrow/VERSION`) com a do plugin. Com as duas iguais,
+  fica quieto. Quando diferem, avisa no começo da sessão com uma linha como esta:
+
+  ```text
+  youngcrow: this project has harness files 0.1.0.dev0; the plugin is 0.1.0. Run `uvx youngcrow upgrade` in the project.
+  ```
+
+  Antes do lançamento, rode o `upgrade` pelo checkout ou pelo wheel (veja «Rodar antes do lançamento»,
+  abaixo).
+
+O `undo` tira a ligação do `.claude/settings.json` junto com o resto (veja «O que cada comando toca»), e o
+Claude deixa de carregar o plugin nesta pasta: o `claude plugin list` passa a mostrá-lo desligado no
+projeto. A cópia que cada cliente guardou na pasta do usuário fica. No Codex, o plugin continua instalado
+para o seu usuário; para tirá-lo, rode `codex plugin remove youngcrow@youngcrow`.
+
+### Catálogo de capacidades no projeto
+
+O `init` grava `.youngcrow/capabilities.json`, o catálogo do núcleo: as cinco skills, o agente
+`integration-specialist` e os runtimes opcionais `docling` e `graphify`. Com ele,
+`python3 .youngcrow/scripts/capabilities.py list --json` e `audit` funcionam num projeto instalado, que
+não tem o `skills-lock.json` deste repositório. Num projeto que o `init` instalou (com
+`.youngcrow/manifest.json`), os scripts leem `.youngcrow/capabilities.json`, mesmo que exista um
+`skills-lock.json`; fora dele, leem o `skills-lock.json`. O catálogo lista só os arquivos que o `init`
+instala em `.youngcrow/`; as páginas das skills ficam de fora porque vêm no plugin, e o `audit` compara
+os scripts com os hashes que o catálogo registra. O `upgrade` e o `undo` tratam o arquivo como os
+outros de `.youngcrow/`: o `upgrade` o troca enquanto ele continua como foi instalado, o `undo` o
+apaga, e se você o editou os dois o deixam e o listam. O `init` grava
+`.codex/agents/integration-specialist.toml` com `--client codex` ou `both`, então a auditoria de uma
+instalação nova o mostra como `matched`; com `--client claude` ele aparece como `missing`, e o agente é
+opcional.
 
 ### Saída e códigos de saída
 
@@ -861,13 +947,17 @@ em inglês):
   as linhas que ele mesmo acrescentou.
 - `Removed:` arquivos apagados. No `undo`, entram também o manifesto e as pastas que ficaram vazias;
   nomes de pasta terminam em `/`.
-- `Skipped:` arquivos que o `init` deixou como estavam porque já tinham o que ele precisava, e
-  subíndices do vault para os quais o seu `vault/index.md` não aponta.
+- `Skipped:` arquivos que o `init` deixou como estavam porque já tinham o que ele precisava, um
+  `.claude/settings.json` que ele não pode editar, um agente do Codex que já existe ou que ele não
+  pode gravar com segurança e subíndices do vault para os quais o seu `vault/index.md` não aponta.
 
-`--json` imprime as mesmas quatro listas como `written`, `kept_modified`, `removed` e `skipped`; o
-`undo --json` acrescenta `warnings`. `migrate --json` imprime `applied`, `matches` (as cópias removidas
-ou, na prévia, as que seriam removidas), `modified`, `legacy_rules`, `dangling_references` e
-`vault_check`.
+Depois das listas, o `init` e o `migrate --confirm` imprimem `Next steps:`, uma linha por cliente.
+
+`--json` imprime as mesmas quatro listas como `written`, `kept_modified`, `removed` e `skipped`, mais
+`next_steps`; o `undo --json` acrescenta `warnings`. `migrate --json` imprime `applied`, `already_set_up`
+(o projeto já tem `.youngcrow/manifest.json`, então o `--confirm` recusa), `matches` (as cópias
+removidas ou, na prévia, as que seriam removidas), `modified`, `legacy_hooks`, `legacy_rules`,
+`dangling_references`, `vault_check` e `next_steps`.
 
 O código de saída é 0 quando o comando rodou, 2 para linha de comando errada e 3 quando o youngcrow
 recusou mexer no projeto; a recusa escreve o motivo em stderr. Ele recusa quando o projeto já tem
@@ -876,6 +966,8 @@ anterior deixou arquivos sem manifesto, quando o manifesto não pode ser lido, q
 marcação do `AGENTS.md` ou do `.gitignore` não fecham, quando um arquivo que ele precisa editar
 (`CLAUDE.md`, `AGENTS.md`, `.gitignore`) não é texto UTF-8, quando há link simbólico ou junction onde
 ele escreveria, quando `--root` é um arquivo e quando `--client` não é `claude`, `codex` nem `both`.
+A ligação dos clientes é a exceção: um `.claude/` ou `.codex/` que é link só faz o `init` e o
+`migrate --confirm` pularem aquele cliente (veja «O que cada comando toca»).
 Também sai com 3 quando o sistema recusa uma leitura ou escrita (falta de permissão, disco cheio). O
 motivo vai para stderr, seguido do que uma execução que falhou não conseguiu desfazer.
 
@@ -886,18 +978,41 @@ Rode `migrate` sem `--confirm` primeiro. Ele lista `Will be removed (unmodified 
 arquivo coincide com uma cópia publicada do `setup.sh`, o `migrate` imprime `No setup.sh install found.`
 e não lista os seus arquivos como cópias editadas; nesse caso, o `--confirm` instala como o `init`.
 
+Se o projeto já tem `.youngcrow/manifest.json` (você rodou o `init` ou o `migrate --confirm` de uma
+versão anterior desta prévia, que ainda não ligava o plugin), o `--confirm` recusa com «already set
+up», e a prévia diz isso logo no começo (`--json`: `already_set_up: true`). Faça à mão o que o
+`migrate` faria: instale o plugin com os comandos de «Plugin no Claude Code e no Codex» e, se a prévia
+listar um arquivo sob `Old setup.sh hooks to take out by hand:`, tire dele a entrada de hook que roda
+`scripts/source_prompt.py`.
+
 Nesta prévia, o `migrate --confirm` também apaga as skills antigas (`skills/`, `.claude/skills/`,
 `.agents/skills/`), o agente `integration-specialist`, o `.claude/settings.json`, o `.codex/hooks.json`,
-o `.codex/config.toml` e o `.mcp.json`, desde que você não os tenha alterado. Nada nesta prévia os
-substitui ainda; o plugin chega numa versão posterior. Os scripts passam para `.youngcrow/scripts/`,
+o `.codex/config.toml` e o `.mcp.json`, desde que você não os tenha alterado. O `init` que vem em
+seguida grava de novo o agente do Codex e ativa o plugin `youngcrow` no `.claude/settings.json`; as
+skills e os hooks passam a vir do plugin. Os scripts passam para `.youngcrow/scripts/`,
 então atualize qualquer Makefile, job de CI ou hook que chame `scripts/...`. Rodar `undo` depois do
 `migrate` tira a instalação nova, mas não devolve o que o `migrate` removeu. Recupere esses arquivos
 pelo git.
 
+O `setup.sh` também pôs no `.claude/settings.json` e no `.codex/hooks.json` um hook `UserPromptSubmit`
+que roda `scripts/source_prompt.py`. Sem o `scripts/`, esse hook falharia a cada prompt; agora o hook do
+plugin faz esse trabalho. Quando você alterou esses arquivos e eles ficam, o `migrate` tira deles só as
+entradas iguais a uma que o `setup.sh` publicou. Os seus outros hooks ficam, e o grupo ou evento que
+ficar vazio sai. A prévia lista cada arquivo sob `Old setup.sh hooks that will be taken out:` e o
+`--confirm`, sob `Old setup.sh hooks taken out:`, com o número de entradas (`--json`: `legacy_hooks`).
+Uma entrada com o mesmo comando e outro campo mudado (um `timeout`, por exemplo) é sua: fica, e um
+aviso em stderr diz o arquivo e o evento. Um arquivo que não é JSON fica como está, também com aviso.
+O arquivo de hook que é link simbólico, pasta ou não pode ser lido também fica intacto, com aviso, e a
+prévia não conta entradas nele.
+No `.claude/settings.json`, o hook antigo sai antes de o `init` ligar o plugin, então a cópia em
+`.youngcrow/originals/` já não o tem e o `undo` não o traz de volta; o `.codex/hooks.json` limpo também
+continua limpo depois do `undo`.
+
 Tanto a prévia quanto o `--confirm` listam os arquivos que ainda apontam para o que o `migrate`
 remove, sob o título `These files still point at files migrate removes:` (`--json`:
 `dangling_references`, cada arquivo com os caminhos que cita). Ele lê as cópias editadas do `setup.sh` que mantém e todas as
-notas Markdown de `vault/`, sem alterar nenhuma. Depois do `--confirm`, roda
+notas Markdown de `vault/`, sem alterar nenhuma; os arquivos de hook são lidos sem as entradas que o
+`migrate` tira. Depois do `--confirm`, roda
 `.youngcrow/scripts/vault.py check` e imprime a linha de resumo (`--json`: `vault_check`, com
 `exit_code` e `summary`; `null` na prévia). Um vault criado pelo `setup.sh` tem links para as skills
 removidas, e o check acusa esses links até você editar as notas.
@@ -934,7 +1049,31 @@ uvx --from /caminho/do/yc-dist/youngcrow-0.1.0.dev0-py3-none-any.whl youngcrow i
 cd /caminho/do/projeto && python .youngcrow/scripts/vault.py check
 ```
 
-O job `package` do CI roda esse mesmo caminho no Linux e no Windows.
+O job `package` do CI roda esse mesmo caminho no Linux e no Windows. Ele também confere se os arquivos
+gerados do plugin estão em dia (`python tools/build_plugin.py --check`) e, no Linux, roda
+`claude plugin validate .` com o Claude Code 2.1.310.
+
+Para testar o plugin a partir de um checkout, antes de publicar, adicione a pasta como marketplace local
+no lugar de `Matheusrpc/YoungCrowHarness` e instale como acima:
+
+```bash
+claude plugin marketplace add /caminho/do/checkout
+codex plugin marketplace add /caminho/do/checkout
+```
+
+Com um marketplace local, o Claude lê o plugin direto da pasta (o `claude plugin list --json` mostra
+`readFromFolder`); quando uma edição ali passa a valer não foi medido. A prova completa roda em pastas
+descartáveis e não chama modelo:
+
+```bash
+python3 tests/smoke_plugin.py --claude /caminho/do/claude --codex /caminho/do/codex --json
+```
+
+Ela gera o wheel, roda `init --client both` num projeto novo, valida e instala o plugin nos dois clientes,
+compara o hook de cada cópia instalada com o `source_prompt` do projeto, deixa cada cliente rodar o hook
+contra um servidor local que responde 400 e termina com `undo --confirm`. Precisa de `uv` no PATH e, até
+agora, só rodou no Linux. Sai com 0 quando tudo passa; o `--json` imprime o recibo, com as versões dos
+clientes e cada comando com o seu código de saída.
 
 <a id="english"></a>
 
@@ -1630,16 +1769,35 @@ prints only the data.
 - `init` writes the files under `.youngcrow/`, the vault indexes that are missing (`vault/index.md`,
   `vault/integrations/index.md` and `vault/capabilities/index.md`), one import line
   (`@.youngcrow/HARNESS.md`) in `CLAUDE.md`, one marked block in `AGENTS.md` and one in `.gitignore`.
-  It creates `CLAUDE.md`, `AGENTS.md` or `.gitignore` when they do not exist. `--client claude` leaves
-  `AGENTS.md` alone; `--client codex` leaves `CLAUDE.md` alone. If you already have a `vault/index.md`,
-  `init` creates a missing sub-index only when your index links to it; otherwise it skips it and lists
-  it under `Skipped:`.
-- `upgrade` refreshes the files under `.youngcrow/` that still match what was installed, adds the
-  files the new release brings, removes the ones it dropped (if you did not change them) and replaces
-  the `AGENTS.md` block when you did not edit it. A file you changed stays and is listed.
+  It creates `CLAUDE.md`, `AGENTS.md` or `.gitignore` when they do not exist. If you already have a
+  `vault/index.md`, `init` creates a missing sub-index only when your index links to it; otherwise it
+  skips it and lists it under `Skipped:`.
+- `init` also wires the clients. For Claude Code it adds the `youngcrow` marketplace and turns on the
+  `youngcrow@youngcrow` plugin in `.claude/settings.json`, creating the file if needed; the plugin
+  loads once you trust the folder. When the file already existed, `init` saves its original bytes in
+  `.youngcrow/originals/.claude/settings.json`. That copy is as private as the file: outside Windows it
+  gets the file's permission bits, and `init` writes a `.gitignore` holding `*` in
+  `.youngcrow/originals/`, which keeps the folder out of git (`undo` deletes both). A `settings.json`
+  that is not a JSON object in UTF-8, or that already gives one of those keys another value, stays as
+  it is: it is listed under `Skipped:`, the reason goes to stderr, and the next steps give the manual
+  install. The same happens when that file or the `.claude/` folder is a symbolic link or junction, has
+  another type (a folder in place of the file, say) or cannot be read: `init` does not write through it
+  and installs the rest. For Codex it writes `.codex/agents/integration-specialist.toml` when that file
+  does not exist; when `.codex/` or `.codex/agents/` is a link, has another type or cannot be read, it
+  skips the agent with a warning on stderr and installs the rest. `--client claude` leaves `AGENTS.md`
+  and `.codex/` alone; `--client codex` leaves `CLAUDE.md` and `.claude/` alone. At the end it prints
+  what to do next in each client, under `Next steps:`.
+- `upgrade` refreshes the files under `.youngcrow/` and the Codex agent file while they still match
+  what was installed, adds the files the new release brings, removes the ones it dropped (if you did
+  not change them) and replaces the `AGENTS.md` block when you did not edit it. It does not touch
+  `.claude/settings.json`. A file you changed stays and is listed.
 - `undo --confirm` deletes the files `init` created, unless you edited them; edited ones stay, minus
   the lines `init` added. In files that existed before `init`, it takes out only those lines and
-  restores the original bytes. When it takes the block out of `.gitignore` and a `.env` or `.env.*`
+  restores the original bytes. A `.claude/settings.json` you did not change gets back its bytes from
+  before `init`; once you changed it, only the keys `init` added come out and the file is listed. When
+  Claude only writes the file back with the same values in another order (`claude plugin install` does),
+  `undo` treats it as unchanged: it restores the original, or deletes the file `init` created. When it
+  takes the block out of `.gitignore` and a `.env` or `.env.*`
   file (other than `.env.example`) sits in the project root, it prints a warning on stderr (`--json`:
   `warnings`), because git may now see that file.
 - `migrate --confirm` deletes the old `setup.sh` copies that match, byte for byte, a version this
@@ -1648,6 +1806,76 @@ prints only the data.
 None of them edits an existing note in `vault/`, writes through a symbolic link or junction, or
 overwrites a file you changed. A command that refuses (see below) writes nothing, and one that fails
 halfway puts back what it did.
+
+### The plugin in Claude Code and Codex
+
+The core skills, the `integration-specialist` agent and the hooks come in the `youngcrow@youngcrow`
+plugin, from this repository's `youngcrow` marketplace. Both clients show the skills with the plugin name
+in front, such as `youngcrow:ingest-source`.
+
+In Claude Code, `init` has already turned the plugin on in the project's `.claude/settings.json`: open the
+folder, accept the trust prompt, and Claude offers the plugin. If `init` skipped that file, install it by
+hand:
+
+```bash
+claude plugin marketplace add Matheusrpc/YoungCrowHarness
+claude plugin install youngcrow@youngcrow --scope project
+```
+
+Codex installs plugins per user, so `init` only writes the project's agent file and prints the commands:
+
+```bash
+codex plugin marketplace add Matheusrpc/YoungCrowHarness
+codex plugin add youngcrow@youngcrow
+```
+
+Then, in Codex, trust the plugin's two hooks in `/hooks`; until you do, they do not run. Codex keeps that
+trust together with a hash of each hook. The proof did not measure what happens when a new plugin version
+changes a hook; if the hooks stop running after an update, open `/hooks` again. The agent comes from the
+project's `.codex/agents/integration-specialist.toml`. In the proof the folder was already marked as
+trusted when Codex loaded that agent; the case without that trust was not measured.
+
+Installed per user, the plugin fires its hooks in every repository you open in Codex, including the ones
+that do not use youngcrow. That is why the hooks run only the code that ships in the plugin and read the
+project as data: they never run a file from the project, never write, and always let the prompt through.
+In a repository without `.youngcrow/manifest.json` they print nothing. They need `python3` or `python` on
+the PATH; with neither, they do nothing and the prompt goes on.
+
+There are two hooks:
+
+- `UserPromptSubmit`: when the prompt cites a URL or a file, it adds the source guidance to the context,
+  the same text `.youngcrow/scripts/source_prompt.py` gives. It does not open the source or record
+  anything.
+- `SessionStart`: compares the project's version (`.youngcrow/VERSION`) with the plugin's. When they
+  match, it says nothing. When they differ, it warns at the start of the session with a line like this:
+
+  ```text
+  youngcrow: this project has harness files 0.1.0.dev0; the plugin is 0.1.0. Run `uvx youngcrow upgrade` in the project.
+  ```
+
+  Before the release, run `upgrade` from the checkout or the wheel (see "Run it before the release",
+  below).
+
+`undo` takes the wiring out of `.claude/settings.json` along with the rest (see "What each command
+touches"), and Claude stops loading the plugin in this folder: `claude plugin list` then shows it turned
+off for the project. The copy each client keeps in your user folder stays. In Codex the plugin stays
+installed for your user; to remove it, run `codex plugin remove youngcrow@youngcrow`.
+
+### Capability catalog in the project
+
+`init` writes `.youngcrow/capabilities.json`, the core catalog: the five skills, the
+`integration-specialist` agent and the optional `docling` and `graphify` runtimes. With it,
+`python3 .youngcrow/scripts/capabilities.py list --json` and `audit` work in an installed project, which
+has no `skills-lock.json` of this repository. In a project that `init` installed (it has
+`.youngcrow/manifest.json`), the scripts read `.youngcrow/capabilities.json` even when a
+`skills-lock.json` exists; elsewhere they read `skills-lock.json`. The catalog lists only the files
+`init` installs under `.youngcrow/`; the skill pages are left out because they come in the plugin, and
+`audit` compares the scripts with the hashes the catalog records.
+`upgrade` and `undo` treat the file like the other files under `.youngcrow/`: `upgrade` replaces it
+while it still matches what was installed, `undo` deletes it, and if you edited it both leave it and
+list it. `init` writes `.codex/agents/integration-specialist.toml` with `--client codex` or `both`, so a
+fresh install audits it as `matched`; with `--client claude` it shows as `missing`, and the agent is
+optional.
 
 ### Output and exit codes
 
@@ -1659,13 +1887,17 @@ Plain output has one heading per non-empty list, followed by indented paths:
   its own lines.
 - `Removed:` files deleted. For `undo` this also lists the manifest and the folders left empty; folder
   names end with `/`.
-- `Skipped:` files `init` left alone because they already had what it needed, and vault sub-indexes
-  your own `vault/index.md` does not link to.
+- `Skipped:` files `init` left alone because they already had what it needed, a
+  `.claude/settings.json` it cannot edit, a Codex agent file that already exists or that it cannot
+  write safely, and vault sub-indexes your own `vault/index.md` does not link to.
 
-`--json` prints the same four lists as `written`, `kept_modified`, `removed` and `skipped`;
-`undo --json` adds `warnings`. `migrate --json` prints `applied`, `matches` (the copies removed or, in
-a preview, the ones that would be), `modified`, `legacy_rules`, `dangling_references` and
-`vault_check`.
+After the lists, `init` and `migrate --confirm` print `Next steps:`, one line per client.
+
+`--json` prints the same four lists as `written`, `kept_modified`, `removed` and `skipped`, plus
+`next_steps`; `undo --json` adds `warnings`. `migrate --json` prints `applied`, `already_set_up` (the
+project already has `.youngcrow/manifest.json`, so `--confirm` refuses), `matches` (the copies removed
+or, in a preview, the ones that would be), `modified`, `legacy_hooks`, `legacy_rules`,
+`dangling_references`, `vault_check` and `next_steps`.
 
 The exit code is 0 when the command ran, 2 for a wrong command line and 3 when youngcrow refused to
 touch the project; a refusal prints its reason on stderr. It refuses when the project is already set
@@ -1673,7 +1905,9 @@ up (`init`, `migrate --confirm`) or not set up (`upgrade`, `undo`), when an earl
 but no manifest, when the manifest cannot be read, when the marker lines in `AGENTS.md` or
 `.gitignore` do not pair up, when a file it has to edit (`CLAUDE.md`, `AGENTS.md`, `.gitignore`) is
 not UTF-8 text, when a symbolic link or junction sits where it would write, when `--root` is a file,
-and when `--client` is not `claude`, `codex` or `both`. It also exits with 3 when the system refuses a
+and when `--client` is not `claude`, `codex` or `both`. Client wiring is the exception: a linked
+`.claude/` or `.codex/` only makes `init` and `migrate --confirm` skip that client (see "What each
+command touches"). It also exits with 3 when the system refuses a
 read or a write (a permission error, a full disk). The reason goes to stderr, followed by anything a
 failed run could not put back.
 
@@ -1684,17 +1918,39 @@ Run `migrate` without `--confirm` first. It lists `Will be removed (unmodified s
 `setup.sh` copy, `migrate` prints `No setup.sh install found.` and does not list your own files as
 edited copies; `--confirm` then installs like `init`.
 
+If the project already has `.youngcrow/manifest.json` (you ran `init` or `migrate --confirm` from an
+earlier build of this preview, which did not wire the plugin yet), `--confirm` refuses with "already set
+up", and the preview says so at the top (`--json`: `already_set_up: true`). Do by hand what `migrate`
+would do: install the plugin with the commands in "The plugin in Claude Code and Codex" and, if the
+preview lists a file under `Old setup.sh hooks to take out by hand:`, remove from it the hook entry that
+runs `scripts/source_prompt.py`.
+
 In this preview, `migrate --confirm` also deletes the old skills (`skills/`, `.claude/skills/`,
 `.agents/skills/`), the `integration-specialist` agent, `.claude/settings.json`, `.codex/hooks.json`,
-`.codex/config.toml` and `.mcp.json`, as long as you have not changed them. Nothing in this preview
-replaces them yet; the plugin comes in a later release. The scripts move to `.youngcrow/scripts/`, so
+`.codex/config.toml` and `.mcp.json`, as long as you have not changed them. The `init` that follows
+writes the Codex agent again and turns on the `youngcrow` plugin in `.claude/settings.json`; the skills
+and hooks now come from the plugin. The scripts move to `.youngcrow/scripts/`, so
 update any Makefile, CI job or hook that calls `scripts/...`. Running `undo` after `migrate` takes out
 the new install but does not bring back what `migrate` removed. Restore those files with git.
+
+`setup.sh` also put a `UserPromptSubmit` hook in `.claude/settings.json` and `.codex/hooks.json` that
+runs `scripts/source_prompt.py`. Without `scripts/`, that hook would fail on every prompt; the plugin's
+hook does that job now. When you changed those files and they stay, `migrate` takes out only the
+entries equal to one `setup.sh` published. Your other hooks stay, and a group or event left empty goes.
+The preview lists each file under `Old setup.sh hooks that will be taken out:` and `--confirm` under
+`Old setup.sh hooks taken out:`, with the number of entries (`--json`: `legacy_hooks`). An entry with
+the same command and another field changed (a `timeout`, say) is yours: it stays, and a warning on
+stderr names the file and the event. A file that is not JSON stays as it is, also with a warning. A
+hook file that is a symbolic link, a folder or unreadable is also left untouched, with a warning, and
+the preview counts no entries in it. In
+`.claude/settings.json` the old hook comes out before `init` turns on the plugin, so the copy in
+`.youngcrow/originals/` no longer has it and `undo` does not bring it back; a cleaned
+`.codex/hooks.json` also stays clean after `undo`.
 
 Both the preview and `--confirm` list the files that still point at what `migrate` removes, under
 `These files still point at files migrate removes:` (`--json`: `dangling_references`, each file with
 the paths it names). It reads the edited `setup.sh` copies it keeps and every Markdown note in
-`vault/`, and changes none of them. After `--confirm` it runs `.youngcrow/scripts/vault.py check` and
+`vault/`, and changes none of them; it reads the hook files without the entries `migrate` takes out. After `--confirm` it runs `.youngcrow/scripts/vault.py check` and
 prints the summary line (`--json`: `vault_check`, with `exit_code` and `summary`; `null` in a preview).
 A vault that `setup.sh` created links to the removed skills, so expect issues there until you edit
 those notes.
@@ -1731,7 +1987,31 @@ uvx --from /path/to/yc-dist/youngcrow-0.1.0.dev0-py3-none-any.whl youngcrow init
 cd /path/to/project && python .youngcrow/scripts/vault.py check
 ```
 
-The `package` job in CI runs this same path on Linux and Windows.
+The `package` job in CI runs this same path on Linux and Windows. It also checks that the generated
+plugin files are fresh (`python tools/build_plugin.py --check`) and, on Linux, runs
+`claude plugin validate .` with Claude Code 2.1.310.
+
+To try the plugin from a checkout before it is published, add the folder as a local marketplace instead
+of `Matheusrpc/YoungCrowHarness`, then install as above:
+
+```bash
+claude plugin marketplace add /path/to/checkout
+codex plugin marketplace add /path/to/checkout
+```
+
+With a local marketplace, Claude reads the plugin straight from the folder (`claude plugin list --json`
+shows `readFromFolder`); when an edit there takes effect was not measured. The full proof runs in
+throwaway folders and calls no model:
+
+```bash
+python3 tests/smoke_plugin.py --claude /path/to/claude --codex /path/to/codex --json
+```
+
+It builds the wheel, runs `init --client both` in a new project, validates and installs the plugin in
+both clients, compares the hook of each installed copy with the project's `source_prompt`, lets each
+client run the hook against a local server that answers 400, and ends with `undo --confirm`. It needs
+`uv` on the PATH and so far has run only on Linux. It exits with 0 when everything passes; `--json`
+prints the receipt, with the client versions and each command with its exit code.
 
 <a id="mission-config"></a>
 

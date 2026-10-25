@@ -186,6 +186,14 @@ class ManifestTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             load(self.root)
 
+    def test_a_manifest_from_before_json_edits_loads_with_none(self):
+        self.write_manifest(json.dumps(dict(schema_version=1, version='0.1.0.dev0', client='both', lang='en',
+                                            rigor='light', files={}, created=[], edits=[])))
+        self.assertEqual(load(self.root).json_edits, {})
+        added = {'.claude/settings.json': [['enabledPlugins', 'youngcrow@youngcrow']]}
+        save(self.root, Manifest('0.1.0.dev0', 'both', 'en', 'light', {}, [], [], added))
+        self.assertEqual(load(self.root).json_edits, added)
+
     def test_missing_or_mistyped_field_raises(self):
         good = dict(schema_version=1, version='0.1.0.dev0', client='both', lang='en', rigor='light',
                     files={'a': 'x'}, created=['a'], edits=[])
@@ -196,6 +204,10 @@ class ManifestTests(unittest.TestCase):
             'hash not a string': {**good, 'files': {'a': 1}},
             'created not a list': {**good, 'created': 'a'},
             'edits item not a string': {**good, 'edits': [1]},
+            'json_edits not a dict': {**good, 'json_edits': ['.claude/settings.json']},
+            'json_edits pairs not a list': {**good, 'json_edits': {'a.json': 'x'}},
+            'json_edits pair not two strings': {**good, 'json_edits': {'a.json': [['x']]}},
+            'json_edits key not a string': {**good, 'json_edits': {'a.json': [['x', 1]]}},
             'client not a string': {**good, 'client': None},
         }
         for name, data in cases.items():

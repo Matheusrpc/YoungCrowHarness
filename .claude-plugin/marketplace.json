@@ -1,0 +1,17 @@
+{
+  "name": "youngcrow",
+  "owner": {
+    "name": "Matheusrpc"
+  },
+  "metadata": {
+    "description": "Proof-first memory, sources and capability governance for Claude Code and Codex projects."
+  },
+  "plugins": [
+    {
+      "name": "youngcrow",
+      "source": "./plugins/youngcrow",
+      "description": "Proof-first memory, sources and capability governance for Claude Code and Codex projects.",
+      "version": "0.1.0.dev0"
+    }
+  ]
+}

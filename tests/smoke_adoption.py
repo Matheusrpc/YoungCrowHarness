@@ -66,7 +66,10 @@ def smoke(root, client, *, prepare_existing=None, exercise=None,
     for case in cases:
         project = root / case
         def git_call(*args):
-            return run([git, '-c', 'core.fsmonitor=false', '-C', str(project), *args], env=env, cwd=root)
+            # No automatic maintenance: its detached run makes and removes objects/maintenance.lock
+            # while whole trees are compared.
+            return run([git, '-c', 'core.fsmonitor=false', '-c', 'maintenance.auto=false', '-c', 'gc.auto=0',
+                        '-C', str(project), *args], env=env, cwd=root)
         if case != 'absent':
             project.mkdir()
             git_call('init', '-q')

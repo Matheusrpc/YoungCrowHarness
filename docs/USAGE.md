@@ -932,6 +932,8 @@ ficar vazio sai. A prévia lista cada arquivo sob `Old setup.sh hooks that will 
 `--confirm`, sob `Old setup.sh hooks taken out:`, com o número de entradas (`--json`: `legacy_hooks`).
 Uma entrada com o mesmo comando e outro campo mudado (um `timeout`, por exemplo) é sua: fica, e um
 aviso em stderr diz o arquivo e o evento. Um arquivo que não é JSON fica como está, também com aviso.
+O arquivo de hook que é link simbólico, pasta ou não pode ser lido também fica intacto, com aviso, e a
+prévia não conta entradas nele.
 No `.claude/settings.json`, o hook antigo sai antes de o `init` ligar o plugin, então a cópia em
 `.youngcrow/originals/` já não o tem e o `undo` não o traz de volta; o `.codex/hooks.json` limpo também
 continua limpo depois do `undo`.
@@ -1772,7 +1774,9 @@ entries equal to one `setup.sh` published. Your other hooks stay, and a group or
 The preview lists each file under `Old setup.sh hooks that will be taken out:` and `--confirm` under
 `Old setup.sh hooks taken out:`, with the number of entries (`--json`: `legacy_hooks`). An entry with
 the same command and another field changed (a `timeout`, say) is yours: it stays, and a warning on
-stderr names the file and the event. A file that is not JSON stays as it is, also with a warning. In
+stderr names the file and the event. A file that is not JSON stays as it is, also with a warning. A
+hook file that is a symbolic link, a folder or unreadable is also left untouched, with a warning, and
+the preview counts no entries in it. In
 `.claude/settings.json` the old hook comes out before `init` turns on the plugin, so the copy in
 `.youngcrow/originals/` no longer has it and `undo` does not bring it back; a cleaned
 `.codex/hooks.json` also stays clean after `undo`.

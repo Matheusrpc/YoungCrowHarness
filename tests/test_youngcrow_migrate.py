@@ -1,5 +1,5 @@
 """Check `youngcrow migrate` finds what setup.sh copied, removes only the unmodified copies, and installs the new layout."""
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import nullcontext, redirect_stderr, redirect_stdout
 from importlib import util
 from importlib.resources import files
 from pathlib import Path
@@ -20,7 +20,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / 'src'))
 
 from youngcrow.install import AlreadyInitialized, init, undo  # noqa: E402
-from youngcrow.manifest import UnsafePathError, load, sha256_file  # noqa: E402
+from youngcrow.manifest import load, sha256_file  # noqa: E402
 from youngcrow.migrate import (  # noqa: E402
     LEGACY_PATHS, MigrationPreview, apply, dangling_references, is_legacy_path, legacy_hashes, legacy_hooks, scan,
     vault_check,
@@ -606,7 +606,25 @@ class LegacyHookTests(unittest.TestCase):
                 apply(self.root, preview)
             self.assertEqual(snapshot(self.root), before)
 
-    def test_a_linked_hook_file_makes_migrate_refuse_before_it_changes_anything(self):
+    SKIPPED = '.codex/hooks.json is a link (or unreadable), so youngcrow did not look for the old hook in it.'
+
+    def assert_codex_hooks_skipped(self, before, reading=None):
+        """R51: scan does not count the file and apply leaves it as it is, with a warning, and migrates the rest.
+
+        `reading`, when given, stands in for `Path.read_bytes` during scan and apply.
+        """
+        with mock.patch.object(Path, 'read_bytes', reading) if reading else nullcontext():
+            preview = scan(self.root)
+            report = apply(self.root, preview)
+        self.assertEqual(preview.hooks, {CLAUDE_SETTINGS: 1})
+        self.assertEqual(report.hooks, {CLAUDE_SETTINGS: 1})
+        self.assertEqual(report.warnings, [self.SKIPPED])
+        self.assertNotIn('.codex/hooks.json', report.written)
+        self.assertNotIn('UserPromptSubmit', self.read(CLAUDE_SETTINGS)['hooks'])
+        after = snapshot(self.root)
+        self.assertEqual({rel: after.get(rel) for rel in before}, before)
+
+    def test_a_linked_hook_file_is_skipped_with_a_warning(self):
         self.write()
         outside = self.root.parent / 'hooks.json'
         shutil.move(self.root / '.codex/hooks.json', outside)
@@ -614,13 +632,30 @@ class LegacyHookTests(unittest.TestCase):
             os.symlink(outside, self.root / '.codex/hooks.json')
         except (OSError, NotImplementedError) as error:
             self.skipTest(f'this OS refused to create a symlink: {error}')
-        before, data = snapshot(self.root), outside.read_bytes()
-        preview = scan(self.root)
-        self.assertEqual(preview.hooks, {CLAUDE_SETTINGS: 1})  # a link is never read
-        with self.assertRaises(UnsafePathError):
-            apply(self.root, preview, client='claude')
-        self.assertEqual(snapshot(self.root), before)
+        data = outside.read_bytes()
+        self.assert_codex_hooks_skipped({'.codex/hooks.json': snapshot(self.root)['.codex/hooks.json']})
+        self.assertTrue((self.root / '.codex/hooks.json').is_symlink())
         self.assertEqual(outside.read_bytes(), data)
+
+    def test_a_folder_in_place_of_a_hook_file_is_skipped_with_a_warning(self):
+        self.write()
+        (self.root / '.codex/hooks.json').unlink()
+        (self.root / '.codex/hooks.json').mkdir()
+        (self.root / '.codex/hooks.json/notes.txt').write_bytes(b'mine\n')
+        tree = snapshot(self.root)
+        self.assert_codex_hooks_skipped({rel: tree[rel] for rel in ('.codex/hooks.json', '.codex/hooks.json/notes.txt')})
+
+    def test_a_hook_file_that_cannot_be_read_is_skipped_with_a_warning(self):
+        self.write()
+        before = {'.codex/hooks.json': snapshot(self.root)['.codex/hooks.json']}
+        real = Path.read_bytes
+
+        def reading(path):
+            if path.name == 'hooks.json':
+                raise PermissionError(13, 'Permission denied')
+            return real(path)
+
+        self.assert_codex_hooks_skipped(before, reading)
 
 
 class ReferenceTests(unittest.TestCase):

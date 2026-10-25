@@ -358,12 +358,23 @@ def _plan_hooks(root: Path, published: Sequence[dict], gone: frozenset[str], rep
     In each of HOOK_FILES that is there and not in `gone`, the entries equal to one in `published`
     come out (`settings.remove_hooks`), and how many goes into `report.hooks`. A look-alike entry
     stays and gets a line in `warnings`, as does a file that is not a JSON object in UTF-8, which is
-    left as it is.
+    left as it is. So is a link (or a path behind one), a folder or any other file that is not a
+    regular one, and a file that cannot be read (R51): migrate never reads those (R9), and its scan
+    does not count them either.
     """
     steps = []
     for rel in HOOK_FILES if published else ():
-        old = None if rel in gone else _read_bytes(root, rel)
-        if old is None:
+        if rel in gone:
+            continue
+        try:
+            target = safe_target(root, rel)
+            if not stat.S_ISREG(target.lstat().st_mode):
+                raise UnsafePathError('not a regular file: ' + rel)
+            old = target.read_bytes()
+        except FileNotFoundError:
+            continue
+        except (UnsafePathError, OSError):
+            report.warnings.append(f'{rel} is a link (or unreadable), so youngcrow did not look for the old hook in it.')
             continue
         try:
             new, count, kept = remove_hooks(old, published)

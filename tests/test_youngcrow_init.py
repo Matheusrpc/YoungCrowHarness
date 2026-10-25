@@ -28,6 +28,7 @@ GITIGNORE_BLOCK = ('# youngcrow:start\n.env\n.env.*\n!.env.example\n.operacao-lo
 SETTINGS = '.claude/settings.json'
 AGENT = '.codex/agents/integration-specialist.toml'
 ORIGINAL = '.youngcrow/originals/.claude/settings.json'
+BOTH_PAIRS = [['extraKnownMarketplaces', 'youngcrow'], ['enabledPlugins', 'youngcrow@youngcrow']]
 CLAUDE_STEP = 'Claude Code: open this folder and accept the workspace trust prompt; it then offers the youngcrow plugin.'
 CLAUDE_MANUAL_STEP = ('Claude Code: /plugin marketplace add Matheusrpc/YoungCrowHarness, then /plugin install '
                       'youngcrow@youngcrow --scope project.')
@@ -318,7 +319,7 @@ class InitTests(unittest.TestCase):
         self.assertEqual(set(manifest.created), expected)
         self.assertEqual(len(manifest.created), len(expected))
         self.assertEqual(sorted(manifest.edits), ['.gitignore', 'AGENTS.md', 'CLAUDE.md'])
-        self.assertEqual(manifest.json_edits, [SETTINGS])
+        self.assertEqual(manifest.json_edits, {SETTINGS: BOTH_PAIRS})
         self.assertNotIn('.youngcrow/manifest.json', manifest.files)
         for rel, digest in manifest.files.items():
             self.assertEqual(digest, hashlib.sha256((self.root / rel).read_bytes()).hexdigest(), rel)
@@ -663,7 +664,7 @@ class InitTests(unittest.TestCase):
         undo(self.root, confirm=True)
         report = init(self.root, client='codex')
         self.assertFalse((self.root / '.claude').exists())
-        self.assertEqual(load(self.root).json_edits, [])
+        self.assertEqual(load(self.root).json_edits, {})
         self.assertEqual(report.next_steps, [CODEX_STEP])
 
     def test_existing_settings_get_the_wiring_and_their_bytes_are_saved(self):
@@ -677,13 +678,35 @@ class InitTests(unittest.TestCase):
                                             'extraKnownMarketplaces': WIRING['extraKnownMarketplaces']})
         self.assertEqual((self.root / ORIGINAL).read_bytes(), original)
         manifest = load(self.root)
-        self.assertEqual(manifest.json_edits, [SETTINGS])
+        self.assertEqual(manifest.json_edits, {SETTINGS: BOTH_PAIRS})
         self.assertNotIn(SETTINGS, manifest.created + manifest.edits)
         self.assertEqual(manifest.files[SETTINGS], sha256_file(self.root / SETTINGS))
         self.assertIn(ORIGINAL, manifest.created)
         self.assertEqual(manifest.files[ORIGINAL], hashlib.sha256(original).hexdigest())
         self.assertIn(SETTINGS, report.written)
         self.assertEqual(report.next_steps[0], CLAUDE_STEP)
+
+    def test_init_records_only_the_pairs_it_added_and_undo_takes_out_only_those(self):
+        original = b'{"enabledPlugins": {"youngcrow@youngcrow": true}}\n'
+        self.write(SETTINGS, original)
+        init(self.root)
+        data = json.loads((self.root / SETTINGS).read_bytes())
+        self.assertEqual(data, WIRING)
+        self.assertEqual(load(self.root).json_edits, {SETTINGS: [['extraKnownMarketplaces', 'youngcrow']]})
+        add_permission(self.root, 'Read')
+        report = undo(self.root, confirm=True)
+        self.assertEqual(json.loads((self.root / SETTINGS).read_bytes()),
+                         {'enabledPlugins': {'youngcrow@youngcrow': True}, 'permissions': {'allow': ['Read']}})
+        self.assertIn(SETTINGS, report.kept_modified)
+        self.assertFalse((self.root / '.youngcrow').exists())
+
+    def test_settings_with_one_of_our_keys_already_come_back_byte_for_byte_when_untouched(self):
+        original = b'{\r\n  "enabledPlugins": {"youngcrow@youngcrow": true}\r\n}\r\n'
+        self.write(SETTINGS, original)
+        init(self.root)
+        report = undo(self.root, confirm=True)
+        self.assertEqual((self.root / SETTINGS).read_bytes(), original)
+        self.assertIn(SETTINGS, report.written)
 
     def test_settings_that_already_hold_the_wiring_are_skipped_untouched(self):
         own = json.dumps({'model': 'opus', **WIRING}).encode()
@@ -693,7 +716,7 @@ class InitTests(unittest.TestCase):
         self.assertEqual((self.root / SETTINGS).read_bytes(), own)
         self.assertIn(SETTINGS, report.skipped)
         self.assertNotIn(SETTINGS, manifest.files)
-        self.assertEqual(manifest.json_edits, [])
+        self.assertEqual(manifest.json_edits, {})
         self.assertFalse((self.root / '.youngcrow/originals').exists())
         self.assertEqual(report.next_steps[0], CLAUDE_STEP)
         undo(self.root, confirm=True)

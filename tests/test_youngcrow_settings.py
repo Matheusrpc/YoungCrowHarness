@@ -8,8 +8,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 
 from youngcrow.settings import (  # noqa: E402
-    CLAUDE_SETTINGS, WIRING, SettingsSkipped, add_wiring, remove_wiring, unwire,
+    CLAUDE_SETTINGS, WIRING, SettingsSkipped, add_wiring, added_pairs, remove_wiring, unwire,
 )
+
+MARKETPLACE = ['extraKnownMarketplaces', 'youngcrow']
+PLUGIN = ['enabledPlugins', 'youngcrow@youngcrow']
+BOTH = [MARKETPLACE, PLUGIN]
 
 FRESH = (b'{\n  "extraKnownMarketplaces": {\n    "youngcrow": {\n      "source": {\n        "source": "github",\n'
          b'        "repo": "Matheusrpc/YoungCrowHarness"\n      }\n    }\n  },\n  "enabledPlugins": {\n'
@@ -75,56 +79,76 @@ class AddWiringTests(unittest.TestCase):
             self.assertIn(word, str(caught.exception))
         self.assertTrue(issubclass(SettingsSkipped, ValueError))
 
+    # The pairs init records (R49): only the ones add_wiring itself adds.
+
+    def test_added_pairs_names_what_add_wiring_adds(self):
+        self.assertEqual(added_pairs(None), BOTH)
+        self.assertEqual(added_pairs(b'{"enabledPlugins": {"youngcrow@youngcrow": true}}'), [MARKETPLACE])
+        self.assertEqual(added_pairs(FRESH), [])
+        with self.assertRaises(SettingsSkipped):
+            added_pairs(b'{"enabledPlugins": []}')
+
 
 class RemoveWiringTests(unittest.TestCase):
     def test_remove_wiring_undoes_add_wiring(self):
-        self.assertIsNone(remove_wiring(add_wiring(None)))
-        self.assertEqual(json.loads(remove_wiring(add_wiring(b'{"permissions": {"allow": ["Read"]}}'))),
+        self.assertIsNone(remove_wiring(add_wiring(None), BOTH))
+        self.assertEqual(json.loads(remove_wiring(add_wiring(b'{"permissions": {"allow": ["Read"]}}'), BOTH)),
                          {'permissions': {'allow': ['Read']}})
+
+    def test_only_the_pairs_init_added_come_out(self):
+        before = b'{"enabledPlugins": {"youngcrow@youngcrow": true}}'
+        out = remove_wiring(add_wiring(before), added_pairs(before))
+        self.assertEqual(json.loads(out), {'enabledPlugins': {'youngcrow@youngcrow': True}})
+        self.assertEqual(remove_wiring(FRESH, []), FRESH)
+
+    def test_a_pair_that_is_not_ours_is_ignored(self):
+        data = b'{"enabledPlugins": {"other@x": true}}'
+        self.assertEqual(remove_wiring(data, [['enabledPlugins', 'other@x'], ['permissions', 'allow']]), data)
 
     def test_other_plugins_and_marketplaces_stay(self):
         data = json.dumps({'enabledPlugins': {'other@x': True, 'youngcrow@youngcrow': True},
                            'extraKnownMarketplaces': {'x': {'source': {'source': 'github', 'repo': 'a/x'}},
                                                       **WIRING['extraKnownMarketplaces']}}).encode()
-        self.assertEqual(json.loads(remove_wiring(data)), {
+        self.assertEqual(json.loads(remove_wiring(data, BOTH)), {
             'enabledPlugins': {'other@x': True},
             'extraKnownMarketplaces': {'x': {'source': {'source': 'github', 'repo': 'a/x'}}}})
 
     def test_a_sub_key_the_user_changed_stays(self):
         data = json.dumps({'enabledPlugins': {'youngcrow@youngcrow': False},
                            **{k: v for k, v in WIRING.items() if k != 'enabledPlugins'}}).encode()
-        self.assertEqual(json.loads(remove_wiring(data)), {'enabledPlugins': {'youngcrow@youngcrow': False}})
+        self.assertEqual(json.loads(remove_wiring(data, BOTH)), {'enabledPlugins': {'youngcrow@youngcrow': False}})
 
     def test_an_object_the_user_left_empty_stays(self):
         data = json.dumps({'enabledPlugins': {}, 'extraKnownMarketplaces': WIRING['extraKnownMarketplaces']}).encode()
-        self.assertEqual(json.loads(remove_wiring(data)), {'enabledPlugins': {}})
+        self.assertEqual(json.loads(remove_wiring(data, BOTH)), {'enabledPlugins': {}})
 
     def test_crlf_stays(self):
-        out = remove_wiring(add_wiring(b'{\r\n  "model": "x"\r\n}\r\n'))
+        out = remove_wiring(add_wiring(b'{\r\n  "model": "x"\r\n}\r\n'), BOTH)
         self.assertEqual(out, b'{\r\n  "model": "x"\r\n}\r\n')
 
     def test_a_file_without_our_keys_comes_back_as_it_is(self):
         for data in (b'{"model":"x"}', b'{}', b'{"enabledPlugins": {}}'):
             with self.subTest(data=data):
-                self.assertEqual(remove_wiring(data), data)
+                self.assertEqual(remove_wiring(data, BOTH), data)
 
     def test_a_file_that_is_not_a_json_object_is_refused(self):
         for data in (b'{oops', b'[]', b'\xff'):
             with self.subTest(data=data), self.assertRaises(SettingsSkipped):
-                remove_wiring(data)
+                remove_wiring(data, BOTH)
 
 
 class UnwireTests(unittest.TestCase):
     def test_the_original_comes_back_when_there_is_one(self):
-        self.assertEqual(unwire(FRESH, b'{"model": "x"}'), b'{"model": "x"}')
+        self.assertEqual(unwire(FRESH, b'{"model": "x"}', BOTH), b'{"model": "x"}')
 
     def test_without_an_original_only_our_keys_come_out(self):
         wired = add_wiring(b'{\r\n"model": "x"}')
-        self.assertEqual(unwire(wired, None), b'{\r\n  "model": "x"\r\n}\r\n')
-        self.assertEqual(unwire(FRESH.replace(b'\n', b'\r\n'), None), b'{}\r\n')
+        self.assertEqual(unwire(wired, None, BOTH), b'{\r\n  "model": "x"\r\n}\r\n')
+        self.assertEqual(unwire(FRESH.replace(b'\n', b'\r\n'), None, BOTH), b'{}\r\n')
+        self.assertEqual(json.loads(unwire(FRESH, None, [PLUGIN])), {'extraKnownMarketplaces': WIRING['extraKnownMarketplaces']})
 
     def test_a_file_that_is_no_longer_json_stays_as_it_is(self):
-        self.assertEqual(unwire(b'{broken', None), b'{broken')
+        self.assertEqual(unwire(b'{broken', None, BOTH), b'{broken')
 
 
 if __name__ == '__main__':

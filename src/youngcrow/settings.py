@@ -59,15 +59,10 @@ def _dump(value: dict, like: bytes | None) -> bytes:
     return text.encode('utf-8')
 
 
-def add_wiring(data: bytes | None) -> bytes | None:
-    """`data` (None for a missing file) with the WIRING keys added; None when it has them all already.
-
-    The other keys and their order stay; a key that is added goes last in its object. Raises
-    SettingsSkipped when `data` is not a JSON object in UTF-8, when `extraKnownMarketplaces` or
-    `enabledPlugins` is there and is not an object, or when one of our sub-keys holds another value.
-    """
+def _merge(data: bytes | None) -> tuple[dict, list[list[str]]]:
+    """The settings in `data` with the WIRING added, and the `[top, sub]` pairs that were missing."""
     settings = {} if data is None else _object(data)
-    changed = False
+    added = []
     for key, ours in WIRING.items():
         table = settings.setdefault(key, {})
         if not isinstance(table, dict):
@@ -75,46 +70,61 @@ def add_wiring(data: bytes | None) -> bytes | None:
         for name, value in ours.items():
             if name not in table:
                 table[name] = value
-                changed = True
+                added.append([key, name])
             elif not _same(table[name], value):
                 raise SettingsSkipped(f'"{key}" already has "{name}" with another value')
-    return _dump(settings, data) if changed else None
+    return settings, added
 
 
-def remove_wiring(data: bytes) -> bytes | None:
-    """`data` without the sub-keys that still hold our value, nor the top keys that leaves empty.
+def add_wiring(data: bytes | None) -> bytes | None:
+    """`data` (None for a missing file) with the WIRING keys added; None when it has them all already.
 
-    None when nothing but `{}` would be left; `data` itself when none of our values is there.
-    Raises SettingsSkipped when `data` is not a JSON object in UTF-8.
+    The other keys and their order stay; a key that is added goes last in its object. Raises
+    SettingsSkipped when `data` is not a JSON object in UTF-8, when `extraKnownMarketplaces` or
+    `enabledPlugins` is there and is not an object, or when one of our sub-keys holds another value.
+    """
+    settings, added = _merge(data)
+    return _dump(settings, data) if added else None
+
+
+def added_pairs(data: bytes | None) -> list[list[str]]:
+    """The `[top, sub]` pairs `add_wiring(data)` adds, which init records (R49); SettingsSkipped as there."""
+    return _merge(data)[1]
+
+
+def remove_wiring(data: bytes, added: list[list[str]]) -> bytes | None:
+    """`data` without the `added` pairs that still hold our value, nor the top keys that leaves empty.
+
+    Only pairs init itself added are taken out (R49): a sub-key the file already had stays, and a
+    pair that is not one of WIRING is ignored. None when nothing but `{}` would be left; `data`
+    itself when nothing comes out. Raises SettingsSkipped when `data` is not a JSON object in UTF-8.
     """
     settings = _object(data)
     changed = False
-    for key, ours in WIRING.items():
+    for key, name in added:
         table = settings.get(key)
-        if not isinstance(table, dict):
-            continue
-        ours_here = [name for name, value in ours.items() if name in table and _same(table[name], value)]
-        for name in ours_here:
+        ours = WIRING.get(key, {})
+        if isinstance(table, dict) and name in ours and name in table and _same(table[name], ours[name]):
             del table[name]
-        if ours_here and not table:
-            del settings[key]
-        changed = changed or bool(ours_here)
+            if not table:
+                del settings[key]
+            changed = True
     if not changed:
         return data
     return _dump(settings, data) if settings else None
 
 
-def unwire(current: bytes, original: bytes | None) -> bytes:
+def unwire(current: bytes, original: bytes | None, added: list[list[str]]) -> bytes:
     """What `undo` writes back into a settings file init edited (R37).
 
     `original` is the file's bytes from before init, given only while the file is as init left it:
-    then those come back. Otherwise our keys come out and the rest stays; `{}` when nothing else is
-    left, and the file as it is when it no longer holds a JSON object.
+    then those come back. Otherwise the `added` pairs come out and the rest stays; `{}` when nothing
+    else is left, and the file as it is when it no longer holds a JSON object.
     """
     if original is not None:
         return original
     try:
-        stripped = remove_wiring(current)
+        stripped = remove_wiring(current, added)
     except SettingsSkipped:
         return current
     return _dump({}, current) if stripped is None else stripped

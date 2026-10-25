@@ -174,17 +174,29 @@ class UpgradeUndoTests(unittest.TestCase):
             self.assertEqual(upgrade(self.root).written, [self.AGENT])
         self.assertIn(self.AGENT, undo(self.root, confirm=True).removed)  # written back with its hash recorded
 
-    def test_upgrade_writes_the_codex_agent_into_an_install_from_before_it_existed(self):
+    def test_a_codex_agent_init_did_not_write_is_never_upgraded_nor_listed(self):
+        # R50: only the agent the manifest records is upgrade's (and undo's).
+        (self.root / '.codex/agents').mkdir(parents=True)
+        (self.root / self.AGENT).write_bytes(b'name = "mine"\n')
+        init(self.root)
+        with mock.patch.object(install, 'codex_agent', return_value=b'name = "next"\n'):
+            report = upgrade(self.root)
+        self.assertEqual((self.root / self.AGENT).read_bytes(), b'name = "mine"\n')
+        self.assertNotIn(self.AGENT, report.written + report.kept_modified + report.removed + report.skipped)
+        self.assertNotIn(self.AGENT, load(self.root).files)
+        report = undo(self.root, confirm=True)
+        self.assertNotIn(self.AGENT, report.written + report.kept_modified + report.removed)
+        self.assertEqual(self._tree_bytes(), {'.codex': None, '.codex/agents': None, self.AGENT: b'name = "mine"\n'})
+
+    def test_upgrade_does_not_add_the_codex_agent_to_an_install_that_never_recorded_it(self):
         init(self.root)
         (self.root / self.AGENT).unlink()
         manifest = load(self.root)
         del manifest.files[self.AGENT]
         manifest.created.remove(self.AGENT)
         save(self.root, manifest)
-        self.assertEqual(upgrade(self.root).written, [self.AGENT])
-        self.assertIn(self.AGENT, load(self.root).created)
-        undo(self.root, confirm=True)
-        self.assertEqual(self._tree_bytes(), {})
+        self.assertEqual(upgrade(self.root).written, [])
+        self.assertFalse((self.root / self.AGENT).exists())
 
     def test_upgrade_of_a_claude_install_writes_no_codex_agent(self):
         init(self.root, client='claude')
@@ -206,7 +218,8 @@ class UpgradeUndoTests(unittest.TestCase):
             self.assertEqual(self._tree_bytes()[rel], before[rel], rel)
             self.assertNotIn(rel, report.written + report.kept_modified + report.removed)
         manifest = load(self.root)
-        self.assertEqual(manifest.json_edits, [self.SETTINGS])
+        self.assertEqual(manifest.json_edits, {self.SETTINGS: [['extraKnownMarketplaces', 'youngcrow'],
+                                                               ['enabledPlugins', 'youngcrow@youngcrow']]})
         self.assertIn(self.ORIGINAL, manifest.created)
         settings.write_bytes(wired)  # back to what init wrote: undo gives the saved original back
         undo(self.root, confirm=True)

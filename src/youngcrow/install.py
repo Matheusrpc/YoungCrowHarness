@@ -29,7 +29,7 @@ from youngcrow.manifest import (
 from youngcrow.payload import PAYLOAD, payload_root
 from youngcrow.settings import (
     CLAUDE_MANUAL_STEP, CLAUDE_SETTINGS, CLAUDE_STEP, CODEX_AGENT, CODEX_STEP, ORIGINALS, SettingsSkipped,
-    add_wiring, codex_agent, unwire,
+    add_wiring, added_pairs, codex_agent, unwire,
 )
 
 CLIENTS = ('claude', 'codex', 'both')
@@ -403,7 +403,8 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
     links to it), links the rules into CLAUDE.md (import line) and AGENTS.md (block), adds the
     .gitignore block, wires the clients (see `_plan_clients`: the plugin in `.claude/settings.json`,
     the Codex agent, one entry per client in `Report.next_steps`), and saves the manifest. A settings
-    file it edits is listed in `json_edits`, and the bytes it had are saved in `.youngcrow/originals/`.
+    file it edits goes into `json_edits` with the keys it added (R49), and the bytes it had are saved
+    in `.youngcrow/originals/`.
     Raises ValueError for an unsupported option, UnsafePathError for a linked or mistyped
     destination, ManagedBlockError for broken markers, AlreadyInitialized when the project has a
     manifest or install leftovers. None of these writes anything. A write that fails is rolled back
@@ -470,7 +471,7 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
         files={step.rel: _sha(step.data) for step in steps},
         created=[step.rel for step in steps if step.created],
         edits=[step.rel for step in steps if step.managed],
-        json_edits=[step.rel for step in steps if step.rel == CLAUDE_SETTINGS],
+        json_edits={step.rel: added_pairs(step.old) for step in steps if step.rel == CLAUDE_SETTINGS},
     ), dirs=dirs)
     report.written = [step.rel for step in steps]
     report.removed = [step.rel for step in drops] + [path.relative_to(root).as_posix() + '/' for path in dirs]
@@ -482,7 +483,7 @@ def upgrade(root: Path) -> Report:
 
     Only `.youngcrow/`, the Codex agent and the AGENTS.md block body are touched (never `vault/`,
     never text outside a block, never `.claude/settings.json` or the originals saved for it). A
-    `.youngcrow/` file, or the Codex agent of a `codex` or `both` install, whose hash matches the
+    `.youngcrow/` file, or the Codex agent when the manifest records it (R50), whose hash matches the
     manifest is replaced, a missing one is written, a changed one is kept and listed in
     `kept_modified`. A payload file new in this version is written and recorded; a recorded one
     this version dropped is deleted (`removed`) when unmodified, else kept; folders that leaves
@@ -499,8 +500,8 @@ def upgrade(root: Path) -> Report:
     _check_options(manifest.client, manifest.lang, manifest.rigor)
     harness = _template(f'HARNESS.{manifest.lang}.{manifest.rigor}.md')
     fresh = _harness_files(harness)
-    if manifest.client != 'claude':
-        fresh[CODEX_AGENT] = codex_agent()  # outside .youngcrow/, but upgraded by the same rule (R19a)
+    if CODEX_AGENT in manifest.files:  # only the agent init wrote (R50), by the same rule (R19a)
+        fresh[CODEX_AGENT] = codex_agent()
     report, steps = Report(), []
     files, created = dict(manifest.files), list(manifest.created)
     installed = _installed_harness(root, manifest)  # what the AGENTS.md block should still hold
@@ -551,7 +552,7 @@ def upgrade(root: Path) -> Report:
         created = [name for name in created if name != rel]
 
     updated = Manifest(__version__, manifest.client, manifest.lang, manifest.rigor, files, created,
-                       list(manifest.edits), list(manifest.json_edits))
+                       list(manifest.edits), dict(manifest.json_edits))
     dirs = _empty_parents(root, [step.rel for step in steps if step.data is None],
                           keep=[step.rel for step in steps if step.data is not None])
     report.removed += [path.relative_to(root).as_posix() + '/' for path in dirs]
@@ -597,7 +598,8 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
     file still has its recorded hash. Otherwise the user typed inside it, and the whole file is
     left as it is (`kept_modified`), as is a pre-existing file whose managed text the user removed.
     A settings file init edited (R37) gets its saved original back while it is as init left it
-    (`written`); once the user changed it, only our keys come out and it is listed in `kept_modified`.
+    (`written`); once the user changed it, only the keys init added come out (R49) and it is listed
+    in `kept_modified`.
     Folders left empty by those deletions go too (`removed`, with a trailing `/`); the manifest is
     deleted last. Every path and managed edit is checked first: NotInitialized, UnsafePathError,
     ManagedBlockError (naming the file) or ValueError change nothing, and a failed write rolls the
@@ -608,7 +610,7 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
     manifest = _load(root)
     bodies = {'AGENTS.md': _installed_harness(root, manifest), '.gitignore': GITIGNORE_BODY}
     report, steps = Report(), []
-    for rel in dict.fromkeys(manifest.created + manifest.edits + manifest.json_edits):
+    for rel in dict.fromkeys(manifest.created + manifest.edits + list(manifest.json_edits)):
         if rel == MANIFEST_PATH:
             continue
         current = _read_bytes(root, rel)
@@ -621,8 +623,9 @@ def undo(root: Path, *, confirm: bool = False) -> Report:
             report.removed.append(rel)
             continue
         if rel in manifest.json_edits:
-            # R37: the saved original while the file is as init left it (`written`); else only our keys go.
-            new = unwire(current, _original(root, manifest, rel) if unchanged else None)
+            # R37: the saved original while the file is as init left it (`written`); else only the keys
+            # init added go (R49).
+            new = unwire(current, _original(root, manifest, rel) if unchanged else None, manifest.json_edits[rel])
             if new != current:
                 steps.append(_Step(rel, new, current, managed=True))
             (report.written if unchanged and new != current else report.kept_modified).append(rel)

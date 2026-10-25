@@ -80,6 +80,7 @@ def render(root: Path) -> dict[str, bytes]:
         '.claude-plugin/marketplace.json': _json({
             'name': NAME,
             'owner': {'name': OWNER},
+            'metadata': {'description': DESCRIPTION},
             'plugins': [{'name': NAME, 'source': f'./{PLUGIN}', 'description': DESCRIPTION, 'version': version}],
         }),
         f'{PLUGIN}/.claude-plugin/plugin.json': _json({

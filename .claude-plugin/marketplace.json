@@ -3,6 +3,9 @@
   "owner": {
     "name": "Matheusrpc"
   },
+  "metadata": {
+    "description": "Proof-first memory, sources and capability governance for Claude Code and Codex projects."
+  },
   "plugins": [
     {
       "name": "youngcrow",

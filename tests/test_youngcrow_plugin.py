@@ -92,6 +92,7 @@ class TreeTests(unittest.TestCase):
         description = 'Proof-first memory, sources and capability governance for Claude Code and Codex projects.'
         self.assertEqual(marketplace['name'], 'youngcrow')
         self.assertEqual(marketplace['owner'], {'name': 'Matheusrpc'})
+        self.assertEqual(marketplace['metadata'], {'description': description})
         self.assertEqual(marketplace['plugins'], [{'name': 'youngcrow', 'source': './plugins/youngcrow',
                                                    'description': description, 'version': __version__}])
         self.assertEqual(claude['name'], 'youngcrow')

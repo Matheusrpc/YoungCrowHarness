@@ -14,11 +14,17 @@ import unittest
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / 'src'))
+sys.path.insert(0, str(REPO / 'scripts'))
 
+import capabilities as caps  # noqa: E402
 from youngcrow import __version__  # noqa: E402
+from youngcrow.payload import PAYLOAD  # noqa: E402
 
 PLUGIN = REPO / 'plugins' / 'youngcrow'
-SOURCES = ('skills', '.claude/agents', '.codex/agents', 'scripts/source_prompt.py', 'src/youngcrow/__init__.py')
+CATALOG = REPO / 'src' / 'youngcrow' / 'templates' / 'capabilities.json'
+CODEX_AGENT = '.codex/agents/integration-specialist.toml'
+SOURCES = ('skills', '.claude/agents', '.codex/agents', 'scripts', 'requirements', 'skills-lock.json',
+           'src/youngcrow/__init__.py', 'src/youngcrow/payload.py')
 
 
 def load_tool():
@@ -34,7 +40,7 @@ def copy_sources(root):
         source, target = REPO / rel, root / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         if source.is_dir():
-            shutil.copytree(source, target)
+            shutil.copytree(source, target, ignore=shutil.ignore_patterns('__pycache__'))
         else:
             shutil.copyfile(source, target)
 
@@ -108,7 +114,7 @@ class TreeTests(unittest.TestCase):
 
     def test_json_files_use_two_spaces_lf_and_a_final_newline(self):
         for path in (REPO / '.claude-plugin/marketplace.json', PLUGIN / '.claude-plugin/plugin.json',
-                     PLUGIN / '.codex-plugin/plugin.json'):
+                     PLUGIN / '.codex-plugin/plugin.json', CATALOG):
             raw = path.read_bytes()
             self.assertEqual(raw, (json.dumps(json.loads(raw), indent=2) + '\n').encode(), path)
             self.assertNotIn(b'\r', raw, path)
@@ -144,6 +150,82 @@ class TreeTests(unittest.TestCase):
                                      capture_output=True, text=True, timeout=180)
                 self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
                 self.assertIn(checked, run.stdout)
+
+
+class CatalogTemplateTests(unittest.TestCase):
+    """`src/youngcrow/templates/capabilities.json`: the catalog `youngcrow init` puts in a project."""
+
+    CORE = ('govern-capabilities', 'ingest-source', 'integrate-from-docs', 'personalizer', 'retrieve-memory',
+            'integration-specialist', 'docling', 'graphify')
+
+    @classmethod
+    def setUpClass(cls):
+        cls.raw = CATALOG.read_bytes()
+        cls.catalog = {cap['id']: cap for cap in caps.catalog_from_bytes(cls.raw)}
+        cls.lock = {cap['id']: cap for cap in caps.load_catalog(REPO)}
+
+    def test_it_is_a_version_3_catalog_with_nothing_but_capabilities(self):
+        data = json.loads(self.raw)
+        self.assertEqual(list(data), ['version', 'capabilities'])
+        self.assertEqual(data['version'], 3)
+
+    def test_it_lists_the_core_and_nothing_else(self):
+        self.assertEqual(sorted(self.catalog), sorted(self.CORE))
+
+    def test_each_entry_copies_what_the_repository_catalog_says_about_it(self):
+        for name, cap in self.catalog.items():
+            for field in ('kind', 'purpose', 'clients', 'required', 'scope', 'permissions'):
+                self.assertEqual(cap[field], self.lock[name][field], f'{name}.{field}')
+
+    def test_origin_version_and_native_are_the_marketplace_the_package_and_nothing(self):
+        for name, cap in self.catalog.items():
+            self.assertEqual(cap['origin'], {'kind': 'marketplace', 'revision': None,
+                                             'locator': 'https://github.com/Matheusrpc/YoungCrowHarness'}, name)
+            self.assertEqual(cap['declared_version'], __version__, name)
+            self.assertEqual(cap['native'], {}, name)
+
+    def test_files_are_the_installed_scripts_and_requirements_and_the_codex_agent(self):
+        for name, cap in self.catalog.items():
+            files = cap['files']
+            self.assertEqual(files['claude'], [], name)
+            self.assertEqual(files['codex'], [CODEX_AGENT] if name == 'integration-specialist' else [], name)
+            for path in files['common']:
+                self.assertTrue(path.startswith('.youngcrow/'), path)
+                self.assertIn(path[len('.youngcrow/'):], PAYLOAD, f'{name}: init does not install {path}')
+            # The repository's own list, less the skill pages the plugin carries and the scripts init does not install.
+            kept = [f'.youngcrow/{p}' for p in self.lock[name]['files']['common'] if p in PAYLOAD]
+            self.assertEqual(files['common'], kept, name)
+        self.assertEqual(self.catalog['integration-specialist']['files']['common'], [])
+        self.assertEqual(self.catalog['govern-capabilities']['files']['common'], [
+            '.youngcrow/scripts/capabilities.py', '.youngcrow/scripts/integrations.py',
+            '.youngcrow/scripts/document_store.py', '.youngcrow/scripts/vault.py'])
+        self.assertEqual(self.catalog['docling']['files']['common'], ['.youngcrow/requirements/docling.txt'])
+        self.assertEqual(self.catalog['graphify']['files']['common'], ['.youngcrow/requirements/graphify.txt'])
+
+    def test_no_entry_names_a_script_that_init_leaves_out(self):
+        for name, cap in self.catalog.items():
+            self.assertFalse([p for p in cap['files']['common'] if 'mission' in p or '/skills/' in p], name)
+
+    def test_expected_digests_are_those_of_the_bytes_init_installs(self):
+        installed = {f'.youngcrow/{rel}': (REPO / rel).read_bytes() for rel in PAYLOAD}
+        installed[CODEX_AGENT] = (REPO / 'src/youngcrow/templates/codex/integration-specialist.toml').read_bytes()
+        for name, cap in self.catalog.items():
+            self.assertEqual(cap['expected']['contract_sha256'], caps.contract_digest(cap), name)
+            for client in caps.CLIENTS:
+                paths = cap['files']['common'] + cap['files'][client]
+                wanted = caps.records_digest({p: installed[p] for p in paths}) if paths else None
+                self.assertEqual(cap['expected']['files_sha256'][client], wanted, f'{name}/{client}')
+
+    def test_the_agent_has_a_digest_only_for_the_client_whose_file_it_carries(self):
+        expected = self.catalog['integration-specialist']['expected']['files_sha256']
+        self.assertIsNone(expected['claude'])
+        self.assertRegex(expected['codex'], r'^[0-9a-f]{64}$')
+
+    def test_the_skills_are_required_and_the_agent_and_runtimes_are_not(self):
+        for name in self.CORE[:5]:
+            self.assertEqual(self.catalog[name]['required'], {'claude': True, 'codex': True}, name)
+        for name in self.CORE[5:]:
+            self.assertEqual(self.catalog[name]['required'], {'claude': False, 'codex': False}, name)
 
 
 class RewriteTests(unittest.TestCase):
@@ -229,6 +311,39 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(self.run_main()[0], 0)
         self.assertEqual((self.root / 'plugins/youngcrow/skills/retrieve-memory/references/extra.md').read_text(),
                          'See .youngcrow/scripts/memory.py\n')
+
+    def test_the_catalog_template_is_written_with_the_tree(self):
+        self.assertEqual(self.run_main(), (0, ''))
+        self.assertEqual((self.root / 'src/youngcrow/templates/capabilities.json').read_bytes(), CATALOG.read_bytes())
+
+    def test_a_change_to_an_installed_script_makes_the_catalog_template_stale(self):
+        self.run_main()
+        script = self.root / 'scripts/memory.py'
+        script.write_bytes(script.read_bytes() + b'# changed\n')
+        code, err = self.run_main('--check')
+        self.assertEqual(code, 1)
+        self.assertIn('stale: src/youngcrow/templates/capabilities.json', err)
+        self.assertEqual(self.run_main()[0], 0)
+        self.assertEqual(self.run_main('--check'), (0, ''))
+        self.assertNotEqual((self.root / 'src/youngcrow/templates/capabilities.json').read_bytes(), CATALOG.read_bytes())
+
+    def test_a_change_to_the_agent_template_source_makes_the_catalog_template_stale(self):
+        self.run_main()
+        agent = self.root / '.codex/agents/integration-specialist.toml'
+        agent.write_text(agent.read_text() + '# changed\n')
+        code, err = self.run_main('--check')
+        self.assertEqual(code, 1)
+        self.assertIn('stale: src/youngcrow/templates/capabilities.json', err)
+
+    def test_a_core_capability_missing_from_the_repository_catalog_stops_the_build(self):
+        lock = self.root / 'skills-lock.json'
+        data = json.loads(lock.read_text(encoding='utf-8'))
+        data['capabilities'] = [cap for cap in data['capabilities'] if cap['id'] != 'graphify']
+        lock.write_text(json.dumps(data), encoding='utf-8')
+        code, err = self.run_main()
+        self.assertEqual(code, 1)
+        self.assertIn('graphify', err)
+        self.assertFalse((self.root / 'plugins').exists())  # nothing written
 
     def test_the_version_comes_from_the_package(self):
         init = self.root / 'src/youngcrow/__init__.py'

@@ -27,6 +27,8 @@ PERMISSIONS = {'read', 'write', 'network', 'data', 'environments', 'credential_e
 NATIVE = {'server', 'transport', 'url', 'command', 'args', 'credential_env',
           'enabled', 'allow_tools', 'deny_tools'}
 LEGACY = ('skills_de_projeto', 'skills_de_usuario', 'plugins')
+# The harness repository keeps its catalog in skills-lock.json; `youngcrow init` installs a core one.
+CATALOG_PATHS = ('skills-lock.json', '.youngcrow/capabilities.json')
 
 
 def require(condition, code='invalid_catalog'):
@@ -204,7 +206,7 @@ def validate_capability(cap):
         require(len(paths) == len({p.casefold() for p in paths}), 'duplicate_path')
     for path in paths:
         relative_path(path)
-        require(path != 'skills-lock.json', 'recursive_identity')
+        require(path not in CATALOG_PATHS, 'recursive_identity')
     permissions = cap['permissions']
     require(isinstance(permissions, dict) and set(permissions) == PERMISSIONS
             and all(strings(v) for v in permissions.values()))
@@ -253,8 +255,16 @@ def catalog_from_bytes(data):
     return catalog
 
 
+def catalog_path(root):
+    """The catalog file of the project: the first of CATALOG_PATHS that is there, so the repository's own
+    wins. With neither, the first, so a project without a catalog fails on the file it always named.
+    A link counts as there: reading it is refused, rather than falling through to the other catalog."""
+    return next((p for p in CATALOG_PATHS if os.path.lexists(Path(root) / p)), CATALOG_PATHS[0])
+
+
 def load_catalog(root):
-    return catalog_from_bytes(read_inputs(root, ['skills-lock.json'])['skills-lock.json'])
+    path = catalog_path(root)
+    return catalog_from_bytes(read_inputs(root, [path])[path])
 
 
 CONFIG_FILES = {'claude': ('.mcp.json', '.claude/settings.json'),
@@ -305,8 +315,9 @@ def inspect_client(root, client, *, records=None):
     main = docs.get(paths[0], {})
     settings = docs.get(paths[1], {})
     known_main = {'mcpServers'} if client == 'claude' else {'mcp_servers', 'skills', 'agents', 'features', 'hooks'}
-    known_settings = {'permissions', 'hooks', 'attribution', 'enabledMcpjsonServers',
-                      'disabledMcpjsonServers', 'enableAllProjectMcpServers'} if client == 'claude' else {'hooks'}
+    known_settings = {'permissions', 'hooks', 'attribution', 'enabledMcpjsonServers', 'disabledMcpjsonServers',
+                      'enableAllProjectMcpServers', 'enabledPlugins',
+                      'extraKnownMarketplaces'} if client == 'claude' else {'hooks'}
     if set(main) - known_main or set(settings) - known_settings:
         codes.add('unsupported_fields')
     if settings.get('hooks') or main.get('hooks'):
@@ -459,16 +470,18 @@ def audit(root, client):
     try:
         require(client in (*CLIENTS, 'both'), 'invalid_client')
         selected = CLIENTS if client == 'both' else (client,)
-        first = read_inputs(root, ['skills-lock.json'])['skills-lock.json']
+        manifest = catalog_path(root)
+        first = read_inputs(root, [manifest])[manifest]
         catalog = catalog_from_bytes(first)
-        paths = {'skills-lock.json'}
+        # Both catalog names are inputs: one that appears later would take over, so its absence is recorded too.
+        paths = set(CATALOG_PATHS)
         for c in selected:
             paths.update(CONFIG_FILES[c])
             for cap in catalog:
                 if c in cap['clients']:
                     paths.update(cap['files']['common'] + cap['files'][c])
         records = read_inputs(root, existing_inputs(root, paths))
-        require(records.get('skills-lock.json') == first, 'input_changed')
+        require(records.get(manifest) == first, 'input_changed')
         configs = {c: inspect_client(root, c, records=records) for c in selected}
         hashes = {p: hashlib.sha256(records[p]).hexdigest() if p in records else None for p in sorted(paths)}
         observations = []
@@ -505,7 +518,7 @@ def audit(root, client):
                 state = next(s for s in ('failed', 'unsupported', 'missing', 'changed', 'unverified', 'matched') if s in states)
                 observations.append(dict(id=cap['id'], client=c, required=cap['required'][c], state=state,
                     content_state=content, config_state=config_state, codes=sorted(set(codes + config_codes)),
-                    input_hashes={p: hashes[p] for p in sorted({'skills-lock.json', *files, *CONFIG_FILES[c]})},
+                    input_hashes={p: hashes[p] for p in sorted({*CATALOG_PATHS, *files, *CONFIG_FILES[c]})},
                     observed_version=None, runtime_proof=None))
         coverage = dict(limits=list(COVERAGE), files=hashes,
                         clients={c: dict(codes=configs[c]['codes'], server_count=len(configs[c]['servers'])) for c in selected})
@@ -565,10 +578,11 @@ def review_payload(root, capability_id, client):
     observations = [o for o in result['observations'] if o['id'] == capability_id]
     require(bool(observations), 'unknown_capability')
     # Use the same manifest revision that the auditor read, not a later catalog silently.
-    data = read_inputs(root, ['skills-lock.json', 'vault/project.json'])
-    manifest_hash = hashlib.sha256(data['skills-lock.json']).hexdigest()
-    require(all(o['input_hashes']['skills-lock.json'] == manifest_hash for o in observations), 'input_changed')
-    cap = next(c for c in catalog_from_bytes(data['skills-lock.json']) if c['id'] == capability_id)
+    manifest = catalog_path(root)
+    data = read_inputs(root, [manifest, 'vault/project.json'])
+    manifest_hash = hashlib.sha256(data[manifest]).hexdigest()
+    require(all(o['input_hashes'].get(manifest) == manifest_hash for o in observations), 'input_changed')
+    cap = next(c for c in catalog_from_bytes(data[manifest]) if c['id'] == capability_id)
     hashes = {p: digest for o in observations for p, digest in o['input_hashes'].items()}
     hashes['vault/project.json'] = hashlib.sha256(data['vault/project.json']).hexdigest()
     proposals = {}
@@ -576,7 +590,7 @@ def review_payload(root, capability_id, client):
         c = o['client']
         native = cap['native'].get(c, {})
         proposals[c] = dict(file=CONFIG_FILES[c][0], capability_id=capability_id,
-                            manifest_reference='skills-lock.json', fields=sorted(native),
+                            manifest_reference=manifest, fields=sorted(native),
                             expected=native_projection(native), action='manual_review_required')
     return dict(schema=1, project_id=project, capability_id=capability_id, client=client,
                 input_hashes=dict(sorted(hashes.items())), observations=observations,

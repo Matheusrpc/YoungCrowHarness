@@ -96,6 +96,63 @@ class UpgradeUndoTests(unittest.TestCase):
         self.assertIn('.youngcrow/scripts/memory.py', report.written)
         self.assertTrue(script.read_text().endswith('# mine\n'))
 
+    # The capability catalog follows the same rule as the other .youngcrow/ files (R19a).
+
+    CATALOG = '.youngcrow/capabilities.json'
+
+    def _with_catalog_template(self, text):
+        real = install._template
+        return mock.patch.object(install, '_template',
+                                 lambda *parts: text if parts == ('capabilities.json',) else real(*parts))
+
+    def test_upgrade_replaces_an_untouched_catalog_with_the_new_one(self):
+        init(self.root)
+        with self._with_catalog_template('{"version": 3, "capabilities": []}\n'):
+            report = upgrade(self.root)
+        self.assertEqual(report.written, [self.CATALOG])
+        self.assertEqual((self.root / self.CATALOG).read_text(), '{"version": 3, "capabilities": []}\n')
+        self.assertEqual(load(self.root).files[self.CATALOG], sha256_file(self.root / self.CATALOG))
+
+    def test_upgrade_keeps_a_catalog_the_user_edited(self):
+        init(self.root)
+        catalog = self.root / self.CATALOG
+        catalog.write_text('{"version": 3, "capabilities": [], "mine": true}\n')
+        with self._with_catalog_template('{"version": 3, "capabilities": []}\n'):
+            report = upgrade(self.root)
+        self.assertEqual((report.written, report.kept_modified), ([], [self.CATALOG]))
+        self.assertIn('"mine"', catalog.read_text())
+
+    def test_upgrade_writes_the_catalog_into_a_project_from_before_it_existed(self):
+        init(self.root)
+        (self.root / self.CATALOG).unlink()
+        manifest = load(self.root)
+        del manifest.files[self.CATALOG]
+        manifest.created.remove(self.CATALOG)
+        save(self.root, manifest)
+        report = upgrade(self.root)
+        self.assertEqual(report.written, [self.CATALOG])
+        self.assertTrue((self.root / self.CATALOG).is_file())
+        self.assertIn(self.CATALOG, load(self.root).created)
+
+    def test_upgrade_does_not_take_over_a_catalog_the_manifest_never_recorded(self):
+        init(self.root)
+        manifest = load(self.root)
+        del manifest.files[self.CATALOG]
+        manifest.created.remove(self.CATALOG)
+        save(self.root, manifest)
+        (self.root / self.CATALOG).write_text('mine\n')
+        report = upgrade(self.root)
+        self.assertEqual(report.kept_modified, [self.CATALOG])
+        self.assertEqual((self.root / self.CATALOG).read_text(), 'mine\n')
+
+    def test_undo_removes_an_untouched_catalog_and_keeps_an_edited_one(self):
+        init(self.root)
+        self.assertIn(self.CATALOG, undo(self.root).removed)
+        (self.root / self.CATALOG).write_text('{}\n')
+        report = undo(self.root, confirm=True)
+        self.assertIn(self.CATALOG, report.kept_modified)
+        self.assertEqual((self.root / self.CATALOG).read_text(), '{}\n')
+
     def test_upgrade_refuses_broken_markers(self):
         init(self.root)
         agents = self.root / 'AGENTS.md'

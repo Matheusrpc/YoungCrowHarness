@@ -6,7 +6,10 @@ agents in `.claude/agents/` and `.codex/agents/`, `scripts/source_prompt.py` and
 `src/youngcrow/__init__.py`. Only the five core skills go into the plugin. Their text is rewritten
 for a project that ran `youngcrow init`: `scripts/` becomes `.youngcrow/scripts/`, and a link to a
 skill the plugin does not ship becomes plain text. The agents name the skill instead of its path in
-the repository. Generated files are never edited by hand: change the source and run
+the repository. The catalog `init` installs as `.youngcrow/capabilities.json` is cut from
+`skills-lock.json`: the core entries, with the files `init` installs and the digests of those bytes,
+checked by the `scripts/capabilities.py` that ships. Generated files are never edited by hand:
+change the source and run
 
     python3 tools/build_plugin.py
 
@@ -15,6 +18,7 @@ Two files in the plugin are written by hand and the generator leaves them alone 
 """
 from pathlib import Path
 import argparse
+import importlib.util
 import json
 import re
 import sys
@@ -25,6 +29,12 @@ CORE_SKILLS = ('govern-capabilities', 'ingest-source', 'integrate-from-docs', 'p
 HANDWRITTEN = ('plugins/youngcrow/hooks/hooks.json', 'plugins/youngcrow/hooks/youngcrow_hook.py')
 PLUGIN = 'plugins/youngcrow'
 CODEX_AGENT = 'src/youngcrow/templates/codex/integration-specialist.toml'
+CATALOG = 'src/youngcrow/templates/capabilities.json'
+# Capabilities in the catalog `init` installs: the core skills, then the agent and the two optional runtimes.
+CATALOG_IDS = (*CORE_SKILLS, 'integration-specialist', 'docling', 'graphify')
+# Where `init` puts the Codex agent in a project, and the folder it puts the harness in.
+CODEX_AGENT_INSTALLED = '.codex/agents/integration-specialist.toml'
+INSTALLED = '.youngcrow/'
 NAME = 'youngcrow'
 OWNER = 'Matheusrpc'
 URL = 'https://github.com/Matheusrpc/YoungCrowHarness'
@@ -72,6 +82,67 @@ def _version(root: Path) -> str:
     return found[1]
 
 
+def _module(root: Path, relative: str, name: str):
+    """A Python file of the repository under `root`, imported by its path: the copy that ships is the copy that checks."""
+    path = root / relative
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    folder, keep = str(path.parent), sys.dont_write_bytecode
+    sys.path.insert(0, folder)  # capabilities.py imports document_store from its own folder
+    sys.dont_write_bytecode = True  # a build leaves no __pycache__ in the repository
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        sys.path.remove(folder)
+        sys.dont_write_bytecode = keep
+    return module
+
+
+def _catalog(root: Path, version: str, codex_agent: bytes) -> bytes:
+    """The catalog `init` installs as `.youngcrow/capabilities.json`, from the core entries of `skills-lock.json`.
+
+    Each entry keeps what the repository says about it (purpose, permissions, kind, clients, required, scope).
+    Its files are those it lists that `init` installs (`PAYLOAD`), under `.youngcrow/`: the skill pages live in
+    the plugin, and the scripts for missions are not installed, so listing them would report a missing file in
+    every project. The agent also lists the Codex file `init` writes from the template. The digests are those of
+    the bytes shipped, with None where an entry has no file to hash for a client.
+    """
+    capabilities = _module(root, 'scripts/capabilities.py', 'capabilities_for_build')
+    payload = _module(root, 'src/youngcrow/payload.py', 'payload_for_build').PAYLOAD
+    try:
+        lock = {cap['id']: cap for cap in capabilities.catalog_from_bytes((root / 'skills-lock.json').read_bytes())}
+    except ValueError as error:
+        raise RuntimeError(f'skills-lock.json is not a valid catalog: {error}') from error
+    shipped = {INSTALLED + rel: (root / rel).read_bytes() for rel in payload}
+    shipped[CODEX_AGENT_INSTALLED] = codex_agent
+    entries = []
+    for name in CATALOG_IDS:
+        if name not in lock:
+            raise RuntimeError(f'skills-lock.json has no capability {name!r}, which the catalog needs')
+        source = lock[name]
+        files = {'common': [INSTALLED + rel for rel in source['files']['common'] if rel in payload],
+                 'claude': [], 'codex': [CODEX_AGENT_INSTALLED] if name == 'integration-specialist' else []}
+        entry = {
+            'id': name, 'kind': source['kind'], 'purpose': source['purpose'], 'clients': source['clients'],
+            'scope': source['scope'], 'required': source['required'],
+            'origin': {'kind': 'marketplace', 'locator': URL, 'revision': None}, 'declared_version': version,
+            'files': files, 'permissions': source['permissions'], 'native': {},
+        }
+        found = {client: files['common'] + files[client] for client in entry['clients']}
+        entry['expected'] = {
+            'contract_sha256': capabilities.contract_digest(entry),
+            'files_sha256': {client: capabilities.records_digest({p: shipped[p] for p in paths}) if paths else None
+                             for client, paths in found.items()},
+        }
+        entries.append(entry)
+    data = _json({'version': 3, 'capabilities': entries})
+    try:
+        capabilities.catalog_from_bytes(data)  # what init installs is what the audit accepts
+    except ValueError as error:
+        raise RuntimeError(f'the generated catalog is not valid: {error}') from error
+    return data
+
+
 def render(root: Path) -> dict[str, bytes]:
     """Repository-relative path -> bytes of every generated file, read from the sources under `root`."""
     root = Path(root)
@@ -100,6 +171,7 @@ def render(root: Path) -> dict[str, bytes]:
         source = root / 'skills' / skill
         for page in sorted([source / 'SKILL.md', *source.glob('references/*.md')]):
             files[f'{PLUGIN}/skills/{skill}/{page.relative_to(source).as_posix()}'] = rewrite_skill(_text(page)).encode()
+    files[CATALOG] = _catalog(root, version, files[CODEX_AGENT])
     return dict(sorted(files.items()))
 
 

@@ -1,5 +1,6 @@
 """Capability contracts use real project files and Git; no providers or credentials."""
 import copy
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -38,6 +39,13 @@ class CapabilityCase(ProjectCase):
         self.save([cap])
         return [cap]
 
+    def install_catalog(self):
+        """Move the catalog to where `youngcrow init` puts it, and return the new path."""
+        target = self.root / caps.CATALOG_PATHS[1]
+        target.parent.mkdir(exist_ok=True)
+        (self.root / 'skills-lock.json').rename(target)
+        return target
+
     def cli(self, *args):
         return subprocess.run([sys.executable, '-B', str(ROOT / 'scripts/capabilities.py'),
                                '--root', str(self.root), *args], capture_output=True,
@@ -65,6 +73,41 @@ class CatalogTests(CapabilityCase):
                 wrapper = (ROOT / cap['files'][client][0]).read_text(encoding='utf-8')
                 self.assertIn('name: ' + cap['id'], wrapper)
                 self.assertIn('../../../skills/' + cap['id'] + '/SKILL.md', wrapper)
+
+    def test_the_repository_catalog_still_wins(self):
+        self.assertEqual(caps.catalog_path(ROOT), 'skills-lock.json')
+
+    def test_the_catalog_is_the_first_of_the_two_paths_that_exists(self):
+        self.assertEqual(caps.CATALOG_PATHS, ('skills-lock.json', '.youngcrow/capabilities.json'))
+        self.assertEqual(caps.catalog_path(self.root), 'skills-lock.json')  # neither: the error names this file
+        self.seed()
+        self.assertEqual(caps.catalog_path(self.root), 'skills-lock.json')
+        self.install_catalog()
+        self.assertEqual(caps.catalog_path(self.root), '.youngcrow/capabilities.json')
+        self.save([])  # both
+        self.assertEqual(caps.catalog_path(self.root), 'skills-lock.json')
+
+    def test_a_project_without_a_catalog_fails_naming_the_repository_file(self):
+        with self.assertRaises(OSError) as raised:
+            caps.load_catalog(self.root)
+        self.assertIn('skills-lock.json', str(raised.exception))
+        self.assertEqual(self.cli('list', '--json').returncode, 2)
+
+    def test_list_and_describe_read_the_installed_catalog(self):
+        self.seed()
+        self.install_catalog()
+        self.assertEqual([c['id'] for c in caps.load_catalog(self.root)], ['sample'])
+        listed = json.loads(self.cli('list', '--json').stdout)
+        self.assertEqual([c['id'] for c in listed], ['sample'])
+        self.assertEqual(json.loads(self.cli('describe', 'sample', '--json').stdout)['id'], 'sample')
+
+    def test_no_capability_lists_either_catalog_as_its_own_file(self):
+        for relative in caps.CATALOG_PATHS:
+            catalog = self.seed()
+            catalog[0]['files']['common'].append(relative)
+            self.save(catalog)
+            with self.subTest(path=relative), self.assertRaisesRegex(ValueError, 'recursive_identity'):
+                caps.load_catalog(self.root)
 
     def test_contract_wrapper_and_support_change_identity(self):
         cap = self.seed()[0]
@@ -226,6 +269,33 @@ class AuditTests(CapabilityCase):
         self.save(catalog)
         return catalog
 
+    def test_audit_reads_the_installed_catalog_and_hashes_it(self):
+        self.locked()
+        path = self.install_catalog()
+        result = caps.audit(self.root, 'codex')
+        self.assertEqual((result['exit_code'], result['observations'][0]['state']), (0, 'matched'))
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        self.assertEqual(result['observations'][0]['input_hashes']['.youngcrow/capabilities.json'], digest)
+        self.assertEqual(result['coverage']['files']['.youngcrow/capabilities.json'], digest)
+        self.assertEqual(json.loads(self.cli('audit', '--client', 'codex', '--json').stdout)['exit_code'], 0)
+
+    def test_audit_notes_that_the_repository_catalog_is_absent(self):
+        self.locked()
+        self.install_catalog()
+        hashes = caps.audit(self.root, 'codex')['observations'][0]['input_hashes']
+        self.assertIsNone(hashes['skills-lock.json'])  # a new one would take over, so its absence is an input
+
+    def test_claude_settings_the_plugin_wiring_adds_are_known_fields(self):
+        self.locked()
+        settings = self.root / '.claude/settings.json'
+        settings.parent.mkdir(exist_ok=True)
+        wiring = {'extraKnownMarketplaces': {'youngcrow': {'source': {'source': 'github', 'repo': 'o/r'}}},
+                  'enabledPlugins': {'youngcrow@youngcrow': True}}
+        settings.write_text(json.dumps(wiring), encoding='utf-8')
+        self.assertNotIn('unsupported_fields', json.dumps(caps.audit(self.root, 'claude')['coverage']))
+        settings.write_text(json.dumps({**wiring, 'somethingNew': 1}), encoding='utf-8')
+        self.assertIn('unsupported_fields', json.dumps(caps.audit(self.root, 'claude')['coverage']))
+
     def test_audit_is_readonly_and_selects_one_client(self):
         self.locked()
         (self.root / '.claude/skills/sample/SKILL.md').unlink()
@@ -359,6 +429,21 @@ class ReviewTests(CapabilityCase):
         config = self.root / '.codex/config.toml'
         config.parent.mkdir(exist_ok=True)
         config.write_text('[mcp_servers]\n', encoding='utf-8')
+        self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'changed')
+
+    def test_review_binds_to_the_installed_catalog_and_to_the_choice_of_catalog(self):
+        self.ready()
+        catalog = self.install_catalog()
+        receipt = caps.prepare_review(self.root, 'sample', 'codex')
+        bundle = json.loads((self.root / receipt['path']).read_text(encoding='utf-8'))
+        self.assertEqual(bundle['proposals']['codex']['manifest_reference'], '.youngcrow/capabilities.json')
+        self.assertIn('.youngcrow/capabilities.json', bundle['input_hashes'])
+        self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'current')
+        catalog.write_bytes(catalog.read_bytes() + b' ')
+        self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'changed')
+        catalog.write_bytes(catalog.read_bytes()[:-1])
+        self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'current')
+        (self.root / 'skills-lock.json').write_bytes(catalog.read_bytes())  # now this one wins
         self.assertEqual(caps.check_review(self.root, receipt['digest'])['state'], 'changed')
 
     def test_boundary_and_lock_fail_without_bundle(self):

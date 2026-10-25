@@ -165,11 +165,12 @@ def _load(root: Path) -> Manifest:
 
 
 def _harness_files(harness: str) -> dict[str, bytes]:
-    """The `.youngcrow/` files this package installs: VERSION, HARNESS.md and the payload."""
+    """The `.youngcrow/` files this package installs: VERSION, HARNESS.md, the catalog and the payload."""
     source = payload_root()
     return {
         '.youngcrow/VERSION': (__version__ + '\n').encode('utf-8'),
         '.youngcrow/HARNESS.md': harness.encode('utf-8'),
+        '.youngcrow/capabilities.json': _template('capabilities.json').encode('utf-8'),
         **{f'.youngcrow/{rel}': (source / rel).read_bytes() for rel in PAYLOAD},
     }
 
@@ -341,13 +342,13 @@ def init(root: Path, *, client: str = 'both', lang: str = 'en', rigor: str = 'li
          remove: Sequence[str] = ()) -> Report:
     """Install the harness into `root`.
 
-    Copies the scripts into `.youngcrow/`, creates the vault indexes that are missing (a sub-index
-    only when this run creates `vault/index.md` or the existing one already links to it), links the
-    rules into CLAUDE.md (import line) and AGENTS.md (block), adds the .gitignore block, and saves
-    the manifest. Raises ValueError for an unsupported option, UnsafePathError for a linked or
-    mistyped destination, ManagedBlockError for broken markers, AlreadyInitialized when the
-    project has a manifest or install leftovers. None of these writes anything. A write that fails
-    is rolled back before the error is raised again.
+    Copies the scripts and the capability catalog into `.youngcrow/`, creates the vault indexes that
+    are missing (a sub-index only when this run creates `vault/index.md` or the existing one already
+    links to it), links the rules into CLAUDE.md (import line) and AGENTS.md (block), adds the
+    .gitignore block, and saves the manifest. Raises ValueError for an unsupported option,
+    UnsafePathError for a linked or mistyped destination, ManagedBlockError for broken markers,
+    AlreadyInitialized when the project has a manifest or install leftovers. None of these writes
+    anything. A write that fails is rolled back before the error is raised again.
 
     `remove` lists project files to delete in the same run, before the install (`migrate` passes
     the copies an older `setup.sh` made). Each name must be a canonical relative path with `/`

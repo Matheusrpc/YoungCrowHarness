@@ -850,6 +850,19 @@ Nenhum deles edita nota existente do `vault/`, escreve através de link simbóli
 sobrescreve arquivo que você alterou. Quando um comando recusa (veja abaixo), não escreve nada; se
 falha no meio do caminho, devolve o que já fez.
 
+### Catálogo de capacidades no projeto
+
+O `init` grava `.youngcrow/capabilities.json`, o catálogo do núcleo: as cinco skills, o agente
+`integration-specialist` e os runtimes opcionais `docling` e `graphify`. Com ele,
+`python3 .youngcrow/scripts/capabilities.py list --json` e `audit` funcionam num projeto instalado, que
+não tem o `skills-lock.json` deste repositório. Quando o projeto tem os dois arquivos, vale o
+`skills-lock.json`. O catálogo lista só os arquivos que o `init` instala em `.youngcrow/`; as páginas das
+skills ficam de fora porque vêm no plugin, e o `audit` compara os scripts com os hashes que o catálogo
+registra. O `upgrade` e o `undo` tratam o arquivo como os outros de `.youngcrow/`: o `upgrade` o troca
+enquanto ele continua como foi instalado, o `undo` o apaga, e se você o editou os dois o deixam e o
+listam. O arquivo `.codex/agents/integration-specialist.toml` aparece como `missing` na auditoria até
+existir; o agente é opcional.
+
 ### Saída e códigos de saída
 
 A saída em texto traz um título por lista não vazia, seguido dos caminhos com recuo (os títulos saem
@@ -1648,6 +1661,19 @@ prints only the data.
 None of them edits an existing note in `vault/`, writes through a symbolic link or junction, or
 overwrites a file you changed. A command that refuses (see below) writes nothing, and one that fails
 halfway puts back what it did.
+
+### Capability catalog in the project
+
+`init` writes `.youngcrow/capabilities.json`, the core catalog: the five skills, the
+`integration-specialist` agent and the optional `docling` and `graphify` runtimes. With it,
+`python3 .youngcrow/scripts/capabilities.py list --json` and `audit` work in an installed project, which
+has no `skills-lock.json` of this repository. When a project has both files, `skills-lock.json` wins.
+The catalog lists only the files `init` installs under `.youngcrow/`; the skill pages are left out
+because they come in the plugin, and `audit` compares the scripts with the hashes the catalog records.
+`upgrade` and `undo` treat the file like the other files under `.youngcrow/`: `upgrade` replaces it
+while it still matches what was installed, `undo` deletes it, and if you edited it both leave it and
+list it. The file `.codex/agents/integration-specialist.toml` shows as `missing` in the audit until it
+exists; the agent is optional.
 
 ### Output and exit codes
 

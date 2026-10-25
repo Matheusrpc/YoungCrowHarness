@@ -32,6 +32,13 @@ def snapshot(root):
             for path in sorted(root.rglob('*'))}
 
 
+def run_installed(root, script, *args):
+    """stdout of `.youngcrow/scripts/<script> --root <root> <args>`, run the way a person would run it."""
+    run = subprocess.run([sys.executable, '-B', str(root / '.youngcrow/scripts' / script), '--root', str(root), *args],
+                         capture_output=True, text=True, timeout=120)
+    return run.stdout
+
+
 def frontmatter(text):
     lines = text.splitlines()
     return dict(line.split(': ', 1) for line in lines[1:lines.index('---', 1)])
@@ -112,7 +119,47 @@ class InitTests(unittest.TestCase):
                              (payload_root() / rel).read_bytes(), rel)
         self.assertEqual((self.root / '.youngcrow/VERSION').read_text(), youngcrow.__version__ + '\n')
         self.assertEqual(sorted(p.name for p in (self.root / '.youngcrow').iterdir()),
-                         ['HARNESS.md', 'VERSION', 'manifest.json', 'requirements', 'scripts'])
+                         ['HARNESS.md', 'VERSION', 'capabilities.json', 'manifest.json', 'requirements',
+                          'scripts'])
+
+    def test_init_installs_a_catalog_that_lists_the_core(self):
+        init(self.root)
+        out = run_installed(self.root, 'capabilities.py', 'list', '--json')
+        self.assertEqual(sorted(c['id'] for c in json.loads(out)), sorted([
+            'docling', 'govern-capabilities', 'graphify', 'ingest-source', 'integrate-from-docs',
+            'integration-specialist', 'personalizer', 'retrieve-memory']))
+
+    def test_a_fresh_init_audits_without_unsupported_fields(self):
+        init(self.root, client='both')
+        result = json.loads(run_installed(self.root, 'capabilities.py', 'audit', '--client', 'both', '--json'))
+        self.assertNotIn('unsupported_fields', json.dumps(result['coverage']))
+        self.assertTrue(all(o['content_state'] != 'changed' for o in result['observations']))
+
+    def test_a_fresh_init_matches_the_core_skills_and_names_no_file_it_does_not_install(self):
+        init(self.root, client='both')
+        result = json.loads(run_installed(self.root, 'capabilities.py', 'audit', '--client', 'both', '--json'))
+        self.assertEqual(result['exit_code'], 0)
+        states = {(o['id'], o['client']): o['content_state'] for o in result['observations']}
+        for skill in ('govern-capabilities', 'ingest-source', 'integrate-from-docs', 'personalizer', 'retrieve-memory'):
+            self.assertEqual([states[skill, c] for c in ('claude', 'codex')], ['matched', 'matched'], skill)
+        # The only file the catalog names that init may leave out is the Codex agent, which init writes in a later step.
+        missing = {key for key, state in states.items() if state == 'missing'}
+        self.assertLessEqual(missing, {('integration-specialist', 'codex')})
+
+    def test_the_catalog_is_the_packaged_template_and_is_recorded(self):
+        init(self.root)
+        rel = '.youngcrow/capabilities.json'
+        self.assertEqual((self.root / rel).read_bytes(), (TEMPLATES / 'capabilities.json').read_bytes())
+        manifest = load(self.root)
+        self.assertEqual(manifest.files[rel], sha256_file(self.root / rel))
+        self.assertIn(rel, manifest.created)
+
+    def test_an_existing_catalog_stops_init_before_any_write(self):
+        (self.root / '.youngcrow').mkdir()
+        (self.root / '.youngcrow/capabilities.json').write_text('{}')
+        with self.assertRaises(AlreadyInitialized):
+            init(self.root)
+        self.assertEqual(sorted(p.name for p in (self.root / '.youngcrow').iterdir()), ['capabilities.json'])
 
     def test_harness_md_states_the_light_core(self):
         init(self.root)
@@ -239,7 +286,8 @@ class InitTests(unittest.TestCase):
         manifest = load(self.root)
         self.assertEqual((manifest.version, manifest.client, manifest.lang, manifest.rigor),
                          (youngcrow.__version__, 'both', 'en', 'light'))
-        expected = {'.youngcrow/VERSION', '.youngcrow/HARNESS.md', 'CLAUDE.md', 'AGENTS.md', '.gitignore',
+        expected = {'.youngcrow/VERSION', '.youngcrow/HARNESS.md', '.youngcrow/capabilities.json',
+                    'CLAUDE.md', 'AGENTS.md', '.gitignore',
                     *(f'.youngcrow/{rel}' for rel in PAYLOAD), *VAULT_INDEXES}
         self.assertEqual(set(manifest.files), expected)
         self.assertEqual(set(manifest.created), expected)

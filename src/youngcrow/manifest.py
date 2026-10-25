@@ -4,7 +4,7 @@
 so `upgrade` and `undo` can tell a file that is still the installer's from one the user changed.
 `safe_target` is the gate for every destination: call it for all of them before the first write.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path, PurePath
 import hashlib
 import json
@@ -31,6 +31,7 @@ class Manifest:
     files: dict[str, str]  # relative path -> SHA-256 of what was written
     created: list[str]     # files that did not exist before
     edits: list[str]       # files that received a line or a block
+    json_edits: list[str] = field(default_factory=list)  # JSON files that received keys (.claude/settings.json)
 
 
 def sha256_file(path: Path) -> str:
@@ -98,6 +99,7 @@ def load(root: Path) -> Manifest | None:
         raise ValueError(f'{MANIFEST_PATH} must hold a JSON object.')
     if data.get('schema_version') != SCHEMA_VERSION:
         raise ValueError(f'{MANIFEST_PATH} has schema_version {data.get("schema_version")!r}; expected {SCHEMA_VERSION}.')
+    data.setdefault('json_edits', [])  # manifests written before it existed have none
     try:
         manifest = Manifest(*(data[name] for name in Manifest.__dataclass_fields__))
     except KeyError as error:
@@ -107,7 +109,7 @@ def load(root: Path) -> Manifest | None:
             and isinstance(manifest.files, dict)
             and all(isinstance(k, str) and isinstance(v, str) for k, v in manifest.files.items())
             and all(isinstance(names, list) and all(isinstance(n, str) for n in names)
-                    for names in (manifest.created, manifest.edits))):
+                    for names in (manifest.created, manifest.edits, manifest.json_edits))):
         raise ValueError(f'{MANIFEST_PATH} has a field of the wrong type.')
     return manifest
 

@@ -43,6 +43,17 @@ def _report_lines(report: Report) -> list[str]:
     return lines or ['Nothing changed.']
 
 
+def _next_steps(steps: list[str]) -> list[str]:
+    """What to do after an install, one line per client, below everything else."""
+    return ['', *_listing('Next steps:', steps)] if steps else []
+
+
+def _warn(report: Report) -> None:
+    """The report's warnings on stderr, in both modes, so `--json` output stays one object."""
+    for warning in report.warnings:
+        print(f'youngcrow: warning: {warning}', file=sys.stderr)
+
+
 def _legacy_notice(paths: list[str], *, migrated: bool) -> list[str]:
     """R26: the old rule files migrate keeps still hold the rules `.youngcrow/HARNESS.md` now carries."""
     carries = ('.youngcrow/HARNESS.md carries the rules now.' if migrated else
@@ -85,7 +96,8 @@ def _project_folder(root: Path):
 def _init(args: argparse.Namespace) -> Result:
     with _project_folder(args.root):
         report = init(args.root, client=args.client)
-    return report.to_json(), '\n'.join(_report_lines(report))
+    _warn(report)
+    return report.to_json(), '\n'.join(_report_lines(report) + _next_steps(report.next_steps))
 
 
 def _upgrade(args: argparse.Namespace) -> Result:
@@ -98,8 +110,7 @@ def _undo(args: argparse.Namespace) -> Result:
     lines = _report_lines(report)
     if not args.confirm:
         lines.insert(0, 'Preview only, nothing was changed. Add --confirm to undo.')
-    for warning in report.warnings:  # on stderr in both modes, so --json output stays one object
-        print(f'youngcrow: warning: {warning}', file=sys.stderr)
+    _warn(report)
     return {**report.to_json(), 'warnings': report.warnings}, '\n'.join(lines)
 
 
@@ -120,9 +131,12 @@ def _migrate(args: argparse.Namespace) -> Result:
     preview = scan(args.root)
     found = bool(preview.matches)  # not one unmodified copy: setup.sh never installed this project
     check = None
+    steps: list[str] = []
     if args.confirm:
         with _project_folder(args.root):
             report = apply(args.root, preview, client=args.client)
+        _warn(report)
+        steps = report.next_steps
         if not found:
             report.kept_modified = []  # the project's own files, not setup.sh copies someone edited
         # apply looked at the files again: only what it removed, and what it kept, count.
@@ -151,8 +165,9 @@ def _migrate(args: argparse.Namespace) -> Result:
         lines += ['', check['summary']]
         if check['exit_code']:
             lines.append('Run .youngcrow/scripts/vault.py check in the project to see each issue.')
+    lines += _next_steps(steps)
     data = {'applied': args.confirm, 'matches': matches, 'modified': modified, 'legacy_rules': rules,
-            'dangling_references': references, 'vault_check': check}
+            'dangling_references': references, 'vault_check': check, 'next_steps': steps}
     return data, '\n'.join(lines)
 
 

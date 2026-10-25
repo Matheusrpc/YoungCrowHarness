@@ -14,7 +14,7 @@ import unittest
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / 'src'))
 
-REPORT_KEYS = ['written', 'kept_modified', 'removed', 'skipped']
+REPORT_KEYS = ['written', 'kept_modified', 'removed', 'skipped', 'next_steps']
 
 
 class CliTests(unittest.TestCase):
@@ -56,6 +56,10 @@ class CliTests(unittest.TestCase):
         self._cli('init', '--root', str(self.root))
         self.assertEqual(self._cli('init', '--root', str(self.root)).returncode, 3)
 
+    def test_init_json_lists_next_steps(self):
+        report = json.loads(self._init('--json').stdout)
+        self.assertEqual(len(report['next_steps']), 2)
+
     def test_migrate_previews_by_default(self):
         run = self._cli('migrate', '--root', str(self.root), '--json')
         self.assertEqual(run.returncode, 0)
@@ -76,7 +80,25 @@ class CliTests(unittest.TestCase):
         self.assertIn('  CLAUDE.md', lines)
         for heading in ('Kept (you changed these):', 'Removed:'):
             self.assertNotIn(heading, lines)
-        self.assertEqual([line for line in lines if line and not line.startswith(' ')], ['Written:'])
+        self.assertEqual([line for line in lines if line and not line.startswith(' ')], ['Written:', 'Next steps:'])
+
+    def test_init_prints_the_next_steps_after_the_lists(self):
+        lines = self._init('--client', 'claude').stdout.splitlines()
+        self.assertEqual(lines[-3:], ['', 'Next steps:', '  Claude Code: open this folder and accept the workspace '
+                                      'trust prompt; it then offers the youngcrow plugin.'])
+        lines = self._cli('init', '--root', str(self.root / 'codex'), '--client', 'codex').stdout.splitlines()
+        self.assertEqual(lines[-1], '  Codex: run codex plugin marketplace add Matheusrpc/YoungCrowHarness, then '
+                                    'codex plugin add youngcrow@youngcrow, and trust its hooks in /hooks.')
+
+    def test_init_says_on_stderr_why_it_left_the_settings_alone(self):
+        self._legacy('.claude/settings.json', b'{oops')
+        run = self._init('--json')
+        report = json.loads(run.stdout)
+        self.assertNotIn('warnings', report)
+        self.assertIn('.claude/settings.json', report['skipped'])
+        self.assertIn('/plugin marketplace add', report['next_steps'][0])
+        self.assertTrue(run.stderr.startswith('youngcrow: warning: .claude/settings.json: '), run.stderr)
+        self.assertEqual(len(run.stderr.splitlines()), 1)
 
     def test_init_names_what_it_skipped(self):
         (self.root / '.gitignore').write_text('# youngcrow:start\n.env\n# youngcrow:end\n')
@@ -375,14 +397,16 @@ class CliTests(unittest.TestCase):
         run = self._cli('migrate', '--root', str(self.root), '--json')
         self.assertEqual(json.loads(run.stdout), {
             'applied': False, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'], 'legacy_rules': [],
-            'dangling_references': {}, 'vault_check': None})
+            'dangling_references': {}, 'vault_check': None, 'next_steps': []})
 
     def test_migrate_confirm_removes_the_matches_and_installs(self):
         shutil.copy(REPO / 'scripts/vault.py', self._dest('scripts/vault.py'))
         self._legacy('scripts/memory.py', b'# my change\n')
         run = self._cli('migrate', '--root', str(self.root), '--confirm', '--json')
         self.assertEqual(run.returncode, 0, run.stderr)
-        self.assertEqual(json.loads(run.stdout), {
+        report = json.loads(run.stdout)
+        self.assertEqual(len(report.pop('next_steps')), 2)
+        self.assertEqual(report, {
             'applied': True, 'matches': ['scripts/vault.py'], 'modified': ['scripts/memory.py'], 'legacy_rules': [],
             'dangling_references': {},
             'vault_check': {'exit_code': 0, 'summary': 'Vault: 3 notes checked; 0 issues. No files changed.'}})
@@ -398,6 +422,8 @@ class CliTests(unittest.TestCase):
         lines = run.stdout.splitlines()
         self.assertIn('  .youngcrow/VERSION', lines)
         self.assertEqual(lines[lines.index('Removed:') + 1], '  scripts/vault.py')
+        self.assertEqual(lines[-3], 'Next steps:')  # after the lists and the vault check
+        self.assertLess(lines.index('Vault: 3 notes checked; 0 issues. No files changed.'), len(lines) - 3)
 
     def test_a_migrate_preview_does_not_check_the_client(self):
         run = self._cli('migrate', '--root', str(self.root), '--client', 'cursor', '--json')

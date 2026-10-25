@@ -24,6 +24,7 @@ from youngcrow.manifest import load, sha256_file  # noqa: E402
 from youngcrow.migrate import (  # noqa: E402
     LEGACY_PATHS, MigrationPreview, apply, dangling_references, is_legacy_path, legacy_hashes, scan, vault_check,
 )
+from youngcrow.settings import WIRING  # noqa: E402
 
 FOLDERS = {'skills/*', '.claude/skills/*', '.agents/skills/*'}
 
@@ -301,11 +302,28 @@ class MigrateTests(unittest.TestCase):
             self.assertFalse((self.root / rel).exists(), rel)
             self.assertIn(rel, report.removed)
         self.assertEqual(preview.modified, ['.claude/settings.json'])
-        self.assertEqual((self.root / '.claude/settings.json').read_bytes(), b'{"mine": true}\n')
+        # Kept, with the plugin wired in after the user's own key; init saved the bytes it found.
+        self.assertEqual(json.loads((self.root / '.claude/settings.json').read_bytes()), {'mine': True, **WIRING})
+        self.assertEqual((self.root / '.youngcrow/originals/.claude/settings.json').read_bytes(), b'{"mine": true}\n')
         self.assertEqual(report.kept_modified, ['.claude/settings.json'])
         self.assertIn('.youngcrow/scripts/vault.py', report.written)
         self.assertTrue((self.root / '.youngcrow/scripts/vault.py').is_file())
         self.assertEqual(load(self.root).client, 'both')
+
+    def test_unmodified_legacy_client_files_are_removed_and_written_anew(self):
+        settings, agent = '.claude/settings.json', '.codex/agents/integration-specialist.toml'
+        self.legacy(settings, b'{"hooks": {"old": []}}\n')
+        self.legacy(agent, b'name = "old"\n')
+        report = apply(self.root, scan(self.root))
+        self.assertEqual(json.loads((self.root / settings).read_bytes()), WIRING)
+        self.assertEqual((self.root / agent).read_bytes(),
+                         files('youngcrow').joinpath('templates/codex/integration-specialist.toml').read_bytes())
+        manifest = load(self.root)
+        for rel in (settings, agent):
+            self.assertIn(rel, report.removed)
+            self.assertIn(rel, report.written)
+            self.assertIn(rel, manifest.created)
+        self.assertFalse((self.root / '.youngcrow/originals').exists())
 
     def test_apply_removes_the_folders_it_empties_and_only_those(self):
         self.legacy('scripts/vault.py')

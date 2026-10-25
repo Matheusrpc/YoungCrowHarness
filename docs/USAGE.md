@@ -830,17 +830,27 @@ só os dados.
 - `init` grava os arquivos de `.youngcrow/`, os índices do vault que faltarem (`vault/index.md`,
   `vault/integrations/index.md` e `vault/capabilities/index.md`), uma linha de import
   (`@.youngcrow/HARNESS.md`) no `CLAUDE.md`, um bloco marcado no `AGENTS.md` e outro no `.gitignore`.
-  Cria `CLAUDE.md`, `AGENTS.md` ou `.gitignore` quando eles não existem. `--client claude` não mexe no
-  `AGENTS.md`; `--client codex` não mexe no `CLAUDE.md`. Se você já tem um `vault/index.md`, o `init`
-  cria um subíndice que falta só quando o seu índice aponta para ele; do contrário, pula o subíndice e
-  o lista em `Skipped:`.
-- `upgrade` atualiza os arquivos de `.youngcrow/` que ainda estão como foram instalados, traz os
-  arquivos que a nova versão acrescenta, remove os que ela abandonou (se você não os alterou) e troca o
-  bloco do `AGENTS.md` quando você não o editou. Arquivo que você alterou fica no lugar e aparece na
-  lista.
+  Cria `CLAUDE.md`, `AGENTS.md` ou `.gitignore` quando eles não existem. Se você já tem um
+  `vault/index.md`, o `init` cria um subíndice que falta só quando o seu índice aponta para ele; do
+  contrário, pula o subíndice e o lista em `Skipped:`.
+- O `init` também liga os clientes. No Claude Code, acrescenta ao `.claude/settings.json` o
+  marketplace `youngcrow` e ativa o plugin `youngcrow@youngcrow`, criando o arquivo se ele não existe;
+  o plugin carrega depois que você confia na pasta. Se o arquivo já existia, o `init` guarda os bytes
+  originais em `.youngcrow/originals/.claude/settings.json`. Um `settings.json` que não é um objeto
+  JSON em UTF-8, ou que já dá outro valor a uma dessas chaves, fica como está: aparece em `Skipped:`, o
+  motivo vai para stderr e os próximos passos trazem a instalação manual. No Codex, grava
+  `.codex/agents/integration-specialist.toml` quando o arquivo não existe. `--client claude` não mexe
+  no `AGENTS.md` nem em `.codex/`; `--client codex` não mexe no `CLAUDE.md` nem em `.claude/`. No fim,
+  imprime o que fazer em cada cliente, sob `Next steps:`.
+- `upgrade` atualiza os arquivos de `.youngcrow/` e o agente do Codex que ainda estão como foram
+  instalados, traz os arquivos que a nova versão acrescenta, remove os que ela abandonou (se você não
+  os alterou) e troca o bloco do `AGENTS.md` quando você não o editou. Não mexe no
+  `.claude/settings.json`. Arquivo que você alterou fica no lugar e aparece na lista.
 - `undo --confirm` apaga os arquivos que o `init` criou, a menos que você os tenha editado; os
   editados ficam, sem as linhas que o `init` acrescentou. Nos arquivos que já existiam antes do `init`,
-  tira só essas linhas e devolve os bytes originais. Quando tira o bloco do `.gitignore` e há um arquivo
+  tira só essas linhas e devolve os bytes originais. O `.claude/settings.json` que você não mudou volta
+  aos bytes de antes do `init`; se você o mudou, saem só as chaves do youngcrow e o arquivo aparece na
+  lista. Quando tira o bloco do `.gitignore` e há um arquivo
   `.env` ou `.env.*` (fora o `.env.example`) na raiz do projeto, ele avisa em stderr (`--json`:
   `warnings`), porque o git pode passar a ver esse arquivo.
 - `migrate --confirm` apaga as cópias antigas do `setup.sh` que coincidem, byte a byte, com uma versão
@@ -861,8 +871,9 @@ não tem o `skills-lock.json` deste repositório. Num projeto que o `init` insta
 instala em `.youngcrow/`; as páginas das skills ficam de fora porque vêm no plugin, e o `audit` compara
 os scripts com os hashes que o catálogo registra. O `upgrade` e o `undo` tratam o arquivo como os
 outros de `.youngcrow/`: o `upgrade` o troca enquanto ele continua como foi instalado, o `undo` o
-apaga, e se você o editou os dois o deixam e o listam. O arquivo
-`.codex/agents/integration-specialist.toml` aparece como `missing` na auditoria até existir; o agente é
+apaga, e se você o editou os dois o deixam e o listam. O `init` grava
+`.codex/agents/integration-specialist.toml` com `--client codex` ou `both`, então a auditoria de uma
+instalação nova o mostra como `matched`; com `--client claude` ele aparece como `missing`, e o agente é
 opcional.
 
 ### Saída e códigos de saída
@@ -876,13 +887,16 @@ em inglês):
   as linhas que ele mesmo acrescentou.
 - `Removed:` arquivos apagados. No `undo`, entram também o manifesto e as pastas que ficaram vazias;
   nomes de pasta terminam em `/`.
-- `Skipped:` arquivos que o `init` deixou como estavam porque já tinham o que ele precisava, e
-  subíndices do vault para os quais o seu `vault/index.md` não aponta.
+- `Skipped:` arquivos que o `init` deixou como estavam porque já tinham o que ele precisava, um
+  `.claude/settings.json` que ele não pode editar, um agente do Codex que já existe e subíndices do
+  vault para os quais o seu `vault/index.md` não aponta.
 
-`--json` imprime as mesmas quatro listas como `written`, `kept_modified`, `removed` e `skipped`; o
-`undo --json` acrescenta `warnings`. `migrate --json` imprime `applied`, `matches` (as cópias removidas
-ou, na prévia, as que seriam removidas), `modified`, `legacy_rules`, `dangling_references` e
-`vault_check`.
+Depois das listas, o `init` e o `migrate --confirm` imprimem `Next steps:`, uma linha por cliente.
+
+`--json` imprime as mesmas quatro listas como `written`, `kept_modified`, `removed` e `skipped`, mais
+`next_steps`; o `undo --json` acrescenta `warnings`. `migrate --json` imprime `applied`, `matches` (as
+cópias removidas ou, na prévia, as que seriam removidas), `modified`, `legacy_rules`,
+`dangling_references`, `vault_check` e `next_steps`.
 
 O código de saída é 0 quando o comando rodou, 2 para linha de comando errada e 3 quando o youngcrow
 recusou mexer no projeto; a recusa escreve o motivo em stderr. Ele recusa quando o projeto já tem
@@ -903,8 +917,9 @@ e não lista os seus arquivos como cópias editadas; nesse caso, o `--confirm` i
 
 Nesta prévia, o `migrate --confirm` também apaga as skills antigas (`skills/`, `.claude/skills/`,
 `.agents/skills/`), o agente `integration-specialist`, o `.claude/settings.json`, o `.codex/hooks.json`,
-o `.codex/config.toml` e o `.mcp.json`, desde que você não os tenha alterado. Nada nesta prévia os
-substitui ainda; o plugin chega numa versão posterior. Os scripts passam para `.youngcrow/scripts/`,
+o `.codex/config.toml` e o `.mcp.json`, desde que você não os tenha alterado. O `init` que vem em
+seguida grava de novo o agente do Codex e ativa o plugin `youngcrow` no `.claude/settings.json`; as
+skills e os hooks passam a vir do plugin. Os scripts passam para `.youngcrow/scripts/`,
 então atualize qualquer Makefile, job de CI ou hook que chame `scripts/...`. Rodar `undo` depois do
 `migrate` tira a instalação nova, mas não devolve o que o `migrate` removeu. Recupere esses arquivos
 pelo git.
@@ -1645,16 +1660,27 @@ prints only the data.
 - `init` writes the files under `.youngcrow/`, the vault indexes that are missing (`vault/index.md`,
   `vault/integrations/index.md` and `vault/capabilities/index.md`), one import line
   (`@.youngcrow/HARNESS.md`) in `CLAUDE.md`, one marked block in `AGENTS.md` and one in `.gitignore`.
-  It creates `CLAUDE.md`, `AGENTS.md` or `.gitignore` when they do not exist. `--client claude` leaves
-  `AGENTS.md` alone; `--client codex` leaves `CLAUDE.md` alone. If you already have a `vault/index.md`,
-  `init` creates a missing sub-index only when your index links to it; otherwise it skips it and lists
-  it under `Skipped:`.
-- `upgrade` refreshes the files under `.youngcrow/` that still match what was installed, adds the
-  files the new release brings, removes the ones it dropped (if you did not change them) and replaces
-  the `AGENTS.md` block when you did not edit it. A file you changed stays and is listed.
+  It creates `CLAUDE.md`, `AGENTS.md` or `.gitignore` when they do not exist. If you already have a
+  `vault/index.md`, `init` creates a missing sub-index only when your index links to it; otherwise it
+  skips it and lists it under `Skipped:`.
+- `init` also wires the clients. For Claude Code it adds the `youngcrow` marketplace and turns on the
+  `youngcrow@youngcrow` plugin in `.claude/settings.json`, creating the file if needed; the plugin
+  loads once you trust the folder. When the file already existed, `init` saves its original bytes in
+  `.youngcrow/originals/.claude/settings.json`. A `settings.json` that is not a JSON object in UTF-8,
+  or that already gives one of those keys another value, stays as it is: it is listed under
+  `Skipped:`, the reason goes to stderr, and the next steps give the manual install. For Codex it
+  writes `.codex/agents/integration-specialist.toml` when that file does not exist. `--client claude`
+  leaves `AGENTS.md` and `.codex/` alone; `--client codex` leaves `CLAUDE.md` and `.claude/` alone.
+  At the end it prints what to do next in each client, under `Next steps:`.
+- `upgrade` refreshes the files under `.youngcrow/` and the Codex agent file while they still match
+  what was installed, adds the files the new release brings, removes the ones it dropped (if you did
+  not change them) and replaces the `AGENTS.md` block when you did not edit it. It does not touch
+  `.claude/settings.json`. A file you changed stays and is listed.
 - `undo --confirm` deletes the files `init` created, unless you edited them; edited ones stay, minus
   the lines `init` added. In files that existed before `init`, it takes out only those lines and
-  restores the original bytes. When it takes the block out of `.gitignore` and a `.env` or `.env.*`
+  restores the original bytes. A `.claude/settings.json` you did not change gets back its bytes from
+  before `init`; once you changed it, only the youngcrow keys come out and the file is listed. When it
+  takes the block out of `.gitignore` and a `.env` or `.env.*`
   file (other than `.env.example`) sits in the project root, it prints a warning on stderr (`--json`:
   `warnings`), because git may now see that file.
 - `migrate --confirm` deletes the old `setup.sh` copies that match, byte for byte, a version this
@@ -1676,8 +1702,9 @@ has no `skills-lock.json` of this repository. In a project that `init` installed
 `audit` compares the scripts with the hashes the catalog records.
 `upgrade` and `undo` treat the file like the other files under `.youngcrow/`: `upgrade` replaces it
 while it still matches what was installed, `undo` deletes it, and if you edited it both leave it and
-list it. The file `.codex/agents/integration-specialist.toml` shows as `missing` in the audit until it
-exists; the agent is optional.
+list it. `init` writes `.codex/agents/integration-specialist.toml` with `--client codex` or `both`, so a
+fresh install audits it as `matched`; with `--client claude` it shows as `missing`, and the agent is
+optional.
 
 ### Output and exit codes
 
@@ -1689,13 +1716,16 @@ Plain output has one heading per non-empty list, followed by indented paths:
   its own lines.
 - `Removed:` files deleted. For `undo` this also lists the manifest and the folders left empty; folder
   names end with `/`.
-- `Skipped:` files `init` left alone because they already had what it needed, and vault sub-indexes
-  your own `vault/index.md` does not link to.
+- `Skipped:` files `init` left alone because they already had what it needed, a
+  `.claude/settings.json` it cannot edit, a Codex agent file that already exists, and vault
+  sub-indexes your own `vault/index.md` does not link to.
 
-`--json` prints the same four lists as `written`, `kept_modified`, `removed` and `skipped`;
-`undo --json` adds `warnings`. `migrate --json` prints `applied`, `matches` (the copies removed or, in
-a preview, the ones that would be), `modified`, `legacy_rules`, `dangling_references` and
-`vault_check`.
+After the lists, `init` and `migrate --confirm` print `Next steps:`, one line per client.
+
+`--json` prints the same four lists as `written`, `kept_modified`, `removed` and `skipped`, plus
+`next_steps`; `undo --json` adds `warnings`. `migrate --json` prints `applied`, `matches` (the copies
+removed or, in a preview, the ones that would be), `modified`, `legacy_rules`, `dangling_references`,
+`vault_check` and `next_steps`.
 
 The exit code is 0 when the command ran, 2 for a wrong command line and 3 when youngcrow refused to
 touch the project; a refusal prints its reason on stderr. It refuses when the project is already set
@@ -1716,8 +1746,9 @@ edited copies; `--confirm` then installs like `init`.
 
 In this preview, `migrate --confirm` also deletes the old skills (`skills/`, `.claude/skills/`,
 `.agents/skills/`), the `integration-specialist` agent, `.claude/settings.json`, `.codex/hooks.json`,
-`.codex/config.toml` and `.mcp.json`, as long as you have not changed them. Nothing in this preview
-replaces them yet; the plugin comes in a later release. The scripts move to `.youngcrow/scripts/`, so
+`.codex/config.toml` and `.mcp.json`, as long as you have not changed them. The `init` that follows
+writes the Codex agent again and turns on the `youngcrow` plugin in `.claude/settings.json`; the skills
+and hooks now come from the plugin. The scripts move to `.youngcrow/scripts/`, so
 update any Makefile, CI job or hook that calls `scripts/...`. Running `undo` after `migrate` takes out
 the new install but does not bring back what `migrate` removed. Restore those files with git.
 

@@ -15,21 +15,38 @@ sys.path.insert(0, str(ROOT / 'src'))
 
 import youngcrow  # noqa: E402
 from youngcrow.blocks import MD_END, MD_START, ManagedBlockError  # noqa: E402
-from youngcrow.install import AlreadyInitialized, Report, init  # noqa: E402
+from youngcrow.install import AlreadyInitialized, Report, init, undo  # noqa: E402
 from youngcrow.manifest import UnsafePathError, load, sha256_file  # noqa: E402
 from youngcrow.payload import PAYLOAD, payload_root  # noqa: E402
+from youngcrow.settings import WIRING  # noqa: E402
 
 IMPORT = '@.youngcrow/HARNESS.md'
 VAULT_INDEXES = ('vault/index.md', 'vault/integrations/index.md', 'vault/capabilities/index.md')
 TEMPLATES = ROOT / 'src' / 'youngcrow' / 'templates'
 GITIGNORE_BLOCK = ('# youngcrow:start\n.env\n.env.*\n!.env.example\n.operacao-local/\nvault/local/\n'
                    '# youngcrow:end\n')
+SETTINGS = '.claude/settings.json'
+AGENT = '.codex/agents/integration-specialist.toml'
+ORIGINAL = '.youngcrow/originals/.claude/settings.json'
+CLAUDE_STEP = 'Claude Code: open this folder and accept the workspace trust prompt; it then offers the youngcrow plugin.'
+CLAUDE_MANUAL_STEP = ('Claude Code: /plugin marketplace add Matheusrpc/YoungCrowHarness, then /plugin install '
+                      'youngcrow@youngcrow --scope project.')
+CODEX_STEP = ('Codex: run codex plugin marketplace add Matheusrpc/YoungCrowHarness, then codex plugin add '
+              'youngcrow@youngcrow, and trust its hooks in /hooks.')
 
 
 def snapshot(root):
     """Every file and folder under root: relative path -> bytes (None for a folder)."""
     return {path.relative_to(root).as_posix(): path.read_bytes() if path.is_file() else None
             for path in sorted(root.rglob('*'))}
+
+
+def add_permission(root, rule):
+    """What a person may do after init: allow one more tool in the project's Claude settings."""
+    path = root / SETTINGS
+    data = json.loads(path.read_text(encoding='utf-8'))
+    data.setdefault('permissions', {}).setdefault('allow', []).append(rule)
+    path.write_text(json.dumps(data, indent=4) + '\n', encoding='utf-8')
 
 
 def run_installed(root, script, *args):
@@ -150,9 +167,9 @@ class InitTests(unittest.TestCase):
         states = {(o['id'], o['client']): o['content_state'] for o in result['observations']}
         for skill in ('govern-capabilities', 'ingest-source', 'integrate-from-docs', 'personalizer', 'retrieve-memory'):
             self.assertEqual([states[skill, c] for c in ('claude', 'codex')], ['matched', 'matched'], skill)
-        # The only file the catalog names that init may leave out is the Codex agent, which init writes in a later step.
-        missing = {key for key, state in states.items() if state == 'missing'}
-        self.assertLessEqual(missing, {('integration-specialist', 'codex')})
+        # init writes the Codex agent byte for byte from the template the catalog pins.
+        self.assertEqual(states['integration-specialist', 'codex'], 'matched')
+        self.assertEqual([key for key, state in states.items() if state == 'missing'], [])
 
     def test_the_catalog_is_the_packaged_template_and_is_recorded(self):
         init(self.root)
@@ -295,12 +312,13 @@ class InitTests(unittest.TestCase):
         self.assertEqual((manifest.version, manifest.client, manifest.lang, manifest.rigor),
                          (youngcrow.__version__, 'both', 'en', 'light'))
         expected = {'.youngcrow/VERSION', '.youngcrow/HARNESS.md', '.youngcrow/capabilities.json',
-                    'CLAUDE.md', 'AGENTS.md', '.gitignore',
+                    'CLAUDE.md', 'AGENTS.md', '.gitignore', SETTINGS, AGENT,
                     *(f'.youngcrow/{rel}' for rel in PAYLOAD), *VAULT_INDEXES}
         self.assertEqual(set(manifest.files), expected)
         self.assertEqual(set(manifest.created), expected)
         self.assertEqual(len(manifest.created), len(expected))
         self.assertEqual(sorted(manifest.edits), ['.gitignore', 'AGENTS.md', 'CLAUDE.md'])
+        self.assertEqual(manifest.json_edits, [SETTINGS])
         self.assertNotIn('.youngcrow/manifest.json', manifest.files)
         for rel, digest in manifest.files.items():
             self.assertEqual(digest, hashlib.sha256((self.root / rel).read_bytes()).hexdigest(), rel)
@@ -589,9 +607,226 @@ class InitTests(unittest.TestCase):
         report = init(self.root)
         self.assertIsInstance(report, Report)
         data = report.to_json()
-        self.assertEqual(sorted(data), ['kept_modified', 'removed', 'skipped', 'written'])
+        self.assertEqual(sorted(data), ['kept_modified', 'next_steps', 'removed', 'skipped', 'written'])
         self.assertEqual(json.loads(json.dumps(data)), data)
 
+    # The clients (R36, R37): the plugin in .claude/settings.json, the Codex agent, the next steps.
+
+    def test_undo_restores_untouched_settings_byte_for_byte(self):
+        original = b'{"hooks": {}}\n'
+        self.write(SETTINGS, original)
+        init(self.root)
+        undo(self.root, confirm=True)
+        self.assertEqual((self.root / SETTINGS).read_bytes(), original)
+
+    def test_undo_after_the_user_edits_settings_keeps_their_edit(self):
+        init(self.root)
+        add_permission(self.root, 'Read')
+        report = undo(self.root, confirm=True)
+        data = json.loads((self.root / SETTINGS).read_text())
+        self.assertEqual(data, {'permissions': {'allow': ['Read']}})
+        self.assertIn(SETTINGS, report.kept_modified)
+
+    def test_invalid_settings_are_skipped_untouched(self):
+        self.write(SETTINGS, b'{oops')
+        report = init(self.root)
+        self.assertEqual((self.root / SETTINGS).read_bytes(), b'{oops')
+        self.assertIn(SETTINGS, report.skipped)
+        self.assertTrue(any('/plugin marketplace add' in s for s in report.next_steps))
+
+    def test_codex_agent_is_written_and_undone(self):
+        init(self.root, client='codex')
+        self.assertTrue((self.root / AGENT).is_file())
+        self.assertFalse((self.root / SETTINGS).exists())
+        undo(self.root, confirm=True)
+        self.assertEqual(snapshot(self.root), {})
+
+    def test_a_fresh_init_wires_both_clients_and_records_both_files(self):
+        report = init(self.root)
+        self.assertEqual(json.loads((self.root / SETTINGS).read_bytes()), WIRING)
+        self.assertEqual((self.root / AGENT).read_bytes(),
+                         (TEMPLATES / 'codex/integration-specialist.toml').read_bytes())
+        manifest = load(self.root)
+        for rel in (SETTINGS, AGENT):
+            self.assertIn(rel, report.written)
+            self.assertIn(rel, manifest.created)
+            self.assertEqual(manifest.files[rel], sha256_file(self.root / rel), rel)
+        self.assertNotIn(SETTINGS, manifest.edits)
+        self.assertFalse((self.root / '.youngcrow/originals').exists())
+        self.assertEqual(report.next_steps, [CLAUDE_STEP, CODEX_STEP])
+
+    def test_client_claude_writes_no_codex_agent_and_client_codex_no_settings(self):
+        report = init(self.root, client='claude')
+        self.assertFalse((self.root / '.codex').exists())
+        self.assertEqual(json.loads((self.root / SETTINGS).read_bytes()), WIRING)
+        self.assertEqual(report.next_steps, [CLAUDE_STEP])
+        undo(self.root, confirm=True)
+        report = init(self.root, client='codex')
+        self.assertFalse((self.root / '.claude').exists())
+        self.assertEqual(load(self.root).json_edits, [])
+        self.assertEqual(report.next_steps, [CODEX_STEP])
+
+    def test_existing_settings_get_the_wiring_and_their_bytes_are_saved(self):
+        original = b'{\r\n  "enabledPlugins": {"other@x": true},\r\n  "model": "opus"\r\n}\r\n'
+        self.write(SETTINGS, original)
+        report = init(self.root)
+        data = (self.root / SETTINGS).read_bytes()
+        self.assertEqual(data.count(b'\n'), data.count(b'\r\n'))
+        self.assertEqual(json.loads(data), {'enabledPlugins': {'other@x': True, 'youngcrow@youngcrow': True},
+                                            'model': 'opus',
+                                            'extraKnownMarketplaces': WIRING['extraKnownMarketplaces']})
+        self.assertEqual((self.root / ORIGINAL).read_bytes(), original)
+        manifest = load(self.root)
+        self.assertEqual(manifest.json_edits, [SETTINGS])
+        self.assertNotIn(SETTINGS, manifest.created + manifest.edits)
+        self.assertEqual(manifest.files[SETTINGS], sha256_file(self.root / SETTINGS))
+        self.assertIn(ORIGINAL, manifest.created)
+        self.assertEqual(manifest.files[ORIGINAL], hashlib.sha256(original).hexdigest())
+        self.assertIn(SETTINGS, report.written)
+        self.assertEqual(report.next_steps[0], CLAUDE_STEP)
+
+    def test_settings_that_already_hold_the_wiring_are_skipped_untouched(self):
+        own = json.dumps({'model': 'opus', **WIRING}).encode()
+        self.write(SETTINGS, own)
+        report = init(self.root)
+        manifest = load(self.root)
+        self.assertEqual((self.root / SETTINGS).read_bytes(), own)
+        self.assertIn(SETTINGS, report.skipped)
+        self.assertNotIn(SETTINGS, manifest.files)
+        self.assertEqual(manifest.json_edits, [])
+        self.assertFalse((self.root / '.youngcrow/originals').exists())
+        self.assertEqual(report.next_steps[0], CLAUDE_STEP)
+        undo(self.root, confirm=True)
+        self.assertEqual(snapshot(self.root), {'.claude': None, SETTINGS: own})
+
+    def test_settings_init_cannot_own_are_skipped_with_the_reason_and_the_manual_step(self):
+        for data in (b'caf\xe9', b'[]', b'{"enabledPlugins": []}', b'{"enabledPlugins": {"youngcrow@youngcrow": false}}'):
+            with self.subTest(data=data):
+                self.write(SETTINGS, data)
+                before = snapshot(self.root)
+                report = init(self.root)
+                self.assertEqual((self.root / SETTINGS).read_bytes(), data)
+                self.assertIn(SETTINGS, report.skipped)
+                self.assertNotIn(SETTINGS, load(self.root).files)
+                self.assertEqual(report.next_steps, [CLAUDE_MANUAL_STEP, CODEX_STEP])
+                self.assertEqual(len(report.warnings), 1)
+                self.assertTrue(report.warnings[0].startswith(SETTINGS + ': '), report.warnings)
+                undo(self.root, confirm=True)
+                self.assertEqual(snapshot(self.root), before)
+
+    def test_an_existing_codex_agent_is_skipped_untouched(self):
+        self.write(AGENT, b'name = "mine"\n')
+        report = init(self.root)
+        self.assertEqual((self.root / AGENT).read_bytes(), b'name = "mine"\n')
+        self.assertIn(AGENT, report.skipped)
+        self.assertNotIn(AGENT, load(self.root).files)
+        self.assertEqual(report.next_steps[-1], CODEX_STEP)
+        undo(self.root, confirm=True)
+        self.assertEqual((self.root / AGENT).read_bytes(), b'name = "mine"\n')
+
+    def test_a_linked_claude_folder_or_settings_file_refuses_before_any_write(self):
+        (self.other / 'settings.json').write_bytes(b'{}\n')
+        for link, target, directory in (('.claude', self.other, True), (SETTINGS, self.other / 'settings.json', False)):
+            with self.subTest(link=link):
+                (self.root / link).parent.mkdir(exist_ok=True)
+                self.symlink(target, self.root / link, directory=directory)
+                with self.assertRaises(UnsafePathError):
+                    init(self.root)
+                self.assertFalse((self.root / '.youngcrow').exists())
+                self.assertFalse((self.root / 'CLAUDE.md').exists())
+                self.assertEqual(sorted(p.name for p in self.other.iterdir()), ['settings.json'])
+                self.assertEqual((self.other / 'settings.json').read_bytes(), b'{}\n')
+                init(self.root, client='codex')  # Codex never looks at .claude
+                undo(self.root, confirm=True)
+                (self.root / link).unlink()
+
+    def test_a_linked_codex_folder_refuses_before_any_write(self):
+        self.symlink(self.other, self.root / '.codex', directory=True)
+        with self.assertRaises(UnsafePathError):
+            init(self.root)
+        self.assertNothingWritten()
+        init(self.root, client='claude')  # Claude never looks at .codex
+        self.assertEqual(list(self.other.iterdir()), [])
+
+    def test_a_leftover_original_without_a_manifest_refuses_and_keeps_it(self):
+        self.write(SETTINGS, b'{}\n')
+        self.write(ORIGINAL, b'left over\n')
+        before = snapshot(self.root)
+        with self.assertRaises(AlreadyInitialized) as caught:
+            init(self.root)
+        self.assertIn(ORIGINAL, str(caught.exception))
+        self.assertEqual(snapshot(self.root), before)
+
+    def test_a_failed_write_after_the_settings_puts_them_back(self):
+        self.write(SETTINGS, b'{"model": "x"}\r\n')
+        before = snapshot(self.root)
+        real = os.replace
+
+        def replace(source, destination):
+            if Path(destination).name == 'integration-specialist.toml':
+                raise OSError('disk full')
+            return real(source, destination)
+
+        for stand_in in (mock.patch('os.replace', replace),
+                         mock.patch('youngcrow.install.save', side_effect=OSError('disk full'))):
+            with self.subTest(stand_in=stand_in), stand_in, self.assertRaises(OSError):
+                init(self.root)
+            self.assertEqual(snapshot(self.root), before)
+
+    def test_undo_of_edited_existing_settings_takes_out_only_our_keys(self):
+        original = b'{\r\n  "enabledPlugins": {"other@x": true},\r\n  "model": "opus"\r\n}\r\n'
+        self.write(SETTINGS, original)
+        init(self.root)
+        path = self.root / SETTINGS
+        path.write_bytes(path.read_bytes().replace(b'"opus"', b'"sonnet"'))
+        preview = undo(self.root)
+        report = undo(self.root, confirm=True)
+        self.assertEqual(report.to_json(), preview.to_json())
+        self.assertEqual(path.read_bytes(), b'{\r\n  "enabledPlugins": {\r\n    "other@x": true\r\n  },\r\n'
+                                            b'  "model": "sonnet"\r\n}\r\n')
+        self.assertIn(SETTINGS, report.kept_modified)
+        self.assertNotIn(SETTINGS, report.written)
+        self.assertIn(ORIGINAL, report.removed)
+        self.assertFalse((self.root / '.youngcrow').exists())
+
+    def test_undo_leaves_settings_the_user_made_unreadable(self):
+        for existed in (False, True):
+            with self.subTest(existed=existed):
+                if existed:
+                    self.write(SETTINGS, b'{"model": "x"}\n')
+                init(self.root)
+                (self.root / SETTINGS).write_bytes(b'{broken')
+                report = undo(self.root, confirm=True)
+                self.assertEqual((self.root / SETTINGS).read_bytes(), b'{broken')
+                self.assertIn(SETTINGS, report.kept_modified)
+                self.assertEqual(snapshot(self.root), {'.claude': None, SETTINGS: b'{broken'})
+                (self.root / SETTINGS).unlink()
+
+    def test_undo_writes_an_empty_object_when_only_our_keys_are_left_in_an_edited_file(self):
+        init(self.root, client='claude')
+        path = self.root / SETTINGS
+        path.write_text(json.dumps(WIRING) + '\n')  # the same keys, laid out on one line
+        report = undo(self.root, confirm=True)
+        self.assertEqual(path.read_bytes(), b'{}\n')
+        self.assertIn(SETTINGS, report.kept_modified)
+
+    def test_undo_without_a_trustworthy_original_takes_out_only_our_keys(self):
+        self.write(SETTINGS, b'{"model": "x"}')
+        init(self.root)
+        (self.root / ORIGINAL).write_bytes(b'{"model": "changed by hand"}')
+        report = undo(self.root, confirm=True)
+        self.assertEqual(json.loads((self.root / SETTINGS).read_bytes()), {'model': 'x'})
+        self.assertIn(SETTINGS, report.written)
+        self.assertIn(ORIGINAL, report.kept_modified)
+        self.assertEqual((self.root / ORIGINAL).read_bytes(), b'{"model": "changed by hand"}')
+
+    def test_undo_keeps_a_codex_agent_the_user_edited(self):
+        init(self.root)
+        agent = self.root / AGENT
+        agent.write_bytes(agent.read_bytes() + b'# mine\n')
+        report = undo(self.root, confirm=True)
+        self.assertIn(AGENT, report.kept_modified)
+        self.assertTrue(agent.read_bytes().endswith(b'# mine\n'))
 
     # Files the caller asks init to remove first (`migrate`), in the same all-or-nothing run.
 
